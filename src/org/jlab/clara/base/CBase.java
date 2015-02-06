@@ -1,4 +1,4 @@
-package base;
+package org.jlab.clara.base;
 
 import org.jlab.coda.xmsg.core.xMsg;
 import org.jlab.coda.xmsg.core.xMsgCallBack;

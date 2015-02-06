@@ -198,11 +198,16 @@
     <jar destfile="${basedir}/lib/jClara-1.0.jar" basedir="${basedir}/out/production/jclara-1.0"/>
   </target>
 
+
+  <target name="delete.jar" description="delete clara jar in a global location">
+    <delete file="${global.jar.location}/jClara-1.0.jar"/>
+  </target>
+
   <target name="copy.jar" description="copy Clara jar to a global location">
     <copy file="${basedir}/lib/jClara-1.0.jar" todir="${global.jar.location}"/>
   </target>
 
-  <target name="clean" depends="clean.module.jclara-1.0" description="cleanup all"/>
+  <target name="clean" depends="delete.jar, clean.module.jclara-1.0" description="cleanup all"/>
   
   <target name="build.modules" depends="init, clean, compile.module.jclara-1.0" description="build all modules"/>
   

@@ -1,4 +1,4 @@
-package util;
+package org.jlab.clara.util;
 
 import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.excp.xMsgException;

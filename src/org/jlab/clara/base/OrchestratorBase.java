@@ -1,11 +1,11 @@
-package base;
+package org.jlab.clara.base;
 
+import org.jlab.clara.util.CUtility;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.data.xMsgR.xMsgRegistrationData;
 import org.jlab.coda.xmsg.excp.xMsgException;
-import util.CUtility;
 
 import java.net.SocketException;
 import java.util.ArrayList;

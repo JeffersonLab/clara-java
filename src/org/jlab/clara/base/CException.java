@@ -1,4 +1,4 @@
-package base;
+package org.jlab.clara.base;
 
 /**
  * Simple exception class

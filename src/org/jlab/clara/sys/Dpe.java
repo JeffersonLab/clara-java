@@ -1,10 +1,10 @@
-package sys;
+package org.jlab.clara.sys;
 
+import org.jlab.clara.util.CUtility;
 import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.data.xMsgD;
 import org.jlab.coda.xmsg.excp.xMsgException;
 import org.jlab.coda.xmsg.xsys.xMsgNode;
-import util.CUtility;
 
 import java.net.SocketException;
 import java.util.List;
@@ -35,6 +35,7 @@ public class Dpe {
         if(args.length == 2){
             if (args[0].equals("-fe_host")){
                 try {
+                    printLogo();
                     new xMsgNode(args[1]);
                 } catch (xMsgException e) {
                     System.out.println(e.getMessage());
@@ -45,12 +46,17 @@ public class Dpe {
             }
         } else if(args.length == 0){
             try {
+                printLogo();
                 new xMsgNode();
             } catch (xMsgException e) {
                 System.out.println(e.getMessage());
                 System.out.println("exiting...");
             }
         }
+
+    }
+
+    private static void printLogo(){
         System.out.println("================================");
         System.out.println("             CLARA DPE        ");
         System.out.println("================================");
@@ -64,7 +70,5 @@ public class Dpe {
             e.printStackTrace();
         }
         System.out.println("================================");
-
     }
-
 }

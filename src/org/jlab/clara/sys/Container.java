@@ -1,14 +1,14 @@
-package sys;
+package org.jlab.clara.sys;
 
-import base.CBase;
-import base.CException;
+import org.jlab.clara.base.CBase;
+import org.jlab.clara.base.CException;
+import org.jlab.clara.util.CUtility;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.excp.xMsgException;
 import org.jlab.coda.xmsg.net.xMsgConnection;
-import util.CUtility;
 
 import java.net.SocketException;
 import java.util.HashMap;
@@ -232,7 +232,7 @@ public class Container extends CBase {
                                       public void run() {
                                           try {
                                               ser.process(op, dataType, data, -1);
-                                          } catch (CException | xMsgException | SocketException | InterruptedException e) {
+                                          } catch (xMsgException | SocketException | InterruptedException | CException e) {
                                               e.printStackTrace();
                                           }
                                       }

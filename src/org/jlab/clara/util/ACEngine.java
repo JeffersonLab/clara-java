@@ -1,4 +1,4 @@
-package util;
+package org.jlab.clara.util;
 
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.data.xMsgD;

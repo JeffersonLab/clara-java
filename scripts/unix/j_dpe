@@ -1,0 +1,19 @@
+#!/bin/sh -f
+
+# author gurjyan
+# date 2.7.15
+
+export CLASSPATH="$CLARA_JARS/*"
+
+
+cd "$PCLARA_HOME/src/sys"
+
+if [ "$1" == "-h" ] || [ "$1" == "-help" ]; then
+    echo ""
+    echo "Starts CLARA dpe (java binding)"
+    echo "-------------------------------- "
+    echo "synopsis: j_dpe"
+    echo ""
+else
+java  -XX:+UnlockCommercialFeatures -XX:+FlightRecorder org.jlab.clara.sys.Dpe
+fi

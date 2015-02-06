@@ -1,4 +1,4 @@
-package sys;
+package org.jlab.clara.sys;
 
 import org.jlab.coda.xmsg.core.xMsgConstants;
 
