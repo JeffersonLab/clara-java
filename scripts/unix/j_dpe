@@ -6,8 +6,6 @@
 export CLASSPATH="$CLARA_JARS/*"
 
 
-cd "$PCLARA_HOME/src/sys"
-
 if [ "$1" == "-h" ] || [ "$1" == "-help" ]; then
     echo ""
     echo "Starts CLARA dpe (java binding)"

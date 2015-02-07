@@ -5,6 +5,7 @@ import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.data.xMsgR.xMsgRegistrationData;
+import org.jlab.coda.xmsg.excp.xMsgDiscoverException;
 import org.jlab.coda.xmsg.excp.xMsgException;
 import org.jlab.coda.xmsg.net.xMsgAddress;
 import org.jlab.coda.xmsg.net.xMsgConnection;
@@ -35,7 +36,7 @@ public class CBase extends xMsg {
      * @param feHost the host name of the Clara FE
      * @throws xMsgException
      */
-    public CBase(String feHost) throws xMsgException {
+    public CBase(String feHost) throws xMsgException, SocketException {
         super(feHost);
 
         // Create a socket connections to the xMsg node.
@@ -50,7 +51,7 @@ public class CBase extends xMsg {
      * @param feHost the host name of the Clara FE
      * @throws xMsgException
      */
-    public CBase(String dpeHost, String feHost) throws xMsgException {
+    public CBase(String dpeHost, String feHost) throws xMsgException, SocketException {
         super(feHost);
 
         // Create a socket connections to the xMsg node.
@@ -66,7 +67,7 @@ public class CBase extends xMsg {
      * @throws xMsgException
      */
     public CBase(String feHost,
-                 int pool_size) throws xMsgException {
+                 int pool_size) throws xMsgException, SocketException {
         super(feHost, pool_size);
 
         // Create a socket connections to the xMsg node.
@@ -79,7 +80,7 @@ public class CBase extends xMsg {
      * Constructor
      * @throws xMsgException
      */
-    public CBase() throws xMsgException {
+    public CBase() throws xMsgException, SocketException {
         super("localhost");
 
         // Create a socket connections to the xMsg node.
@@ -93,7 +94,7 @@ public class CBase extends xMsg {
      * @param pool_size thread pool size for servicing subscription callbacks
      * @throws xMsgException
      */
-    public CBase(int pool_size) throws xMsgException {
+    public CBase(int pool_size) throws xMsgException, SocketException {
         super("localhost", pool_size);
 
         // Create a socket connections to the xMsg node.
@@ -132,7 +133,7 @@ public class CBase extends xMsg {
      * </p>
      *
      * @param service_name the name of the service
-     *                     for which we find input links
+     *                     for which we find input/output links
      * @param composition the string of the composition
      * @param link_direction 0 = input-inked, >0 = output-linked
      * @return the list containing names of linked services
@@ -157,7 +158,7 @@ public class CBase extends xMsg {
         for (String s:elm_list){
             // remove  '&' from the service name
             // (e.g. 129.57.81.247:cont1:&Engine3 to 129.57.81.247:cont1:Engine3
-            if(s.equals("&")){
+            if(s.startsWith("&")){
                 s = s.replace("&","");
             }
             elm2_list.add(s);
@@ -180,22 +181,37 @@ public class CBase extends xMsg {
             if(link_direction==0 && index>0) {
                 // index of the next component in the composition
                 index -= 1;
-            } else {
-                index += 1;
-            }
-            if(elm2_list.size() > index){
-                String element = elm2_list.get(index);
-                // the case to fan out the output of this service
-                if(element.contains(",")){
-                    StringTokenizer st1 = new StringTokenizer(element,",");
-                    while(st1.hasMoreTokens()){
-                        out_list.add(st1.nextToken());
+                    String element = elm2_list.get(index);
+                    // the case to fan out the output of this service
+                    if(element.contains(",")){
+                        StringTokenizer st1 = new StringTokenizer(element,",");
+                        while(st1.hasMoreTokens()){
+                            out_list.add(st1.nextToken());
+                        }
+                    } else {
+                        out_list.add(element);
                     }
-                } else {
-                    out_list.add(element);
+                return out_list;
+            } else if(link_direction > 0){
+                index += 1;
+                if(elm2_list.size() > index){
+                    String element = elm2_list.get(index);
+                    // the case to fan out the output of this service
+                    if(element.contains(",")){
+                        StringTokenizer st1 = new StringTokenizer(element,",");
+                        while(st1.hasMoreTokens()){
+                            out_list.add(st1.nextToken());
+                        }
+                    } else {
+                        out_list.add(element);
+                    }
                 }
+
+                return out_list;
             }
         }
+        // returns empty list. Most likely this service
+        // is the first service in the composition
         return out_list;
     }
 
@@ -281,15 +297,24 @@ public class CBase extends xMsg {
      * @param is_sync if set to true method will block until subscription method is
      *                received and user callback method is returned
      */
-    public void receive(String topic,
-                        xMsgCallBack call_back,
-                        boolean is_sync)
+    public void serviceReceive(String topic,
+                               xMsgCallBack call_back,
+                               boolean is_sync)
             throws xMsgException {
 
+        String dpe = xMsgUtil.getTopicDomain(topic);
+        String container = "*";
+        String engine = "*";
+        if(!xMsgUtil.getTopicSubject(topic).equals(xMsgConstants.UNDEFINED.getStringValue())){
+            container = xMsgUtil.getTopicSubject(topic);
+        }
+        if(!xMsgUtil.getTopicType(topic).equals(xMsgConstants.UNDEFINED.getStringValue())){
+            engine = xMsgUtil.getTopicType(topic);
+        }
         subscribe(node_connection,
-                xMsgUtil.getTopicDomain(topic),
-                xMsgUtil.getTopicSubject(topic),
-                xMsgUtil.getTopicType(topic),
+                dpe,
+                container,
+                engine,
                 call_back,
                 is_sync);
     }
@@ -310,16 +335,26 @@ public class CBase extends xMsg {
      * @param is_sync if set to true method will block until subscription method is
      *                received and user callback method is returned
      */
-    public void receive(xMsgConnection connection,
-                        String topic,
-                        xMsgCallBack call_back,
-                        boolean is_sync)
+    public void serviceReceive(xMsgConnection connection,
+                               String topic,
+                               xMsgCallBack call_back,
+                               boolean is_sync)
             throws xMsgException {
 
+        String dpe = xMsgUtil.getTopicDomain(topic);
+        String container = "*";
+        String engine = "*";
+        if(!xMsgUtil.getTopicSubject(topic).equals(xMsgConstants.UNDEFINED.getStringValue())){
+            container = xMsgUtil.getTopicSubject(topic);
+        }
+        if(!xMsgUtil.getTopicType(topic).equals(xMsgConstants.UNDEFINED.getStringValue())){
+            engine = xMsgUtil.getTopicType(topic);
+        }
+
         subscribe(connection,
-                xMsgUtil.getTopicDomain(topic),
-                xMsgUtil.getTopicSubject(topic),
-                xMsgUtil.getTopicType(topic),
+                dpe,
+                container,
+                engine,
                 call_back,
                 is_sync);
     }
@@ -331,14 +366,23 @@ public class CBase extends xMsg {
      * @param topic Clara service canonical name
      * @param data xMsgD.Data object
      */
-    public void send(String topic,
-                     Object data)
+    public void serviceSend(String topic,
+                            Object data)
             throws xMsgException {
 
+        String dpe = xMsgUtil.getTopicDomain(topic);
+        String container = "*";
+        String engine = "*";
+        if(!xMsgUtil.getTopicSubject(topic).equals(xMsgConstants.UNDEFINED.getStringValue())){
+            container = xMsgUtil.getTopicSubject(topic);
+        }
+        if(!xMsgUtil.getTopicType(topic).equals(xMsgConstants.UNDEFINED.getStringValue())){
+            engine = xMsgUtil.getTopicType(topic);
+        }
         publish(node_connection,
-                xMsgUtil.getTopicDomain(topic),
-                xMsgUtil.getTopicSubject(topic),
-                xMsgUtil.getTopicType(topic),
+                dpe,
+                container,
+                engine,
                 data);
     }
 
@@ -352,16 +396,134 @@ public class CBase extends xMsg {
      * @param topic Clara service canonical name
      * @param data xMsgD.Data object
      */
-    public void send(xMsgConnection connection,
-                     String topic,
-                     Object data)
+    public void serviceSend(xMsgConnection connection,
+                            String topic,
+                            Object data)
+            throws xMsgException {
+
+        String dpe = xMsgUtil.getTopicDomain(topic);
+        String container = "*";
+        String engine = "*";
+        if(!xMsgUtil.getTopicSubject(topic).equals(xMsgConstants.UNDEFINED.getStringValue())){
+            container = xMsgUtil.getTopicSubject(topic);
+        }
+        if(!xMsgUtil.getTopicType(topic).equals(xMsgConstants.UNDEFINED.getStringValue())){
+            engine = xMsgUtil.getTopicType(topic);
+        }
+        publish(connection,
+                dpe,
+                container,
+                engine,
+                data);
+    }
+
+    /**
+     * <p>
+     *     This method simply calls xMsg subscribe method
+     *     passing the reference to user provided call_back method.
+     *     In this case topic is not bound to follow Clara
+     *     service naming convention.
+     * </p>
+     *
+     * @param topic Service canonical name that this
+     *              method will subscribe or listen
+     * @param call_back User provided call_back function
+     * @param is_sync if set to true method will block until subscription method is
+     *                received and user callback method is returned
+     */
+    public void genericReceive(String topic,
+                               xMsgCallBack call_back,
+                               boolean is_sync)
+            throws xMsgException {
+
+        subscribe(node_connection,
+                topic,
+                call_back,
+                is_sync);
+    }
+
+    /**
+     * <p>
+     *     This method simply calls xMsg subscribe method
+     *     passing the reference to user provided call_back method.
+     *     The only difference is that this method requires a
+     *     connection socket different than the default socket connection
+     *     to the local dpe proxy.
+     *     In this case topic is not bound to follow Clara
+     *     service naming convention.
+     * </p>
+     *
+     * @param connection zmq connection socket
+     * @param topic Service canonical name that this
+     *              method will subscribe or listen
+     * @param call_back User provided call_back function
+     * @param is_sync if set to true method will block until subscription method is
+     *                received and user callback method is returned
+     */
+    public void genericReceive(xMsgConnection connection,
+                               String topic,
+                               xMsgCallBack call_back,
+                               boolean is_sync)
+            throws xMsgException {
+
+        subscribe(connection,
+                topic,
+                call_back,
+                is_sync);
+    }
+
+    /**
+     * <p>
+     *      Sends xMsgD.Data or a String object to a generic
+     *      subscriber of an arbitrary topic.
+     *      In this case topic is not bound to follow Clara
+     *      service naming convention.
+     * </p>
+     *
+     * @param topic Clara service canonical name
+     * @param data xMsgD.Data object
+     */
+    public void genericSend(String topic,
+                            Object data)
+            throws xMsgException {
+
+        publish(node_connection,
+                topic,
+                data);
+    }
+
+    /**
+     * <p>
+     *      Sends xMsgD.Data or a String object to a generic
+     *      subscriber of an arbitrary topic.
+     *      In this case topic is not bound to follow Clara
+     *      service naming convention.
+     *      In this method requires zmq connection object,
+     *      and will not use default local dpe proxy connection.
+     * </p>
+     * @param connection zmq connection socket
+     * @param topic Clara service canonical name
+     * @param data xMsgD.Data object
+     */
+    public void genericSend(xMsgConnection connection,
+                            String topic,
+                            Object data)
             throws xMsgException {
 
         publish(connection,
-                xMsgUtil.getTopicDomain(topic),
-                xMsgUtil.getTopicSubject(topic),
-                xMsgUtil.getTopicType(topic),
+                topic,
                 data);
+    }
+
+    public boolean isServiceDeployed(String requester,
+                                     String dpe,
+                                     String container,
+                                     String engine)
+            throws xMsgDiscoverException {
+        return isThereLocalSubscriber(requester,
+                dpe,
+                container,
+                engine);
     }
 
 }

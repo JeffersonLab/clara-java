@@ -1,9 +1,11 @@
 package org.jlab.clara.base;
 
+import org.jlab.clara.util.CConstants;
 import org.jlab.clara.util.CUtility;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgUtil;
+import org.jlab.coda.xmsg.data.xMsgD;
 import org.jlab.coda.xmsg.data.xMsgR.xMsgRegistrationData;
 import org.jlab.coda.xmsg.excp.xMsgException;
 
@@ -24,18 +26,17 @@ import java.util.StringTokenizer;
  */
 public class OrchestratorBase extends CBase {
 
-    public OrchestratorBase(String name)
-            throws xMsgException {
+    public OrchestratorBase()
+            throws xMsgException, SocketException {
         super();
-        setName(name + (int) (Math.random() * 100.0));
+        setName("orchestrator" + (int) (Math.random() * 100.0));
     }
 
-    public OrchestratorBase(String name,
-                            String dpeHost,
+    public OrchestratorBase(String dpeHost,
                             String feHost)
-            throws xMsgException {
+            throws xMsgException, SocketException {
         super(dpeHost, feHost);
-        setName(name + (int) (Math.random() * 100.0));
+        setName("orchestrator" + (int) (Math.random() * 100.0));
     }
 
     /**
@@ -171,7 +172,7 @@ public class OrchestratorBase extends CBase {
      *    and asks platform Discovery service to see if composition
      *    engines are deployed as services and returns composition
      *    with service canonical names. If at least one service is not
-     *    deployed this method throw CException.
+     *    deployed this method throws CException.
      *
      * </p>
      * @return canonical name of the application composition
@@ -216,27 +217,119 @@ public class OrchestratorBase extends CBase {
                     st = new StringTokenizer(se, ",");
                     StringBuilder or_can = new StringBuilder();
                     while(st.hasMoreTokens()) {
-                        String can = get_service_by_engine(st.nextToken()).get(0).getName();
+                        List<xMsgRegistrationData> tsn = get_service_by_engine(st.nextToken());
+                        if(tsn.size()<=0){
+                            throw new CException("no registration record fond");
+                        }
+                        String can = tsn.get(0).getName();
                         or_can.append(can).append(",");
                     }
                     // remove the last character and add
                     // to the sub canonical composition
-                    sub_can_comp.append(or_can.substring(0, or_can.capacity()-1)).append("+");
+                    sub_can_comp.append(or_can.substring(0, or_can.length()- 1)).append("+");
 
                     // logical AND case. (a,b+&c)
                 } else if (se.startsWith("&")){
+                    if(get_service_by_engine(CUtility.remove_first(se)).size()<=0){
+                        throw new CException("no registration record fond");
+                    }
                     String can = get_service_by_engine(CUtility.remove_first(se)).get(0).getName();
-                    sub_can_comp.append("&").append(can);
+                    sub_can_comp.append("&").append(can).append("+");
 
                     // single engine case (a+b)
                 } else {
+
+                    if(get_service_by_engine(se).size()<=0){
+                        throw new CException("no registration record fond");
+                    }
                     String can = get_service_by_engine(se).get(0).getName();
-                    sub_can_comp.append(can);
+                    sub_can_comp.append(can).append("+");
                 }
             }
-            can_comp.append(sub_can_comp.toString()).append(";");
+            String str_sub_can_comp = CUtility.remove_last( sub_can_comp.toString());
+                    can_comp.append(str_sub_can_comp).append(";");
         }
         return CUtility.remove_last(can_comp.toString());
+    }
+
+    /**
+     * <p>
+     *     Parses composition string and returns the names of
+     *     all services participating in the application.
+     *     Note. services in the composition must have canonical names.
+     * </p>
+     * @param composition application canonical composition
+     * @return List of service canonical names
+     * @throws xMsgException
+     * @throws CException
+     * @throws SocketException
+     */
+    public List<String> getAllServiceNames(String composition)
+            throws xMsgException, CException, SocketException {
+
+         List<String> result = new ArrayList<>();
+
+        // find branching compositions in supplied composition string
+        StringTokenizer st = new StringTokenizer(composition, ";");
+
+        // List of sub compositions, i.e. branched compositions
+        List<String> sub_comps = new ArrayList<>();
+        while(st.hasMoreTokens()){
+            sub_comps.add(st.nextToken());
+        }
+
+        // Go over the sub compositions
+        for (String sb:sub_comps){
+
+            // Find participating services engine names in the composition
+            st = new StringTokenizer(sb, "+");
+
+            // List of service names within the sub composition
+            List<String> se_list = new ArrayList<>();
+            while(st.hasMoreTokens()){
+                se_list.add(st.nextToken());
+            }
+
+            // Go over engine names with the sub composition
+            for(String se:se_list){
+
+                // Check to see if we have multiple
+                // service outputs as an input to a
+                // service, i.e. logical OR (a+c,b)
+                if(se.contains(",")){
+                    st = new StringTokenizer(se, ",");
+                    while(st.hasMoreTokens()) {
+                        result.add(st.nextToken());
+                     }
+
+                    // logical AND case. (a,b+&c)
+                } else if (se.startsWith("&")){
+                    String can = CUtility.remove_first(se);
+                    result.add(can);
+
+                    // single engine case (a+b)
+                } else {
+                    result.add(se);
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
+     * <p>
+     *     Gets first service name (Clara canonical name)
+     *     of the application composition.
+     * </p>
+     * @param composition application composition
+     * @return Canonical name of the service
+     * @throws xMsgException
+     * @throws CException
+     * @throws SocketException
+     */
+    public String getFirstServiceName(String composition)
+            throws xMsgException, CException, SocketException {
+        return getAllServiceNames(composition).get(0);
     }
 
     /**
@@ -254,11 +347,11 @@ public class OrchestratorBase extends CBase {
                               int severity_id,
                               boolean is_sync) throws xMsgException {
         if(severity_id>0 && severity_id<4) {
-            receive(xMsgConstants.ERROR.getStringValue() + ":" + severity_id,
+            genericReceive(xMsgConstants.ERROR.getStringValue() + ":" + severity_id,
                     call_back,
                     is_sync);
         } else {
-            receive(xMsgConstants.ERROR.getStringValue(),
+            genericReceive(xMsgConstants.ERROR.getStringValue(),
                     call_back,
                     is_sync);
         }
@@ -279,11 +372,11 @@ public class OrchestratorBase extends CBase {
                                 int severity_id,
                                 boolean is_sync) throws xMsgException {
         if(severity_id>0 && severity_id<4) {
-            receive(xMsgConstants.WARNING.getStringValue() + ":" + severity_id,
+            genericReceive(xMsgConstants.WARNING.getStringValue() + ":" + severity_id,
                     call_back,
                     is_sync);
         } else {
-            receive(xMsgConstants.WARNING.getStringValue(),
+            genericReceive(xMsgConstants.WARNING.getStringValue(),
                     call_back,
                     is_sync);
         }
@@ -304,7 +397,7 @@ public class OrchestratorBase extends CBase {
      */
     public void listen_infos(xMsgCallBack call_back,
                              boolean is_sync) throws xMsgException {
-        receive(xMsgConstants.INFO.getStringValue(),
+        genericReceive(xMsgConstants.INFO.getStringValue(),
                 call_back,
                 is_sync);
     }
@@ -329,7 +422,7 @@ public class OrchestratorBase extends CBase {
                                   boolean is_sync)
             throws xMsgException, CException {
         if(severity_id>0 && severity_id<4) {
-            receive(xMsgConstants.ERROR.getStringValue() + ":" +
+            genericReceive(xMsgConstants.ERROR.getStringValue() + ":" +
                             severity_id + ":" +
                             sName,
                     call_back,
@@ -359,7 +452,7 @@ public class OrchestratorBase extends CBase {
                                     boolean is_sync)
             throws xMsgException, CException {
         if(severity_id>0 && severity_id<4) {
-            receive(xMsgConstants.WARNING.getStringValue() + ":" +
+            genericReceive(xMsgConstants.WARNING.getStringValue() + ":" +
                             severity_id + ":" +
                             sName,
                     call_back,
@@ -385,10 +478,89 @@ public class OrchestratorBase extends CBase {
                                  xMsgCallBack call_back,
                                  boolean is_sync)
             throws xMsgException{
-        receive(xMsgConstants.WARNING.getStringValue() + ":" +
+        genericReceive(xMsgConstants.INFO.getStringValue() + ":" +
                         sName,
                 call_back,
                 is_sync);
+    }
+
+    /**
+     * <p>
+     *     Asks DPE to start a container
+     * </p>
+     *
+     * @param dpeName DPE canonical name, i.e. IP
+     *                of the host where DPE is running
+     * @param containerName user given name of the service container
+     * @throws xMsgException
+     */
+    public void start_container(String dpeName,
+                                String containerName)
+            throws xMsgException {
+
+        genericSend(CConstants.DPE + ":" + dpeName,
+                CConstants.START_CONTAINER + "?" + containerName);
+
+    }
+
+    /**
+     * Asks container to deploy a service
+     * @param containerName canonical name of the container
+     * @param engineName user specified engine name, i.e. engine class name
+     * @param objectPoolSize object pool size to hold required
+     *                       service objects for multi-threading
+     * @throws xMsgException
+     */
+    public void start_service(String containerName,
+                              String engineName,
+                              int objectPoolSize)
+            throws xMsgException {
+
+        genericSend(CConstants.CONTAINER + ":" + containerName,
+                CConstants.DEPLOY_SERVICE + "?" + engineName + "?" + objectPoolSize);
+
+    }
+
+    /**
+     * <p>
+     *     Sends the receiving service
+     *     string = CConstants.RUN_SERVICE.
+     *     The name can be a canonical name of
+     *     a service or service engine name.
+     * </p>
+     *
+     * @param name canonical name or engine
+     *             name of a service
+     * @param data xMsgD.Data.Builder object
+     *
+     * @throws xMsgException
+     */
+    public void run_service(String name,
+                            xMsgD.Data.Builder data)
+            throws xMsgException, CException {
+
+        // Check the passed service name
+        if(!name.contains(":")) {
+             throw new CException("not a canonical name");
+        }
+        serviceSend(name, data);
+
+    }
+
+    /**
+     * Asks container to deploy a service
+     *
+     * @param containerName canonical name of the container
+     * @param serviceName canonical name of the service
+     * @throws xMsgException
+     */
+    public void stop_service(String containerName,
+                              String serviceName)
+            throws xMsgException {
+
+        genericSend(CConstants.CONTAINER + ":" +containerName,
+                CConstants.REMOVE_SERVICE + "?" +serviceName);
+
     }
 
 }

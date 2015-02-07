@@ -2,19 +2,20 @@ package org.jlab.clara.sys;
 
 import org.jlab.clara.base.CBase;
 import org.jlab.clara.base.CException;
+import org.jlab.clara.util.CConstants;
 import org.jlab.clara.util.CUtility;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
-import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.excp.xMsgException;
-import org.jlab.coda.xmsg.net.xMsgConnection;
 
 import java.net.SocketException;
 import java.util.HashMap;
+import java.util.NoSuchElementException;
+import java.util.StringTokenizer;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -34,15 +35,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Container extends CBase {
 
     // Map containing object pools for every service in the container
-    private HashMap<String, LinkedBlockingDeque<Service>>
+    private HashMap<String, LinkedBlockingQueue<Service>>
             _objectPoolMap = new HashMap<>();
 
     // Map of thread pools for every service in the container
     private HashMap<String, ExecutorService>
             _threadPoolMap = new HashMap<>();
-
-    // Socket connections to the local proxy and to the FE if requested
-    private xMsgConnection proxy_connection;
 
     private String fe_host =
             xMsgConstants.UNDEFINED.getStringValue();
@@ -55,22 +53,37 @@ public class Container extends CBase {
      *     Constructor
      * </p>
      *
-     * @param name given name of the service. This can be Clara
-     *             service canonical name (such as dep:container:engine),
-     *             or simply the engine name of a service.
+     * @param name Clara service canonical name (such as dep:container:engine)
      * @param feHost front-end host name. This is the host that holds
      *               centralized registration database.
      * @throws xMsgException
      */
     public Container(String name,
                      String feHost)
-            throws xMsgException {
+            throws xMsgException, SocketException {
         super(feHost);
         this.fe_host = feHost;
-        setName(CUtility.form_container_name(name));
+
+        setName(name);
 
         // Create a socket connections to the local dpe proxy
-        proxy_connection =  connect();
+        connect();
+
+        System.out.println(CUtility.getCurrentTimeInH()+": Started container = "+getName());
+
+        Thread t1 = new Thread(new Runnable() {
+            public void run() {
+                // Subscribe messages published to this container
+                try {
+                    genericReceive(CConstants.CONTAINER + ":" + getName(),
+                            new ContainerCallBack(),
+                            true);
+                } catch (xMsgException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        t1.start();
     }
 
     /**
@@ -78,18 +91,35 @@ public class Container extends CBase {
      *     Constructor
      * </p>
      *
-     * @param name given name of the service. This can be Clara
-     *             service canonical name (such as dep:container:engine),
-     *             or simply the engine name of a service.
+     * @param name  Clara service canonical name (such as dep:container:engine)
+     *
      * @throws xMsgException
      */
     public Container(String name)
-            throws xMsgException {
+            throws xMsgException, SocketException {
         super();
-        setName(CUtility.form_container_name(name));
+
+        setName(name);
 
         // Create a socket connections to the local dpe proxy
-        proxy_connection =  connect();
+        connect();
+
+        System.out.println(CUtility.getCurrentTimeInH()+": Started container = "+getName());
+
+        Thread t1 = new Thread(new Runnable() {
+            public void run() {
+                // Subscribe messages published to this container
+                try {
+                    genericReceive(CConstants.CONTAINER + ":" + getName(),
+                            new ContainerCallBack(),
+                            true);
+                } catch (xMsgException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        t1.start();
+
     }
 
 
@@ -102,72 +132,69 @@ public class Container extends CBase {
      *     does not then the passed string is the service
      *     engine name.
      *     Create thread pool to run requested service objects
-     *     Create object pool to hold objects of this requested service
+     *     Create object pool to hold objects of this requested service.
+     *     Object pool size is set to be 2 in case it was requested
+     *     to be 0 or negative number.
      * </p>
-     * @param name
-     * @param objectPoolSize
+     *
+     * @param packageName service engine package name
+     * @param name service engine class name
+     * @param objectPoolSize size of the object pool
      */
-    public void addService(String name,
+    public void addService(String packageName,
+                           String name,
                            int objectPoolSize)
-            throws xMsgException, SocketException {
+            throws CException, xMsgException, SocketException, IllegalAccessException, ClassNotFoundException, InstantiationException {
 
-        // Check the passed service name
-        if(!name.contains(":")) {
-            try {
-                name = CUtility.form_service_name("localhost",
-                        getName(),
-                        name);
-            } catch (xMsgException e) {
-                e.printStackTrace();
-            }
-        }
+
+        // We need final variables to pass
+        // abstract method implementation
+        final String canonical_name = getName() + ":" + name;
+        final String fe = fe_host;
 
         // Define the key in the shared
         // memory map (defined in the DPE).
         int id = uniqueId.incrementAndGet();
-        String sharedMemoryLocation = name+id;
+        String sharedMemoryLocation = canonical_name+id;
+
+
+        // Object pool size is set to be 2 in case
+        // it was requested to be 0 or negative number.
+        if(objectPoolSize <= 0) {
+            objectPoolSize = 1;
+        }
 
         // Creating thread pool
-        _threadPoolMap.put(name, Executors.newFixedThreadPool(objectPoolSize));
-
-        // We need final variables to pass
-        // abstract method implementation
-        final String n = name;
-        final String fe = fe_host;
+        _threadPoolMap.put(canonical_name, Executors.newFixedThreadPool(objectPoolSize));
 
         // Creating object pool
-        LinkedBlockingDeque<Service> lbq = new LinkedBlockingDeque<>(objectPoolSize);
+        LinkedBlockingQueue<Service> lbq = new LinkedBlockingQueue<>(objectPoolSize);
 
         // Fill the object pool
         for(int i=0; i<objectPoolSize; i++){
             Service service;
 
             // Create an object of the Service class by passing
-            // service name as a parameter
+            // service name as a parameter. service name = canonical
+            // name of this container + engine name of a service
             if(fe_host.equals(xMsgConstants.UNDEFINED.getStringValue())) {
-                service =  new Service(n, sharedMemoryLocation);
+                service =  new Service(packageName, canonical_name, sharedMemoryLocation);
             } else {
-                service =  new Service(n, sharedMemoryLocation, fe);
+                service =  new Service(packageName, canonical_name, sharedMemoryLocation, fe);
             }
             // add object to the pool
             lbq.add(service);
         }
 
         // Add the object pool to the pools map
-        _objectPoolMap.put(name, lbq);
+        _objectPoolMap.put(canonical_name, lbq);
 
-        // Subscribe messages published to this service
-        subscribe(proxy_connection,
-                xMsgUtil.getTopicDomain(getName()),
-                xMsgUtil.getTopicSubject(getName()),
-                xMsgUtil.getTopicType(getName()),
-                new ServiceCallBack(),
-                true);
+        new ServiceDispatcher(canonical_name);
 
     }
 
     public void removeService(String name)
-            throws xMsgException, InterruptedException {
+            throws xMsgException, InterruptedException, CException {
 
         // Check to see if the passed name is a canonical
         // name of a service or just a service engine name
@@ -176,32 +203,104 @@ public class Container extends CBase {
         // does not then the passed string is the service
         // engine name.
         if(!name.contains(":")) {
-            try {
-                name = CUtility.form_service_name("localhost",
-                        getName(),
-                        name);
-            } catch (xMsgException e) {
-                e.printStackTrace();
-            }
+            throw new CException("not a canonical names");
         }
 
-        // clear and shut down thread pool for the requested service
-        ExecutorService threadPool = _threadPoolMap.get(name);
-        threadPool.shutdown();
-        _threadPoolMap.remove(name);
+        if(_threadPoolMap.containsKey(name)) {
+            // clear and shut down thread pool for the requested service
+            ExecutorService threadPool = _threadPoolMap.get(name);
+            threadPool.shutdown();
+            _threadPoolMap.remove(name);
+        }
 
-        // Clear object pool of a service by calling dispose
-        // method of a service (for every service object
-        // in the pool)
-        LinkedBlockingDeque op = _objectPoolMap.get(name);
-        Service ser = (Service)op.take();
+        if(_objectPoolMap.containsKey(name)) {
+            // Clear object pool of a service by calling dispose
+            // method of a service (for every service object
+            // in the pool)
+            LinkedBlockingQueue op = _objectPoolMap.get(name);
+            Service ser = (Service) op.take();
 
-        // remove registration of a service and exit
-        ser.dispose();
+            // remove registration of a service and exit
+            ser.dispose();
 
-        // dispose the object pool for the service
-        op.clear();
+            // dispose the object pool for the service
+            op.clear();
+        }
 
+    }
+
+    private class ContainerCallBack implements xMsgCallBack {
+
+        @Override
+        // This method serves to start/deploy a service on
+        // this container. In the future it will report
+        // service specific statistics on a request
+        public void callback(xMsgMessage msg) {
+
+            final String dataType = msg.getDataType();
+            final Object data = msg.getData();
+            if(dataType.equals(xMsgConstants.ENVELOPE_DATA_TYPE_STRING.getStringValue())) {
+//                System.out.println("DDD: container_request: " + msg);
+                String cmdData = (String)data;
+                String cmd = null, seName = null, objectPoolSize = null;
+                try {
+                    StringTokenizer st = new StringTokenizer(cmdData, "?");
+                    cmd = st.nextToken();
+                    seName = st.nextToken();
+                    objectPoolSize = st.nextToken();
+                } catch (NoSuchElementException e){
+                    e.printStackTrace();
+                }
+                if(cmd!=null && seName!=null) {
+                    switch (cmd) {
+                        case CConstants.DEPLOY_SERVICE:
+                            if(objectPoolSize==null){
+                                objectPoolSize = "1";
+                            }
+                            try {
+                                String packageName = seName.substring(0,seName.lastIndexOf("."));
+                                String className = seName.substring((seName.lastIndexOf("."))+1, seName.length());
+
+                                addService(packageName, className, Integer.parseInt(objectPoolSize));
+                            } catch (xMsgException | NumberFormatException | CException |
+                                    SocketException | ClassNotFoundException |
+                                    InstantiationException | IllegalAccessException e) {
+                                e.printStackTrace();
+                            }
+                            break;
+                        case CConstants.REMOVE_SERVICE:
+                            try {
+                                removeService(seName);
+                            } catch (xMsgException | InterruptedException | CException e) {
+                                e.printStackTrace();
+                            }
+                            break;
+                    }
+                }
+            }
+        }
+    }
+
+    private class ServiceDispatcher extends CBase {
+
+        public ServiceDispatcher(final String serviceCanonicalName) throws xMsgException, SocketException {
+            super();
+
+        Thread t1 = new Thread(new Runnable() {
+            public void run() {
+                // Subscribe messages published to this service
+                try {
+                    serviceReceive(serviceCanonicalName,
+                            new ServiceCallBack(),
+                            true);
+                } catch (xMsgException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        t1.start();
+
+        }
     }
 
     private class ServiceCallBack implements xMsgCallBack {
@@ -215,14 +314,15 @@ public class Container extends CBase {
         public void callback(xMsgMessage msg) {
 
             try {
-                String receiver = CUtility.form_service_name(msg.getDomain(),
+                String receiver;
+                receiver = CUtility.form_service_name(msg.getDomain(),
                         msg.getSubject(),
                         msg.getType());
 
                 final String dataType = msg.getDataType();
                 final Object data = msg.getData();
 
-                final LinkedBlockingDeque<Service> op = _objectPoolMap.get(receiver);
+                final LinkedBlockingQueue<Service> op = _objectPoolMap.get(receiver);
 
                 // This will block if there is no available object in the pool
                 final Service ser = op.take();
@@ -240,11 +340,15 @@ public class Container extends CBase {
                 );
 
 
-            } catch (xMsgException | InterruptedException  e) {
+            } catch (CException | InterruptedException  e) {
                 e.printStackTrace();
             }
 
-            System.out.println(msg);
+//            System.out.println("DDD: service_request "+msg);
         }
     }
+
+
+
+
 }

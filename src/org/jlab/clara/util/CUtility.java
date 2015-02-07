@@ -1,5 +1,6 @@
 package org.jlab.clara.util;
 
+import org.jlab.clara.base.CException;
 import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.excp.xMsgException;
 
@@ -29,13 +30,17 @@ public class CUtility {
     public static String form_service_name(String host,
                                            String container,
                                            String engine_name)
-            throws xMsgException {
+            throws CException {
 
-        return xMsgUtil.host_to_ip(host) +
-                ":" +
-                container +
-                ":" +
-                engine_name;
+        try {
+            return xMsgUtil.host_to_ip(host) +
+                    ":" +
+                    container +
+                    ":" +
+                    engine_name;
+        } catch (xMsgException | SocketException e) {
+            throw new CException(e.getMessage());
+        }
     }
 
     /**
@@ -48,13 +53,17 @@ public class CUtility {
      */
     public static String form_service_name(String container,
                                            String engine_name)
-            throws xMsgException {
+            throws CException {
 
-        return xMsgUtil.host_to_ip("localhost") +
-                ":" +
-                container +
-                ":" +
-                engine_name;
+        try {
+            return xMsgUtil.host_to_ip("localhost") +
+                    ":" +
+                    container +
+                    ":" +
+                    engine_name;
+        } catch (xMsgException  | SocketException e) {
+            throw new CException(e.getMessage());
+        }
     }
 
     /**
@@ -67,11 +76,15 @@ public class CUtility {
      */
     public static String form_container_name(String host,
                                            String container)
-            throws xMsgException {
+            throws CException {
 
-        return xMsgUtil.host_to_ip(host) +
-                ":" +
-                container;
+        try {
+            return xMsgUtil.host_to_ip(host) +
+                    ":" +
+                    container;
+        } catch (xMsgException  | SocketException e) {
+            throw new CException(e.getMessage());
+        }
     }
 
     /**
@@ -82,11 +95,15 @@ public class CUtility {
      * @return canonical name of the Clara service
      */
     public static String form_container_name(String container)
-            throws xMsgException {
+            throws CException {
 
-        return xMsgUtil.host_to_ip("localhost") +
-                ":" +
-                container;
+        try {
+            return xMsgUtil.host_to_ip("localhost") +
+                    ":" +
+                    container;
+        } catch (xMsgException  | SocketException e) {
+            throw new CException(e.getMessage());
+        }
     }
 
     /**
@@ -94,16 +111,20 @@ public class CUtility {
      * @param s_name service canonical name (dpe-ip:container:engine)
      *
      * @return true/false
-     * @throws xMsgException
-     * @throws SocketException
+     * @throws CException
      */
     public static Boolean isRemoteService(String s_name)
-            throws xMsgException, SocketException {
+            throws CException {
 
+        try{
         String s_host = xMsgUtil.getTopicDomain(s_name);
         for(String s:xMsgUtil.getLocalHostIps()){
             if(s.equals(s_host)) return true;
         }
+        } catch (xMsgException | SocketException e) {
+            throw new CException(e.getMessage());
+        }
+
         return false;
     }
 
@@ -125,7 +146,7 @@ public class CUtility {
      */
     public static String engineToCanonical(String dpe,
                                            String container,
-                                           String composition) throws xMsgException {
+                                           String composition) throws CException {
 
         // find branching compositions in supplied composition string
         StringTokenizer st = new StringTokenizer(composition, ";");
@@ -234,5 +255,42 @@ public class CUtility {
      */
     public static long getCurrentTimeInMs(){
         return new GregorianCalendar().getTimeInMillis();
+    }
+
+    public static String getDpeName(String canonicalName)
+            throws CException {
+        try {
+            return xMsgUtil.getTopicDomain(canonicalName);
+        } catch (xMsgException e) {
+            throw new CException(e.getMessage());
+        }
+    }
+
+    public static String getContainerCanonicalName(String canonicalName)
+            throws CException {
+        try {
+            return xMsgUtil.getTopicDomain(canonicalName) +
+                    ":" + xMsgUtil.getTopicSubject(canonicalName);
+        } catch (xMsgException e) {
+            throw new CException("wrong dpe and/or container");
+        }
+    }
+
+    public static String getContainerName(String canonicalName)
+            throws CException {
+        try {
+            return xMsgUtil.getTopicSubject(canonicalName);
+        } catch (xMsgException e) {
+            throw new CException(e.getMessage());
+        }
+    }
+
+    public static String getEngineName(String canonicalName)
+            throws CException {
+        try {
+            return xMsgUtil.getTopicType(canonicalName);
+        } catch (xMsgException e) {
+            throw new CException(e.getMessage());
+        }
     }
 }

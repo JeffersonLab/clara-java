@@ -3,6 +3,7 @@ package org.jlab.clara.sys;
 import org.jlab.clara.base.CBase;
 import org.jlab.clara.base.CException;
 import org.jlab.clara.util.ACEngine;
+import org.jlab.clara.util.CClassLoader;
 import org.jlab.clara.util.CUtility;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgUtil;
@@ -14,7 +15,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.StringTokenizer;
-import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.LinkedBlockingQueue;
 
 /**
  * <p>
@@ -91,25 +92,39 @@ public class Service extends CBase {
      * Constructor
      * </p>
      *
-     * @param name   Clara service canonical
-     *               name (such as dep:container:engine)
-     * @param sharedMemoryKey key in the shared memory map of
-     *                        DPE to locate this service resulting data object
+     * @param packageName service engine package name
+     * @param name   Clara service canonical name
+     *               (such as dep:container:engine)
+     * @param sharedMemoryKey key in the shared memory map of DPE to
+     *                        locate this service resulting data object
      * @param feHost front-end host name. This is the host that holds
      *               centralized registration database.
      * @throws xMsgException
      */
-    public Service(String name,
+    public Service(String packageName,
+                   String name,
                    String sharedMemoryKey,
                    String feHost)
-            throws xMsgException {
+            throws xMsgException, CException, SocketException, IllegalAccessException, InstantiationException, ClassNotFoundException {
         super(feHost);
         setName(name);
         this.sharedMemoryKey = sharedMemoryKey;
 
+        this.engine_class_name = packageName+"."+CUtility.getEngineName(getName());
+
+        // Dynamic loading of the Clara engine class
+        // Note: using system class loader
+        CClassLoader cl = new CClassLoader(ClassLoader.getSystemClassLoader());
+        engine_object = cl.load(engine_class_name);
+
+
         // Create a socket connections
         // to the local dpe proxy
         connect();
+
+        System.out.println("\n"+CUtility.getCurrentTimeInH()+": Started service = "+getName());
+        register();
+
     }
 
     /**
@@ -117,32 +132,45 @@ public class Service extends CBase {
      * Constructor
      * </p>
      *
-     * @param name Clara service canonical
-     *             name (such as dep:container:engine)
-     * @param sharedMemoryKey key in the shared memory map of
-     *                        DPE to locate this service resulting data object
+     * @param packageName service engine package name
+     * @param name Clara service canonical name
+     *             (such as dep:container:engine)
+     * @param sharedMemoryKey key in the shared memory map of DPE to
+     *                        locate this service resulting data object
      * @throws xMsgException
      */
-    public Service(String name,
+    public Service(String packageName,
+                   String name,
                    String sharedMemoryKey)
-            throws xMsgException {
+            throws xMsgException, CException, SocketException, IllegalAccessException, InstantiationException, ClassNotFoundException {
         super();
         setName(name);
         this.sharedMemoryKey = sharedMemoryKey;
+        this.engine_class_name = packageName+"."+CUtility.getEngineName(getName());
+
+        // Dynamic loading of the Clara engine class
+        // Note: using system class loader
+        CClassLoader cl = new CClassLoader(ClassLoader.getSystemClassLoader());
+        engine_object = cl.load(engine_class_name);
 
         // Create a socket connections
         // to the local dpe proxy
         connect();
+
+        System.out.println("\n"+CUtility.getCurrentTimeInH()+": Started service = "+getName());
+        register();
+
     }
 
-    public void process(LinkedBlockingDeque<Service> objectPool,
+    public void process(LinkedBlockingQueue<Service> objectPool,
                         String dataType,
                         Object data,
                         int id)
             throws CException, xMsgException, SocketException, InterruptedException {
         xMsgD.Data.Builder inData = null;
 
-        String sharedMemoryPointer = null;
+        String sharedMemoryPointer;
+
 
         if (dataType.equals(xMsgConstants.ENVELOPE_DATA_TYPE_STRING.getStringValue())) {
             sharedMemoryPointer = (String) data;
@@ -158,6 +186,7 @@ public class Service extends CBase {
 
         String c_composition = inData.getComposition();
         String senderService = inData.getSender();
+
 
         // check to see if this is a configure request
         if (inData.getAction().equals(xMsgD.Data.ControlAction.CONFIGURE)){
@@ -175,6 +204,7 @@ public class Service extends CBase {
             xMsgD.Data.Builder service_result = xMsgD.Data.newBuilder();
 
             for (String com : in_links.keySet()) {
+
                 // find a sub_composition that sender
                 // service is listed as a an input service
                 if (com.contains(senderService)) {
@@ -214,34 +244,56 @@ public class Service extends CBase {
                                     ddl.add(d);
                                 }
                             }
-                            System.out.println(" Executing engine (logAND) = " + engine_class_name);
-                            service_result = engine_object.execute_group(ddl);
-
+                            System.out.println(senderService + ": Executing engine (logAND) = " + engine_class_name);
+                            try {
+                                service_result = engine_object.execute_group(ddl);
+                            } catch (Throwable t){
+                                report_error(t.getMessage(),3);
+                                return;
+                            }
                             // Clear inAnd data hash map for the satisfied composition
                             in_and_data_list.remove(com);
+                            break;
                         }
                     } else {
 
                         // sub-composition does not require logical
                         // AND operations at the input of this service
-                        System.out.println(" Executing engine = " + engine_class_name);
+                        System.out.println(senderService + ": Executing engine = " + engine_class_name);
+                        try{
+                            service_result = engine_object.execute(inData);
+                        } catch (Throwable t){
+                            report_error(t.getMessage(),3);
+                            return;
+                        }
+                        break;
+                    }
+
+                } else if (senderService.startsWith("orchestrator")) {
+                    System.out.println(" Orchestrator: Executing engine = " + engine_class_name);
+                    try{
                         service_result = engine_object.execute(inData);
+                    } catch (Throwable t){
+                        report_error(t.getMessage(),3);
+                        return;
                     }
 
-
-                    // Send service engine execution data
-                    if (service_result != null) {
-                        service_result.setSender(getName());
-
-                        // Negative id means the service just
-                        // simply passes the recorded id across
-                        if (id > 0) service_result.setId(id);
-
-                        serviceSend(service_result);
-
-                    }
+                    break;
                 }
+
             }
+            // Send service engine execution data
+            if (service_result != null) {
+                service_result.setSender(getName());
+
+                // Negative id means the service just
+                // simply passes the recorded id across
+                if (id > 0) service_result.setId(id);
+
+                serviceSend(service_result);
+
+            }
+
         }
 
         // return this object to the pool
@@ -262,7 +314,7 @@ public class Service extends CBase {
         // have multiple parallel compositions (branching)
 
         if (composition.contains(";")){
-            StringTokenizer st = new StringTokenizer(";");
+            StringTokenizer st = new StringTokenizer(composition,";");
             while(st.hasMoreTokens()){
                 String sub_comp = st.nextToken();
                 if(sub_comp.contains(getName())){
@@ -296,31 +348,38 @@ public class Service extends CBase {
     }
 
     private void serviceSend(xMsgD.Data.Builder data)
-            throws xMsgException, SocketException {
+            throws xMsgException, SocketException, CException {
 
 
         // Check the status of the engine execution and
         // if it is warning or error broadcast exception data
-        if (data.getDataGenerationStatus().equals(xMsgD.Data.Severity.ERROR1) ||
-                data.getDataGenerationStatus().equals(xMsgD.Data.Severity.ERROR2) ||
-                data.getDataGenerationStatus().equals(xMsgD.Data.Severity.ERROR3)){
-            report_data(data, xMsgConstants.ERROR.getStringValue());
-        }
-        else if (data.getDataGenerationStatus().equals(xMsgD.Data.Severity.WARNING1) ||
-                data.getDataGenerationStatus().equals(xMsgD.Data.Severity.WARNING2) ||
-                data.getDataGenerationStatus().equals(xMsgD.Data.Severity.WARNING3)){
-            report_data(data, xMsgConstants.WARNING.getStringValue());
-        }
+        if (data.getDataGenerationStatus().equals(xMsgD.Data.Severity.ERROR1)){
+            report_data(data, xMsgConstants.ERROR.getStringValue(),1);
 
+        } else if (data.getDataGenerationStatus().equals(xMsgD.Data.Severity.ERROR2)){
+            report_data(data, xMsgConstants.ERROR.getStringValue(),2);
+
+        } else if (data.getDataGenerationStatus().equals(xMsgD.Data.Severity.ERROR3)){
+            report_data(data, xMsgConstants.ERROR.getStringValue(),3);
+
+        } else if (data.getDataGenerationStatus().equals(xMsgD.Data.Severity.WARNING1)){
+            report_data(data, xMsgConstants.WARNING.getStringValue(),1);
+
+        } else if (data.getDataGenerationStatus().equals(xMsgD.Data.Severity.WARNING2)){
+            report_data(data, xMsgConstants.WARNING.getStringValue(),2);
+
+        } else if (data.getDataGenerationStatus().equals(xMsgD.Data.Severity.WARNING3)){
+            report_data(data, xMsgConstants.WARNING.getStringValue(),3);
+        }
 
         // If data monitors are registered broadcast data
         if (data.getDataMonitor()){
-            report_data(data, xMsgConstants.INFO.getStringValue());
+            report_data(data, xMsgConstants.INFO.getStringValue(),1);
         }
 
         // If done monitors are registered broadcast done,
         // informing that service is completed
-        if (data.getDataMonitor()) {
+        if (data.getDoneMonitor()) {
             report_info(xMsgConstants.DONE.getStringValue());
         }
 
@@ -329,17 +388,16 @@ public class Service extends CBase {
         for (List<String> ls:out_links.values()){
             for(String ss:ls) {
                 if (CUtility.isRemoteService(ss)) {
-                    send(ss, data);
+                    serviceSend(ss, data);
                 } else {
                     // copy data to the shared memory
                     Dpe.sharedMemory.put(sharedMemoryKey,data);
 
-                    send(ss, sharedMemoryKey);
+                    serviceSend(ss, sharedMemoryKey);
                 }
             }
         }
     }
-
 
     /**
      * <p>
@@ -349,7 +407,7 @@ public class Service extends CBase {
      */
     public void register()
             throws xMsgException {
-
+        System.out.println(CUtility.getCurrentTimeInH()+": "+getName()+" sending registration request.");
         registerSubscriber(getName(),
                 xMsgUtil.getTopicDomain(getName()),
                 xMsgUtil.getTopicSubject(getName()),
@@ -391,7 +449,7 @@ public class Service extends CBase {
         db.setDataType(xMsgD.Data.DType.T_STRING);
         db.setSTRING(info_string);
 
-        send(xMsgConstants.INFO.getStringValue() + ":" +
+        genericSend(xMsgConstants.INFO.getStringValue() + ":" +
                 getName(), db);
     }
 
@@ -432,7 +490,7 @@ public class Service extends CBase {
         db.setDataType(xMsgD.Data.DType.T_STRING);
         db.setSTRING(warning_string);
 
-        send(xMsgConstants.WARNING.getStringValue() + ":" +
+        genericSend(xMsgConstants.WARNING.getStringValue() + ":" +
                         severity + ":" +
                         getName(),
                 db);
@@ -475,7 +533,7 @@ public class Service extends CBase {
         db.setDataType(xMsgD.Data.DType.T_STRING);
         db.setSTRING(error_string);
 
-        send(xMsgConstants.ERROR.getStringValue() + ":" +
+        genericSend(xMsgConstants.ERROR.getStringValue() + ":" +
                         severity + ":" +
                         getName(),
                 db);
@@ -494,22 +552,22 @@ public class Service extends CBase {
      *                    INFO/WARNING/ERROR are supported.
      */
     public void report_data(Object data,
-                            String report_type)
+                            String report_type,
+                            int severity)
             throws xMsgException {
 
-        int severity = 1;
 
         if (report_type.equals(xMsgConstants.INFO.getStringValue())) {
-            send(xMsgConstants.INFO.getStringValue() + ":" +
+            genericSend(xMsgConstants.INFO.getStringValue() + ":" +
                             getName(),
                     data);
         } else if (report_type.equals(xMsgConstants.WARNING.getStringValue())) {
-            send(xMsgConstants.WARNING.getStringValue() + ":" +
+            genericSend(xMsgConstants.WARNING.getStringValue() + ":" +
                             severity + ":" +
                             getName(),
                     data);
         } else if (report_type.equals(xMsgConstants.ERROR.getStringValue())) {
-            send(xMsgConstants.ERROR.getStringValue() + ":" +
+            genericSend(xMsgConstants.ERROR.getStringValue() + ":" +
                             severity + ":" +
                             getName(),
                     data);

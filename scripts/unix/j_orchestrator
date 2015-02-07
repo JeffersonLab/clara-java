@@ -1,0 +1,17 @@
+#!/bin/sh -f
+
+# author gurjyan
+# date 2.9.15
+
+export CLASSPATH="$CLARA_JARS/*"
+
+
+if [ "$1" == "-h" ] || [ "$1" == "-help" ]; then
+    echo ""
+    echo "Starts the example of an interactive orchestrator(java binding)"
+    echo "-------------------------------- "
+    echo "synopsis: j_orchestrator"
+    echo ""
+else
+java  -XX:+UnlockCommercialFeatures -XX:+FlightRecorder org.jlab.clara.examples.orchestrators.OrInteractive
+fi
