@@ -540,7 +540,7 @@ public class OrchestratorBase extends CBase {
             throws xMsgException, CException {
 
         // Check the passed service name
-        if(!name.contains(":")) {
+        if(!CUtility.isCanonical(name)) {
              throw new CException("not a canonical name");
         }
         serviceSend(name, data);

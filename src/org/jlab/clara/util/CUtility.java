@@ -257,40 +257,44 @@ public class CUtility {
         return new GregorianCalendar().getTimeInMillis();
     }
 
-    public static String getDpeName(String canonicalName)
+    public static String getDpeName(String serviceCanonicalName)
             throws CException {
         try {
-            return xMsgUtil.getTopicDomain(canonicalName);
+            return xMsgUtil.getTopicDomain(serviceCanonicalName);
         } catch (xMsgException e) {
             throw new CException(e.getMessage());
         }
     }
 
-    public static String getContainerCanonicalName(String canonicalName)
+    public static String getContainerCanonicalName(String serviceCanonicalName)
             throws CException {
         try {
-            return xMsgUtil.getTopicDomain(canonicalName) +
-                    ":" + xMsgUtil.getTopicSubject(canonicalName);
+            return xMsgUtil.getTopicDomain(serviceCanonicalName) +
+                    ":" + xMsgUtil.getTopicSubject(serviceCanonicalName);
         } catch (xMsgException e) {
             throw new CException("wrong dpe and/or container");
         }
     }
 
-    public static String getContainerName(String canonicalName)
+    public static String getContainerName(String serviceCanonicalName)
             throws CException {
         try {
-            return xMsgUtil.getTopicSubject(canonicalName);
+            return xMsgUtil.getTopicSubject(serviceCanonicalName);
         } catch (xMsgException e) {
             throw new CException(e.getMessage());
         }
     }
 
-    public static String getEngineName(String canonicalName)
+    public static String getEngineName(String serviceCanonicalName)
             throws CException {
         try {
-            return xMsgUtil.getTopicType(canonicalName);
+            return xMsgUtil.getTopicType(serviceCanonicalName);
         } catch (xMsgException e) {
             throw new CException(e.getMessage());
         }
+    }
+
+    public static Boolean isCanonical(String name){
+        return name.contains(":");
     }
 }

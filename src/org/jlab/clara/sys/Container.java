@@ -144,13 +144,23 @@ public class Container extends CBase {
     public void addService(String packageName,
                            String name,
                            int objectPoolSize)
-            throws CException, xMsgException, SocketException, IllegalAccessException, ClassNotFoundException, InstantiationException {
+            throws CException,
+            xMsgException,
+            SocketException,
+            IllegalAccessException,
+            ClassNotFoundException,
+            InstantiationException {
 
 
         // We need final variables to pass
         // abstract method implementation
         final String canonical_name = getName() + ":" + name;
-        final String fe = fe_host;
+
+        if(_threadPoolMap.containsKey(canonical_name)){
+            throw new CException("service exists");
+        }
+
+            final String fe = fe_host;
 
         // Define the key in the shared
         // memory map (defined in the DPE).
@@ -202,7 +212,7 @@ public class Container extends CBase {
         // properly formed service canonical name. Also if it
         // does not then the passed string is the service
         // engine name.
-        if(!name.contains(":")) {
+        if(!CUtility.isCanonical(name)) {
             throw new CException("not a canonical names");
         }
 
@@ -235,7 +245,7 @@ public class Container extends CBase {
         // This method serves to start/deploy a service on
         // this container. In the future it will report
         // service specific statistics on a request
-        public void callback(xMsgMessage msg) {
+        public Object callback(xMsgMessage msg) {
 
             final String dataType = msg.getDataType();
             final Object data = msg.getData();
@@ -278,6 +288,7 @@ public class Container extends CBase {
                     }
                 }
             }
+            return null;
         }
     }
 
@@ -311,7 +322,7 @@ public class Container extends CBase {
         // service object from the object pool and runs the
         // service object serviceRequest method by passing
         // sender/dataType and dataObject of the xMsg transport.
-        public void callback(xMsgMessage msg) {
+        public Object callback(xMsgMessage msg) {
 
             try {
                 String receiver;
@@ -345,6 +356,7 @@ public class Container extends CBase {
             }
 
 //            System.out.println("DDD: service_request "+msg);
+            return null;
         }
     }
 
