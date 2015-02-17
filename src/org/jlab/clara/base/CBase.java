@@ -181,16 +181,16 @@ public class CBase extends xMsg {
             if(link_direction==0 && index>0) {
                 // index of the next component in the composition
                 index -= 1;
-                    String element = elm2_list.get(index);
-                    // the case to fan out the output of this service
-                    if(element.contains(",")){
-                        StringTokenizer st1 = new StringTokenizer(element,",");
-                        while(st1.hasMoreTokens()){
-                            out_list.add(st1.nextToken());
-                        }
-                    } else {
-                        out_list.add(element);
+                String element = elm2_list.get(index);
+                // the case to fan out the output of this service
+                if(element.contains(",")){
+                    StringTokenizer st1 = new StringTokenizer(element,",");
+                    while(st1.hasMoreTokens()){
+                        out_list.add(st1.nextToken());
                     }
+                } else {
+                    out_list.add(element);
+                }
                 return out_list;
             } else if(link_direction > 0){
                 index += 1;
@@ -287,19 +287,17 @@ public class CBase extends xMsg {
 
     /**
      * <p>
-     *     This method simply calls xMsg subscribe method
-     *     passing the reference to user provided call_back method.
+     *      Sends xMsgD.Data object to a service.
+     *      In this method requires zmq connection object,
+     *      and will not use default local dpe proxy connection.
      * </p>
-     *
-     * @param topic Service canonical name that this
-     *              method will subscribe or listen
-     * @param call_back User provided call_back function
-     * @param is_sync if set to true method will block until subscription method is
-     *                received and user callback method is returned
+     * @param connection zmq connection socket
+     * @param topic Clara service canonical name
+     * @param data xMsgD.Data object
      */
-    public void serviceReceive(String topic,
-                               xMsgCallBack call_back,
-                               boolean is_sync)
+    public void serviceSend(xMsgConnection connection,
+                            String topic,
+                            Object data)
             throws xMsgException {
 
         String dpe = xMsgUtil.getTopicDomain(topic);
@@ -311,12 +309,160 @@ public class CBase extends xMsg {
         if(!xMsgUtil.getTopicType(topic).equals(xMsgConstants.UNDEFINED.getStringValue())){
             engine = xMsgUtil.getTopicType(topic);
         }
-        subscribe(node_connection,
+        publish(connection,
                 dpe,
                 container,
                 engine,
-                call_back,
-                is_sync);
+                data);
+    }
+
+    /**
+     * <p>
+     *      Sends xMsgD.Data object to a service
+     * </p>
+     * @param topic Clara service canonical name
+     * @param data xMsgD.Data object
+     */
+    public void serviceSend(String topic,
+                            Object data)
+            throws xMsgException {
+
+        serviceSend(node_connection, topic, data);
+    }
+
+    /**
+     * <p>
+     *      Sync sends xMsgD.Data object to a service.
+     *      In this method requires zmq connection object,
+     *      and will not use default local dpe proxy connection.
+     * </p>
+     * @param connection zmq connection socket
+     * @param topic Clara service canonical name
+     * @param data xMsgD.Data object
+     */
+    public Object serviceSyncSend(xMsgConnection connection,
+                                  String topic,
+                                  Object data,
+                                  int timeOut)
+            throws xMsgException {
+
+        String dpe = xMsgUtil.getTopicDomain(topic);
+        String container = "*";
+        String engine = "*";
+        if(!xMsgUtil.getTopicSubject(topic).equals(xMsgConstants.UNDEFINED.getStringValue())){
+            container = xMsgUtil.getTopicSubject(topic);
+        }
+        if(!xMsgUtil.getTopicType(topic).equals(xMsgConstants.UNDEFINED.getStringValue())){
+            engine = xMsgUtil.getTopicType(topic);
+        }
+        return sync_publish(connection,
+                dpe,
+                container,
+                engine,
+                data,
+                timeOut);
+    }
+
+    /**
+     * <p>
+     *      Sync sends xMsgD.Data object to a service defined by the canonical name
+     * </p>
+     * @param topic Clara service canonical name
+     * @param data xMsgD.Data object
+     * @param timeOut int in seconds
+     */
+    public Object serviceSyncSend(String topic,
+                                  Object data,
+                                  int timeOut)
+            throws xMsgException {
+        return serviceSyncSend(node_connection, topic, data, timeOut);
+    }
+
+    /**
+     * <p>
+     *      Sends xMsgD.Data or a String object to a generic
+     *      subscriber of an arbitrary topic.
+     *      In this case topic is NOT bound to follow Clara
+     *      service naming convention.
+     *      In this method requires zmq connection object,
+     *      and will not use default local dpe proxy connection.
+     * </p>
+     * @param connection zmq connection socket
+     * @param topic Clara service canonical name
+     * @param data xMsgD.Data object
+     */
+    public void genericSend(xMsgConnection connection,
+                            String topic,
+                            Object data)
+            throws xMsgException {
+
+        publish(connection,
+                topic,
+                data);
+    }
+
+    /**
+     * <p>
+     *      Sends xMsgD.Data or a String object to a generic
+     *      subscriber of an arbitrary topic.
+     *      In this case topic is NOT bound to follow Clara
+     *      service naming convention.
+     * </p>
+     *
+     * @param topic Clara service canonical name
+     * @param data xMsgD.Data object
+     */
+    public void genericSend(String topic,
+                            Object data)
+            throws xMsgException {
+
+        genericSend(node_connection, topic, data);
+    }
+
+    /**
+     * <p>
+     *      Sync sends xMsgD.Data or a String object to a generic
+     *      subscriber of an arbitrary topic.
+     *      In this case topic is NOT bound to follow Clara
+     *      service naming convention.
+     *      In this method requires zmq connection object,
+     *      and will not use default local dpe proxy connection.
+     * </p>
+     * @param connection zmq connection socket
+     * @param topic Clara service canonical name
+     * @param data xMsgD.Data object
+     * @param timeOut int in seconds
+     */
+    public Object genericSyncSend(xMsgConnection connection,
+                                  String topic,
+                                  Object data,
+                                  int timeOut)
+            throws xMsgException {
+
+        return sync_publish(connection,
+                topic,
+                data,
+                timeOut);
+    }
+
+    /**
+     * <p>
+     *      Sync sends xMsgD.Data or a String object to a generic
+     *      subscriber of an arbitrary topic.
+     *      In this case topic is NOT bound to follow Clara
+     *      service naming convention.
+     * </p>
+     *
+     * @param topic Clara service canonical name
+     * @param data xMsgD.Data object
+     * @param timeOut int in seconds
+     */
+    public Object genericSyncSend(String topic,
+                                  Object data,
+                                  int timeOut)
+            throws xMsgException {
+
+        return genericSyncSend(node_connection,topic,data, timeOut);
     }
 
     /**
@@ -361,131 +507,8 @@ public class CBase extends xMsg {
 
     /**
      * <p>
-     *      Sends xMsgD.Data object to a service
-     * </p>
-     * @param topic Clara service canonical name
-     * @param data xMsgD.Data object
-     */
-    public void serviceSend(String topic,
-                            Object data)
-            throws xMsgException {
-
-        String dpe = xMsgUtil.getTopicDomain(topic);
-        String container = "*";
-        String engine = "*";
-        if(!xMsgUtil.getTopicSubject(topic).equals(xMsgConstants.UNDEFINED.getStringValue())){
-            container = xMsgUtil.getTopicSubject(topic);
-        }
-        if(!xMsgUtil.getTopicType(topic).equals(xMsgConstants.UNDEFINED.getStringValue())){
-            engine = xMsgUtil.getTopicType(topic);
-        }
-        publish(node_connection,
-                dpe,
-                container,
-                engine,
-                data);
-    }
-
-    /**
-     * <p>
-     *      Sync sends xMsgD.Data object to a service defined by the canonical name
-     * </p>
-     * @param topic Clara service canonical name
-     * @param data xMsgD.Data object
-     * @param timeOut int in seconds
-     */
-    public Object serviceSyncSend(String topic,
-                            Object data,
-                            int timeOut)
-            throws xMsgException {
-
-        String dpe = xMsgUtil.getTopicDomain(topic);
-        String container = "*";
-        String engine = "*";
-        if(!xMsgUtil.getTopicSubject(topic).equals(xMsgConstants.UNDEFINED.getStringValue())){
-            container = xMsgUtil.getTopicSubject(topic);
-        }
-        if(!xMsgUtil.getTopicType(topic).equals(xMsgConstants.UNDEFINED.getStringValue())){
-            engine = xMsgUtil.getTopicType(topic);
-        }
-        return sync_publish(node_connection,
-                dpe,
-                container,
-                engine,
-                data,
-                timeOut);
-    }
-
-    /**
-     * <p>
-     *      Sends xMsgD.Data object to a service.
-     *      In this method requires zmq connection object,
-     *      and will not use default local dpe proxy connection.
-     * </p>
-     * @param connection zmq connection socket
-     * @param topic Clara service canonical name
-     * @param data xMsgD.Data object
-     */
-    public void serviceSend(xMsgConnection connection,
-                            String topic,
-                            Object data)
-            throws xMsgException {
-
-        String dpe = xMsgUtil.getTopicDomain(topic);
-        String container = "*";
-        String engine = "*";
-        if(!xMsgUtil.getTopicSubject(topic).equals(xMsgConstants.UNDEFINED.getStringValue())){
-            container = xMsgUtil.getTopicSubject(topic);
-        }
-        if(!xMsgUtil.getTopicType(topic).equals(xMsgConstants.UNDEFINED.getStringValue())){
-            engine = xMsgUtil.getTopicType(topic);
-        }
-        publish(connection,
-                dpe,
-                container,
-                engine,
-                data);
-    }
-
-    /**
-     * <p>
-     *      Sync sends xMsgD.Data object to a service.
-     *      In this method requires zmq connection object,
-     *      and will not use default local dpe proxy connection.
-     * </p>
-     * @param connection zmq connection socket
-     * @param topic Clara service canonical name
-     * @param data xMsgD.Data object
-     */
-    public Object serviceSyncSend(xMsgConnection connection,
-                            String topic,
-                            Object data,
-                            int timeOut)
-            throws xMsgException {
-
-        String dpe = xMsgUtil.getTopicDomain(topic);
-        String container = "*";
-        String engine = "*";
-        if(!xMsgUtil.getTopicSubject(topic).equals(xMsgConstants.UNDEFINED.getStringValue())){
-            container = xMsgUtil.getTopicSubject(topic);
-        }
-        if(!xMsgUtil.getTopicType(topic).equals(xMsgConstants.UNDEFINED.getStringValue())){
-            engine = xMsgUtil.getTopicType(topic);
-        }
-        return sync_publish(connection,
-                dpe,
-                container,
-                engine,
-                data,
-                timeOut);
-    }
-
-    /**
-     * <p>
      *     This method simply calls xMsg subscribe method
      *     passing the reference to user provided call_back method.
-     *     In this case topic is not bound to follow Clara
-     *     service naming convention.
      * </p>
      *
      * @param topic Service canonical name that this
@@ -494,15 +517,11 @@ public class CBase extends xMsg {
      * @param is_sync if set to true method will block until subscription method is
      *                received and user callback method is returned
      */
-    public void genericReceive(String topic,
+    public void serviceReceive(String topic,
                                xMsgCallBack call_back,
                                boolean is_sync)
             throws xMsgException {
-
-        subscribe(node_connection,
-                topic,
-                call_back,
-                is_sync);
+        serviceReceive(node_connection, topic, call_back, is_sync);
     }
 
     /**
@@ -512,7 +531,7 @@ public class CBase extends xMsg {
      *     The only difference is that this method requires a
      *     connection socket different than the default socket connection
      *     to the local dpe proxy.
-     *     In this case topic is not bound to follow Clara
+     *     In this case topic is NOT bound to follow Clara
      *     service naming convention.
      * </p>
      *
@@ -537,96 +556,37 @@ public class CBase extends xMsg {
 
     /**
      * <p>
-     *      Sends xMsgD.Data or a String object to a generic
-     *      subscriber of an arbitrary topic.
-     *      In this case topic is not bound to follow Clara
-     *      service naming convention.
+     *     This method simply calls xMsg subscribe method
+     *     passing the reference to user provided call_back method.
+     *     In this case topic is NOT bound to follow Clara
+     *     service naming convention.
      * </p>
      *
-     * @param topic Clara service canonical name
-     * @param data xMsgD.Data object
+     * @param topic Service canonical name that this
+     *              method will subscribe or listen
+     * @param call_back User provided call_back function
+     * @param is_sync if set to true method will block until subscription method is
+     *                received and user callback method is returned
      */
-    public void genericSend(String topic,
-                            Object data)
+    public void genericReceive(String topic,
+                               xMsgCallBack call_back,
+                               boolean is_sync)
             throws xMsgException {
-
-        publish(node_connection,
-                topic,
-                data);
+        genericReceive(node_connection, topic, call_back,is_sync);
     }
+
 
     /**
      * <p>
-     *      Sync sends xMsgD.Data or a String object to a generic
-     *      subscriber of an arbitrary topic.
-     *      In this case topic is not bound to follow Clara
-     *      service naming convention.
+     *     Defines if the service is deployed
      * </p>
-     *
-     * @param topic Clara service canonical name
-     * @param data xMsgD.Data object
-     * @param timeOut int in seconds
+     * @param requester name of the requester
+     * @param dpe dpe IP
+     * @param container given name (not canonical)
+     * @param engine class name
+     * @return true if service is deployed
+     * @throws xMsgDiscoverException
      */
-    public Object genericSyncSend(String topic,
-                            Object data,
-                            int timeOut)
-            throws xMsgException {
-
-        return sync_publish(node_connection,
-                topic,
-                data,
-                timeOut);
-    }
-
-    /**
-     * <p>
-     *      Sends xMsgD.Data or a String object to a generic
-     *      subscriber of an arbitrary topic.
-     *      In this case topic is not bound to follow Clara
-     *      service naming convention.
-     *      In this method requires zmq connection object,
-     *      and will not use default local dpe proxy connection.
-     * </p>
-     * @param connection zmq connection socket
-     * @param topic Clara service canonical name
-     * @param data xMsgD.Data object
-     */
-    public void genericSend(xMsgConnection connection,
-                            String topic,
-                            Object data)
-            throws xMsgException {
-
-        publish(connection,
-                topic,
-                data);
-    }
-
-    /**
-     * <p>
-     *      Sync sends xMsgD.Data or a String object to a generic
-     *      subscriber of an arbitrary topic.
-     *      In this case topic is not bound to follow Clara
-     *      service naming convention.
-     *      In this method requires zmq connection object,
-     *      and will not use default local dpe proxy connection.
-     * </p>
-     * @param connection zmq connection socket
-     * @param topic Clara service canonical name
-     * @param data xMsgD.Data object
-     * @param timeOut int in seconds
-     */
-    public Object genericSyncSend(xMsgConnection connection,
-                            String topic,
-                            Object data,
-                            int timeOut)
-            throws xMsgException {
-
-        return sync_publish(connection,
-                topic,
-                data,
-                timeOut);
-    }
-
     public boolean isServiceDeployed(String requester,
                                      String dpe,
                                      String container,
