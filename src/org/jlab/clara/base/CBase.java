@@ -7,6 +7,7 @@ import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.data.xMsgR.xMsgRegistrationData;
 import org.jlab.coda.xmsg.excp.xMsgDiscoverException;
 import org.jlab.coda.xmsg.excp.xMsgException;
+import org.jlab.coda.xmsg.excp.xMsgSubscribingException;
 import org.jlab.coda.xmsg.net.xMsgAddress;
 import org.jlab.coda.xmsg.net.xMsgConnection;
 
@@ -575,6 +576,18 @@ public class CBase extends xMsg {
         genericReceive(node_connection, topic, call_back,is_sync);
     }
 
+    public void cancelReceive(xMsgConnection connection,
+                               String topic)
+            throws xMsgSubscribingException {
+
+        unsubscribe(connection,topic);
+    }
+
+    public void cancelReceive(String topic)
+            throws xMsgSubscribingException {
+
+        unsubscribe(node_connection, topic);
+    }
 
     /**
      * <p>
