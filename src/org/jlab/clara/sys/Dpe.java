@@ -91,6 +91,8 @@ public class Dpe extends CBase{
         _db.put(getName(),
                 new HashMap<String, Map<String,xMsgR.xMsgRegistrationData.Builder>>());
 
+        // If this DEP is required to be the FE then start a
+        // thread that periodically checks the health of cloud DPEs
         if(isFE){
             scheduledPingService = Executors.newScheduledThreadPool(3);
             scheduledPingService.schedule(new Runnable() {

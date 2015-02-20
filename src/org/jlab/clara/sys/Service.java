@@ -4,6 +4,7 @@ import org.jlab.clara.base.CBase;
 import org.jlab.clara.base.CException;
 import org.jlab.clara.util.ACEngine;
 import org.jlab.clara.util.CClassLoader;
+import org.jlab.clara.util.CConstants;
 import org.jlab.clara.util.CUtility;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgUtil;
@@ -87,6 +88,17 @@ public class Service extends CBase {
     private String
             sharedMemoryKey = xMsgConstants.UNDEFINED.getStringValue();
 
+    // Simple average of the service engine
+    // execution times ove all received requests
+    private long _avEngineExecutionTime;
+
+    // Number of received requests to this service.
+    // Note: common for different compositions
+    private long _numberOfRequests;
+
+    // FE host IP
+    private String feHost = xMsgConstants.UNDEFINED.getStringValue();
+
     /**
      * <p>
      * Constructor
@@ -108,6 +120,9 @@ public class Service extends CBase {
             throws xMsgException, CException, SocketException, IllegalAccessException, InstantiationException, ClassNotFoundException {
         super(feHost);
         setName(name);
+
+        this.feHost = feHost;
+
         this.sharedMemoryKey = sharedMemoryKey;
 
         this.engine_class_name = packageName+"."+CUtility.getEngineName(getName());
@@ -121,6 +136,9 @@ public class Service extends CBase {
         // Create a socket connections
         // to the local dpe proxy
         connect();
+
+        // Send service_up message to the FE
+        genericSend(CConstants.SERVICE + ":" + feHost, CConstants.SERVICE_UP+"?"+getName());
 
         System.out.println("\n"+CUtility.getCurrentTimeInH()+": Started service = "+getName());
         register();
@@ -171,6 +189,10 @@ public class Service extends CBase {
 
         String sharedMemoryPointer;
 
+        // Variables to measure service
+        // engine execution time
+        long startTime = 0;
+        long endTime = 0;
 
         if (dataType.equals(xMsgConstants.ENVELOPE_DATA_TYPE_STRING.getStringValue())) {
             sharedMemoryPointer = (String) data;
@@ -246,7 +268,22 @@ public class Service extends CBase {
                             }
                             System.out.println(senderService + ": Executing engine (logAND) = " + engine_class_name);
                             try {
+                                // increment request count
+                                _numberOfRequests++;
+                                // get engine execution start time
+                                startTime = System.nanoTime();
+
                                 service_result = engine_object.execute_group(ddl);
+
+                                // get engine execution end time
+                                endTime = System.nanoTime();
+                                // service engine execution time
+                                long execTime = endTime - startTime;
+                                // Update transient data with this service execution time
+                                service_result.setExecutionTime(execTime);
+                                // Calculate a simple average for the execution time
+                                _avEngineExecutionTime = (_avEngineExecutionTime + execTime)/ _numberOfRequests;
+
                             } catch (Throwable t){
                                 report_error(t.getMessage(),3);
                                 return;
@@ -261,7 +298,22 @@ public class Service extends CBase {
                         // AND operations at the input of this service
                         System.out.println(senderService + ": Executing engine = " + engine_class_name);
                         try{
+                            // increment request count
+                            _numberOfRequests++;
+                            // get engine execution start time
+                            startTime = System.nanoTime();
+
                             service_result = engine_object.execute(inData);
+
+                            // get engine execution end time
+                            endTime = System.nanoTime();
+                            // service engine execution time
+                            long execTime = endTime - startTime;
+                            // Update transient data with this service execution time
+                            service_result.setExecutionTime(execTime);
+                            // Calculate a simple average for the execution time
+                            _avEngineExecutionTime = (_avEngineExecutionTime + execTime)/ _numberOfRequests;
+
                         } catch (Throwable t){
                             report_error(t.getMessage(),3);
                             return;
@@ -272,18 +324,31 @@ public class Service extends CBase {
                 } else if (senderService.startsWith("orchestrator")) {
                     System.out.println(" Orchestrator: Executing engine = " + engine_class_name);
                     try{
+                        // increment request count
+                        _numberOfRequests++;
+                        // get engine execution start time
+                        startTime = System.nanoTime();
+
                         service_result = engine_object.execute(inData);
+
+                        // get engine execution end time
+                        endTime = System.nanoTime();
+                        // service engine execution time
+                        long execTime = endTime - startTime;
+                        // Update transient data with this service execution time
+                        service_result.setExecutionTime(execTime);
+                        // Calculate a simple average for the execution time
+                        _avEngineExecutionTime = (_avEngineExecutionTime + execTime)/ _numberOfRequests;
+
                     } catch (Throwable t){
                         report_error(t.getMessage(),3);
                         return;
                     }
-
                     break;
                 }
-
             }
+
             // Send service engine execution data
-            if (service_result != null) {
                 service_result.setSender(getName());
 
                 // Negative id means the service just
@@ -291,9 +356,6 @@ public class Service extends CBase {
                 if (id > 0) service_result.setId(id);
 
                 serviceSend(service_result);
-
-            }
-
         }
 
         // return this object to the pool
@@ -433,7 +495,9 @@ public class Service extends CBase {
      * <p>
      *    Broadcasts a xMsgData transient data
      *    containing an information-string to a
-     *    topic = info:this_service_canonical_name
+     *    topic = info:this_service_canonical_name.
+     *    Note: that this will also send
+     *    service engine execution average time.
      *
      * </p>
      * @param info_string content of the information
@@ -448,6 +512,7 @@ public class Service extends CBase {
         db.setDataGenerationStatus(xMsgD.Data.Severity.INFO);
         db.setDataType(xMsgD.Data.DType.T_STRING);
         db.setSTRING(info_string);
+        db.setExecutionTime(_avEngineExecutionTime);
 
         genericSend(xMsgConstants.INFO.getStringValue() + ":" +
                 getName(), db);
@@ -458,6 +523,8 @@ public class Service extends CBase {
      *    Broadcasts a xMsgData transient data
      *    containing an warning-string to a
      *    topic = severity:warning:this_service_canonical_name
+     *    Note: that this will also send
+     *    service engine execution average time.
      *
      * </p>
      * @param warning_string content of the warning message
@@ -489,6 +556,7 @@ public class Service extends CBase {
         }
         db.setDataType(xMsgD.Data.DType.T_STRING);
         db.setSTRING(warning_string);
+        db.setExecutionTime(_avEngineExecutionTime);
 
         genericSend(xMsgConstants.WARNING.getStringValue() + ":" +
                         severity + ":" +
@@ -501,6 +569,8 @@ public class Service extends CBase {
      *    Broadcasts a xMsgData transient data
      *    containing an error-string to a
      *    topic = severity:error:this_service_canonical_name
+     *    Note: that this will also send
+     *    service engine execution average time.
      *
      * </p>
      * @param error_string content of the error message
@@ -532,6 +602,7 @@ public class Service extends CBase {
         }
         db.setDataType(xMsgD.Data.DType.T_STRING);
         db.setSTRING(error_string);
+        db.setExecutionTime(_avEngineExecutionTime);
 
         genericSend(xMsgConstants.ERROR.getStringValue() + ":" +
                         severity + ":" +
@@ -545,6 +616,8 @@ public class Service extends CBase {
      *     containing data generated by the engine,
      *     i.e. unaltered user engine output data.
      *     Severity = 1 is used to report data.
+     *    Note: that the data contains service engine
+     *    execution current/instantaneous time
      * </p>
      * @param data xMsgData object
      * @param report_type defines the topic to which data
@@ -580,6 +653,11 @@ public class Service extends CBase {
      */
     public void dispose() throws xMsgException {
         remove_registration();
+
+        if(!feHost.equals(xMsgConstants.UNDEFINED.getStringValue())) {
+            // Send service_up message to the FE
+            genericSend(CConstants.SERVICE + ":" + feHost, CConstants.SERVICE_DOWN + "?" + getName());
+        }
     }
 
 }

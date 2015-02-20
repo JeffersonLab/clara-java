@@ -42,7 +42,7 @@ public class Container extends CBase {
     private HashMap<String, ExecutorService>
             _threadPoolMap = new HashMap<>();
 
-    private String fe_host =
+    private String feHost =
             xMsgConstants.UNDEFINED.getStringValue();
 
     // Unique id for services within the container
@@ -62,7 +62,7 @@ public class Container extends CBase {
                      String feHost)
             throws xMsgException, SocketException {
         super(feHost);
-        this.fe_host = feHost;
+        this.feHost = feHost;
 
         setName(name);
 
@@ -70,6 +70,9 @@ public class Container extends CBase {
         connect();
 
         System.out.println(CUtility.getCurrentTimeInH()+": Started container = "+getName());
+
+        // Send container_up message to the FE
+        genericSend(CConstants.CONTAINER + ":" + feHost, CConstants.CONTAINER_UP+"?"+getName());
 
         Thread t1 = new Thread(new Runnable() {
             public void run() {
@@ -160,7 +163,7 @@ public class Container extends CBase {
             throw new CException("service exists");
         }
 
-            final String fe = fe_host;
+            final String fe = feHost;
 
         // Define the key in the shared
         // memory map (defined in the DPE).
@@ -187,7 +190,7 @@ public class Container extends CBase {
             // Create an object of the Service class by passing
             // service name as a parameter. service name = canonical
             // name of this container + engine name of a service
-            if(fe_host.equals(xMsgConstants.UNDEFINED.getStringValue())) {
+            if(feHost.equals(xMsgConstants.UNDEFINED.getStringValue())) {
                 service =  new Service(packageName, canonical_name, sharedMemoryLocation);
             } else {
                 service =  new Service(packageName, canonical_name, sharedMemoryLocation, fe);
@@ -359,8 +362,5 @@ public class Container extends CBase {
             return null;
         }
     }
-
-
-
 
 }
