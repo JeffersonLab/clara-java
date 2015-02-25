@@ -4,11 +4,12 @@ apply plugin: 'maven'
 apply plugin: 'eclipse'
 apply plugin: 'idea'
 
-eclipse {
-    classpath {
-        defaultOutputDir = file("${buildDir}/eclipse-classes")
-    }
-}
+
+archivesBaseName = 'jclara'
+group = 'org.jlab.coda'
+version = '1.0'
+
+defaultTasks 'build'
 
 
 sourceSets {
@@ -39,13 +40,14 @@ dependencies {
 }
 
 
+
 task javadocJar(type: Jar) {
     classifier = 'javadoc'
     from javadoc
 }
 
 
-task sourcesJar(type: Jar, dependsOn:classes) {
+task sourcesJar(type: Jar, dependsOn: classes) {
     classifier = 'sources'
     from sourceSets.main.allSource
 }
@@ -57,8 +59,10 @@ artifacts {
 }
 
 
-archivesBaseName = 'jclara'
-group = 'org.jlab.coda'
-version = '1.0'
 
-defaultTasks 'build'
+
+eclipse {
+    classpath {
+        defaultOutputDir = file("${buildDir}/eclipse-classes")
+    }
+}
