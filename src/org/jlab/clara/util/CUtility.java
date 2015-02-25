@@ -1,13 +1,20 @@
 package org.jlab.clara.util;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.net.SocketException;
+import java.text.Format;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.StringTokenizer;
+
 import org.jlab.clara.base.CException;
 import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.excp.xMsgException;
 
-import java.net.SocketException;
-import java.text.Format;
-import java.text.SimpleDateFormat;
-import java.util.*;
 
 /**
  * Utility class containing useful methods.
@@ -296,5 +303,18 @@ public class CUtility {
 
     public static Boolean isCanonical(String name){
         return name.contains(":");
+    }
+
+
+    /**
+     * Returns the stack trace of a exception as a string
+     * @param e an exception
+     * @return a string with the stack trace of the exception
+     */
+    public static String reportException(Throwable e){
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        e.printStackTrace(pw);
+        return sw.toString();
     }
 }
