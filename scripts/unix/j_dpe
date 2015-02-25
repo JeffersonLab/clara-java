@@ -5,6 +5,9 @@
 
 export CLASSPATH="$CLARA_JARS/*"
 
+if [ -n "$CLARA_HOME" ]; then
+    export CLASSPATH="$CLARA_HOME/lib/*:$CLARA_HOME/services/*"
+fi
 
 if [ "$1" == "-h" ] || [ "$1" == "-help" ]; then
     echo ""
