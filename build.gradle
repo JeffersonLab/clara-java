@@ -60,6 +60,57 @@ artifacts {
 
 
 
+def deploySpec = copySpec {
+    into ('lib') {
+        from configurations.runtime
+        from "${jar.archivePath}"
+    }
+
+    from ("${project.rootDir}/scripts/unix") {
+        into 'bin'
+        fileMode 0755
+    }
+}
+
+
+task distSources(type: Tar, dependsOn: build) {
+    extension = 'tar.gz'
+    classifier = 'src'
+    compression = Compression.GZIP
+
+    into "${baseName}-${version}-${classifier}"
+    from "${project.rootDir}/build.gradle"
+    from "${project.rootDir}/build.xml"
+    from ("${project.rootDir}/src") {
+        into 'src'
+    }
+    from ("${project.rootDir}/scripts") {
+        into 'scripts'
+    }
+}
+
+
+task distBinaries(type: Tar, dependsOn: build) {
+    extension = 'tar.gz'
+    compression = Compression.GZIP
+
+    into "${baseName}-${version}"
+    with deploySpec
+}
+
+
+task deploy(type: Copy, overwrite: true, dependsOn: build) {
+    def dest = "$System.env.CLARA_HOME"
+    if (dest == "null") {
+        throw new GradleException('CLARA_HOME not set')
+    }
+    def dir = new File(dest)
+    dir.mkdirs()
+    into dir
+    with deploySpec
+}
+
+
 
 eclipse {
     classpath {
