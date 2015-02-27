@@ -83,7 +83,7 @@ public class Service extends CBase {
     private HashMap<String, List<String>>
             out_links = new HashMap<>();
 
-    //key in the shared memory map of DPE to
+    // key in the shared memory map of DPE to
     // locate this service resulting data object
     private String
             sharedMemoryKey = xMsgConstants.UNDEFINED.getStringValue();
@@ -191,8 +191,8 @@ public class Service extends CBase {
 
         // Variables to measure service
         // engine execution time
-        long startTime = 0;
-        long endTime = 0;
+        long startTime;
+        long endTime;
 
         if (dataType.equals(xMsgConstants.ENVELOPE_DATA_TYPE_STRING.getStringValue())) {
             sharedMemoryPointer = (String) data;

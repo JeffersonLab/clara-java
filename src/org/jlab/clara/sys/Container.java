@@ -79,8 +79,7 @@ public class Container extends CBase {
                 // Subscribe messages published to this container
                 try {
                     genericReceive(CConstants.CONTAINER + ":" + getName(),
-                            new ContainerCallBack(),
-                            true);
+                            new ContainerCallBack());
                 } catch (xMsgException e) {
                     e.printStackTrace();
                 }
@@ -114,8 +113,7 @@ public class Container extends CBase {
                 // Subscribe messages published to this container
                 try {
                     genericReceive(CConstants.CONTAINER + ":" + getName(),
-                            new ContainerCallBack(),
-                            true);
+                            new ContainerCallBack());
                 } catch (xMsgException e) {
                     e.printStackTrace();
                 }
@@ -305,8 +303,7 @@ public class Container extends CBase {
                 // Subscribe messages published to this service
                 try {
                     serviceReceive(serviceCanonicalName,
-                            new ServiceCallBack(),
-                            true);
+                            new ServiceCallBack());
                 } catch (xMsgException e) {
                     e.printStackTrace();
                 }

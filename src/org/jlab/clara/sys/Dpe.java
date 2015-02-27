@@ -125,8 +125,7 @@ public class Dpe extends CBase{
 
         // Subscribe messages published to this container
         genericReceive(CConstants.DPE + ":" + getName(),
-                new DpeCallBack(),
-                true);
+                new DpeCallBack());
     }
 
     /**
@@ -157,8 +156,7 @@ public class Dpe extends CBase{
 
         // Subscribe messages published to this container
         genericReceive(CConstants.DPE + ":" + getName(),
-                new DpeCallBack(),
-                true);
+                new DpeCallBack());
     }
 
     /**

@@ -339,21 +339,16 @@ public class OrchestratorBase extends CBase {
      * @param call_back user call back function
      * @param severity_id if 0 > id < 4 will report only the
      *                    required severity otherwise all
-     * @param is_sync if true this call will block until
-     *                callback receives the data
      * @throws xMsgException
      */
     public void listen_errors(xMsgCallBack call_back,
-                              int severity_id,
-                              boolean is_sync) throws xMsgException {
+                              int severity_id) throws xMsgException {
         if(severity_id>0 && severity_id<4) {
             genericReceive(xMsgConstants.ERROR.getStringValue() + ":" + severity_id,
-                    call_back,
-                    is_sync);
+                    call_back);
         } else {
             genericReceive(xMsgConstants.ERROR.getStringValue(),
-                    call_back,
-                    is_sync);
+                    call_back);
         }
     }
 
@@ -364,21 +359,16 @@ public class OrchestratorBase extends CBase {
      * @param call_back user call back function
      * @param severity_id if 0 > id < 4 will report only the
      *                    required severity otherwise all
-     * @param is_sync if true this call will block until
-     *                callback receives the data
      * @throws xMsgException
      */
     public void listen_warnings(xMsgCallBack call_back,
-                                int severity_id,
-                                boolean is_sync) throws xMsgException {
+                                int severity_id) throws xMsgException {
         if(severity_id>0 && severity_id<4) {
             genericReceive(xMsgConstants.WARNING.getStringValue() + ":" + severity_id,
-                    call_back,
-                    is_sync);
+                    call_back);
         } else {
             genericReceive(xMsgConstants.WARNING.getStringValue(),
-                    call_back,
-                    is_sync);
+                    call_back);
         }
     }
 
@@ -391,15 +381,12 @@ public class OrchestratorBase extends CBase {
      * DONE message and react accordingly.
      *
      * @param call_back user call back function
-     * @param is_sync if true this call will block until
-     *                callback receives the data
      * @throws xMsgException
      */
-    public void listen_infos(xMsgCallBack call_back,
-                             boolean is_sync) throws xMsgException {
+    public void listen_infos(xMsgCallBack call_back)
+            throws xMsgException {
         genericReceive(xMsgConstants.INFO.getStringValue(),
-                call_back,
-                is_sync);
+                call_back);
     }
 
     /**
@@ -412,21 +399,17 @@ public class OrchestratorBase extends CBase {
      * @param call_back user call back function
      * @param severity_id if 0 > id < 4 will report only the
      *                    required severity otherwise all
-     * @param is_sync if true this call will block until
-     *                callback receives the data
      * @throws xMsgException
      */
     public void listen_error_from(String sName,
                                   xMsgCallBack call_back,
-                                  int severity_id,
-                                  boolean is_sync)
+                                  int severity_id)
             throws xMsgException, CException {
         if(severity_id>0 && severity_id<4) {
             genericReceive(xMsgConstants.ERROR.getStringValue() + ":" +
                             severity_id + ":" +
                             sName,
-                    call_back,
-                    is_sync);
+                    call_back);
         } else {
             throw new CException("unsupported severity ID");
         }
@@ -442,21 +425,17 @@ public class OrchestratorBase extends CBase {
      * @param call_back user call back function
      * @param severity_id if 0 > id < 4 will report only the
      *                    required severity otherwise all
-     * @param is_sync if true this call will block until
-     *                callback receives the data
      * @throws xMsgException
      */
     public void listen_warning_from(String sName,
                                     xMsgCallBack call_back,
-                                    int severity_id,
-                                    boolean is_sync)
+                                    int severity_id)
             throws xMsgException, CException {
         if(severity_id>0 && severity_id<4) {
             genericReceive(xMsgConstants.WARNING.getStringValue() + ":" +
                             severity_id + ":" +
                             sName,
-                    call_back,
-                    is_sync);
+                    call_back);
         } else {
             throw new CException("unsupported severity ID");
         }
@@ -470,18 +449,14 @@ public class OrchestratorBase extends CBase {
      * DONE message and react accordingly.
      *
      * @param call_back user call back function
-     * @param is_sync if true this call will block until
-     *                callback receives the data
      * @throws xMsgException
      */
     public void listen_info_from(String sName,
-                                 xMsgCallBack call_back,
-                                 boolean is_sync)
+                                 xMsgCallBack call_back)
             throws xMsgException{
         genericReceive(xMsgConstants.INFO.getStringValue() + ":" +
                         sName,
-                call_back,
-                is_sync);
+                call_back);
     }
 
     /**

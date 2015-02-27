@@ -479,13 +479,10 @@ public class CBase extends xMsg {
      * @param topic Service canonical name that this
      *              method will subscribe or listen
      * @param call_back User provided call_back function
-     * @param is_sync if set to true method will block until subscription method is
-     *                received and user callback method is returned
      */
     public void serviceReceive(xMsgConnection connection,
                                String topic,
-                               xMsgCallBack call_back,
-                               boolean is_sync)
+                               xMsgCallBack call_back)
             throws xMsgException {
 
         String dpe = xMsgUtil.getTopicDomain(topic);
@@ -502,8 +499,7 @@ public class CBase extends xMsg {
                 dpe,
                 container,
                 engine,
-                call_back,
-                is_sync);
+                call_back);
     }
 
     /**
@@ -515,14 +511,11 @@ public class CBase extends xMsg {
      * @param topic Service canonical name that this
      *              method will subscribe or listen
      * @param call_back User provided call_back function
-     * @param is_sync if set to true method will block until subscription method is
-     *                received and user callback method is returned
      */
     public void serviceReceive(String topic,
-                               xMsgCallBack call_back,
-                               boolean is_sync)
+                               xMsgCallBack call_back)
             throws xMsgException {
-        serviceReceive(node_connection, topic, call_back, is_sync);
+        serviceReceive(node_connection, topic, call_back);
     }
 
     /**
@@ -540,19 +533,15 @@ public class CBase extends xMsg {
      * @param topic Service canonical name that this
      *              method will subscribe or listen
      * @param call_back User provided call_back function
-     * @param is_sync if set to true method will block until subscription method is
-     *                received and user callback method is returned
      */
     public void genericReceive(xMsgConnection connection,
                                String topic,
-                               xMsgCallBack call_back,
-                               boolean is_sync)
+                               xMsgCallBack call_back)
             throws xMsgException {
 
         subscribe(connection,
                 topic,
-                call_back,
-                is_sync);
+                call_back);
     }
 
     /**
@@ -566,14 +555,11 @@ public class CBase extends xMsg {
      * @param topic Service canonical name that this
      *              method will subscribe or listen
      * @param call_back User provided call_back function
-     * @param is_sync if set to true method will block until subscription method is
-     *                received and user callback method is returned
      */
     public void genericReceive(String topic,
-                               xMsgCallBack call_back,
-                               boolean is_sync)
+                               xMsgCallBack call_back)
             throws xMsgException {
-        genericReceive(node_connection, topic, call_back,is_sync);
+        genericReceive(node_connection, topic, call_back);
     }
 
     public void cancelReceive(xMsgConnection connection,
