@@ -99,7 +99,7 @@ task distBinaries(type: Tar, dependsOn: build) {
 }
 
 
-task deploy(type: Copy, overwrite: true, dependsOn: build) {
+task deploy(type: Copy, overwrite: true, dependsOn: jar) {
     def dest = "$System.env.CLARA_HOME"
     if (dest == "null") {
         throw new GradleException('CLARA_HOME not set')
