@@ -6,7 +6,9 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.net.InetAddress;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 import java.text.Format;
 import java.text.SimpleDateFormat;
@@ -362,5 +364,30 @@ public class CUtility {
         PrintWriter pw = new PrintWriter(sw);
         e.printStackTrace(pw);
         return sw.toString();
+    }
+
+
+    /**
+     * Returns IP address of the host
+     * @param hostname the host
+     * @return textual representation of the IP address
+     */
+    public static String getIPAddress(String hostname) {
+        String host = null;
+        try {
+            // resolve the host name for IP address
+            if(hostname.equalsIgnoreCase("localhost")){
+                InetAddress address = InetAddress.getLocalHost();
+                // host will always be in the form of IP address
+                host =address.getHostAddress();
+            } else {
+                // find the IP address based on the host name
+                InetAddress address = InetAddress.getByName(hostname);
+                host = address.getHostAddress();
+            }
+        } catch (UnknownHostException e) {
+            e.printStackTrace();
+        }
+        return host;
     }
 }
