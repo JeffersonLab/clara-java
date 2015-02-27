@@ -318,6 +318,7 @@ public class Dpe extends CBase{
                             if(CUtility.isCanonical(value)){
                                 removeContainer(value);
                                 removeContainerRecord(value);
+                                System.out.println(CUtility.getCurrentTimeInH()+": Stopped container = "+value);
                             }
                             break;
 

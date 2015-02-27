@@ -504,6 +504,24 @@ public class OrchestratorBase extends CBase {
     }
 
     /**
+     * <p>
+     *     Asks DPE to stop a container
+     * </p>
+     *
+     * @param dpeName DPE canonical name, i.e. IP
+     *                of the host where DPE is running
+     * @param containerName canonical name of the service container
+     * @throws xMsgException
+     */
+    public void stop_container(String dpeName, String containerName)
+            throws xMsgException {
+
+        genericSend(CConstants.DPE + ":" + dpeName,
+                CConstants.REMOVE_CONTAINER + "?" + containerName);
+
+    }
+
+    /**
      * Asks container to deploy a service
      * @param containerName canonical name of the container
      * @param engineName user specified engine name, i.e. engine class name
