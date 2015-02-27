@@ -1,6 +1,7 @@
 package org.jlab.clara.examples.engines;
 
 import org.jlab.clara.util.ACEngine;
+import org.jlab.clara.util.CTransit;
 import org.jlab.coda.xmsg.data.xMsgD;
 
 import java.util.List;
@@ -16,19 +17,19 @@ import java.util.List;
  */
 public class E4 extends ACEngine {
     @Override
-    public xMsgD.Data.Builder execute(xMsgD.Data.Builder x) {
-        System.out.println("E4 engine execute... "+x.getSTRING());
+    public CTransit execute(CTransit x) {
+        System.out.println("E4 engine execute... "+x.getTransitData().getSTRING());
         return x;
     }
 
     @Override
-    public xMsgD.Data.Builder execute_group(List<xMsgD.Data.Builder> x) {
+    public CTransit execute_group(List<CTransit> x) {
         System.out.println("E4 engine group execute...");
         return x.get(0);
     }
 
     @Override
-    public void configure(xMsgD.Data.Builder x) {
+    public void configure(CTransit x) {
         System.out.println("E4 engine configure...");
     }
 

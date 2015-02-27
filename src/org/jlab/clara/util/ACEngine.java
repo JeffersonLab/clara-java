@@ -18,11 +18,11 @@ public abstract class ACEngine {
     private String exception_severity =
             xMsgConstants.UNDEFINED.getStringValue();
 
-    public abstract xMsgD.Data.Builder execute(xMsgD.Data.Builder x);
+    public abstract CTransit execute(CTransit x);
 
-    public abstract xMsgD.Data.Builder execute_group(List<xMsgD.Data.Builder> x);
+    public abstract CTransit execute_group(List<CTransit> x);
 
-    public abstract void configure(xMsgD.Data.Builder x);
+    public abstract void configure(CTransit x);
 
     public abstract List<String> get_states();
 

@@ -515,6 +515,21 @@ public class OrchestratorBase extends CBase {
     }
 
     /**
+     * Asks container to deploy a service
+     * @param containerName canonical name of the container
+     * @param engineName user specified engine name, i.e. engine class name
+     * @throws xMsgException
+     */
+    public void start_service(String containerName,
+                              String engineName)
+            throws xMsgException {
+
+        genericSend(CConstants.CONTAINER + ":" + containerName,
+                CConstants.DEPLOY_SERVICE + "?" + engineName);
+
+    }
+
+    /**
      * <p>
      *     Sends the receiving service
      *     string = CConstants.RUN_SERVICE.

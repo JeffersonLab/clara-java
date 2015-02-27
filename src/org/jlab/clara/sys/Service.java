@@ -2,10 +2,7 @@ package org.jlab.clara.sys;
 
 import org.jlab.clara.base.CBase;
 import org.jlab.clara.base.CException;
-import org.jlab.clara.util.ACEngine;
-import org.jlab.clara.util.CClassLoader;
-import org.jlab.clara.util.CConstants;
-import org.jlab.clara.util.CUtility;
+import org.jlab.clara.util.*;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.data.xMsgD;
@@ -69,7 +66,7 @@ public class Service extends CBase {
     // The dynamic ( updated for every request) repository/map
     // (mapped by the composition string) of input-linked service
     // data that are required to be logically AND-ed
-    private HashMap<String, HashMap<String,xMsgD.Data.Builder>>
+    private HashMap<String, HashMap<String,CTransit>>
             in_and_data_list = new HashMap<>();
 
     // Local map of input-linked services for every
@@ -117,7 +114,12 @@ public class Service extends CBase {
                    String name,
                    String sharedMemoryKey,
                    String feHost)
-            throws xMsgException, CException, SocketException, IllegalAccessException, InstantiationException, ClassNotFoundException {
+            throws xMsgException,
+            CException,
+            SocketException,
+            IllegalAccessException,
+            InstantiationException,
+            ClassNotFoundException {
         super(feHost);
         setName(name);
 
@@ -160,7 +162,12 @@ public class Service extends CBase {
     public Service(String packageName,
                    String name,
                    String sharedMemoryKey)
-            throws xMsgException, CException, SocketException, IllegalAccessException, InstantiationException, ClassNotFoundException {
+            throws xMsgException,
+            CException,
+            SocketException,
+            IllegalAccessException,
+            InstantiationException,
+            ClassNotFoundException {
         super();
         setName(name);
         this.sharedMemoryKey = sharedMemoryKey;
@@ -183,9 +190,15 @@ public class Service extends CBase {
     public void process(LinkedBlockingQueue<Service> objectPool,
                         String dataType,
                         Object data,
+                        String syncReceiverName,
                         int id)
             throws CException, xMsgException, SocketException, InterruptedException {
+
         xMsgD.Data.Builder inData = null;
+
+        Object userData;
+
+        CTransit engineInData = null;
 
         String sharedMemoryPointer;
 
@@ -200,8 +213,14 @@ public class Service extends CBase {
             // get inData from the shared memory
             inData = Dpe.sharedMemory.get(sharedMemoryPointer);
 
+            //user data may also be un-serialized
+            userData = Dpe.sharedDataObject.get(sharedMemoryPointer);
+
+            engineInData = new CTransit(inData, userData);
+
         } else if (dataType.equals(xMsgConstants.ENVELOPE_DATA_TYPE_XMSGDATA.getStringValue())) {
             inData = (xMsgD.Data.Builder) data;
+            engineInData = new CTransit(inData, null);
         }
 
         if(inData==null)throw new CException("unknown data type");
@@ -212,7 +231,12 @@ public class Service extends CBase {
 
         // check to see if this is a configure request
         if (inData.getAction().equals(xMsgD.Data.ControlAction.CONFIGURE)){
-            engine_object.configure(inData);
+            engine_object.configure(engineInData);
+
+            // If this is a sync request send done to the requester
+            if(!syncReceiverName.equals(xMsgConstants.UNDEFINED.getStringValue())){
+                genericSend(syncReceiverName, xMsgConstants.DONE.getStringValue());
+            }
 
         } else if (inData.getAction().equals(xMsgD.Data.ControlAction.EXECUTE)) {
 
@@ -223,7 +247,7 @@ public class Service extends CBase {
             }
 
             // Execute service engine
-            xMsgD.Data.Builder service_result = xMsgD.Data.newBuilder();
+            CTransit service_result = null;
 
             for (String com : in_links.keySet()) {
 
@@ -244,11 +268,11 @@ public class Service extends CBase {
                         for (String ser : in_and_name_list.get(com)) {
                             if (ser.equals(senderService)) {
                                 if (in_and_data_list.containsKey(com)) {
-                                    HashMap<String, xMsgD.Data.Builder> dm = in_and_data_list.get(com);
-                                    dm.put(senderService, inData);
+                                    HashMap<String, CTransit> dm = in_and_data_list.get(com);
+                                    dm.put(senderService, engineInData);
                                 } else {
-                                    HashMap<String, xMsgD.Data.Builder> dm = new HashMap<>();
-                                    dm.put(senderService, inData);
+                                    HashMap<String, CTransit> dm = new HashMap<>();
+                                    dm.put(senderService, engineInData);
                                     in_and_data_list.put(com, dm);
                                 }
                             }
@@ -259,10 +283,10 @@ public class Service extends CBase {
                         // If equal we will execute the service.
                         if (in_and_name_list.get(com).size() == in_and_data_list.get(com).size()) {
 
-                            List<xMsgD.Data.Builder> ddl = new ArrayList<>();
+                            List<CTransit> ddl = new ArrayList<>();
 
-                            for (HashMap<String, xMsgD.Data.Builder> m : in_and_data_list.values()) {
-                                for (xMsgD.Data.Builder d : m.values()) {
+                            for (HashMap<String, CTransit> m : in_and_data_list.values()) {
+                                for (CTransit d : m.values()) {
                                     ddl.add(d);
                                 }
                             }
@@ -280,7 +304,7 @@ public class Service extends CBase {
                                 // service engine execution time
                                 long execTime = endTime - startTime;
                                 // Update transient data with this service execution time
-                                service_result.setExecutionTime(execTime);
+                                service_result.getTransitData().setExecutionTime(execTime);
                                 // Calculate a simple average for the execution time
                                 _avEngineExecutionTime = (_avEngineExecutionTime + execTime)/ _numberOfRequests;
 
@@ -303,14 +327,14 @@ public class Service extends CBase {
                             // get engine execution start time
                             startTime = System.nanoTime();
 
-                            service_result = engine_object.execute(inData);
+                            service_result = engine_object.execute(engineInData);
 
                             // get engine execution end time
                             endTime = System.nanoTime();
                             // service engine execution time
                             long execTime = endTime - startTime;
                             // Update transient data with this service execution time
-                            service_result.setExecutionTime(execTime);
+                            service_result.getTransitData().setExecutionTime(execTime);
                             // Calculate a simple average for the execution time
                             _avEngineExecutionTime = (_avEngineExecutionTime + execTime)/ _numberOfRequests;
 
@@ -329,14 +353,14 @@ public class Service extends CBase {
                         // get engine execution start time
                         startTime = System.nanoTime();
 
-                        service_result = engine_object.execute(inData);
+                        service_result = engine_object.execute(engineInData);
 
                         // get engine execution end time
                         endTime = System.nanoTime();
                         // service engine execution time
                         long execTime = endTime - startTime;
                         // Update transient data with this service execution time
-                        service_result.setExecutionTime(execTime);
+                        service_result.getTransitData().setExecutionTime(execTime);
                         // Calculate a simple average for the execution time
                         _avEngineExecutionTime = (_avEngineExecutionTime + execTime)/ _numberOfRequests;
 
@@ -348,14 +372,29 @@ public class Service extends CBase {
                 }
             }
 
+            xMsgD.Data.Builder res = xMsgD.Data.newBuilder();
+            Object userObj = null;
+            if(service_result==null){
+                res.setDataGenerationStatus(xMsgD.Data.Severity.WARNING1);
+                res.setStatusText(getName()+ ": engine null output");
+                res.setStatusSeverityId(1);
+            } else {
+                res = service_result.getTransitData();
+                userObj = service_result.getUserObject();
+            }
             // Send service engine execution data
-                service_result.setSender(getName());
+            res.setSender(getName());
 
                 // Negative id means the service just
                 // simply passes the recorded id across
-                if (id > 0) service_result.setId(id);
+                if (id > 0) res.setId(id);
 
-                serviceSend(service_result);
+                serviceSend(res, userObj);
+
+            // If this is a sync request send data also to the requester
+            if(!syncReceiverName.equals(xMsgConstants.UNDEFINED.getStringValue())){
+                genericSend(syncReceiverName,service_result);
+            }
         }
 
         // return this object to the pool
@@ -409,29 +448,29 @@ public class Service extends CBase {
 
     }
 
-    private void serviceSend(xMsgD.Data.Builder data)
+    private void serviceSend(xMsgD.Data.Builder data, Object userObj)
             throws xMsgException, SocketException, CException {
 
 
         // Check the status of the engine execution and
         // if it is warning or error broadcast exception data
         if (data.getDataGenerationStatus().equals(xMsgD.Data.Severity.ERROR1)){
-            report_data(data, xMsgConstants.ERROR.getStringValue(),1);
+            report_data(data, xMsgConstants.ERROR.getStringValue(),data.getStatusSeverityId());
 
         } else if (data.getDataGenerationStatus().equals(xMsgD.Data.Severity.ERROR2)){
-            report_data(data, xMsgConstants.ERROR.getStringValue(),2);
+            report_data(data, xMsgConstants.ERROR.getStringValue(),data.getStatusSeverityId());
 
         } else if (data.getDataGenerationStatus().equals(xMsgD.Data.Severity.ERROR3)){
-            report_data(data, xMsgConstants.ERROR.getStringValue(),3);
+            report_data(data, xMsgConstants.ERROR.getStringValue(),data.getStatusSeverityId());
 
         } else if (data.getDataGenerationStatus().equals(xMsgD.Data.Severity.WARNING1)){
-            report_data(data, xMsgConstants.WARNING.getStringValue(),1);
+            report_data(data, xMsgConstants.WARNING.getStringValue(),data.getStatusSeverityId());
 
         } else if (data.getDataGenerationStatus().equals(xMsgD.Data.Severity.WARNING2)){
-            report_data(data, xMsgConstants.WARNING.getStringValue(),2);
+            report_data(data, xMsgConstants.WARNING.getStringValue(),data.getStatusSeverityId());
 
         } else if (data.getDataGenerationStatus().equals(xMsgD.Data.Severity.WARNING3)){
-            report_data(data, xMsgConstants.WARNING.getStringValue(),3);
+            report_data(data, xMsgConstants.WARNING.getStringValue(),data.getStatusSeverityId());
         }
 
         // If data monitors are registered broadcast data
@@ -454,7 +493,9 @@ public class Service extends CBase {
                 } else {
                     // copy data to the shared memory
                     Dpe.sharedMemory.put(sharedMemoryKey,data);
-
+                    if(userObj!=null){
+                        Dpe.sharedDataObject.put(sharedMemoryKey,userObj);
+                    }
                     serviceSend(ss, sharedMemoryKey);
                 }
             }

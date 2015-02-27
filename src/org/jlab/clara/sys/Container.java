@@ -34,7 +34,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class Container extends CBase {
 
-    // Map containing object pools for every service in the container
+    // Map containing service object pools for every service in the container
     private HashMap<String, LinkedBlockingQueue<Service>>
             _objectPoolMap = new HashMap<>();
 
@@ -260,13 +260,19 @@ public class Container extends CBase {
                     seName = st.nextToken();
                     objectPoolSize = st.nextToken();
                 } catch (NoSuchElementException e){
-                    e.printStackTrace();
+                    System.out.println(e.getMessage());
+//                    e.printStackTrace();
                 }
                 if(cmd!=null && seName!=null) {
                     switch (cmd) {
                         case CConstants.DEPLOY_SERVICE:
                             if(objectPoolSize==null){
-                                objectPoolSize = "1";
+
+                                // if object pool size is not defined set
+                                // the size equal to the number of cores
+                                // in the node where this container is deployed
+                                int ps = Runtime.getRuntime().availableProcessors();
+                                objectPoolSize = String.valueOf(ps);
                             }
                             try {
                                 String packageName = seName.substring(0,seName.lastIndexOf("."));
@@ -333,6 +339,11 @@ public class Container extends CBase {
                 final String dataType = msg.getDataType();
                 final Object data = msg.getData();
 
+                // If this is a sync request getSyncRequesterAddress()
+                // will return address not equal to "undefined".
+                // Service process method will check this
+                final String syncReceiver = msg.getSyncRequesterAddress();
+
                 final LinkedBlockingQueue<Service> op = _objectPoolMap.get(receiver);
 
                 // This will block if there is no available object in the pool
@@ -342,7 +353,7 @@ public class Container extends CBase {
                 threadPool.submit(new Runnable() {
                                       public void run() {
                                           try {
-                                              ser.process(op, dataType, data, -1);
+                                              ser.process(op, dataType, data, syncReceiver, -1);
                                           } catch (xMsgException | SocketException | InterruptedException | CException e) {
                                               e.printStackTrace();
                                           }

@@ -43,6 +43,12 @@ public class Dpe extends CBase{
     public static ConcurrentHashMap<String, xMsgD.Data.Builder>
             sharedMemory = new ConcurrentHashMap<>();
 
+    // Shared map used by the services to store (un-serialized)
+    // user data objects passed within the transient data.
+    // Note that serialized user object are passed as byte array
+    public static ConcurrentHashMap<String, Object>
+            sharedDataObject = new ConcurrentHashMap<>();
+
     // The name of this dpe. usually it is the IP address
     // of a node where this class is instantiated.
     private String
