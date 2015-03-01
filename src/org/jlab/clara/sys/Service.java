@@ -375,7 +375,7 @@ public class Service extends CBase {
             xMsgD.Data.Builder res = xMsgD.Data.newBuilder();
             Object userObj = null;
             if(service_result==null){
-                res.setDataGenerationStatus(xMsgD.Data.Severity.WARNING1);
+                res.setDataGenerationStatus(xMsgD.Data.Severity.WARNING);
                 res.setStatusText(getName()+ ": engine null output");
                 res.setStatusSeverityId(1);
             } else {
@@ -451,27 +451,7 @@ public class Service extends CBase {
     private void serviceSend(xMsgD.Data.Builder data, Object userObj)
             throws xMsgException, SocketException, CException {
 
-
-        // Check the status of the engine execution and
-        // if it is warning or error broadcast exception data
-        if (data.getDataGenerationStatus().equals(xMsgD.Data.Severity.ERROR1)){
-            report_data(data, xMsgConstants.ERROR.getStringValue(),data.getStatusSeverityId());
-
-        } else if (data.getDataGenerationStatus().equals(xMsgD.Data.Severity.ERROR2)){
-            report_data(data, xMsgConstants.ERROR.getStringValue(),data.getStatusSeverityId());
-
-        } else if (data.getDataGenerationStatus().equals(xMsgD.Data.Severity.ERROR3)){
-            report_data(data, xMsgConstants.ERROR.getStringValue(),data.getStatusSeverityId());
-
-        } else if (data.getDataGenerationStatus().equals(xMsgD.Data.Severity.WARNING1)){
-            report_data(data, xMsgConstants.WARNING.getStringValue(),data.getStatusSeverityId());
-
-        } else if (data.getDataGenerationStatus().equals(xMsgD.Data.Severity.WARNING2)){
-            report_data(data, xMsgConstants.WARNING.getStringValue(),data.getStatusSeverityId());
-
-        } else if (data.getDataGenerationStatus().equals(xMsgD.Data.Severity.WARNING3)){
-            report_data(data, xMsgConstants.WARNING.getStringValue(),data.getStatusSeverityId());
-        }
+        report_data(data, data.getDataGenerationStatus().name(),data.getStatusSeverityId());
 
         // If data monitors are registered broadcast data
         if (data.getDataMonitor()){
@@ -576,25 +556,11 @@ public class Service extends CBase {
                                int severity)
             throws xMsgException, CException {
 
-        if(severity>3 || severity<1){
-            throw new CException("unsupported severity id");
-        }
-
         // build the xMsgData object
         xMsgD.Data.Builder db = xMsgD.Data.newBuilder();
 
         db.setSender(getName());
-        switch(severity){
-            case 1:
-                db.setDataGenerationStatus(xMsgD.Data.Severity.WARNING1);
-                break;
-            case 2:
-                db.setDataGenerationStatus(xMsgD.Data.Severity.WARNING2);
-                break;
-            case 3:
-                db.setDataGenerationStatus(xMsgD.Data.Severity.WARNING3);
-                break;
-        }
+        db.setDataGenerationStatus(xMsgD.Data.Severity.WARNING);
         db.setDataType(xMsgD.Data.DType.T_STRING);
         db.setSTRING(warning_string);
         db.setExecutionTime(_avEngineExecutionTime);
@@ -622,25 +588,11 @@ public class Service extends CBase {
                              int severity)
             throws xMsgException, CException {
 
-        if(severity>3 || severity<1){
-            throw new CException("unsupported severity id");
-        }
-
         // build the xMsgData object
         xMsgD.Data.Builder db = xMsgD.Data.newBuilder();
 
         db.setSender(getName());
-        switch(severity){
-            case 1:
-                db.setDataGenerationStatus(xMsgD.Data.Severity.ERROR1);
-                break;
-            case 2:
-                db.setDataGenerationStatus(xMsgD.Data.Severity.ERROR2);
-                break;
-            case 3:
-                db.setDataGenerationStatus(xMsgD.Data.Severity.ERROR3);
-                break;
-        }
+        db.setDataGenerationStatus(xMsgD.Data.Severity.ERROR);
         db.setDataType(xMsgD.Data.DType.T_STRING);
         db.setSTRING(error_string);
         db.setExecutionTime(_avEngineExecutionTime);
@@ -670,20 +622,11 @@ public class Service extends CBase {
                             int severity)
             throws xMsgException {
 
-
-        if (report_type.equals(xMsgConstants.INFO.getStringValue())) {
-            genericSend(xMsgConstants.INFO.getStringValue() + ":" +
-                            getName(),
+        if (report_type.equals(xMsgD.Data.Severity.INFO)) {
+            genericSend(report_type + ":" + getName(),
                     data);
-        } else if (report_type.equals(xMsgConstants.WARNING.getStringValue())) {
-            genericSend(xMsgConstants.WARNING.getStringValue() + ":" +
-                            severity + ":" +
-                            getName(),
-                    data);
-        } else if (report_type.equals(xMsgConstants.ERROR.getStringValue())) {
-            genericSend(xMsgConstants.ERROR.getStringValue() + ":" +
-                            severity + ":" +
-                            getName(),
+        } else {
+            genericSend(report_type + ":" + severity + ":" + getName(),
                     data);
         }
     }
