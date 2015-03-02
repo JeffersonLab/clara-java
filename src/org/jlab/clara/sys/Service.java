@@ -393,7 +393,7 @@ public class Service extends CBase {
 
             // If this is a sync request send data also to the requester
             if(!syncReceiverName.equals(xMsgConstants.UNDEFINED.getStringValue())){
-                genericSend(syncReceiverName,service_result);
+                genericSend(syncReceiverName,res);
             }
         }
 
