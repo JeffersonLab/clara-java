@@ -19,6 +19,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * <p>
@@ -186,9 +187,13 @@ public class Dpe extends CBase{
 
     private Object syncPing(String dpeName, int timeOut)
             throws xMsgException {
-       return genericSyncSend(CConstants.DPE + ":" + dpeName,
-               CConstants.DPE_PING,
-               timeOut );
+       try {
+            return genericSyncSend(CConstants.DPE + ":" + dpeName,
+                   CConstants.DPE_PING,
+                   timeOut );
+        } catch (TimeoutException e) {
+            return null;
+        }
     }
 
     private void removeContainer(String name){

@@ -15,6 +15,7 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.concurrent.TimeoutException;
 
 /**
  * <p>
@@ -340,12 +341,13 @@ public class CBase extends xMsg {
      * @param connection zmq connection socket
      * @param topic Clara service canonical name
      * @param data xMsgD.Data object
+     * @throws TimeoutException
      */
     public Object serviceSyncSend(xMsgConnection connection,
                                   String topic,
                                   Object data,
                                   int timeOut)
-            throws xMsgException {
+            throws xMsgException, TimeoutException {
 
         String dpe = xMsgUtil.getTopicDomain(topic);
         String container = "*";
@@ -371,11 +373,12 @@ public class CBase extends xMsg {
      * @param topic Clara service canonical name
      * @param data xMsgD.Data object
      * @param timeOut int in seconds
+     * @throws TimeoutException
      */
     public Object serviceSyncSend(String topic,
                                   Object data,
                                   int timeOut)
-            throws xMsgException {
+            throws xMsgException, TimeoutException {
         return serviceSyncSend(node_connection, topic, data, timeOut);
     }
 
@@ -433,12 +436,13 @@ public class CBase extends xMsg {
      * @param topic Clara service canonical name
      * @param data xMsgD.Data object
      * @param timeOut int in seconds
+     * @throws TimeoutException
      */
     public Object genericSyncSend(xMsgConnection connection,
                                   String topic,
                                   Object data,
                                   int timeOut)
-            throws xMsgException {
+            throws xMsgException, TimeoutException {
 
         return sync_publish(connection,
                 topic,
@@ -457,11 +461,12 @@ public class CBase extends xMsg {
      * @param topic Clara service canonical name
      * @param data xMsgD.Data object
      * @param timeOut int in seconds
+     * @throws TimeoutException
      */
     public Object genericSyncSend(String topic,
                                   Object data,
                                   int timeOut)
-            throws xMsgException {
+            throws xMsgException, TimeoutException {
 
         return genericSyncSend(node_connection,topic,data, timeOut);
     }
