@@ -385,11 +385,11 @@ public class Service extends CBase {
             // Send service engine execution data
             res.setSender(getName());
 
-                // Negative id means the service just
-                // simply passes the recorded id across
-                if (id > 0) res.setId(id);
+            // Negative id means the service just
+            // simply passes the recorded id across
+            if (id > 0) res.setId(id);
 
-                serviceSend(res, userObj);
+            serviceSend(res, userObj);
 
             // If this is a sync request send data also to the requester
             if(!syncReceiverName.equals(xMsgConstants.UNDEFINED.getStringValue())){
