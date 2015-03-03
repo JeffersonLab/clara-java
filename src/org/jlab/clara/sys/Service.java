@@ -309,7 +309,7 @@ public class Service extends CBase {
                                 _avEngineExecutionTime = (_avEngineExecutionTime + execTime)/ _numberOfRequests;
 
                             } catch (Throwable t){
-                                report_error(t.getMessage(),3);
+                                report_error(t.getMessage(),3, engineInData.getTransitData().getId());
                                 return;
                             }
                             // Clear inAnd data hash map for the satisfied composition
@@ -339,7 +339,7 @@ public class Service extends CBase {
                             _avEngineExecutionTime = (_avEngineExecutionTime + execTime)/ _numberOfRequests;
 
                         } catch (Throwable t){
-                            report_error(t.getMessage(),3);
+                            report_error(t.getMessage(),3, engineInData.getTransitData().getId());
                             return;
                         }
                         break;
@@ -365,7 +365,7 @@ public class Service extends CBase {
                         _avEngineExecutionTime = (_avEngineExecutionTime + execTime)/ _numberOfRequests;
 
                     } catch (Throwable t){
-                        report_error(t.getMessage(),3);
+                        report_error(t.getMessage(),3, engineInData.getTransitData().getId());
                         return;
                     }
                     break;
@@ -382,18 +382,26 @@ public class Service extends CBase {
                 res = service_result.getTransitData();
                 userObj = service_result.getUserObject();
             }
-            // Send service engine execution data
             res.setSender(getName());
 
             // Negative id means the service just
             // simply passes the recorded id across
             if (id > 0) res.setId(id);
 
+            // Send service engine execution data
             serviceSend(res, userObj);
 
             // If this is a sync request send data also to the requester
             if(!syncReceiverName.equals(xMsgConstants.UNDEFINED.getStringValue())){
                 genericSend(syncReceiverName,res);
+            }
+
+            // If engine defines status error
+            // or warning broadcast exception
+            if(res.getDataGenerationStatus().equals(xMsgD.Data.Severity.ERROR)){
+                report_error(res.getStatusText(),res.getStatusSeverityId(), res.getId());
+            } else if(res.getDataGenerationStatus().equals(xMsgD.Data.Severity.WARNING)){
+                report_warning(res.getStatusText(),res.getStatusSeverityId(), res.getId());
             }
         }
 
@@ -582,7 +590,7 @@ public class Service extends CBase {
      * <p>
      *    Broadcasts a xMsgData transient data
      *    containing an warning-string to a
-     *    topic = severity:warning:this_service_canonical_name
+     *    topic = warning:severity:this_service_canonical_name
      *    Note: that this will also send
      *    service engine execution average time.
      *
@@ -592,7 +600,7 @@ public class Service extends CBase {
      *                 (accepted id = 1, 2 or 3)
      */
     public void report_warning(String warning_string,
-                               int severity)
+                               int severity, int id)
             throws xMsgException, CException {
 
         // build the xMsgData object
@@ -602,6 +610,7 @@ public class Service extends CBase {
         db.setDataGenerationStatus(xMsgD.Data.Severity.WARNING);
         db.setDataType(xMsgD.Data.DType.T_STRING);
         db.setSTRING(warning_string);
+        db.setId(id);
         db.setExecutionTime(_avEngineExecutionTime);
 
         genericSend(xMsgConstants.WARNING.getStringValue() + ":" +
@@ -614,7 +623,7 @@ public class Service extends CBase {
      * <p>
      *    Broadcasts a xMsgData transient data
      *    containing an error-string to a
-     *    topic = severity:error:this_service_canonical_name
+     *    topic = error:severity:this_service_canonical_name
      *    Note: that this will also send
      *    service engine execution average time.
      *
@@ -624,7 +633,7 @@ public class Service extends CBase {
      *                 (accepted id = 1, 2 or 3)
      */
     public void report_error(String error_string,
-                             int severity)
+                             int severity, int id)
             throws xMsgException, CException {
 
         // build the xMsgData object
@@ -634,6 +643,7 @@ public class Service extends CBase {
         db.setDataGenerationStatus(xMsgD.Data.Severity.ERROR);
         db.setDataType(xMsgD.Data.DType.T_STRING);
         db.setSTRING(error_string);
+        db.setId(id);
         db.setExecutionTime(_avEngineExecutionTime);
 
         genericSend(xMsgConstants.ERROR.getStringValue() + ":" +
