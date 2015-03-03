@@ -342,8 +342,8 @@ public class CUtility {
      * @return Object or null in case of error
      */
     public static Object B2O(ByteString bytes) {
-        ByteBuffer bb = bytes.asReadOnlyByteBuffer();
-        try (ByteArrayInputStream bs = new ByteArrayInputStream(bb.array());
+        byte[] bb = bytes.toByteArray();
+        try (ByteArrayInputStream bs = new ByteArrayInputStream(bb);
              ObjectInputStream in = new ObjectInputStream(bs)) {
             return in.readObject();
         } catch (IOException | ClassNotFoundException e) {
