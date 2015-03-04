@@ -388,6 +388,9 @@ public class Service extends CBase {
             // simply passes the recorded id across
             if (id > 0) res.setId(id);
 
+            // Ensure the output data has the composition
+            if (res.getComposition().isEmpty()) res.setComposition(c_composition);
+
             // Send service engine execution data
             serviceSend(res, userObj);
 
