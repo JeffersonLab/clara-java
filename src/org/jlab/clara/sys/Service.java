@@ -187,6 +187,19 @@ public class Service extends CBase {
 
     }
 
+    /**
+     * Service configure method
+     *
+     * @param objectPool reference to the object pool that is
+     *                   used to put back the object after the execution
+     * @param dataType describes the type of the data object (string or xMsgData)
+     * @param data     xMsg envelope payload
+     * @param syncReceiverName the name of the sync requester
+     *
+     * @throws CException
+     * @throws xMsgException
+     * @throws InterruptedException
+     */
     public void configure(LinkedBlockingQueue<Service> objectPool,
                           String dataType,
                           Object data,
@@ -232,6 +245,21 @@ public class Service extends CBase {
 
     }
 
+    /**
+     * Service process method. Note that configure
+     * will never be execute within this method.
+     *
+     * @param objectPool reference to the object pool that is
+     *                   used to put back the object after the execution
+     * @param dataType describes the type of the data object (string or xMsgData)
+     * @param data     xMsg envelope payload
+     * @param syncReceiverName the name of the sync requester
+     * @param id request id
+     *
+     * @throws CException
+     * @throws xMsgException
+     * @throws InterruptedException
+     */
     public void process(LinkedBlockingQueue<Service> objectPool,
                         String dataType,
                         Object data,
