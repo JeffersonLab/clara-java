@@ -187,6 +187,51 @@ public class Service extends CBase {
 
     }
 
+    public void configure(LinkedBlockingQueue<Service> objectPool,
+                          String dataType,
+                          Object data,
+                          String syncReceiverName)
+            throws CException, xMsgException, InterruptedException {
+
+        xMsgD.Data.Builder inData = null;
+
+        Object userData;
+
+        CTransit engineInData = null;
+
+        String sharedMemoryPointer;
+
+        if (dataType.equals(xMsgConstants.ENVELOPE_DATA_TYPE_STRING.getStringValue())) {
+            sharedMemoryPointer = (String) data;
+
+            // get inData from the shared memory
+            inData = Dpe.sharedMemory.get(sharedMemoryPointer);
+
+            //user data may also be un-serialized
+            userData = Dpe.sharedDataObject.get(sharedMemoryPointer);
+
+            engineInData = new CTransit(inData, userData);
+
+        } else if (dataType.equals(xMsgConstants.ENVELOPE_DATA_TYPE_XMSGDATA.getStringValue())) {
+            inData = (xMsgD.Data.Builder) data;
+            engineInData = new CTransit(inData, null);
+        }
+
+        if(inData==null)throw new CException("unknown data type");
+        // check to see if this is a configure request
+        if (inData.getAction().equals(xMsgD.Data.ControlAction.CONFIGURE)){
+            engine_object.configure(engineInData);
+
+            // If this is a sync request send done to the requester
+            if(!syncReceiverName.equals(xMsgConstants.UNDEFINED.getStringValue())){
+                genericSend(syncReceiverName, xMsgConstants.DONE.getStringValue());
+            }
+        }
+        // return this object to the pool
+        objectPool.put(this);
+
+    }
+
     public void process(LinkedBlockingQueue<Service> objectPool,
                         String dataType,
                         Object data,
@@ -404,7 +449,7 @@ public class Service extends CBase {
             if(res.getDataGenerationStatus().equals(xMsgD.Data.Severity.ERROR)){
                 report_error(res.getStatusText(),res.getStatusSeverityId(), res.getId());
             } else if(res.getDataGenerationStatus().equals(xMsgD.Data.Severity.WARNING)){
-                report_warning(res.getStatusText(),res.getStatusSeverityId(), res.getId());
+                report_warning(res.getStatusText(), res.getStatusSeverityId(), res.getId());
             }
         }
 

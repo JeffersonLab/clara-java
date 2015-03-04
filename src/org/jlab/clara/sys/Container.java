@@ -3,10 +3,12 @@ package org.jlab.clara.sys;
 import org.jlab.clara.base.CBase;
 import org.jlab.clara.base.CException;
 import org.jlab.clara.util.CConstants;
+import org.jlab.clara.util.CTransit;
 import org.jlab.clara.util.CUtility;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
+import org.jlab.coda.xmsg.data.xMsgD;
 import org.jlab.coda.xmsg.excp.xMsgException;
 
 import java.net.SocketException;
@@ -41,6 +43,9 @@ public class Container extends CBase {
     // Map of thread pools for every service in the container
     private HashMap<String, ExecutorService>
             _threadPoolMap = new HashMap<>();
+
+    // stores pool size for every service
+    private HashMap<String, Integer> _poolSizeMap = new HashMap<>();
 
     private String feHost =
             xMsgConstants.UNDEFINED.getStringValue();
@@ -161,7 +166,7 @@ public class Container extends CBase {
             throw new CException("service exists");
         }
 
-            final String fe = feHost;
+        final String fe = feHost;
 
         // Define the key in the shared
         // memory map (defined in the DPE).
@@ -180,6 +185,8 @@ public class Container extends CBase {
 
         // Creating object pool
         LinkedBlockingQueue<Service> lbq = new LinkedBlockingQueue<>(objectPoolSize);
+
+        _poolSizeMap.put(canonical_name,objectPoolSize);
 
         // Fill the object pool
         for(int i=0; i<objectPoolSize; i++){
@@ -304,18 +311,18 @@ public class Container extends CBase {
         public ServiceDispatcher(final String serviceCanonicalName) throws xMsgException, SocketException {
             super();
 
-        Thread t1 = new Thread(new Runnable() {
-            public void run() {
-                // Subscribe messages published to this service
-                try {
-                    serviceReceive(serviceCanonicalName,
-                            new ServiceCallBack());
-                } catch (xMsgException e) {
-                    e.printStackTrace();
+            Thread t1 = new Thread(new Runnable() {
+                public void run() {
+                    // Subscribe messages published to this service
+                    try {
+                        serviceReceive(serviceCanonicalName,
+                                new ServiceCallBack());
+                    } catch (xMsgException e) {
+                        e.printStackTrace();
+                    }
                 }
-            }
-        });
-        t1.start();
+            });
+            t1.start();
 
         }
     }
@@ -340,33 +347,62 @@ public class Container extends CBase {
                 final Object data = msg.getData();
 
                 // If this is a sync request getSyncRequesterAddress()
-                // will return address not equal to "undefined".
+                // will return address NOT equal to "undefined".
                 // Service process method will check this
                 final String syncReceiver = msg.getSyncRequesterAddress();
 
-                final LinkedBlockingQueue<Service> op = _objectPoolMap.get(receiver);
-
+                // Take object and thread pool for a service.
                 // This will block if there is no available object in the pool
-                final Service ser = op.take();
-
+                final LinkedBlockingQueue<Service> op = _objectPoolMap.get(receiver);
                 ExecutorService threadPool = _threadPoolMap.get(receiver);
-                threadPool.submit(new Runnable() {
-                                      public void run() {
-                                          try {
-                                              ser.process(op, dataType, data, syncReceiver, -1);
-                                          } catch (xMsgException | SocketException | InterruptedException | CException e) {
-                                              e.printStackTrace();
+
+
+                // service configure
+                xMsgD.Data.Builder inData = null;
+                if (dataType.equals(xMsgConstants.ENVELOPE_DATA_TYPE_XMSGDATA.getStringValue())) {
+                    inData = (xMsgD.Data.Builder) data;
+                    if (inData == null) throw new CException("unknown data type");
+
+                }
+                // check to see if this is a configure request
+                if (inData!=null && inData.getAction().equals(xMsgD.Data.ControlAction.CONFIGURE)){
+                    // pool size for a specific service
+                    int sps = _poolSizeMap.get(receiver);
+                    if(op.size()!=sps)throw new CException("service is busy. Can not configure.");
+
+                    for(int i=0; i<_poolSizeMap.get(receiver);i++){
+                        final Service ser = op.take();
+                        threadPool.submit(new Runnable() {
+                                              public void run() {
+                                                  try {
+                                                      ser.configure(op, dataType, data, syncReceiver);
+                                                  } catch (xMsgException | InterruptedException | CException e) {
+                                                      e.printStackTrace();
+                                                  }
+                                              }
+                                          }
+                        );
+                    }
+
+                    // service execute
+                } else {
+
+                    final Service ser = op.take();
+
+                    threadPool.submit(new Runnable() {
+                                          public void run() {
+                                              try {
+                                                  ser.process(op, dataType, data, syncReceiver, -1);
+                                              } catch (xMsgException | SocketException | InterruptedException | CException e) {
+                                                  e.printStackTrace();
+                                              }
                                           }
                                       }
-                                  }
-                );
-
-
+                    );
+                }
             } catch (CException | InterruptedException  e) {
                 e.printStackTrace();
             }
-
-//            System.out.println("DDD: service_request "+msg);
             return null;
         }
     }
