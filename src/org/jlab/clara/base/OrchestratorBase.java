@@ -8,6 +8,8 @@ import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.data.xMsgD;
 import org.jlab.coda.xmsg.data.xMsgR.xMsgRegistrationData;
 import org.jlab.coda.xmsg.excp.xMsgException;
+import org.jlab.coda.xmsg.net.xMsgAddress;
+import org.jlab.coda.xmsg.net.xMsgConnection;
 
 import java.net.SocketException;
 import java.util.ArrayList;
@@ -342,12 +344,18 @@ public class OrchestratorBase extends CBase {
      * @throws xMsgException
      */
     public void listen_errors(xMsgCallBack call_back,
-                              int severity_id) throws xMsgException {
+                              int severity_id) throws xMsgException, SocketException {
+
+        // Create a socket connections to the xMsg node.
+        // This is a local DPE, and uses default port number.
+        xMsgAddress address = new xMsgAddress("localhost");
+        xMsgConnection socket = getNewConnection(address);
+
         if(severity_id>0 && severity_id<4) {
-            genericReceive(xMsgConstants.ERROR.getStringValue() + ":" + severity_id,
+            genericReceive(socket, xMsgConstants.ERROR.getStringValue() + ":" + severity_id,
                     call_back);
         } else {
-            genericReceive(xMsgConstants.ERROR.getStringValue(),
+            genericReceive(socket, xMsgConstants.ERROR.getStringValue(),
                     call_back);
         }
     }
@@ -362,12 +370,18 @@ public class OrchestratorBase extends CBase {
      * @throws xMsgException
      */
     public void listen_warnings(xMsgCallBack call_back,
-                                int severity_id) throws xMsgException {
+                                int severity_id) throws xMsgException, SocketException {
+
+        // Create a socket connections to the xMsg node.
+        // This is a local DPE, and uses default port number.
+        xMsgAddress address = new xMsgAddress("localhost");
+        xMsgConnection socket = getNewConnection(address);
+
         if(severity_id>0 && severity_id<4) {
-            genericReceive(xMsgConstants.WARNING.getStringValue() + ":" + severity_id,
+            genericReceive(socket, xMsgConstants.WARNING.getStringValue() + ":" + severity_id,
                     call_back);
         } else {
-            genericReceive(xMsgConstants.WARNING.getStringValue(),
+            genericReceive(socket, xMsgConstants.WARNING.getStringValue(),
                     call_back);
         }
     }
@@ -384,8 +398,14 @@ public class OrchestratorBase extends CBase {
      * @throws xMsgException
      */
     public void listen_infos(xMsgCallBack call_back)
-            throws xMsgException {
-        genericReceive(xMsgConstants.INFO.getStringValue(),
+            throws xMsgException, SocketException {
+
+        // Create a socket connections to the xMsg node.
+        // This is a local DPE, and uses default port number.
+        xMsgAddress address = new xMsgAddress("localhost");
+        xMsgConnection socket = getNewConnection(address);
+
+        genericReceive(socket, xMsgConstants.INFO.getStringValue(),
                 call_back);
     }
 
@@ -404,9 +424,15 @@ public class OrchestratorBase extends CBase {
     public void listen_error_from(String sName,
                                   xMsgCallBack call_back,
                                   int severity_id)
-            throws xMsgException, CException {
+            throws xMsgException, CException, SocketException {
+
+        // Create a socket connections to the xMsg node.
+        // This is a local DPE, and uses default port number.
+        xMsgAddress address = new xMsgAddress("localhost");
+        xMsgConnection socket = getNewConnection(address);
+
         if(severity_id>0 && severity_id<4) {
-            genericReceive(xMsgConstants.ERROR.getStringValue() + ":" +
+            genericReceive(socket, xMsgConstants.ERROR.getStringValue() + ":" +
                             severity_id + ":" +
                             sName,
                     call_back);
@@ -430,9 +456,15 @@ public class OrchestratorBase extends CBase {
     public void listen_warning_from(String sName,
                                     xMsgCallBack call_back,
                                     int severity_id)
-            throws xMsgException, CException {
+            throws xMsgException, CException, SocketException {
+
+        // Create a socket connections to the xMsg node.
+        // This is a local DPE, and uses default port number.
+        xMsgAddress address = new xMsgAddress("localhost");
+        xMsgConnection socket = getNewConnection(address);
+
         if(severity_id>0 && severity_id<4) {
-            genericReceive(xMsgConstants.WARNING.getStringValue() + ":" +
+            genericReceive(socket, xMsgConstants.WARNING.getStringValue() + ":" +
                             severity_id + ":" +
                             sName,
                     call_back);
@@ -453,8 +485,14 @@ public class OrchestratorBase extends CBase {
      */
     public void listen_info_from(String sName,
                                  xMsgCallBack call_back)
-            throws xMsgException{
-        genericReceive(xMsgConstants.INFO.getStringValue() + ":" +
+            throws xMsgException, SocketException {
+
+        // Create a socket connections to the xMsg node.
+        // This is a local DPE, and uses default port number.
+        xMsgAddress address = new xMsgAddress("localhost");
+        xMsgConnection socket = getNewConnection(address);
+
+        genericReceive(socket, xMsgConstants.INFO.getStringValue() + ":" +
                         sName,
                 call_back);
     }
