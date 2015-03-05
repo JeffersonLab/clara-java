@@ -433,12 +433,36 @@ public class OrchestratorBase extends CBase {
 
         if(severity_id>0 && severity_id<4) {
             genericReceive(socket, xMsgConstants.ERROR.getStringValue() + ":" +
-                            severity_id + ":" +
-                            sName,
+                            sName  + ":" +
+                            severity_id,
                     call_back);
         } else {
             throw new CException("unsupported severity ID");
         }
+    }
+
+    /**
+     * Subscribes all error messages
+     * generated from  a specified service.
+     * Note: accepted severities are 1 - 3.
+     * If required severity is outside of this range
+     * CException will be thrown
+     *
+     * @param call_back user call back function
+     * @throws xMsgException
+     */
+    public void listen_error_from(String sName,
+                                  xMsgCallBack call_back)
+            throws xMsgException, CException, SocketException {
+
+        // Create a socket connections to the xMsg node.
+        // This is a local DPE, and uses default port number.
+        xMsgAddress address = new xMsgAddress("localhost");
+        xMsgConnection socket = getNewConnection(address);
+
+            genericReceive(socket, xMsgConstants.ERROR.getStringValue() + ":" +
+                            sName,
+                    call_back);
     }
 
     /**
@@ -465,12 +489,36 @@ public class OrchestratorBase extends CBase {
 
         if(severity_id>0 && severity_id<4) {
             genericReceive(socket, xMsgConstants.WARNING.getStringValue() + ":" +
-                            severity_id + ":" +
-                            sName,
+                            sName + ":" +
+                            severity_id,
                     call_back);
         } else {
             throw new CException("unsupported severity ID");
         }
+    }
+
+    /**
+     * Subscribes all warning messages
+     * generated from  a specified service.
+     * Note: accepted severities are 1 - 3.
+     * If required severity is outside of this range
+     * CException will be thrown
+     *
+     * @param call_back user call back function
+     * @throws xMsgException
+     */
+    public void listen_warning_from(String sName,
+                                    xMsgCallBack call_back)
+            throws xMsgException, CException, SocketException {
+
+        // Create a socket connections to the xMsg node.
+        // This is a local DPE, and uses default port number.
+        xMsgAddress address = new xMsgAddress("localhost");
+        xMsgConnection socket = getNewConnection(address);
+
+            genericReceive(socket, xMsgConstants.WARNING.getStringValue() + ":" +
+                            sName,
+                    call_back);
     }
 
     /**

@@ -690,8 +690,7 @@ public class Service extends CBase {
         db.setExecutionTime(_avEngineExecutionTime);
 
         genericSend(xMsgConstants.WARNING.getStringValue() + ":" +
-                        severity + ":" +
-                        getName(),
+                        getName() + ":" + severity,
                 db);
     }
 
@@ -723,8 +722,7 @@ public class Service extends CBase {
         db.setExecutionTime(_avEngineExecutionTime);
 
         genericSend(xMsgConstants.ERROR.getStringValue() + ":" +
-                        severity + ":" +
-                        getName(),
+                        getName() + ":" + severity,
                 db);
     }
 
