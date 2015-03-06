@@ -1,9 +1,6 @@
 package org.jlab.clara.base;
 
-import org.jlab.coda.xmsg.core.xMsg;
-import org.jlab.coda.xmsg.core.xMsgCallBack;
-import org.jlab.coda.xmsg.core.xMsgConstants;
-import org.jlab.coda.xmsg.core.xMsgUtil;
+import org.jlab.coda.xmsg.core.*;
 import org.jlab.coda.xmsg.data.xMsgR.xMsgRegistrationData;
 import org.jlab.coda.xmsg.excp.xMsgDiscoverException;
 import org.jlab.coda.xmsg.excp.xMsgException;
@@ -485,7 +482,7 @@ public class CBase extends xMsg {
      *              method will subscribe or listen
      * @param call_back User provided call_back function
      */
-    public void serviceReceive(xMsgConnection connection,
+    public SubscriptionHandler  serviceReceive(xMsgConnection connection,
                                String topic,
                                xMsgCallBack call_back)
             throws xMsgException {
@@ -500,7 +497,7 @@ public class CBase extends xMsg {
             engine = xMsgUtil.getTopicType(topic);
         }
 
-        subscribe(connection,
+        return subscribe(connection,
                 dpe,
                 container,
                 engine,
@@ -517,10 +514,10 @@ public class CBase extends xMsg {
      *              method will subscribe or listen
      * @param call_back User provided call_back function
      */
-    public void serviceReceive(String topic,
+    public SubscriptionHandler  serviceReceive(String topic,
                                xMsgCallBack call_back)
             throws xMsgException {
-        serviceReceive(node_connection, topic, call_back);
+        return serviceReceive(node_connection, topic, call_back);
     }
 
     /**
@@ -539,12 +536,12 @@ public class CBase extends xMsg {
      *              method will subscribe or listen
      * @param call_back User provided call_back function
      */
-    public void genericReceive(xMsgConnection connection,
+    public SubscriptionHandler genericReceive(xMsgConnection connection,
                                String topic,
                                xMsgCallBack call_back)
             throws xMsgException {
 
-        subscribe(connection,
+        return subscribe(connection,
                 topic,
                 call_back);
     }
@@ -561,24 +558,18 @@ public class CBase extends xMsg {
      *              method will subscribe or listen
      * @param call_back User provided call_back function
      */
-    public void genericReceive(String topic,
+    public SubscriptionHandler genericReceive(String topic,
                                xMsgCallBack call_back)
             throws xMsgException {
-        genericReceive(node_connection, topic, call_back);
+        return genericReceive(node_connection, topic, call_back);
     }
 
-    public void cancelReceive(xMsgConnection connection,
-                               String topic)
-            throws xMsgSubscribingException {
+    public void cancelReceive(SubscriptionHandler handler)
+            throws xMsgException {
 
-        unsubscribe(connection,topic);
+        unsubscribe(handler);
     }
 
-    public void cancelReceive(String topic)
-            throws xMsgSubscribingException {
-
-        unsubscribe(node_connection, topic);
-    }
 
     /**
      * <p>

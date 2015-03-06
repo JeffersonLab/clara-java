@@ -2,6 +2,7 @@ package org.jlab.clara.base;
 
 import org.jlab.clara.util.CConstants;
 import org.jlab.clara.util.CUtility;
+import org.jlab.coda.xmsg.core.SubscriptionHandler;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgUtil;
@@ -343,7 +344,7 @@ public class OrchestratorBase extends CBase {
      *                    required severity otherwise all
      * @throws xMsgException
      */
-    public void listen_errors(xMsgCallBack call_back,
+    public SubscriptionHandler  listen_errors(xMsgCallBack call_back,
                               int severity_id) throws xMsgException, SocketException {
 
         // Create a socket connections to the xMsg node.
@@ -352,10 +353,10 @@ public class OrchestratorBase extends CBase {
         xMsgConnection socket = getNewConnection(address);
 
         if(severity_id>0 && severity_id<4) {
-            genericReceive(socket, xMsgConstants.ERROR.getStringValue() + ":" + severity_id,
+            return genericReceive(socket, xMsgConstants.ERROR.getStringValue() + ":" + severity_id,
                     call_back);
         } else {
-            genericReceive(socket, xMsgConstants.ERROR.getStringValue(),
+            return genericReceive(socket, xMsgConstants.ERROR.getStringValue(),
                     call_back);
         }
     }
@@ -369,7 +370,7 @@ public class OrchestratorBase extends CBase {
      *                    required severity otherwise all
      * @throws xMsgException
      */
-    public void listen_warnings(xMsgCallBack call_back,
+    public SubscriptionHandler  listen_warnings(xMsgCallBack call_back,
                                 int severity_id) throws xMsgException, SocketException {
 
         // Create a socket connections to the xMsg node.
@@ -378,10 +379,10 @@ public class OrchestratorBase extends CBase {
         xMsgConnection socket = getNewConnection(address);
 
         if(severity_id>0 && severity_id<4) {
-            genericReceive(socket, xMsgConstants.WARNING.getStringValue() + ":" + severity_id,
+            return genericReceive(socket, xMsgConstants.WARNING.getStringValue() + ":" + severity_id,
                     call_back);
         } else {
-            genericReceive(socket, xMsgConstants.WARNING.getStringValue(),
+            return genericReceive(socket, xMsgConstants.WARNING.getStringValue(),
                     call_back);
         }
     }
@@ -397,7 +398,7 @@ public class OrchestratorBase extends CBase {
      * @param call_back user call back function
      * @throws xMsgException
      */
-    public void listen_infos(xMsgCallBack call_back)
+    public SubscriptionHandler  listen_infos(xMsgCallBack call_back)
             throws xMsgException, SocketException {
 
         // Create a socket connections to the xMsg node.
@@ -405,7 +406,7 @@ public class OrchestratorBase extends CBase {
         xMsgAddress address = new xMsgAddress("localhost");
         xMsgConnection socket = getNewConnection(address);
 
-        genericReceive(socket, xMsgConstants.INFO.getStringValue(),
+        return genericReceive(socket, xMsgConstants.INFO.getStringValue(),
                 call_back);
     }
 
@@ -421,7 +422,7 @@ public class OrchestratorBase extends CBase {
      *                    required severity otherwise all
      * @throws xMsgException
      */
-    public void listen_error_from(String sName,
+    public SubscriptionHandler  listen_error_from(String sName,
                                   xMsgCallBack call_back,
                                   int severity_id)
             throws xMsgException, CException, SocketException {
@@ -432,7 +433,7 @@ public class OrchestratorBase extends CBase {
         xMsgConnection socket = getNewConnection(address);
 
         if(severity_id>0 && severity_id<4) {
-            genericReceive(socket, xMsgConstants.ERROR.getStringValue() + ":" +
+            return genericReceive(socket, xMsgConstants.ERROR.getStringValue() + ":" +
                             sName  + ":" +
                             severity_id,
                     call_back);
@@ -451,7 +452,7 @@ public class OrchestratorBase extends CBase {
      * @param call_back user call back function
      * @throws xMsgException
      */
-    public void listen_error_from(String sName,
+    public SubscriptionHandler listen_error_from(String sName,
                                   xMsgCallBack call_back)
             throws xMsgException, CException, SocketException {
 
@@ -460,7 +461,7 @@ public class OrchestratorBase extends CBase {
         xMsgAddress address = new xMsgAddress("localhost");
         xMsgConnection socket = getNewConnection(address);
 
-            genericReceive(socket, xMsgConstants.ERROR.getStringValue() + ":" +
+            return genericReceive(socket, xMsgConstants.ERROR.getStringValue() + ":" +
                             sName,
                     call_back);
     }
@@ -477,7 +478,7 @@ public class OrchestratorBase extends CBase {
      *                    required severity otherwise all
      * @throws xMsgException
      */
-    public void listen_warning_from(String sName,
+    public SubscriptionHandler  listen_warning_from(String sName,
                                     xMsgCallBack call_back,
                                     int severity_id)
             throws xMsgException, CException, SocketException {
@@ -488,7 +489,7 @@ public class OrchestratorBase extends CBase {
         xMsgConnection socket = getNewConnection(address);
 
         if(severity_id>0 && severity_id<4) {
-            genericReceive(socket, xMsgConstants.WARNING.getStringValue() + ":" +
+            return genericReceive(socket, xMsgConstants.WARNING.getStringValue() + ":" +
                             sName + ":" +
                             severity_id,
                     call_back);
@@ -507,7 +508,7 @@ public class OrchestratorBase extends CBase {
      * @param call_back user call back function
      * @throws xMsgException
      */
-    public void listen_warning_from(String sName,
+    public SubscriptionHandler  listen_warning_from(String sName,
                                     xMsgCallBack call_back)
             throws xMsgException, CException, SocketException {
 
@@ -516,7 +517,7 @@ public class OrchestratorBase extends CBase {
         xMsgAddress address = new xMsgAddress("localhost");
         xMsgConnection socket = getNewConnection(address);
 
-            genericReceive(socket, xMsgConstants.WARNING.getStringValue() + ":" +
+            return genericReceive(socket, xMsgConstants.WARNING.getStringValue() + ":" +
                             sName,
                     call_back);
     }
@@ -531,7 +532,7 @@ public class OrchestratorBase extends CBase {
      * @param call_back user call back function
      * @throws xMsgException
      */
-    public void listen_info_from(String sName,
+    public SubscriptionHandler  listen_info_from(String sName,
                                  xMsgCallBack call_back)
             throws xMsgException, SocketException {
 
@@ -540,9 +541,21 @@ public class OrchestratorBase extends CBase {
         xMsgAddress address = new xMsgAddress("localhost");
         xMsgConnection socket = getNewConnection(address);
 
-        genericReceive(socket, xMsgConstants.INFO.getStringValue() + ":" +
+        return genericReceive(socket, xMsgConstants.INFO.getStringValue() + ":" +
                         sName,
                 call_back);
+    }
+
+    /**
+     * <p>
+     *     Stops listening to a specific topic
+     * </p>
+     * @param handler SubscriptionHandler for a specific subscription (listening)
+     * @throws xMsgException
+     */
+    public void stop_listening(SubscriptionHandler handler)
+            throws xMsgException {
+        cancelReceive(handler);
     }
 
     /**
