@@ -223,6 +223,10 @@ public class Service extends CBase {
             //user data may also be un-serialized
             userData = Dpe.sharedDataObject.get(sharedMemoryPointer);
 
+            if(userData!=null){
+                inData.setDataType(xMsgD.Data.DType.T_OBJECT);
+            }
+
             engineInData = new CTransit(inData, userData);
 
         } else if (dataType.equals(xMsgConstants.ENVELOPE_DATA_TYPE_XMSGDATA.getStringValue())) {
@@ -554,11 +558,12 @@ public class Service extends CBase {
                 if (CUtility.isRemoteService(ss)) {
                     serviceSend(ss, data);
                 } else {
-                    // copy data to the shared memory
-                    Dpe.sharedMemory.put(sharedMemoryKey,data);
                     if(userObj!=null){
                         Dpe.sharedDataObject.put(sharedMemoryKey,userObj);
+                        data.setDataType(xMsgD.Data.DType.T_OBJECT);
                     }
+                    // copy data to the shared memory
+                    Dpe.sharedMemory.put(sharedMemoryKey,data);
                     serviceSend(ss, sharedMemoryKey);
                 }
             }
