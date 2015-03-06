@@ -390,10 +390,6 @@ public class OrchestratorBase extends CBase {
     /**
      * Subscribes all info messages generated from services
      * of entire Clara cloud.
-     * Note: DONE messages from services are reported
-     * using INFO messages envelope. User must check received
-     * xMsgD.Data object STRING filed to see if this is
-     * DONE message and react accordingly.
      *
      * @param call_back user call back function
      * @throws xMsgException
@@ -407,6 +403,26 @@ public class OrchestratorBase extends CBase {
         xMsgConnection socket = getNewConnection(address);
 
         return genericReceive(socket, xMsgConstants.INFO.getStringValue(),
+                call_back);
+    }
+
+    /**
+     * Subscribes info messages from  a specified service.
+     *
+     * @param call_back user call back function
+     * @throws xMsgException
+     */
+    public SubscriptionHandler  listen_info_from(String sName,
+                                                 xMsgCallBack call_back)
+            throws xMsgException, SocketException {
+
+        // Create a socket connections to the xMsg node.
+        // This is a local DPE, and uses default port number.
+        xMsgAddress address = new xMsgAddress("localhost");
+        xMsgConnection socket = getNewConnection(address);
+
+        return genericReceive(socket, xMsgConstants.INFO.getStringValue() + ":" +
+                        sName,
                 call_back);
     }
 
@@ -523,16 +539,30 @@ public class OrchestratorBase extends CBase {
     }
 
     /**
-     * Subscribes info messages from  a specified service.
-     * Note: DONE messages from services are reported
-     * using INFO messages envelope. User must check received
-     * xMsgD.Data object STRING filed to see if this is
-     * DONE message and react accordingly.
+     * Subscribes done messages from all services
      *
      * @param call_back user call back function
      * @throws xMsgException
      */
-    public SubscriptionHandler  listen_info_from(String sName,
+    public SubscriptionHandler  listen_done(xMsgCallBack call_back)
+            throws xMsgException, SocketException {
+
+        // Create a socket connections to the xMsg node.
+        // This is a local DPE, and uses default port number.
+        xMsgAddress address = new xMsgAddress("localhost");
+        xMsgConnection socket = getNewConnection(address);
+
+        return genericReceive(socket, xMsgConstants.DONE.getStringValue(),
+                call_back);
+    }
+
+    /**
+     * Subscribes done messages from all services
+     *
+     * @param call_back user call back function
+     * @throws xMsgException
+     */
+    public SubscriptionHandler  listen_done_from(String sName,
                                  xMsgCallBack call_back)
             throws xMsgException, SocketException {
 
@@ -541,8 +571,46 @@ public class OrchestratorBase extends CBase {
         xMsgAddress address = new xMsgAddress("localhost");
         xMsgConnection socket = getNewConnection(address);
 
-        return genericReceive(socket, xMsgConstants.INFO.getStringValue() + ":" +
-                        sName,
+        return genericReceive(socket, xMsgConstants.DONE.getStringValue() + ":" +
+                sName,
+                call_back);
+    }
+
+    /**
+     * Subscribes data messages from all services
+     *
+     * @param call_back user call back function
+     * @throws xMsgException
+     */
+    public SubscriptionHandler  listen_data(xMsgCallBack call_back)
+            throws xMsgException, SocketException {
+
+        // Create a socket connections to the xMsg node.
+        // This is a local DPE, and uses default port number.
+        xMsgAddress address = new xMsgAddress("localhost");
+        xMsgConnection socket = getNewConnection(address);
+
+        return genericReceive(socket, xMsgConstants.DONE.getStringValue(),
+                call_back);
+    }
+
+    /**
+     * Subscribes data messages from all services
+     *
+     * @param call_back user call back function
+     * @throws xMsgException
+     */
+    public SubscriptionHandler  listen_data_from(String sName,
+                                 xMsgCallBack call_back)
+            throws xMsgException, SocketException {
+
+        // Create a socket connections to the xMsg node.
+        // This is a local DPE, and uses default port number.
+        xMsgAddress address = new xMsgAddress("localhost");
+        xMsgConnection socket = getNewConnection(address);
+
+        return genericReceive(socket, xMsgConstants.DONE.getStringValue() + ":" +
+                sName,
                 call_back);
     }
 
