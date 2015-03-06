@@ -1,11 +1,6 @@
 package org.jlab.clara.util;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.SocketException;
 import java.net.UnknownHostException;
@@ -90,7 +85,7 @@ public class CUtility {
      * @return canonical name of the Clara service
      */
     public static String form_container_name(String host,
-                                           String container)
+                                             String container)
             throws CException {
 
         try {
@@ -132,10 +127,10 @@ public class CUtility {
             throws CException {
 
         try{
-        String s_host = xMsgUtil.getTopicDomain(s_name);
-        for(String s:xMsgUtil.getLocalHostIps()){
-            if(s.equals(s_host)) return true;
-        }
+            String s_host = xMsgUtil.getTopicDomain(s_name);
+            for(String s:xMsgUtil.getLocalHostIps()){
+                if(s.equals(s_host)) return true;
+            }
         } catch (xMsgException | SocketException e) {
             throw new CException(e.getMessage());
         }
@@ -179,7 +174,7 @@ public class CUtility {
         for (String sb:sub_comps){
 
             // Find participating services engine names in the composition
-           st = new StringTokenizer(sb, "+");
+            st = new StringTokenizer(sb, "+");
 
             // List of engine names within the sub composition
             List<String> se_list = new ArrayList<>();
@@ -205,20 +200,20 @@ public class CUtility {
                     }
                     // remove the last character and add
                     // to the sub canonical composition
-                   sub_can_comp.append(or_can.substring(0, or_can.capacity()-1)).append("+");
+                    sub_can_comp.append(or_can.substring(0, or_can.capacity()-1)).append("+");
 
-                // logical AND case. (a,b+&c)
+                    // logical AND case. (a,b+&c)
                 } else if (se.startsWith("&")){
                     String can = CUtility.form_service_name(dpe, container,remove_first(se));
                     sub_can_comp.append("&").append(can);
 
-                // single engine case (a+b)
+                    // single engine case (a+b)
                 } else {
                     String can = CUtility.form_service_name(dpe, container,se);
                     sub_can_comp.append(can);
                 }
             }
-             can_comp.append(sub_can_comp.toString()).append(";");
+            can_comp.append(sub_can_comp.toString()).append(";");
         }
         return remove_last(can_comp.toString());
     }
@@ -389,5 +384,54 @@ public class CUtility {
             e.printStackTrace();
         }
         return host;
+    }
+
+    public static byte[] serialize(Object o) throws IOException {
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        ObjectOutput out = null;
+        byte[] res = null;
+        try {
+            out = new ObjectOutputStream(bos);
+            out.writeObject(o);
+            res = bos.toByteArray();
+        } finally {
+            try {
+                if (out != null) {
+                    out.close();
+                }
+            } catch (IOException ex) {
+                // ignore close exception
+            }
+            try {
+                bos.close();
+            } catch (IOException ex) {
+                // ignore close exception
+            }
+        }
+        return res;
+    }
+
+    public static Object deSerialize(byte[] ba) throws IOException, ClassNotFoundException {
+        ByteArrayInputStream bis = new ByteArrayInputStream(ba);
+        ObjectInput in = null;
+        Object o = null;
+        try {
+            in = new ObjectInputStream(bis);
+            o = in.readObject();
+        } finally {
+            try {
+                bis.close();
+            } catch (IOException ex) {
+                // ignore close exception
+            }
+            try {
+                if (in != null) {
+                    in.close();
+                }
+            } catch (IOException ex) {
+                // ignore close exception
+            }
+        }
+        return o;
     }
 }

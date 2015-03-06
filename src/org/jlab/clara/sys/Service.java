@@ -1,5 +1,6 @@
 package org.jlab.clara.sys;
 
+import com.google.protobuf.ByteString;
 import org.jlab.clara.base.CBase;
 import org.jlab.clara.base.CException;
 import org.jlab.clara.util.*;
@@ -8,6 +9,7 @@ import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.data.xMsgD;
 import org.jlab.coda.xmsg.excp.xMsgException;
 
+import java.io.IOException;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -204,7 +206,7 @@ public class Service extends CBase {
                           String dataType,
                           Object data,
                           String syncReceiverName)
-            throws CException, xMsgException, InterruptedException {
+            throws CException, xMsgException, InterruptedException, IOException, ClassNotFoundException {
 
         xMsgD.Data.Builder inData = null;
 
@@ -231,7 +233,16 @@ public class Service extends CBase {
 
         } else if (dataType.equals(xMsgConstants.ENVELOPE_DATA_TYPE_XMSGDATA.getStringValue())) {
             inData = (xMsgD.Data.Builder) data;
-            engineInData = new CTransit(inData, null);
+            Object usrObj = null;
+
+            // check to see if the sender/requester is a remote service
+            if(CUtility.isRemoteService(inData.getSender())){
+                // check the type of the byte array
+                if(inData.getByteArrayType().equals(xMsgD.Data.BAType.JOBJECT)){
+                    usrObj = CUtility.deSerialize(inData.getBYTES().toByteArray());
+                }
+            }
+            engineInData = new CTransit(inData, usrObj);
         }
 
         if(inData==null)throw new CException("unknown data type");
@@ -269,7 +280,7 @@ public class Service extends CBase {
                         Object data,
                         String syncReceiverName,
                         int id)
-            throws CException, xMsgException, SocketException, InterruptedException {
+            throws CException, xMsgException, IOException, InterruptedException, ClassNotFoundException {
 
         xMsgD.Data.Builder inData = null;
 
@@ -297,7 +308,17 @@ public class Service extends CBase {
 
         } else if (dataType.equals(xMsgConstants.ENVELOPE_DATA_TYPE_XMSGDATA.getStringValue())) {
             inData = (xMsgD.Data.Builder) data;
-            engineInData = new CTransit(inData, null);
+            Object usrObj = null;
+
+            // check to see if the sender/requester is a remote service
+            if(CUtility.isRemoteService(inData.getSender())){
+                // check the type of the byte array
+                if(inData.getByteArrayType().equals(xMsgD.Data.BAType.JOBJECT)){
+                    usrObj = CUtility.deSerialize(inData.getBYTES().toByteArray());
+                }
+            }
+
+            engineInData = new CTransit(inData, usrObj);
         }
 
         if(inData==null)throw new CException("unknown data type");
@@ -537,8 +558,7 @@ public class Service extends CBase {
     }
 
     private void serviceSend(xMsgD.Data.Builder data, Object userObj)
-            throws xMsgException, SocketException, CException {
-
+            throws xMsgException, IOException, CException {
 
         // If data monitors are registered broadcast data
         if (data.getDataMonitor()){
@@ -556,6 +576,14 @@ public class Service extends CBase {
         for (List<String> ls:out_links.values()){
             for(String ss:ls) {
                 if (CUtility.isRemoteService(ss)) {
+
+                    // if data is an un-serialized object in the shared object pool
+                    // serialize it and set it as a byte array
+                    if(data.getDataType().equals(xMsgD.Data.DType.T_OBJECT)){
+                        byte[] sdata = CUtility.serialize(userObj);
+                        data.setByteArrayType(xMsgD.Data.BAType.JOBJECT);
+                        data.setBYTES(ByteString.copyFrom(sdata));
+                    }
                     serviceSend(ss, data);
                 } else {
                     if(userObj!=null){

@@ -11,6 +11,7 @@ import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.data.xMsgD;
 import org.jlab.coda.xmsg.excp.xMsgException;
 
+import java.io.IOException;
 import java.net.SocketException;
 import java.util.HashMap;
 import java.util.NoSuchElementException;
@@ -376,7 +377,7 @@ public class Container extends CBase {
                                               public void run() {
                                                   try {
                                                       ser.configure(op, dataType, data, syncReceiver);
-                                                  } catch (xMsgException | InterruptedException | CException e) {
+                                                  } catch (xMsgException | InterruptedException | CException | ClassNotFoundException | IOException e) {
                                                       e.printStackTrace();
                                                   }
                                               }
@@ -393,7 +394,7 @@ public class Container extends CBase {
                                           public void run() {
                                               try {
                                                   ser.process(op, dataType, data, syncReceiver, -1);
-                                              } catch (xMsgException | SocketException | InterruptedException | CException e) {
+                                              } catch (xMsgException | InterruptedException | CException | IOException | ClassNotFoundException e) {
                                                   e.printStackTrace();
                                               }
                                           }
