@@ -363,7 +363,7 @@ public class Service extends CBase {
                                     ddl.add(d);
                                 }
                             }
-                            System.out.println(senderService + ": Executing engine (logAND) = " + engine_class_name);
+//                            System.out.println(senderService + ": Executing engine (logAND) = " + engine_class_name);
                             try {
                                 // increment request count
                                 _numberOfRequests++;
@@ -393,7 +393,7 @@ public class Service extends CBase {
 
                         // sub-composition does not require logical
                         // AND operations at the input of this service
-                        System.out.println(senderService + ": Executing engine = " + engine_class_name);
+//                        System.out.println(senderService + ": Executing engine = " + engine_class_name);
                         try{
                             // increment request count
                             _numberOfRequests++;
@@ -419,7 +419,7 @@ public class Service extends CBase {
                     }
 
                 } else if (senderService.startsWith("orchestrator")) {
-                    System.out.println(" Orchestrator: Executing engine = " + engine_class_name);
+//                    System.out.println(" Orchestrator: Executing engine = " + engine_class_name);
                     try{
                         // increment request count
                         _numberOfRequests++;
