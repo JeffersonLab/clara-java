@@ -702,7 +702,7 @@ public class Service extends CBase {
 
             // Negative id means the service just
             // simply passes the recorded id across
-            if (id > 0) res.setId(id);
+            if (res.getId() <= 0) res.setId(inData.getId());
 
             // Ensure the output data has the composition
             if (res.getComposition().isEmpty()) res.setComposition(c_composition);
