@@ -373,6 +373,8 @@ public class Service extends CBase {
      * Service process method. Note that configure
      * will never be execute within this method.
      *
+     * @param config CServiceConfig object for the service. Contains information
+     *               to broadcast done and/or data
      * @param objectPool reference to the object pool that is
      *                   used to put back the object after the execution
      * @param dataType describes the type of the data object (string or xMsgData)
@@ -384,7 +386,7 @@ public class Service extends CBase {
      * @throws xMsgException
      * @throws InterruptedException
      */
-    public void process(LinkedBlockingQueue<Service> objectPool,
+    public void process(CServiceSysConfig config, LinkedBlockingQueue<Service> objectPool,
                         String dataType,
                         Object data,
                         String syncReceiverName,
@@ -402,6 +404,9 @@ public class Service extends CBase {
         EngineData engineInData = null;
 
         String sharedMemoryPointer;
+
+        // Increment request count in the sysConfig object
+        config.addRequest();
 
         // Variables to measure service
         // engine execution time
@@ -547,16 +552,7 @@ public class Service extends CBase {
         String senderService = inData.getSender();
 
 
-        // check to see if this is a configure request
-        if (inData.getAction().equals(xMsgD.Data.ControlAction.CONFIGURE)){
-            engine_object.configure(engineInData);
-
-            // If this is a sync request send done to the requester
-            if(!syncReceiverName.equals(xMsgConstants.UNDEFINED.getStringValue())){
-                genericSend(syncReceiverName, xMsgConstants.DONE.getStringValue());
-            }
-
-        } else if (inData.getAction().equals(xMsgD.Data.ControlAction.EXECUTE)) {
+        if (inData.getAction().equals(xMsgD.Data.ControlAction.EXECUTE)) {
 
             long execTime = 0;
 
@@ -687,7 +683,6 @@ public class Service extends CBase {
             }
 
             xMsgD.Data.Builder res = xMsgD.Data.newBuilder();
-            Object userObj = null;
             if(service_result==null){
                 res.setDataGenerationStatus(xMsgD.Data.Severity.WARNING);
                 res.setStatusText(getName()+ ": engine null output");
@@ -708,7 +703,7 @@ public class Service extends CBase {
             if (res.getComposition().isEmpty()) res.setComposition(c_composition);
 
             // Send service engine execution data
-            serviceSend(res, engineInData);
+            serviceCompletionReport(config, res, engineInData);
 
             // If this is a sync request send data also to the requester
             if(!syncReceiverName.equals(xMsgConstants.UNDEFINED.getStringValue())){
@@ -848,18 +843,21 @@ public class Service extends CBase {
 
     }
 
-    private void serviceSend(xMsgD.Data.Builder data, EngineData engineData)
+    private void serviceCompletionReport(CServiceSysConfig config,
+                                         xMsgD.Data.Builder data,
+                                         EngineData engineData)
             throws xMsgException, IOException, CException {
 
-        // If data monitors are registered broadcast data
-        if (data.getDataMonitor()){
+        // External broadcast data
+        if (config.isDataRequest()){
             report_data(data, data.getDataGenerationStatus().name(),data.getStatusSeverityId());
+            config.resetDataRequestCount();
         }
 
-        // If done monitors are registered broadcast done,
-        // informing that service is completed
-        if (data.getDoneMonitor()) {
+        // External done broadcasting
+        if (config.isDoneRequest()) {
             report_done(data.getId());
+            config.resetDoneRequestCount();
         }
 
         // Send to all output-linked services.

@@ -730,8 +730,68 @@ public class OrchestratorBase extends CBase {
                               String serviceName)
             throws xMsgException {
 
-        genericSend(CConstants.CONTAINER + ":" +containerName,
-                CConstants.REMOVE_SERVICE + "?" +serviceName);
+        genericSend(CConstants.CONTAINER + ":" + containerName,
+                CConstants.REMOVE_SERVICE + "?" + serviceName);
+
+    }
+
+    /**
+     * Asks service to report done
+     *
+     * @param  serviceName canonical name of the service
+     * @param eventCount report every event count
+     * @throws xMsgException
+     */
+    public void report_done(String serviceName,
+                              int eventCount)
+            throws xMsgException, CException {
+
+        // Check the passed service name
+        if(!CUtility.isCanonical(serviceName)) {
+            throw new CException("not a canonical name");
+        }
+        genericSend(serviceName,
+                CConstants.SERVICE_REPORT_DONE + "?" +eventCount);
+
+    }
+
+    public void stop_done_reporting(String serviceName) throws CException, xMsgException {
+        // Check the passed service name
+        if(!CUtility.isCanonical(serviceName)) {
+            throw new CException("not a canonical name");
+        }
+        genericSend(serviceName,
+                CConstants.SERVICE_REPORT_DONE + "?" +0);
+
+    }
+
+    /**
+     * Asks service to report data
+     *
+     * @param  serviceName canonical name of the service
+     * @param eventCount report every event count
+     * @throws xMsgException
+     */
+    public void report_data(String serviceName,
+                              int eventCount)
+            throws xMsgException, CException {
+
+        // Check the passed service name
+        if(!CUtility.isCanonical(serviceName)) {
+            throw new CException("not a canonical name");
+        }
+        genericSend(serviceName,
+                CConstants.SERVICE_REPORT_DATA + "?" +eventCount);
+
+    }
+
+    public void stop_data_reporting(String serviceName) throws CException, xMsgException {
+        // Check the passed service name
+        if(!CUtility.isCanonical(serviceName)) {
+            throw new CException("not a canonical name");
+        }
+        genericSend(serviceName,
+                CConstants.SERVICE_REPORT_DATA + "?" +0);
 
     }
 

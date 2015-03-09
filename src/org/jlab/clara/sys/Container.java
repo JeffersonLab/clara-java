@@ -3,6 +3,7 @@ package org.jlab.clara.sys;
 import org.jlab.clara.base.CBase;
 import org.jlab.clara.base.CException;
 import org.jlab.clara.util.CConstants;
+import org.jlab.clara.util.CServiceSysConfig;
 import org.jlab.clara.util.CUtility;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgConstants;
@@ -15,6 +16,7 @@ import java.net.SocketException;
 import java.util.HashMap;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -46,6 +48,9 @@ public class Container extends CBase {
 
     // stores pool size for every service
     private HashMap<String, Integer> _poolSizeMap = new HashMap<>();
+
+    // stores system config objects for every service of this container
+    private ConcurrentHashMap<String, CServiceSysConfig> _sysConfigs = new ConcurrentHashMap<>();
 
     private String feHost =
             xMsgConstants.UNDEFINED.getStringValue();
@@ -166,6 +171,9 @@ public class Container extends CBase {
             throw new CException("service exists");
         }
 
+        // Create and add sys config object for a service
+        _sysConfigs.put(canonical_name, new CServiceSysConfig());
+
         final String fe = feHost;
 
         // Define the key in the shared
@@ -245,6 +253,11 @@ public class Container extends CBase {
             op.clear();
         }
 
+        // remove sys config object for a service
+        if(_sysConfigs.containsKey(name)){
+            _sysConfigs.remove(name);
+        }
+
     }
 
     private class ContainerCallBack implements xMsgCallBack {
@@ -258,7 +271,6 @@ public class Container extends CBase {
             final String dataType = msg.getDataType();
             final Object data = msg.getData();
             if(dataType.equals(xMsgConstants.ENVELOPE_DATA_TYPE_STRING.getStringValue())) {
-//                System.out.println("DDD: container_request: " + msg);
                 String cmdData = (String)data;
                 String cmd = null, seName = null, objectPoolSize = null;
                 try {
@@ -356,21 +368,56 @@ public class Container extends CBase {
                 final LinkedBlockingQueue<Service> op = _objectPoolMap.get(receiver);
                 ExecutorService threadPool = _threadPoolMap.get(receiver);
 
-
-                // service configure
                 xMsgD.Data.Builder inData = null;
+
                 if (dataType.equals(xMsgConstants.ENVELOPE_DATA_TYPE_XMSGDATA.getStringValue())) {
                     inData = (xMsgD.Data.Builder) data;
                     if (inData == null) throw new CException("unknown data type");
 
+                    // Check to see if this is a service external
+                    // request (outside of the composition chain request)
+                    // these are request for e.g.
+                    // xMsg envelope = <service_canonical_name, string, serviceReportDone?1000>
+                    // that will tell service to report done messages every 1000 events.
+                } else if(dataType.equals(xMsgConstants.ENVELOPE_DATA_TYPE_STRING.getStringValue())) {
+                    String cmdData = (String)data;
+                    String cmd = null, param1 = null, param2 = null, param3 = null;
+                    try {
+                        StringTokenizer st = new StringTokenizer(cmdData, "?");
+                        cmd = st.nextToken();
+                        param1 = st.nextToken();
+                        param2 = st.nextToken();
+                        param3 = st.nextToken();
+                    } catch (NoSuchElementException e){
+                        System.out.println(e.getMessage());
+                    }
+                    switch(cmd){
+                        case CConstants.SERVICE_REPORT_DONE:
+                            if(_sysConfigs.containsKey(receiver)){
+                                CServiceSysConfig sc = _sysConfigs.get(receiver);
+                                sc.setDoneRequest(true);
+                                sc.setDoneReportThreshold(Integer.parseInt(param1));
+                                sc.resetDoneRequestCount();
+                            }
+                            break;
+                        case CConstants.SERVICE_REPORT_DATA:
+                            if(_sysConfigs.containsKey(receiver)){
+                                CServiceSysConfig sc = _sysConfigs.get(receiver);
+                                sc.setDataRequest(true);
+                                sc.setDataReportThreshold(Integer.parseInt(param1));
+                                sc.resetDataRequestCount();
+                            }
+                            break;
+                    }
                 }
-                // check to see if this is a configure request
-                if (inData!=null && inData.getAction().equals(xMsgD.Data.ControlAction.CONFIGURE)){
+
+                // service configure
+                if (inData!=null && inData.getAction().equals(xMsgD.Data.ControlAction.CONFIGURE)) {
                     // pool size for a specific service
                     int sps = _poolSizeMap.get(receiver);
-                    if(op.size()!=sps)throw new CException("service is busy. Can not configure.");
+                    if (op.size() != sps) throw new CException("service is busy. Can not configure.");
 
-                    for(int i=0; i<_poolSizeMap.get(receiver);i++){
+                    for (int i = 0; i < _poolSizeMap.get(receiver); i++) {
                         final Service ser = op.take();
                         threadPool.submit(new Runnable() {
                                               public void run() {
@@ -389,10 +436,12 @@ public class Container extends CBase {
 
                     final Service ser = op.take();
 
+                    final CServiceSysConfig serConfig = _sysConfigs.get(receiver);
+
                     threadPool.submit(new Runnable() {
                                           public void run() {
                                               try {
-                                                  ser.process(op, dataType, data, syncReceiver, -1);
+                                                  ser.process(serConfig, op, dataType, data, syncReceiver, -1);
                                               } catch (xMsgException | InterruptedException | CException | IOException | ClassNotFoundException e) {
                                                   e.printStackTrace();
                                               }
@@ -400,6 +449,7 @@ public class Container extends CBase {
                                       }
                     );
                 }
+
             } catch (CException | InterruptedException  e) {
                 e.printStackTrace();
             }
