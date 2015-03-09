@@ -713,6 +713,7 @@ public class Service extends CBase {
 
             // If this is a sync request send data also to the requester
             if(!syncReceiverName.equals(xMsgConstants.UNDEFINED.getStringValue())){
+                System.out.println("DDD-1 sync request sending back to  requester = " + syncReceiverName );
                 String dpeHost = CUtility.getDpeName(syncReceiverName);
                 genericSend(dpeHost, syncReceiverName,res);
             }

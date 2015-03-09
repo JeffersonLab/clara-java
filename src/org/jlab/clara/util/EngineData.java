@@ -1,5 +1,6 @@
 package org.jlab.clara.util;
 
+import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.data.xMsgD;
 
 /**
@@ -12,14 +13,14 @@ import org.jlab.coda.xmsg.data.xMsgD;
 public class EngineData {
     private Object data;
     private CDataType dataType;
-    private String dataDescription;
-    private String dataVersion;
+    private String dataDescription = xMsgConstants.UNDEFINED.getStringValue();
+    private String dataVersion = xMsgConstants.UNDEFINED.getStringValue();
 
-    private xMsgD.Data.Severity status;
+    private xMsgD.Data.Severity status = xMsgD.Data.Severity.INFO;
     private int statusSeverityId;
-    private String statusText;
+    private String statusText = xMsgConstants.UNDEFINED.getStringValue();
 
-    private String state;
+    private String state = xMsgConstants.UNDEFINED.getStringValue();
     private int id;
 
     public EngineData(Object dataObject, xMsgD.Data.Builder xData){
