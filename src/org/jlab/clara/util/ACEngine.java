@@ -18,11 +18,11 @@ public abstract class ACEngine {
     private String exception_severity =
             xMsgConstants.UNDEFINED.getStringValue();
 
-    public abstract CTransit execute(CTransit x);
+    public abstract EngineData execute(EngineData x);
 
-    public abstract CTransit execute_group(List<CTransit> x);
+    public abstract EngineData execute_group(List<EngineData> x);
 
-    public abstract void configure(CTransit x);
+    public abstract void configure(EngineData x);
 
     public abstract List<String> get_states();
 

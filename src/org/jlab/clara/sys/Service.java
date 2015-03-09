@@ -68,7 +68,7 @@ public class Service extends CBase {
     // The dynamic ( updated for every request) repository/map
     // (mapped by the composition string) of input-linked service
     // data that are required to be logically AND-ed
-    private HashMap<String, HashMap<String,CTransit>>
+    private HashMap<String, HashMap<String,EngineData>>
             in_and_data_list = new HashMap<>();
 
     // Local map of input-linked services for every
@@ -206,17 +206,23 @@ public class Service extends CBase {
                           String dataType,
                           Object data,
                           String syncReceiverName)
-            throws CException, xMsgException, InterruptedException, IOException, ClassNotFoundException {
+            throws CException,
+            xMsgException,
+            InterruptedException,
+            IOException,
+            ClassNotFoundException {
 
         xMsgD.Data.Builder inData = null;
 
         Object userData;
 
-        CTransit engineInData = null;
+        EngineData engineInData = null;
 
         String sharedMemoryPointer;
 
         if (dataType.equals(xMsgConstants.ENVELOPE_DATA_TYPE_STRING.getStringValue())) {
+            // Note in this case we do not de-serialization, because
+            // data is in the shared memory and un-serialized
             sharedMemoryPointer = (String) data;
 
             // get inData from the shared memory
@@ -225,24 +231,128 @@ public class Service extends CBase {
             //user data may also be un-serialized
             userData = Dpe.sharedDataObject.get(sharedMemoryPointer);
 
-            if(userData!=null){
-                inData.setDataType(xMsgD.Data.DType.T_OBJECT);
+            switch(inData.getDataType()){
+                case T_VLSINT32:
+                    engineInData = new EngineData(inData.getVLSINT32(), inData);
+                    break;
+                case T_VLSINT64:
+                    engineInData = new EngineData(inData.getVLSINT64(), inData);
+                    break;
+                case T_FLSINT32:
+                    engineInData = new EngineData(inData.getFLSINT32(), inData);
+                    break;
+                case T_FLSINT64:
+                    engineInData = new EngineData(inData.getFLSINT64(), inData);
+                    break;
+                case T_FLOAT:
+                    engineInData = new EngineData(inData.getFLOAT(), inData);
+                    break;
+                case T_DOUBLE:
+                    engineInData = new EngineData(inData.getDOUBLE(), inData);
+                    break;
+                case T_STRING:
+                    engineInData = new EngineData(inData.getSTRING(), inData);
+                    break;
+                case T_BYTES:
+                    engineInData = new EngineData(inData.getBYTES().toByteArray(), inData);
+                    break;
+                case T_VLSINT32A:
+                    engineInData = new EngineData(inData.getVLSINT32AList(), inData);
+                    break;
+                case T_VLSINT64A:
+                    engineInData = new EngineData(inData.getVLSINT64AList(), inData);
+                    break;
+                case T_FLSINT32A:
+                    engineInData = new EngineData(inData.getFLSINT32AList(), inData);
+                    break;
+                case T_FLSINT64A:
+                    engineInData = new EngineData(inData.getFLSINT64AList(), inData);
+                    break;
+                case T_FLOATA:
+                    engineInData = new EngineData(inData.getFLOATAList(), inData);
+                    break;
+                case T_DOUBLEA:
+                    engineInData = new EngineData(inData.getDOUBLEAList(), inData);
+                    break;
+                case T_STRINGA:
+                    engineInData = new EngineData(inData.getSTRINGAList(), inData);
+                    break;
+                case T_PAYLOAD:
+                    break;
+                case T_EXTERNAL_OBJECT:
+                    engineInData = new EngineData(userData, inData);
+                    break;
             }
-
-            engineInData = new CTransit(inData, userData);
 
         } else if (dataType.equals(xMsgConstants.ENVELOPE_DATA_TYPE_XMSGDATA.getStringValue())) {
-            inData = (xMsgD.Data.Builder) data;
-            Object usrObj = null;
 
-            // check to see if the sender/requester is a remote service
-            if(CUtility.isRemoteService(inData.getSender())){
-                // check the type of the byte array
-                if(inData.getByteArrayType().equals(xMsgD.Data.BAType.JOBJECT)){
-                    usrObj = CUtility.deSerialize(inData.getBYTES().toByteArray());
-                }
+            // Note. here we need to do de-serialization
+            inData = (xMsgD.Data.Builder) data;
+
+            switch (inData.getDataType()) {
+                case T_VLSINT32:
+                    engineInData = new EngineData(inData.getVLSINT32(), inData);
+                    break;
+                case T_VLSINT64:
+                    engineInData = new EngineData(inData.getVLSINT64(), inData);
+                    break;
+                case T_FLSINT32:
+                    engineInData = new EngineData(inData.getFLSINT32(), inData);
+                    break;
+                case T_FLSINT64:
+                    engineInData = new EngineData(inData.getFLSINT64(), inData);
+                    break;
+                case T_FLOAT:
+                    engineInData = new EngineData(inData.getFLOAT(), inData);
+                    break;
+                case T_DOUBLE:
+                    engineInData = new EngineData(inData.getDOUBLE(), inData);
+                    break;
+                case T_STRING:
+                    engineInData = new EngineData(inData.getSTRING(), inData);
+                    break;
+                case T_BYTES:
+                    // Using de-serialization of the Clara supported user formats
+                    switch (inData.getByteArrayType()) {
+                        case JOBJECT:
+                            Object usrObj = CUtility.deSerialize(inData.getBYTES().toByteArray());
+                            engineInData = new EngineData(usrObj, inData);
+                            break;
+                        case NETCDF:
+                            break;
+                        case HDF:
+                            break;
+                        case EVIO:
+                            break;
+                    }
+                    break;
+                case T_VLSINT32A:
+                    engineInData = new EngineData(inData.getVLSINT32AList(), inData);
+                    break;
+                case T_VLSINT64A:
+                    engineInData = new EngineData(inData.getVLSINT64AList(), inData);
+                    break;
+                case T_FLSINT32A:
+                    engineInData = new EngineData(inData.getFLSINT32AList(), inData);
+                    break;
+                case T_FLSINT64A:
+                    engineInData = new EngineData(inData.getFLSINT64AList(), inData);
+                    break;
+                case T_FLOATA:
+                    engineInData = new EngineData(inData.getFLOATAList(), inData);
+                    break;
+                case T_DOUBLEA:
+                    engineInData = new EngineData(inData.getDOUBLEAList(), inData);
+                    break;
+                case T_STRINGA:
+                    engineInData = new EngineData(inData.getSTRINGAList(), inData);
+                    break;
+                case T_PAYLOAD:
+                    break;
+                case T_EXTERNAL_OBJECT:
+                    break;
+
             }
-            engineInData = new CTransit(inData, usrObj);
         }
 
         if(inData==null)throw new CException("unknown data type");
@@ -257,7 +367,6 @@ public class Service extends CBase {
         }
         // return this object to the pool
         objectPool.put(this);
-
     }
 
     /**
@@ -280,13 +389,17 @@ public class Service extends CBase {
                         Object data,
                         String syncReceiverName,
                         int id)
-            throws CException, xMsgException, IOException, InterruptedException, ClassNotFoundException {
+            throws CException,
+            xMsgException,
+            IOException,
+            InterruptedException,
+            ClassNotFoundException {
 
         xMsgD.Data.Builder inData = null;
 
         Object userData;
 
-        CTransit engineInData = null;
+        EngineData engineInData = null;
 
         String sharedMemoryPointer;
 
@@ -304,21 +417,128 @@ public class Service extends CBase {
             //user data may also be un-serialized
             userData = Dpe.sharedDataObject.get(sharedMemoryPointer);
 
-            engineInData = new CTransit(inData, userData);
-
-        } else if (dataType.equals(xMsgConstants.ENVELOPE_DATA_TYPE_XMSGDATA.getStringValue())) {
-            inData = (xMsgD.Data.Builder) data;
-            Object usrObj = null;
-
-            // check to see if the sender/requester is a remote service
-            if(CUtility.isRemoteService(inData.getSender())){
-                // check the type of the byte array
-                if(inData.getByteArrayType().equals(xMsgD.Data.BAType.JOBJECT)){
-                    usrObj = CUtility.deSerialize(inData.getBYTES().toByteArray());
-                }
+            switch(inData.getDataType()){
+                case T_VLSINT32:
+                    engineInData = new EngineData(inData.getVLSINT32(), inData);
+                    break;
+                case T_VLSINT64:
+                    engineInData = new EngineData(inData.getVLSINT64(), inData);
+                    break;
+                case T_FLSINT32:
+                    engineInData = new EngineData(inData.getFLSINT32(), inData);
+                    break;
+                case T_FLSINT64:
+                    engineInData = new EngineData(inData.getFLSINT64(), inData);
+                    break;
+                case T_FLOAT:
+                    engineInData = new EngineData(inData.getFLOAT(), inData);
+                    break;
+                case T_DOUBLE:
+                    engineInData = new EngineData(inData.getDOUBLE(), inData);
+                    break;
+                case T_STRING:
+                    engineInData = new EngineData(inData.getSTRING(), inData);
+                    break;
+                case T_BYTES:
+                    engineInData = new EngineData(inData.getBYTES().toByteArray(), inData);
+                    break;
+                case T_VLSINT32A:
+                    engineInData = new EngineData(inData.getVLSINT32AList(), inData);
+                    break;
+                case T_VLSINT64A:
+                    engineInData = new EngineData(inData.getVLSINT64AList(), inData);
+                    break;
+                case T_FLSINT32A:
+                    engineInData = new EngineData(inData.getFLSINT32AList(), inData);
+                    break;
+                case T_FLSINT64A:
+                    engineInData = new EngineData(inData.getFLSINT64AList(), inData);
+                    break;
+                case T_FLOATA:
+                    engineInData = new EngineData(inData.getFLOATAList(), inData);
+                    break;
+                case T_DOUBLEA:
+                    engineInData = new EngineData(inData.getDOUBLEAList(), inData);
+                    break;
+                case T_STRINGA:
+                    engineInData = new EngineData(inData.getSTRINGAList(), inData);
+                    break;
+                case T_PAYLOAD:
+                    break;
+                case T_EXTERNAL_OBJECT:
+                    engineInData = new EngineData(userData, inData);
+                    break;
             }
 
-            engineInData = new CTransit(inData, usrObj);
+        } else if (dataType.equals(xMsgConstants.ENVELOPE_DATA_TYPE_XMSGDATA.getStringValue())) {
+
+            // Note. here we need to do de-serialization
+            inData = (xMsgD.Data.Builder) data;
+
+            switch (inData.getDataType()) {
+                case T_VLSINT32:
+                    engineInData = new EngineData(inData.getVLSINT32(), inData);
+                    break;
+                case T_VLSINT64:
+                    engineInData = new EngineData(inData.getVLSINT64(), inData);
+                    break;
+                case T_FLSINT32:
+                    engineInData = new EngineData(inData.getFLSINT32(), inData);
+                    break;
+                case T_FLSINT64:
+                    engineInData = new EngineData(inData.getFLSINT64(), inData);
+                    break;
+                case T_FLOAT:
+                    engineInData = new EngineData(inData.getFLOAT(), inData);
+                    break;
+                case T_DOUBLE:
+                    engineInData = new EngineData(inData.getDOUBLE(), inData);
+                    break;
+                case T_STRING:
+                    engineInData = new EngineData(inData.getSTRING(), inData);
+                    break;
+                case T_BYTES:
+                    // Using de-serialization of the Clara supported user formats
+                    switch (inData.getByteArrayType()) {
+                        case JOBJECT:
+                            Object usrObj = CUtility.deSerialize(inData.getBYTES().toByteArray());
+                            engineInData = new EngineData(usrObj, inData);
+                            break;
+                        case NETCDF:
+                            break;
+                        case HDF:
+                            break;
+                        case EVIO:
+                            break;
+                    }
+                    break;
+                case T_VLSINT32A:
+                    engineInData = new EngineData(inData.getVLSINT32AList(), inData);
+                    break;
+                case T_VLSINT64A:
+                    engineInData = new EngineData(inData.getVLSINT64AList(), inData);
+                    break;
+                case T_FLSINT32A:
+                    engineInData = new EngineData(inData.getFLSINT32AList(), inData);
+                    break;
+                case T_FLSINT64A:
+                    engineInData = new EngineData(inData.getFLSINT64AList(), inData);
+                    break;
+                case T_FLOATA:
+                    engineInData = new EngineData(inData.getFLOATAList(), inData);
+                    break;
+                case T_DOUBLEA:
+                    engineInData = new EngineData(inData.getDOUBLEAList(), inData);
+                    break;
+                case T_STRINGA:
+                    engineInData = new EngineData(inData.getSTRINGAList(), inData);
+                    break;
+                case T_PAYLOAD:
+                    break;
+                case T_EXTERNAL_OBJECT:
+                    break;
+
+            }
         }
 
         if(inData==null)throw new CException("unknown data type");
@@ -338,6 +558,8 @@ public class Service extends CBase {
 
         } else if (inData.getAction().equals(xMsgD.Data.ControlAction.EXECUTE)) {
 
+            long execTime = 0;
+
             if (!c_composition.equals(p_composition)) {
                 // analyze composition
                 analyzeComposition(c_composition);
@@ -345,7 +567,7 @@ public class Service extends CBase {
             }
 
             // Execute service engine
-            CTransit service_result = null;
+            EngineData service_result = null;
 
             for (String com : in_links.keySet()) {
 
@@ -366,10 +588,10 @@ public class Service extends CBase {
                         for (String ser : in_and_name_list.get(com)) {
                             if (ser.equals(senderService)) {
                                 if (in_and_data_list.containsKey(com)) {
-                                    HashMap<String, CTransit> dm = in_and_data_list.get(com);
+                                    HashMap<String, EngineData> dm = in_and_data_list.get(com);
                                     dm.put(senderService, engineInData);
                                 } else {
-                                    HashMap<String, CTransit> dm = new HashMap<>();
+                                    HashMap<String, EngineData> dm = new HashMap<>();
                                     dm.put(senderService, engineInData);
                                     in_and_data_list.put(com, dm);
                                 }
@@ -381,10 +603,10 @@ public class Service extends CBase {
                         // If equal we will execute the service.
                         if (in_and_name_list.get(com).size() == in_and_data_list.get(com).size()) {
 
-                            List<CTransit> ddl = new ArrayList<>();
+                            List<EngineData> ddl = new ArrayList<>();
 
-                            for (HashMap<String, CTransit> m : in_and_data_list.values()) {
-                                for (CTransit d : m.values()) {
+                            for (HashMap<String, EngineData> m : in_and_data_list.values()) {
+                                for (EngineData d : m.values()) {
                                     ddl.add(d);
                                 }
                             }
@@ -400,14 +622,12 @@ public class Service extends CBase {
                                 // get engine execution end time
                                 endTime = System.nanoTime();
                                 // service engine execution time
-                                long execTime = endTime - startTime;
-                                // Update transient data with this service execution time
-                                service_result.getTransitData().setExecutionTime(execTime);
+                                execTime = endTime - startTime;
                                 // Calculate a simple average for the execution time
                                 _avEngineExecutionTime = (_avEngineExecutionTime + execTime)/ _numberOfRequests;
 
                             } catch (Throwable t){
-                                report_error(t.getMessage(),3, engineInData.getTransitData().getId());
+                                report_error(t.getMessage(),3, engineInData.getId());
                                 return;
                             }
                             // Clear inAnd data hash map for the satisfied composition
@@ -430,14 +650,12 @@ public class Service extends CBase {
                             // get engine execution end time
                             endTime = System.nanoTime();
                             // service engine execution time
-                            long execTime = endTime - startTime;
-                            // Update transient data with this service execution time
-                            service_result.getTransitData().setExecutionTime(execTime);
+                            execTime = endTime - startTime;
                             // Calculate a simple average for the execution time
                             _avEngineExecutionTime = (_avEngineExecutionTime + execTime)/ _numberOfRequests;
 
                         } catch (Throwable t){
-                            report_error(t.getMessage(),3, engineInData.getTransitData().getId());
+                            report_error(t.getMessage(),3, engineInData.getId());
                             return;
                         }
                         break;
@@ -456,14 +674,12 @@ public class Service extends CBase {
                         // get engine execution end time
                         endTime = System.nanoTime();
                         // service engine execution time
-                        long execTime = endTime - startTime;
-                        // Update transient data with this service execution time
-                        service_result.getTransitData().setExecutionTime(execTime);
+                        execTime = endTime - startTime;
                         // Calculate a simple average for the execution time
                         _avEngineExecutionTime = (_avEngineExecutionTime + execTime)/ _numberOfRequests;
 
                     } catch (Throwable t){
-                        report_error(t.getMessage(),3, engineInData.getTransitData().getId());
+                        report_error(t.getMessage(),3, engineInData.getId());
                         return;
                     }
                     break;
@@ -477,8 +693,10 @@ public class Service extends CBase {
                 res.setStatusText(getName()+ ": engine null output");
                 res.setStatusSeverityId(1);
             } else {
-                res = service_result.getTransitData();
-                userObj = service_result.getUserObject();
+                // update xMsgData transient data with the engine output result
+                // Note: update all te relevant fields except data
+                //       data will be serialized at the serviceSend
+                res = buildOutTransit(inData, engineInData, execTime);
             }
             res.setSender(getName());
 
@@ -490,7 +708,7 @@ public class Service extends CBase {
             if (res.getComposition().isEmpty()) res.setComposition(c_composition);
 
             // Send service engine execution data
-            serviceSend(res, userObj);
+            serviceSend(res, engineInData);
 
             // If this is a sync request send data also to the requester
             if(!syncReceiverName.equals(xMsgConstants.UNDEFINED.getStringValue())){
@@ -510,6 +728,79 @@ public class Service extends CBase {
         objectPool.put(this);
     }
 
+
+    private xMsgD.Data.Builder buildOutTransit(xMsgD.Data.Builder transit,
+                                               EngineData engineData,
+                                               long execTime) {
+
+
+        switch (engineData.getDataType()) {
+            case T_VLSINT32:
+                transit.setDataType(xMsgD.Data.DType.T_VLSINT32);
+                break;
+            case T_VLSINT64:
+                transit.setDataType(xMsgD.Data.DType.T_VLSINT64);
+                break;
+            case T_FLSINT32:
+                transit.setDataType(xMsgD.Data.DType.T_FLSINT32);
+                break;
+            case T_FLSINT64:
+                transit.setDataType(xMsgD.Data.DType.T_FLSINT64);
+                break;
+            case T_FLOAT:
+                transit.setDataType(xMsgD.Data.DType.T_FLOAT);
+                break;
+            case T_DOUBLE:
+                transit.setDataType(xMsgD.Data.DType.T_DOUBLE);
+                break;
+            case T_STRING:
+                transit.setDataType(xMsgD.Data.DType.T_STRING);
+                break;
+            case JOBJECT:
+                transit.setByteArrayType(xMsgD.Data.BAType.JOBJECT);
+                break;
+            case NETCDF:
+                transit.setByteArrayType(xMsgD.Data.BAType.NETCDF);
+                break;
+            case HDF:
+                transit.setByteArrayType(xMsgD.Data.BAType.HDF);
+                break;
+            case EVIO:
+                transit.setByteArrayType(xMsgD.Data.BAType.EVIO);
+                break;
+            case T_VLSINT32A:
+                transit.setDataType(xMsgD.Data.DType.T_VLSINT32A);
+                break;
+            case T_VLSINT64A:
+                transit.setDataType(xMsgD.Data.DType.T_VLSINT64A);
+                break;
+            case T_FLSINT32A:
+                transit.setDataType(xMsgD.Data.DType.T_FLSINT32A);
+                break;
+            case T_FLSINT64A:
+                transit.setDataType(xMsgD.Data.DType.T_FLSINT64A);
+                break;
+            case T_FLOATA:
+                transit.setDataType(xMsgD.Data.DType.T_FLOATA);
+                break;
+            case T_DOUBLEA:
+                transit.setDataType(xMsgD.Data.DType.T_DOUBLEA);
+                break;
+            case T_STRINGA:
+                transit.setDataType(xMsgD.Data.DType.T_STRINGA);
+                break;
+        }
+
+        transit.setDataDescription(engineData.getDataDescription());
+        transit.setDataVersion(engineData.getDataVersion());
+        transit.setDataAuthorState(engineData.getState());
+        transit.setDataGenerationStatus(engineData.getStatus());
+        transit.setStatusSeverityId(engineData.getStatusSeverityId());
+        transit.setStatusText(engineData.getStatusText());
+        transit.setExecutionTime(execTime);
+
+        return transit;
+    }
 
     private void analyzeComposition(String composition) throws CException {
         // This is new routing (composition)  request
@@ -557,7 +848,7 @@ public class Service extends CBase {
 
     }
 
-    private void serviceSend(xMsgD.Data.Builder data, Object userObj)
+    private void serviceSend(xMsgD.Data.Builder data, EngineData engineData)
             throws xMsgException, IOException, CException {
 
         // If data monitors are registered broadcast data
@@ -576,20 +867,90 @@ public class Service extends CBase {
         for (List<String> ls:out_links.values()){
             for(String ss:ls) {
                 if (CUtility.isRemoteService(ss)) {
-
-                    // if data is an un-serialized object in the shared object pool
-                    // serialize it and set it as a byte array
-                    if(data.getDataType().equals(xMsgD.Data.DType.T_OBJECT)){
-                        byte[] sdata = CUtility.serialize(userObj);
-                        data.setByteArrayType(xMsgD.Data.BAType.JOBJECT);
-                        data.setBYTES(ByteString.copyFrom(sdata));
+                    // Here we need to serialize data
+                    switch (data.getDataType()) {
+                        case T_VLSINT32:
+                            data.setVLSINT32((Integer)engineData.getData());
+                            break;
+                        case T_VLSINT64:
+                            data.setVLSINT64((Long)engineData.getData());
+                            break;
+                        case T_FLSINT32:
+                            data.setFLSINT32((Integer) engineData.getData());
+                            break;
+                        case T_FLSINT64:
+                            data.setFLSINT64((Long) engineData.getData());
+                            break;
+                        case T_FLOAT:
+                            data.setFLOAT((Float)engineData.getData());
+                            break;
+                        case T_DOUBLE:
+                            data.setDOUBLE((Double)engineData.getData());
+                            break;
+                        case T_STRING:
+                            data.setSTRING((String)engineData.getData());
+                            break;
+                        case T_BYTES:
+                            // Using serialization of the Clara supported user formats
+                            switch (data.getByteArrayType()) {
+                                case JOBJECT:
+                                    byte[] sdata = CUtility.serialize(engineData.getData());
+                                    data.setBYTES(ByteString.copyFrom(sdata));
+                                    break;
+                                case NETCDF:
+                                    break;
+                                case HDF:
+                                    break;
+                                case EVIO:
+                                    break;
+                            }
+                            break;
+                        case T_VLSINT32A:
+                            for(int i=0; i<((List)engineData.getData()).size();i++ ) {
+                                data.setVLSINT32A(i, (Integer) engineData.getData());
+                            }
+                            break;
+                        case T_VLSINT64A:
+                            for(int i=0; i<((List)engineData.getData()).size();i++ ) {
+                                data.setVLSINT64A(i, (Long) engineData.getData());
+                            }
+                            break;
+                        case T_FLSINT32A:
+                            for(int i=0; i<((List)engineData.getData()).size();i++ ) {
+                                data.setFLSINT32A(i, (Integer) engineData.getData());
+                            }
+                            break;
+                        case T_FLSINT64A:
+                            for(int i=0; i<((List)engineData.getData()).size();i++ ) {
+                                data.setFLSINT64A(i, (Long) engineData.getData());
+                            }
+                            break;
+                        case T_FLOATA:
+                            for(int i=0; i<((List)engineData.getData()).size();i++ ) {
+                                data.setFLOATA(i, (Float) engineData.getData());
+                            }
+                            break;
+                        case T_DOUBLEA:
+                            for(int i=0; i<((List)engineData.getData()).size();i++ ) {
+                                data.setDOUBLEA(i, (Double) engineData.getData());
+                            }
+                            break;
+                        case T_STRINGA:
+                            for(int i=0; i<((List)engineData.getData()).size();i++ ) {
+                                data.setSTRINGA(i, (String) engineData.getData());
+                            }
+                            break;
+                        case T_PAYLOAD:
+                            break;
+                        case T_EXTERNAL_OBJECT:
+                            break;
                     }
                     serviceSend(ss, data);
                 } else {
-                    if(userObj!=null){
-                        Dpe.sharedDataObject.put(sharedMemoryKey,userObj);
-                        data.setDataType(xMsgD.Data.DType.T_OBJECT);
-                    }
+                    // we do not need to serialize
+                    Dpe.sharedDataObject.put(sharedMemoryKey,engineData.getData());
+                    data.setDataType(xMsgD.Data.DType.T_EXTERNAL_OBJECT);
+
                     // copy data to the shared memory
                     Dpe.sharedMemory.put(sharedMemoryKey,data);
                     serviceSend(ss, sharedMemoryKey);
@@ -737,8 +1098,7 @@ public class Service extends CBase {
      *
      * </p>
      * @param error_string content of the error message
-     * @param severity severity of the error message
-     *                 (accepted id = 1, 2 or 3)
+     * @param severity severity level of the error message
      */
     public void report_error(String error_string,
                              int severity, int id)

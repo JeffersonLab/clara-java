@@ -698,10 +698,7 @@ public class OrchestratorBase extends CBase {
 
     /**
      * <p>
-     *     Sends the receiving service
-     *     string = CConstants.RUN_SERVICE.
-     *     The name can be a canonical name of
-     *     a service or service engine name.
+     *     Sends transient data to a service
      * </p>
      *
      * @param name canonical name or engine
@@ -723,7 +720,7 @@ public class OrchestratorBase extends CBase {
     }
 
     /**
-     * Asks container to deploy a service
+     * Asks container to stop the service
      *
      * @param containerName canonical name of the container
      * @param serviceName canonical name of the service

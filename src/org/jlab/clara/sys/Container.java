@@ -3,7 +3,6 @@ package org.jlab.clara.sys;
 import org.jlab.clara.base.CBase;
 import org.jlab.clara.base.CException;
 import org.jlab.clara.util.CConstants;
-import org.jlab.clara.util.CTransit;
 import org.jlab.clara.util.CUtility;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgConstants;
