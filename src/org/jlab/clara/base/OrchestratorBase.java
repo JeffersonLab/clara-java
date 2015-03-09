@@ -32,14 +32,14 @@ public class OrchestratorBase extends CBase {
     public OrchestratorBase()
             throws xMsgException, SocketException {
         super();
-        setName("orchestrator" + (int) (Math.random() * 100.0));
+        setName("orchestrator" + (int) (Math.random() * 100.0) + ":" + "localhost");
     }
 
     public OrchestratorBase(String dpeHost,
                             String feHost)
             throws xMsgException, SocketException {
         super(dpeHost, feHost);
-        setName("orchestrator" + (int) (Math.random() * 100.0));
+        setName("orchestrator" + (int) (Math.random() * 100.0) + ":" + "localhost");
     }
 
     /**
@@ -348,8 +348,12 @@ public class OrchestratorBase extends CBase {
                               int severity_id) throws xMsgException, SocketException {
 
         // Create a socket connections to the xMsg node.
-        // This is a local DPE, and uses default port number.
-        xMsgAddress address = new xMsgAddress("localhost");
+        xMsgAddress address;
+        if(getFeHostName().equals(xMsgConstants.UNDEFINED.getStringValue())) {
+            address = new xMsgAddress("localhost");
+        } else {
+            address = new xMsgAddress(getFeHostName());
+        }
         xMsgConnection socket = getNewConnection(address);
 
         if(severity_id>0 && severity_id<4) {
@@ -374,8 +378,12 @@ public class OrchestratorBase extends CBase {
                                 int severity_id) throws xMsgException, SocketException {
 
         // Create a socket connections to the xMsg node.
-        // This is a local DPE, and uses default port number.
-        xMsgAddress address = new xMsgAddress("localhost");
+        xMsgAddress address;
+        if(getFeHostName().equals(xMsgConstants.UNDEFINED.getStringValue())) {
+            address = new xMsgAddress("localhost");
+        } else {
+            address = new xMsgAddress(getFeHostName());
+        }
         xMsgConnection socket = getNewConnection(address);
 
         if(severity_id>0 && severity_id<4) {
@@ -398,8 +406,12 @@ public class OrchestratorBase extends CBase {
             throws xMsgException, SocketException {
 
         // Create a socket connections to the xMsg node.
-        // This is a local DPE, and uses default port number.
-        xMsgAddress address = new xMsgAddress("localhost");
+        xMsgAddress address;
+        if(getFeHostName().equals(xMsgConstants.UNDEFINED.getStringValue())) {
+            address = new xMsgAddress("localhost");
+        } else {
+            address = new xMsgAddress(getFeHostName());
+        }
         xMsgConnection socket = getNewConnection(address);
 
         return genericReceive(socket, xMsgConstants.INFO.getStringValue(),
@@ -417,8 +429,12 @@ public class OrchestratorBase extends CBase {
             throws xMsgException, SocketException {
 
         // Create a socket connections to the xMsg node.
-        // This is a local DPE, and uses default port number.
-        xMsgAddress address = new xMsgAddress("localhost");
+        xMsgAddress address;
+        if(getFeHostName().equals(xMsgConstants.UNDEFINED.getStringValue())) {
+            address = new xMsgAddress("localhost");
+        } else {
+            address = new xMsgAddress(getFeHostName());
+        }
         xMsgConnection socket = getNewConnection(address);
 
         return genericReceive(socket, xMsgConstants.INFO.getStringValue() + ":" +
@@ -444,8 +460,12 @@ public class OrchestratorBase extends CBase {
             throws xMsgException, CException, SocketException {
 
         // Create a socket connections to the xMsg node.
-        // This is a local DPE, and uses default port number.
-        xMsgAddress address = new xMsgAddress("localhost");
+        xMsgAddress address;
+        if(getFeHostName().equals(xMsgConstants.UNDEFINED.getStringValue())) {
+            address = new xMsgAddress("localhost");
+        } else {
+            address = new xMsgAddress(getFeHostName());
+        }
         xMsgConnection socket = getNewConnection(address);
 
         if(severity_id>0 && severity_id<4) {
@@ -473,8 +493,12 @@ public class OrchestratorBase extends CBase {
             throws xMsgException, CException, SocketException {
 
         // Create a socket connections to the xMsg node.
-        // This is a local DPE, and uses default port number.
-        xMsgAddress address = new xMsgAddress("localhost");
+        xMsgAddress address;
+        if(getFeHostName().equals(xMsgConstants.UNDEFINED.getStringValue())) {
+            address = new xMsgAddress("localhost");
+        } else {
+            address = new xMsgAddress(getFeHostName());
+        }
         xMsgConnection socket = getNewConnection(address);
 
             return genericReceive(socket, xMsgConstants.ERROR.getStringValue() + ":" +
@@ -500,8 +524,12 @@ public class OrchestratorBase extends CBase {
             throws xMsgException, CException, SocketException {
 
         // Create a socket connections to the xMsg node.
-        // This is a local DPE, and uses default port number.
-        xMsgAddress address = new xMsgAddress("localhost");
+        xMsgAddress address;
+        if(getFeHostName().equals(xMsgConstants.UNDEFINED.getStringValue())) {
+            address = new xMsgAddress("localhost");
+        } else {
+            address = new xMsgAddress(getFeHostName());
+        }
         xMsgConnection socket = getNewConnection(address);
 
         if(severity_id>0 && severity_id<4) {
@@ -529,8 +557,12 @@ public class OrchestratorBase extends CBase {
             throws xMsgException, CException, SocketException {
 
         // Create a socket connections to the xMsg node.
-        // This is a local DPE, and uses default port number.
-        xMsgAddress address = new xMsgAddress("localhost");
+        xMsgAddress address;
+        if(getFeHostName().equals(xMsgConstants.UNDEFINED.getStringValue())) {
+            address = new xMsgAddress("localhost");
+        } else {
+            address = new xMsgAddress(getFeHostName());
+        }
         xMsgConnection socket = getNewConnection(address);
 
             return genericReceive(socket, xMsgConstants.WARNING.getStringValue() + ":" +
@@ -548,8 +580,12 @@ public class OrchestratorBase extends CBase {
             throws xMsgException, SocketException {
 
         // Create a socket connections to the xMsg node.
-        // This is a local DPE, and uses default port number.
-        xMsgAddress address = new xMsgAddress("localhost");
+        xMsgAddress address;
+        if(getFeHostName().equals(xMsgConstants.UNDEFINED.getStringValue())) {
+            address = new xMsgAddress("localhost");
+        } else {
+            address = new xMsgAddress(getFeHostName());
+        }
         xMsgConnection socket = getNewConnection(address);
 
         return genericReceive(socket, xMsgConstants.DONE.getStringValue(),
@@ -567,8 +603,12 @@ public class OrchestratorBase extends CBase {
             throws xMsgException, SocketException {
 
         // Create a socket connections to the xMsg node.
-        // This is a local DPE, and uses default port number.
-        xMsgAddress address = new xMsgAddress("localhost");
+        xMsgAddress address;
+        if(getFeHostName().equals(xMsgConstants.UNDEFINED.getStringValue())) {
+            address = new xMsgAddress("localhost");
+        } else {
+            address = new xMsgAddress(getFeHostName());
+        }
         xMsgConnection socket = getNewConnection(address);
 
         return genericReceive(socket, xMsgConstants.DONE.getStringValue() + ":" +
@@ -586,8 +626,12 @@ public class OrchestratorBase extends CBase {
             throws xMsgException, SocketException {
 
         // Create a socket connections to the xMsg node.
-        // This is a local DPE, and uses default port number.
-        xMsgAddress address = new xMsgAddress("localhost");
+        xMsgAddress address;
+        if(getFeHostName().equals(xMsgConstants.UNDEFINED.getStringValue())) {
+            address = new xMsgAddress("localhost");
+        } else {
+            address = new xMsgAddress(getFeHostName());
+        }
         xMsgConnection socket = getNewConnection(address);
 
         return genericReceive(socket, xMsgConstants.DONE.getStringValue(),
@@ -605,8 +649,12 @@ public class OrchestratorBase extends CBase {
             throws xMsgException, SocketException {
 
         // Create a socket connections to the xMsg node.
-        // This is a local DPE, and uses default port number.
-        xMsgAddress address = new xMsgAddress("localhost");
+        xMsgAddress address;
+        if(getFeHostName().equals(xMsgConstants.UNDEFINED.getStringValue())) {
+            address = new xMsgAddress("localhost");
+        } else {
+            address = new xMsgAddress(getFeHostName());
+        }
         xMsgConnection socket = getNewConnection(address);
 
         return genericReceive(socket, xMsgConstants.DONE.getStringValue() + ":" +
@@ -638,9 +686,10 @@ public class OrchestratorBase extends CBase {
      */
     public void start_container(String dpeName,
                                 String containerName)
-            throws xMsgException {
+            throws xMsgException, SocketException {
 
-        genericSend(CConstants.DPE + ":" + dpeName,
+        genericSend(dpeName,
+                CConstants.DPE + ":" + dpeName,
                 CConstants.START_CONTAINER + "?" + containerName);
 
     }
@@ -656,9 +705,10 @@ public class OrchestratorBase extends CBase {
      * @throws xMsgException
      */
     public void stop_container(String dpeName, String containerName)
-            throws xMsgException {
+            throws xMsgException, SocketException {
 
-        genericSend(CConstants.DPE + ":" + dpeName,
+        genericSend(dpeName,
+                CConstants.DPE + ":" + dpeName,
                 CConstants.REMOVE_CONTAINER + "?" + containerName);
 
     }
@@ -674,9 +724,12 @@ public class OrchestratorBase extends CBase {
     public void start_service(String containerName,
                               String engineName,
                               int objectPoolSize)
-            throws xMsgException {
+            throws xMsgException, SocketException, CException {
 
-        genericSend(CConstants.CONTAINER + ":" + containerName,
+        String dpeName = CUtility.getDpeName(containerName);
+
+        genericSend(dpeName,
+                CConstants.CONTAINER + ":" + containerName,
                 CConstants.DEPLOY_SERVICE + "?" + engineName + "?" + objectPoolSize);
 
     }
@@ -689,9 +742,12 @@ public class OrchestratorBase extends CBase {
      */
     public void start_service(String containerName,
                               String engineName)
-            throws xMsgException {
+            throws xMsgException, CException, SocketException {
 
-        genericSend(CConstants.CONTAINER + ":" + containerName,
+        String dpeName = CUtility.getDpeName(containerName);
+
+        genericSend(dpeName,
+                CConstants.CONTAINER + ":" + containerName,
                 CConstants.DEPLOY_SERVICE + "?" + engineName);
 
     }
@@ -709,7 +765,7 @@ public class OrchestratorBase extends CBase {
      */
     public void run_service(String name,
                             xMsgD.Data.Builder data)
-            throws xMsgException, CException {
+            throws xMsgException, CException, SocketException {
 
         // Check the passed service name
         if(!CUtility.isCanonical(name)) {
@@ -728,9 +784,12 @@ public class OrchestratorBase extends CBase {
      */
     public void stop_service(String containerName,
                               String serviceName)
-            throws xMsgException {
+            throws xMsgException, CException, SocketException {
 
-        genericSend(CConstants.CONTAINER + ":" + containerName,
+        String dpeName = CUtility.getDpeName(containerName);
+
+        genericSend(dpeName,
+                CConstants.CONTAINER + ":" + containerName,
                 CConstants.REMOVE_SERVICE + "?" + serviceName);
 
     }
@@ -744,24 +803,24 @@ public class OrchestratorBase extends CBase {
      */
     public void report_done(String serviceName,
                               int eventCount)
-            throws xMsgException, CException {
+            throws xMsgException, CException, SocketException {
 
         // Check the passed service name
         if(!CUtility.isCanonical(serviceName)) {
             throw new CException("not a canonical name");
         }
-        genericSend(serviceName,
-                CConstants.SERVICE_REPORT_DONE + "?" +eventCount);
+        serviceSend(serviceName,
+                CConstants.SERVICE_REPORT_DONE + "?" + eventCount);
 
     }
 
-    public void stop_done_reporting(String serviceName) throws CException, xMsgException {
+    public void stop_done_reporting(String serviceName) throws CException, xMsgException, SocketException {
         // Check the passed service name
         if(!CUtility.isCanonical(serviceName)) {
             throw new CException("not a canonical name");
         }
-        genericSend(serviceName,
-                CConstants.SERVICE_REPORT_DONE + "?" +0);
+        serviceSend(serviceName,
+                CConstants.SERVICE_REPORT_DONE + "?" + 0);
 
     }
 
@@ -774,24 +833,24 @@ public class OrchestratorBase extends CBase {
      */
     public void report_data(String serviceName,
                               int eventCount)
-            throws xMsgException, CException {
+            throws xMsgException, CException, SocketException {
 
         // Check the passed service name
         if(!CUtility.isCanonical(serviceName)) {
             throw new CException("not a canonical name");
         }
-        genericSend(serviceName,
-                CConstants.SERVICE_REPORT_DATA + "?" +eventCount);
+        serviceSend(serviceName,
+                CConstants.SERVICE_REPORT_DATA + "?" + eventCount);
 
     }
 
-    public void stop_data_reporting(String serviceName) throws CException, xMsgException {
+    public void stop_data_reporting(String serviceName) throws CException, xMsgException, SocketException {
         // Check the passed service name
         if(!CUtility.isCanonical(serviceName)) {
             throw new CException("not a canonical name");
         }
-        genericSend(serviceName,
-                CConstants.SERVICE_REPORT_DATA + "?" +0);
+        serviceSend(serviceName,
+                CConstants.SERVICE_REPORT_DATA + "?" + 0);
 
     }
 

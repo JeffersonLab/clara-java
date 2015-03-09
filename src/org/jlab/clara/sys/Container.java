@@ -82,7 +82,9 @@ public class Container extends CBase {
         System.out.println(CUtility.getCurrentTimeInH()+": Started container = "+getName());
 
         // Send container_up message to the FE
-        genericSend(CConstants.CONTAINER + ":" + feHost, CConstants.CONTAINER_UP+"?"+getName());
+        genericSend(feHost,
+                CConstants.CONTAINER + ":" + feHost,
+                CConstants.CONTAINER_UP+"?"+getName());
 
         Thread t1 = new Thread(new Runnable() {
             public void run() {
@@ -220,7 +222,7 @@ public class Container extends CBase {
     }
 
     public void removeService(String name)
-            throws xMsgException, InterruptedException, CException {
+            throws xMsgException, InterruptedException, CException, SocketException {
 
         // Check to see if the passed name is a canonical
         // name of a service or just a service engine name
@@ -307,7 +309,7 @@ public class Container extends CBase {
                         case CConstants.REMOVE_SERVICE:
                             try {
                                 removeService(seName);
-                            } catch (xMsgException | InterruptedException | CException e) {
+                            } catch (xMsgException | InterruptedException | CException | SocketException e) {
                                 e.printStackTrace();
                             }
                             break;

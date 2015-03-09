@@ -116,6 +116,14 @@ public class CUtility {
         }
     }
 
+    public static Boolean isHostLocal(String hostName)
+            throws SocketException {
+        for(String s:xMsgUtil.getLocalHostIps()){
+            if(s.equals(hostName)) return true;
+        }
+        return false;
+    }
+
     /**
      * Checks to see if the service is locally deployed
      * @param s_name service canonical name (dpe-ip:container:engine)

@@ -87,6 +87,7 @@ public class Dpe extends CBase{
         dpeName = xMsgUtil.getLocalHostIps().get(0);
         setName(dpeName);
         this.isFE = isFE;
+        feHostIp = dpeName;
 
         printLogo();
 
@@ -159,7 +160,9 @@ public class Dpe extends CBase{
                 new HashMap<String, Map<String,xMsgR.xMsgRegistrationData.Builder>>());
 
         // Send dpe_up message to the FE
-        genericSend(CConstants.DPE + ":" + feHostIp, CConstants.DPE_UP+"?"+getName());
+        genericSend(feHostIp,
+                CConstants.DPE + ":" + feHostIp,
+                CConstants.DPE_UP+"?"+getName());
 
         // Subscribe messages published to this container
         genericReceive(CConstants.DPE + ":" + getName(),
@@ -208,11 +211,13 @@ public class Dpe extends CBase{
                     Map<String, xMsgR.xMsgRegistrationData.Builder> sm = _db.get(dpn).get(cn);
                     // go over all services of the container and send remove service request
                     for(String sn:sm.keySet()) {
-                        genericSend(CConstants.CONTAINER + ":" + cn,
+                        String dpeHost = CUtility.getDpeName(sn);
+                        genericSend(dpeHost,
+                                CConstants.CONTAINER + ":" + cn,
                                 CConstants.REMOVE_SERVICE+"?"+sn);
                     }
                 }
-        } catch (CException | xMsgException e) {
+        } catch (CException | xMsgException | SocketException e) {
             e.printStackTrace();
         }
     }
@@ -327,7 +332,7 @@ public class Dpe extends CBase{
                             if(CUtility.isCanonical(value)){
                                 removeContainer(value);
                                 removeContainerRecord(value);
-                                System.out.println(CUtility.getCurrentTimeInH()+": Stopped container = "+value);
+                                System.out.println(CUtility.getCurrentTimeInH() + ": Stopped container = " + value);
                             }
                             break;
 
@@ -335,8 +340,9 @@ public class Dpe extends CBase{
                         // is the canonical name of the master DPE (FE)
                         case CConstants.DPE_PING:
                             try {
-                                genericSend(CConstants.DPE + ":" + value,CConstants.ALIVE);
-                            } catch (xMsgException e) {
+                                genericSend(feHostIp,
+                                        CConstants.DPE + ":" + value,CConstants.ALIVE);
+                            } catch (xMsgException | SocketException e) {
                                 e.printStackTrace();
                             }
                             break;
