@@ -1,4 +1,4 @@
-#!/bin/sh -f
+#!/bin/sh
 
 # author gurjyan
 # date 2.7.15
@@ -9,7 +9,7 @@ if [ -n "$CLARA_HOME" ]; then
     export CLASSPATH="$CLARA_HOME/lib/*:$CLARA_HOME/services/*"
 fi
 
-if [ "$1" == "-h" ] || [ "$1" == "-help" ]; then
+if [ "$1" = "-h" ] || [ "$1" = "-help" ]; then
     echo ""
     echo "Starts CLARA dpe (java binding)"
     echo "-------------------------------- "
