@@ -3,7 +3,6 @@ package org.jlab.clara.sys;
 import org.jlab.clara.base.CBase;
 import org.jlab.clara.base.CException;
 import org.jlab.clara.util.CConstants;
-import org.jlab.clara.util.CTransit;
 import org.jlab.clara.util.CUtility;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgConstants;
@@ -77,9 +76,12 @@ public class Container extends CBase {
         System.out.println(CUtility.getCurrentTimeInH()+": Started container = "+getName());
 
         // Send container_up message to the FE
-        genericSend(CConstants.CONTAINER + ":" + feHost, CConstants.CONTAINER_UP+"?"+getName());
+        genericSend(feHost,
+                CConstants.CONTAINER + ":" + feHost,
+                CConstants.CONTAINER_UP+"?"+getName());
 
         Thread t1 = new Thread(new Runnable() {
+            @Override
             public void run() {
                 // Subscribe messages published to this container
                 try {
@@ -114,6 +116,7 @@ public class Container extends CBase {
         System.out.println(CUtility.getCurrentTimeInH()+": Started container = "+getName());
 
         Thread t1 = new Thread(new Runnable() {
+            @Override
             public void run() {
                 // Subscribe messages published to this container
                 try {
@@ -212,7 +215,7 @@ public class Container extends CBase {
     }
 
     public void removeService(String name)
-            throws xMsgException, InterruptedException, CException {
+            throws xMsgException, InterruptedException, CException, SocketException {
 
         // Check to see if the passed name is a canonical
         // name of a service or just a service engine name
@@ -295,7 +298,7 @@ public class Container extends CBase {
                         case CConstants.REMOVE_SERVICE:
                             try {
                                 removeService(seName);
-                            } catch (xMsgException | InterruptedException | CException e) {
+                            } catch (xMsgException | InterruptedException | CException | SocketException e) {
                                 e.printStackTrace();
                             }
                             break;
@@ -312,6 +315,7 @@ public class Container extends CBase {
             super();
 
             Thread t1 = new Thread(new Runnable() {
+                @Override
                 public void run() {
                     // Subscribe messages published to this service
                     try {
@@ -374,10 +378,11 @@ public class Container extends CBase {
                     for(int i=0; i<sps;i++){
                         final Service ser = op.take();
                         threadPool.submit(new Runnable() {
-                                              public void run() {
+                                              @Override
+                                            public void run() {
                                                   try {
                                                       ser.configure(op, dataType, data, syncReceiver, counter);
-                                                  } catch (xMsgException | InterruptedException | CException e) {
+                                                  } catch (xMsgException | InterruptedException | CException | SocketException e) {
                                                       e.printStackTrace();
                                                   }
                                               }
@@ -391,7 +396,8 @@ public class Container extends CBase {
                     final Service ser = op.take();
 
                     threadPool.submit(new Runnable() {
-                                          public void run() {
+                                          @Override
+                                        public void run() {
                                               try {
                                                   ser.process(op, dataType, data, syncReceiver, -1);
                                               } catch (xMsgException | SocketException | InterruptedException | CException e) {

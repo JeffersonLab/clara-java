@@ -1,5 +1,6 @@
 package org.jlab.clara.sys;
 
+import com.google.protobuf.ByteString;
 import org.jlab.clara.base.CBase;
 import org.jlab.clara.base.CException;
 import org.jlab.clara.util.*;
@@ -94,8 +95,6 @@ public class Service extends CBase {
     // Note: common for different compositions
     private long _numberOfRequests;
 
-    // FE host IP
-    private String feHost = xMsgConstants.UNDEFINED.getStringValue();
 
     /**
      * <p>
@@ -124,8 +123,6 @@ public class Service extends CBase {
         super(feHost);
         setName(name);
 
-        this.feHost = feHost;
-
         this.sharedMemoryKey = sharedMemoryKey;
 
         this.engine_class_name = packageName+"."+CUtility.getEngineName(getName());
@@ -141,7 +138,9 @@ public class Service extends CBase {
         connect();
 
         // Send service_up message to the FE
-        genericSend(CConstants.SERVICE + ":" + feHost, CConstants.SERVICE_UP+"?"+getName());
+        genericSend(getFeHostName(),
+                CConstants.SERVICE + ":" + feHost,
+                CConstants.SERVICE_UP+"?"+getName());
 
         System.out.println("\n"+CUtility.getCurrentTimeInH()+": Started service = "+getName());
         register();
@@ -183,6 +182,11 @@ public class Service extends CBase {
         // to the local dpe proxy
         connect();
 
+        // Send service_up message to the FE
+        genericSend(getFeHostName(),
+                CConstants.SERVICE + ":" + "localhost",
+                CConstants.SERVICE_UP+"?"+getName());
+
         System.out.println("\n"+CUtility.getCurrentTimeInH()+": Started service = "+getName());
         register();
 
@@ -201,13 +205,14 @@ public class Service extends CBase {
      * @throws CException
      * @throws xMsgException
      * @throws InterruptedException
+     * @throws SocketException
      */
     public void configure(LinkedBlockingQueue<Service> objectPool,
                           String dataType,
                           Object data,
                           String syncReceiverName,
                           AtomicInteger configureCountDown)
-            throws CException, xMsgException, InterruptedException {
+            throws CException, xMsgException, InterruptedException, SocketException {
 
         xMsgD.Data.Builder inData = null;
 
@@ -242,7 +247,9 @@ public class Service extends CBase {
             if(!syncReceiverName.equals(xMsgConstants.UNDEFINED.getStringValue())){
                 int remainingIntances = configureCountDown.decrementAndGet();
                 if (remainingIntances == 0) {
-                    genericSend(syncReceiverName, xMsgConstants.DONE.getStringValue());
+                    genericSend("localhost",
+                        syncReceiverName,
+                        xMsgConstants.DONE.getStringValue());
                 }
             }
         }
@@ -312,9 +319,9 @@ public class Service extends CBase {
         if (inData.getAction().equals(xMsgD.Data.ControlAction.CONFIGURE)){
             engine_object.configure(engineInData);
 
-            // If this is a sync request send done to the requester
+            // If this is a sync request send data also to the requester
             if(!syncReceiverName.equals(xMsgConstants.UNDEFINED.getStringValue())){
-                genericSend(syncReceiverName, xMsgConstants.DONE.getStringValue());
+                genericSend("localhost", syncReceiverName,xMsgConstants.DONE.getStringValue());
             }
 
         } else if (inData.getAction().equals(xMsgD.Data.ControlAction.EXECUTE)) {
@@ -472,7 +479,7 @@ public class Service extends CBase {
 
             // If this is a sync request send data also to the requester
             if(!syncReceiverName.equals(xMsgConstants.UNDEFINED.getStringValue())){
-                genericSend(syncReceiverName,res);
+                genericSend("localhost", syncReceiverName,res);
             }
 
             // If engine defines status error
@@ -615,7 +622,7 @@ public class Service extends CBase {
      * @param info_string content of the information
      */
     public void report_info(String info_string)
-            throws xMsgException {
+            throws xMsgException, SocketException {
 
         // build the xMsgData object
         xMsgD.Data.Builder db = xMsgD.Data.newBuilder();
@@ -626,8 +633,14 @@ public class Service extends CBase {
         db.setSTRING(info_string);
         db.setExecutionTime(_avEngineExecutionTime);
 
-        genericSend(xMsgConstants.INFO.getStringValue() + ":" +
-                getName(), db);
+        genericSend("localhost",
+                xMsgConstants.INFO.getStringValue() + ":" +
+                        getName(), db);
+        if(!getFeHostName().equals(xMsgConstants.UNDEFINED.getStringValue())) {
+            genericSend(getFeHostName(),
+                    xMsgConstants.INFO.getStringValue() + ":" +
+                            getName(), db);
+        }
     }
 
     /**
@@ -638,10 +651,17 @@ public class Service extends CBase {
      * </p>
      */
     public void report_done(int id)
-            throws xMsgException {
+            throws xMsgException, SocketException {
 
-        genericSend(xMsgConstants.DONE.getStringValue() + ":" +
+
+        genericSend("localhost",
+                xMsgConstants.DONE.getStringValue() + ":" +
                 getName(), id + "?" + _avEngineExecutionTime);
+        if(!getFeHostName().equals(xMsgConstants.UNDEFINED.getStringValue())) {
+            genericSend(getFeHostName(),
+                    xMsgConstants.DONE.getStringValue() + ":" +
+                            getName(), id + "?" + _avEngineExecutionTime);
+        }
     }
 
     /**
@@ -661,13 +681,23 @@ public class Service extends CBase {
     public void report_data(Object data,
                             String report_type,
                             int severity)
-            throws xMsgException {
+            throws xMsgException, SocketException {
 
-        genericSend(xMsgConstants.DATA.getStringValue() + ":" +
+        genericSend("localhost",
+                xMsgConstants.DATA.getStringValue() + ":" +
                         getName() + ":" +
                         report_type+ ":" +
                         severity,
                 data);
+        if(!getFeHostName().equals(xMsgConstants.UNDEFINED.getStringValue())) {
+            genericSend(getFeHostName(),
+                    xMsgConstants.DATA.getStringValue() + ":" +
+                            getName() + ":" +
+                            report_type+ ":" +
+                            severity,
+                    data);
+
+        }
     }
 
     /**
@@ -685,7 +715,7 @@ public class Service extends CBase {
      */
     public void report_warning(String warning_string,
                                int severity, int id)
-            throws xMsgException, CException {
+            throws xMsgException, CException, SocketException {
 
         // build the xMsgData object
         xMsgD.Data.Builder db = xMsgD.Data.newBuilder();
@@ -697,10 +727,18 @@ public class Service extends CBase {
         db.setId(id);
         db.setExecutionTime(_avEngineExecutionTime);
 
-        genericSend(xMsgConstants.WARNING.getStringValue() + ":" +
+        genericSend("localhost",
+                xMsgConstants.WARNING.getStringValue() + ":" +
                         getName() + ":" + severity,
                 db);
-    }
+
+        if(!getFeHostName().equals(xMsgConstants.UNDEFINED.getStringValue())) {
+            genericSend(getFeHostName(),
+                    xMsgConstants.WARNING.getStringValue() + ":" +
+                            getName() + ":" + severity,
+                    db);
+        }
+        }
 
     /**
      * <p>
@@ -717,7 +755,7 @@ public class Service extends CBase {
      */
     public void report_error(String error_string,
                              int severity, int id)
-            throws xMsgException, CException {
+            throws xMsgException, CException, SocketException {
 
         // build the xMsgData object
         xMsgD.Data.Builder db = xMsgD.Data.newBuilder();
@@ -729,21 +767,33 @@ public class Service extends CBase {
         db.setId(id);
         db.setExecutionTime(_avEngineExecutionTime);
 
-        genericSend(xMsgConstants.ERROR.getStringValue() + ":" +
+        genericSend("localhost",
+                xMsgConstants.ERROR.getStringValue() + ":" +
                         getName() + ":" + severity,
                 db);
+        if(!getFeHostName().equals(xMsgConstants.UNDEFINED.getStringValue())) {
+            genericSend(getFeHostName(),
+                    xMsgConstants.ERROR.getStringValue() + ":" +
+                            getName() + ":" + severity,
+                    db);
+        }
     }
 
     /**
      *
      * @throws xMsgException
      */
-    public void dispose() throws xMsgException {
+    public void dispose() throws xMsgException, SocketException {
         remove_registration();
 
-        if(!feHost.equals(xMsgConstants.UNDEFINED.getStringValue())) {
             // Send service_up message to the FE
-            genericSend(CConstants.SERVICE + ":" + feHost, CConstants.SERVICE_DOWN + "?" + getName());
+            genericSend("localhost",
+                    CConstants.SERVICE + ":" + "localhost",
+                    CConstants.SERVICE_DOWN + "?" + getName());
+        if(!getFeHostName().equals(xMsgConstants.UNDEFINED.getStringValue())) {
+            genericSend(getFeHostName(),
+                    CConstants.SERVICE + ":" + getFeHostName(),
+                    CConstants.SERVICE_DOWN + "?" + getName());
         }
     }
 

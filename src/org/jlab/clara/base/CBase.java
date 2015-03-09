@@ -1,10 +1,10 @@
 package org.jlab.clara.base;
 
+import org.jlab.clara.util.CUtility;
 import org.jlab.coda.xmsg.core.*;
 import org.jlab.coda.xmsg.data.xMsgR.xMsgRegistrationData;
 import org.jlab.coda.xmsg.excp.xMsgDiscoverException;
 import org.jlab.coda.xmsg.excp.xMsgException;
-import org.jlab.coda.xmsg.excp.xMsgSubscribingException;
 import org.jlab.coda.xmsg.net.xMsgAddress;
 import org.jlab.coda.xmsg.net.xMsgConnection;
 
@@ -28,6 +28,7 @@ public class CBase extends xMsg {
     private String name =
             xMsgConstants.UNDEFINED.getStringValue();
     private xMsgConnection node_connection = null;
+    private String fe_host_name = xMsgConstants.UNDEFINED.getStringValue();
 
 
     /**
@@ -37,6 +38,8 @@ public class CBase extends xMsg {
      */
     public CBase(String feHost) throws xMsgException, SocketException {
         super(feHost);
+
+        this.fe_host_name = feHost;
 
         // Create a socket connections to the xMsg node.
         // This is a local DPE, and uses default port number.
@@ -53,10 +56,16 @@ public class CBase extends xMsg {
     public CBase(String dpeHost, String feHost) throws xMsgException, SocketException {
         super(feHost);
 
+        this.fe_host_name = feHost;
+
         // Create a socket connections to the xMsg node.
         // This is a local DPE, and uses default port number.
         xMsgAddress address = new xMsgAddress(dpeHost);
         this.node_connection = connect(address);
+    }
+
+    public String getFeHostName(){
+        return fe_host_name;
     }
 
     /**
@@ -319,14 +328,28 @@ public class CBase extends xMsg {
      * <p>
      *      Sends xMsgD.Data object to a service
      * </p>
-     * @param topic Clara service canonical name
+     * @param serviceName Clara service canonical name
      * @param data xMsgD.Data object
      */
-    public void serviceSend(String topic,
+    public void serviceSend(String serviceName,
                             Object data)
-            throws xMsgException {
+            throws xMsgException, CException, SocketException {
 
-        serviceSend(node_connection, topic, data);
+        if(!CUtility.isCanonical(serviceName)){
+            throw new CException("service name is not canonical");
+        }
+
+        if(CUtility.isRemoteService(serviceName)){
+            String dpeHost = CUtility.getDpeName(serviceName);
+
+            // Create a socket connections to the remote dpe.
+            xMsgAddress address = new xMsgAddress(dpeHost);
+            xMsgConnection con = connect(address);
+            serviceSend(con, serviceName, data);
+
+        } else {
+            serviceSend(node_connection, serviceName, data);
+        }
     }
 
     /**
@@ -367,16 +390,32 @@ public class CBase extends xMsg {
      * <p>
      *      Sync sends xMsgD.Data object to a service defined by the canonical name
      * </p>
-     * @param topic Clara service canonical name
+     * @param serviceName Clara service canonical name
      * @param data xMsgD.Data object
      * @param timeOut int in seconds
      * @throws TimeoutException
      */
-    public Object serviceSyncSend(String topic,
+    public Object serviceSyncSend(String serviceName,
                                   Object data,
                                   int timeOut)
-            throws xMsgException, TimeoutException {
-        return serviceSyncSend(node_connection, topic, data, timeOut);
+            throws xMsgException, TimeoutException, CException, SocketException {
+
+        if(!CUtility.isCanonical(serviceName)){
+            throw new CException("service name is not canonical");
+        }
+
+        if(CUtility.isRemoteService(serviceName)){
+            String dpeHost = CUtility.getDpeName(serviceName);
+
+            // Create a socket connections to the remote dpe.
+            xMsgAddress address = new xMsgAddress(dpeHost);
+            xMsgConnection con = connect(address);
+            return serviceSyncSend(con, serviceName, data, timeOut);
+
+        } else {
+            return serviceSyncSend(node_connection, serviceName, data, timeOut);
+        }
+
     }
 
     /**
@@ -410,14 +449,23 @@ public class CBase extends xMsg {
      *      service naming convention.
      * </p>
      *
-     * @param topic Clara service canonical name
+     * @param dpeHost Clara DPE host name
+     * @param topic xMsg topic
      * @param data xMsgD.Data object
      */
-    public void genericSend(String topic,
+    public void genericSend(String dpeHost,
+                            String topic,
                             Object data)
-            throws xMsgException {
+            throws xMsgException, SocketException {
 
-        genericSend(node_connection, topic, data);
+        if(CUtility.isHostLocal(dpeHost)) {
+            genericSend(node_connection, topic, data);
+        } else {
+            // Create a socket connections to the remote dpe.
+            xMsgAddress address = new xMsgAddress(dpeHost);
+            xMsgConnection con = connect(address);
+            genericSend(con, topic, data);
+        }
     }
 
     /**
