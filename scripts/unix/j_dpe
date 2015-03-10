@@ -16,5 +16,5 @@ if [ "$1" = "-h" ] || [ "$1" = "-help" ]; then
     echo "synopsis: j_dpe"
     echo ""
 else
-java  -XX:+UnlockCommercialFeatures -XX:+FlightRecorder org.jlab.clara.sys.Dpe
+java org.jlab.clara.sys.Dpe
 fi

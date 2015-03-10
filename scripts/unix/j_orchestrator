@@ -16,5 +16,5 @@ if [ "$1" = "-h" ] || [ "$1" = "-help" ]; then
     echo "synopsis: j_orchestrator"
     echo ""
 else
-java  -XX:+UnlockCommercialFeatures -XX:+FlightRecorder org.jlab.clara.examples.orchestrators.OrInteractive
+java  org.jlab.clara.examples.orchestrators.OrInteractive
 fi
