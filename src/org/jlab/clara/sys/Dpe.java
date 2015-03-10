@@ -84,7 +84,7 @@ public class Dpe extends CBase{
      */
     public Dpe(Boolean isFE) throws xMsgException, SocketException {
         super();
-        dpeName = xMsgUtil.getLocalHostIps().get(0);
+        dpeName = CUtility.getIPAddress("localhost");
         setName(dpeName);
         this.isFE = isFE;
 
@@ -145,7 +145,7 @@ public class Dpe extends CBase{
      */
     public Dpe(String feName) throws xMsgException, SocketException {
         super();
-        dpeName = xMsgUtil.getLocalHostIps().get(0);
+        dpeName = CUtility.getIPAddress("localhost");
         setName(dpeName);
         feHostIp = feName;
 
