@@ -291,7 +291,6 @@ public class Dpe extends CBase{
             final String dataType = msg.getDataType();
             final Object data = msg.getData();
             if(dataType.equals(xMsgConstants.ENVELOPE_DATA_TYPE_STRING.getStringValue())) {
-//                System.out.println("DDD: dpe_request: " + msg);
                 String cmdData = (String)data;
                 String cmd = null, value = null;
                 try {

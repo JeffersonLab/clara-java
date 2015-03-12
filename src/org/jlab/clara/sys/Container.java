@@ -8,6 +8,7 @@ import org.jlab.clara.util.CUtility;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
+import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.data.xMsgD;
 import org.jlab.coda.xmsg.excp.xMsgException;
 
@@ -79,8 +80,6 @@ public class Container extends CBase {
         // Create a socket connections to the local dpe proxy
         connect();
 
-        System.out.println(CUtility.getCurrentTimeInH()+": Started container = "+getName());
-
         // Send container_up message to the FE
         genericSend(feHost,
                 CConstants.CONTAINER + ":" + feHost,
@@ -98,6 +97,8 @@ public class Container extends CBase {
             }
         });
         t1.start();
+
+        System.out.println(CUtility.getCurrentTimeInH()+": Started container = "+getName()+"\n");
     }
 
     /**
@@ -150,12 +151,12 @@ public class Container extends CBase {
      *     to be 0 or negative number.
      * </p>
      *
-     * @param packageName service engine package name
-     * @param name service engine class name
+     * @param packageName service engine class name
+     * @param engineClassName service engine class name
      * @param objectPoolSize size of the object pool
      */
     public void addService(String packageName,
-                           String name,
+                           String engineClassName,
                            int objectPoolSize)
             throws CException,
             xMsgException,
@@ -167,7 +168,7 @@ public class Container extends CBase {
 
         // We need final variables to pass
         // abstract method implementation
-        final String canonical_name = getName() + ":" + name;
+        final String canonical_name = getName() + ":" + engineClassName;
 
         if(_threadPoolMap.containsKey(canonical_name)){
             throw new CException("service exists");
@@ -217,8 +218,9 @@ public class Container extends CBase {
         // Add the object pool to the pools map
         _objectPoolMap.put(canonical_name, lbq);
 
-        new ServiceDispatcher(canonical_name);
+        new ServiceDispatcher(canonical_name,"Clara service");
 
+        System.out.println(CUtility.getCurrentTimeInH()+": Started service = "+canonical_name+"\n");
     }
 
     public void removeService(String name)
@@ -280,6 +282,7 @@ public class Container extends CBase {
                     cmd = st.nextToken();
                     seName = st.nextToken();
                     objectPoolSize = st.nextToken();
+
                 } catch (NoSuchElementException e){
                     System.out.println(e.getMessage());
 //                    e.printStackTrace();
@@ -287,6 +290,13 @@ public class Container extends CBase {
                 if(cmd!=null && seName!=null) {
                     switch (cmd) {
                         case CConstants.DEPLOY_SERVICE:
+                            if(!seName.contains(".")){
+                                System.out.println("Warning: Deployment failed. " +
+                                        "Clara accepts fully qualified class names only.");
+                                return null;
+                            }
+
+
                             if(objectPoolSize==null){
 
                                 // if object pool size is not defined set
@@ -322,8 +332,17 @@ public class Container extends CBase {
 
     private class ServiceDispatcher extends CBase {
 
-        public ServiceDispatcher(final String serviceCanonicalName) throws xMsgException, SocketException {
+        private String description = xMsgConstants.UNDEFINED.getStringValue();
+        private String myName = xMsgConstants.UNDEFINED.getStringValue();
+
+        public ServiceDispatcher(final String serviceCanonicalName,
+                                 String description)
+                throws xMsgException,
+                SocketException {
             super();
+
+            this.description = description;
+            this.myName = serviceCanonicalName;
 
             Thread t1 = new Thread(new Runnable() {
                 public void run() {
@@ -338,7 +357,57 @@ public class Container extends CBase {
             });
             t1.start();
 
+            // register with the registrar
+            register();
+
+            if(!xMsgUtil.getLocalHostIps().contains(feHost)){
+                register(feHost);
+            }
+
+            if(!feHost.equals(xMsgConstants.UNDEFINED.getStringValue())) {
+                // Send service_up message to the FE
+                genericSend(feHost,
+                        CConstants.SERVICE + ":" + feHost,
+                        CConstants.SERVICE_UP + "?" + myName);
+            }
+
         }
+
+        /**
+         * <p>
+         * Note that Clara topic for services are constructed as:
+         * dpe_host:container:engine
+         * <p/>
+         */
+        public void register()
+                throws xMsgException {
+            System.out.println(CUtility.getCurrentTimeInH() + ": " + myName + " sending registration request.");
+            registerSubscriber(myName,
+                    xMsgUtil.getTopicDomain(myName),
+                    xMsgUtil.getTopicSubject(myName),
+                    xMsgUtil.getTopicType(myName),
+                    description);
+        }
+
+        /**
+         * <p>
+         * Note that Clara topic for services are constructed as:
+         * dpe_host:container:engine
+         * <p/>
+         */
+        public void register(String feHost)
+                throws xMsgException {
+            System.out.println(CUtility.getCurrentTimeInH() + ": " + getName() + " sending registration request.");
+            registerSubscriber(myName,
+                    feHost,
+                    xMsgConstants.DEFAULT_PORT.getIntValue(),
+                    xMsgUtil.getTopicDomain(myName),
+                    xMsgUtil.getTopicSubject(myName),
+                    xMsgUtil.getTopicType(myName),
+                    description);
+        }
+
+
     }
 
     private class ServiceCallBack implements xMsgCallBack {

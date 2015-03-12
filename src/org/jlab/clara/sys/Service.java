@@ -137,13 +137,7 @@ public class Service extends CBase {
         // to the local dpe proxy
         connect();
 
-        // Send service_up message to the FE
-        genericSend(getFeHostName(),
-                CConstants.SERVICE + ":" + feHost,
-                CConstants.SERVICE_UP+"?"+getName());
-
-        System.out.println("\n"+CUtility.getCurrentTimeInH()+": Started service = "+getName());
-        register();
+        System.out.println("ObjectPool + " + getName());
 
     }
 
@@ -182,13 +176,7 @@ public class Service extends CBase {
         // to the local dpe proxy
         connect();
 
-        // Send service_up message to the FE
-        genericSend(getFeHostName(),
-                CConstants.SERVICE + ":" + "localhost",
-                CConstants.SERVICE_UP+"?"+getName());
-
-        System.out.println("\n"+CUtility.getCurrentTimeInH()+": Started service = "+getName());
-        register();
+        System.out.println("\n ObjectPool: add service = " + getName());
 
     }
 
@@ -713,7 +701,6 @@ public class Service extends CBase {
 
             // If this is a sync request send data also to the requester
             if(!syncReceiverName.equals(xMsgConstants.UNDEFINED.getStringValue())){
-                System.out.println("DDD-1 sync request sending back to  requester = " + syncReceiverName );
                 String dpeHost = CUtility.getDpeName(syncReceiverName);
                 genericSend(dpeHost, syncReceiverName,res);
             }
@@ -963,22 +950,6 @@ public class Service extends CBase {
                 }
             }
         }
-    }
-
-    /**
-     * <p>
-     * Note that Clara topic for services are constructed as:
-     * dpe_host:container:engine
-     * <p/>
-     */
-    public void register()
-            throws xMsgException {
-        System.out.println(CUtility.getCurrentTimeInH() + ": " + getName() + " sending registration request.");
-        registerSubscriber(getName(),
-                xMsgUtil.getTopicDomain(getName()),
-                xMsgUtil.getTopicSubject(getName()),
-                xMsgUtil.getTopicType(getName()),
-                engine_object.get_description());
     }
 
     /**
