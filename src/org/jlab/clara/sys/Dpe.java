@@ -35,12 +35,11 @@ import org.jlab.coda.xmsg.excp.xMsgException;
 import org.jlab.coda.xmsg.xsys.xMsgNode;
 
 import java.net.SocketException;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.StringTokenizer;
+import java.util.concurrent.*;
 
 /**
  * <p>
@@ -84,7 +83,7 @@ public class Dpe extends CBase{
     private Boolean isFE = false;
 
     // Registration database. stores information
-    // of cloud DPEs, containers nad services.
+    // of cloud DPEs, containers and services.
     // Note. if this is not a FE then the database
     // will contain only a single record (for the current DPE)
     private Map<String, Map<String, Map<String, xMsgR.xMsgRegistrationData.Builder>>>
@@ -188,6 +187,28 @@ public class Dpe extends CBase{
         // Subscribe messages published to this container
         genericReceive(CConstants.DPE + ":" + getName(),
                 new DpeCallBack());
+    }
+
+    public static void main(String[] args) {
+        if (args.length == 2) {
+            if (args[0].equals("-fe_host")) {
+                try {
+                    new Dpe(args[1]);
+                } catch (xMsgException | SocketException e) {
+                    System.out.println(e.getMessage());
+                    System.out.println("exiting...");
+                }
+            } else {
+                System.out.println("wrong option. Accepts -fe_host option only.");
+            }
+        } else if (args.length == 0) {
+            try {
+                new Dpe(false);
+            } catch (xMsgException | SocketException e) {
+                System.out.println(e.getMessage());
+                System.out.println("exiting...");
+            }
+        }
     }
 
     /**
@@ -445,28 +466,6 @@ public class Dpe extends CBase{
                 }
             }
             return null;
-        }
-    }
-
-    public static void main(String[] args) {
-        if(args.length == 2){
-            if (args[0].equals("-fe_host")){
-                try {
-                    new Dpe(args[1]);
-                } catch (xMsgException | SocketException e) {
-                    System.out.println(e.getMessage());
-                    System.out.println("exiting...");
-                }
-            } else {
-                System.out.println("wrong option. Accepts -fe_host option only.");
-            }
-        } else if(args.length == 0){
-            try {
-                new Dpe(false);
-            } catch (xMsgException | SocketException e) {
-                System.out.println(e.getMessage());
-                System.out.println("exiting...");
-            }
         }
     }
 

@@ -85,13 +85,10 @@ public class CBase extends xMsg {
         this.node_connection = connect(address);
     }
 
-    public String getFeHostName(){
-        return fe_host_name;
-    }
-
     /**
      * Constructor
-     * @param feHost the host name of the Clara FE
+     *
+     * @param feHost    the host name of the Clara FE
      * @param pool_size thread pool size for servicing subscription callbacks
      * @throws xMsgException
      */
@@ -132,13 +129,8 @@ public class CBase extends xMsg {
         this.node_connection = connect(address);
     }
 
-
-    /**
-     * Sets the name of this component
-     * @param name the name of this component
-     */
-    public void setName(String name){
-        this.name = name;
+    public String getFeHostName() {
+        return fe_host_name;
     }
 
     /**
@@ -147,8 +139,16 @@ public class CBase extends xMsg {
      * </p>
      * @return name of the component
      */
-    public String getName(){
+    public String getName() {
         return name;
+    }
+
+    /**
+     * Sets the name of this component
+     * @param name the name of this component
+     */
+    public void setName(String name) {
+        this.name = name;
     }
 
     /**
@@ -472,7 +472,7 @@ public class CBase extends xMsg {
      *
      * @param dpeHost Clara DPE host name
      * @param topic xMsg topic
-     * @param data xMsgD.Data object
+     * @param data payload (Object of String or xMSgD.Data)
      */
     public void genericSend(String dpeHost,
                             String topic,
@@ -500,7 +500,7 @@ public class CBase extends xMsg {
      * </p>
      * @param connection zmq connection socket
      * @param topic Clara service canonical name
-     * @param data xMsgD.Data object
+     * @param data payload ( object of String or xMsgD.Data)
      * @param timeOut int in seconds
      * @throws TimeoutException
      */
@@ -510,6 +510,40 @@ public class CBase extends xMsg {
                                   int timeOut)
             throws xMsgException, TimeoutException {
 
+        return sync_publish(connection,
+                topic,
+                data,
+                timeOut);
+    }
+
+    /**
+     * <p>
+     * Generic sync send
+     * </p>
+     *
+     * @param dpeHost host name of the DPE of interest
+     * @param topic   topic of the subscription
+     * @param data    payload
+     * @param timeOut timeout in seconds
+     * @return Object
+     * @throws xMsgException
+     * @throws TimeoutException
+     * @throws SocketException
+     */
+    public Object genericSyncSend(String dpeHost,
+                                  String topic,
+                                  Object data,
+                                  int timeOut)
+            throws xMsgException, TimeoutException, SocketException {
+
+        xMsgConnection connection;
+        if (CUtility.isHostLocal(dpeHost)) {
+            connection = node_connection;
+        } else {
+            // Create a socket connections to the remote dpe.
+            xMsgAddress address = new xMsgAddress(dpeHost);
+            connection = connect(address);
+        }
         return sync_publish(connection,
                 topic,
                 data,

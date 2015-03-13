@@ -190,8 +190,8 @@ public class Service extends CBase {
 
         // Dynamic loading of the Clara engine class
         // Note: using system class loader
-        CClassLoader cl = new CClassLoader(ClassLoader.getSystemClassLoader());
-        engine_object = cl.load(engine_class_name);
+        Class exampleClass = Class.forName(engine_class_name);
+        engine_object = (ACEngine)exampleClass.newInstance();
 
         // Create a socket connections
         // to the local dpe proxy

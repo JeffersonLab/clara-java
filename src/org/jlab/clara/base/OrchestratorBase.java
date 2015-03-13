@@ -37,6 +37,7 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.StringTokenizer;
+import java.util.concurrent.TimeoutException;
 
 
 /**
@@ -717,6 +718,29 @@ public class OrchestratorBase extends CBase {
 
     /**
      * <p>
+     *     Sync asks DPE to start a container
+     * </p>
+     *
+     * @param dpeName DPE canonical name, i.e. IP
+     *                of the host where DPE is running
+     * @param containerName user given name of the service container
+     * @param timeOut in seconds.
+     * @throws xMsgException
+     */
+    public void sync_start_container(String dpeName,
+                                     String containerName,
+                                     int timeOut)
+            throws xMsgException, SocketException, TimeoutException {
+
+        genericSyncSend(dpeName,
+                CConstants.DPE + ":" + dpeName,
+                CConstants.START_CONTAINER + "?" + containerName,
+                timeOut);
+
+    }
+
+    /**
+     * <p>
      *     Asks DPE to stop a container
      * </p>
      *
@@ -725,12 +749,36 @@ public class OrchestratorBase extends CBase {
      * @param containerName canonical name of the service container
      * @throws xMsgException
      */
-    public void stop_container(String dpeName, String containerName)
+    public void stop_container(String dpeName,
+                               String containerName)
             throws xMsgException, SocketException {
 
         genericSend(dpeName,
                 CConstants.DPE + ":" + dpeName,
                 CConstants.REMOVE_CONTAINER + "?" + containerName);
+
+    }
+
+    /**
+     * <p>
+     *     Sync asks DPE to stop a container
+     * </p>
+     *
+     * @param dpeName DPE canonical name, i.e. IP
+     *                of the host where DPE is running
+     * @param containerName canonical name of the service container
+     * @param timeOut in seconds
+     * @throws xMsgException
+     */
+    public void sync_stop_container(String dpeName,
+                                    String containerName,
+                                    int timeOut)
+            throws xMsgException, SocketException, TimeoutException {
+
+        genericSyncSend(dpeName,
+                CConstants.DPE + ":" + dpeName,
+                CConstants.REMOVE_CONTAINER + "?" + containerName,
+                timeOut);
 
     }
 
@@ -756,6 +804,30 @@ public class OrchestratorBase extends CBase {
     }
 
     /**
+     * sync asks container to deploy a service
+     *
+     * @param containerName canonical name of the container
+     * @param engineName user specified engine name, i.e. engine class name
+     * @param objectPoolSize object pool size to hold required
+     *                       service objects for multi-threading
+     * @throws xMsgException
+     */
+    public void sync_start_service(String containerName,
+                                   String engineName,
+                                   int objectPoolSize,
+                                   int timeOut)
+            throws xMsgException, SocketException, CException, TimeoutException {
+
+        String dpeName = CUtility.getDpeName(containerName);
+
+        genericSyncSend(dpeName,
+                CConstants.CONTAINER + ":" + containerName,
+                CConstants.DEPLOY_SERVICE + "?" + engineName + "?" + objectPoolSize,
+                timeOut);
+
+    }
+
+    /**
      * Asks container to deploy a service
      * @param containerName canonical name of the container
      * @param engineName user specified engine name, i.e. engine class name
@@ -770,6 +842,26 @@ public class OrchestratorBase extends CBase {
         genericSend(dpeName,
                 CConstants.CONTAINER + ":" + containerName,
                 CConstants.DEPLOY_SERVICE + "?" + engineName);
+
+    }
+
+    /**
+     * Sync asks container to deploy a service
+     * @param containerName canonical name of the container
+     * @param engineName user specified engine name, i.e. engine class name
+     * @throws xMsgException
+     */
+    public void sync_start_service(String containerName,
+                                   String engineName,
+                                   int timeOut)
+            throws xMsgException, CException, SocketException, TimeoutException {
+
+        String dpeName = CUtility.getDpeName(containerName);
+
+        genericSyncSend(dpeName,
+                CConstants.CONTAINER + ":" + containerName,
+                CConstants.DEPLOY_SERVICE + "?" + engineName,
+                timeOut);
 
     }
 
@@ -812,6 +904,27 @@ public class OrchestratorBase extends CBase {
         genericSend(dpeName,
                 CConstants.CONTAINER + ":" + containerName,
                 CConstants.REMOVE_SERVICE + "?" + serviceName);
+
+    }
+
+    /**
+     * Sync asks container to stop the service
+     *
+     * @param containerName canonical name of the container
+     * @param serviceName   canonical name of the service
+     * @throws xMsgException
+     */
+    public void sync_stop_service(String containerName,
+                                  String serviceName,
+                                  int timeOut)
+            throws xMsgException, CException, SocketException, TimeoutException {
+
+        String dpeName = CUtility.getDpeName(containerName);
+
+        genericSyncSend(dpeName,
+                CConstants.CONTAINER + ":" + containerName,
+                CConstants.REMOVE_SERVICE + "?" + serviceName,
+                timeOut);
 
     }
 
