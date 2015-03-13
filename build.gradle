@@ -28,10 +28,10 @@ sourceSets {
 
 repositories {
     mavenLocal()
-    mavenCentral()
     maven {
-        url 'https://oss.sonatype.org/content/repositories/snapshots'
+        url 'https://userweb.jlab.org/~smancill/repo/'
     }
+    mavenCentral()
 }
 
 
