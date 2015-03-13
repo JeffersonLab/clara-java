@@ -101,13 +101,16 @@ task distBinaries(type: Tar, dependsOn: build) {
 
 task deploy(type: Copy, overwrite: true, dependsOn: jar) {
     def dest = "$System.env.CLARA_HOME"
-    if (dest == "null") {
-        throw new GradleException('CLARA_HOME not set')
-    }
     def dir = new File(dest)
-    dir.mkdirs()
     into dir
     with deploySpec
+
+    doFirst {
+        if (dest == "null") {
+            throw new GradleException('CLARA_HOME not set')
+        }
+        dir.mkdirs()
+    }
 }
 
 
