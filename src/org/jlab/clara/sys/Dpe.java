@@ -462,6 +462,10 @@ public class Dpe extends CBase{
                         case CConstants.SERVICE_DOWN:
                             removeServiceRecord(value);
                             break;
+                        case CConstants.LIST_CONTAINERS:
+                            xMsgMessage mag = new xMsgMessage();
+                            //@todo create a message with a array of strings
+                            //including names of all containers and return
                     }
                 }
             }

@@ -38,6 +38,7 @@ public class CConstants {
     public static final String DPE_PING = "dpePing";
     public static final String START_CONTAINER = "startContainer";
     public static final String REMOVE_CONTAINER = "removeContainer";
+    public static final String LIST_CONTAINERS = "listContainers";
 
     public static final String CONTAINER = "container";
     public static final String CONTAINER_UP = "containerIsUp";

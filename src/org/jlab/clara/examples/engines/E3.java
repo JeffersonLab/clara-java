@@ -22,7 +22,6 @@
 package org.jlab.clara.examples.engines;
 
 import org.jlab.clara.util.ACEngine;
-import org.jlab.clara.util.CDataType;
 import org.jlab.clara.util.EngineData;
 import org.jlab.coda.xmsg.data.xMsgD;
 
@@ -40,8 +39,8 @@ import java.util.List;
 public class E3 extends ACEngine {
     @Override
     public EngineData execute(EngineData x) {
-        if(x.getDataType().equals(CDataType.T_STRING))
-        System.out.println("E3 engine execute... "+x.getData());
+//        if(x.getDataType().equals(CDataType.T_STRING))
+//        System.out.println("E3 engine execute... "+x.getData());
         return x;
     }
 

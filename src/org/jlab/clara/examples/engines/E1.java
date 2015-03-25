@@ -22,7 +22,6 @@
 package org.jlab.clara.examples.engines;
 
 import org.jlab.clara.util.ACEngine;
-import org.jlab.clara.util.CDataType;
 import org.jlab.clara.util.EngineData;
 import org.jlab.coda.xmsg.data.xMsgD;
 
@@ -38,10 +37,23 @@ import java.util.List;
  * @since 2/9/15
  */
 public class E1 extends ACEngine {
+    private long pt;
+    private int count;
+    private double average;
+
     @Override
     public EngineData execute(EngineData x) {
-        if(x.getDataType().equals(CDataType.T_STRING))
-            System.out.println("E1 engine execute... "+x.getData());
+        count++;
+        long t1 = System.nanoTime();
+        average = average + (t1 - pt);
+        pt = t1;
+        if (count >= 10000) {
+            System.out.println((average / count) / 1000000);
+            count = 0;
+            average = 0;
+        }
+//        if(x.getDataType().equals(CDataType.T_STRING))
+//            System.out.println("E1 engine execute... "+x.getData());
         return x;
     }
 
