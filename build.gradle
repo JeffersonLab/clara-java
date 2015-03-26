@@ -66,6 +66,16 @@ task(startDpe, dependsOn: 'classes', type: JavaExec) {
 }
 
 
+task(orInteractive, dependsOn: 'classes', type: JavaExec) {
+    main = 'org.jlab.clara.examples.orchestrators.OrInteractive'
+    standardInput = System.in
+    if ( project.hasProperty("orArgs") ) {
+        args Eval.me(orArgs)
+    }
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+
 
 def deploySpec = copySpec {
     into ('lib') {
