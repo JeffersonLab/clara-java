@@ -60,6 +60,13 @@ artifacts {
 
 
 
+task(startDpe, dependsOn: 'classes', type: JavaExec) {
+    main = 'org.jlab.clara.sys.Dpe'
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+
+
 def deploySpec = copySpec {
     into ('lib') {
         from configurations.runtime
