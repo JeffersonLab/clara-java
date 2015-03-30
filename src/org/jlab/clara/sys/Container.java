@@ -512,13 +512,14 @@ public class Container extends CBase {
                     int sps = _poolSizeMap.get(receiver);
                     if (op.size() != sps) throw new CException("service is busy. Can not configure.");
 
+                    final AtomicInteger counter = new AtomicInteger(sps);
                     for (int i= 0; i < sps; i++) {
                         final Service ser = op.take();
                         Runnable configureTask = new Runnable() {
                                 @Override
                                 public void run() {
                                     try {
-                                        ser.configure(op, dataType, data, syncReceiver);
+                                        ser.configure(op, dataType, data, syncReceiver, counter);
                                     } catch (xMsgException | InterruptedException | CException
                                             | ClassNotFoundException | IOException e) {
                                         e.printStackTrace();
