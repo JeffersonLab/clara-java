@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * <p>
@@ -195,6 +196,7 @@ public class Service extends CBase {
      * @param dataType describes the type of the data object (string or xMsgData)
      * @param data     xMsg envelope payload
      * @param syncReceiverName the name of the sync requester
+     * @param configureCountDown the remaining instances to be configured
      *
      * @throws CException
      * @throws xMsgException
@@ -203,7 +205,8 @@ public class Service extends CBase {
     public void configure(LinkedBlockingQueue<Service> objectPool,
                           String dataType,
                           Object data,
-                          String syncReceiverName)
+                          String syncReceiverName,
+                          AtomicInteger configureCountDown)
             throws CException, xMsgException, InterruptedException {
 
         xMsgD.Data.Builder inData = null;
@@ -237,7 +240,10 @@ public class Service extends CBase {
 
             // If this is a sync request send done to the requester
             if(!syncReceiverName.equals(xMsgConstants.UNDEFINED.getStringValue())){
-                genericSend(syncReceiverName, xMsgConstants.DONE.getStringValue());
+                int remainingIntances = configureCountDown.decrementAndGet();
+                if (remainingIntances == 0) {
+                    genericSend(syncReceiverName, xMsgConstants.DONE.getStringValue());
+                }
             }
         }
         // return this object to the pool
