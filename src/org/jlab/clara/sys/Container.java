@@ -514,17 +514,18 @@ public class Container extends CBase {
 
                     for (int i = 0; i < _poolSizeMap.get(receiver); i++) {
                         final Service ser = op.take();
-                        threadPool.submit(new Runnable() {
-                                              @Override
-                                              public void run() {
-                                                  try {
-                                                      ser.configure(op, dataType, data, syncReceiver);
-                                                  } catch (xMsgException | InterruptedException | CException | ClassNotFoundException | IOException e) {
-                                                      e.printStackTrace();
-                                                  }
-                                              }
-                                          }
-                        );
+                        Runnable configureTask = new Runnable() {
+                                @Override
+                                public void run() {
+                                    try {
+                                        ser.configure(op, dataType, data, syncReceiver);
+                                    } catch (xMsgException | InterruptedException | CException
+                                            | ClassNotFoundException | IOException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                        };
+                        threadPool.submit(configureTask);
                     }
 
                     // service execute
@@ -534,17 +535,18 @@ public class Container extends CBase {
 
                     final CServiceSysConfig serConfig = _sysConfigs.get(receiver);
 
-                    threadPool.submit(new Runnable() {
-                                          @Override
-                                          public void run() {
-                                              try {
-                                                  ser.process(serConfig, op, dataType, data, syncReceiver, -1);
-                                              } catch (xMsgException | InterruptedException | CException | IOException | ClassNotFoundException e) {
-                                                  e.printStackTrace();
-                                              }
-                                          }
-                                      }
-                    );
+                    Runnable processTask = new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    ser.process(serConfig, op, dataType, data, syncReceiver, -1);
+                                } catch (xMsgException | InterruptedException | CException
+                                        | ClassNotFoundException | IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                    };
+                    threadPool.submit(processTask);
                 }
 
             } catch (CException | InterruptedException  e) {
