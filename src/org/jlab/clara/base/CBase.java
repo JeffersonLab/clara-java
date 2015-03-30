@@ -364,7 +364,7 @@ public class CBase extends xMsg {
             String dpeHost = CUtility.getDpeName(serviceName);
 
             // Create a socket connections to the remote dpe.
-            xMsgAddress address = new xMsgAddress(dpeHost);
+            xMsgAddress address = new xMsgAddress(dpeHost, true);
             xMsgConnection con = connect(address);
             serviceSend(con, serviceName, data);
 
@@ -429,7 +429,7 @@ public class CBase extends xMsg {
             String dpeHost = CUtility.getDpeName(serviceName);
 
             // Create a socket connections to the remote dpe.
-            xMsgAddress address = new xMsgAddress(dpeHost);
+            xMsgAddress address = new xMsgAddress(dpeHost, true);
             xMsgConnection con = connect(address);
             return serviceSyncSend(con, serviceName, data, timeOut);
 
@@ -470,7 +470,7 @@ public class CBase extends xMsg {
      *      service naming convention.
      * </p>
      *
-     * @param dpeHost Clara DPE host name
+     * @param dpeHost Clara DPE host IP address
      * @param topic xMsg topic
      * @param data payload (Object of String or xMSgD.Data)
      */
@@ -483,7 +483,7 @@ public class CBase extends xMsg {
             genericSend(node_connection, topic, data);
         } else {
             // Create a socket connections to the remote dpe.
-            xMsgAddress address = new xMsgAddress(dpeHost);
+            xMsgAddress address = new xMsgAddress(dpeHost, true);
             xMsgConnection con = connect(address);
             genericSend(con, topic, data);
         }
@@ -541,7 +541,7 @@ public class CBase extends xMsg {
             connection = node_connection;
         } else {
             // Create a socket connections to the remote dpe.
-            xMsgAddress address = new xMsgAddress(dpeHost);
+            xMsgAddress address = new xMsgAddress(dpeHost, true);
             connection = connect(address);
         }
         return sync_publish(connection,

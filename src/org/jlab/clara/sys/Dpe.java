@@ -92,8 +92,6 @@ public class Dpe extends CBase{
     private ScheduledExecutorService scheduledPingService;
 
 
-
-
     /**
      * <p>
      *     Constructor for a standalone or Front-End DPE
@@ -104,16 +102,17 @@ public class Dpe extends CBase{
      */
     public Dpe(Boolean isFE) throws xMsgException, SocketException {
         super();
+
+        // Create the xMsgNode object that will provide
+        // dpe registration and discovery service.
+        new xMsgNode(false);
+
         dpeName = xMsgUtil.getLocalHostIps().get(0);
         setName(dpeName);
         this.isFE = isFE;
         feHostIp = dpeName;
 
         printLogo();
-
-        // Create the xMsgNode object that will provide
-        // dpe registration and discovery service.
-        new xMsgNode(false);
 
         // create the local database
         _db.put(getName(),
@@ -166,14 +165,16 @@ public class Dpe extends CBase{
      */
     public Dpe(String feName) throws xMsgException, SocketException {
         super();
+
+        // Create the xMsgNode object that will provide
+        // dpe registration and discovery service.
+        new xMsgNode(feName, false);
+
         dpeName = xMsgUtil.getLocalHostIps().get(0);
         setName(dpeName);
         feHostIp = feName;
 
         printLogo();
-        // Create the xMsgNode object that will provide
-        // dpe registration and discovery service.
-        new xMsgNode(feName, false);
 
         // create the local database
         _db.put(getName(),

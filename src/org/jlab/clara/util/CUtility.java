@@ -21,24 +21,18 @@
 
 package org.jlab.clara.util;
 
-import java.io.*;
-import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
-import java.nio.ByteBuffer;
-import java.text.Format;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.GregorianCalendar;
-import java.util.List;
-import java.util.StringTokenizer;
-
+import com.google.protobuf.ByteString;
 import org.jlab.clara.base.CException;
 import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.excp.xMsgException;
 
-import com.google.protobuf.ByteString;
+import java.io.*;
+import java.net.InetAddress;
+import java.net.SocketException;
+import java.net.UnknownHostException;
+import java.text.Format;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 /**
  * Utility class containing useful methods.
@@ -63,15 +57,13 @@ public class CUtility {
                                            String engine_name)
             throws CException {
 
-        try {
-            return xMsgUtil.host_to_ip(host) +
+//            System.out.println("DDD "+xMsgUtil.host_to_ip(host).equals(host)+" "+xMsgUtil.host_to_ip(host)+" "+host);
+//            return xMsgUtil.host_to_ip(host) +
+        return host +
                     ":" +
                     container +
                     ":" +
                     engine_name;
-        } catch (xMsgException | SocketException e) {
-            throw new CException(e.getMessage());
-        }
     }
 
     /**

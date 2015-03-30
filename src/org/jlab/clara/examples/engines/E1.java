@@ -43,13 +43,20 @@ public class E1 extends ACEngine {
 
     @Override
     public EngineData execute(EngineData x) {
-        count++;
-        long t1 = System.nanoTime();
-        average = average + (t1 - pt);
-        pt = t1;
-        if (count >= 10000) {
-            System.out.println((average / count) / 1000000);
+        long t1 = System.currentTimeMillis();
+        if (pt == 0) {
+            pt = t1;
+        } else {
+            count++;
+            average = average + (t1 - pt);
+            pt = t1;
+        }
+        if (count == 10000) {
+            double avg = (average / count);
+            System.out.println("Average processing time = " + avg + " mills per event");
+            System.out.println("Rate = " + ((1 / avg) * 1000) + " Hz");
             count = 0;
+            pt = 0;
             average = 0;
         }
 //        if(x.getDataType().equals(CDataType.T_STRING))
