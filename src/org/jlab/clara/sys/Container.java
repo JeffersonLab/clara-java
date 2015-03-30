@@ -512,7 +512,7 @@ public class Container extends CBase {
                     int sps = _poolSizeMap.get(receiver);
                     if (op.size() != sps) throw new CException("service is busy. Can not configure.");
 
-                    for (int i = 0; i < _poolSizeMap.get(receiver); i++) {
+                    for (int i= 0; i < sps; i++) {
                         final Service ser = op.take();
                         Runnable configureTask = new Runnable() {
                                 @Override
