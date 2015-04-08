@@ -561,12 +561,13 @@ public class Service extends CBase {
                 if (CUtility.isRemoteService(ss)) {
                     serviceSend(ss, data);
                 } else {
+                    String key = sharedMemoryKey + ":" + data.getId();
                     // copy data to the shared memory
-                    Dpe.sharedMemory.put(sharedMemoryKey,data);
+                    Dpe.sharedMemory.put(key,data);
                     if(userObj!=null){
-                        Dpe.sharedDataObject.put(sharedMemoryKey,userObj);
+                        Dpe.sharedDataObject.put(key,userObj);
                     }
-                    serviceSend(ss, sharedMemoryKey);
+                    serviceSend(ss, key);
                 }
             }
         }
