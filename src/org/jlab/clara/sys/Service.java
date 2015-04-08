@@ -965,13 +965,15 @@ public class Service extends CBase {
                     }
                     serviceSend(ss, data);
                 } else {
+                    String key = sharedMemoryKey + ":" + data.getId();
+
                     // we do not need to serialize
-                    Dpe.sharedDataObject.put(sharedMemoryKey,engineData.getData());
+                    Dpe.sharedDataObject.put(key,engineData.getData());
                     data.setDataType(xMsgD.Data.DType.T_EXTERNAL_OBJECT);
 
                     // copy data to the shared memory
-                    Dpe.sharedMemory.put(sharedMemoryKey,data);
-                    serviceSend(ss, sharedMemoryKey);
+                    Dpe.sharedMemory.put(key,data);
+                    serviceSend(ss, key);
                 }
             }
         }
