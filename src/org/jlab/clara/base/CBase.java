@@ -329,20 +329,24 @@ public class CBase extends xMsg {
                             Object data)
             throws xMsgException {
 
-        String dpe = xMsgUtil.getTopicDomain(topic);
-        String container = "*";
-        String engine = "*";
-        if(!xMsgUtil.getTopicSubject(topic).equals(xMsgConstants.UNDEFINED.getStringValue())){
-            container = xMsgUtil.getTopicSubject(topic);
-        }
-        if(!xMsgUtil.getTopicType(topic).equals(xMsgConstants.UNDEFINED.getStringValue())){
-            engine = xMsgUtil.getTopicType(topic);
-        }
-        publish(connection,
-                dpe,
-                container,
-                engine,
-                data);
+        publish(connection, topic, data);
+
+//        String dpe = xMsgUtil.getTopicDomain(topic);
+//        String container = "*";
+//        String engine = "*";
+//        if(!xMsgUtil.getTopicSubject(topic).equals(xMsgConstants.UNDEFINED.getStringValue())){
+//            container = xMsgUtil.getTopicSubject(topic);
+//        }
+//        if(!xMsgUtil.getTopicType(topic).equals(xMsgConstants.UNDEFINED.getStringValue())){
+//            engine = xMsgUtil.getTopicType(topic);
+//        }
+//
+//
+//        publish(connection,
+//                dpe,
+//                container,
+//                engine,
+//                data);
     }
 
     /**

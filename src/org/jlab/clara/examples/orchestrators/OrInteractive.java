@@ -23,10 +23,18 @@ package org.jlab.clara.examples.orchestrators;
 
 import org.jlab.clara.base.CException;
 import org.jlab.clara.base.OrchestratorBase;
+import org.jlab.clara.util.CUtility;
+import org.jlab.clara.util.XMLContainer;
+import org.jlab.clara.util.XMLTagValue;
 import org.jlab.coda.xmsg.data.xMsgD;
 import org.jlab.coda.xmsg.excp.xMsgException;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
 import java.net.SocketException;
+import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -50,7 +58,148 @@ public class OrInteractive extends OrchestratorBase {
         super();
     }
 
-    private void printHelp(){
+    public static void main(String[] args) {
+
+        try {
+            OrInteractive or = new OrInteractive();
+
+            if (args.length > 0 && args[0].equalsIgnoreCase("-f")) {
+                // read xml file and get deployment details
+                try {
+                    Document doc = CUtility.getXMLDocument(args[1]);
+
+                    String[] serviceTags = {"dpe", "container", "engine", "pool"};
+                    List<XMLContainer> services = CUtility.parseXML(doc, "service", serviceTags);
+
+                    for (XMLContainer s : services) {
+                        String dpe = null, container = null, engine = null;
+                        int pool = 1;
+                        for (XMLTagValue t : s.getContainer()) {
+
+                            if (t.getTag().equals("dpe")) dpe = t.getValue();
+                            if (t.getTag().equals("container")) container = t.getValue();
+                            if (t.getTag().equals("engine")) engine = t.getValue();
+                            if (t.getTag().equals("pool")) pool = Integer.parseInt(t.getValue());
+                        }
+                        if (dpe != null && container != null && engine != null) {
+
+                            // ask if container exists
+                            // start a container
+                            or.start_container(dpe, container);
+                            CUtility.sleep(1000);
+
+                            // start a service
+                            or.start_service(dpe + ":" + container, engine, pool);
+                            CUtility.sleep(1000);
+                        }
+                    }
+
+                    String[] applicationTags = {"composition", "data"};
+                    List<XMLContainer> application = CUtility.parseXML(doc, "application", applicationTags);
+
+                    for (XMLContainer a : application) {
+                        String comp = null, inData = null;
+                        int bytes;
+
+                        for (XMLTagValue t : a.getContainer()) {
+
+                            if (t.getTag().equals("composition")) comp = t.getValue();
+                            if (t.getTag().equals("data")) {
+                                bytes = Integer.parseInt(t.getValue());
+                                StringBuilder sb = new StringBuilder();
+                                for (int i = 0; i < bytes; i++) {
+                                    sb.append('x');
+                                }
+                                inData = sb.toString();
+                            }
+                        }
+                        if (comp != null && inData != null) {
+                            // get canonical composition
+//                            String canComposition = or.engineToCanonical(comp);
+
+                            String canComposition = comp;
+
+                            // find the first service in the composition
+                            String firstService = or.getFirstServiceName(canComposition);
+
+                            // create a transient data
+                            xMsgD.Data.Builder data = xMsgD.Data.newBuilder();
+                            data.setComposition(canComposition);
+                            data.setDataType(xMsgD.Data.DType.T_STRING);
+                            data.setSTRING(inData);
+                            data.setAction(xMsgD.Data.ControlAction.EXECUTE);
+                            data.setSender(or.getName());
+
+                            // send the data to the service
+                            or.run_service(firstService, data);
+                        }
+                    }
+
+
+                } catch (ParserConfigurationException | IOException | SAXException e) {
+                    e.printStackTrace();
+                }
+
+            } else {
+                Scanner scanner = new Scanner(System.in);
+                while (true) {
+                    System.out.printf("command: ");
+                    String cmd = scanner.nextLine().trim();
+                    if (cmd.equalsIgnoreCase("help")) {
+                        or.printHelp();
+                    } else if (cmd.equalsIgnoreCase("exit")) {
+                        System.exit(0);
+                    } else {
+                        switch (cmd) {
+                            case "1":
+                                System.out.println("DPE host ip = ");
+                                String dpe = scanner.nextLine().trim();
+                                System.out.println("Container name = ");
+                                String container = scanner.nextLine().trim();
+                                or.start_container(dpe, container);
+                                break;
+                            case "2":
+                                System.out.println("Container canonical name = ");
+                                String canCon = scanner.nextLine().trim();
+                                System.out.println("Engine class name = ");
+                                String engine = scanner.nextLine().trim();
+                                System.out.println("Service object pool size = ");
+                                int pSize = scanner.nextInt();
+                                or.start_service(canCon, engine, pSize);
+                                break;
+                            case "3":
+                                System.out.println("Composition = ");
+                                String composition = scanner.nextLine().trim();
+                                System.out.println("Input data = ");
+                                String inData = scanner.nextLine().trim();
+
+                                // get canonical composition
+                                String canComposition = or.engineToCanonical(composition);
+
+                                // find the first service in the composition
+                                String firstService = or.getFirstServiceName(canComposition);
+
+                                // create a transient data
+                                xMsgD.Data.Builder data = xMsgD.Data.newBuilder();
+                                data.setComposition(canComposition);
+                                data.setDataType(xMsgD.Data.DType.T_STRING);
+                                data.setSTRING(inData);
+                                data.setAction(xMsgD.Data.ControlAction.EXECUTE);
+                                data.setSender(or.getName());
+
+                                // send the data to the service
+                                or.run_service(firstService, data);
+                                break;
+                        }
+                    }
+                }
+            }
+        }catch(xMsgException | CException | SocketException e){
+            e.printStackTrace();
+        }
+    }
+
+    private void printHelp() {
         System.out.println("|----------|------------------------------|----------------------|");
         System.out.println("| ShortCut |          Parameters          |   Description        |");
         System.out.println("|----------|------------------------------|----------------------|");
@@ -66,67 +215,5 @@ public class OrInteractive extends OrchestratorBase {
         System.out.println("|          |                              | on a local DPE       |");
         System.out.println("|----------|------------------------------|----------------------|");
 
-    }
-
-    public static void main(String[] args) {
-
-        try {
-            OrInteractive or = new OrInteractive();
-
-            Scanner scanner = new Scanner(System.in);
-            while (true) {
-                System.out.printf("command: ");
-                String cmd = scanner.nextLine().trim();
-                if (cmd.equalsIgnoreCase("help")) {
-                    or.printHelp();
-                } else if (cmd.equalsIgnoreCase("exit")) {
-                    System.exit(0);
-                } else {
-                    switch (cmd) {
-                        case "1":
-                            System.out.println("DPE host ip = ");
-                            String dpe = scanner.nextLine().trim();
-                            System.out.println("Container name = ");
-                            String container = scanner.nextLine().trim();
-                            or.start_container(dpe, container);
-                            break;
-                        case "2":
-                            System.out.println("Container canonical name = ");
-                            String canCon = scanner.nextLine().trim();
-                            System.out.println("Engine class name = ");
-                            String engine = scanner.nextLine().trim();
-                            System.out.println("Service object pool size = ");
-                            int pSize = scanner.nextInt();
-                            or.start_service(canCon, engine, pSize);
-                            break;
-                        case "3":
-                            System.out.println("Composition = ");
-                            String composition = scanner.nextLine().trim();
-                            System.out.println("Input data = ");
-                            String inData = scanner.nextLine().trim();
-
-                            // get canonical composition
-                            String canComposition = or.engineToCanonical(composition);
-
-                            // find the first service in the composition
-                            String firstService = or.getFirstServiceName(canComposition);
-
-                            // create a transient data
-                            xMsgD.Data.Builder data = xMsgD.Data.newBuilder();
-                            data.setComposition(canComposition);
-                            data.setDataType(xMsgD.Data.DType.T_STRING);
-                            data.setSTRING(inData);
-                            data.setAction(xMsgD.Data.ControlAction.EXECUTE);
-                            data.setSender(or.getName());
-
-                            // send the data to the service
-                            or.run_service(firstService,data);
-                            break;
-                    }
-                }
-            }
-        }catch(xMsgException | CException | SocketException e){
-            e.printStackTrace();
-        }
     }
 }

@@ -436,7 +436,6 @@ public class Service extends CBase {
 
             //user data may also be un-serialized
             userData = Dpe.sharedDataObject.get(sharedMemoryPointer);
-
             switch(inData.getDataType()){
                 case T_VLSINT32:
                     engineInData = new EngineData(inData.getVLSINT32(), inData);
@@ -566,7 +565,6 @@ public class Service extends CBase {
         String c_composition = inData.getComposition();
         String senderService = inData.getSender();
 
-
         if (inData.getAction().equals(xMsgD.Data.ControlAction.EXECUTE)) {
 
             long execTime = 0;
@@ -657,6 +655,7 @@ public class Service extends CBase {
                             startTime = System.nanoTime();
 
                             service_result = engine_object.execute(engineInData);
+
 
                             // get engine execution end time
                             endTime = System.nanoTime();
@@ -967,6 +966,7 @@ public class Service extends CBase {
 
                     // copy data to the shared memory
                     Dpe.sharedMemory.put(sharedMemoryKey,data);
+
                     serviceSend(ss, sharedMemoryKey);
                 }
             }

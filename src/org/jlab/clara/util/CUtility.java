@@ -25,7 +25,15 @@ import com.google.protobuf.ByteString;
 import org.jlab.clara.base.CException;
 import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.excp.xMsgException;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.*;
 import java.net.InetAddress;
 import java.net.SocketException;
@@ -150,13 +158,13 @@ public class CUtility {
         try{
             String s_host = xMsgUtil.getTopicDomain(s_name);
             for(String s:xMsgUtil.getLocalHostIps()){
-                if(s.equals(s_host)) return true;
+                if (s.equals(s_host)) return false;
             }
         } catch (xMsgException | SocketException e) {
             throw new CException(e.getMessage());
         }
 
-        return false;
+        return true;
     }
 
 
@@ -454,5 +462,75 @@ public class CUtility {
             }
         }
         return o;
+    }
+
+    public static Document getXMLDocument(String fileName) throws ParserConfigurationException,
+            IOException,
+            SAXException {
+
+        Document doc;
+
+        File fXmlFile = new File(fileName);
+        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+
+        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+        doc = dBuilder.parse(fXmlFile);
+
+        doc.getDocumentElement().normalize();
+
+        return doc;
+
+    }
+
+    /**
+     * parser for the XML having a structure:
+     * <p/>
+     * <containerTag2>
+     * <tag>value</tag>
+     * .....
+     * <tag>value</tag>
+     * </containerTag2>
+     * ....
+     * <containerTag2>
+     * <tag>value</tag>
+     * .....
+     * <tag>value</tag>
+     * </containerTag2>
+     *
+     * @param doc          XML document object
+     * @param containerTag first container tag
+     * @param tags         tag names
+     * @return list of list of tag value pairs
+     */
+    public static List<XMLContainer> parseXML(Document doc,
+                                              String containerTag,
+                                              String[] tags) {
+        List<XMLContainer> result = new ArrayList<>();
+
+        NodeList nList = doc.getElementsByTagName(containerTag);
+
+        for (int temp = 0; temp < nList.getLength(); temp++) {
+            Node nNode = nList.item(temp);
+
+            if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+                XMLContainer container = new XMLContainer();
+                Element eElement = (Element) nNode;
+                for (String tag : tags) {
+                    String value = eElement.getElementsByTagName(tag).item(0).getTextContent();
+                    XMLTagValue tv = new XMLTagValue(tag, value);
+                    container.addTagValue(tv);
+                }
+                result.add(container);
+            }
+        }
+        return result;
+    }
+
+    public static void sleep(int s) {
+        try {
+            Thread.sleep(s);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }

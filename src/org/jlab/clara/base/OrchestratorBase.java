@@ -244,7 +244,7 @@ public class OrchestratorBase extends CBase {
                     while(st.hasMoreTokens()) {
                         List<xMsgRegistrationData> tsn = get_service_by_engine(st.nextToken());
                         if(tsn.size()<=0){
-                            throw new CException("no registration record fond");
+                            throw new CException("no registration record found");
                         }
                         String can = tsn.get(0).getName();
                         or_can.append(can).append(",");
@@ -256,7 +256,7 @@ public class OrchestratorBase extends CBase {
                     // logical AND case. (a,b+&c)
                 } else if (se.startsWith("&")){
                     if(get_service_by_engine(CUtility.remove_first(se)).size()<=0){
-                        throw new CException("no registration record fond");
+                        throw new CException("no registration record found");
                     }
                     String can = get_service_by_engine(CUtility.remove_first(se)).get(0).getName();
                     sub_can_comp.append("&").append(can).append("+");
@@ -265,7 +265,7 @@ public class OrchestratorBase extends CBase {
                 } else {
 
                     if(get_service_by_engine(se).size()<=0){
-                        throw new CException("no registration record fond");
+                        throw new CException("no registration record found");
                     }
                     String can = get_service_by_engine(se).get(0).getName();
                     sub_can_comp.append(can).append("+");
@@ -709,7 +709,6 @@ public class OrchestratorBase extends CBase {
     public void start_container(String dpeName,
                                 String containerName)
             throws xMsgException, SocketException {
-
         genericSend(dpeName,
                 CConstants.DPE + ":" + dpeName,
                 CConstants.START_CONTAINER + "?" + containerName);

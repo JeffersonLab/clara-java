@@ -43,6 +43,7 @@ public class E1 extends ACEngine {
 
     @Override
     public EngineData execute(EngineData x) {
+//        System.out.println("E1 got data = "+x.getData());
         long t1 = System.currentTimeMillis();
         if (pt == 0) {
             pt = t1;
