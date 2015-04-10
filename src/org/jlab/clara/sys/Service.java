@@ -696,7 +696,9 @@ public class Service extends CBase {
                 }
             }
 
-            xMsgD.Data.Builder res = xMsgD.Data.newBuilder();
+            // inData will be updated and become outputData
+//            xMsgD.Data.Builder res = xMsgD.Data.newBuilder();
+            xMsgD.Data.Builder res = inData;
             if(service_result==null){
                 res.setDataGenerationStatus(xMsgD.Data.Severity.WARNING);
                 res.setStatusText(getName()+ ": engine null output");
@@ -711,10 +713,10 @@ public class Service extends CBase {
 
             // Negative id means the service just
             // simply passes the recorded id across
-            if (res.getId() <= 0) res.setId(inData.getId());
+//            if (res.getId() <= 0) res.setId(inData.getId());
 
             // Ensure the output data has the composition
-            if (res.getComposition().isEmpty()) res.setComposition(c_composition);
+//            if (res.getComposition().isEmpty()) res.setComposition(c_composition);
 
             // Send service engine execution data
             serviceCompletionReport(config, res, engineInData);

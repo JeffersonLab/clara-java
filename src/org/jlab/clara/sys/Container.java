@@ -507,6 +507,8 @@ public class Container extends CBase {
                                 break;
                         }
                     }
+                } else {
+                    throw new CException("unknown data type");
                 }
 
                 // service configure

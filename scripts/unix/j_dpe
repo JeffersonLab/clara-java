@@ -14,5 +14,6 @@ if [ "$1" = "-h" ] || [ "$1" = "-help" ]; then
     echo "synopsis: j_dpe"
     echo ""
 else
+
 java -XX:+UseNUMA -XX:+UseBiasedLocking org.jlab.clara.sys.Dpe
 fi
