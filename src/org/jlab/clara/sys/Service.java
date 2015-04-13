@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * <p>
@@ -209,6 +210,7 @@ public class Service extends CBase {
      * @param dataType describes the type of the data object (string or xMsgData)
      * @param data     xMsg envelope payload
      * @param syncReceiverName the name of the sync requester
+     * @param configureCountDown the remaining instances to be configured
      *
      * @throws CException
      * @throws xMsgException
@@ -217,7 +219,8 @@ public class Service extends CBase {
     public void configure(LinkedBlockingQueue<Service> objectPool,
                           String dataType,
                           Object data,
-                          String syncReceiverName)
+                          String syncReceiverName,
+                          AtomicInteger configureCountDown)
             throws CException,
             xMsgException,
             InterruptedException,
@@ -374,10 +377,11 @@ public class Service extends CBase {
 
             // If this is a sync request send done to the requester
             if(!syncReceiverName.equals(xMsgConstants.UNDEFINED.getStringValue())){
-                String dpeName = CUtility.getDpeName(syncReceiverName);
-                genericSend(dpeName,
-                        syncReceiverName,
-                        xMsgConstants.DONE.getStringValue());
+                int remainingIntances = configureCountDown.decrementAndGet();
+                if (remainingIntances == 0) {
+                    String dpeName = CUtility.getDpeName(syncReceiverName);
+                    genericSend(dpeName, syncReceiverName, xMsgConstants.DONE.getStringValue());
+                }
             }
         }
         // return this object to the pool
@@ -436,6 +440,7 @@ public class Service extends CBase {
 
             //user data may also be un-serialized
             userData = Dpe.sharedDataObject.get(sharedMemoryPointer);
+
             switch(inData.getDataType()){
                 case T_VLSINT32:
                     engineInData = new EngineData(inData.getVLSINT32(), inData);
@@ -565,6 +570,7 @@ public class Service extends CBase {
         String c_composition = inData.getComposition();
         String senderService = inData.getSender();
 
+
         if (inData.getAction().equals(xMsgD.Data.ControlAction.EXECUTE)) {
 
             long execTime = 0;
@@ -656,7 +662,6 @@ public class Service extends CBase {
 
                             service_result = engine_object.execute(engineInData);
 
-
                             // get engine execution end time
                             endTime = System.nanoTime();
                             // service engine execution time
@@ -696,9 +701,7 @@ public class Service extends CBase {
                 }
             }
 
-            // inData will be updated and become outputData
-//            xMsgD.Data.Builder res = xMsgD.Data.newBuilder();
-            xMsgD.Data.Builder res = inData;
+            xMsgD.Data.Builder res = xMsgD.Data.newBuilder();
             if(service_result==null){
                 res.setDataGenerationStatus(xMsgD.Data.Severity.WARNING);
                 res.setStatusText(getName()+ ": engine null output");
@@ -713,10 +716,10 @@ public class Service extends CBase {
 
             // Negative id means the service just
             // simply passes the recorded id across
-//            if (res.getId() <= 0) res.setId(inData.getId());
+            if (res.getId() <= 0) res.setId(inData.getId());
 
             // Ensure the output data has the composition
-//            if (res.getComposition().isEmpty()) res.setComposition(c_composition);
+            if (res.getComposition().isEmpty()) res.setComposition(c_composition);
 
             // Send service engine execution data
             serviceCompletionReport(config, res, engineInData);
@@ -962,14 +965,15 @@ public class Service extends CBase {
                     }
                     serviceSend(ss, data);
                 } else {
+                    String key = sharedMemoryKey + ":" + data.getId();
+
                     // we do not need to serialize
-                    Dpe.sharedDataObject.put(sharedMemoryKey,engineData.getData());
+                    Dpe.sharedDataObject.put(key,engineData.getData());
                     data.setDataType(xMsgD.Data.DType.T_EXTERNAL_OBJECT);
 
                     // copy data to the shared memory
-                    Dpe.sharedMemory.put(sharedMemoryKey,data);
-
-                    serviceSend(ss, sharedMemoryKey);
+                    Dpe.sharedMemory.put(key,data);
+                    serviceSend(ss, key);
                 }
             }
         }
