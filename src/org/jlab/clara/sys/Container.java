@@ -443,9 +443,7 @@ public class Container extends CBase {
 
             try {
                 String receiver;
-                receiver = CUtility.form_service_name(msg.getDomain(),
-                        msg.getSubject(),
-                        msg.getType());
+                receiver = msg.getTopic();
 
                 final String dataType = msg.getDataType();
                 final Object data = msg.getData();
