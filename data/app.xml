@@ -1,12 +1,12 @@
 <clara>
     <service>
-        <dpe>192.168.1.132</dpe>
+        <dpe>129.57.81.247</dpe>
         <container>X</container>
         <engine>org.jlab.clara.examples.engines.E1</engine>
         <pool>1</pool>
     </service>
     <service>
-        <dpe>192.168.1.132</dpe>
+        <dpe>129.57.81.247</dpe>
         <container>a1</container>
         <engine>org.jlab.clara.examples.engines.E2</engine>
         <pool>1</pool>
@@ -32,11 +32,11 @@
 
     <application>
         <!--<composition>129.57.81.247:X:E1+129.57.81.247:a1:E2</composition>-->
-        <composition>192.168.1.132:X:E1+192.168.1.132:a1:E2+192.168.1.132:X:E1</composition>
+        <composition>129.57.81.247:X:E1+129.57.81.247:a1:E2+129.57.81.247:X:E1</composition>
         <!--<composition>129.57.81.247:X:E1+129.57.81.247:a1:E2+129.57.81.247:a2:E2+129.57.81.247:X:E1</composition>-->
         <!--<composition>129.57.81.247:X:E1+129.57.81.247:a1:E2+129.57.81.247:a2:E2+129.57.81.247:a3:E2+129.57.81.247:X:E1</composition>-->
         <!--<composition>129.57.81.247:X:E1+129.57.81.247:a1:E2+129.57.81.247:a2:E2+129.57.81.247:a3:E2+129.57.81.247:a4:E2+129.57.81.247:X:E1</composition>-->
-        <data>1000</data>
+        <data>100</data>
         <!--in bytes -->
     </application>
 </clara>

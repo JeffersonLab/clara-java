@@ -472,34 +472,36 @@ public class Container extends CBase {
                     // xMsg envelope = <service_canonical_name, string, serviceReportDone?1000>
                     // that will tell service to report done messages every 1000 events.
                 } else if(dataType.equals(xMsgConstants.ENVELOPE_DATA_TYPE_STRING.getStringValue())) {
-                    String cmdData = (String)data;
+                    String cmdData = (String) data;
                     String cmd = null, param1 = null, param2 = null, param3 = null;
-                    try {
-                        StringTokenizer st = new StringTokenizer(cmdData, "?");
-                        cmd = st.nextToken();
-                        param1 = st.nextToken();
-                        param2 = st.nextToken();
-                        param3 = st.nextToken();
-                    } catch (NoSuchElementException e){
-                        System.out.println(e.getMessage());
-                    }
-                    switch(cmd){
-                        case CConstants.SERVICE_REPORT_DONE:
-                            if(_sysConfigs.containsKey(receiver)){
-                                CServiceSysConfig sc = _sysConfigs.get(receiver);
-                                sc.setDoneRequest(true);
-                                sc.setDoneReportThreshold(Integer.parseInt(param1));
-                                sc.resetDoneRequestCount();
-                            }
-                            break;
-                        case CConstants.SERVICE_REPORT_DATA:
-                            if(_sysConfigs.containsKey(receiver)){
-                                CServiceSysConfig sc = _sysConfigs.get(receiver);
-                                sc.setDataRequest(true);
-                                sc.setDataReportThreshold(Integer.parseInt(param1));
-                                sc.resetDataRequestCount();
-                            }
-                            break;
+                    if (cmdData.contains("?")) {
+                        try {
+                            StringTokenizer st = new StringTokenizer(cmdData, "?");
+                            cmd = st.nextToken();
+                            param1 = st.nextToken();
+                            param2 = st.nextToken();
+                            param3 = st.nextToken();
+                        } catch (NoSuchElementException e) {
+                            System.out.println(e.getMessage());
+                        }
+                        switch (cmd) {
+                            case CConstants.SERVICE_REPORT_DONE:
+                                if (_sysConfigs.containsKey(receiver)) {
+                                    CServiceSysConfig sc = _sysConfigs.get(receiver);
+                                    sc.setDoneRequest(true);
+                                    sc.setDoneReportThreshold(Integer.parseInt(param1));
+                                    sc.resetDoneRequestCount();
+                                }
+                                break;
+                            case CConstants.SERVICE_REPORT_DATA:
+                                if (_sysConfigs.containsKey(receiver)) {
+                                    CServiceSysConfig sc = _sysConfigs.get(receiver);
+                                    sc.setDataRequest(true);
+                                    sc.setDataReportThreshold(Integer.parseInt(param1));
+                                    sc.resetDataRequestCount();
+                                }
+                                break;
+                        }
                     }
                 }
 
@@ -509,12 +511,14 @@ public class Container extends CBase {
                     int sps = _poolSizeMap.get(receiver);
                     if (op.size() != sps) throw new CException("service is busy. Can not configure.");
 
+                    final AtomicInteger rps = new AtomicInteger();
                     for (int i = 0; i < _poolSizeMap.get(receiver); i++) {
+                        rps.set(_poolSizeMap.get(receiver) - i);
                         final Service ser = op.take();
                         threadPool.submit(new Runnable() {
                                               public void run() {
                                                   try {
-                                                      ser.configure(op, dataType, data, syncReceiver);
+                                                      ser.configure(op, dataType, data, syncReceiver, rps);
                                                   } catch (xMsgException | InterruptedException | CException | ClassNotFoundException | IOException e) {
                                                       e.printStackTrace();
                                                   }

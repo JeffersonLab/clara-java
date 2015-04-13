@@ -71,11 +71,12 @@ public class OrInteractive extends OrchestratorBase {
                     String[] serviceTags = {"dpe", "container", "engine", "pool"};
                     List<XMLContainer> services = CUtility.parseXML(doc, "service", serviceTags);
 
+
                     for (XMLContainer s : services) {
                         String dpe = null, container = null, engine = null;
                         int pool = 1;
-                        for (XMLTagValue t : s.getContainer()) {
 
+                        for (XMLTagValue t : s.getContainer()) {
                             if (t.getTag().equals("dpe")) dpe = t.getValue();
                             if (t.getTag().equals("container")) container = t.getValue();
                             if (t.getTag().equals("engine")) engine = t.getValue();
