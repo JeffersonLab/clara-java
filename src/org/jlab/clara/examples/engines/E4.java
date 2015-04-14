@@ -22,7 +22,6 @@
 package org.jlab.clara.examples.engines;
 
 import org.jlab.clara.util.ACEngine;
-import org.jlab.clara.util.CDataType;
 import org.jlab.clara.util.EngineData;
 import org.jlab.coda.xmsg.data.xMsgD;
 
@@ -38,10 +37,22 @@ import java.util.List;
  * @since 2/9/15
  */
 public class E4 extends ACEngine {
+
+    private long delta = 10000;
+    private int nr = 0;
+    private long t1;
+    private long t2;
+
     @Override
     public EngineData execute(EngineData x) {
-        if(x.getDataType().equals(CDataType.T_STRING))
-        System.out.println("E4 engine execute... "+x.getData());
+        nr = nr + 1;
+        if (nr == 1) {
+            t1 = System.currentTimeMillis();
+        } else if (nr == delta) {
+            t2 = System.currentTimeMillis();
+            System.out.println("E4 rate = " + (delta * 1000) / (t2 - t1));
+            nr = 0;
+        }
         return x;
     }
 

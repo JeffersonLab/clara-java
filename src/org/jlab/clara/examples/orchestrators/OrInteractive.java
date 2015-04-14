@@ -131,11 +131,19 @@ public class OrInteractive extends OrchestratorBase {
                             data.setAction(xMsgD.Data.ControlAction.EXECUTE);
                             data.setSender(or.getName());
 
+
                             // send the data to the service
                             or.run_service(firstService, data);
+
+                            // check to see if we need to perform bluster test
+                            if (args.length == 3 && args[2].equals("-b")) {
+                                while (true) {
+                                    // send the data to the service
+                                    or.run_service(firstService, data);
+                                }
+                            }
                         }
                     }
-
 
                 } catch (ParserConfigurationException | IOException | SAXException e) {
                     e.printStackTrace();

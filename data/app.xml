@@ -1,38 +1,40 @@
 <clara>
-    <service>
-        <dpe>129.57.81.247</dpe>
-        <container>X</container>
-        <engine>org.jlab.clara.examples.engines.E1</engine>
-        <pool>1</pool>
-    </service>
-    <service>
-        <dpe>129.57.81.247</dpe>
-        <container>a1</container>
-        <engine>org.jlab.clara.examples.engines.E2</engine>
-        <pool>1</pool>
-    </service>
+    <!--<service>-->
+    <!--<dpe>129.57.81.247</dpe>-->
+    <!--<container>X</container>-->
+    <!--<engine>org.jlab.clara.examples.engines.E1</engine>-->
+    <!--<pool>1</pool>-->
+    <!--</service>-->
+    <!--<service>-->
+    <!--<dpe>129.57.81.247</dpe>-->
+    <!--<container>a1</container>-->
+    <!--<engine>org.jlab.clara.examples.engines.E2</engine>-->
+    <!--<pool>1</pool>-->
+    <!--</service>-->
     <!--<service>-->
     <!--<dpe>129.57.81.247</dpe>-->
     <!--<container>a2</container>-->
     <!--<engine>org.jlab.clara.examples.engines.E2</engine>-->
     <!--<pool>1</pool>-->
     <!--</service>-->
-    <!--<service>-->
-    <!--<dpe>129.57.81.247</dpe>-->
-    <!--<container>a3</container>-->
-    <!--<engine>org.jlab.clara.examples.engines.E2</engine>-->
-    <!--<pool>1</pool>-->
-    <!--</service>-->
-    <!--<service>-->
-    <!--<dpe>129.57.81.247</dpe>-->
-    <!--<container>a4</container>-->
-    <!--<engine>org.jlab.clara.examples.engines.E2</engine>-->
-    <!--<pool>1</pool>-->
-    <!--</service>-->
+    <service>
+        <dpe>129.57.81.247</dpe>
+        <container>a3</container>
+        <engine>org.jlab.clara.examples.engines.E3</engine>
+        <pool>1</pool>
+    </service>
+    <service>
+        <dpe>129.57.81.247</dpe>
+        <container>a4</container>
+        <engine>org.jlab.clara.examples.engines.E4</engine>
+        <pool>1</pool>
+    </service>
 
     <application>
-        <!--<composition>129.57.81.247:X:E1+129.57.81.247:a1:E2</composition>-->
-        <composition>129.57.81.247:X:E1+129.57.81.247:X:E1</composition>
+
+        <composition>129.57.81.247:a3:E3+129.57.81.247:a4:E4</composition>
+
+        <!--<composition>129.57.81.247:X:E1+129.57.81.247:X:E1</composition>-->
         <!--<composition>129.57.81.247:X:E1+129.57.81.247:a1:E2+129.57.81.247:X:E1</composition>-->
         <!--<composition>129.57.81.247:X:E1+129.57.81.247:a1:E2+129.57.81.247:a2:E2+129.57.81.247:X:E1</composition>-->
         <!--<composition>129.57.81.247:X:E1+129.57.81.247:a1:E2+129.57.81.247:a2:E2+129.57.81.247:a3:E2+129.57.81.247:X:E1</composition>-->

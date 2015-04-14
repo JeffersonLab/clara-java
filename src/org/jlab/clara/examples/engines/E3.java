@@ -37,10 +37,24 @@ import java.util.List;
  * @since 2/9/15
  */
 public class E3 extends ACEngine {
+
+    private long delta = 10000;
+    private int nr = 0;
+    private long t1;
+    private long t2;
+
     @Override
     public EngineData execute(EngineData x) {
-//        if(x.getDataType().equals(CDataType.T_STRING))
-//        System.out.println("E3 engine execute... "+x.getData());
+        nr = nr + 1;
+
+        if (nr == 1) {
+            t1 = System.currentTimeMillis();
+        } else if (nr == delta) {
+            t2 = System.currentTimeMillis();
+            System.out.println("E3 rate = " + (delta * 1000) / (t2 - t1));
+            nr = 0;
+        }
+
         return x;
     }
 
