@@ -39,10 +39,6 @@ import java.util.List;
 public class E2 extends ACEngine {
     @Override
     public EngineData execute(EngineData x) {
-//        System.out.println("E2 got data = "+x.getData());
-
-//        if(x.getDataType().equals(CDataType.T_STRING))
-//        System.out.println("E2 engine execute... "+x.getData());
         return x;
     }
 

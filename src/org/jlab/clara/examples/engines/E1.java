@@ -22,6 +22,7 @@
 package org.jlab.clara.examples.engines;
 
 import org.jlab.clara.util.ACEngine;
+import org.jlab.clara.util.CConstants;
 import org.jlab.clara.util.EngineData;
 import org.jlab.coda.xmsg.data.xMsgD;
 
@@ -37,31 +38,25 @@ import java.util.List;
  * @since 2/9/15
  */
 public class E1 extends ACEngine {
-    private long pt;
-    private int count;
-    private double average;
+    private long nr = 0;
+    private long t1;
+    private long t2;
 
     @Override
     public EngineData execute(EngineData x) {
-//        System.out.println("E1 got data = "+x.getData());
-        long t1 = System.currentTimeMillis();
-        if (pt == 0) {
-            pt = t1;
-        } else {
-            count++;
-            average = average + (t1 - pt);
-            pt = t1;
+        if (nr == 0) {
+            t1 = System.currentTimeMillis();
         }
-        if (count == 10000) {
-            double avg = (average / count);
-            System.out.println("Average processing time = " + avg + " mills per event");
-            System.out.println("Rate = " + ((1 / avg) * 1000) + " Hz");
-            count = 0;
-            pt = 0;
-            average = 0;
+        nr = nr + 1;
+        if (nr >= CConstants.BENCHMARK) {
+            t2 = System.currentTimeMillis();
+            long dt = t2 - t1;
+            double pt = (double) dt / (double) nr;
+            long pr = (nr * 1000) / dt;
+            System.out.println("E1 processing time = " + pt + " ms");
+            System.out.println("E1 rate = " + pr + " Hz");
+            nr = 0;
         }
-//        if(x.getDataType().equals(CDataType.T_STRING))
-//            System.out.println("E1 engine execute... "+x.getData());
         return x;
     }
 

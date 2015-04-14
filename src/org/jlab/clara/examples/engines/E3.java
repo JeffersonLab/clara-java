@@ -39,7 +39,7 @@ import java.util.List;
  */
 public class E3 extends ACEngine {
 
-    private int nr = 0;
+    private long nr = 0;
     private long t1;
     private long t2;
 
@@ -51,7 +51,11 @@ public class E3 extends ACEngine {
         nr = nr + 1;
         if (nr >= CConstants.BENCHMARK) {
             t2 = System.currentTimeMillis();
-            System.out.println("E3 rate = " + (CConstants.BENCHMARK * 1000) / (t2 - t1));
+            long dt = t2 - t1;
+            double pt = (double) dt / (double) nr;
+            long pr = (nr * 1000) / dt;
+            System.out.println("E3 processing time = " + pt + " ms");
+            System.out.println("E3 rate = " + pr + " Hz");
             nr = 0;
         }
         return x;
