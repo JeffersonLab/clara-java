@@ -45,10 +45,11 @@ public class E4 extends ACEngine {
 
     @Override
     public EngineData execute(EngineData x) {
-        nr = nr + 1;
-        if (nr == 1) {
+        if (nr == 0) {
             t1 = System.currentTimeMillis();
-        } else if (nr == CConstants.BENCHMARK) {
+        }
+        nr = nr + 1;
+        if (nr >= CConstants.BENCHMARK) {
             t2 = System.currentTimeMillis();
             System.out.println("E4 rate = " + (CConstants.BENCHMARK * 1000) / (t2 - t1));
             nr = 0;

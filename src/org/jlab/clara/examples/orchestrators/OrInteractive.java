@@ -23,7 +23,6 @@ package org.jlab.clara.examples.orchestrators;
 
 import org.jlab.clara.base.CException;
 import org.jlab.clara.base.OrchestratorBase;
-import org.jlab.clara.util.CConstants;
 import org.jlab.clara.util.CUtility;
 import org.jlab.clara.util.XMLContainer;
 import org.jlab.clara.util.XMLTagValue;
@@ -140,14 +139,18 @@ public class OrInteractive extends OrchestratorBase {
                             // check to see if we need to perform bluster test
                             if (args.length == 3 && args[2].equals("-b")) {
                                 while (true) {
-                                    rqc = rqc + 1;
                                     // send the data to the service
                                     or.run_service(firstService, data);
-                                    if (rqc == CConstants.BENCHMARK) {
-                                        CUtility.sleep(1000);
-                                        rqc = 0;
-                                    }
                                 }
+//                                while (true) {
+//                                    rqc = rqc + 1;
+//                                    // send the data to the service
+//                                    or.run_service(firstService, data);
+//                                    if (rqc >= CConstants.BENCHMARK) {
+//                                        CUtility.sleep(1000);
+//                                        rqc = 0;
+//                                    }
+//                                }
                             }
                         }
                     }
