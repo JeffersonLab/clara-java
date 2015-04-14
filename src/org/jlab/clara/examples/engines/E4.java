@@ -22,6 +22,7 @@
 package org.jlab.clara.examples.engines;
 
 import org.jlab.clara.util.ACEngine;
+import org.jlab.clara.util.CConstants;
 import org.jlab.clara.util.EngineData;
 import org.jlab.coda.xmsg.data.xMsgD;
 
@@ -38,7 +39,6 @@ import java.util.List;
  */
 public class E4 extends ACEngine {
 
-    private long delta = 10000;
     private int nr = 0;
     private long t1;
     private long t2;
@@ -48,9 +48,9 @@ public class E4 extends ACEngine {
         nr = nr + 1;
         if (nr == 1) {
             t1 = System.currentTimeMillis();
-        } else if (nr == delta) {
+        } else if (nr == CConstants.BENCHMARK) {
             t2 = System.currentTimeMillis();
-            System.out.println("E4 rate = " + (delta * 1000) / (t2 - t1));
+            System.out.println("E4 rate = " + (CConstants.BENCHMARK * 1000) / (t2 - t1));
             nr = 0;
         }
         return x;

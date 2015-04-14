@@ -55,4 +55,6 @@ public class CConstants {
 
     public static final String ALIVE = "alive";
 
+    public static final int BENCHMARK = 10000;
+
 }
