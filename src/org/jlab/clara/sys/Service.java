@@ -37,6 +37,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.StringTokenizer;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -117,6 +118,9 @@ public class Service extends CBase {
     // Note: common for different compositions
     private long _numberOfRequests;
 
+    //
+    public AtomicBoolean isAvailable;
+
 
     /**
      * <p>
@@ -159,8 +163,9 @@ public class Service extends CBase {
         // to the local dpe proxy
         connect();
 
-        System.out.println("ObjectPool + " + getName());
+        isAvailable = new AtomicBoolean(true);
 
+        System.out.println("Service = " + getName()+" is up.");
     }
 
     /**
@@ -198,15 +203,14 @@ public class Service extends CBase {
         // to the local dpe proxy
         connect();
 
-        System.out.println("\n ObjectPool: add service = " + getName());
+        isAvailable = new AtomicBoolean(true);
 
+        System.out.println("Service = " + getName()+" is up.");
     }
 
     /**
      * Service configure method
      *
-     * @param objectPool reference to the object pool that is
-     *                   used to put back the object after the execution
      * @param dataType describes the type of the data object (string or xMsgData)
      * @param data     xMsg envelope payload
      * @param syncReceiverName the name of the sync requester
@@ -216,8 +220,7 @@ public class Service extends CBase {
      * @throws xMsgException
      * @throws InterruptedException
      */
-    public void configure(LinkedBlockingQueue<Service> objectPool,
-                          String dataType,
+    public void configure(String dataType,
                           Object data,
                           String syncReceiverName,
                           AtomicInteger configureCountDown)
@@ -377,15 +380,13 @@ public class Service extends CBase {
 
             // If this is a sync request send done to the requester
             if(!syncReceiverName.equals(xMsgConstants.UNDEFINED.getStringValue())){
-                int remainingIntances = configureCountDown.decrementAndGet();
-                if (remainingIntances == 0) {
+                int remainingInstances = configureCountDown.decrementAndGet();
+                if (remainingInstances == 0) {
                     String dpeName = CUtility.getDpeName(syncReceiverName);
                     genericSend(dpeName, syncReceiverName, xMsgConstants.DONE.getStringValue());
                 }
             }
         }
-        // return this object to the pool
-        objectPool.put(this);
     }
 
     /**
@@ -394,8 +395,6 @@ public class Service extends CBase {
      *
      * @param config CServiceConfig object for the service. Contains information
      *               to broadcast done and/or data
-     * @param objectPool reference to the object pool that is
-     *                   used to put back the object after the execution
      * @param dataType describes the type of the data object (string or xMsgData)
      * @param data     xMsg envelope payload
      * @param syncReceiverName the name of the sync requester
@@ -405,7 +404,7 @@ public class Service extends CBase {
      * @throws xMsgException
      * @throws InterruptedException
      */
-    public void process(CServiceSysConfig config, LinkedBlockingQueue<Service> objectPool,
+    public void process(CServiceSysConfig config,
                         String dataType,
                         Object data,
                         String syncReceiverName,
@@ -415,6 +414,8 @@ public class Service extends CBase {
             IOException,
             InterruptedException,
             ClassNotFoundException {
+
+        isAvailable.set(false);
 
         xMsgD.Data.Builder inData = null;
 
@@ -738,8 +739,7 @@ public class Service extends CBase {
                 report_warning(res.getStatusText(), res.getStatusSeverityId(), res.getId());
             }
         }
-        // return this object to the pool
-        objectPool.put(this);
+        isAvailable.set(true);
     }
 
 

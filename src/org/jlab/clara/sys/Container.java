@@ -41,7 +41,6 @@ import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -61,7 +60,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Container extends CBase {
 
     // Map containing service object pools for every service in the container
-    private HashMap<String, LinkedBlockingQueue<Service>>
+    private HashMap<String, Service[]>
             _objectPoolMap = new HashMap<>();
 
     // Map of thread pools for every service in the container
@@ -215,10 +214,11 @@ public class Container extends CBase {
         // Creating thread pool
         _threadPoolMap.put(canonical_name, Executors.newFixedThreadPool(objectPoolSize));
 
-        // Creating object pool
-        LinkedBlockingQueue<Service> lbq = new LinkedBlockingQueue<>(objectPoolSize);
 
         _poolSizeMap.put(canonical_name,objectPoolSize);
+
+        // Creating service object pool
+        Service[] sop = new Service[objectPoolSize];
 
         // Fill the object pool
         for(int i=0; i<objectPoolSize; i++){
@@ -233,11 +233,11 @@ public class Container extends CBase {
                 service =  new Service(packageName, canonical_name, sharedMemoryLocation, fe);
             }
             // add object to the pool
-            lbq.add(service);
+            sop[i] = service;
         }
 
         // Add the object pool to the pools map
-        _objectPoolMap.put(canonical_name, lbq);
+        _objectPoolMap.put(canonical_name, sop);
 
         new ServiceDispatcher(canonical_name,"Clara service");
 
@@ -268,14 +268,11 @@ public class Container extends CBase {
             // Clear object pool of a service by calling dispose
             // method of a service (for every service object
             // in the pool)
-            LinkedBlockingQueue op = _objectPoolMap.get(name);
-            Service ser = (Service) op.take();
-
-            // remove registration of a service and exit
-            ser.dispose();
-
-            // dispose the object pool for the service
-            op.clear();
+            Service[] op = _objectPoolMap.get(name);
+            for(Service s:op) {
+                // remove registration of a service and exit
+                s.dispose();
+            }
         }
 
         // remove sys config object for a service
@@ -455,7 +452,8 @@ public class Container extends CBase {
 
                 // Take object and thread pool for a service.
                 // This will block if there is no available object in the pool
-                final LinkedBlockingQueue<Service> op = _objectPoolMap.get(receiver);
+
+                final Service[] requestedServiceObjectPool = _objectPoolMap.get(receiver);
                 ExecutorService threadPool = _threadPoolMap.get(receiver);
 
                 xMsgD.Data.Builder inData = null;
@@ -507,16 +505,16 @@ public class Container extends CBase {
                 if (inData!=null && inData.getAction().equals(xMsgD.Data.ControlAction.CONFIGURE)) {
                     // pool size for a specific service
                     int sps = _poolSizeMap.get(receiver);
-                    if (op.size() != sps) throw new CException("service is busy. Can not configure.");
+                    if (requestedServiceObjectPool.length != sps) throw new CException("service is busy. Can not configure.");
 
                     final AtomicInteger rps = new AtomicInteger();
                     for (int i = 0; i < _poolSizeMap.get(receiver); i++) {
                         rps.set(_poolSizeMap.get(receiver) - i);
-                        final Service ser = op.take();
+                        final Service ser = requestedServiceObjectPool[i];
                         threadPool.submit(new Runnable() {
                                               public void run() {
                                                   try {
-                                                      ser.configure(op, dataType, data, syncReceiver, rps);
+                                                      ser.configure(dataType, data, syncReceiver, rps);
                                                   } catch (xMsgException | InterruptedException | CException | ClassNotFoundException | IOException e) {
                                                       e.printStackTrace();
                                                   }
@@ -527,24 +525,31 @@ public class Container extends CBase {
 
                     // service execute
                 } else {
+                    boolean _of = false;
+                    do {
+                        for (final Service ser : requestedServiceObjectPool) {
+                            if (ser.isAvailable.get()) {
+                                _of = true;
+                                final CServiceSysConfig serConfig = _sysConfigs.get(receiver);
 
-                    final Service ser = op.take();
+                                threadPool.submit(new Runnable() {
+                                                      public void run() {
+                                                          try {
+                                                              ser.process(serConfig, dataType, data, syncReceiver, -1);
+                                                          } catch (xMsgException | InterruptedException | CException | IOException | ClassNotFoundException e) {
+                                                              e.printStackTrace();
+                                                          }
+                                                      }
+                                                  }
+                                );
+                                break;
+                            }
+                        }
+                    } while(!_of);
 
-                    final CServiceSysConfig serConfig = _sysConfigs.get(receiver);
-
-                    threadPool.submit(new Runnable() {
-                                          public void run() {
-                                              try {
-                                                  ser.process(serConfig, op, dataType, data, syncReceiver, -1);
-                                              } catch (xMsgException | InterruptedException | CException | IOException | ClassNotFoundException e) {
-                                                  e.printStackTrace();
-                                              }
-                                          }
-                                      }
-                    );
                 }
 
-            } catch (CException | InterruptedException  e) {
+            } catch (CException e) {
                 e.printStackTrace();
             }
             return null;
