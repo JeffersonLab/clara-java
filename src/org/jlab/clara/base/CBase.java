@@ -279,10 +279,97 @@ public class CBase extends xMsg {
     /**
      * <p>
      *     Sends a request to the xMsg registration service,
-     *     asking to return registration information of service/services
-     *     based on dpe_host, container and engine names.
-     *     Note that character * can be used for any/all container and
-     *     engine names. Yet, * is not permitted for the dpe_host specification.
+     *     asking to return registration information of container
+     *     based on canonical name of the container
+     * </p>
+     *
+     * @param container_name container canonical name
+     * @return MsgR.xMsgRegistrationData object
+     */
+    public xMsgRegistrationData find_container(String container_name)
+            throws xMsgException, CException, SocketException {
+
+        if (xMsgUtil.getTopicDomain(container_name).equals(xMsgConstants.ANY.getStringValue())) {
+            throw new CException("Host name of the DPE must be specified");
+        } else{
+
+            // Check the case when the requested container is local
+            // Loop over all IP addresses of a node
+            for(String ip:xMsgUtil.getLocalHostIps()){
+                if (xMsgUtil.getTopicDomain(container_name).equals(ip)) {
+                    return findSubscribers(name,
+                            xMsgUtil.getTopicDomain(container_name),
+                            xMsgUtil.getTopicSubject(container_name),
+                            xMsgConstants.UNDEFINED.getStringValue()).get(0);
+                }
+            }
+
+            // This is the case when requested container is remote
+            return findSubscribers(name,
+                    xMsgUtil.getTopicDomain(container_name),
+                    xMsgUtil.getTopicSubject(container_name),
+                    xMsgConstants.UNDEFINED.getStringValue()).get(0);
+        }
+    }
+
+    /**
+     * <p>
+     * Sends a request to the xMsg registration service,
+     * asking to return registration information of all containers in the DPE
+     * </p>
+     *
+     * @param dpe_name DPE name
+     * @return set of xMsgR.xMsgRegistrationData objects
+     */
+    public List<xMsgRegistrationData> find_containers(String dpe_name)
+            throws xMsgException, CException, SocketException {
+
+        List<xMsgRegistrationData> result = new ArrayList<>();
+        List<xMsgRegistrationData> tmpl;
+
+        // Check the case when the requested service is local
+        // Loop over all IP addresses of a node
+        for (String ip : xMsgUtil.getLocalHostIps()) {
+            if (dpe_name.equals(ip)) {
+                tmpl = findSubscribers(name,
+                        dpe_name,
+                        xMsgConstants.UNDEFINED.getStringValue(),
+                        xMsgConstants.UNDEFINED.getStringValue());
+                if (tmpl != null) {
+                    for (xMsgRegistrationData rd : tmpl) {
+                        if (rd.getType().equals(xMsgConstants.UNDEFINED.getStringValue()) &&
+                                !result.contains(rd)) {
+                            result.add(rd);
+                        }
+                    }
+                }
+                return result;
+            }
+        }
+
+        // This is the case when requested service is remote
+        tmpl = findSubscribers(name,
+                dpe_name,
+                xMsgConstants.UNDEFINED.getStringValue(),
+                xMsgConstants.UNDEFINED.getStringValue());
+        if (tmpl != null) {
+            for (xMsgRegistrationData rd : tmpl) {
+                if (rd.getType().equals(xMsgConstants.UNDEFINED.getStringValue()) &&
+                        !result.contains(rd)) {
+                    result.add(rd);
+                }
+            }
+        }
+        return result;
+    }
+
+    /**
+     * <p>
+     * Sends a request to the xMsg registration service,
+     * asking to return registration information of service/services
+     * based on dpe_host, container and engine names.
+     * Note that character * can be used for any/all container and
+     * engine names. Yet, * is not permitted for the dpe_host specification.
      * </p>
      *
      * @param service_name service canonical name
@@ -293,13 +380,13 @@ public class CBase extends xMsg {
 
         if (xMsgUtil.getTopicDomain(service_name).equals(xMsgConstants.ANY.getStringValue())) {
             throw new CException("Host name of the DPE must be specified");
-        } else{
+        } else {
 
             // Check the case when the requested service is local
             // Loop over all IP addresses of a node
-            for(String ip:xMsgUtil.getLocalHostIps()){
-                if(xMsgUtil.getTopicDomain(service_name).equals(ip)){
-                    return findLocalSubscribers(name,
+            for (String ip : xMsgUtil.getLocalHostIps()) {
+                if (xMsgUtil.getTopicDomain(service_name).equals(ip)) {
+                    return findSubscribers(name,
                             xMsgUtil.getTopicDomain(service_name),
                             xMsgUtil.getTopicSubject(service_name),
                             xMsgUtil.getTopicType(service_name));
@@ -331,22 +418,6 @@ public class CBase extends xMsg {
 
         publish(connection, topic, data);
 
-//        String dpe = xMsgUtil.getTopicDomain(topic);
-//        String container = "*";
-//        String engine = "*";
-//        if(!xMsgUtil.getTopicSubject(topic).equals(xMsgConstants.UNDEFINED.getStringValue())){
-//            container = xMsgUtil.getTopicSubject(topic);
-//        }
-//        if(!xMsgUtil.getTopicType(topic).equals(xMsgConstants.UNDEFINED.getStringValue())){
-//            engine = xMsgUtil.getTopicType(topic);
-//        }
-//
-//
-//        publish(connection,
-//                dpe,
-//                container,
-//                engine,
-//                data);
     }
 
     /**
@@ -590,8 +661,8 @@ public class CBase extends xMsg {
      * @param call_back User provided call_back function
      */
     public SubscriptionHandler  serviceReceive(xMsgConnection connection,
-                               String topic,
-                               xMsgCallBack call_back)
+                                               String topic,
+                                               xMsgCallBack call_back)
             throws xMsgException {
 
         String dpe = xMsgUtil.getTopicDomain(topic);
@@ -622,7 +693,7 @@ public class CBase extends xMsg {
      * @param call_back User provided call_back function
      */
     public SubscriptionHandler  serviceReceive(String topic,
-                               xMsgCallBack call_back)
+                                               xMsgCallBack call_back)
             throws xMsgException {
         return serviceReceive(node_connection, topic, call_back);
     }
@@ -644,8 +715,8 @@ public class CBase extends xMsg {
      * @param call_back User provided call_back function
      */
     public SubscriptionHandler genericReceive(xMsgConnection connection,
-                               String topic,
-                               xMsgCallBack call_back)
+                                              String topic,
+                                              xMsgCallBack call_back)
             throws xMsgException {
 
         return subscribe(connection,
@@ -666,7 +737,7 @@ public class CBase extends xMsg {
      * @param call_back User provided call_back function
      */
     public SubscriptionHandler genericReceive(String topic,
-                               xMsgCallBack call_back)
+                                              xMsgCallBack call_back)
             throws xMsgException {
         return genericReceive(node_connection, topic, call_back);
     }
