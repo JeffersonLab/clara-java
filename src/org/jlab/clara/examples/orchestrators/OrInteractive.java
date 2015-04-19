@@ -27,6 +27,7 @@ import org.jlab.clara.util.CUtility;
 import org.jlab.clara.util.XMLContainer;
 import org.jlab.clara.util.XMLTagValue;
 import org.jlab.coda.xmsg.data.xMsgD;
+import org.jlab.coda.xmsg.data.xMsgR.xMsgRegistrationData;
 import org.jlab.coda.xmsg.excp.xMsgException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -142,15 +143,6 @@ public class OrInteractive extends OrchestratorBase {
                                     // send the data to the service
                                     or.run_service(firstService, data);
                                 }
-//                                while (true) {
-//                                    rqc = rqc + 1;
-//                                    // send the data to the service
-//                                    or.run_service(firstService, data);
-//                                    if (rqc >= CConstants.BENCHMARK) {
-//                                        CUtility.sleep(1000);
-//                                        rqc = 0;
-//                                    }
-//                                }
                             }
                         }
                     }
@@ -209,6 +201,13 @@ public class OrInteractive extends OrchestratorBase {
                                 // send the data to the service
                                 or.run_service(firstService, data);
                                 break;
+                            case "4":
+                                System.out.println("DPE name");
+                                String dpe_name = scanner.nextLine().trim();
+                                List<xMsgRegistrationData> containers = or.find_containers(dpe_name);
+                                for (xMsgRegistrationData r : containers) {
+                                    System.out.println(r.getName());
+                                }
                         }
                     }
                 }
@@ -232,6 +231,10 @@ public class OrInteractive extends OrchestratorBase {
         System.out.println("|    3     |  . Application composition   | Start application    |");
         System.out.println("|          |  . Input data = String       | (with engine names)  |");
         System.out.println("|          |                              | on a local DPE       |");
+        System.out.println("|----------|------------------------------|----------------------|");
+        System.out.println("|    4     |  . DPE name                  | Prints the names     |");
+        System.out.println("|          |                              | of all containers    |");
+        System.out.println("|          |                              | in the DPE.          |");
         System.out.println("|----------|------------------------------|----------------------|");
 
     }
