@@ -65,6 +65,10 @@ public class CConstants {
 
     public static final String ALIVE = "alive";
 
+    public static final String TOPIC_SEP = ":";
+    public static final String DATA_SEP = "?";
+    public static final String LANG_SEP = "_";
+
     public static final int BENCHMARK = 10000;
 
 }
