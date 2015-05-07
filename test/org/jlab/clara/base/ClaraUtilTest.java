@@ -148,4 +148,43 @@ public class ClaraUtilTest {
             assertThat((boolean) m.invoke(null, name), is(false));
         }
     }
+
+
+    @Test
+    public void getHostNameReturnsTheHost() throws Exception {
+        assertThat(ClaraUtil.getHostName(goodDpeNames[0]),       is("192.168.1.102"));
+        assertThat(ClaraUtil.getHostName(goodContainerNames[0]), is("10.2.58.17"));
+        assertThat(ClaraUtil.getHostName(goodServiceNames[0]),   is("129.57.28.27"));
+    }
+
+
+    @Test
+    public void getDpeNameReturnsTheName() throws Exception {
+        assertThat(ClaraUtil.getDpeName(goodDpeNames[0]),       is("192.168.1.102_java"));
+        assertThat(ClaraUtil.getDpeName(goodContainerNames[0]), is("10.2.58.17_java"));
+        assertThat(ClaraUtil.getDpeName(goodServiceNames[0]),   is("129.57.28.27_java"));
+    }
+
+
+    @Test
+    public void getContainerCanonicalNameReturnsTheName() throws Exception {
+        assertThat(ClaraUtil.getContainerCanonicalName(goodContainerNames[0]),
+                   is("10.2.58.17_java:master"));
+
+        assertThat(ClaraUtil.getContainerCanonicalName(goodServiceNames[0]),
+                   is("129.57.28.27_java:master"));
+    }
+
+
+    @Test
+    public void getContainerNameReturnsTheName() throws Exception {
+        assertThat(ClaraUtil.getContainerName(goodContainerNames[0]), is("master"));
+        assertThat(ClaraUtil.getContainerName(goodServiceNames[0]),   is("master"));
+    }
+
+
+    @Test
+    public void getEngineNameReturnsTheName() throws Exception {
+        assertThat(ClaraUtil.getEngineName(goodServiceNames[0]), is("SimpleEngine"));
+    }
 }

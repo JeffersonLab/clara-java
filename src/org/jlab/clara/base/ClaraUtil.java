@@ -24,6 +24,8 @@ package org.jlab.clara.base;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.jlab.clara.util.CConstants;
+
 /**
  * Extra helper methods for Clara orchestrators and services.
  */
@@ -110,5 +112,76 @@ public final class ClaraUtil {
     public static boolean isServiceName(String name) {
         Matcher matcher = CANONICAL_NAME_PATTERN.matcher(name);
         return matcher.matches() && matcher.group(6) != null;
+    }
+
+
+    /**
+     * Returns the host part of a canonical name.
+     *
+     * @param canonicalName a proper canonical name
+     * @return the hostname
+     */
+    public static String getHostName(String canonicalName) {
+        return canonicalName.substring(0, canonicalName.indexOf(CConstants.LANG_SEP));
+    }
+
+
+    /**
+     * Returns the DPE part of a canonical name.
+     *
+     * @param canonicalName a proper canonical name
+     * @return the DPE name
+     */
+    public static String getDpeName(String canonicalName) {
+        int firstSep = canonicalName.indexOf(CConstants.TOPIC_SEP);
+        if (firstSep < 0) {
+            return canonicalName;
+        }
+        return canonicalName.substring(0, firstSep);
+    }
+
+
+    /**
+     * Returns the canonical container part of a container or service name.
+     *
+     * @param canonicalName a proper container or service name
+     * @return the canonical container name
+     */
+    public static String getContainerCanonicalName(String canonicalName) {
+        int firstSep = canonicalName.indexOf(CConstants.TOPIC_SEP);
+        int secondSep = canonicalName.indexOf(CConstants.TOPIC_SEP, firstSep + 1);
+        if (secondSep < 0) {
+            return canonicalName;
+        }
+        return canonicalName.substring(0, secondSep);
+    }
+
+
+    /**
+     * Returns the container part of a container or service name.
+     *
+     * @param canonicalName a proper container or service name
+     * @return the container name
+     */
+    public static String getContainerName(String canonicalName) {
+        int firstSep = canonicalName.indexOf(CConstants.TOPIC_SEP);
+        int secondSep = canonicalName.indexOf(CConstants.TOPIC_SEP, firstSep + 1);
+        if (secondSep < 0) {
+            return canonicalName.substring(firstSep + 1);
+        }
+        return canonicalName.substring(firstSep + 1, secondSep);
+    }
+
+
+    /**
+     * Returns the engine part of a service name.
+     *
+     * @param serviceName a proper service name
+     * @return the engine of the name
+     */
+    public static String getEngineName(String serviceName) {
+        int firstSep = serviceName.indexOf(CConstants.TOPIC_SEP);
+        int secondSep = serviceName.indexOf(CConstants.TOPIC_SEP, firstSep + 1);
+        return serviceName.substring(secondSep + 1);
     }
 }
