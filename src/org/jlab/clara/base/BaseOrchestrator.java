@@ -28,6 +28,7 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.sys.CBase;
+import org.jlab.clara.util.CConstants;
 import org.jlab.coda.xmsg.excp.xMsgException;
 
 
@@ -82,5 +83,27 @@ public class BaseOrchestrator {
     private String generateName() {
         Random rand = new Random();
         return "orchestrator" + rand.nextInt(1000) + ":" + "localhost";
+    }
+
+
+    private String buildTopic(Object... args) {
+        StringBuilder topic  = new StringBuilder();
+        topic.append(args[0]);
+        for (int i = 1; i < args.length; i++) {
+            topic.append(CConstants.TOPIC_SEP);
+            topic.append(args[i]);
+        }
+        return topic.toString();
+    }
+
+
+    private String buildData(Object... args) {
+        StringBuilder topic  = new StringBuilder();
+        topic.append(args[0]);
+        for (int i = 1; i < args.length; i++) {
+            topic.append(CConstants.DATA_SEP);
+            topic.append(args[i]);
+        }
+        return topic.toString();
     }
 }
