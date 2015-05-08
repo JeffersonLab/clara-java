@@ -187,4 +187,30 @@ public class ClaraUtilTest {
     public void getEngineNameReturnsTheName() throws Exception {
         assertThat(ClaraUtil.getEngineName(goodServiceNames[0]), is("SimpleEngine"));
     }
+
+
+    @Test
+    public void formDpeNameReturnsTheCanonicalName() throws Exception {
+        assertThat(ClaraUtil.formDpeName("10.2.58.17", ClaraLang.JAVA), is("10.2.58.17_java"));
+    }
+
+
+    @Test
+    public void formContainerNameReturnsTheCanonicalName() throws Exception {
+        assertThat(ClaraUtil.formContainerName("10.2.58.17_java", "master"),
+                   is("10.2.58.17_java:master"));
+
+        assertThat(ClaraUtil.formContainerName("10.2.58.17", ClaraLang.JAVA, "master"),
+                   is("10.2.58.17_java:master"));
+    }
+
+
+    @Test
+    public void formServiceNameReturnsTheCanonicalName() throws Exception {
+        assertThat(ClaraUtil.formServiceName("10.2.58.17_java:cont", "Engine"),
+                   is("10.2.58.17_java:cont:Engine"));
+
+        assertThat(ClaraUtil.formServiceName("10.2.58.17", ClaraLang.JAVA, "cont", "Engine"),
+                   is("10.2.58.17_java:cont:Engine"));
+    }
 }

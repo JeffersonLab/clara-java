@@ -58,6 +58,7 @@ public final class ClaraUtil {
      * </pre>
      *
      * @param name the name to be checked
+     * @see ClaraUtil#formDpeName
      */
     public static boolean isDpeName(String name) {
         Matcher matcher = CANONICAL_NAME_PATTERN.matcher(name);
@@ -74,6 +75,7 @@ public final class ClaraUtil {
      * </pre>
      *
      * @param name the name to be checked
+     * @see ClaraUtil#formContainerName
      */
     public static boolean isContainerName(String name) {
         Matcher matcher = CANONICAL_NAME_PATTERN.matcher(name);
@@ -108,6 +110,7 @@ public final class ClaraUtil {
      * </pre>
      *
      * @param name the name to be checked
+     * @see ClaraUtil#formServiceName
      */
     public static boolean isServiceName(String name) {
         Matcher matcher = CANONICAL_NAME_PATTERN.matcher(name);
@@ -183,5 +186,79 @@ public final class ClaraUtil {
         int firstSep = serviceName.indexOf(CConstants.TOPIC_SEP);
         int secondSep = serviceName.indexOf(CConstants.TOPIC_SEP, firstSep + 1);
         return serviceName.substring(secondSep + 1);
+    }
+
+
+    /**
+     * Constructs a proper DPE canonical name with the given host and language.
+     *
+     * @param host the hostname of the DPE
+     * @param lang the language of the DPE
+     * @return the DPE canonical name
+     */
+    public static String formDpeName(String host, ClaraLang lang) {
+        return host + CConstants.LANG_SEP + lang;
+    }
+
+
+    /**
+     * Constructs a proper container canonical name with the given DPE and name.
+     *
+     * @param dpeName the DPE hosting the container
+     * @param container the name of the container
+     * @return the container canonical name
+     * @see #formDpeName
+     */
+    public static String formContainerName(String dpeName, String container) {
+        if (!isDpeName(dpeName)) {
+            throw new IllegalArgumentException("Not a DPE name: " + dpeName);
+        }
+        return dpeName + CConstants.TOPIC_SEP + container;
+    }
+
+
+    /**
+     * Constructs a proper container canonical name with the given host,
+     * language and name.
+     *
+     * @param host the hostname of the DPE
+     * @param lang the language of the DPE
+     * @param container the name of the container
+     * @return the container canonical name
+     */
+    public static String formContainerName(String host, ClaraLang lang, String container) {
+        return formDpeName(host, lang) + CConstants.TOPIC_SEP + container;
+    }
+
+
+    /**
+     * Constructs a proper service canonical name with the given container and engine.
+     *
+     * @param containerName the container running the service
+     * @param engine the name of the service engine
+     * @return the service canonical name
+     * @see #formContainerName
+     */
+    public static String formServiceName(String containerName, String engine) {
+        if (!isContainerName(containerName)) {
+            throw new IllegalArgumentException("Not a container name: " + containerName);
+        }
+        return containerName + CConstants.TOPIC_SEP + engine;
+    }
+
+
+    /**
+     * Constructs a proper service canonical name with the given host,
+     * language, container and engine.
+     *
+     * @param host the hostname of the DPE
+     * @param lang the language of the DPE
+     * @param container the name of the container
+     * @param engine the name of the service engine
+     * @return the service canonical name
+     */
+    public static String formServiceName(String host, ClaraLang lang,
+                                         String container, String engine) {
+        return formContainerName(host, lang, container) + CConstants.TOPIC_SEP + engine;
     }
 }
