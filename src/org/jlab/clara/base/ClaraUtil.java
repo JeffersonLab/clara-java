@@ -24,11 +24,14 @@ package org.jlab.clara.base;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
 import org.jlab.clara.util.CConstants;
 
 /**
  * Extra helper methods for Clara orchestrators and services.
  */
+@ParametersAreNonnullByDefault
 public final class ClaraUtil {
 
     private ClaraUtil() { }

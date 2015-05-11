@@ -23,6 +23,8 @@ package org.jlab.clara.base;
 
 import java.net.SocketException;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.sys.CBase;
 import org.jlab.coda.xmsg.excp.xMsgException;
@@ -42,6 +44,7 @@ public class BaseOrchestratorTest {
     }
 
 
+    @ParametersAreNonnullByDefault
     private class OrchestratorMock extends BaseOrchestrator {
         public OrchestratorMock() throws ClaraException {
             super();

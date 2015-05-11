@@ -24,6 +24,8 @@ package org.jlab.clara.base;
 import java.net.SocketException;
 import java.util.Random;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.sys.CBase;
 import org.jlab.coda.xmsg.excp.xMsgException;
@@ -32,6 +34,7 @@ import org.jlab.coda.xmsg.excp.xMsgException;
 /**
  * Base class for orchestration of applications.
  */
+@ParametersAreNonnullByDefault
 public class BaseOrchestrator {
 
     private final CBase base;
