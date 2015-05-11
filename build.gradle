@@ -1,6 +1,8 @@
 apply plugin: 'java'
 apply plugin: 'maven'
 
+apply plugin: "findbugs"
+
 apply plugin: 'eclipse'
 apply plugin: 'idea'
 
@@ -130,6 +132,38 @@ task deploy(type: Copy, overwrite: true, dependsOn: jar) {
             throw new GradleException('CLARA_HOME not set')
         }
         dir.mkdirs()
+    }
+}
+
+
+
+findbugs {
+    toolVersion = "3.0.1"
+    ignoreFailures = true
+    effort = "default"
+    reportLevel = "medium"
+    excludeFilter = new File(rootDir, "config/quality/findbugs-exclude.xml")
+}
+
+tasks.withType(FindBugs) {
+    reports {
+        xml.enabled = false
+        html.enabled = true
+    }
+}
+
+// Marker task to enable findbugs.
+task findbugs(
+    group: "Verification",
+    description: "Marker task to enabled findbugs."
+)
+
+gradle.taskGraph.whenReady { taskGraph ->
+    tasks.findbugsMain.onlyIf {
+        taskGraph.hasTask((tasks.findbugs))
+    }
+    tasks.findbugsTest.onlyIf {
+        taskGraph.hasTask((tasks.findbugs))
     }
 }
 
