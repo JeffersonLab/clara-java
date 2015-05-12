@@ -541,6 +541,28 @@ public class CBase extends xMsg {
         return genericReceive(nodeConnection, topic, callback);
     }
 
+
+    /**
+     * Subscribes to the specific topic with the given callback.
+     * This method simply calls xMsg subscribe method
+     * passing the reference to user provided callback method.
+     * In this case topic is NOT bound to follow Clara
+     * service naming convention.
+     *
+     * @param dpeHost   DPE host IP address
+     * @param topic     service canonical name that this method will subscribe
+     * @param callback  user provided callback function
+     */
+    public SubscriptionHandler genericReceive(String dpeHost,
+                                              String topic,
+                                              xMsgCallBack callback)
+            throws xMsgException, SocketException {
+
+        xMsgAddress address = new xMsgAddress(dpeHost, true);
+        xMsgConnection con = getNewConnection(address);
+        return genericReceive(con, topic, callback);
+    }
+
     /**
      * Calls xMsg unsubscribe method.
      *
@@ -570,6 +592,7 @@ public class CBase extends xMsg {
 
         return genericReceive(nodeConnection, serviceName, callback);
     }
+
 
     /**
      * Calls xMsg subscribe method the user provided callback.
