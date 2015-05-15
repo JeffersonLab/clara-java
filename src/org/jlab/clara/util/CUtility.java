@@ -21,7 +21,6 @@
 
 package org.jlab.clara.util;
 
-import com.google.protobuf.ByteString;
 import org.jlab.clara.base.CException;
 import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.excp.xMsgException;
@@ -298,6 +297,9 @@ public class CUtility {
 
     public static String getDpeName(String serviceCanonicalName)
             throws CException {
+        if (!CUtility.isCanonical(serviceCanonicalName)) {
+            throw new CException("not a canonical name");
+        }
         try {
             return xMsgUtil.getTopicDomain(serviceCanonicalName);
         } catch (xMsgException e) {
@@ -317,6 +319,9 @@ public class CUtility {
 
     public static String getContainerName(String serviceCanonicalName)
             throws CException {
+        if (!CUtility.isCanonical(serviceCanonicalName)) {
+            throw new CException("not a canonical name");
+        }
         try {
             return xMsgUtil.getTopicSubject(serviceCanonicalName);
         } catch (xMsgException e) {
@@ -326,6 +331,9 @@ public class CUtility {
 
     public static String getEngineName(String serviceCanonicalName)
             throws CException {
+        if (!CUtility.isCanonical(serviceCanonicalName)) {
+            throw new CException("not a canonical name");
+        }
         try {
             return xMsgUtil.getTopicType(serviceCanonicalName);
         } catch (xMsgException e) {
@@ -336,47 +344,6 @@ public class CUtility {
     public static Boolean isCanonical(String name){
         return name.contains(":");
     }
-
-
-    /**
-     * Converts object into a byte array
-     * @param object to be converted. Probably it must be serializable.
-     * @return ByteString or null in case of error
-     */
-    public static ByteString O2B(Object object) {
-        if (object instanceof byte[]) {
-            return ByteString.copyFrom((byte[]) object);
-        } else {
-            try (ByteString.Output bs = ByteString.newOutput();
-                 ObjectOutputStream out = new ObjectOutputStream(bs)) {
-                out.writeObject(object);
-                out.flush();
-                return bs.toByteString();
-            } catch (IOException e) {
-                e.printStackTrace();
-                return null;
-            }
-        }
-    }
-
-
-    /**
-     * Converts byte array into an Object, that can be cast into pre-known class object.
-     * @param bytes the byte array
-     * @return Object or null in case of error
-     */
-    public static Object B2O(ByteString bytes) {
-        byte[] bb = bytes.toByteArray();
-        try (ByteArrayInputStream bs = new ByteArrayInputStream(bb);
-             ObjectInputStream in = new ObjectInputStream(bs)) {
-            return in.readObject();
-        } catch (IOException | ClassNotFoundException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-            return null;
-        }
-    }
-
 
     /**
      * Returns the stack trace of a exception as a string

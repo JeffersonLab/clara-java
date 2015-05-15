@@ -22,6 +22,7 @@
 package org.jlab.clara.util;
 
 import org.jlab.clara.base.CException;
+import org.jlab.clara.engine.ICEngine;
 
 /**
  * <p>
@@ -40,14 +41,14 @@ public class CClassLoader {
         classLoader = cl;
     }
 
-    public ACEngine load(String className)
+    public ICEngine load(String className)
             throws CException, ClassNotFoundException, IllegalAccessException, InstantiationException {
             Class aClass = classLoader.loadClass(className);
 
             Object aInstance = aClass.newInstance();
 
-            if(aInstance instanceof ACEngine){
-                return (ACEngine)aInstance;
+        if (aInstance instanceof ICEngine) {
+            return (ICEngine) aInstance;
             } else {
                 throw new CException("not a Clara service engine");
             }

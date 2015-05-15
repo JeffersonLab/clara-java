@@ -31,6 +31,7 @@ package org.jlab.clara.engine;
 public enum EDataType {
     UNDEFINED,
     J_Object,
+    C_Object,
     P_Object,
     NCDFS_Object,
     T_VLSINT32,
@@ -49,6 +50,6 @@ public enum EDataType {
     T_DOUBLEA ,
     T_STRINGA ,
     T_BYTESA ,
-    T_PAYLOAD;
+    T_PAYLOAD
 
 }
