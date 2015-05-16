@@ -35,7 +35,6 @@ import java.io.IOException;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.StringTokenizer;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -151,131 +150,6 @@ public class CBase extends xMsg {
      */
     public void setName(String name) {
         this.name = name;
-    }
-
-    /**
-     * <p>
-     *    Parses composition field of the transient data
-     *    and returns the list of services output linked
-     *    to this service, i.e. that are getting output
-     *    data of this service.
-     *    Attention: service name CAN NOT appear twice
-     *               in the composition.
-     * </p>
-     *
-     * @param service_name the name of the service
-     *                     for which we find input/output links
-     * @param composition the string of the composition
-     * @param link_direction 0 = input-inked, >0 = output-linked
-     * @return the list containing names of linked services
-     */
-    public List<String> parse_linked(String service_name,
-                                     String composition,
-                                     int link_direction) throws CException {
-
-        // List of output service names
-        List<String> out_list = new ArrayList<>();
-
-        // List that contains composition elements
-        List<String> elm_list = new ArrayList<>();
-
-        StringTokenizer st = new StringTokenizer(composition,"+");
-        while(st.hasMoreTokens()){
-            elm_list.add(st.nextToken());
-        }
-
-        // List that contains service names
-        List<String> elm2_list = new ArrayList<>();
-        for (String s:elm_list){
-            // remove  '&' from the service name
-            // (e.g. 129.57.81.247:cont1:&Engine3 to 129.57.81.247:cont1:Engine3
-            if(s.startsWith("&")){
-                s = s.replace("&","");
-            }
-            elm2_list.add(s);
-        }
-
-        // See if the string contains this service name, and record the index,
-        // and analyze index+1 element.
-        // Note: multiple services can send to a single service, like: s1,s2+s3.
-        // (this is the reason we use in:contains)
-        int index = -1;
-        for(String s:elm2_list){
-            if(s.contains(service_name)){
-                index = elm2_list.indexOf(s);
-            }
-        }
-        if(index == -1) {
-            throw new CException("Composition parsing exception. " +
-                    "Service name can not be found in the composition.");
-        } else {
-            if(link_direction==0 && index>0) {
-                // index of the next component in the composition
-                index -= 1;
-                String element = elm2_list.get(index);
-                // the case to fan out the output of this service
-                if(element.contains(",")){
-                    StringTokenizer st1 = new StringTokenizer(element,",");
-                    while(st1.hasMoreTokens()){
-                        out_list.add(st1.nextToken());
-                    }
-                } else {
-                    out_list.add(element);
-                }
-                return out_list;
-            } else if(link_direction > 0){
-                index += 1;
-                if(elm2_list.size() > index){
-                    String element = elm2_list.get(index);
-                    // the case to fan out the output of this service
-                    if(element.contains(",")){
-                        StringTokenizer st1 = new StringTokenizer(element,",");
-                        while(st1.hasMoreTokens()){
-                            out_list.add(st1.nextToken());
-                        }
-                    } else {
-                        out_list.add(element);
-                    }
-                }
-
-                return out_list;
-            }
-        }
-        // returns empty list. Most likely this service
-        // is the first service in the composition
-        return out_list;
-    }
-
-    /**
-     * <p>
-     *      Check to see in the composition this service
-     *      is required to logically AND inputs before
-     *      executing its service
-     * </p>
-     *
-     * @param service_name in the composition
-     * @param composition the string of the composition
-     * @return true if component name is programmed
-     *         as "&<service_name>"
-     */
-    public boolean is_log_and(String service_name,
-                              String composition){
-        String ac = "&" + service_name;
-
-        // List that contains composition elements
-        List<String> elm_list = new ArrayList<>();
-
-        StringTokenizer st = new StringTokenizer(composition,"+");
-        while(st.hasMoreTokens()){
-            elm_list.add(st.nextToken());
-        }
-
-        for(String s: elm_list){
-            if(s.equals(ac)){
-                return true;
-            }
-        }
-        return false;
     }
 
     /**

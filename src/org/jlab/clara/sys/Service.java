@@ -41,7 +41,6 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.StringTokenizer;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -67,25 +66,6 @@ public class Service extends CBase {
     // Engine instantiated object
     private ICEngine
             engine_object = null;
-    // The dynamic (updated for every request) repository/map
-    // (mapped by the composition) of input-linked service
-    // names that are required to be logically AND-ed
-    private HashMap<String, List<String>>
-            in_and_name_list = new HashMap<>();
-    // The dynamic ( updated for every request) repository/map
-    // (mapped by the composition string) of input-linked service
-    // data that are required to be logically AND-ed
-    private HashMap<String, HashMap<String,EngineData>>
-            in_and_data_list = new HashMap<>();
-    // Local map of input-linked services for every
-    // composition in multi-composition application.
-    // Note: by design compositions are separated by ";"
-    private HashMap<String, List<String>>
-            in_links = new HashMap<>();
-    // Local map of output-linked services for every
-    // composition in multi-composition application.
-    private HashMap<String, List<String>>
-            out_links = new HashMap<>();
     // key in the shared memory map of DPE to
     // locate this service resulting data object
     private String
@@ -96,6 +76,8 @@ public class Service extends CBase {
     // Number of received requests to this service.
     // Note: common for different compositions
     private long _numberOfRequests;
+
+    private CompositionAnalyser compositionAnalyser;
 
 
     /**
@@ -142,6 +124,9 @@ public class Service extends CBase {
         isAvailable = new AtomicBoolean(true);
 
         System.out.println("Service = " + getName()+" is up.");
+
+        // create an object of the composition parser
+        compositionAnalyser = new CompositionAnalyser(getName());
     }
 
     /**
@@ -182,6 +167,9 @@ public class Service extends CBase {
         isAvailable = new AtomicBoolean(true);
 
         System.out.println("Service = " + getName()+" is up.");
+
+        // create an object of the composition parser
+        compositionAnalyser = new CompositionAnalyser(getName());
     }
 
     public void configure(xMsgMeta.Builder metadata,
@@ -192,7 +180,6 @@ public class Service extends CBase {
             InterruptedException,
             IOException,
             ClassNotFoundException {
-
 
         if (metadata.getAction().equals(xMsgMeta.ControlAction.CONFIGURE)) {
 
@@ -243,7 +230,7 @@ public class Service extends CBase {
 
             if (!c_composition.equals(p_composition)) {
                 // analyze composition
-                analyzeComposition(c_composition);
+                compositionAnalyser.analyzeComposition(c_composition);
                 p_composition = c_composition;
             }
 
@@ -251,7 +238,7 @@ public class Service extends CBase {
             EngineData serviceIn = new EngineData(metadata, data);
             EngineData serviceOut = null;
 
-            for (String com : in_links.keySet()) {
+            for (String com : compositionAnalyser.getInLinks().keySet()) {
 
                 // find a sub_composition that sender
                 // service is listed as a an input service
@@ -262,20 +249,20 @@ public class Service extends CBase {
                     // other input service.
                     // Go over all sub_compositions that require
                     // logical AND of inputs
-                    if (in_and_name_list.containsKey(com)) {
+                    if (compositionAnalyser.getInAndNameList().containsKey(com)) {
 
                         // Get that sub composition and check against
                         // the received service name the list of service
                         // that are required to be logically ANDed
-                        for (String ser : in_and_name_list.get(com)) {
+                        for (String ser : compositionAnalyser.getInAndNameList().get(com)) {
                             if (ser.equals(senderService)) {
-                                if (in_and_data_list.containsKey(com)) {
-                                    HashMap<String, EngineData> dm = in_and_data_list.get(com);
+                                if (compositionAnalyser.getInAndDataList().containsKey(com)) {
+                                    HashMap<String, EngineData> dm = compositionAnalyser.getInAndDataList().get(com);
                                     dm.put(senderService, serviceIn);
                                 } else {
                                     HashMap<String, EngineData> dm = new HashMap<>();
                                     dm.put(senderService, serviceIn);
-                                    in_and_data_list.put(com, dm);
+                                    compositionAnalyser.getInAndDataList().put(com, dm);
                                 }
                             }
                         }
@@ -283,11 +270,12 @@ public class Service extends CBase {
                         // Now check the size of received data list
                         // with the required input name list.
                         // If equal we will execute the service.
-                        if (in_and_name_list.get(com).size() == in_and_data_list.get(com).size()) {
+                        if (compositionAnalyser.getInAndNameList().get(com).size() ==
+                                compositionAnalyser.getInAndDataList().get(com).size()) {
 
                             List<EngineData> ddl = new ArrayList<>();
 
-                            for (HashMap<String, EngineData> m : in_and_data_list.values()) {
+                            for (HashMap<String, EngineData> m : compositionAnalyser.getInAndDataList().values()) {
                                 for (EngineData d : m.values()) {
                                     ddl.add(d);
                                 }
@@ -316,7 +304,7 @@ public class Service extends CBase {
                                 return;
                             }
                             // Clear inAnd data hash map for the satisfied composition
-                            in_and_data_list.remove(com);
+                            compositionAnalyser.getInAndDataList().remove(com);
                             break;
                         }
                     } else {
@@ -387,7 +375,7 @@ public class Service extends CBase {
 
 
             // Send service engine execution data to the services that are linked
-            serviceCompletionReport(config, serviceOut);
+            callLinked(config, serviceOut);
 
             // If this is a sync request send data also to the requester
             if (!serviceOut.getMetaData().getReplyTo().equals(xMsgConstants.UNDEFINED.getStringValue())) {
@@ -411,55 +399,22 @@ public class Service extends CBase {
         isAvailable.set(true);
     }
 
-
-    private void analyzeComposition(String composition) throws CException {
-        // This is new routing (composition)  request
-        // clear local input-link dictionary and output-links list
-        in_links.clear();
-        out_links.clear();
-        in_and_name_list.clear();
-        in_and_data_list.clear();
-
-        // parse the new composition to find input and output
-        // linked service names, but first check to see if we
-        // have multiple parallel compositions (branching)
-
-        if (composition.contains(";")){
-            StringTokenizer st = new StringTokenizer(composition,";");
-            while(st.hasMoreTokens()){
-                String sub_comp = st.nextToken();
-                if(sub_comp.contains(getName())){
-
-                    List<String> il = parse_linked(getName(), sub_comp, 0);
-                    in_links.put(sub_comp, il);
-
-                    List<String> ol = parse_linked(getName(), sub_comp, 1);
-                    out_links.put(sub_comp, ol);
-
-                    if(is_log_and(getName(), sub_comp)){
-                        in_and_name_list.put(sub_comp,il);
-                    }
-                }
-            }
-        } else {
-            if(composition.contains(getName())){
-                List<String> il = parse_linked(getName(), composition, 0);
-                in_links.put(composition, il);
-
-                List<String> ol = parse_linked(getName(), composition, 1);
-                out_links.put(composition, ol);
-
-                if(is_log_and(getName(), composition)){
-                    in_and_name_list.put(composition,il);
-                }
-            }
-        }
-
-
-    }
-
-    private void serviceCompletionReport(CServiceSysConfig config,
-                                         EngineData engineData)
+    /**
+     * <p>
+     * Calls a service that is linked according to the composition.
+     * </p>
+     *
+     * @param config     additional pre-ordered actions,
+     *                   such as reportData or reportDone
+     * @param engineData output data of this service
+     *                   that is going to be an input
+     *                   for the linked service
+     * @throws xMsgException
+     * @throws IOException
+     * @throws CException
+     */
+    private void callLinked(CServiceSysConfig config,
+                            EngineData engineData)
             throws xMsgException, IOException, CException {
 
         // External broadcast data
@@ -485,7 +440,7 @@ public class Service extends CBase {
             transit = new xMsgMessage(engineData.getMetaData().getReplyTo(), engineData.getMetaData(), engineData.getData());
         }
 
-        for (List<String> ls:out_links.values()){
+        for (List<String> ls : compositionAnalyser.getOutLinks().values()){
             for(String ss:ls) {
                 if (CUtility.isRemoteService(ss)) {
                     engineData.getMetaData().setIsDataSerialized(true);

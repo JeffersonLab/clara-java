@@ -170,7 +170,8 @@ public class Dpe extends CBase {
 
         // Send dpe_up message to the FE
         try {
-            xMsgMessage msg = new xMsgMessage(CConstants.DPE + ":" + feHostIp, CConstants.DPE_UP + "?" + getName());
+            xMsgMessage msg = new xMsgMessage(CConstants.DPE + ":" + feHostIp,
+                    CConstants.DPE_UP + "?" + getName());
             genericSend(feHostIp, msg);
         } catch (IOException e) {
             e.printStackTrace();
@@ -386,7 +387,8 @@ public class Dpe extends CBase {
                                             if (_myCloud.containsKey(tmpDpeName)) {
                                                 _myCloud.get(tmpDpeName).put(value1, new HashSet<String>());
                                             } else {
-                                                System.out.println("Warning: DPE = " + tmpDpeName + " was not registered previously.");
+                                                System.out.println("Warning: DPE = " + tmpDpeName +
+                                                        " was not registered previously.");
                                                 Map<String, Set<String>> tmpContainer = new HashMap<>();
                                                 tmpContainer.put(value1, new HashSet<String>());
                                                 _myCloud.put(tmpDpeName, tmpContainer);
@@ -437,7 +439,8 @@ public class Dpe extends CBase {
                                         if (_myCloud.containsKey(tmpDpeName)) {
                                             _myCloud.get(tmpDpeName).put(value1, new HashSet<String>());
                                         } else {
-                                            System.out.println("Warning: DPE = " + tmpDpeName + " was not registered previously.");
+                                            System.out.println("Warning: DPE = " + tmpDpeName +
+                                                    " was not registered previously.");
                                             Map<String, Set<String>> tmpContainer = new HashMap<>();
                                             tmpContainer.put(value1, new HashSet<String>());
                                             _myCloud.put(tmpDpeName, tmpContainer);
@@ -649,7 +652,8 @@ public class Dpe extends CBase {
                                             }
 
                                         }
-                                        returnMsg = new xMsgMessage(returnTopic, tmpServices.toArray(new String[tmpServices.size()]));
+                                        returnMsg = new xMsgMessage(returnTopic,
+                                                tmpServices.toArray(new String[tmpServices.size()]));
                                     } catch (CException e) {
                                         e.printStackTrace();
                                     }

@@ -44,7 +44,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * <p>
- *      Container have a map of ObjectPools, one for each service in the container.
+ *      Container has a map of ObjectPools, one for each service in the container.
  *      Each ObjectPool contains n number of Service objects, where n is user
  *      specified value (usually equals to the number of cores). It also holds the
  *      thread pool for each service. Thread pool contains threads to run each object
@@ -70,7 +70,8 @@ public class Container extends CBase {
     private HashMap<String, Integer> _poolSizeMap = new HashMap<>();
 
     // stores system config objects for every service of this container
-    private ConcurrentHashMap<String, CServiceSysConfig> _sysConfigs = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, CServiceSysConfig>
+            _sysConfigs = new ConcurrentHashMap<>();
 
     private String feHost =
             xMsgConstants.UNDEFINED.getStringValue();
@@ -82,7 +83,8 @@ public class Container extends CBase {
 
     private Thread subscriptionThread;
 
-    private Map<String, ServiceDispatcher> _myServiceDispatchers = new HashMap<>();
+    private Map<String, ServiceDispatcher>
+            _myServiceDispatchers = new HashMap<>();
 
     /**
      * <p>
@@ -105,10 +107,12 @@ public class Container extends CBase {
         // Create a socket connections to the local dpe proxy
         connect();
 
-        System.out.println(CUtility.getCurrentTimeInH() + ": Started container = " + getName() + "\n");
+        System.out.println(CUtility.getCurrentTimeInH() +
+                ": Started container = " + getName() + "\n");
 
         //register container
-        System.out.println(CUtility.getCurrentTimeInH() + ": " + getName() + " container sending registration request.");
+        System.out.println(CUtility.getCurrentTimeInH() + ": " + getName() +
+                " container sending registration request.");
         registerSubscriber(getName(),
                 xMsgUtil.getTopicDomain(getName()),
                 xMsgUtil.getTopicSubject(getName()),
@@ -149,10 +153,12 @@ public class Container extends CBase {
         // Create a socket connections to the local dpe proxy
         connect();
 
-        System.out.println(CUtility.getCurrentTimeInH() + ": Started container = " + getName() + "\n");
+        System.out.println(CUtility.getCurrentTimeInH() +
+                ": Started container = " + getName() + "\n");
 
         //register container
-        System.out.println(CUtility.getCurrentTimeInH() + ": " + getName() + " container sending registration request.");
+        System.out.println(CUtility.getCurrentTimeInH() + ": " + getName() +
+                " container sending registration request.");
         registerSubscriber(getName(),
                 xMsgUtil.getTopicDomain(getName()),
                 xMsgUtil.getTopicSubject(getName()),
@@ -286,9 +292,11 @@ public class Container extends CBase {
         // Add the object pool to the pools map
         _objectPoolMap.put(canonical_name, sop);
 
-        _myServiceDispatchers.put(canonical_name, new ServiceDispatcher(canonical_name, "Clara service"));
+        _myServiceDispatchers.put(canonical_name,
+                new ServiceDispatcher(canonical_name, "Clara service"));
 
-        System.out.println(CUtility.getCurrentTimeInH()+": Started service = "+canonical_name+"\n");
+        System.out.println(CUtility.getCurrentTimeInH() +
+                ": Started service = " + canonical_name + "\n");
     }
 
     public void removeService(String name)
@@ -382,7 +390,8 @@ public class Container extends CBase {
                                     String className = seName.substring((seName.lastIndexOf(".")) + 1, seName.length());
 
                                     addService(packageName, className, Integer.parseInt(objectPoolSize));
-                                } catch (xMsgException | NumberFormatException | CException | ClassNotFoundException | InstantiationException | IllegalAccessException | IOException e) {
+                                } catch (xMsgException | NumberFormatException | CException | ClassNotFoundException |
+                                        InstantiationException | IllegalAccessException | IOException e) {
                                     e.printStackTrace();
                                 }
                                 break;
@@ -409,6 +418,12 @@ public class Container extends CBase {
         }
     }
 
+    /**
+     * <p>
+     * Service representative in the container.
+     * Starts a thread to run service specific callback.
+     * </p>
+     */
     private class ServiceDispatcher extends CBase {
 
         private String description = xMsgConstants.UNDEFINED.getStringValue();
@@ -451,9 +466,7 @@ public class Container extends CBase {
                         CConstants.SERVICE_UP + "?" + myName);
                 genericSend(feHost, msg);
             }
-
         }
-
 
         /**
          * <p>
@@ -463,7 +476,8 @@ public class Container extends CBase {
          */
         public void register()
                 throws xMsgException {
-            System.out.println(CUtility.getCurrentTimeInH() + ": " + myName + " sending registration request.");
+            System.out.println(CUtility.getCurrentTimeInH() + ": " + myName +
+                    " sending registration request.");
             registerSubscriber(myName,
                     xMsgUtil.getTopicDomain(myName),
                     xMsgUtil.getTopicSubject(myName),
@@ -479,7 +493,8 @@ public class Container extends CBase {
          */
         public void register(String feHost)
                 throws xMsgException {
-            System.out.println(CUtility.getCurrentTimeInH() + ": " + getName() + " sending registration request.");
+            System.out.println(CUtility.getCurrentTimeInH() + ": " + getName() +
+                    " sending registration request.");
             registerSubscriber(myName,
                     feHost,
                     xMsgConstants.DEFAULT_PORT.getIntValue(),
@@ -513,6 +528,11 @@ public class Container extends CBase {
 
     }
 
+    /**
+     * <p>
+     *     Service call-back, started as a thread by the ServiceDispatcher
+     * </p>
+     */
     private class ServiceCallBack implements xMsgCallBack {
 
         @Override
@@ -595,7 +615,8 @@ public class Container extends CBase {
                                               public void run() {
                                                   try {
                                                       ser.configure(metadata, data, rps);
-                                                  } catch (xMsgException | InterruptedException | CException | ClassNotFoundException | IOException e) {
+                                                  } catch (xMsgException | InterruptedException | CException |
+                                                          ClassNotFoundException | IOException e) {
                                                       e.printStackTrace();
                                                   }
                                               }
@@ -616,7 +637,8 @@ public class Container extends CBase {
                                                       public void run() {
                                                           try {
                                                               ser.process(serConfig, metadata, data);
-                                                          } catch (xMsgException | InterruptedException | CException | IOException | ClassNotFoundException e) {
+                                                          } catch (xMsgException | InterruptedException | CException |
+                                                                  IOException | ClassNotFoundException e) {
                                                               e.printStackTrace();
                                                           }
                                                       }
