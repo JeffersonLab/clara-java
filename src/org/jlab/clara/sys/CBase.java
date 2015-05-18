@@ -19,9 +19,9 @@
  * SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-package org.jlab.clara.base;
+package org.jlab.clara.sys;
 
-import org.jlab.clara.sys.Container;
+import org.jlab.clara.base.CException;
 import org.jlab.clara.util.CConstants;
 import org.jlab.clara.util.CUtility;
 import org.jlab.coda.xmsg.core.*;

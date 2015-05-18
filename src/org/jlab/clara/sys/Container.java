@@ -21,7 +21,6 @@
 
 package org.jlab.clara.sys;
 
-import org.jlab.clara.base.CBase;
 import org.jlab.clara.base.CException;
 import org.jlab.clara.util.CConstants;
 import org.jlab.clara.util.CServiceSysConfig;
