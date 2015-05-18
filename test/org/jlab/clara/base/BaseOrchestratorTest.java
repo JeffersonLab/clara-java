@@ -28,8 +28,12 @@ import javax.annotation.ParametersAreNonnullByDefault;
 
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineData;
+import org.jlab.clara.engine.EngineStatus;
 import org.jlab.clara.sys.CBase;
+import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgMessage;
+import org.jlab.coda.xmsg.core.xMsgSubscription;
+import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 import org.jlab.coda.xmsg.excp.xMsgException;
 import org.junit.Before;
@@ -39,19 +43,25 @@ import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.hasEntry;
+import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 
 public class BaseOrchestratorTest {
 
     private CBase baseMock;
     private BaseOrchestrator orchestrator;
+    private String feHost = "10.2.9.1";
 
     private Composition composition =
             new Composition("10.2.9.96_java:master:E1+10.2.9.96_java:master:E2");
@@ -63,6 +73,8 @@ public class BaseOrchestratorTest {
     public void setUp() throws Exception {
         baseMock = mock(CBase.class);
         orchestrator = new OrchestratorMock();
+
+        when(baseMock.getFrontEndAddress()).thenReturn(feHost);
     }
 
 
@@ -604,6 +616,291 @@ public class BaseOrchestratorTest {
 
 
 
+    @Test
+    public void listenServiceStatusSendsRequest() throws Exception {
+        EngineStatus status = EngineStatus.ERROR;
+        EngineCallback callback = mock(EngineCallback.class);
+
+        orchestrator.listenServiceStatus("10.2.9.96_java:master:SimpleEngine", status, callback);
+
+        assertSubscriptionStarted("ERROR:10.2.9.96_java:master:SimpleEngine", status, callback);
+    }
+
+
+    @Test
+    public void listenServiceStatusThrowsOnFailure() throws Exception {
+        EngineStatus status = EngineStatus.ERROR;
+        EngineCallback callback = mock(EngineCallback.class);
+        expectClaraExceptionOnReceive();
+
+        orchestrator.listenServiceStatus("10.2.9.96_java:master:SimpleEngine", status, callback);
+    }
+
+
+    @Test
+    public void listenServiceStatusThrowsOnBadCanonicalName() throws Exception {
+        EngineStatus status = EngineStatus.ERROR;
+        EngineCallback callback = mock(EngineCallback.class);
+
+        orchestrator.listenServiceStatus("10.2.9.96_java", status, callback);
+        orchestrator.listenServiceStatus("10.2.9.96_java:master", status, callback);
+        orchestrator.listenServiceStatus("10.2.9.96_java:master:SimpleEngine", status, callback);
+
+        expectedEx.expect(IllegalArgumentException.class);
+
+        orchestrator.listenServiceStatus("10.2.9.96_java#master", status, callback);
+    }
+
+
+    @Test
+    public void listenServiceStatusStoresSubscriptionHandler() throws Exception {
+        EngineStatus status = EngineStatus.ERROR;
+        EngineCallback callback = mock(EngineCallback.class);
+        xMsgSubscription handler = mockSubscriptionHandler();
+        String key = "10.2.9.1#ERROR:10.2.9.96_java:master:SimpleEngine";
+
+        orchestrator.listenServiceStatus("10.2.9.96_java:master:SimpleEngine", status, callback);
+
+        assertSubscriptionRegistered(key, handler);
+    }
+
+
+    @Test
+    public void listenServiceStatusThrowsOnDuplicatedSubscription() throws Exception {
+        EngineStatus status = EngineStatus.ERROR;
+        EngineCallback callback = mock(EngineCallback.class);
+        orchestrator.listenServiceStatus("10.2.9.96_java:master:SimpleEngine", status, callback);
+
+        expectedEx.expect(IllegalStateException.class);
+        orchestrator.listenServiceStatus("10.2.9.96_java:master:SimpleEngine", status, callback);
+    }
+
+
+
+    @Test
+    public void unlistenServiceStatusStopsSubscription() throws Exception {
+        EngineStatus status = EngineStatus.ERROR;
+        String key = "10.2.9.1#ERROR:10.2.9.96_java:master:SimpleEngine";
+        xMsgSubscription handler = mock(xMsgSubscription.class);
+        orchestrator.getSubscriptions().put(key, handler);
+
+        orchestrator.unlistenServiceStatus("10.2.9.96_java:master:SimpleEngine", status);
+
+        verify(baseMock).unsubscribe(handler);
+    }
+
+
+    @Test
+    public void unlistenServiceStatusThrowsOnBadCanonicalName() throws Exception {
+        EngineStatus status = EngineStatus.ERROR;
+
+        orchestrator.unlistenServiceStatus("10.2.9.96_java", status);
+        orchestrator.unlistenServiceStatus("10.2.9.96_java:master", status);
+        orchestrator.unlistenServiceStatus("10.2.9.96_java:master:SimpleEngine", status);
+
+        expectedEx.expect(IllegalArgumentException.class);
+
+        orchestrator.unlistenServiceStatus("10.2.9.96_java#master", status);
+    }
+
+
+    @Test
+    public void unlistenServiceStatusRemovesSubscriptionHandler() throws Exception {
+        EngineStatus status = EngineStatus.ERROR;
+        String key = "10.2.9.1#ERROR:10.2.9.96_java:master:SimpleEngine";
+        orchestrator.getSubscriptions().put(key, mock(xMsgSubscription.class));
+
+        orchestrator.unlistenServiceStatus("10.2.9.96_java:master:SimpleEngine", status);
+
+        assertSubscriptionRemoved(key);
+    }
+
+
+
+    @Test
+    public void listenServiceDataSendsRequest() throws Exception {
+        EngineCallback callback = mock(EngineCallback.class);
+
+        orchestrator.listenServiceData("10.2.9.96_java:master:SimpleEngine", callback);
+
+        assertSubscriptionStarted("data:10.2.9.96_java:master:SimpleEngine", null, callback);
+    }
+
+
+    @Test
+    public void listenServiceDataThrowsOnFailure() throws Exception {
+        EngineCallback callback = mock(EngineCallback.class);
+        expectClaraExceptionOnReceive();
+
+        orchestrator.listenServiceData("10.2.9.96_java:master:SimpleEngine", callback);
+    }
+
+
+    @Test
+    public void listenServiceDataThrowsOnBadCanonicalName() throws Exception {
+        EngineCallback callback = mock(EngineCallback.class);
+
+        orchestrator.listenServiceData("10.2.9.96_java", callback);
+        orchestrator.listenServiceData("10.2.9.96_java:master", callback);
+        orchestrator.listenServiceData("10.2.9.96_java:master:SimpleEngine", callback);
+
+        expectedEx.expect(IllegalArgumentException.class);
+
+        orchestrator.listenServiceData("10.2.9.96_java#master", callback);
+    }
+
+
+    @Test
+    public void listenServiceDataStoresSubscriptionHandler() throws Exception {
+        EngineCallback callback = mock(EngineCallback.class);
+        xMsgSubscription handler = mockSubscriptionHandler();
+        String key = "10.2.9.1#data:10.2.9.96_java:master:SimpleEngine";
+
+        orchestrator.listenServiceData("10.2.9.96_java:master:SimpleEngine", callback);
+
+        assertSubscriptionRegistered(key, handler);
+    }
+
+
+    @Test
+    public void listenServiceDataThrowsOnDuplicatedSubscription() throws Exception {
+        EngineCallback callback = mock(EngineCallback.class);
+        orchestrator.listenServiceData("10.2.9.96_java:master:SimpleEngine", callback);
+
+        expectedEx.expect(IllegalStateException.class);
+        orchestrator.listenServiceData("10.2.9.96_java:master:SimpleEngine", callback);
+    }
+
+
+
+    @Test
+    public void unlistenServiceDataStopsSubscription() throws Exception {
+        String key = "10.2.9.1#data:10.2.9.96_java:master:SimpleEngine";
+        xMsgSubscription handler = mock(xMsgSubscription.class);
+        orchestrator.getSubscriptions().put(key, handler);
+
+        orchestrator.unlistenServiceData("10.2.9.96_java:master:SimpleEngine");
+
+        verify(baseMock).unsubscribe(handler);
+    }
+
+
+    @Test
+    public void unlistenServiceDataThrowsOnBadCanonicalName() throws Exception {
+        orchestrator.unlistenServiceData("10.2.9.96_java");
+        orchestrator.unlistenServiceData("10.2.9.96_java:master");
+        orchestrator.unlistenServiceData("10.2.9.96_java:master:SimpleEngine");
+
+        expectedEx.expect(IllegalArgumentException.class);
+
+        orchestrator.unlistenServiceData("10.2.9.96#java:master");
+    }
+
+
+    @Test
+    public void unlistenServiceDataRemovesSubscriptionHandler() throws Exception {
+        String key = "10.2.9.1#data:10.2.9.96_java:master:SimpleEngine";
+        orchestrator.getSubscriptions().put(key, mock(xMsgSubscription.class));
+
+        orchestrator.unlistenServiceData("10.2.9.96_java:master:SimpleEngine");
+
+        assertSubscriptionRemoved(key);
+    }
+
+
+
+    @Test
+    public void listenServiceDoneSendsRequest() throws Exception {
+        EngineCallback callback = mock(EngineCallback.class);
+
+        orchestrator.listenServiceDone("10.2.9.96_java:master:SimpleEngine", callback);
+
+        assertSubscriptionStarted("done:10.2.9.96_java:master:SimpleEngine", null, callback);
+    }
+
+
+    @Test
+    public void listenServiceDoneThrowsOnFailure() throws Exception {
+        EngineCallback callback = mock(EngineCallback.class);
+        expectClaraExceptionOnReceive();
+
+        orchestrator.listenServiceDone("10.2.9.96_java:master:SimpleEngine", callback);
+    }
+
+
+    @Test
+    public void listenServiceDoneThrowsOnBadCanonicalName() throws Exception {
+        EngineCallback callback = mock(EngineCallback.class);
+
+        orchestrator.listenServiceDone("10.2.9.96_java", callback);
+        orchestrator.listenServiceDone("10.2.9.96_java:master", callback);
+        orchestrator.listenServiceDone("10.2.9.96_java:master:SimpleEngine", callback);
+
+        expectedEx.expect(IllegalArgumentException.class);
+
+        orchestrator.listenServiceDone("10.2.9.96_java#master", callback);
+    }
+
+
+    @Test
+    public void listenServiceDoneStoresSubscriptionHandler() throws Exception {
+        EngineCallback callback = mock(EngineCallback.class);
+        xMsgSubscription handler = mockSubscriptionHandler();
+        String key = "10.2.9.1#done:10.2.9.96_java:master:SimpleEngine";
+
+        orchestrator.listenServiceDone("10.2.9.96_java:master:SimpleEngine", callback);
+
+        assertSubscriptionRegistered(key, handler);
+    }
+
+
+    @Test
+    public void listenServiceDoneThrowsOnDuplicatedSubscription() throws Exception {
+        EngineCallback callback = mock(EngineCallback.class);
+        orchestrator.listenServiceDone("10.2.9.96_java:master:SimpleEngine", callback);
+
+        expectedEx.expect(IllegalStateException.class);
+        orchestrator.listenServiceDone("10.2.9.96_java:master:SimpleEngine", callback);
+    }
+
+
+
+    @Test
+    public void unlistenServiceDoneStopsSubscription() throws Exception {
+        String key = "10.2.9.1#done:10.2.9.96_java:master:SimpleEngine";
+        xMsgSubscription handler = mock(xMsgSubscription.class);
+        orchestrator.getSubscriptions().put(key, handler);
+
+        orchestrator.unlistenServiceDone("10.2.9.96_java:master:SimpleEngine");
+
+        verify(baseMock).unsubscribe(handler);
+    }
+
+
+    @Test
+    public void unlistenServiceDoneThrowsOnBadCanonicalName() throws Exception {
+        orchestrator.unlistenServiceDone("10.2.9.96_java");
+        orchestrator.unlistenServiceDone("10.2.9.96_java:master");
+        orchestrator.unlistenServiceDone("10.2.9.96_java:master:SimpleEngine");
+
+        expectedEx.expect(IllegalArgumentException.class);
+
+        orchestrator.unlistenServiceDone("10.2.9.96_java#master");
+    }
+
+
+    @Test
+    public void unlistenServiceDoneRemovesSubscriptionHandler() throws Exception {
+        String key = "10.2.9.1#done:10.2.9.96_java:master:SimpleEngine";
+        orchestrator.getSubscriptions().put(key, mock(xMsgSubscription.class));
+
+        orchestrator.unlistenServiceDone("10.2.9.96_java:master:SimpleEngine");
+
+        assertSubscriptionRemoved(key);
+    }
+
+
+
     private void assertSendCall(String host, String topic, String data) throws Exception {
         ArgumentCaptor<xMsgMessage> msgArg = ArgumentCaptor.forClass(xMsgMessage.class);
         verify(baseMock).genericSend(eq(host), msgArg.capture());
@@ -658,6 +955,36 @@ public class BaseOrchestratorTest {
     }
 
 
+    private void assertSubscriptionStarted(String topic,
+                                           EngineStatus status, EngineCallback callback)
+            throws Exception {
+        OrchestratorMock orchMock = (OrchestratorMock) orchestrator;
+        verify(baseMock).genericReceive(feHost,
+                                        xMsgTopic.wrap(topic),
+                                        orchMock.userWrapperCallback);
+        assertThat(orchMock.userEngineStatus, is(sameInstance(status)));
+        assertThat(orchMock.userEngineCallback, is(sameInstance(callback)));
+    }
+
+
+    private void assertSubscriptionRegistered(String key, xMsgSubscription handler) {
+        assertThat(orchestrator.getSubscriptions(), hasEntry(key, handler));
+    }
+
+
+    private void assertSubscriptionRemoved(String key) {
+        assertThat(orchestrator.getSubscriptions(), not(hasKey(key)));
+    }
+
+
+    private xMsgSubscription mockSubscriptionHandler() throws Exception {
+        xMsgSubscription handler = mock(xMsgSubscription.class);
+        when(baseMock.genericReceive(anyString(), any(xMsgTopic.class), any(xMsgCallBack.class)))
+                .thenReturn(handler);
+        return handler;
+    }
+
+
     private void expectClaraExceptionOnSend() throws Exception {
         doThrow(new xMsgException("")).when(baseMock)
                 .genericSend(anyString(), any(xMsgMessage.class));
@@ -679,8 +1006,19 @@ public class BaseOrchestratorTest {
     }
 
 
+    private void expectClaraExceptionOnReceive() throws Exception {
+        doThrow(new xMsgException("")).when(baseMock)
+                .genericReceive(anyString(), any(xMsgTopic.class), any(xMsgCallBack.class));
+        expectedEx.expect(ClaraException.class);
+    }
+
+
     @ParametersAreNonnullByDefault
     private class OrchestratorMock extends BaseOrchestrator {
+        public EngineStatus userEngineStatus;
+        public EngineCallback userEngineCallback;
+        public xMsgCallBack userWrapperCallback;
+
         public OrchestratorMock() throws ClaraException {
             super();
         }
@@ -688,6 +1026,15 @@ public class BaseOrchestratorTest {
         @Override
         CBase getClaraBase(String frontEndHost) throws SocketException, xMsgException {
             return baseMock;
+        }
+
+        @Override
+        xMsgCallBack wrapEngineCallback(final EngineCallback userCallback,
+                                        final EngineStatus userStatus) {
+            userEngineStatus = userStatus;
+            userEngineCallback = userCallback;
+            userWrapperCallback = super.wrapEngineCallback(userCallback, userStatus);
+            return userWrapperCallback;
         }
     }
 }

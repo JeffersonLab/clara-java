@@ -22,7 +22,9 @@
 package org.jlab.clara.base;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
@@ -33,9 +35,13 @@ import javax.annotation.ParametersAreNonnullByDefault;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.EngineDataType;
+import org.jlab.clara.engine.EngineStatus;
 import org.jlab.clara.sys.CBase;
 import org.jlab.clara.util.CConstants;
+import org.jlab.coda.xmsg.core.xMsgCallBack;
+import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
+import org.jlab.coda.xmsg.core.xMsgSubscription;
 import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
@@ -50,6 +56,7 @@ public class BaseOrchestrator {
 
     private final CBase base;
     private final Set<EngineDataType> dataTypes = new HashSet<>();
+    private final Map<String, xMsgSubscription> subscriptions = new HashMap<>();
 
     /**
      * Creates a new orchestrator. Uses localhost as front-end node.
@@ -87,6 +94,14 @@ public class BaseOrchestrator {
      */
     CBase getClaraBase(String frontEndHost) throws xMsgException, IOException {
         return new CBase(generateName(), xMsgUtil.localhost(), frontEndHost);
+    }
+
+
+    /**
+     * Returns the map of subscriptions for testing purposes.
+     */
+    Map<String, xMsgSubscription> getSubscriptions() {
+        return subscriptions;
     }
 
 
@@ -695,5 +710,241 @@ public class BaseOrchestrator {
      */
     public void stopReportingData(String serviceName) throws ClaraException {
         startReportingData(serviceName, 0);
+    }
+
+
+    /**
+     * Subscribes to the specified status reports of the selected service.
+     * <p>
+     * A background thread is started to receive messages from the service.
+     * Every time a report is received, the provided callback will be executed.
+     * The messages are received sequentially, but the callback may run
+     * in extra background threads, so it must be thread-safe.
+     * <p>
+     * Services will publish status reports after every execution that results
+     * on error or warning.
+     *
+     * @param serviceName the service to be listened
+     * @param status the status to be listened
+     * @param callback the action to be run when a message is received
+     * @throws ClaraException if there was an error starting the subscription
+     */
+    public void listenServiceStatus(String serviceName,
+                                    EngineStatus status,
+                                    EngineCallback callback) throws ClaraException {
+        try {
+            Objects.requireNonNull(serviceName, "Null service name");
+            Objects.requireNonNull(status, "Null status");
+            Objects.requireNonNull(callback, "Null callback");
+            if (!ClaraUtil.isCanonicalName(serviceName)) {
+                throw new IllegalArgumentException("Not a Clara name: " + serviceName);
+            }
+            String host = base.getFrontEndAddress();
+            xMsgTopic topic = buildTopic(getStatusText(status), serviceName);
+            String key = host + "#" + topic;
+            if (subscriptions.containsKey(key)) {
+                throw new IllegalStateException("Duplicated subscription to: " + serviceName);
+            }
+            xMsgCallBack wrapperCallback = wrapEngineCallback(callback, status);
+            xMsgSubscription handler = base.genericReceive(host, topic, wrapperCallback);
+            subscriptions.put(key, handler);
+        } catch (IOException | xMsgException e) {
+            throw new ClaraException("Could not subscribe to service status", e);
+        }
+    }
+
+
+    /**
+     * Unsubscribes from the specified status reports of the selected service.
+     *
+     * @param serviceName the service being listened
+     * @param status the status being listened
+     * @throws ClaraException if there was an error stopping the subscription
+     */
+    public void unlistenServiceStatus(String serviceName, EngineStatus status)
+            throws ClaraException {
+        try {
+            Objects.requireNonNull(serviceName, "Null service name");
+            Objects.requireNonNull(status, "Null status");
+            if (!ClaraUtil.isCanonicalName(serviceName)) {
+                throw new IllegalArgumentException("Not a Clara name: " + serviceName);
+            }
+            String host = base.getFrontEndAddress();
+            xMsgTopic topic = buildTopic(getStatusText(status), serviceName);
+            String key = host + "#" + topic;
+            xMsgSubscription handler = subscriptions.remove(key);
+            if (handler != null) {
+                base.unsubscribe(handler);
+            }
+        } catch (xMsgException e) {
+            throw new ClaraException("Could not unsubscribe to service status", e);
+        }
+    }
+
+
+    /**
+      * Subscribes to the data reports of the selected service.
+      * <p>
+      * A background thread is started to receive messages from the service.
+      * Every time a report is received, the provided callback will be executed.
+      * The messages are received sequentially, but the callback may run
+      * in extra background threads, so it must be thread-safe.
+      * <p>
+      * Services will publish "data" reports if they are configured to do so
+      * with {@link #startReportingData}. The messages will contain the full
+      * output result of the service.
+      *
+      * @param serviceName the service to be listened
+      * @param callback the action to be run when a message is received
+     * @throws ClaraException if there was an error starting the subscription
+      */
+    public void listenServiceData(String serviceName, EngineCallback callback)
+            throws ClaraException {
+        try {
+            Objects.requireNonNull(serviceName, "Null service name");
+            Objects.requireNonNull(callback, "Null callback");
+            if (!ClaraUtil.isCanonicalName(serviceName)) {
+                throw new IllegalArgumentException("Not a Clara name: " + serviceName);
+            }
+            String host = base.getFrontEndAddress();
+            xMsgTopic topic = buildTopic(xMsgConstants.DATA.toString(), serviceName);
+            String key = host + "#" + topic;
+            if (subscriptions.containsKey(key)) {
+                throw new IllegalStateException("Duplicated subscription to: " + serviceName);
+            }
+            xMsgCallBack wrapperCallback = wrapEngineCallback(callback, null);
+            xMsgSubscription handler = base.genericReceive(host, topic, wrapperCallback);
+            subscriptions.put(key, handler);
+        } catch (IOException | xMsgException e) {
+            throw new ClaraException("Could not subscribe to service data", e);
+        }
+    }
+
+
+    /**
+     * Unsubscribes from the data reports of the selected service.
+     *
+     * @param serviceName the service being listened
+     * @throws ClaraException if there was an error stopping the subscription
+     */
+    public void unlistenServiceData(String serviceName)
+            throws ClaraException {
+        try {
+            Objects.requireNonNull(serviceName, "Null service name");
+            if (!ClaraUtil.isCanonicalName(serviceName)) {
+                throw new IllegalArgumentException("Not a Clara name: " + serviceName);
+            }
+            String host = base.getFrontEndAddress();
+            xMsgTopic topic = buildTopic(xMsgConstants.DATA.toString(), serviceName);
+            String key = host + "#" + topic;
+            xMsgSubscription handler = subscriptions.remove(key);
+            if (handler != null) {
+                base.unsubscribe(handler);
+            }
+        } catch (xMsgException e) {
+            throw new ClaraException("Could not unsubscribe to service data", e);
+        }
+    }
+
+
+    /**
+     * Subscribes to the "done" reports of the selected service.
+     * <p>
+     * A background thread is started to receive messages from the service.
+     * Every time a report is received, the provided callback will be executed.
+     * The messages are received sequentially, but the callback may run
+     * in extra background threads, so it must be thread-safe.
+     * <p>
+     * Services will publish "done" reports if they are configured to do so
+     * with {@link #startReportingDone}. The messages will not contain the full
+     * output result of the service, but just a few stats about the execution.
+     *
+     * @param serviceName the service to be listened
+     * @param callback the action to be run when a message is received
+     * @throws ClaraException if there was an error starting the subscription
+     */
+    public void listenServiceDone(String serviceName, EngineCallback callback)
+            throws ClaraException {
+        try {
+            Objects.requireNonNull(serviceName, "Null service name");
+            Objects.requireNonNull(callback, "Null callback");
+            if (!ClaraUtil.isCanonicalName(serviceName)) {
+                throw new IllegalArgumentException("Not a Clara name: " + serviceName);
+            }
+            String host = base.getFrontEndAddress();
+            xMsgTopic topic = buildTopic(xMsgConstants.DONE.toString(), serviceName);
+            String key = host + "#" + topic;
+            if (subscriptions.containsKey(key)) {
+                throw new IllegalStateException("Duplicated subscription to: " + serviceName);
+            }
+            xMsgCallBack wrapperCallback = wrapEngineCallback(callback, null);
+            xMsgSubscription handler = base.genericReceive(host, topic, wrapperCallback);
+            subscriptions.put(key, handler);
+        } catch (IOException | xMsgException e) {
+            throw new ClaraException("Could not subscribe to service done", e);
+        }
+    }
+
+
+    /**
+     * Unsubscribes from the "done" reports of the selected service.
+     *
+     * @param serviceName the service being listened
+     * @throws ClaraException if there was an error stopping the subscription
+     */
+    public void unlistenServiceDone(String serviceName)
+            throws ClaraException {
+        try {
+            Objects.requireNonNull(serviceName, "Null service name");
+            if (!ClaraUtil.isCanonicalName(serviceName)) {
+                throw new IllegalArgumentException("Not a Clara name: " + serviceName);
+            }
+            String host = base.getFrontEndAddress();
+            xMsgTopic topic = buildTopic(xMsgConstants.DONE.toString(), serviceName);
+            String key = host + "#" + topic;
+            xMsgSubscription handler = subscriptions.remove(key);
+            if (handler != null) {
+                base.unsubscribe(handler);
+            }
+        } catch (xMsgException e) {
+            throw new ClaraException("Could not unsubscribe to service done", e);
+        }
+    }
+
+
+    private String getStatusText(EngineStatus status) {
+        switch (status) {
+            case INFO:
+                return xMsgConstants.INFO.toString();
+            case WARNING:
+                return xMsgConstants.WARNING.toString();
+            case ERROR:
+                return xMsgConstants.ERROR.toString();
+            default:
+                throw new IllegalStateException("Unknown status " + status);
+        }
+    }
+
+
+    /**
+     * Extracts the EngineData from the received message and calls the user
+     * callback.
+     *
+     * The EngineStatus is passed also for testing purposes.
+     */
+    xMsgCallBack wrapEngineCallback(final EngineCallback userCallback,
+                                    final EngineStatus userStatus) {
+        return new xMsgCallBack() {
+            @Override
+            public xMsgMessage callback(xMsgMessage msg) {
+                try {
+                    userCallback.callback(base.parseFrom(msg, dataTypes));
+                } catch (CException e) {
+                    System.out.println("Error receiving data to " + msg.getTopic());
+                    e.printStackTrace();
+                }
+                return null;
+            }
+        };
     }
 }
