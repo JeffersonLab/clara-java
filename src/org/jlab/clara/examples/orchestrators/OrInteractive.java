@@ -202,7 +202,7 @@ public class OrInteractive {
                             case "4":
                                 System.out.println("DPE name");
                                 String dpe_name = scanner.nextLine().trim();
-                                List<xMsgRegistrationData> containers = or.find_containers(dpe_name);
+                                List<xMsgRegistrationData> containers = or.findContainers(dpe_name);
                                 for (xMsgRegistrationData r : containers) {
                                     System.out.println(r.getName());
                                 }

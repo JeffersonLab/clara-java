@@ -21,26 +21,28 @@
 
 package org.jlab.clara.sys;
 
-import org.jlab.clara.base.CException;
-import org.jlab.clara.util.CConstants;
-import org.jlab.clara.util.CUtility;
-import org.jlab.coda.xmsg.core.*;
-import org.jlab.coda.xmsg.data.xMsgR.xMsgRegistration;
-import org.jlab.coda.xmsg.excp.xMsgDiscoverException;
-import org.jlab.coda.xmsg.excp.xMsgException;
-import org.jlab.coda.xmsg.net.xMsgAddress;
-import org.jlab.coda.xmsg.net.xMsgConnection;
-
 import java.io.IOException;
 import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
 
+import org.jlab.clara.base.CException;
+import org.jlab.clara.util.CConstants;
+import org.jlab.clara.util.CUtility;
+import org.jlab.coda.xmsg.core.SubscriptionHandler;
+import org.jlab.coda.xmsg.core.xMsg;
+import org.jlab.coda.xmsg.core.xMsgCallBack;
+import org.jlab.coda.xmsg.core.xMsgConstants;
+import org.jlab.coda.xmsg.core.xMsgMessage;
+import org.jlab.coda.xmsg.core.xMsgUtil;
+import org.jlab.coda.xmsg.data.xMsgR.xMsgRegistration;
+import org.jlab.coda.xmsg.excp.xMsgException;
+import org.jlab.coda.xmsg.net.xMsgAddress;
+import org.jlab.coda.xmsg.net.xMsgConnection;
+
 /**
- * <p>
- *   Clara base class
- * </p>
+ * Clara base class.
  *
  * @author gurjyan
  * @version 1.x
@@ -49,63 +51,68 @@ import java.util.concurrent.TimeoutException;
 public class CBase extends xMsg {
 
     private String name = xMsgConstants.UNDEFINED.getStringValue();
-    private xMsgConnection node_connection = null;
-    private String fe_host_name = xMsgConstants.UNDEFINED.getStringValue();
-
+    private xMsgConnection nodeConnection = null;
+    private String feHostname = xMsgConstants.UNDEFINED.getStringValue();
 
     /**
-     * Constructor
-     * @param feHost the host name of the Clara FE
+     * Constructor.
+     *
+     * @param feHost the host name of the Clara front-end
      * @throws xMsgException
      */
     public CBase(String feHost) throws xMsgException, SocketException {
         super(feHost);
 
-        this.fe_host_name = feHost;
+        this.feHostname = feHost;
 
         // Create a socket connections to the xMsg node.
         // This is a local DPE, and uses default port number.
         xMsgAddress address = new xMsgAddress("localhost");
-        this.node_connection = connect(address);
+        this.nodeConnection = connect(address);
     }
 
     /**
-     * Constructor
+     * Constructor.
+     *
      * @param dpeHost the host name of the Clara DPE of interest
-     * @param feHost the host name of the Clara FE
+     * @param feHost the host name of the Clara front-end
      * @throws xMsgException
+     * @throws SocketException
      */
     public CBase(String dpeHost, String feHost) throws xMsgException, SocketException {
         super(feHost);
 
-        this.fe_host_name = feHost;
+        this.feHostname = feHost;
 
         // Create a socket connections to the xMsg node.
         // This is a local DPE, and uses default port number.
         xMsgAddress address = new xMsgAddress(dpeHost);
-        this.node_connection = connect(address);
+        this.nodeConnection = connect(address);
     }
 
+
     /**
-     * Constructor
+     * Constructor.
      *
-     * @param feHost    the host name of the Clara FE
-     * @param pool_size thread pool size for servicing subscription callbacks
+     * @param feHost   the host name of the Clara front-end
+     * @param poolSize thread pool size for servicing subscription callbacks
      * @throws xMsgException
+     * @throws SocketException
      */
-    public CBase(String feHost,
-                 int pool_size) throws xMsgException, SocketException {
-        super(feHost, pool_size);
+    public CBase(String feHost, int poolSize) throws xMsgException, SocketException {
+        super(feHost, poolSize);
 
         // Create a socket connections to the xMsg node.
         // This is a local DPE, and uses default port number.
         xMsgAddress address = new xMsgAddress("localhost");
-        this.node_connection = connect(address);
+        this.nodeConnection = connect(address);
     }
 
     /**
-     * Constructor
+     * Constructor.
+     *
      * @throws xMsgException
+     * @throws SocketException
      */
     public CBase() throws xMsgException, SocketException {
         super("localhost");
@@ -113,31 +120,32 @@ public class CBase extends xMsg {
         // Create a socket connections to the xMsg node.
         // This is a local DPE, and uses default port number.
         xMsgAddress address = new xMsgAddress("localhost");
-        this.node_connection = connect(address);
+        this.nodeConnection = connect(address);
     }
 
     /**
-     * Constructor
-     * @param pool_size thread pool size for servicing subscription callbacks
+     * Constructor.
+     *
+     * @param poolSize thread pool size for servicing subscription callbacks
      * @throws xMsgException
+     * @throws SocketException
      */
-    public CBase(int pool_size) throws xMsgException, SocketException {
-        super("localhost", pool_size);
+    public CBase(int poolSize) throws xMsgException, SocketException {
+        super("localhost", poolSize);
 
         // Create a socket connections to the xMsg node.
         // This is a local DPE, and uses default port number.
         xMsgAddress address = new xMsgAddress("localhost");
-        this.node_connection = connect(address);
+        this.nodeConnection = connect(address);
     }
 
     public String getFeHostName() {
-        return fe_host_name;
+        return feHostname;
     }
 
     /**
-     * <p>
-     *     Returns given name of this component
-     * </p>
+     * Returns the given name of this component.
+     *
      * @return name of the component
      */
     public String getName() {
@@ -145,7 +153,8 @@ public class CBase extends xMsg {
     }
 
     /**
-     * Sets the name of this component
+     * Sets the name of this component.
+     *
      * @param name the name of this component
      */
     public void setName(String name) {
@@ -153,52 +162,54 @@ public class CBase extends xMsg {
     }
 
     /**
-     * <p>
-     *     Sends a request to the xMsg registration service,
-     *     asking to return registration information of container
-     *     based on canonical name of the container
-     * </p>
+     * Asks the registration information of the given container.
+     * Sends a request to the xMsg registration service, asking to return
+     * registration information of container based on canonical name of the
+     * container.
      *
-     *
-     * @param container_name container canonical name
+     * @param containerName container canonical name
      * @return MsgR.xMsgRegistrationData object
+     * @throws CException
+     * @throws xMsgException
+     * @throws SocketException
      */
-    public xMsgRegistration find_container(String container_name)
+    public xMsgRegistration findContainer(String containerName)
             throws xMsgException, CException, SocketException {
 
-        if (xMsgUtil.getTopicDomain(container_name).equals(xMsgConstants.ANY.getStringValue())) {
+        if (xMsgUtil.getTopicDomain(containerName).equals(xMsgConstants.ANY.getStringValue())) {
             throw new CException("Host name of the DPE must be specified");
-        } else{
-
+        } else {
             // Check the case when the requested container is local
             // Loop over all IP addresses of a node
-            for(String ip:xMsgUtil.getLocalHostIps()){
-                if (xMsgUtil.getTopicDomain(container_name).equals(ip)) {
+            for (String ip : xMsgUtil.getLocalHostIps()) {
+                if (xMsgUtil.getTopicDomain(containerName).equals(ip)) {
                     return findSubscribers(name,
-                            xMsgUtil.getTopicDomain(container_name),
-                            xMsgUtil.getTopicSubject(container_name),
+                            xMsgUtil.getTopicDomain(containerName),
+                            xMsgUtil.getTopicSubject(containerName),
                             xMsgConstants.UNDEFINED.getStringValue()).get(0);
                 }
             }
 
             // This is the case when requested container is remote
             return findSubscribers(name,
-                    xMsgUtil.getTopicDomain(container_name),
-                    xMsgUtil.getTopicSubject(container_name),
+                    xMsgUtil.getTopicDomain(containerName),
+                    xMsgUtil.getTopicSubject(containerName),
                     xMsgConstants.UNDEFINED.getStringValue()).get(0);
         }
     }
 
     /**
-     * <p>
+     * Asks the registration information of the containers in the given DPE.
      * Sends a request to the xMsg registration service,
      * asking to return registration information of all containers in the DPE
-     * </p>
      *
-     * @param dpe_name DPE name
+     * @param dpeName DPE name
      * @return set of xMsgRegistration objects
+     * @throws CException
+     * @throws xMsgException
+     * @throws SocketException
      */
-    public List<xMsgRegistration> find_containers(String dpe_name)
+    public List<xMsgRegistration> findContainers(String dpeName)
             throws xMsgException, CException, SocketException {
 
         List<xMsgRegistration> result = new ArrayList<>();
@@ -207,15 +218,15 @@ public class CBase extends xMsg {
         // Check the case when the requested service is local
         // Loop over all IP addresses of a node
         for (String ip : xMsgUtil.getLocalHostIps()) {
-            if (dpe_name.equals(ip)) {
+            if (dpeName.equals(ip)) {
                 tmpl = findSubscribers(name,
-                        dpe_name,
+                        dpeName,
                         xMsgConstants.UNDEFINED.getStringValue(),
                         xMsgConstants.UNDEFINED.getStringValue());
                 if (tmpl != null) {
                     for (xMsgRegistration rd : tmpl) {
-                        if (rd.getType().equals(xMsgConstants.UNDEFINED.getStringValue()) &&
-                                !result.contains(rd)) {
+                        if (rd.getType().equals(xMsgConstants.UNDEFINED.getStringValue())
+                                && !result.contains(rd)) {
                             result.add(rd);
                         }
                     }
@@ -226,13 +237,13 @@ public class CBase extends xMsg {
 
         // This is the case when requested service is remote
         tmpl = findSubscribers(name,
-                dpe_name,
+                dpeName,
                 xMsgConstants.UNDEFINED.getStringValue(),
                 xMsgConstants.UNDEFINED.getStringValue());
         if (tmpl != null) {
             for (xMsgRegistration rd : tmpl) {
-                if (rd.getType().equals(xMsgConstants.UNDEFINED.getStringValue()) &&
-                        !result.contains(rd)) {
+                if (rd.getType().equals(xMsgConstants.UNDEFINED.getStringValue())
+                        && !result.contains(rd)) {
                     result.add(rd);
                 }
             }
@@ -241,18 +252,22 @@ public class CBase extends xMsg {
     }
 
     /**
-     * <p>
+     * Asks the registration information of the given service.
      * Sends a request to the xMsg registration service,
      * asking to return registration information of service/services
      * based on dpe_host, container and engine names.
-     * Note that character * can be used for any/all container and
-     * engine names. Yet, * is not permitted for the dpe_host specification.
-     * </p>
+     * <p>
+     * Note that character {@code *} can be used for any/all container and
+     * engine names. Yet, {@code *} is not permitted for the DPE host
+     * specification.
      *
      * @param serviceName service canonical name
      * @return set of xMsgR.xMsgRegistrationData objects
+     * @throws CException
+     * @throws xMsgException
+     * @throws SocketException
      */
-    public List<xMsgRegistration> find_service(String serviceName)
+    public List<xMsgRegistration> findService(String serviceName)
             throws xMsgException, CException, SocketException {
 
         if (xMsgUtil.getTopicDomain(serviceName).equals(xMsgConstants.ANY.getStringValue())) {
@@ -279,53 +294,50 @@ public class CBase extends xMsg {
     }
 
     /**
-     * <p>
-     *     Defines if the service is deployed
-     * </p>
+     * Defines if the service is deployed.
+     *
      * @param serviceName service canonical name
      * @return true if service is deployed
-     * @throws xMsgDiscoverException
+     * @throws CException
+     * @throws xMsgException
+     * @throws SocketException
      */
     public boolean isServiceDeployed(String serviceName)
             throws xMsgException, CException, SocketException {
-        return find_service(serviceName).size() > 0;
+        return findService(serviceName).size() > 0;
     }
 
     /**
-     * <p>
-     *      Sends a data object to a generic
-     *      subscriber of an arbitrary topic.
-     *      In this case topic is NOT bound to follow Clara
-     *      service naming convention.
-     *      In this method requires zmq connection object,
-     *      and will not use default local dpe proxy connection.
-     * </p>
+     * Sends a message to a generic subscriber of an arbitrary topic.
+     * In this case topic is NOT bound to follow Clara service naming
+     * convention. In this method requires zmq connection object,
+     * and will not use default local dpe proxy connection.
+     *
      * @param connection zmq connection socket
+     * @param msg the message to be sent
+     * @throws xMsgException
+     * @throws IOException
      */
-    public void genericSend(xMsgConnection connection,
-                            xMsgMessage msg)
+    public void genericSend(xMsgConnection connection, xMsgMessage msg)
             throws xMsgException, IOException {
         publish(connection, msg);
     }
 
     /**
-     * <p>
-     *      Sends data object to a generic
-     *      subscriber of an arbitrary topic.
-     *      In this case topic is NOT bound to follow Clara
-     *      service naming convention.
-     *      This method creates a socket connection to the DPE host.
-     * </p>
+     * Sends data object to a generic subscriber of an arbitrary topic.
+     * In this case topic is NOT bound to follow Clara service naming
+     * convention. This method creates a socket connection to the DPE host.
      *
      * @param dpeHost Clara DPE host IP address
-     * @param msg xMsgMessage object
+     * @param msg the message to be sent
+     * @throws xMsgException
+     * @throws IOException
      */
-    public void genericSend(String dpeHost,
-                            xMsgMessage msg)
+    public void genericSend(String dpeHost, xMsgMessage msg)
             throws xMsgException, IOException {
 
-        if(CUtility.isHostLocal(dpeHost)) {
-            publish(node_connection, msg);
+        if (CUtility.isHostLocal(dpeHost)) {
+            publish(nodeConnection, msg);
         } else {
             // Create a socket connections to the remote dpe.
             xMsgAddress address = new xMsgAddress(dpeHost, true);
@@ -335,49 +347,45 @@ public class CBase extends xMsg {
     }
 
     /**
-     * <p>
-     *      Sync sends a data object to a generic
-     *      subscriber of an arbitrary topic.
-     *      In this case topic is NOT bound to follow Clara
-     *      service naming convention.
-     *      In this method requires zmq connection object.
-     * </p>
+     * Sync sends a data object to a generic subscriber of an arbitrary topic.
+     * In this case topic is NOT bound to follow Clara service naming
+     * convention. In this method requires zmq connection object.
+     *
      * @param connection zmq connection socket
+     * @param msg the message to be sent
      * @param timeOut int in seconds
+     * @throws xMsgException
      * @throws TimeoutException
+     * @throws IOException
      */
     public xMsgMessage genericSyncSend(xMsgConnection connection,
                                        xMsgMessage msg,
-                                  int timeOut)
+                                       int timeOut)
             throws xMsgException, TimeoutException, IOException {
 
         return sync_publish(connection, msg, timeOut);
     }
 
     /**
-     * <p>
-     *      Sync sends data object to a generic
-     *      subscriber of an arbitrary topic.
-     *      In this case topic is NOT bound to follow Clara
-     *      service naming convention.
-     *      This method creates a socket connection to the DPE host.
-     * </p>
+     * Sync sends data object to a generic subscriber of an arbitrary topic.
+     * In this case topic is NOT bound to follow Clara service naming
+     * convention. This method creates a socket connection to the DPE host.
      *
      * @param dpeHost host name of the DPE of interest
      * @param timeOut timeout in seconds
      * @return Object
      * @throws xMsgException
      * @throws TimeoutException
-     * @throws SocketException
+     * @throws IOException
      */
     public xMsgMessage genericSyncSend(String dpeHost,
                                        xMsgMessage msg,
-                                  int timeOut)
+                                       int timeOut)
             throws xMsgException, TimeoutException, IOException {
 
         xMsgConnection connection;
         if (CUtility.isHostLocal(dpeHost)) {
-            connection = node_connection;
+            connection = nodeConnection;
         } else {
             // Create a socket connections to the remote dpe.
             xMsgAddress address = new xMsgAddress(dpeHost, true);
@@ -387,6 +395,16 @@ public class CBase extends xMsg {
         return sync_publish(connection, msg, timeOut);
     }
 
+    /**
+     * Sends a message to a service.
+     * In this method requires zmq connection object.
+     *
+     * @param connection zmq connection socket
+     * @param msg the message to be sent
+     * @throws xMsgException
+     * @throws CException
+     * @throws IOException
+     */
     public void serviceSend(xMsgConnection connection,
                             xMsgMessage msg)
             throws IOException, xMsgException, CException {
@@ -399,12 +417,14 @@ public class CBase extends xMsg {
     }
 
     /**
-     * <p>
-     *      Sends a data object to a service
-     *      Will use default local dpe proxy connection.
-     * </p>
+     * Sends a message to a service.
+     * Will use default local DPE proxy connection.
+     *
+     * @param msg the message to be sent
+     * @throws xMsgException
+     * @throws CException
+     * @throws IOException
      */
-
     public void serviceSend(xMsgMessage msg)
             throws xMsgException, CException, IOException {
 
@@ -421,17 +441,21 @@ public class CBase extends xMsg {
             genericSend(con, msg);
 
         } else {
-            genericSend(node_connection, msg);
+            genericSend(nodeConnection, msg);
         }
     }
 
     /**
-     * <p>
-     *      Sync sends a data object to a service.
-     *      In this method requires zmq connection object.
-     * </p>
+     * Sync sends a message to a service.
+     * In this method requires zmq connection object.
+     *
      * @param connection zmq connection socket
+     * @param msg the message to be sent
+     * @param timeOut timeout in seconds
+     * @throws xMsgException
      * @throws TimeoutException
+     * @throws IOException
+     * @throws CException
      */
     public xMsgMessage serviceSyncSend(xMsgConnection connection,
                                        xMsgMessage msg,
@@ -447,11 +471,15 @@ public class CBase extends xMsg {
     }
 
     /**
-     * <p>
-     *      Sync sends a data object to a service.
-     *      In this method requires zmq connection object.
-     * </p>
+     * Sync sends a message to a service.
+     * In this method requires zmq connection object.
+     *
+     * @param msg the message to be sent
+     * @param timeOut timeout in seconds
+     * @throws xMsgException
      * @throws TimeoutException
+     * @throws IOException
+     * @throws CException
      */
     public xMsgMessage serviceSyncSend(xMsgMessage msg,
                                        int timeOut)
@@ -469,53 +497,56 @@ public class CBase extends xMsg {
             return genericSyncSend(con, msg, timeOut);
 
         } else {
-            return genericSyncSend(node_connection, msg, timeOut);
+            return genericSyncSend(nodeConnection, msg, timeOut);
         }
 
     }
 
     /**
-     * <p>
-     *     This method simply calls xMsg subscribe method
-     *     passing the reference to user provided call_back method.
-     *     The only difference is that this method requires a
-     *     connection socket different than the default socket connection
-     *     to the local dpe proxy.
-     *     In this case topic is NOT bound to follow Clara
-     *     service naming convention.
-     * </p>
+     * Subscribes to the specific topic with the given callback.
+     * This method requires a connection socket different than the default
+     * socket connection to the local dpe proxy.
+     * This method simply calls xMsg subscribe method
+     * passing the reference to user provided callback method.
+     * In this case topic is NOT bound to follow Clara
+     * service naming convention.
      *
      * @param connection zmq connection socket
-     * @param topic Service canonical name that this
-     *              method will subscribe or listen
-     * @param call_back User provided call_back function
+     * @param topic service canonical name that this method will subscribe
+     * @param callback user provided callback function
+     * @throws xMsgException
      */
     public SubscriptionHandler genericReceive(xMsgConnection connection,
                                               String topic,
-                                              xMsgCallBack call_back)
+                                              xMsgCallBack callback)
             throws xMsgException {
 
-        return subscribe(connection, topic, call_back);
+        return subscribe(connection, topic, callback);
     }
 
     /**
-     * <p>
-     *     This method simply calls xMsg subscribe method
-     *     passing the reference to user provided call_back method.
-     *     In this case topic is NOT bound to follow Clara
-     *     service naming convention.
-     * </p>
+     * Subscribes to the specific topic with the given callback.
+     * This method simply calls xMsg subscribe method
+     * passing the reference to user provided callback method.
+     * In this case topic is NOT bound to follow Clara
+     * service naming convention.
      *
-     * @param topic Service canonical name that this
-     *              method will subscribe or listen
-     * @param call_back User provided call_back function
+     * @param topic service canonical name that this method will subscribe
+     * @param callback user provided callback function
+     * @throws xMsgException
      */
     public SubscriptionHandler genericReceive(String topic,
-                                              xMsgCallBack call_back)
+                                              xMsgCallBack callback)
             throws xMsgException {
-        return genericReceive(node_connection, topic, call_back);
+        return genericReceive(nodeConnection, topic, callback);
     }
 
+    /**
+     * Calls xMsg unsubscribe method.
+     *
+     * @param handler the subscription handler
+     * @throws xMsgException
+     */
     public void cancelReceive(SubscriptionHandler handler)
             throws xMsgException {
 
@@ -523,47 +554,43 @@ public class CBase extends xMsg {
     }
 
     /**
-     * <p>
-     * This method simply calls xMsg subscribe method
-     * passing the reference to user provided call_back method.
-     * </p>
+     * Calls xMsg subscribe method the user provided callback.
      *
-     * @param serviceName Service canonical name that this
-     *                    method will subscribe or listen
-     * @param call_back   User provided call_back function
+     * @param serviceName service canonical name that this method will subscribe
+     * @param callback    user provided callback function
+     * @throws xMsgException
+     * @throws CException
      */
     public SubscriptionHandler serviceReceive(String serviceName,
-                                              xMsgCallBack call_back)
+                                              xMsgCallBack callback)
             throws xMsgException, CException {
         if (!CUtility.isCanonical(serviceName)) {
             throw new CException("service name is not canonical");
         }
 
-        return genericReceive(node_connection, serviceName, call_back);
+        return genericReceive(nodeConnection, serviceName, callback);
     }
 
     /**
-     * <p>
-     *     This method simply calls xMsg subscribe method
-     *     passing the reference to user provided call_back method.
-     *     This method requires a connection socket different than
-     *     the default socket connection to the local dpe proxy.
-     * </p>
+     * Calls xMsg subscribe method the user provided callback.
+     * This method requires a connection socket different than the default
+     * socket connection to the local dpe proxy.
      *
-     * @param connection zmq connection socket
-     * @param serviceName Service canonical name that this
-     *              method will subscribe or listen
-     * @param call_back User provided call_back function
+     * @param connection  zmq connection socket
+     * @param serviceName service canonical name that this method will subscribe
+     * @param callback    user provided callback function
+     * @throws xMsgException
+     * @throws CException
      */
     public SubscriptionHandler serviceReceive(xMsgConnection connection,
                                               String serviceName,
-                                              xMsgCallBack call_back)
+                                              xMsgCallBack callback)
             throws xMsgException, CException {
         if (!CUtility.isCanonical(serviceName)) {
             throw new CException("service name is not canonical");
         }
 
-        return genericReceive(connection, serviceName, call_back);
+        return genericReceive(connection, serviceName, callback);
     }
 
 
@@ -581,25 +608,24 @@ public class CBase extends xMsg {
 
 
     public void reportFE(String command) throws IOException, xMsgException {
-        if (!fe_host_name.equals(xMsgConstants.UNDEFINED.getStringValue()) && xMsgUtil.isIP(fe_host_name)) {
-            xMsgMessage msg = new xMsgMessage(CConstants.DPE + ":" + fe_host_name, command);
+        if (!feHostname.equals(xMsgConstants.UNDEFINED.getStringValue())
+                && xMsgUtil.isIP(feHostname)) {
+            xMsgMessage msg = new xMsgMessage(CConstants.DPE + ":" + feHostname, command);
 
-            genericSend(fe_host_name, msg);
+            genericSend(feHostname, msg);
         } else {
             throw new xMsgException("FE host is not properly defined.");
         }
     }
 
     /**
-     * <p>
-     * possible system call to start DPE on the specified host.
-     * unimplemented.
-     * </p>
+     * Possible system call to start DPE on the specified host.
+     * Unimplemented.
      *
-     * @param dpeName
+     * @param dpeName the name of the DPE
      */
     public void startRemoteDpe(String dpeName) {
-        //@todo
+        // TODO implement this
     }
 
     public void removeRemoteDpe(String dpeName) throws IOException, xMsgException {
@@ -617,14 +643,16 @@ public class CBase extends xMsg {
         new Container(containerName);
     }
 
-    public void startContainer(String containerName, String feHsot) throws xMsgException, IOException {
+    public void startContainer(String containerName, String feHost)
+            throws xMsgException, IOException {
         if (!CUtility.isCanonical(containerName)) {
             throw new xMsgException("Not a canonical name.");
         }
-        new Container(containerName, feHsot);
+        new Container(containerName, feHost);
     }
 
-    public void startRemoteContainer(String dpeName, String containerName) throws IOException, xMsgException {
+    public void startRemoteContainer(String dpeName, String containerName)
+            throws IOException, xMsgException {
         if (!CUtility.isCanonical(containerName)) {
             throw new xMsgException("Not a canonical name.");
         }
@@ -632,10 +660,10 @@ public class CBase extends xMsg {
                 CConstants.START_CONTAINER + "?" + containerName);
 
         genericSend(dpeName, msg);
-
     }
 
-    public void removeContainer(String dpeName, String containerName) throws IOException, xMsgException {
+    public void removeContainer(String dpeName, String containerName)
+            throws IOException, xMsgException {
         if (!CUtility.isCanonical(containerName)) {
             throw new xMsgException("Not a canonical name.");
         }
@@ -645,7 +673,10 @@ public class CBase extends xMsg {
         genericSend(dpeName, msg);
     }
 
-    public void startService(String dpeName, String serviceName, String serviceClassPath, String poolSize)
+    public void startService(String dpeName,
+                             String serviceName,
+                             String serviceClassPath,
+                             String poolSize)
             throws xMsgException, IOException, CException {
         if (!CUtility.isCanonical(serviceName)) {
             throw new CException("Not a canonical name.");
@@ -657,10 +688,10 @@ public class CBase extends xMsg {
                 CConstants.DEPLOY_SERVICE + "?" + serviceClassPath + "?" + poolSize);
 
         genericSend(dpeName, msg);
-
     }
 
-    public void removeService(String dpeName, String serviceName) throws CException, IOException, xMsgException {
+    public void removeService(String dpeName, String serviceName)
+            throws CException, IOException, xMsgException {
         if (!CUtility.isCanonical(serviceName)) {
             throw new CException("Not a canonical name.");
 
@@ -670,6 +701,5 @@ public class CBase extends xMsg {
                 CConstants.REMOVE_SERVICE + "?" + serviceName);
 
         genericSend(dpeName, msg);
-
     }
 }
