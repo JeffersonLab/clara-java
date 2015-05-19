@@ -722,9 +722,6 @@ public class Service extends CBase {
             // Ensure the output data has the composition
             if (res.getComposition().isEmpty()) res.setComposition(c_composition);
 
-            // Send service engine execution data to the services that are linked
-            serviceCompletionReport(config, res, engineInData);
-
             // If this is a sync request send data also to the requester
             if(!syncReceiverName.equals(xMsgConstants.UNDEFINED.getStringValue())){
                 String dpeHost = CUtility.getDpeName(syncReceiverName);
@@ -735,8 +732,12 @@ public class Service extends CBase {
             // or warning broadcast exception
             if(res.getDataGenerationStatus().equals(xMsgD.Data.Severity.ERROR)){
                 report_error(res.getStatusText(),res.getStatusSeverityId(), res.getId());
-            } else if(res.getDataGenerationStatus().equals(xMsgD.Data.Severity.WARNING)){
-                report_warning(res.getStatusText(), res.getStatusSeverityId(), res.getId());
+            } else {
+                if(res.getDataGenerationStatus().equals(xMsgD.Data.Severity.WARNING)){
+                    report_warning(res.getStatusText(), res.getStatusSeverityId(), res.getId());
+                }
+                // Send service engine execution data to the services that are linked
+                serviceCompletionReport(config, res, engineInData);
             }
         }
         isAvailable.set(true);
