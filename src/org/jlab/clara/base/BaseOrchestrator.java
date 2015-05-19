@@ -30,9 +30,11 @@ import java.util.concurrent.TimeoutException;
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import org.jlab.clara.base.error.ClaraException;
+import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.sys.CBase;
 import org.jlab.clara.util.CConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
+import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 import org.jlab.coda.xmsg.excp.xMsgException;
 
 
@@ -397,5 +399,268 @@ public class BaseOrchestrator {
         } catch (IOException | xMsgException e) {
             throw new ClaraException("Could not send request", e);
         }
+    }
+
+
+    /**
+     * Sends a request to configure a service.
+     * If the service does not exist, the message is lost.
+     * @param serviceName the canonical name of the service
+     * @param data the configuration data for the service
+     * @throws ClaraException if the request could not be sent
+     */
+    public void configureService(String serviceName, EngineData data)
+            throws ClaraException {
+        try {
+            Objects.requireNonNull(serviceName, "Null service name");
+            Objects.requireNonNull(data, "Null input data");
+            if (!ClaraUtil.isServiceName(serviceName)) {
+                throw new IllegalArgumentException("Malformed service name: " + serviceName);
+            }
+            String host = ClaraUtil.getHostName(serviceName);
+            xMsgMeta.Builder msgMeta = xMsgMeta.newBuilder();
+            msgMeta.setComposition(serviceName);
+            msgMeta.setAction(xMsgMeta.ControlAction.CONFIGURE);
+            xMsgMessage msg = new xMsgMessage(serviceName, msgMeta, data);
+            base.genericSend(host, msg);
+        } catch (IOException | xMsgException e) {
+            throw new ClaraException("Could not send request", e);
+        }
+    }
+
+
+    /**
+     * Sends a request to configure a service and waits until it is done.
+     * If the service does not exist, the message is lost.
+     * A response is received once the service has been configured.
+     *
+     * @param serviceName the canonical name of the service
+     * @param data the configuration data for the service
+     * @param timeout the time to wait for a response, in milliseconds
+     * @throws ClaraException if the request could not be sent
+     * @throws TimeoutException if a response is not received
+     */
+    public void configureServiceSync(String serviceName, EngineData data, int timeout)
+            throws ClaraException, TimeoutException {
+        try {
+            Objects.requireNonNull(serviceName, "Null service name");
+            Objects.requireNonNull(data, "Null input data");
+            if (!ClaraUtil.isServiceName(serviceName)) {
+                throw new IllegalArgumentException("Malformed service name: " + serviceName);
+            }
+            validateTimeout(timeout);
+
+            String host = ClaraUtil.getHostName(serviceName);
+            xMsgMeta.Builder msgMeta = xMsgMeta.newBuilder();
+            msgMeta.setComposition(serviceName);
+            msgMeta.setAction(xMsgMeta.ControlAction.CONFIGURE);
+            xMsgMessage msg = new xMsgMessage(serviceName, msgMeta, data);
+            base.genericSyncSend(host, msg, timeout);
+        } catch (IOException | xMsgException e) {
+            throw new ClaraException("Could not send request", e);
+        }
+    }
+
+
+    /**
+     * Sends a request to execute a service.
+     * If the service does not exist, the message is lost.
+     *
+     * @param serviceName the canonical name of the service
+     * @param data the input data for the service
+     * @throws ClaraException if the request could not be sent
+     */
+    public void executeService(String serviceName, EngineData data)
+            throws ClaraException {
+        try {
+            Objects.requireNonNull(serviceName, "Null service name");
+            Objects.requireNonNull(data, "Null input data");
+            if (!ClaraUtil.isServiceName(serviceName)) {
+                throw new IllegalArgumentException("Malformed service name: " + serviceName);
+            }
+            String host = ClaraUtil.getHostName(serviceName);
+            xMsgMeta.Builder msgMeta = xMsgMeta.newBuilder();
+            msgMeta.setComposition(serviceName);
+            msgMeta.setAction(xMsgMeta.ControlAction.EXECUTE);
+            xMsgMessage msg = new xMsgMessage(serviceName, msgMeta, data);
+            base.genericSend(host, msg);
+        } catch (IOException | xMsgException e) {
+            throw new ClaraException("Could not send request", e);
+        }
+    }
+
+
+    /**
+     * Sends a request to execute a service and receives the result.
+     * If the service does not exist, the message is lost.
+     * A response is received with the output data of the execution.
+     *
+     * @param serviceName the canonical name of the service
+     * @param data the input data for the service
+     * @param timeout the time to wait for a response, in milliseconds
+     * @throws ClaraException if the request could not be sent
+     * @throws TimeoutException if a response is not received
+     */
+    public void executeServiceSync(String serviceName, EngineData data, int timeout)
+            throws ClaraException, TimeoutException {
+        try {
+            Objects.requireNonNull(serviceName, "Null service name");
+            Objects.requireNonNull(data, "Null input data");
+            if (!ClaraUtil.isServiceName(serviceName)) {
+                throw new IllegalArgumentException("Malformed service name: " + serviceName);
+            }
+            validateTimeout(timeout);
+
+            String host = ClaraUtil.getHostName(serviceName);
+            xMsgMeta.Builder msgMeta = xMsgMeta.newBuilder();
+            msgMeta.setComposition(serviceName);
+            msgMeta.setAction(xMsgMeta.ControlAction.EXECUTE);
+            xMsgMessage msg = new xMsgMessage(serviceName, msgMeta, data);
+            base.genericSyncSend(host, msg, timeout);
+        } catch (IOException | xMsgException e) {
+            throw new ClaraException("Could not send request", e);
+        }
+    }
+
+
+    /**
+     * Sends a request to execute a composition.
+     * If any service does not exist, the messages are lost.
+     *
+     * @param composition the composition of services
+     * @param data the input data for the composition
+     * @throws ClaraException if the request could not be sent
+     */
+    public void executeComposition(Composition composition, EngineData data)
+            throws ClaraException {
+        try {
+            Objects.requireNonNull(composition, "Null service composition");
+            Objects.requireNonNull(data, "Null input data");
+
+            String firstService = composition.firstService();
+            String host = ClaraUtil.getHostName(firstService);
+            xMsgMeta.Builder msgMeta = xMsgMeta.newBuilder();
+            msgMeta.setComposition(composition.toString());
+            msgMeta.setAction(xMsgMeta.ControlAction.EXECUTE);
+            xMsgMessage msg = new xMsgMessage(firstService, msgMeta, data);
+            base.genericSend(host, msg);
+        } catch (IOException | xMsgException e) {
+            throw new ClaraException("Could not send request", e);
+        }
+    }
+
+
+    /**
+     * Sends a request to execute a composition and receives the result.
+     * If any service does not exist, the messages are lost.
+     * A response is received with the output data of the entire execution.
+     *
+     * @param composition the composition of services
+     * @param data the input data for the composition
+     * @param timeout the time to wait for a response, in milliseconds
+     * @throws ClaraException if the request could not be sent
+     * @throws TimeoutException if a response is not received
+     */
+    public void executeCompositionSync(Composition composition, EngineData data, int timeout)
+            throws ClaraException, TimeoutException {
+        try {
+            Objects.requireNonNull(composition, "Null service composition");
+            Objects.requireNonNull(data, "Null input data");
+            validateTimeout(timeout);
+
+            String firstService = composition.firstService();
+            String host = ClaraUtil.getHostName(firstService);
+            xMsgMeta.Builder msgMeta = xMsgMeta.newBuilder();
+            msgMeta.setComposition(composition.toString());
+            msgMeta.setAction(xMsgMeta.ControlAction.EXECUTE);
+            xMsgMessage msg = new xMsgMessage(firstService, msgMeta, data);
+            base.genericSyncSend(host, msg, timeout);
+        } catch (IOException | xMsgException e) {
+            throw new ClaraException("Could not send request", e);
+        }
+    }
+
+
+    /**
+     * Sends a request to start reporting "done" on service executions.
+     * Configures the service to repeatedly publish "done" messages after
+     * a number of <code>eventCount</code> executions have been completed.
+     * If the service does not exist, the message is lost.
+     *
+     * @param serviceName the canonical name of the service
+     * @param eventCount the interval of executions to be completed to publish the report
+     * @throws ClaraException if the request could not be sent
+     */
+    public void startReportingDone(String serviceName, int eventCount) throws ClaraException {
+        try {
+            Objects.requireNonNull(serviceName, "Null service name");
+            if (!ClaraUtil.isServiceName(serviceName)) {
+                throw new IllegalArgumentException("Malformed service name: " + serviceName);
+            }
+            if (eventCount < 0) {
+                throw new IllegalArgumentException("Invalid event count: " + eventCount);
+            }
+            String host = ClaraUtil.getHostName(serviceName);
+            String data = buildData(CConstants.SERVICE_REPORT_DONE, eventCount);
+            xMsgMessage msg = new xMsgMessage(serviceName, data);
+            base.genericSend(host, msg);
+        } catch (IOException | xMsgException e) {
+            throw new ClaraException("Could not send request", e);
+        }
+    }
+
+
+    /**
+     * Sends a request to stop reporting "done" on service executions.
+     * Configures the service to stop publishing "done" messages.
+     * If the service does not exist, the message is lost.
+     *
+     * @param serviceName the canonical name of the service
+     * @throws ClaraException if the request could not be sent
+     */
+    public void stopReportingDone(String serviceName) throws ClaraException {
+        startReportingDone(serviceName, 0);
+    }
+
+
+    /**
+     * Sends a request to start reporting the output data on service executions.
+     * Configures the service to repeatedly publish the resulting output data after
+     * a number of <code>eventCount</code> executions have been completed.
+     * If the service does not exist, the message is lost.
+     *
+     * @param serviceName the canonical name of the service
+     * @param eventCount the interval of executions to be completed to publish the report
+     * @throws ClaraException if the request could not be sent
+     */
+    public void startReportingData(String serviceName, int eventCount) throws ClaraException {
+        try {
+            Objects.requireNonNull(serviceName, "Null service name");
+            if (!ClaraUtil.isServiceName(serviceName)) {
+                throw new IllegalArgumentException("Malformed service name: " + serviceName);
+            }
+            if (eventCount < 0) {
+                throw new IllegalArgumentException("Invalid event count: " + eventCount);
+            }
+            String host = ClaraUtil.getHostName(serviceName);
+            String data = buildData(CConstants.SERVICE_REPORT_DATA, eventCount);
+            xMsgMessage msg = new xMsgMessage(serviceName, data);
+            base.genericSend(host, msg);
+        } catch (IOException | xMsgException e) {
+            throw new ClaraException("Could not send request", e);
+        }
+    }
+
+
+    /**
+     * Sends a request to stop reporting the output data on service executions.
+     * Configures the service to stop publishing the resulting output data.
+     * If the service does not exist, the message is lost.
+     *
+     * @param serviceName the canonical name of the service
+     * @throws ClaraException if the request could not be sent
+     */
+    public void stopReportingData(String serviceName) throws ClaraException {
+        startReportingData(serviceName, 0);
     }
 }
