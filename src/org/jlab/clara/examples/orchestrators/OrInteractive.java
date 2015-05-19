@@ -22,12 +22,9 @@
 package org.jlab.clara.examples.orchestrators;
 
 import org.jlab.clara.base.CException;
-import org.jlab.clara.base.OrchestratorBase;
 import org.jlab.clara.util.CUtility;
 import org.jlab.clara.util.XMLContainer;
 import org.jlab.clara.util.XMLTagValue;
-import org.jlab.coda.xmsg.data.xMsgD;
-import org.jlab.coda.xmsg.data.xMsgR.xMsgRegistrationData;
 import org.jlab.coda.xmsg.excp.xMsgException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -48,19 +45,20 @@ import java.util.Scanner;
  * @version 1.x
  * @since 2/9/15
  */
-public class OrInteractive extends OrchestratorBase {
+public class OrInteractive {
 
     public OrInteractive(String dpeHost,
                          String feHost) throws xMsgException, SocketException {
-        super(dpeHost, feHost);
+//        super(dpeHost, feHost);
     }
 
     public OrInteractive() throws xMsgException, SocketException {
-        super();
+//        super();
     }
 
     public static void main(String[] args) {
 
+        /**
         try {
             OrInteractive or = new OrInteractive();
 
@@ -215,6 +213,7 @@ public class OrInteractive extends OrchestratorBase {
         }catch(xMsgException | CException | SocketException e){
             e.printStackTrace();
         }
+        */
     }
 
     private void printHelp() {

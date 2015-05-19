@@ -18,40 +18,17 @@
  * HEREUNDER IS PROVIDED "AS IS". JLAB HAS NO OBLIGATION TO PROVIDE MAINTENANCE,
  * SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  */
-
-package org.jlab.clara.util;
-
-import org.jlab.clara.base.CException;
-import org.jlab.clara.engine.ICEngine;
+package org.jlab.clara.engine;
 
 /**
- * <p>
- *     Clara dynamic class loader
- * </p>
+ * Data processing status
  *
  * @author gurjyan
  * @version 1.x
- * @since 2/9/15
+ * @since 2/27/15
  */
-public class CClassLoader {
-
-    private ClassLoader classLoader;
-
-    public CClassLoader(ClassLoader cl){
-        classLoader = cl;
-    }
-
-    public ICEngine load(String className)
-            throws CException, ClassNotFoundException, IllegalAccessException, InstantiationException {
-            Class aClass = classLoader.loadClass(className);
-
-            Object aInstance = aClass.newInstance();
-
-        if (aInstance instanceof ICEngine) {
-            return (ICEngine) aInstance;
-            } else {
-                throw new CException("not a Clara service engine");
-            }
-    }
-
+public enum EStatus {
+    INFO,
+    WARNING,
+    ERROR
 }

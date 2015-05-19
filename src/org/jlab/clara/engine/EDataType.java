@@ -19,39 +19,37 @@
  * SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-package org.jlab.clara.util;
-
-import org.jlab.clara.base.CException;
-import org.jlab.clara.engine.ICEngine;
+package org.jlab.clara.engine;
 
 /**
- * <p>
- *     Clara dynamic class loader
- * </p>
+ * Enum for engine data types
  *
  * @author gurjyan
  * @version 1.x
- * @since 2/9/15
+ * @since 5/14/15
  */
-public class CClassLoader {
-
-    private ClassLoader classLoader;
-
-    public CClassLoader(ClassLoader cl){
-        classLoader = cl;
-    }
-
-    public ICEngine load(String className)
-            throws CException, ClassNotFoundException, IllegalAccessException, InstantiationException {
-            Class aClass = classLoader.loadClass(className);
-
-            Object aInstance = aClass.newInstance();
-
-        if (aInstance instanceof ICEngine) {
-            return (ICEngine) aInstance;
-            } else {
-                throw new CException("not a Clara service engine");
-            }
-    }
+public enum EDataType {
+    UNDEFINED,
+    J_Object,
+    C_Object,
+    P_Object,
+    NCDFS_Object,
+    T_VLSINT32,
+    T_VLSINT64 ,
+    T_FLSINT32 ,
+    T_FLSINT64 ,
+    T_FLOAT ,
+    T_DOUBLE ,
+    T_STRING ,
+    T_BYTES ,
+    T_VLSINT32A ,
+    T_VLSINT64A ,
+    T_FLSINT32A ,
+    T_FLSINT64A ,
+    T_FLOATA ,
+    T_DOUBLEA ,
+    T_STRINGA ,
+    T_BYTESA ,
+    T_PAYLOAD
 
 }

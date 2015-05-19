@@ -19,34 +19,41 @@
  * SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-package org.jlab.clara.util;
+package org.jlab.clara.engine;
+
+import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
+
+import java.util.List;
 
 /**
- * Describe.....
+ * Service engine interface.
  *
  * @author gurjyan
  * @version 1.x
- * @since 3/7/15
+ * @since 1/31/15
  */
-public enum CDataType {
-    T_VLSINT32,
-    T_VLSINT64,
-    T_FLSINT32,
-    T_FLSINT64,
-    T_FLOAT,
-    T_DOUBLE,
-    T_STRING,
-    T_VLSINT32A,
-    T_VLSINT64A,
-    T_FLSINT32A,
-    T_FLSINT64A,
-    T_FLOATA,
-    T_DOUBLEA,
-    T_STRINGA,
-    JOBJECT,
-    COBJECT,
-    POBJECT,
-    NETCDF,
-    HDF,
-    EVIO
+public interface ICEngine {
+
+    public EngineData execute(EngineData x);
+
+    public EngineData execute_group(List<EngineData> x);
+
+    public void configure(EngineData x);
+
+    public List<String> getStates();
+
+    public xMsgMeta.DataType getInDataType();
+
+    public xMsgMeta.DataType getOutDataType();
+
+    public String getDescription();
+
+    public String getVersion();
+
+    public String getAuthor();
+
+    public void reset();
+
+    public void dispose();
+
 }

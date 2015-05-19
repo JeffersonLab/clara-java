@@ -26,16 +26,19 @@ import org.jlab.clara.base.CException;
 import org.jlab.clara.util.CConstants;
 import org.jlab.clara.util.CServiceSysConfig;
 import org.jlab.clara.util.CUtility;
+import org.jlab.coda.xmsg.core.SubscriptionHandler;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgUtil;
-import org.jlab.coda.xmsg.data.xMsgD;
+import org.jlab.coda.xmsg.data.xMsgD.xMsgData;
+import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 import org.jlab.coda.xmsg.excp.xMsgException;
 
 import java.io.IOException;
 import java.net.SocketException;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 import java.util.concurrent.ConcurrentHashMap;
@@ -45,7 +48,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * <p>
- *      Container have a map of ObjectPools, one for each service in the container.
+ *      Container has a map of ObjectPools, one for each service in the container.
  *      Each ObjectPool contains n number of Service objects, where n is user
  *      specified value (usually equals to the number of cores). It also holds the
  *      thread pool for each service. Thread pool contains threads to run each object
@@ -71,13 +74,19 @@ public class Container extends CBase {
     private HashMap<String, Integer> _poolSizeMap = new HashMap<>();
 
     // stores system config objects for every service of this container
-    private ConcurrentHashMap<String, CServiceSysConfig> _sysConfigs = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, CServiceSysConfig>
+            _sysConfigs = new ConcurrentHashMap<>();
 
     private String feHost =
             xMsgConstants.UNDEFINED.getStringValue();
 
     // Unique id for services within the container
     private AtomicInteger uniqueId = new AtomicInteger(0);
+
+    private SubscriptionHandler subscriptionHandler;
+
+    private Map<String, ServiceDispatcher>
+            _myServiceDispatchers = new HashMap<>();
 
     /**
      * <p>
@@ -91,7 +100,7 @@ public class Container extends CBase {
      */
     public Container(String name,
                      String feHost)
-            throws xMsgException, SocketException {
+            throws xMsgException, IOException {
         super(feHost);
         this.feHost = feHost;
 
@@ -100,15 +109,12 @@ public class Container extends CBase {
         // Create a socket connections to the local dpe proxy
         connect();
 
-        // Send container_up message to the FE
-        genericSend(feHost,
-                CConstants.CONTAINER + ":" + feHost,
-                CConstants.CONTAINER_UP+"?"+getName());
-
-        System.out.println(CUtility.getCurrentTimeInH() + ": Started container = " + getName() + "\n");
+        System.out.println(CUtility.getCurrentTimeInH() +
+                ": Started container = " + getName() + "\n");
 
         //register container
-        System.out.println(CUtility.getCurrentTimeInH() + ": " + getName() + " container sending registration request.");
+        System.out.println(CUtility.getCurrentTimeInH() + ": " + getName() +
+                " container sending registration request.");
         registerSubscriber(getName(),
                 xMsgUtil.getTopicDomain(getName()),
                 xMsgUtil.getTopicSubject(getName()),
@@ -116,7 +122,8 @@ public class Container extends CBase {
                 "Service Container");
 
         // Subscribe messages published to this container
-        genericReceive(CConstants.CONTAINER + ":" + getName(), new ContainerCallBack());
+        subscriptionHandler = genericReceive(CConstants.CONTAINER + ":" + getName(),
+                                             new ContainerCallBack());
     }
 
     /**
@@ -137,10 +144,12 @@ public class Container extends CBase {
         // Create a socket connections to the local dpe proxy
         connect();
 
-        System.out.println(CUtility.getCurrentTimeInH() + ": Started container = " + getName() + "\n");
+        System.out.println(CUtility.getCurrentTimeInH() +
+                ": Started container = " + getName() + "\n");
 
         //register container
-        System.out.println(CUtility.getCurrentTimeInH() + ": " + getName() + " container sending registration request.");
+        System.out.println(CUtility.getCurrentTimeInH() + ": " + getName() +
+                " container sending registration request.");
         registerSubscriber(getName(),
                 xMsgUtil.getTopicDomain(getName()),
                 xMsgUtil.getTopicSubject(getName()),
@@ -148,7 +157,37 @@ public class Container extends CBase {
                 "Service Container");
 
         // Subscribe messages published to this container
-        genericReceive(CConstants.CONTAINER + ":" + getName(), new ContainerCallBack());
+        subscriptionHandler = genericReceive(CConstants.CONTAINER + ":" + getName(),
+                                             new ContainerCallBack());
+    }
+
+    public void exitContainer() throws xMsgException, IOException {
+
+        reportFE(CConstants.CONTAINER_DOWN + "?" + getName());
+
+        subscriptionHandler.unsubscribe();
+        removeSubscriberRegistration(getName(),
+                xMsgUtil.getTopicDomain(getName()),
+                xMsgUtil.getTopicSubject(getName()),
+                xMsgConstants.UNDEFINED.getStringValue());
+
+        for (ServiceDispatcher sd : _myServiceDispatchers.values()) {
+            sd.exitDispatcher();
+        }
+        _myServiceDispatchers.clear();
+        _myServiceDispatchers = null;
+        _objectPoolMap.clear();
+        _objectPoolMap = null;
+        _threadPoolMap.clear();
+        _threadPoolMap = null;
+        _poolSizeMap.clear();
+        _poolSizeMap = null;
+        _sysConfigs.clear();
+        _sysConfigs = null;
+
+        feHost = null;
+        uniqueId = null;
+        subscriptionHandler = null;
     }
 
     /**
@@ -165,7 +204,7 @@ public class Container extends CBase {
      *     to be 0 or negative number.
      * </p>
      *
-     * @param packageName service engine class name
+     * @param packageName service engine full path
      * @param engineClassName service engine class name
      * @param objectPoolSize size of the object pool
      */
@@ -174,7 +213,7 @@ public class Container extends CBase {
                            int objectPoolSize)
             throws CException,
             xMsgException,
-            SocketException,
+            IOException,
             IllegalAccessException,
             ClassNotFoundException,
             InstantiationException {
@@ -233,13 +272,15 @@ public class Container extends CBase {
         // Add the object pool to the pools map
         _objectPoolMap.put(canonical_name, sop);
 
-        new ServiceDispatcher(canonical_name,"Clara service");
+        _myServiceDispatchers.put(canonical_name,
+                new ServiceDispatcher(canonical_name, "Clara service"));
 
-        System.out.println(CUtility.getCurrentTimeInH()+": Started service = "+canonical_name+"\n");
+        System.out.println(CUtility.getCurrentTimeInH() +
+                ": Started service = " + canonical_name + "\n");
     }
 
     public void removeService(String name)
-            throws xMsgException, InterruptedException, CException, SocketException {
+            throws xMsgException, InterruptedException, CException, IOException {
 
         // Check to see if the passed name is a canonical
         // name of a service or just a service engine name
@@ -274,6 +315,11 @@ public class Container extends CBase {
             _sysConfigs.remove(name);
         }
 
+        if (_myServiceDispatchers.containsKey(name)) {
+            _myServiceDispatchers.get(name).exitDispatcher();
+            _myServiceDispatchers.remove(name);
+        }
+
     }
 
     private class ContainerCallBack implements xMsgCallBack {
@@ -282,59 +328,69 @@ public class Container extends CBase {
         // This method serves to start/deploy a service on
         // this container. In the future it will report
         // service specific statistics on a request
-        public Object callback(xMsgMessage msg) {
+        public xMsgMessage callback(xMsgMessage msg) {
 
-            final String dataType = msg.getDataType();
-            final Object data = msg.getData();
-            if(dataType.equals(xMsgConstants.ENVELOPE_DATA_TYPE_STRING.getStringValue())) {
-                String cmdData = (String)data;
-                String cmd = null, seName = null, objectPoolSize = null;
-                try {
-                    StringTokenizer st = new StringTokenizer(cmdData, "?");
-                    cmd = st.nextToken();
-                    seName = st.nextToken();
-                    objectPoolSize = st.nextToken();
+            final xMsgMeta.Builder metadata = msg.getMetaData();
+            if (metadata.getDataType().equals(xMsgMeta.DataType.X_Object)) {
+                final xMsgData.Builder data = (xMsgData.Builder) msg.getData();
+                if (data.getType().equals(xMsgData.Type.T_STRING)) {
+                    String cmdData = data.getSTRING();
+                    String cmd = null, seName = null, objectPoolSize = null;
+                    try {
+                        StringTokenizer st = new StringTokenizer(cmdData, "?");
+                        cmd = st.nextToken();
+                        seName = st.nextToken();
+                        objectPoolSize = st.nextToken();
 
-                } catch (NoSuchElementException e){
-                    System.out.println(e.getMessage());
+                    } catch (NoSuchElementException e) {
+                        System.out.println(e.getMessage());
 //                    e.printStackTrace();
-                }
-                if(cmd!=null && seName!=null) {
-                    switch (cmd) {
-                        case CConstants.DEPLOY_SERVICE:
-                            if(!seName.contains(".")){
-                                System.out.println("Warning: Deployment failed. " +
-                                        "Clara accepts fully qualified class names only.");
-                                return null;
-                            }
+                    }
+                    if (cmd != null && seName != null) {
+                        switch (cmd) {
+                            case CConstants.DEPLOY_SERVICE:
+                                // Note: in this case seName is the pull path to the engine class
+                                if (!seName.contains(".")) {
+                                    System.out.println("Warning: Deployment failed. " +
+                                            "Clara accepts fully qualified class names only.");
+                                    return null;
+                                }
 
 
-                            if(objectPoolSize==null){
+                                if (objectPoolSize == null) {
 
-                                // if object pool size is not defined set
-                                // the size equal to the number of cores
-                                // in the node where this container is deployed
-                                int ps = Runtime.getRuntime().availableProcessors();
-                                objectPoolSize = String.valueOf(ps);
-                            }
-                            try {
-                                String packageName = seName.substring(0,seName.lastIndexOf("."));
-                                String className = seName.substring((seName.lastIndexOf("."))+1, seName.length());
+                                    // if object pool size is not defined set
+                                    // the size equal to the number of cores
+                                    // in the node where this container is deployed
+                                    int ps = Runtime.getRuntime().availableProcessors();
+                                    objectPoolSize = String.valueOf(ps);
+                                }
+                                try {
+                                    String packageName = seName.substring(0, seName.lastIndexOf("."));
+                                    String className = seName.substring((seName.lastIndexOf(".")) + 1, seName.length());
 
-                                addService(packageName, className, Integer.parseInt(objectPoolSize));
-                            } catch (xMsgException | NumberFormatException | CException |
-                                    SocketException | ClassNotFoundException |
-                                    InstantiationException | IllegalAccessException e) {
-                                e.printStackTrace();
-                            }
-                            break;
-                        case CConstants.REMOVE_SERVICE:
-                            try {
-                                removeService(seName);
-                            } catch (xMsgException | InterruptedException | CException | SocketException e) {
-                                e.printStackTrace();
-                            }
-                            break;
+                                    addService(packageName, className, Integer.parseInt(objectPoolSize));
+                                } catch (xMsgException | NumberFormatException | CException | ClassNotFoundException |
+                                        InstantiationException | IllegalAccessException | IOException e) {
+                                    e.printStackTrace();
+                                }
+                                break;
+                            case CConstants.REMOVE_SERVICE:
+                                // Note: in this case seName is the canonical name of the service
+                                try {
+                                    removeService(seName);
+                                } catch (xMsgException | InterruptedException | CException | IOException e) {
+                                    e.printStackTrace();
+                                }
+                                break;
+                            case CConstants.REMOVE_CONTAINER:
+                                try {
+                                    exitContainer();
+                                } catch (xMsgException | IOException e) {
+                                    e.printStackTrace();
+                                }
+                                break;
+                        }
                     }
                 }
             }
@@ -342,22 +398,30 @@ public class Container extends CBase {
         }
     }
 
+    /**
+     * <p>
+     * Service representative in the container.
+     * Starts a thread to run service specific callback.
+     * </p>
+     */
     private class ServiceDispatcher extends CBase {
 
         private String description = xMsgConstants.UNDEFINED.getStringValue();
         private String myName = xMsgConstants.UNDEFINED.getStringValue();
+        private SubscriptionHandler serviceSubscriptionHandler;
 
         public ServiceDispatcher(final String serviceCanonicalName,
                                  String description)
                 throws xMsgException,
-                SocketException {
+                IOException, CException {
             super();
 
             this.description = description;
             this.myName = serviceCanonicalName;
 
             // Subscribe messages published to this service
-            serviceReceive(serviceCanonicalName, new ServiceCallBack());
+            serviceSubscriptionHandler = serviceReceive(serviceCanonicalName,
+                                                        new ServiceCallBack());
 
             // register with the registrar
             register();
@@ -368,11 +432,10 @@ public class Container extends CBase {
 
             if(!feHost.equals(xMsgConstants.UNDEFINED.getStringValue())) {
                 // Send service_up message to the FE
-                genericSend(feHost,
-                        CConstants.SERVICE + ":" + feHost,
+                xMsgMessage msg = new xMsgMessage(CConstants.SERVICE + ":" + feHost,
                         CConstants.SERVICE_UP + "?" + myName);
+                genericSend(feHost, msg);
             }
-
         }
 
         /**
@@ -383,7 +446,8 @@ public class Container extends CBase {
          */
         public void register()
                 throws xMsgException {
-            System.out.println(CUtility.getCurrentTimeInH() + ": " + myName + " sending registration request.");
+            System.out.println(CUtility.getCurrentTimeInH() + ": " + myName +
+                    " sending registration request.");
             registerSubscriber(myName,
                     xMsgUtil.getTopicDomain(myName),
                     xMsgUtil.getTopicSubject(myName),
@@ -399,7 +463,8 @@ public class Container extends CBase {
          */
         public void register(String feHost)
                 throws xMsgException {
-            System.out.println(CUtility.getCurrentTimeInH() + ": " + getName() + " sending registration request.");
+            System.out.println(CUtility.getCurrentTimeInH() + ": " + getName() +
+                    " sending registration request.");
             registerSubscriber(myName,
                     feHost,
                     xMsgConstants.DEFAULT_PORT.getIntValue(),
@@ -409,9 +474,34 @@ public class Container extends CBase {
                     description);
         }
 
+        /**
+         * <p>
+         * THis will unregister also from the FE
+         * </p>
+         *
+         * @throws xMsgException
+         */
+        public void unregister() throws xMsgException {
+            removeSubscriberRegistration(myName,
+                    xMsgUtil.getTopicDomain(myName),
+                    xMsgUtil.getTopicSubject(myName),
+                    xMsgUtil.getTopicType(myName));
+        }
+
+        public void exitDispatcher() throws xMsgException {
+            serviceSubscriptionHandler.unsubscribe();
+            unregister();
+            description = null;
+            myName = null;
+        }
 
     }
 
+    /**
+     * <p>
+     *     Service call-back, started as a thread by the ServiceDispatcher
+     * </p>
+     */
     private class ServiceCallBack implements xMsgCallBack {
 
         @Override
@@ -420,76 +510,71 @@ public class Container extends CBase {
         // service object from the object pool and runs the
         // service object serviceRequest method by passing
         // sender/dataType and dataObject of the xMsg transport.
-        public Object callback(xMsgMessage msg) {
+        public xMsgMessage callback(xMsgMessage msg) {
 
             try {
                 String receiver;
                 receiver = msg.getTopic();
 
-                final String dataType = msg.getDataType();
+                final xMsgMeta.Builder metadata = msg.getMetaData();
                 final Object data = msg.getData();
-
-                // If this is a sync request getSyncRequesterAddress()
-                // will return address NOT equal to "undefined".
-                // Service process method will check this
-                final String syncReceiver = msg.getSyncRequesterAddress();
 
                 // Take object and thread pool for a service.
                 // This will block if there is no available object in the pool
-
                 final Service[] requestedServiceObjectPool = _objectPoolMap.get(receiver);
                 ExecutorService threadPool = _threadPoolMap.get(receiver);
 
-                xMsgD.Data.Builder inData = null;
+                final xMsgData.Builder xData;
 
-                if (dataType.equals(xMsgConstants.ENVELOPE_DATA_TYPE_XMSGDATA.getStringValue())) {
-                    inData = (xMsgD.Data.Builder) data;
-                    if (inData == null) throw new CException("unknown data type");
+                if (metadata.getDataType().equals(xMsgMeta.DataType.X_Object)) {
+                    xData = (xMsgData.Builder) data;
 
                     // Check to see if this is a service external
                     // request (outside of the composition chain request)
                     // these are request for e.g.
                     // xMsg envelope = <service_canonical_name, string, serviceReportDone?1000>
                     // that will tell service to report done messages every 1000 events.
-                } else if(dataType.equals(xMsgConstants.ENVELOPE_DATA_TYPE_STRING.getStringValue())) {
-                    String cmdData = (String) data;
-                    String cmd = null, param1 = null, param2 = null, param3 = null;
-                    if (cmdData.contains("?")) {
-                        try {
-                            StringTokenizer st = new StringTokenizer(cmdData, "?");
-                            cmd = st.nextToken();
-                            param1 = st.nextToken();
-                            param2 = st.nextToken();
-                            param3 = st.nextToken();
-                        } catch (NoSuchElementException e) {
-                            System.out.println(e.getMessage());
-                        }
-                        switch (cmd) {
-                            case CConstants.SERVICE_REPORT_DONE:
-                                if (_sysConfigs.containsKey(receiver)) {
-                                    CServiceSysConfig sc = _sysConfigs.get(receiver);
-                                    sc.setDoneRequest(true);
-                                    sc.setDoneReportThreshold(Integer.parseInt(param1));
-                                    sc.resetDoneRequestCount();
-                                }
-                                break;
-                            case CConstants.SERVICE_REPORT_DATA:
-                                if (_sysConfigs.containsKey(receiver)) {
-                                    CServiceSysConfig sc = _sysConfigs.get(receiver);
-                                    sc.setDataRequest(true);
-                                    sc.setDataReportThreshold(Integer.parseInt(param1));
-                                    sc.resetDataRequestCount();
-                                }
-                                break;
+                    if (xData != null && xData.getType().equals(xMsgData.Type.T_STRING)) {
+                        String cmdData = xData.getSTRING();
+                        String cmd = null, param1 = null, param2 = null, param3 = null;
+                        if (cmdData.contains("?")) {
+                            try {
+                                StringTokenizer st = new StringTokenizer(cmdData, "?");
+                                cmd = st.nextToken();
+                                if (st.hasMoreTokens()) param1 = st.nextToken();
+                                if (st.hasMoreTokens()) param2 = st.nextToken();
+                                if (st.hasMoreTokens()) param3 = st.nextToken();
+                            } catch (NoSuchElementException e) {
+                                System.out.println(e.getMessage());
+                            }
+                            assert cmd != null;
+                            switch (cmd) {
+                                case CConstants.SERVICE_REPORT_DONE:
+                                    if (_sysConfigs.containsKey(receiver) && param1 != null) {
+                                        CServiceSysConfig sc = _sysConfigs.get(receiver);
+                                        sc.setDoneRequest(true);
+                                        sc.setDoneReportThreshold(Integer.parseInt(param1));
+                                        sc.resetDoneRequestCount();
+                                    }
+                                    break;
+                                case CConstants.SERVICE_REPORT_DATA:
+                                    if (_sysConfigs.containsKey(receiver) && param1 != null) {
+                                        CServiceSysConfig sc = _sysConfigs.get(receiver);
+                                        sc.setDataRequest(true);
+                                        sc.setDataReportThreshold(Integer.parseInt(param1));
+                                        sc.resetDataRequestCount();
+                                    }
+                                    break;
+                            }
                         }
                     }
                 }
-
                 // service configure
-                if (inData!=null && inData.getAction().equals(xMsgD.Data.ControlAction.CONFIGURE)) {
+                if (metadata.getAction().equals(xMsgMeta.ControlAction.CONFIGURE)) {
                     // pool size for a specific service
                     int sps = _poolSizeMap.get(receiver);
-                    if (requestedServiceObjectPool.length != sps) throw new CException("service is busy. Can not configure.");
+                    if (requestedServiceObjectPool.length != sps)
+                        throw new CException("service is busy. Can not configure.");
 
                     final AtomicInteger rps = new AtomicInteger();
                     for (int i = 0; i < _poolSizeMap.get(receiver); i++) {
@@ -498,8 +583,9 @@ public class Container extends CBase {
                         threadPool.submit(new Runnable() {
                                               public void run() {
                                                   try {
-                                                      ser.configure(dataType, data, syncReceiver, rps);
-                                                  } catch (xMsgException | InterruptedException | CException | ClassNotFoundException | IOException e) {
+                                                      ser.configure(metadata, data, rps);
+                                                  } catch (xMsgException | InterruptedException | CException |
+                                                          ClassNotFoundException | IOException e) {
                                                       e.printStackTrace();
                                                   }
                                               }
@@ -519,8 +605,9 @@ public class Container extends CBase {
                                 threadPool.submit(new Runnable() {
                                                       public void run() {
                                                           try {
-                                                              ser.process(serConfig, dataType, data, syncReceiver, -1);
-                                                          } catch (xMsgException | InterruptedException | CException | IOException | ClassNotFoundException e) {
+                                                              ser.process(serConfig, metadata, data);
+                                                          } catch (xMsgException | InterruptedException | CException |
+                                                                  IOException | ClassNotFoundException e) {
                                                               e.printStackTrace();
                                                           }
                                                       }
@@ -529,7 +616,7 @@ public class Container extends CBase {
                                 break;
                             }
                         }
-                    } while(!_of);
+                    } while (!_of);
 
                 }
 
@@ -539,5 +626,5 @@ public class Container extends CBase {
             return null;
         }
     }
-
 }
+

@@ -21,10 +21,10 @@
 
 package org.jlab.clara.examples.engines;
 
-import org.jlab.clara.util.ACEngine;
+import org.jlab.clara.engine.EngineData;
+import org.jlab.clara.engine.ICEngine;
 import org.jlab.clara.util.CConstants;
-import org.jlab.clara.util.EngineData;
-import org.jlab.coda.xmsg.data.xMsgD;
+import org.jlab.coda.xmsg.data.xMsgM;
 
 import java.util.List;
 
@@ -37,7 +37,7 @@ import java.util.List;
  * @version 1.x
  * @since 2/9/15
  */
-public class E3 extends ACEngine {
+public class E3 implements ICEngine {
 
     private long nr = 0;
     private long t1;
@@ -73,38 +73,38 @@ public class E3 extends ACEngine {
     }
 
     @Override
-    public List<String> get_states() {
+    public List<String> getStates() {
         return null;
     }
 
     @Override
-    public String get_current_state() {
+    public xMsgM.xMsgMeta.DataType getInDataType() {
         return null;
     }
 
     @Override
-    public xMsgD.Data.DType get_accepted_data_type() {
+    public xMsgM.xMsgMeta.DataType getOutDataType() {
         return null;
     }
 
     @Override
-    public xMsgD.Data.DType get_returned_data_type() {
+    public String getDescription() {
         return null;
     }
 
     @Override
-    public String get_description() {
-        return ("E3 test engine");
-    }
-
-    @Override
-    public String get_version() {
+    public String getVersion() {
         return null;
     }
 
     @Override
-    public String get_author() {
+    public String getAuthor() {
         return null;
+    }
+
+    @Override
+    public void reset() {
+
     }
 
     @Override
