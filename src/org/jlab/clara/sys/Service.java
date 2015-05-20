@@ -725,6 +725,7 @@ public class Service extends CBase {
 
         db.setSender(getName());
         db.setDataGenerationStatus(xMsgD.Data.Severity.WARNING);
+        db.setStatusSeverityId(severity);
         db.setDataType(xMsgD.Data.DType.T_STRING);
         db.setSTRING(warning_string);
         db.setId(id);
@@ -765,13 +766,11 @@ public class Service extends CBase {
 
         db.setSender(getName());
         db.setDataGenerationStatus(xMsgD.Data.Severity.ERROR);
+        db.setStatusSeverityId(severity);
         db.setDataType(xMsgD.Data.DType.T_STRING);
         db.setSTRING(error_string);
         db.setId(id);
         db.setExecutionTime(_avEngineExecutionTime);
-
-        System.out.println(CUtility.getCurrentTimeInMs()
-                           + ". REPORT ERROR: " + getName() + " ID:" + db.getStatusSeverityId());
 
         genericSend("localhost",
                 xMsgConstants.ERROR.getStringValue() + ":" +
