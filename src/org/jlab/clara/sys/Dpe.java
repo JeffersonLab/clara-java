@@ -11,6 +11,8 @@ import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.data.xMsgD;
 import org.jlab.coda.xmsg.data.xMsgR;
 import org.jlab.coda.xmsg.excp.xMsgException;
+import org.jlab.coda.xmsg.net.xMsgAddress;
+import org.jlab.coda.xmsg.net.xMsgConnection;
 import org.jlab.coda.xmsg.xsys.xMsgNode;
 
 import java.net.SocketException;
@@ -70,6 +72,8 @@ public class Dpe extends CBase{
             _db = new HashMap<>();
 
     private ScheduledExecutorService scheduledPingService;
+
+    private HeartBeatReport heartBeat;
 
 
 
@@ -134,6 +138,8 @@ public class Dpe extends CBase{
         // Subscribe messages published to this container
         genericReceive(CConstants.DPE + ":" + getName(),
                 new DpeCallBack());
+
+        startHeartBeatReport();
     }
 
     /**
@@ -167,6 +173,8 @@ public class Dpe extends CBase{
         // Subscribe messages published to this container
         genericReceive(CConstants.DPE + ":" + getName(),
                 new DpeCallBack());
+
+        startHeartBeatReport();
     }
 
     /**
@@ -427,6 +435,39 @@ public class Dpe extends CBase{
             return null;
         }
     }
+
+
+    private void startHeartBeatReport() {
+        heartBeat = new HeartBeatReport();
+        heartBeat.start();
+    }
+
+
+    private class HeartBeatReport extends Thread {
+        @Override
+        public void run() {
+            try {
+                int availableProcessors = Runtime.getRuntime().availableProcessors();
+                String claraHome = System.getenv("CLARA_HOME");
+
+                String topic = CConstants.DPE_ALIVE + ":" + feHostIp;
+                String data = dpeName + "?" + availableProcessors + "?" + claraHome;
+
+                xMsgAddress address = new xMsgAddress(feHostIp);
+                xMsgConnection socket = getNewConnection(address);
+
+                while (true) {
+                    genericSend(socket, topic, data);
+                    Thread.sleep(5000);
+                }
+            } catch (SocketException | xMsgException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
+    }
+
 
     public static void main(String[] args) {
         if(args.length == 2){

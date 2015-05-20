@@ -15,6 +15,7 @@ public class CConstants {
     public static final String DPE_UP = "dpeIsUp";
     public static final String DPE_DOWN = "dpeIsDown";
     public static final String DPE_PING = "dpePing";
+    public static final String DPE_ALIVE = "dpeAlive";
     public static final String START_CONTAINER = "startContainer";
     public static final String REMOVE_CONTAINER = "removeContainer";
 
