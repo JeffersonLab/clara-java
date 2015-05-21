@@ -639,7 +639,7 @@ public class Service extends CBase {
         genericSend("localhost",
                 xMsgConstants.INFO.getStringValue() + ":" +
                         getName(), db);
-        if(!getFeHostName().equals(xMsgConstants.UNDEFINED.getStringValue())) {
+        if (hasFrontEnd()) {
             genericSend(getFeHostName(),
                     xMsgConstants.INFO.getStringValue() + ":" +
                             getName(), db);
@@ -660,7 +660,7 @@ public class Service extends CBase {
         genericSend("localhost",
                 xMsgConstants.DONE.getStringValue() + ":" +
                 getName(), id + "?" + _avEngineExecutionTime);
-        if(!getFeHostName().equals(xMsgConstants.UNDEFINED.getStringValue())) {
+        if (hasFrontEnd()) {
             genericSend(getFeHostName(),
                     xMsgConstants.DONE.getStringValue() + ":" +
                             getName(), id + "?" + _avEngineExecutionTime);
@@ -692,7 +692,7 @@ public class Service extends CBase {
                         report_type+ ":" +
                         severity,
                 data);
-        if(!getFeHostName().equals(xMsgConstants.UNDEFINED.getStringValue())) {
+        if (hasFrontEnd()) {
             genericSend(getFeHostName(),
                     xMsgConstants.DATA.getStringValue() + ":" +
                             getName() + ":" +
@@ -735,7 +735,7 @@ public class Service extends CBase {
                         getName() + ":" + severity,
                 db);
 
-        if(!getFeHostName().equals(xMsgConstants.UNDEFINED.getStringValue())) {
+        if (hasFrontEnd()) {
             genericSend(getFeHostName(),
                     xMsgConstants.WARNING.getStringValue() + ":" +
                             getName() + ":" + severity,
@@ -770,15 +770,29 @@ public class Service extends CBase {
         db.setId(id);
         db.setExecutionTime(_avEngineExecutionTime);
 
+        System.out.println(CUtility.getCurrentTimeInMs()
+                           + ". REPORT ERROR: " + getName() + " ID:" + db.getStatusSeverityId());
+
         genericSend("localhost",
                 xMsgConstants.ERROR.getStringValue() + ":" +
                         getName() + ":" + severity,
                 db);
-        if(!getFeHostName().equals(xMsgConstants.UNDEFINED.getStringValue())) {
+        if (hasFrontEnd()) {
             genericSend(getFeHostName(),
                     xMsgConstants.ERROR.getStringValue() + ":" +
                             getName() + ":" + severity,
                     db);
+        }
+    }
+
+    private boolean hasFrontEnd() {
+        try {
+            String localHost = CUtility.getDpeName(getName());
+            String udf = xMsgConstants.UNDEFINED.getStringValue();
+            return !(getFeHostName().equals(udf) || getFeHostName().equals(localHost));
+        } catch (CException e) {
+            e.printStackTrace();
+            return false;
         }
     }
 
