@@ -142,13 +142,13 @@ public class CUtility {
         try{
         String s_host = xMsgUtil.getTopicDomain(s_name);
         for(String s:xMsgUtil.getLocalHostIps()){
-            if(s.equals(s_host)) return true;
+            if(s.equals(s_host)) return false;
         }
         } catch (xMsgException | SocketException e) {
             throw new CException(e.getMessage());
         }
 
-        return false;
+        return true;
     }
 
 
