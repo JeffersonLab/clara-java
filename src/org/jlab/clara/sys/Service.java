@@ -395,6 +395,7 @@ public class Service extends CBase {
                                 _avEngineExecutionTime = (_avEngineExecutionTime + execTime)/ _numberOfRequests;
 
                             } catch (Throwable t){
+                                t.printStackTrace();
                                 report_error(t.getMessage(),3, engineInData.getTransitData().getId());
                                 return;
                             }
@@ -425,6 +426,7 @@ public class Service extends CBase {
                             _avEngineExecutionTime = (_avEngineExecutionTime + execTime)/ _numberOfRequests;
 
                         } catch (Throwable t){
+                            t.printStackTrace();
                             report_error(t.getMessage(),3, engineInData.getTransitData().getId());
                             return;
                         }
@@ -451,6 +453,7 @@ public class Service extends CBase {
                         _avEngineExecutionTime = (_avEngineExecutionTime + execTime)/ _numberOfRequests;
 
                     } catch (Throwable t){
+                        t.printStackTrace();
                         report_error(t.getMessage(),3, engineInData.getTransitData().getId());
                         return;
                     }
