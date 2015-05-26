@@ -300,6 +300,7 @@ public class Service extends CBase {
                                 serviceIn.getMetaData().setStatus(xMsgMeta.Status.ERROR);
                                 serviceIn.getMetaData().setSeverityId(3);
                                 report_problem(serviceIn);
+                                t.printStackTrace();
                                 return;
                             }
                             // Clear inAnd data hash map for the satisfied composition
@@ -331,6 +332,7 @@ public class Service extends CBase {
                             serviceIn.getMetaData().setStatus(xMsgMeta.Status.ERROR);
                             serviceIn.getMetaData().setSeverityId(3);
                             report_problem(serviceIn);
+                            t.printStackTrace();
                             return;
                         }
                         break;
@@ -358,6 +360,7 @@ public class Service extends CBase {
                         serviceIn.getMetaData().setStatus(xMsgMeta.Status.ERROR);
                         serviceIn.getMetaData().setSeverityId(3);
                         report_problem(serviceIn);
+                        t.printStackTrace();
                         return;
                     }
                     break;

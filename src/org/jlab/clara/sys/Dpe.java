@@ -31,6 +31,8 @@ import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.data.xMsgD;
 import org.jlab.coda.xmsg.data.xMsgM;
 import org.jlab.coda.xmsg.excp.xMsgException;
+import org.jlab.coda.xmsg.net.xMsgAddress;
+import org.jlab.coda.xmsg.net.xMsgConnection;
 import org.jlab.coda.xmsg.xsys.xMsgRegistrar;
 
 import java.io.IOException;
@@ -80,6 +82,8 @@ public class Dpe extends CBase {
     // key = DPE_name
     // value = Map (key = containerName, value = Set of service names
     private Map<String, Map<String, Set<String>>> _myCloud = new HashMap<>();
+
+    private HeartBeatReport heartBeat;
 
 
     /**
@@ -147,6 +151,7 @@ public class Dpe extends CBase {
         registrar = new xMsgRegistrar();
         _myCloud.put(dpeName, new HashMap<String, Set<String>>());
 
+        startHeartBeatReport();
     }
 
     /**
@@ -185,6 +190,7 @@ public class Dpe extends CBase {
         registrar = new xMsgRegistrar();
         _myCloud.put(dpeName, new HashMap<String, Set<String>>());
 
+        startHeartBeatReport();
     }
 
     public static void main(String[] args) {
@@ -663,6 +669,41 @@ public class Dpe extends CBase {
                 }
             }
             return returnMsg;
+        }
+    }
+
+
+
+    private void startHeartBeatReport() {
+        heartBeat = new HeartBeatReport();
+        heartBeat.start();
+    }
+
+
+
+    private class HeartBeatReport extends Thread {
+        @Override
+        public void run() {
+            try {
+                int availableProcessors = Runtime.getRuntime().availableProcessors();
+                String claraHome = System.getenv("CLARA_HOME");
+
+                String topic = CConstants.DPE_ALIVE + ":" + feHostIp;
+                String data = dpeName + "?" + availableProcessors + "?" + claraHome;
+
+                xMsgAddress address = new xMsgAddress(feHostIp);
+                xMsgConnection socket = getNewConnection(address);
+
+                while (true) {
+                    xMsgMessage msg = new xMsgMessage(topic, data);
+                    genericSend(socket, msg);
+                    Thread.sleep(5000);
+                }
+            } catch (IOException | xMsgException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
         }
     }
 }
