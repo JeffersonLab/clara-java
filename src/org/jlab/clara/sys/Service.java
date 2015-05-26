@@ -25,6 +25,7 @@ import org.jlab.clara.base.CException;
 import org.jlab.clara.engine.EDataType;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.ICEngine;
+import org.jlab.clara.sys.ccc.old.CompositionAnalyser;
 import org.jlab.clara.util.CClassLoader;
 import org.jlab.clara.util.CConstants;
 import org.jlab.clara.util.CServiceSysConfig;
@@ -76,7 +77,7 @@ public class Service extends CBase {
     // Note: common for different compositions
     private long _numberOfRequests;
 
-    private CompositionAnalyser compositionAnalyser;
+    private org.jlab.clara.sys.ccc.old.CompositionAnalyser compositionAnalyser;
 
 
     /**

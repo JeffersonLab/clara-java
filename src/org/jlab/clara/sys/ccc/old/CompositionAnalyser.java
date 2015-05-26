@@ -19,7 +19,7 @@
  * SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-package org.jlab.clara.sys;
+package org.jlab.clara.sys.ccc.old;
 
 import org.jlab.clara.base.CException;
 import org.jlab.clara.engine.EngineData;
