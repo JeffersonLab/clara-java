@@ -22,31 +22,134 @@ package org.jlab.clara.sys.ccc;
 
 import java.util.LinkedHashMap;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by gurjyan on 5/21/15.
  */
 public class CCCompiler {
 
-    public final static String IP = "([0-9]{1,3}[\\.]){3}[0-9]{1,3}";
+    /**
+     * <p>
+     *     IP address regex
+     * </p>
+     */
+    public static String IP = "([0-9]{1,3})\\.([0-9]{1,3})\\.([0-9]{1,3})\\.([0-9]{1,3})";
 
-    public final static String STR = "^[A-Z|a-z]+[0-9]+$";
+    /**
+     * <p>
+     *     String that starts with a character
+     *     and can have preceding number
+     * </p>
+     */
+    public static String STR = "([A-Z|a-z]+[0-9]*)";
 
-    public final static String WS = "(\\s|\\t|\\n|\\W)*";
 
-    public static final String Sn = "^"+ IP +":"+ STR +":"+ STR +"$";
+    /**
+     * <p>
+     *     Any white space, including tab
+     *     and no character symbol
+     * </p>
+     */
+    public static String WS = "((\\s|\\t|\\n|\\W)*)";
 
-    public static String Stmt = "^("+Sn+"(,"+Sn+")*))\\+((&"+Sn+")|(("+Sn+"(,("+Sn+")*)))$";
+    /**
+     * <p>
+     *   Service canonical name:
+     *   <li>
+     *       dpe_ip : container_name : service_engine_name
+     *   </li>
+     * </p>
+     */
+    public static String Sn = "(" + IP + "_(java|python|cpp):" + STR + ":" + STR + ")";
 
-    public static String IF = "if"+ WS +"\\("+ WS + Sn + WS + STR + WS +"\\)"+ WS +"\\{"+ WS +"("+ Stmt +")+"+ WS +"\\}";
+    /**
+     * <p>
+     *    Routing statement, such as:
+     *    <li>
+     *       S1 + S2 + S3;
+     *    </li>
+     *    <li>
+     *       S1 , S2 + S3;
+     *    </li>
+     *    <li>
+     *       S1 + S2 , S3;
+     *    </li>
+     *    <li>
+     *       S1 , S2 + &S3;
+     *    </li>
+     * </p>
+     */
+    public static String RStmt = WS + Sn + WS + "(,"+ WS + Sn + ")*" + WS +
+            "(\\+"+ WS + Sn + "(,"+ WS + Sn + ")*" + WS +")" +
+            "| (\\+ "+ WS + "&"+Sn + WS+");" + WS;
 
-    public static String ELSEIF = "elseif"+ WS +"\\("+ WS + Sn + WS + STR + WS +"\\)"+ WS +"\\{"+ WS +"("+ Stmt +")+"+ WS +"\\}";
+    /**
+     * <p>
+     *     CLARA Condition, such as:
+     *     <li>
+     *         Service in_state "state_name"
+     *     </li>
+     *     <li>
+     *         Service not_in_state "state_name"
+     *     </li>
+     *     <li>
+     *         Service1 in_state "state_name1" && Service2 in_state "state_name2"
+     *     </li>
+     *     <li>
+     *         Service1 in_state "state_name1" || Service2 in_state "state_name2"
+     *     </li>
+     *     Note. parenthesis are optional
+     * </p>
+     */
+    public static String Cond = "\\(*" + WS + Sn + WS +"in_state|not_in_state" + WS + STR + WS + "\\)*" + WS +
+            "&&|\\|\\|" + WS +
+            "(" + "\\(*" + WS + Sn + WS +"in_state|not_in_state" + WS + STR + WS + "\\)*" + WS + ")*";
 
-    public static String ELSE = "else"+ WS +"\\("+ WS + Sn + WS + STR + WS +"\\)"+ WS +"\\{"+ WS +"("+ Stmt +")+"+ WS +"\\}";
+    /**
+     * <p>
+     *     CLARA conditional statement, such as:
 
-    public static String Cond = IF + "(" + ELSEIF + ")*(" + ELSE + ")*";
+     *     if ( Condition ) {
+     *         routing_statement_1;
+     *         routing_statement_n;
+     *     } elseif ( condition ) {
+     *         routing_statement_1;
+     *         routing_statement_n;
+     *     } else {
+     *         routing_statement_1;
+     *         routing_statement_n;
+     *     }
+     * </p>
+     */
+    public static String CStmt = WS + "if" + WS +"\\(" + Cond + "\\)" + WS +
+            "\\{" + WS + "("+RStmt+")+" + WS + "\\}" + WS +
+            "(elseif" + WS +"\\(" + Cond + "\\)" + WS +
+            "\\{" + WS + "("+RStmt+")+" + WS + "\\}" + WS +")*" +
+            "else" + WS + "\\{" + WS + "("+RStmt+")+" + WS + "\\}" + WS;
 
+
+    public static String program = "(" + RStmt + ")*(" + CStmt + ")*";
 
     // Instructions of the Clara composition
     LinkedHashMap<Condition, Set<Statement>> instructions = new LinkedHashMap<>();
+
+    public static void main(String[] args) {
+        String x = "129.57.81.247_java:C1:S1+ 129.57.81.247_java:C2:S2 ";
+//        System.out.println(x);
+        System.out.println(RStmt);
+//        System.out.println("=====================");
+        Pattern p = Pattern.compile(RStmt);
+        Matcher m = p.matcher(x);
+        System.out.println(m.matches());
+        System.out.println(m.groupCount());
+        System.out.println(m.group(3));
+        System.out.println(m.group(29));
+        for(int i= 0;i<m.groupCount();i++){
+            System.out.println(m.group(i)+" - "+i);
+        }
+    }
+
 }
+

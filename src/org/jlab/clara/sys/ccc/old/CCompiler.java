@@ -70,7 +70,6 @@ public class CCompiler {
             closeBrackets.add(matcher_c.end());
         }
         if(openBrackets.size()!=closeBrackets.size()){
-            lg.logger.severe("Syntax error: unmatched brackets.");
             return false;
         }
         // Find scopes
@@ -106,8 +105,6 @@ public class CCompiler {
             }
         }
         if(Scopes.size()!= Conditions.size()){
-            lg.logger.severe("Syntax error: scope without a condition \n" +
-                    "or condition without a scopes");
             return false;
         }
         return true;
@@ -135,7 +132,6 @@ public class CCompiler {
             closeParenthesis.add(matcher_c.end());
         }
         if(openParenthesis.size()!=closeParenthesis.size()){
-            lg.logger.severe("Syntax error! unmatched parenthesis.");
             return null;
         }
 
@@ -192,7 +188,6 @@ public class CCompiler {
         } else if(s.startsWith("while")){
             return "while";
         } else {
-            lg.logger.severe("Syntax error: ACondition without a conditional operator");
             return null;
         }
     }
@@ -225,7 +220,6 @@ public class CCompiler {
                 st.setRight(stk.nextToken());
                 break;
             default:
-                lg.logger.severe("Syntax error: Malformed statement\n statement = "+s);
                 return null;
         }
         return st;
@@ -257,7 +251,6 @@ public class CCompiler {
     public ArrayList<CCondition> compile(){
         // check the last brase
         if(!checkLastBrase(code)){
-            lg.logger.severe("Sintax error: missing the last brase");
             return null;
         }
 
@@ -311,7 +304,6 @@ public class CCompiler {
                     j=pCondStmt.size()-1;
                     break;
                 default:
-                    lg.logger.severe("Syntax error: Malformed boolean statement");
                     break;
             }
 
@@ -346,7 +338,6 @@ public class CCompiler {
 
         // Merge conditions and related scopes together
         if(conditions.size()!=scopes.size()){
-            lg.logger.severe("Syntax error...");
             return null;
         } else {
             for(int i=0; i<conditions.size();i++){
