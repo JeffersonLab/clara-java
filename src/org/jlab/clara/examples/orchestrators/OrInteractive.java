@@ -128,7 +128,7 @@ public class OrInteractive {
                             data.setDataType(xMsgD.Data.DType.T_STRING);
                             data.setSTRING(inData);
                             data.setAction(xMsgD.Data.ControlAction.EXECUTE);
-                            data.setSender(or.getName());
+                            data.setSender(or.getMyName());
 
 
                             // send the data to the service
@@ -194,7 +194,7 @@ public class OrInteractive {
                                 data.setDataType(xMsgD.Data.DType.T_STRING);
                                 data.setSTRING(inData);
                                 data.setAction(xMsgD.Data.ControlAction.EXECUTE);
-                                data.setSender(or.getName());
+                                data.setSender(or.getMyName());
 
                                 // send the data to the service
                                 or.run_service(firstService, data);
@@ -204,7 +204,7 @@ public class OrInteractive {
                                 String dpe_name = scanner.nextLine().trim();
                                 List<xMsgRegistrationData> containers = or.findContainers(dpe_name);
                                 for (xMsgRegistrationData r : containers) {
-                                    System.out.println(r.getName());
+                                    System.out.println(r.getMyName());
                                 }
                         }
                     }

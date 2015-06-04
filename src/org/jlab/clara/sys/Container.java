@@ -103,25 +103,25 @@ public class Container extends CBase {
         super(feHost);
         this.feHost = feHost;
 
-        setName(name);
+        setMyName(name);
 
         // Create a socket connections to the local dpe proxy
         connect();
 
         System.out.println(CUtility.getCurrentTimeInH() +
-                ": Started container = " + getName() + "\n");
+                ": Started container = " + getMyName() + "\n");
 
         //register container
-        System.out.println(CUtility.getCurrentTimeInH() + ": " + getName() +
+        System.out.println(CUtility.getCurrentTimeInH() + ": " + getMyName() +
                 " container sending registration request.");
-        registerSubscriber(getName(),
-                xMsgUtil.getTopicDomain(getName()),
-                xMsgUtil.getTopicSubject(getName()),
+        registerSubscriber(getMyName(),
+                xMsgUtil.getTopicDomain(getMyName()),
+                xMsgUtil.getTopicSubject(getMyName()),
                 xMsgConstants.UNDEFINED.getStringValue(),
                 "Service Container");
 
         // Subscribe messages published to this container
-        subscriptionHandler = genericReceive(CConstants.CONTAINER + ":" + getName(),
+        subscriptionHandler = genericReceive(CConstants.CONTAINER + ":" + getMyName(),
                                              new ContainerCallBack());
     }
 
@@ -138,36 +138,36 @@ public class Container extends CBase {
             throws xMsgException, SocketException {
         super();
 
-        setName(name);
+        setMyName(name);
 
         // Create a socket connections to the local dpe proxy
         connect();
 
         System.out.println(CUtility.getCurrentTimeInH() +
-                ": Started container = " + getName() + "\n");
+                ": Started container = " + getMyName() + "\n");
 
         //register container
-        System.out.println(CUtility.getCurrentTimeInH() + ": " + getName() +
+        System.out.println(CUtility.getCurrentTimeInH() + ": " + getMyName() +
                 " container sending registration request.");
-        registerSubscriber(getName(),
-                xMsgUtil.getTopicDomain(getName()),
-                xMsgUtil.getTopicSubject(getName()),
+        registerSubscriber(getMyName(),
+                xMsgUtil.getTopicDomain(getMyName()),
+                xMsgUtil.getTopicSubject(getMyName()),
                 xMsgConstants.UNDEFINED.getStringValue(),
                 "Service Container");
 
         // Subscribe messages published to this container
-        subscriptionHandler = genericReceive(CConstants.CONTAINER + ":" + getName(),
+        subscriptionHandler = genericReceive(CConstants.CONTAINER + ":" + getMyName(),
                                              new ContainerCallBack());
     }
 
     public void exitContainer() throws xMsgException, IOException {
 
-        reportFE(CConstants.CONTAINER_DOWN + "?" + getName());
+        reportFE(CConstants.CONTAINER_DOWN + "?" + getMyName());
 
         subscriptionHandler.unsubscribe();
-        removeSubscriberRegistration(getName(),
-                xMsgUtil.getTopicDomain(getName()),
-                xMsgUtil.getTopicSubject(getName()),
+        removeSubscriberRegistration(getMyName(),
+                xMsgUtil.getTopicDomain(getMyName()),
+                xMsgUtil.getTopicSubject(getMyName()),
                 xMsgConstants.UNDEFINED.getStringValue());
 
         for (ServiceDispatcher sd : _myServiceDispatchers.values()) {
@@ -209,7 +209,8 @@ public class Container extends CBase {
      */
     public void addService(String packageName,
                            String engineClassName,
-                           int objectPoolSize)
+                           int objectPoolSize,
+                           String initialState)
             throws CException,
             xMsgException,
             IOException,
@@ -220,7 +221,7 @@ public class Container extends CBase {
 
         // We need final variables to pass
         // abstract method implementation
-        final String canonical_name = getName() + ":" + engineClassName;
+        final String canonical_name = getMyName() + ":" + engineClassName;
 
         if(_threadPoolMap.containsKey(canonical_name)){
             throw new CException("service exists");
@@ -261,8 +262,10 @@ public class Container extends CBase {
             // name of this container + engine name of a service
             if(feHost.equals(xMsgConstants.UNDEFINED.getStringValue())) {
                 service =  new Service(packageName, canonical_name, sharedMemoryLocation);
+                service.updateMyState(initialState);
             } else {
                 service =  new Service(packageName, canonical_name, sharedMemoryLocation, fe);
+                service.updateMyState(initialState);
             }
             // add object to the pool
             sop[i] = service;
@@ -334,12 +337,15 @@ public class Container extends CBase {
                 final xMsgData.Builder data = (xMsgData.Builder) msg.getData();
                 if (data.getType().equals(xMsgData.Type.T_STRING)) {
                     String cmdData = data.getSTRING();
-                    String cmd = null, seName = null, objectPoolSize = null;
+                    String cmd = null, seName = null,
+                            objectPoolSize = null,
+                            initialState = xMsgConstants.UNDEFINED.getStringValue();
                     try {
                         StringTokenizer st = new StringTokenizer(cmdData, "?");
                         cmd = st.nextToken();
                         seName = st.nextToken();
-                        objectPoolSize = st.nextToken();
+                        if(st.hasMoreTokens())objectPoolSize = st.nextToken();
+                        if(st.hasMoreTokens())initialState = st.nextToken();
 
                     } catch (NoSuchElementException e) {
                         System.out.println(e.getMessage());
@@ -368,7 +374,7 @@ public class Container extends CBase {
                                     String packageName = seName.substring(0, seName.lastIndexOf("."));
                                     String className = seName.substring((seName.lastIndexOf(".")) + 1, seName.length());
 
-                                    addService(packageName, className, Integer.parseInt(objectPoolSize));
+                                    addService(packageName, className, Integer.parseInt(objectPoolSize), initialState);
                                 } catch (xMsgException | NumberFormatException | CException | ClassNotFoundException |
                                         InstantiationException | IllegalAccessException | IOException e) {
                                     e.printStackTrace();
@@ -390,6 +396,9 @@ public class Container extends CBase {
                                 }
                                 break;
                         }
+                    } else {
+                        System.out.println("Error: malformed deployment string: " +
+                                "command or service name is not defined.");
                     }
                 }
             }
@@ -462,7 +471,7 @@ public class Container extends CBase {
          */
         public void register(String feHost)
                 throws xMsgException {
-            System.out.println(CUtility.getCurrentTimeInH() + ": " + getName() +
+            System.out.println(CUtility.getCurrentTimeInH() + ": " + getMyName() +
                     " sending registration request.");
             registerSubscriber(myName,
                     feHost,

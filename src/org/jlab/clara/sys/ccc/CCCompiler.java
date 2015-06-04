@@ -20,15 +20,41 @@
  */
 package org.jlab.clara.sys.ccc;
 
-import java.util.LinkedHashMap;
+import org.jlab.clara.base.CException;
+
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
+import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Created by gurjyan on 5/21/15.
+ * <p>
+ *     Clara compiler. Compiles the application logical description,
+ *     i.e. simple/conditional routing schema in a sets of instructions
+ *     for a specified service. Below is an example of the application
+ *     code, written in the specific Clara language:
+ *
+ *     S1 + S2;
+ *     if ( S1 ? "abc" && S2 ! "xyz") {
+ *       S2 + S3;
+ *     } elseif ( S1 ? "fred" ) {
+ *         S2 + S4;
+ *     } else {
+ *         S2 + S5,S6,S7;
+ *     }
+ *     S4,S5 + &S8;
+ * </p>
+ *
+ * @author gurjyan
+ * @version 1.x
+ * @since 5/29/15
  */
 public class CCCompiler {
+
+    public Set<Instruction> instructions = new HashSet<>();
+
 
     /**
      * <p>
@@ -44,15 +70,6 @@ public class CCCompiler {
      * </p>
      */
     public static String STR = "([A-Z|a-z]+[0-9]*)";
-
-
-    /**
-     * <p>
-     *     Any white space, including tab
-     *     and no character symbol
-     * </p>
-     */
-    public static String WS = "((\\s|\\t|\\n|\\W)*)";
 
     /**
      * <p>
@@ -79,77 +96,211 @@ public class CCCompiler {
      *    <li>
      *       S1 , S2 + &S3;
      *    </li>
+     *    Note that regular expression does not include end of statement operator.
      * </p>
      */
-    public static String RStmt = WS + Sn + WS + "(,"+ WS + Sn + ")*" + WS +
-            "(\\+"+ WS + Sn + "(,"+ WS + Sn + ")*" + WS +")" +
-            "| (\\+ "+ WS + "&"+Sn + WS+");" + WS;
+    public static String RStmt = Sn + "(,"+ Sn + ")*\\+"+  Sn + "(,"+ Sn +")*";
 
     /**
      * <p>
-     *     CLARA Condition, such as:
+     *     CLARA simple Condition, such as:
      *     <li>
-     *         Service in_state "state_name"
+     *         Service ? "state_name"
      *     </li>
      *     <li>
-     *         Service not_in_state "state_name"
+     *         Service ! "state_name"
      *     </li>
-     *     <li>
-     *         Service1 in_state "state_name1" && Service2 in_state "state_name2"
-     *     </li>
-     *     <li>
-     *         Service1 in_state "state_name1" || Service2 in_state "state_name2"
-     *     </li>
-     *     Note. parenthesis are optional
      * </p>
      */
-    public static String Cond = "\\(*" + WS + Sn + WS +"in_state|not_in_state" + WS + STR + WS + "\\)*" + WS +
-            "&&|\\|\\|" + WS +
-            "(" + "\\(*" + WS + Sn + WS +"in_state|not_in_state" + WS + STR + WS + "\\)*" + WS + ")*";
+    public static String sCond = Sn +"?|!" + STR;
 
     /**
      * <p>
-     *     CLARA conditional statement, such as:
-
-     *     if ( Condition ) {
-     *         routing_statement_1;
-     *         routing_statement_n;
-     *     } elseif ( condition ) {
-     *         routing_statement_1;
-     *         routing_statement_n;
-     *     } else {
-     *         routing_statement_1;
-     *         routing_statement_n;
-     *     }
+     *     CLARA complex Condition, such as:
+     *     <li>
+     *         Service1 ? "state_name1" && Service2 ? "state_name2"
+     *     </li>
+     *     <li>
+     *         Service1 ? "state_name1" || Service2 ? "state_name2"
+     *     </li>
      * </p>
      */
-    public static String CStmt = WS + "if" + WS +"\\(" + Cond + "\\)" + WS +
-            "\\{" + WS + "("+RStmt+")+" + WS + "\\}" + WS +
-            "(elseif" + WS +"\\(" + Cond + "\\)" + WS +
-            "\\{" + WS + "("+RStmt+")+" + WS + "\\}" + WS +")*" +
-            "else" + WS + "\\{" + WS + "("+RStmt+")+" + WS + "\\}" + WS;
+    public static String Cond = "if|elseif|else\\( (" + sCond + "&&|\\|\\|" + sCond + ")+ \\)";
+
+    // The name of the service relative to which compilation will be done.
+    private String myServiceName;
 
 
-    public static String program = "(" + RStmt + ")*(" + CStmt + ")*";
+    /**
+     * Constructor
+     * @param service the name of the service relative to which to compile.
+     */
+    public CCCompiler(String service){
+        myServiceName = service;
+    }
 
-    // Instructions of the Clara composition
-    LinkedHashMap<Condition, Set<Statement>> instructions = new LinkedHashMap<>();
+    public void compile(String iCode) throws CException {
 
-    public static void main(String[] args) {
-        String x = "129.57.81.247_java:C1:S1+ 129.57.81.247_java:C2:S2 ";
-//        System.out.println(x);
-        System.out.println(RStmt);
-//        System.out.println("=====================");
-        Pattern p = Pattern.compile(RStmt);
-        Matcher m = p.matcher(x);
-        System.out.println(m.matches());
-        System.out.println(m.groupCount());
-        System.out.println(m.group(3));
-        System.out.println(m.group(29));
-        for(int i= 0;i<m.groupCount();i++){
-            System.out.println(m.group(i)+" - "+i);
+        // This is a new request reset
+        reset();
+
+        // Create a single string with no blanks
+        String pCode = noBlanks(iCode);
+
+        // split single string program using
+        // Clara ; enf of statement operator
+        Set<String> pp = preProcess(pCode);
+
+        // start analysing and building compiled instructions
+        Iterator<String> ppi = pp.iterator();
+        while(ppi.hasNext()){
+            String scs1 = ppi.next();
+            if(!parseStatement(scs1)){
+                Instruction ins = parseCondition(scs1);
+                while(ppi.hasNext()){
+                    String scs2 = ppi.next();
+                    if(!scs2.startsWith("if(") &&
+                            !scs2.startsWith("}elseif(") &&
+                            !scs2.startsWith("}else")) {
+                        parseStatement(scs2, ins);
+                    } else {
+                        break;
+                    }
+                }
+                instructions.add(ins);
+            }
         }
     }
+
+    /**
+     * <p>
+     *     Tokenize code by Clara end of statement operator ";"
+     * </p>
+     * @param pCode code string
+     * @return set of tokens, including simple
+     * routing statements as well as conditionals
+     * @throws CException
+     */
+    private Set<String> preProcess(String pCode) throws CException {
+        Set<String> r = new HashSet<>();
+        // tokenize by ;
+        StringTokenizer st = new StringTokenizer(pCode,";");
+        while (st.hasMoreTokens()){
+            r.add(st.nextToken());
+        }
+        if(r.isEmpty())throw new CException("syntax error: missing ;");
+        return r;
+    }
+
+    private boolean parseStatement(String iStmt) throws CException {
+        boolean b = false;
+        Instruction ti = new Instruction(myServiceName);
+
+        if(!iStmt.startsWith("if(") &&
+                !iStmt.startsWith("}elseif(") &&
+                !iStmt.startsWith("}else")){
+
+            //unconditional routing statement
+            Pattern p = Pattern.compile(RStmt);
+            Matcher m = p.matcher(iStmt);
+            if(m.matches()) {
+                Statement ts = new Statement(iStmt, myServiceName);
+                ti.addUnCondStatement(ts);
+                instructions.add(ti);
+                b = true;
+            } else {
+                throw new CException("syntax error: malformed routing statement");
+            }
+        }
+        return b;
+    }
+
+    private boolean parseStatement(String iStmt, Instruction ti) throws CException {
+        boolean b = false;
+
+        if(!iStmt.startsWith("if(") &&
+                !iStmt.startsWith("}elseif(") &&
+                !iStmt.startsWith("}else")){
+
+            //unconditional routing statement
+            Pattern p = Pattern.compile(RStmt);
+            Matcher m = p.matcher(iStmt);
+            if(m.matches()) {
+                Statement ts = new Statement(iStmt, myServiceName);
+                ti.addUnCondStatement(ts);
+                b = true;
+            } else {
+                throw new CException("syntax error: malformed routing statement");
+            }
+        }
+        return b;
+    }
+
+    private Instruction parseCondition(String iCnd) throws CException {
+        Instruction ti = null;
+        if (iCnd.startsWith("if(") ||
+                iCnd.startsWith("}elseif(") ||
+                iCnd.startsWith("}else")) {
+
+            Pattern p = Pattern.compile(Cond);
+            Matcher m = p.matcher(iCnd);
+            if(m.matches()) {
+                try {
+                    // get condition and analyze it
+                    String conditionStr = iCnd.substring(iCnd.indexOf("("), iCnd.lastIndexOf(")"));
+                    Condition tc = new Condition(conditionStr, myServiceName);
+
+                    // get first statement  and analyze it
+                    String statementStr = iCnd.substring(iCnd.indexOf("{"));
+                    Statement ts = new Statement(statementStr, myServiceName);
+
+                    // create Instruction
+                    ti = new Instruction(myServiceName);
+                    if(iCnd.startsWith("if(")) {
+                        ti.setIfCondition(tc);
+                        ti.addIfCondStatement(ts);
+                    }
+                    else if(iCnd.startsWith("}elseif(")) {
+                        ti.setElseifCondition(tc);
+                        ti.addElseifCondStatement(ts);
+                    }
+                    else if(iCnd.startsWith("}else")) {
+                        ti.addElseCondStatement(ts);
+                    }
+                } catch (StringIndexOutOfBoundsException e) {
+                    throw new CException("syntax error: missing parenthesis");
+                }
+            } else {
+                throw new CException("syntax error: malformed conditional statement");
+            }
+        }
+        return ti;
+    }
+
+    public void reset(){
+        instructions.clear();
+    }
+
+    /**
+     * <p>
+     *     returns an entire program one consequent string
+     * </p>
+     * @param x input program text
+     * @return single string representation of the program
+     */
+    private String noBlanks(String x){
+        StringTokenizer st = new StringTokenizer(x);
+        StringBuilder sb = new StringBuilder();
+        while(st.hasMoreTokens()){
+            sb.append(st.nextToken().trim());
+        }
+        return sb.toString();
+    }
+
+    public Set<Instruction> getInstructions() {
+        return instructions;
+    }
+
 
 }
 

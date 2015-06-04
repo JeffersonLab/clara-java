@@ -20,8 +20,14 @@
  */
 package org.jlab.clara.sys.ccc;
 
+import org.jlab.clara.base.CException;
+import org.jlab.coda.xmsg.core.xMsgConstants;
+
 import java.util.HashSet;
 import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * <p>
@@ -36,12 +42,6 @@ import java.util.Set;
  */
 public class Condition {
 
-    // Required state of the service for this condition to be true
-    private ServiceState state;
-
-    // Required NOT state of the service for this condition to be true
-    private ServiceState notState;
-
     // States of services that are required to be present in order this condition to be true
     private Set<ServiceState> andStates = new HashSet<>();
 
@@ -51,135 +51,183 @@ public class Condition {
     // Required states of services that will make this statement true
     private Set<ServiceState> orStates = new HashSet<>();
 
-    // The name of the service that this condition is relevant to.
-    private String serviceName;
+    // Required states of services that will make this statement true
+    private Set<ServiceState> orNotStates = new HashSet<>();
 
-    public Condition(String serviceName){
+    // condition string
+    private String conditionString = xMsgConstants.UNDEFINED.toString();
+
+    // The name of the service that this condition is relevant to.
+    private String serviceName = xMsgConstants.UNDEFINED.toString();
+
+    public Condition(String conditionString, String serviceName) throws CException {
+        this.conditionString = conditionString;
         this.serviceName = serviceName;
+        process(conditionString);
     }
 
     public String getServiceName() {
         return serviceName;
     }
 
-    public ServiceState getState() {
-        return state;
-    }
-
-    public void setState(ServiceState state) {
-        this.state = state;
-    }
-
-    public ServiceState getNotState() {
-        return notState;
-    }
-
-    public void setNotState(ServiceState notState) {
-        this.notState = notState;
-    }
 
     public Set<ServiceState> getAndStates() {
         return andStates;
     }
 
-    public void setAndStates(Set<ServiceState> andStates) {
-        this.andStates = andStates;
+    private void addAndState(ServiceState andState) {
+        this.andStates.add(andState);
     }
 
     public Set<ServiceState> getAndNotStates() {
         return andNotStates;
     }
 
-    public void setAndNotStates(Set<ServiceState> andNotStates) {
-        this.andNotStates = andNotStates;
+    private void addAndNotState(ServiceState andNotState) {
+        this.andNotStates.add(andNotState);
     }
 
     public Set<ServiceState> getOrStates() {
         return orStates;
     }
 
-    public void setOrStates(Set<ServiceState> orStates) {
-        this.orStates = orStates;
+    private void addOrState(ServiceState orState) {
+        this.orStates.add(orState);
     }
 
+    public Set<ServiceState> getOrNotStates() {
+        return orNotStates;
+    }
+
+    private void addOrNotState(ServiceState orState) {
+        this.orNotStates.add(orState);
+    }
+
+
+    private void process(String cs) throws CException {
+
+        if(cs.contains("(")) cs = cs.replaceAll("\\(","");
+        if(cs.contains(")")) cs = cs.replaceAll("\\)","");
+
+        if(cs.contains("&&")){
+            parseCondition(cs,"&&");
+        } else if(cs.contains("||")){
+            parseCondition(cs,"||");
+        } else {
+            throw new CException("syntax error: malformed conditional statement");
+        }
+
+    }
+
+    private void parseCondition(String cs, String logicOperator) throws CException {
+        StringTokenizer t0, t1;
+        if(cs.contains("&&") && !cs.contains("||")) {
+            t0 = new StringTokenizer(cs, logicOperator);
+            while (t0.hasMoreTokens()) {
+                String ac = t0.nextToken();
+
+                Pattern p = Pattern.compile(CCCompiler.sCond);
+                Matcher m = p.matcher(CCCompiler.sCond);
+                if(m.matches()) {
+
+                    if (ac.contains("!")) {
+                        t1 = new StringTokenizer(t0.nextToken(), "!");
+                        if (t1.countTokens() == 2) {
+                            throw new CException("syntax error: malformed conditional statement");
+                        }
+                        ServiceState sst = new ServiceState(t1.nextToken(), t1.nextToken());
+                        addAndNotState(sst);
+
+                    } else if (ac.contains("?")) {
+                        t1 = new StringTokenizer(t0.nextToken(), "?");
+                        if (t1.countTokens() == 2) {
+                            throw new CException("syntax error: malformed conditional statement");
+                        }
+                        ServiceState sst = new ServiceState(t1.nextToken(), t1.nextToken());
+                        addAndState(sst);
+
+                    } else {
+                        throw new CException("syntax error: malformed conditional statement");
+                    }
+                } else {
+                    throw new CException("syntax error: malformed conditional statement");
+                }
+            }
+        } else if(cs.contains("||") && !cs.contains("&&")) {
+            t0 = new StringTokenizer(cs, logicOperator);
+            while (t0.hasMoreTokens()) {
+                String ac = t0.nextToken();
+
+                Pattern p = Pattern.compile(CCCompiler.sCond);
+                Matcher m = p.matcher(CCCompiler.sCond);
+                if(m.matches()) {
+
+                    if (ac.contains("!")) {
+                        t1 = new StringTokenizer(t0.nextToken(), "!");
+                        if (t1.countTokens() == 2) {
+                            throw new CException("syntax error: malformed conditional statement");
+                        }
+                        ServiceState sst = new ServiceState(t1.nextToken(), t1.nextToken());
+                        addOrNotState(sst);
+
+                    } else if (ac.contains("?")) {
+                        t1 = new StringTokenizer(t0.nextToken(), "?");
+                        if (t1.countTokens() == 2) {
+                            throw new CException("syntax error: malformed conditional statement");
+                        }
+                        ServiceState sst = new ServiceState(t1.nextToken(), t1.nextToken());
+                        addOrState(sst);
+
+                    } else {
+                        throw new CException("syntax error: malformed conditional statement");
+                    }
+                } else {
+                    throw new CException("syntax error: malformed conditional statement");
+                }
+            }
+        } else {
+            throw new CException("syntax error: malformed or unsupported conditional statement");
+        }
+    }
 
     /**
      * <p>
      *     Returns true if passed states make this condition true
      * </p>
-     * @param ownState state of this service
-     * @param inputStates state of all input services
      * @return true/false
      */
-    public boolean isTrue(ServiceState ownState, Set<ServiceState> inputStates){
-        boolean checkMyState = (getState()==null) || (ownState.equals(getState()));
-        boolean checkMyNotState = (getNotState()==null) || (!ownState.equals(getNotState()));
+    public boolean isTrue(ServiceState ownerSS, ServiceState inputSS){
 
-        boolean checkAnd = checkANDCondition(inputStates);
-        boolean checkAndNot = checkANDNotCondition(inputStates);
-        boolean checkOr = checkORCondition(inputStates);
-        return checkMyState && checkMyNotState && checkAnd && checkAndNot && checkOr;
+        boolean checkAnd = checkANDCondition(getAndStates(), ownerSS, inputSS);
+        boolean checkAndNot = checkANDCondition(getAndNotStates(), ownerSS, inputSS);
+        boolean checkOr = checkORCondition(getOrStates(), ownerSS, inputSS);
+        boolean checkOrNot = checkORCondition(getOrNotStates(), ownerSS, inputSS);
+
+        return checkAnd && checkAndNot && checkOr && checkOrNot;
     }
 
-    private boolean checkANDCondition(Set<ServiceState> j){
-        boolean b;
-        if(getAndStates().isEmpty()){
+    private boolean checkANDCondition(Set<ServiceState> sc, ServiceState s1, ServiceState s2){
+        boolean b = false;
+        if(sc.isEmpty()){
             b = true;
         } else {
-            if(getAndStates().size()==j.size()) {
-                b = true;
-                for (ServiceState ss : getAndStates()) {
-                    for (ServiceState ssi : j) {
-                        if (!ss.equals(ssi)) {
-                            b = false;
-                            break;
-                        }
-                    }
-                }
-            } else {
-                b = false;
+            if (sc.contains(s1) && sc.contains(s2)) {
+                return true;
             }
         }
         return b;
     }
 
-    private boolean checkANDNotCondition(Set<ServiceState> j){
-        boolean b;
-        if(getAndNotStates().isEmpty()){
+    private boolean checkORCondition(Set<ServiceState> sc, ServiceState s1, ServiceState s2){
+        boolean b = false;
+        if(sc.isEmpty()){
             b = true;
         } else {
-            if(getAndNotStates().size()==j.size()) {
-                b = true;
-                for (ServiceState ss : getAndNotStates()) {
-                    for (ServiceState ssi : j) {
-                        if (ss.equals(ssi)) {
-                            b = false;
-                            break;
-                        }
-                    }
-                }
-            } else {
-                b = false;
+            if (sc.contains(s1) || sc.contains(s2)) {
+                return true;
             }
         }
         return b;
     }
 
-    private boolean checkORCondition(Set<ServiceState> j){
-        boolean b;
-        if(getOrStates().isEmpty()){
-            b = true;
-        } else {
-            b = false;
-                for (ServiceState ssi : j) {
-                    for (ServiceState ss : getOrStates()) {
-                        if (ss.equals(ssi)) {
-                            b = true;
-                            break;
-                        }
-                    }
-                }
-        }
-        return b;
-    }
 }

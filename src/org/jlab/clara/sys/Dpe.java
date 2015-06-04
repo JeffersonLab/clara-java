@@ -99,7 +99,7 @@ public class Dpe extends CBase {
         super();
 
         dpeName = xMsgUtil.getLocalHostIps().get(0);
-        setName(dpeName);
+        setMyName(dpeName);
         this.isFE = isFE;
         if (isFE) {
             feHostIp = dpeName;
@@ -115,7 +115,7 @@ public class Dpe extends CBase {
                 @Override
                 public void run() {
                     for (String dpn : _myCloud.keySet()) {
-                        if (!dpn.equals(getName())) {
+                        if (!dpn.equals(getMyName())) {
                             try {
                                 Object response = syncPing(dpn, 2);
                                 if (response == null) {
@@ -143,7 +143,7 @@ public class Dpe extends CBase {
         }
 
         // Subscribe messages published to this container
-        genericReceive(CConstants.DPE + ":" + getName(),
+        genericReceive(CConstants.DPE + ":" + getMyName(),
                 new DpeCallBack());
 
         // Create the xMsgNode object that will provide
@@ -167,7 +167,7 @@ public class Dpe extends CBase {
         super();
 
         dpeName = xMsgUtil.getLocalHostIps().get(0);
-        setName(dpeName);
+        setMyName(dpeName);
         feHostIp = xMsgUtil.host_to_ip(feName);
 
         printLogo();
@@ -175,14 +175,14 @@ public class Dpe extends CBase {
         // Send dpe_up message to the FE
         try {
             xMsgMessage msg = new xMsgMessage(CConstants.DPE + ":" + feHostIp,
-                    CConstants.DPE_UP + "?" + getName());
+                    CConstants.DPE_UP + "?" + getMyName());
             genericSend(feHostIp, msg);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         // Subscribe messages published to this container
-        genericReceive(CConstants.DPE + ":" + getName(),
+        genericReceive(CConstants.DPE + ":" + getMyName(),
                 new DpeCallBack());
 
         // Create the xMsgNode object that will provide
@@ -243,7 +243,7 @@ public class Dpe extends CBase {
         System.out.println("================================");
         System.out.println(" Binding = Java");
         System.out.println(" Date    = " + CUtility.getCurrentTimeInH());
-        System.out.println(" Host    = " + getName());
+        System.out.println(" Host    = " + getMyName());
         System.out.println("================================");
     }
 

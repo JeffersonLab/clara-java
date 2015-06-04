@@ -34,12 +34,16 @@ import java.util.Set;
  */
 public class Instruction {
 
-    // Condition of a composition
-    private Condition condition;
+    // Conditions of a composition
+    private Condition ifCondition;
+    private Set<Statement> ifCondStatements = new HashSet<>();
 
-    // The set of routing statements that will be
-    // executed in case the statement is true;
-    private Set<Statement> statements = new HashSet<>();
+    private Condition elseifCondition;
+    private Set<Statement> elseifCondStatements = new HashSet<>();
+
+    private Set<Statement> elseCondStatements = new HashSet<>();
+
+    private Set<Statement> unCondStatements = new HashSet<>();
 
     // The name of the service that this instruction is relevant to.
     private String serviceName;
@@ -52,19 +56,68 @@ public class Instruction {
         return serviceName;
     }
 
-    public Condition getCondition() {
-        return condition;
+    public Condition getIfCondition() {
+        return ifCondition;
     }
 
-    public void setCondition(Condition condition) {
-        this.condition = condition;
+    public void setIfCondition(Condition ifCondition) {
+        this.ifCondition = ifCondition;
     }
 
-    public Set<Statement> getStatements() {
-        return statements;
+    public Set<Statement> getIfCondStatements() {
+        return ifCondStatements;
     }
 
-    public void setStatements(Set<Statement> statements) {
-        this.statements = statements;
+    public void setIfCondStatements(Set<Statement> ifCondStatements) {
+        this.ifCondStatements = ifCondStatements;
     }
+
+    public void addIfCondStatement(Statement ifCondstatement) {
+        this.ifCondStatements.add(ifCondstatement);
+    }
+
+    public Condition getElseifCondition() {
+        return elseifCondition;
+    }
+
+    public void setElseifCondition(Condition elseifCondition) {
+        this.elseifCondition = elseifCondition;
+    }
+
+    public Set<Statement> getElseifCondStatements() {
+        return elseifCondStatements;
+    }
+
+    public void setElseifCondStatements(Set<Statement> elseifCondStatements) {
+        this.elseifCondStatements = elseifCondStatements;
+    }
+
+    public void addElseifCondStatement(Statement elseifCondstatement) {
+        this.elseifCondStatements.add(elseifCondstatement);
+    }
+
+    public Set<Statement> getElseCondStatements() {
+        return elseCondStatements;
+    }
+
+    public void setElseCondStatements(Set<Statement> elseCondStatements) {
+        this.elseCondStatements = elseCondStatements;
+    }
+
+    public void addElseCondStatement(Statement elseCondstatement) {
+        this.elseCondStatements.add(elseCondstatement);
+    }
+
+    public Set<Statement> getUnCondStatements() {
+        return unCondStatements;
+    }
+
+    public void setUnCondStatements(Set<Statement> unCondStatements) {
+        this.unCondStatements = unCondStatements;
+    }
+
+    public void addUnCondStatement(Statement unCondstatement) {
+        this.unCondStatements.add(unCondstatement);
+    }
+
 }

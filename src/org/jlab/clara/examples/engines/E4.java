@@ -27,6 +27,7 @@ import org.jlab.clara.util.CConstants;
 import org.jlab.coda.xmsg.data.xMsgM;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * <p>
@@ -62,9 +63,9 @@ public class E4 implements ICEngine {
     }
 
     @Override
-    public EngineData execute_group(List<EngineData> x) {
+    public EngineData execute_group(Set<EngineData> x) {
         System.out.println("E4 engine group execute...");
-        return x.get(0);
+        return x.iterator().next();
     }
 
     @Override

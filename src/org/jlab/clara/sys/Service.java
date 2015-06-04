@@ -25,7 +25,7 @@ import org.jlab.clara.base.CException;
 import org.jlab.clara.engine.EDataType;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.ICEngine;
-import org.jlab.clara.sys.ccc.old.CompositionAnalyser;
+import org.jlab.clara.sys.ccc.*;
 import org.jlab.clara.util.CClassLoader;
 import org.jlab.clara.util.CConstants;
 import org.jlab.clara.util.CServiceSysConfig;
@@ -38,9 +38,7 @@ import org.jlab.coda.xmsg.excp.xMsgException;
 
 import java.io.IOException;
 import java.net.SocketException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -54,8 +52,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class Service extends CBase {
 
+    private ServiceState myServiceState;
 
-    //
     public AtomicBoolean isAvailable;
     // Already recorded (previous) composition
     private String
@@ -66,6 +64,7 @@ public class Service extends CBase {
     // Engine instantiated object
     private ICEngine
             engine_object = null;
+
     // key in the shared memory map of DPE to
     // locate this service resulting data object
     private String
@@ -77,7 +76,7 @@ public class Service extends CBase {
     // Note: common for different compositions
     private long _numberOfRequests;
 
-    private org.jlab.clara.sys.ccc.old.CompositionAnalyser compositionAnalyser;
+    private CCCompiler compiler;
 
 
     /**
@@ -105,11 +104,11 @@ public class Service extends CBase {
             InstantiationException,
             ClassNotFoundException {
         super(feHost);
-        setName(name);
+        setMyName(name);
 
         this.sharedMemoryKey = sharedMemoryKey;
 
-        this.engine_class_name = packageName+"."+CUtility.getEngineName(getName());
+        this.engine_class_name = packageName+"."+CUtility.getEngineName(getMyName());
 
         // Dynamic loading of the Clara engine class
         // Note: using system class loader
@@ -123,10 +122,10 @@ public class Service extends CBase {
 
         isAvailable = new AtomicBoolean(true);
 
-        System.out.println("Service = " + getName()+" is up.");
+        System.out.println("Service = " + getMyName()+" is up.");
 
         // create an object of the composition parser
-        compositionAnalyser = new CompositionAnalyser(getName());
+        compiler = new CCCompiler(getMyName());
     }
 
     /**
@@ -151,9 +150,9 @@ public class Service extends CBase {
             InstantiationException,
             ClassNotFoundException {
         super();
-        setName(name);
+        setMyName(name);
         this.sharedMemoryKey = sharedMemoryKey;
-        this.engine_class_name = packageName+"."+CUtility.getEngineName(getName());
+        this.engine_class_name = packageName+"."+CUtility.getEngineName(getMyName());
 
         // Dynamic loading of the Clara engine class
         // Note: using system class loader
@@ -166,10 +165,18 @@ public class Service extends CBase {
 
         isAvailable = new AtomicBoolean(true);
 
-        System.out.println("Service = " + getName()+" is up.");
+        System.out.println("Service = " + getMyName()+" is up.");
 
         // create an object of the composition parser
-        compositionAnalyser = new CompositionAnalyser(getName());
+        compiler = new CCCompiler(getMyName());
+    }
+
+    public ServiceState getMyServiceState() {
+        return myServiceState;
+    }
+
+    public void updateMyState(String state) {
+        myServiceState.setState(state);
     }
 
     public void configure(xMsgMeta.Builder metadata,
@@ -184,7 +191,6 @@ public class Service extends CBase {
         if (metadata.getAction().equals(xMsgMeta.ControlAction.CONFIGURE)) {
 
             engine_object.configure(new EngineData(metadata, data));
-
             // If this is a sync request, send done to the requester
             if (!metadata.getReplyTo().equals(xMsgConstants.UNDEFINED.getStringValue()) &&
                     CUtility.isCanonical(metadata.getReplyTo())) {
@@ -216,193 +222,154 @@ public class Service extends CBase {
         // Increment request count in the sysConfig object
         config.addRequest();
 
-        // Variables to measure service
-        // engine execution time
-        long startTime;
-        long endTime;
-
         String c_composition = metadata.getComposition();
-        String senderService = metadata.getSender();
+
+        ServiceState senderServiceState =
+                new ServiceState(metadata.getSender(), metadata.getSenderState());
+
 
         if (metadata.getAction().equals(xMsgMeta.ControlAction.EXECUTE)) {
 
-            long execTime;
-
             if (!c_composition.equals(p_composition)) {
                 // analyze composition
-                compositionAnalyser.analyzeComposition(c_composition);
+                compiler.compile(c_composition);
                 p_composition = c_composition;
             }
 
-            // Execute service engine
-            EngineData serviceIn = new EngineData(metadata, data);
-            EngineData serviceOut = null;
 
-            for (String com : compositionAnalyser.getInLinks().keySet()) {
+            for (Instruction inst : compiler.getInstructions()) {
 
-                // find a sub_composition that sender
-                // service is listed as a an input service
-                if (com.contains(senderService)) {
+                // get the condition of the instruction
+                // if condition...
+                Condition if_cnd = inst.getIfCondition();
+                Condition elseif_cnd = inst.getElseifCondition();
 
-                    // Find if the data from this input service
-                    // is required to be logically ANDed with
-                    // other input service.
-                    // Go over all sub_compositions that require
-                    // logical AND of inputs
-                    if (compositionAnalyser.getInAndNameList().containsKey(com)) {
+                // the set of routing statements
+                Set<Statement> r_stmt;
 
-                        // Get that sub composition and check against
-                        // the received service name the list of service
-                        // that are required to be logically ANDed
-                        for (String ser : compositionAnalyser.getInAndNameList().get(com)) {
-                            if (ser.equals(senderService)) {
-                                if (compositionAnalyser.getInAndDataList().containsKey(com)) {
-                                    HashMap<String, EngineData> dm = compositionAnalyser.getInAndDataList().get(com);
-                                    dm.put(senderService, serviceIn);
-                                } else {
-                                    HashMap<String, EngineData> dm = new HashMap<>();
-                                    dm.put(senderService, serviceIn);
-                                    compositionAnalyser.getInAndDataList().put(com, dm);
-                                }
-                            }
-                        }
+                if (if_cnd != null) {
+                    // Conditional routing.
 
-                        // Now check the size of received data list
-                        // with the required input name list.
-                        // If equal we will execute the service.
-                        if (compositionAnalyser.getInAndNameList().get(com).size() ==
-                                compositionAnalyser.getInAndDataList().get(com).size()) {
-
-                            List<EngineData> ddl = new ArrayList<>();
-
-                            for (HashMap<String, EngineData> m : compositionAnalyser.getInAndDataList().values()) {
-                                for (EngineData d : m.values()) {
-                                    ddl.add(d);
-                                }
-                            }
-//                            System.out.println(senderService + ": Executing engine (logAND) = " + engine_class_name);
-                            try {
-                                // increment request count
-                                _numberOfRequests++;
-                                // get engine execution start time
-                                startTime = System.nanoTime();
-
-                                serviceOut = engine_object.execute_group(ddl);
-
-                                // get engine execution end time
-                                endTime = System.nanoTime();
-                                // service engine execution time
-                                execTime = endTime - startTime;
-                                // Calculate a simple average for the execution time
-                                _avEngineExecutionTime = (_avEngineExecutionTime + execTime) / _numberOfRequests;
-
-                            } catch (Throwable t) {
-                                serviceIn.getMetaData().setDescription(t.getMessage());
-                                serviceIn.getMetaData().setStatus(xMsgMeta.Status.ERROR);
-                                serviceIn.getMetaData().setSeverityId(3);
-                                report_problem(serviceIn);
-                                t.printStackTrace();
-                                return;
-                            }
-                            // Clear inAnd data hash map for the satisfied composition
-                            compositionAnalyser.getInAndDataList().remove(com);
-                            break;
-                        }
+                    if (if_cnd.isTrue(getMyServiceState(), senderServiceState)) {
+                        r_stmt = inst.getIfCondStatements();
+                    } else if (elseif_cnd.isTrue(getMyServiceState(), senderServiceState)) {
+                        r_stmt = inst.getElseifCondStatements();
                     } else {
-
-                        // sub-composition does not require logical
-                        // AND operations at the input of this service
-//                        System.out.println(senderService + ": Executing engine = " + engine_class_name);
-                        try {
-                            // increment request count
-                            _numberOfRequests++;
-                            // get engine execution start time
-                            startTime = System.nanoTime();
-
-                            serviceOut = engine_object.execute(serviceIn);
-
-                            // get engine execution end time
-                            endTime = System.nanoTime();
-                            // service engine execution time
-                            execTime = endTime - startTime;
-                            // Calculate a simple average for the execution time
-                            _avEngineExecutionTime = (_avEngineExecutionTime + execTime) / _numberOfRequests;
-
-                        } catch (Throwable t) {
-                            serviceIn.getMetaData().setDescription(t.getMessage());
-                            serviceIn.getMetaData().setStatus(xMsgMeta.Status.ERROR);
-                            serviceIn.getMetaData().setSeverityId(3);
-                            report_problem(serviceIn);
-                            t.printStackTrace();
-                            return;
-                        }
-                        break;
+                        r_stmt = inst.getElseCondStatements();
                     }
-
-                } else if (senderService.startsWith("orchestrator")) {
-//                    System.out.println(" Orchestrator: Executing engine = " + engine_class_name);
-                    try {
-                        // increment request count
-                        _numberOfRequests++;
-                        // get engine execution start time
-                        startTime = System.nanoTime();
-
-                        serviceOut = engine_object.execute(serviceIn);
-
-                        // get engine execution end time
-                        endTime = System.nanoTime();
-                        // service engine execution time
-                        execTime = endTime - startTime;
-                        // Calculate a simple average for the execution time
-                        _avEngineExecutionTime = (_avEngineExecutionTime + execTime) / _numberOfRequests;
-
-                    } catch (Throwable t) {
-                        serviceIn.getMetaData().setDescription(t.getMessage());
-                        serviceIn.getMetaData().setStatus(xMsgMeta.Status.ERROR);
-                        serviceIn.getMetaData().setSeverityId(3);
-                        report_problem(serviceIn);
-                        t.printStackTrace();
-                        return;
-                    }
-                    break;
-                }
-            }
-
-            if (serviceOut == null) {
-                serviceOut = serviceIn;
-                serviceOut.getMetaData().setStatus(xMsgMeta.Status.WARNING);
-                serviceOut.getMetaData().setSeverityId(1);
-                serviceOut.newData(EDataType.UNDEFINED, null);
-            }
-            serviceOut.getMetaData().setSender(getName());
-
-            // If this is a sync request send data also to the requester
-            if (!serviceOut.getMetaData().getReplyTo().equals(xMsgConstants.UNDEFINED.getStringValue())) {
-                String dpeHost = CUtility.getDpeName(serviceOut.getMetaData().getReplyTo());
-                xMsgMessage transit;
-                if (serviceOut.getMetaData().getDataType().equals(xMsgMeta.DataType.X_Object)) {
-                    transit = new xMsgMessage(serviceOut.getMetaData().getReplyTo(), serviceOut.getMetaData(), serviceOut.getxData());
                 } else {
-                    transit = new xMsgMessage(serviceOut.getMetaData().getReplyTo(), serviceOut.getMetaData(), serviceOut.getData());
-                }
-                genericSend(dpeHost, transit);
-            }
 
-            // If engine defines status error
-            // or warning broadcast exception
-            if (serviceOut.getMetaData().getStatus().equals(xMsgMeta.Status.ERROR)) {
-                report_problem(serviceOut);
-            } else {
-                // Send service engine execution data to the services that are linked
-                callLinked(config, serviceOut);
-
-                if (serviceOut.getMetaData().getStatus().equals(xMsgMeta.Status.WARNING)) {
-                    report_problem(serviceOut);
+                    // unconditional routing
+                    r_stmt = inst.getUnCondStatements();
                 }
+
+                // execute service engine and route the statements
+                // note that service engine will not be executed if
+                // data for all inputs are present in the logical AND case.
+                // Execute service engine
+                EngineData inData = new EngineData(metadata, data);
+
+                execAndRoute(config, r_stmt, senderServiceState, inData);
             }
         }
         isAvailable.set(true);
     }
+
+    private EngineData executeEngine( Set<EngineData> inData)
+            throws IOException, xMsgException {
+        EngineData outData = null;
+
+        // Variables to measure service
+        // engine execution time
+        long startTime;
+        long endTime;
+        long execTime;
+
+        try {
+            // increment request count
+            _numberOfRequests++;
+            // get engine execution start time
+            startTime = System.nanoTime();
+
+            if(inData.size()==1) {
+                outData = engine_object.execute(inData.iterator().next());
+            } else {
+                outData = engine_object.execute_group(inData);
+
+            }
+            // get engine execution end time
+            endTime = System.nanoTime();
+            // service engine execution time
+            execTime = endTime - startTime;
+            // Calculate a simple average for the execution time
+            _avEngineExecutionTime = (_avEngineExecutionTime + execTime) / _numberOfRequests;
+
+            // update service state based on the engine set state
+            updateMyState(outData.getState());
+
+        } catch (Throwable t) {
+            EngineData fst = inData.iterator().next();
+            fst.getMetaData().setDescription(t.getMessage());
+            fst.getMetaData().setStatus(xMsgMeta.Status.ERROR);
+            fst.getMetaData().setSeverityId(3);
+            report_problem(fst);
+            t.printStackTrace();
+        }
+        return outData;
+    }
+
+    private void execAndRoute(CServiceSysConfig config,
+                              Set<Statement> r_stmt,
+                              ServiceState inServiceState,
+                              EngineData inData)
+            throws IOException, xMsgException, CException {
+
+        EngineData outData;
+        for (Statement st : r_stmt) {
+            if(st.getInputLinks().contains(inServiceState.getName())) {
+
+                Set<EngineData> ens = new HashSet<>();
+                ens.add(inData);
+                outData =  executeEngine(ens);
+
+                callLinked(config, outData, st.getOutputLinks());
+
+            } else if(st.getLogAndInputs().containsKey(inServiceState.getName())){
+
+                st.getLogAndInputs().put(inServiceState.getName(), inData);
+
+                // check to see if all required data is present (are not null)
+
+                boolean groupExecute = true;
+                for(EngineData ed : st.getLogAndInputs().values()){
+                    if(ed == null) {
+                        groupExecute = false;
+                        break;
+                    }
+                }
+
+                if(groupExecute){
+
+                    Set<EngineData> ens = new HashSet<>();
+                    // engine group execute
+
+                    for(EngineData ed: st.getLogAndInputs().values()){
+                            ens.add(ed);
+                    }
+                    outData = executeEngine(ens);
+
+                    callLinked(config,outData,st.getOutputLinks());
+
+                    // reset data in the logAndInputs map
+                    for(String s : st.getLogAndInputs().keySet()){
+                        st.getLogAndInputs().put(s,null);
+                    }
+                }
+
+            }
+        }
+    }
+
 
     /**
      * <p>
@@ -419,7 +386,8 @@ public class Service extends CBase {
      * @throws CException
      */
     private void callLinked(CServiceSysConfig config,
-                            EngineData engineData)
+                            EngineData engineData,
+                            Set<String> outLinks)
             throws xMsgException, IOException, CException {
 
         // External broadcast data
@@ -436,7 +404,21 @@ public class Service extends CBase {
 
         // Send to all output-linked services.
         // Note: multiple sub compositions
+        xMsgMessage transit = engineDataToxMsg(engineData);
 
+        for(String ss:outLinks) {
+            if (CUtility.isRemoteService(ss)) {
+                engineData.getMetaData().setIsDataSerialized(true);
+            } else {
+                engineData.getMetaData().setIsDataSerialized(false);
+            }
+            transit.setTopic(ss);
+            serviceSend(transit);
+        }
+    }
+
+
+    private xMsgMessage engineDataToxMsg(EngineData engineData){
         // Create transit data
         xMsgMessage transit;
         if (engineData.getMetaData().getDataType().equals(xMsgMeta.DataType.X_Object)) {
@@ -444,19 +426,9 @@ public class Service extends CBase {
         } else {
             transit = new xMsgMessage(engineData.getMetaData().getReplyTo(), engineData.getMetaData(), engineData.getData());
         }
-
-        for (List<String> ls : compositionAnalyser.getOutLinks().values()){
-            for(String ss:ls) {
-                if (CUtility.isRemoteService(ss)) {
-                    engineData.getMetaData().setIsDataSerialized(true);
-                } else {
-                    engineData.getMetaData().setIsDataSerialized(false);
-                }
-                transit.setTopic(ss);
-                serviceSend(transit);
-            }
-        }
+        return transit;
     }
+
 
 
     /**
@@ -479,7 +451,7 @@ public class Service extends CBase {
         } else {
             transit = new xMsgMessage(data.getMetaData().getReplyTo(), data.getMetaData(), data.getData());
         }
-        transit.setTopic(xMsgConstants.DONE.getStringValue() + ":" + getName());
+        transit.setTopic(xMsgConstants.DONE.getStringValue() + ":" + getMyName());
 
         String dpe = "localhost";
         if(!getFeHostName().equals(xMsgConstants.UNDEFINED.getStringValue())) {
@@ -512,7 +484,7 @@ public class Service extends CBase {
         } else {
             transit = new xMsgMessage(data.getMetaData().getReplyTo(), data.getMetaData(), data.getData());
         }
-        transit.setTopic(xMsgConstants.DATA.getStringValue() + ":" + getName());
+        transit.setTopic(xMsgConstants.DATA.getStringValue() + ":" + getMyName());
 
         String dpe = "localhost";
         if (!getFeHostName().equals(xMsgConstants.UNDEFINED.getStringValue())) {
@@ -545,9 +517,9 @@ public class Service extends CBase {
             transit = new xMsgMessage(data.getMetaData().getReplyTo(), data.getMetaData(), data.getData());
         }
         if (data.getMetaData().getStatus().equals(xMsgMeta.Status.ERROR)) {
-            transit.setTopic(xMsgConstants.ERROR.getStringValue() + ":" + getName());
+            transit.setTopic(xMsgConstants.ERROR.getStringValue() + ":" + getMyName());
         } else if (data.getMetaData().getStatus().equals(xMsgMeta.Status.WARNING)) {
-            transit.setTopic(xMsgConstants.WARNING.getStringValue() + ":" + getName());
+            transit.setTopic(xMsgConstants.WARNING.getStringValue() + ":" + getMyName());
         }
         String dpe = "localhost";
         if (!getFeHostName().equals(xMsgConstants.UNDEFINED.getStringValue())) {
@@ -559,6 +531,8 @@ public class Service extends CBase {
 
     }
 
+
+
     /**
      * <p>
      *  Removes service xMsg registration
@@ -567,10 +541,10 @@ public class Service extends CBase {
     public void remove_registration()
             throws xMsgException {
 
-        removeSubscriberRegistration(getName(),
-                xMsgUtil.getTopicDomain(getName()),
-                xMsgUtil.getTopicSubject(getName()),
-                xMsgUtil.getTopicType(getName()));
+        removeSubscriberRegistration(getMyName(),
+                xMsgUtil.getTopicDomain(getMyName()),
+                xMsgUtil.getTopicSubject(getMyName()),
+                xMsgUtil.getTopicType(getMyName()));
     }
 
     /**
@@ -584,12 +558,12 @@ public class Service extends CBase {
         String localDpe = xMsgUtil.getLocalHostIps().get(0);
 
         xMsgMessage msg1 = new xMsgMessage(CConstants.SERVICE + ":" + localDpe,
-                CConstants.SERVICE_DOWN + "?" + getName());
+                CConstants.SERVICE_DOWN + "?" + getMyName());
 
         genericSend(localDpe, msg1);
         if(!getFeHostName().equals(xMsgConstants.UNDEFINED.getStringValue())) {
             xMsgMessage msg2 = new xMsgMessage(CConstants.SERVICE + ":" + getFeHostName(),
-                    CConstants.SERVICE_DOWN + "?" + getName());
+                    CConstants.SERVICE_DOWN + "?" + getMyName());
             genericSend(getFeHostName(), msg2);
         }
     }

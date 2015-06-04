@@ -21,6 +21,7 @@
 package org.jlab.clara.sys.ccc;
 
 import org.jlab.clara.base.CException;
+import org.jlab.clara.engine.EngineData;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 
@@ -47,7 +48,7 @@ public class Statement {
     // The Map that has keys = input service names, data from which are required
     // logically to be ANDed. I.e. data from all services in the AND must be present
     // in order for the receiving service to execute its service engine.
-    private Map<String, xMsgMessage> logAndInputs = new HashMap<>();
+    private Map<String, EngineData> logAndInputs = new HashMap<>();
 
     // Names of all services that are linked to the service of interest, i.e. names
     // of all services that send data to this service
@@ -61,13 +62,14 @@ public class Statement {
     private String statementString = xMsgConstants.UNDEFINED.toString();
 
     // The name of the service that this statement is relevant to.
-    private String serviceName;
+    private String serviceName = xMsgConstants.UNDEFINED.toString();
 
 
     public Statement(String statementString, String serviceName) throws CException {
         if(statementString.contains(serviceName)) {
             this.statementString = statementString;
             this.serviceName = serviceName;
+            process(statementString);
         } else {
             throw new CException("irrelevant statement");
         }
@@ -89,14 +91,10 @@ public class Statement {
         return outputLinks;
     }
 
-    public Map<String, xMsgMessage> getLogAndInputs() {
+    public Map<String, EngineData> getLogAndInputs() {
         return logAndInputs;
     }
 
-    public void analyze() throws CException {
-            // start analyzing routing statement
-            process(statementString);
-    }
 
     /**
      * <p>

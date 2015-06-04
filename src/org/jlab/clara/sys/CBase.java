@@ -50,7 +50,7 @@ import org.jlab.coda.xmsg.net.xMsgConnection;
  */
 public class CBase extends xMsg {
 
-    private String name = xMsgConstants.UNDEFINED.getStringValue();
+    private String myName = xMsgConstants.UNDEFINED.getStringValue();
     private xMsgConnection nodeConnection = null;
     private String feHostname = xMsgConstants.UNDEFINED.getStringValue();
 
@@ -148,8 +148,8 @@ public class CBase extends xMsg {
      *
      * @return name of the component
      */
-    public String getName() {
-        return name;
+    public String getMyName() {
+        return myName;
     }
 
     /**
@@ -157,8 +157,8 @@ public class CBase extends xMsg {
      *
      * @param name the name of this component
      */
-    public void setName(String name) {
-        this.name = name;
+    public void setMyName(String name) {
+        this.myName = name;
     }
 
     /**
@@ -183,7 +183,7 @@ public class CBase extends xMsg {
             // Loop over all IP addresses of a node
             for (String ip : xMsgUtil.getLocalHostIps()) {
                 if (xMsgUtil.getTopicDomain(containerName).equals(ip)) {
-                    return findSubscribers(name,
+                    return findSubscribers(myName,
                             xMsgUtil.getTopicDomain(containerName),
                             xMsgUtil.getTopicSubject(containerName),
                             xMsgConstants.UNDEFINED.getStringValue()).get(0);
@@ -191,7 +191,7 @@ public class CBase extends xMsg {
             }
 
             // This is the case when requested container is remote
-            return findSubscribers(name,
+            return findSubscribers(myName,
                     xMsgUtil.getTopicDomain(containerName),
                     xMsgUtil.getTopicSubject(containerName),
                     xMsgConstants.UNDEFINED.getStringValue()).get(0);
@@ -219,7 +219,7 @@ public class CBase extends xMsg {
         // Loop over all IP addresses of a node
         for (String ip : xMsgUtil.getLocalHostIps()) {
             if (dpeName.equals(ip)) {
-                tmpl = findSubscribers(name,
+                tmpl = findSubscribers(myName,
                         dpeName,
                         xMsgConstants.UNDEFINED.getStringValue(),
                         xMsgConstants.UNDEFINED.getStringValue());
@@ -236,7 +236,7 @@ public class CBase extends xMsg {
         }
 
         // This is the case when requested service is remote
-        tmpl = findSubscribers(name,
+        tmpl = findSubscribers(myName,
                 dpeName,
                 xMsgConstants.UNDEFINED.getStringValue(),
                 xMsgConstants.UNDEFINED.getStringValue());
@@ -278,7 +278,7 @@ public class CBase extends xMsg {
             // Loop over all IP addresses of a node
             for (String ip : xMsgUtil.getLocalHostIps()) {
                 if (xMsgUtil.getTopicDomain(serviceName).equals(ip)) {
-                    return findSubscribers(name,
+                    return findSubscribers(myName,
                             xMsgUtil.getTopicDomain(serviceName),
                             xMsgUtil.getTopicSubject(serviceName),
                             xMsgUtil.getTopicType(serviceName));
@@ -286,7 +286,7 @@ public class CBase extends xMsg {
             }
 
             // This is the case when requested service is remote
-            return findSubscribers(name,
+            return findSubscribers(myName,
                     xMsgUtil.getTopicDomain(serviceName),
                     xMsgUtil.getTopicSubject(serviceName),
                     xMsgUtil.getTopicType(serviceName));

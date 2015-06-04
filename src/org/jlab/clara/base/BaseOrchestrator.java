@@ -54,7 +54,7 @@ public class BaseOrchestrator {
     public BaseOrchestrator() throws ClaraException {
         try {
             base = getClaraBase("localhost");
-            base.setName(generateName());
+            base.setMyName(generateName());
         } catch (SocketException | xMsgException e) {
             throw new ClaraException("Could not start orchestrator", e);
         }
@@ -70,7 +70,7 @@ public class BaseOrchestrator {
     public BaseOrchestrator(String frontEndHost) throws ClaraException {
         try {
             base = getClaraBase(frontEndHost);
-            base.setName(generateName());
+            base.setMyName(generateName());
         } catch (SocketException | xMsgException e) {
             throw new ClaraException("Could not start orchestrator", e);
         }

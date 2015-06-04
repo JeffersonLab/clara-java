@@ -40,15 +40,16 @@ public class ServiceState {
         return name;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public String getState() {
         return state;
     }
 
     public void setState(String state) {
+        this.state = state;
+    }
+
+    public ServiceState(String name, String state){
+        this.name = name;
         this.state = state;
     }
 

@@ -24,6 +24,7 @@ package org.jlab.clara.engine;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 
 import java.util.List;
+import java.util.Set;
 
 /**
  * Service engine interface.
@@ -36,7 +37,7 @@ public interface ICEngine {
 
     public EngineData execute(EngineData x);
 
-    public EngineData execute_group(List<EngineData> x);
+    public EngineData execute_group(Set<EngineData> x);
 
     public void configure(EngineData x);
 
