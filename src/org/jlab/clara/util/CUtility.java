@@ -40,6 +40,7 @@ import java.net.UnknownHostException;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Matcher;
 
 /**
  * Utility class containing useful methods.
@@ -500,5 +501,26 @@ public class CUtility {
             e.printStackTrace();
         }
     }
+
+    public static String getJSetElementAt(Set<String> set, int index){
+        int ind = -1;
+        for(String s:set){
+            ind++;
+            if(index==ind)return s;
+        }
+        return null;
+    }
+
+    public static void testRegexMatch(Matcher m){
+        System.out.println("=============regex============ \n");
+        while(m.find()) {
+            System.out.println(m.group());
+        }
+        m.reset();
+        System.out.println(m.matches());
+        System.out.println("=============regex============ \n");
+    }
+
+
 
 }

@@ -60,8 +60,6 @@ import java.util.concurrent.TimeUnit;
  */
 public class Dpe extends CBase {
 
-    private xMsgRegistrar registrar;
-
     // The name of this dpe. usually it is the IP address
     // of a node where this class is instantiated.
     private String
@@ -148,7 +146,7 @@ public class Dpe extends CBase {
 
         // Create the xMsgNode object that will provide
         // dpe registration and discovery service.
-        registrar = new xMsgRegistrar();
+        new xMsgRegistrar();
         _myCloud.put(dpeName, new HashMap<String, Set<String>>());
 
         startHeartBeatReport();
@@ -187,7 +185,7 @@ public class Dpe extends CBase {
 
         // Create the xMsgNode object that will provide
         // dpe registration and discovery service.
-        registrar = new xMsgRegistrar();
+        new xMsgRegistrar();
         _myCloud.put(dpeName, new HashMap<String, Set<String>>());
 
         startHeartBeatReport();

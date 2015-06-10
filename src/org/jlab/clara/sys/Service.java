@@ -52,7 +52,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class Service extends CBase {
 
-    private ServiceState myServiceState;
+    private ServiceState myServiceState =
+            new ServiceState(getMyName(),xMsgConstants.UNDEFINED.getStringValue());
 
     public AtomicBoolean isAvailable;
     // Already recorded (previous) composition
@@ -76,7 +77,7 @@ public class Service extends CBase {
     // Note: common for different compositions
     private long _numberOfRequests;
 
-    private CCCompiler compiler;
+    private CCompiler compiler;
 
 
     /**
@@ -125,7 +126,7 @@ public class Service extends CBase {
         System.out.println("Service = " + getMyName()+" is up.");
 
         // create an object of the composition parser
-        compiler = new CCCompiler(getMyName());
+        compiler = new CCompiler(getMyName());
     }
 
     /**
@@ -168,7 +169,7 @@ public class Service extends CBase {
         System.out.println("Service = " + getMyName()+" is up.");
 
         // create an object of the composition parser
-        compiler = new CCCompiler(getMyName());
+        compiler = new CCompiler(getMyName());
     }
 
     public ServiceState getMyServiceState() {

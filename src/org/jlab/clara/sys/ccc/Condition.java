@@ -126,8 +126,8 @@ public class Condition {
             while (t0.hasMoreTokens()) {
                 String ac = t0.nextToken();
 
-                Pattern p = Pattern.compile(CCCompiler.sCond);
-                Matcher m = p.matcher(CCCompiler.sCond);
+                Pattern p = Pattern.compile(CCompiler.sCond);
+                Matcher m = p.matcher(CCompiler.sCond);
                 if(m.matches()) {
 
                     if (ac.contains("!")) {
@@ -158,8 +158,8 @@ public class Condition {
             while (t0.hasMoreTokens()) {
                 String ac = t0.nextToken();
 
-                Pattern p = Pattern.compile(CCCompiler.sCond);
-                Matcher m = p.matcher(CCCompiler.sCond);
+                Pattern p = Pattern.compile(CCompiler.sCond);
+                Matcher m = p.matcher(CCompiler.sCond);
                 if(m.matches()) {
 
                     if (ac.contains("!")) {

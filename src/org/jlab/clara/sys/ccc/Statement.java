@@ -22,6 +22,7 @@ package org.jlab.clara.sys.ccc;
 
 import org.jlab.clara.base.CException;
 import org.jlab.clara.engine.EngineData;
+import org.jlab.clara.util.CUtility;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 
@@ -52,11 +53,11 @@ public class Statement {
 
     // Names of all services that are linked to the service of interest, i.e. names
     // of all services that send data to this service
-    private Set<String> inputLinks = new HashSet<>();
+    private Set<String> inputLinks = new TreeSet<>();
 
     // Names of all services that are linked to the service of interest, i.e. names
     // of all services that this services will send it's output data.
-    private Set<String> outputLinks = new HashSet<>();
+    private Set<String> outputLinks = new TreeSet<>();
 
     // statement string
     private String statementString = xMsgConstants.UNDEFINED.toString();
@@ -102,7 +103,7 @@ public class Statement {
      * </p>
      *
      * @param statement string
-     * @throws org.jlab.clara.base.CException
+     * @throws CException
      */
     private void process(String statement) throws CException {
         // This is new routing statement
@@ -113,17 +114,14 @@ public class Statement {
 
         // parse the new statement to find input and output
         // linked service names
-             if (statement.contains(serviceName)) {
-                 inputLinks = parse_linked(serviceName, statement, 0);
-
-                 outputLinks = parse_linked(serviceName, statement, 1);
-
-                if (is_log_and(serviceName, statement)) {
-                    for(String sn: inputLinks){
-                        logAndInputs.put(sn, null);
-                    }
+        if (statement.contains(serviceName)) {
+            parse_linked(serviceName, statement);
+            if (is_log_and(serviceName, statement)) {
+                for(String sn: inputLinks){
+                    logAndInputs.put(sn, null);
                 }
             }
+        }
     }
 
     /**
@@ -139,33 +137,21 @@ public class Statement {
      * @param service_name   the name of the service
      *                       for which we find input/output links
      * @param statement    the string of the composition
-     * @param link_direction 0 = input-inked, >0 = output-linked
      * @return the list containing names of linked services
      */
-    private Set<String> parse_linked(String service_name,
-                                     String statement,
-                                     int link_direction) throws CException {
-
-        // List of output service names
-        Set<String> out_list = new HashSet<>();
+    private void parse_linked(String service_name,
+                              String statement) throws CException {
 
         // List that contains composition elements
-        Set<String> elm_list = new HashSet<>();
+        Set<String> elm_set = new TreeSet<>();
 
         StringTokenizer st = new StringTokenizer(statement, "+");
         while (st.hasMoreTokens()) {
-            elm_list.add(st.nextToken());
-        }
-
-        // List that contains service names
-        List<String> elm2_list = new ArrayList<>();
-        for (String s : elm_list) {
-            // remove  '&' from the service name
-            // (e.g. 129.57.81.247:cont1:&Engine3 to 129.57.81.247:cont1:Engine3
-            if (s.startsWith("&")) {
-                s = s.replace("&", "");
+            String el = st.nextToken();
+            if (el.startsWith("&")) {
+                el = el.replace("&", "");
             }
-            elm2_list.add(s);
+            elm_set.add(el);
         }
 
         // See if the string contains this service name, and record the index,
@@ -173,50 +159,45 @@ public class Statement {
         // Note: multiple services can send to a single service, like: s1,s2+s3.
         // (this is the reason we use in:contains)
         int index = -1;
-        for (String s : elm2_list) {
+        for (String s : elm_set) {
+            index++;
             if (s.contains(service_name)) {
-                index = elm2_list.indexOf(s);
+                break;
             }
         }
         if (index == -1) {
             throw new CException("Composition parsing exception. " +
                     "Service name can not be found in the composition.");
         } else {
-            if (link_direction == 0 && index > 0) {
-                // index of the next component in the composition
-                index -= 1;
-                String element = elm2_list.get(index);
+            int pIndex = index -1;
+            if(pIndex >= 0) {
+                String element = CUtility.getJSetElementAt(elm_set, pIndex);
                 // the case to fan out the output of this service
                 if (element.contains(",")) {
                     StringTokenizer st1 = new StringTokenizer(element, ",");
                     while (st1.hasMoreTokens()) {
-                        out_list.add(st1.nextToken());
+                        inputLinks.add(st1.nextToken());
                     }
                 } else {
-                    out_list.add(element);
+                    inputLinks.add(element);
                 }
-                return out_list;
-            } else if (link_direction > 0) {
-                index += 1;
-                if (elm2_list.size() > index) {
-                    String element = elm2_list.get(index);
-                    // the case to fan out the output of this service
-                    if (element.contains(",")) {
-                        StringTokenizer st1 = new StringTokenizer(element, ",");
-                        while (st1.hasMoreTokens()) {
-                            out_list.add(st1.nextToken());
-                        }
-                    } else {
-                        out_list.add(element);
-                    }
-                }
+            }
 
-                return out_list;
+            // define output links
+            int nIndex = index +1;
+            if (elm_set.size() > nIndex) {
+                String element = CUtility.getJSetElementAt(elm_set, nIndex);
+                // the case to fan out the output of this service
+                if (element.contains(",")) {
+                    StringTokenizer st1 = new StringTokenizer(element, ",");
+                    while (st1.hasMoreTokens()) {
+                        outputLinks.add(st1.nextToken());
+                    }
+                } else {
+                    outputLinks.add(element);
+                }
             }
         }
-        // returns empty list. Most likely this service
-        // is the first service in the composition
-        return out_list;
     }
 
     /**
@@ -232,18 +213,18 @@ public class Statement {
      * as "&<service_name>"
      */
     private boolean is_log_and(String service_name,
-                              String composition) {
+                               String composition) {
         String ac = "&" + service_name;
 
         // List that contains composition elements
-        List<String> elm_list = new ArrayList<>();
+        Set<String> elm_set = new TreeSet<>();
 
         StringTokenizer st = new StringTokenizer(composition, "+");
         while (st.hasMoreTokens()) {
-            elm_list.add(st.nextToken());
+            elm_set.add(st.nextToken());
         }
 
-        for (String s : elm_list) {
+        for (String s : elm_set) {
             if (s.equals(ac)) {
                 return true;
             }

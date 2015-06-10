@@ -1,4 +1,4 @@
-package org.jlab.clara.test;
+package org.jlab.clara.util;
 
 import org.jlab.clara.util.CUtility;
 import org.jlab.clara.util.XMLContainer;

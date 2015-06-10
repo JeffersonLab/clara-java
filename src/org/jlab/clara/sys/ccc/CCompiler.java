@@ -22,12 +22,17 @@ package org.jlab.clara.sys.ccc;
 
 import org.jlab.clara.base.CException;
 
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.regex.PatternSyntaxException;
 
 /**
  * <p>
@@ -51,7 +56,7 @@ import java.util.regex.Pattern;
  * @version 1.x
  * @since 5/29/15
  */
-public class CCCompiler {
+public class CCompiler {
 
     public Set<Instruction> instructions = new HashSet<>();
 
@@ -61,7 +66,7 @@ public class CCCompiler {
      *     IP address regex
      * </p>
      */
-    public static String IP = "([0-9]{1,3})\\.([0-9]{1,3})\\.([0-9]{1,3})\\.([0-9]{1,3})";
+    public static final String IP = "([0-9]{1,3})\\.([0-9]{1,3})\\.([0-9]{1,3})\\.([0-9]{1,3})";
 
     /**
      * <p>
@@ -69,7 +74,7 @@ public class CCCompiler {
      *     and can have preceding number
      * </p>
      */
-    public static String STR = "([A-Z|a-z]+[0-9]*)";
+    public static final String STR = "([A-Z|a-z]+[0-9]*)";
 
     /**
      * <p>
@@ -79,7 +84,8 @@ public class CCCompiler {
      *   </li>
      * </p>
      */
-    public static String Sn = "(" + IP + "_(java|python|cpp):" + STR + ":" + STR + ")";
+//    public static final String Sn = "(" + IP + "_(java|python|cpp):" + STR + ":" + STR + ")";
+    public static final String Sn = IP + "_(java|python|cpp):" + STR + ":" + STR;
 
     /**
      * <p>
@@ -99,7 +105,7 @@ public class CCCompiler {
      *    Note that regular expression does not include end of statement operator.
      * </p>
      */
-    public static String RStmt = Sn + "(,"+ Sn + ")*\\+"+  Sn + "(,"+ Sn +")*";
+    public static final String RStmt = Sn + "(,"+ Sn + ")*"+ "((\\+"+Sn+")+|(\\+"+ Sn+"(,"+ Sn +")*)+)";
 
     /**
      * <p>
@@ -112,7 +118,7 @@ public class CCCompiler {
      *     </li>
      * </p>
      */
-    public static String sCond = Sn +"?|!" + STR;
+    public static final String sCond = Sn +"?|!" + STR;
 
     /**
      * <p>
@@ -125,7 +131,7 @@ public class CCCompiler {
      *     </li>
      * </p>
      */
-    public static String Cond = "if|elseif|else\\( (" + sCond + "&&|\\|\\|" + sCond + ")+ \\)";
+    public static final String Cond = "if|elseif|else\\( (" + sCond + "&&|\\|\\|" + sCond + ")+ \\)";
 
     // The name of the service relative to which compilation will be done.
     private String myServiceName;
@@ -135,7 +141,7 @@ public class CCCompiler {
      * Constructor
      * @param service the name of the service relative to which to compile.
      */
-    public CCCompiler(String service){
+    public CCompiler(String service){
         myServiceName = service;
     }
 
@@ -147,6 +153,10 @@ public class CCCompiler {
         // Create a single string with no blanks
         String pCode = noBlanks(iCode);
 
+        System.out.println("DDD-1 ");
+        System.out.println(pCode);
+        System.out.println("------------ \n");
+
         // split single string program using
         // Clara ; enf of statement operator
         Set<String> pp = preProcess(pCode);
@@ -155,6 +165,10 @@ public class CCCompiler {
         Iterator<String> ppi = pp.iterator();
         while(ppi.hasNext()){
             String scs1 = ppi.next();
+            System.out.println("DDD-2 ");
+            System.out.println(scs1);
+            System.out.println("------------ \n");
+
             if(!parseStatement(scs1)){
                 Instruction ins = parseCondition(scs1);
                 while(ppi.hasNext()){
@@ -201,15 +215,20 @@ public class CCCompiler {
                 !iStmt.startsWith("}else")){
 
             //unconditional routing statement
-            Pattern p = Pattern.compile(RStmt);
-            Matcher m = p.matcher(iStmt);
-            if(m.matches()) {
-                Statement ts = new Statement(iStmt, myServiceName);
-                ti.addUnCondStatement(ts);
-                instructions.add(ti);
-                b = true;
-            } else {
-                throw new CException("syntax error: malformed routing statement");
+            try {
+                Pattern p = Pattern.compile(RStmt);
+                Matcher m = p.matcher(iStmt);
+
+                if(m.matches()) {
+                    Statement ts = new Statement(iStmt, myServiceName);
+                    ti.addUnCondStatement(ts);
+                    instructions.add(ti);
+                    b = true;
+                } else {
+                    throw new CException("syntax error: malformed routing statement");
+                }
+            } catch (PatternSyntaxException e){
+                System.err.println(e.getDescription());
             }
         }
         return b;
@@ -281,6 +300,7 @@ public class CCCompiler {
         instructions.clear();
     }
 
+
     /**
      * <p>
      *     returns an entire program one consequent string
@@ -301,6 +321,15 @@ public class CCCompiler {
         return instructions;
     }
 
+    public static void main(String[] args) {
+        CCompiler compiler = new CCompiler("10.2.9.96_java:container1:engine2");
+        try {
+            String t = new String(Files.readAllBytes(Paths.get("/users/gurjyan//Devel/Test/data/example1.cmp")), StandardCharsets.UTF_8);
+            compiler.compile(t);
 
+        } catch (IOException | CException e) {
+            e.printStackTrace();
+        }
+    }
 }
 

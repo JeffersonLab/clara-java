@@ -54,13 +54,22 @@ public class ServiceState {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if(obj instanceof ServiceState){
-            ServiceState tms = (ServiceState)obj;
-            if(tms.getName().equals(getName()) && tms.getState().equals(getState())){
-                return true;
-            }
-        }
-        return false;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ServiceState that = (ServiceState) o;
+
+        if (!name.equals(that.name)) return false;
+        if (!state.equals(that.state)) return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = name.hashCode();
+        result = 31 * result + state.hashCode();
+        return result;
     }
 }
