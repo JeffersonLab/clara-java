@@ -21,15 +21,13 @@
 package org.jlab.clara.sys.ccc;
 
 import org.jlab.clara.base.CException;
+import org.jlab.clara.util.CUtility;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Set;
-import java.util.StringTokenizer;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -42,9 +40,9 @@ import java.util.regex.PatternSyntaxException;
  *     code, written in the specific Clara language:
  *
  *     S1 + S2;
- *     if ( S1 ? "abc" && S2 ! "xyz") {
+ *     if ( S1 == "abc" && S2 != "xyz") {
  *       S2 + S3;
- *     } elseif ( S1 ? "fred" ) {
+ *     } elseif ( S1 == "fred" ) {
  *         S2 + S4;
  *     } else {
  *         S2 + S5,S6,S7;
@@ -58,7 +56,7 @@ import java.util.regex.PatternSyntaxException;
  */
 public class CCompiler {
 
-    public Set<Instruction> instructions = new HashSet<>();
+    public Set<Instruction> instructions = new LinkedHashSet<>();
 
 
     /**
@@ -74,7 +72,7 @@ public class CCompiler {
      *     and can have preceding number
      * </p>
      */
-    public static final String STR = "([A-Z|a-z]+[0-9]*)";
+    public static final String STR = "([^&!][A-Z|a-z]+[0-9]*)";
 
     /**
      * <p>
@@ -84,7 +82,6 @@ public class CCompiler {
      *   </li>
      * </p>
      */
-//    public static final String Sn = "(" + IP + "_(java|python|cpp):" + STR + ":" + STR + ")";
     public static final String Sn = IP + "_(java|python|cpp):" + STR + ":" + STR;
 
     /**
@@ -105,33 +102,42 @@ public class CCompiler {
      *    Note that regular expression does not include end of statement operator.
      * </p>
      */
-    public static final String RStmt = Sn + "(,"+ Sn + ")*"+ "((\\+"+Sn+")+|(\\+"+ Sn+"(,"+ Sn +")*)+)";
+    public static final String RStmt = Sn + "(,"+ Sn + ")*"+ "((\\+&?"+Sn+")+|(\\+"+ Sn+"(,"+ Sn +")*)+)";
 
     /**
      * <p>
      *     CLARA simple Condition, such as:
      *     <li>
-     *         Service ? "state_name"
+     *         Service == "state_name"
      *     </li>
      *     <li>
-     *         Service ! "state_name"
+     *         Service != "state_name"
      *     </li>
      * </p>
      */
-    public static final String sCond = Sn +"?|!" + STR;
+    public static final String sCond = Sn +"(==|!=)" + STR;
 
     /**
      * <p>
      *     CLARA complex Condition, such as:
      *     <li>
-     *         Service1 ? "state_name1" && Service2 ? "state_name2"
+     *         (Service1 == "state_name1" && Service2 == "state_name2) {
      *     </li>
      *     <li>
-     *         Service1 ? "state_name1" || Service2 ? "state_name2"
+     *         Service1 == "state_name1" !! Service2 == "state_name2" !! Service2 != "state_name3") {
      *     </li>
      * </p>
      */
-    public static final String Cond = "if|elseif|else\\( (" + sCond + "&&|\\|\\|" + sCond + ")+ \\)";
+    public static final String cCond = sCond + "((&&|!!)" +sCond+")*";
+
+    /**
+     * <p>
+     *    Clara conditional statement
+     * </p>
+     *
+     */
+//    public static final String Cond = "((if|elseif)\\("+cCond+"\\)\\{"+RStmt+" )|else\\{"+RStmt;
+    public static final String Cond = "((if|elseif)\\("+cCond+"\\)\\{"+RStmt+")|(else\\{"+RStmt+")";
 
     // The name of the service relative to which compilation will be done.
     private String myServiceName;
@@ -158,32 +164,57 @@ public class CCompiler {
         System.out.println("------------ \n");
 
         // split single string program using
-        // Clara ; enf of statement operator
+        // Clara ; end of statement operator
+        // in case of the conditional statements the }
+        // scope operator can be the first after tokenizing with ;,
+        // so preProcess will take of that too.
         Set<String> pp = preProcess(pCode);
 
         // start analysing and building compiled instructions
-        Iterator<String> ppi = pp.iterator();
-        while(ppi.hasNext()){
-            String scs1 = ppi.next();
+        String[] ppi = pp.toArray(new String[pp.size()]);
+
+        int i = -1;
+        while(++i < ppi.length){
+
+            String scs1 = ppi[i];
             System.out.println("DDD-2 ");
             System.out.println(scs1);
             System.out.println("------------ \n");
 
-            if(!parseStatement(scs1)){
-                Instruction ins = parseCondition(scs1);
-                while(ppi.hasNext()){
-                    String scs2 = ppi.next();
+            // conditional statement
+            if (scs1.startsWith("if(") ||
+                    scs1.startsWith("elseif(") ||
+                    scs1.startsWith("else")) {
+                Instruction instruction = parseCondition(scs1);
+                while(++i < ppi.length){
+                    String scs2 = ppi[i];
+
+                    System.out.println("DDD-22");
+                    System.out.println(scs2);
+                    System.out.println("=================");
+
                     if(!scs2.startsWith("if(") &&
-                            !scs2.startsWith("}elseif(") &&
-                            !scs2.startsWith("}else")) {
-                        parseStatement(scs2, ins);
+                            !scs2.startsWith("elseif(") &&
+                            !scs2.startsWith("else")) {
+                        parseStatement(scs2, instruction);
                     } else {
                         break;
                     }
                 }
-                instructions.add(ins);
+                instructions.add(instruction);
+                i--;
+                // routing statement
+            } else {
+                parseStatement(scs1);
             }
         }
+
+        System.out.println("DDD-3 ");
+        for(Instruction ins:instructions){
+            System.out.println(ins);
+        }
+        System.out.println("------------ \n");
+
     }
 
     /**
@@ -196,13 +227,19 @@ public class CCompiler {
      * @throws CException
      */
     private Set<String> preProcess(String pCode) throws CException {
-        Set<String> r = new HashSet<>();
+        if (!pCode.contains(";") && !pCode.endsWith(";")){
+            throw new CException("Syntax error in the Clara routing program. " +
+                    "Missing end of statement operator = \";\"");
+        }
+        Set<String> r = new LinkedHashSet<>();
         // tokenize by ;
         StringTokenizer st = new StringTokenizer(pCode,";");
         while (st.hasMoreTokens()){
-            r.add(st.nextToken());
+            String text = st.nextToken();
+            // this will get read of very last }
+            text = CUtility.removeFirst(text, "}");
+            if(!text.equals("")) r.add(text);
         }
-        if(r.isEmpty())throw new CException("syntax error: missing ;");
         return r;
     }
 
@@ -211,8 +248,8 @@ public class CCompiler {
         Instruction ti = new Instruction(myServiceName);
 
         if(!iStmt.startsWith("if(") &&
-                !iStmt.startsWith("}elseif(") &&
-                !iStmt.startsWith("}else")){
+                !iStmt.startsWith("elseif(") &&
+                !iStmt.startsWith("else")){
 
             //unconditional routing statement
             try {
@@ -225,7 +262,8 @@ public class CCompiler {
                     instructions.add(ti);
                     b = true;
                 } else {
-                    throw new CException("syntax error: malformed routing statement");
+                    throw new CException("Syntax error in the Clara routing program. " +
+                            "Malformed routing statement");
                 }
             } catch (PatternSyntaxException e){
                 System.err.println(e.getDescription());
@@ -238,8 +276,8 @@ public class CCompiler {
         boolean b = false;
 
         if(!iStmt.startsWith("if(") &&
-                !iStmt.startsWith("}elseif(") &&
-                !iStmt.startsWith("}else")){
+                !iStmt.startsWith("elseif(") &&
+                !iStmt.startsWith("else")){
 
             //unconditional routing statement
             Pattern p = Pattern.compile(RStmt);
@@ -249,49 +287,51 @@ public class CCompiler {
                 ti.addUnCondStatement(ts);
                 b = true;
             } else {
-                throw new CException("syntax error: malformed routing statement");
+                throw new CException("Syntax error in the Clara routing program. " +
+                        "Malformed routing statement");
             }
         }
         return b;
     }
 
     private Instruction parseCondition(String iCnd) throws CException {
-        Instruction ti = null;
-        if (iCnd.startsWith("if(") ||
-                iCnd.startsWith("}elseif(") ||
-                iCnd.startsWith("}else")) {
+        Instruction ti;
 
-            Pattern p = Pattern.compile(Cond);
-            Matcher m = p.matcher(iCnd);
-            if(m.matches()) {
-                try {
-                    // get condition and analyze it
-                    String conditionStr = iCnd.substring(iCnd.indexOf("("), iCnd.lastIndexOf(")"));
+        Pattern p = Pattern.compile(Cond);
+        Matcher m = p.matcher(iCnd);
+
+        if(m.matches()) {
+            try {
+
+                // get first statement  and analyze it
+                String statementStr = iCnd.substring(iCnd.indexOf("{"));
+                Statement ts = new Statement(statementStr, myServiceName);
+
+                // create Instruction
+                ti = new Instruction(myServiceName);
+                if(iCnd.startsWith("if(")) {
+                    String conditionStr = iCnd.substring(iCnd.indexOf("(")+1, iCnd.lastIndexOf(")"));
                     Condition tc = new Condition(conditionStr, myServiceName);
-
-                    // get first statement  and analyze it
-                    String statementStr = iCnd.substring(iCnd.indexOf("{"));
-                    Statement ts = new Statement(statementStr, myServiceName);
-
-                    // create Instruction
-                    ti = new Instruction(myServiceName);
-                    if(iCnd.startsWith("if(")) {
-                        ti.setIfCondition(tc);
-                        ti.addIfCondStatement(ts);
-                    }
-                    else if(iCnd.startsWith("}elseif(")) {
-                        ti.setElseifCondition(tc);
-                        ti.addElseifCondStatement(ts);
-                    }
-                    else if(iCnd.startsWith("}else")) {
-                        ti.addElseCondStatement(ts);
-                    }
-                } catch (StringIndexOutOfBoundsException e) {
-                    throw new CException("syntax error: missing parenthesis");
+                    ti.setIfCondition(tc);
+                    ti.addIfCondStatement(ts);
                 }
-            } else {
-                throw new CException("syntax error: malformed conditional statement");
+                else if(iCnd.startsWith("elseif(")) {
+                    String conditionStr = iCnd.substring(iCnd.indexOf("(")+1, iCnd.lastIndexOf(")"));
+                    Condition tc = new Condition(conditionStr, myServiceName);
+                    ti.setElseifCondition(tc);
+                    ti.addElseifCondStatement(ts);
+                }
+                else if(iCnd.startsWith("else")) {
+                    ti.addElseCondStatement(ts);
+                }
+            } catch (StringIndexOutOfBoundsException e) {
+                e.printStackTrace();
+                throw new CException("Syntax error in the Clara routing program. " +
+                        "Missing parenthesis");
             }
+        } else {
+            throw new CException("Syntax error in the Clara routing program. " +
+                    "Malformed conditional statement");
         }
         return ti;
     }
@@ -322,14 +362,26 @@ public class CCompiler {
     }
 
     public static void main(String[] args) {
+//        // composition description file
+        String df = "/Users/gurjyan/Devel/Clara/java/clara-java/src/test/example1.cmp";
+
         CCompiler compiler = new CCompiler("10.2.9.96_java:container1:engine2");
+
         try {
-            String t = new String(Files.readAllBytes(Paths.get("/users/gurjyan//Devel/Test/data/example1.cmp")), StandardCharsets.UTF_8);
+            String t = new String(Files.readAllBytes(Paths.get(df)), StandardCharsets.UTF_8);
             compiler.compile(t);
 
         } catch (IOException | CException e) {
             e.printStackTrace();
         }
+//        String z = "elseif(10.2.9.96_java:container1:engine0!=aman){10.2.9.96_java:container1:engine1+10.2.9.96_java:container1:engine1";
+//        String z = "else{10.2.9.96_java:container1:engine1+10.2.9.96_java:container1:engine1";
+//        String z = "10.2.9.96_java:container1:engine0==simon";
+//        System.out.println(sCond);
+//        Pattern p = Pattern.compile(sCond);
+//        Matcher m = p.matcher(z);
+//        CUtility.testRegexMatch(m);
+
     }
 }
 

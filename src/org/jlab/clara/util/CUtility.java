@@ -511,6 +511,11 @@ public class CUtility {
         return null;
     }
 
+    public static String removeFirst(String input, String firstCharacter){
+        input = input.startsWith(firstCharacter) ? input.substring(1) : input;
+        return input;
+    }
+
     public static void testRegexMatch(Matcher m){
         System.out.println("=============regex============ \n");
         while(m.find()) {

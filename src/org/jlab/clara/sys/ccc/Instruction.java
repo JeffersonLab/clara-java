@@ -120,4 +120,51 @@ public class Instruction {
         this.unCondStatements.add(unCondstatement);
     }
 
+    @Override
+    public String toString() {
+        return "Instruction{" +
+                "ifCondition=" + ifCondition +
+                ", ifCondStatements=" + ifCondStatements +
+                ", elseifCondition=" + elseifCondition +
+                ", elseifCondStatements=" + elseifCondStatements +
+                ", elseCondStatements=" + elseCondStatements +
+                ", unCondStatements=" + unCondStatements +
+                ", serviceName='" + serviceName + '\'' +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Instruction)) return false;
+
+        Instruction that = (Instruction) o;
+
+        if (elseCondStatements != null ? !elseCondStatements.equals(that.elseCondStatements) : that.elseCondStatements != null)
+            return false;
+        if (elseifCondStatements != null ? !elseifCondStatements.equals(that.elseifCondStatements) : that.elseifCondStatements != null)
+            return false;
+        if (elseifCondition != null ? !elseifCondition.equals(that.elseifCondition) : that.elseifCondition != null)
+            return false;
+        if (ifCondStatements != null ? !ifCondStatements.equals(that.ifCondStatements) : that.ifCondStatements != null)
+            return false;
+        if (ifCondition != null ? !ifCondition.equals(that.ifCondition) : that.ifCondition != null) return false;
+        if (!serviceName.equals(that.serviceName)) return false;
+        if (unCondStatements != null ? !unCondStatements.equals(that.unCondStatements) : that.unCondStatements != null)
+            return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = ifCondition != null ? ifCondition.hashCode() : 0;
+        result = 31 * result + (ifCondStatements != null ? ifCondStatements.hashCode() : 0);
+        result = 31 * result + (elseifCondition != null ? elseifCondition.hashCode() : 0);
+        result = 31 * result + (elseifCondStatements != null ? elseifCondStatements.hashCode() : 0);
+        result = 31 * result + (elseCondStatements != null ? elseCondStatements.hashCode() : 0);
+        result = 31 * result + (unCondStatements != null ? unCondStatements.hashCode() : 0);
+        result = 31 * result + serviceName.hashCode();
+        return result;
+    }
 }

@@ -24,7 +24,6 @@ import org.jlab.clara.base.CException;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.util.CUtility;
 import org.jlab.coda.xmsg.core.xMsgConstants;
-import org.jlab.coda.xmsg.core.xMsgMessage;
 
 import java.util.*;
 
@@ -53,11 +52,11 @@ public class Statement {
 
     // Names of all services that are linked to the service of interest, i.e. names
     // of all services that send data to this service
-    private Set<String> inputLinks = new TreeSet<>();
+    private Set<String> inputLinks = new LinkedHashSet<>();
 
     // Names of all services that are linked to the service of interest, i.e. names
     // of all services that this services will send it's output data.
-    private Set<String> outputLinks = new TreeSet<>();
+    private Set<String> outputLinks = new LinkedHashSet<>();
 
     // statement string
     private String statementString = xMsgConstants.UNDEFINED.toString();
@@ -143,14 +142,13 @@ public class Statement {
                               String statement) throws CException {
 
         // List that contains composition elements
-        Set<String> elm_set = new TreeSet<>();
+        Set<String> elm_set = new LinkedHashSet<>();
 
         StringTokenizer st = new StringTokenizer(statement, "+");
         while (st.hasMoreTokens()) {
             String el = st.nextToken();
-            if (el.startsWith("&")) {
-                el = el.replace("&", "");
-            }
+            el =  CUtility.removeFirst(el, "&");
+            el =  CUtility.removeFirst(el, "{");
             elm_set.add(el);
         }
 
@@ -166,8 +164,8 @@ public class Statement {
             }
         }
         if (index == -1) {
-            throw new CException("Composition parsing exception. " +
-                    "Service name can not be found in the composition.");
+            throw new CException("Routing statement parsing exception. " +
+                    "Service name can not be found in the statement.");
         } else {
             int pIndex = index -1;
             if(pIndex >= 0) {
@@ -217,7 +215,7 @@ public class Statement {
         String ac = "&" + service_name;
 
         // List that contains composition elements
-        Set<String> elm_set = new TreeSet<>();
+        Set<String> elm_set = new LinkedHashSet<>();
 
         StringTokenizer st = new StringTokenizer(composition, "+");
         while (st.hasMoreTokens()) {
@@ -232,4 +230,43 @@ public class Statement {
         return false;
     }
 
+    @Override
+    public String toString() {
+        return "Statement{" +
+                "logAndInputs=" + logAndInputs +
+                ", inputLinks=" + inputLinks +
+                ", outputLinks=" + outputLinks +
+                ", statementString='" + statementString + '\'' +
+                ", serviceName='" + serviceName + '\'' +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Statement)) return false;
+
+        Statement statement = (Statement) o;
+
+        if (inputLinks != null ? !inputLinks.equals(statement.inputLinks) : statement.inputLinks != null) return false;
+        if (logAndInputs != null ? !logAndInputs.equals(statement.logAndInputs) : statement.logAndInputs != null)
+            return false;
+        if (outputLinks != null ? !outputLinks.equals(statement.outputLinks) : statement.outputLinks != null)
+            return false;
+        if (!serviceName.equals(statement.serviceName)) return false;
+        if (statementString != null ? !statementString.equals(statement.statementString) : statement.statementString != null)
+            return false;
+
+        return true;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = logAndInputs != null ? logAndInputs.hashCode() : 0;
+        result = 31 * result + (inputLinks != null ? inputLinks.hashCode() : 0);
+        result = 31 * result + (outputLinks != null ? outputLinks.hashCode() : 0);
+        result = 31 * result + (statementString != null ? statementString.hashCode() : 0);
+        result = 31 * result + serviceName.hashCode();
+        return result;
+    }
 }

@@ -21,11 +21,13 @@
 package org.jlab.clara.sys.ccc;
 
 import org.jlab.clara.base.CException;
+import org.jlab.clara.util.CUtility;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.StringTokenizer;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -43,25 +45,21 @@ import java.util.regex.Pattern;
 public class Condition {
 
     // States of services that are required to be present in order this condition to be true
-    private Set<ServiceState> andStates = new HashSet<>();
+    private Set<ServiceState> andStates = new LinkedHashSet<>();
 
     // NOT states of services that are required to be present in order this condition to be true
-    private Set<ServiceState> andNotStates = new HashSet<>();
+    private Set<ServiceState> andNotStates = new LinkedHashSet<>();
 
     // Required states of services that will make this statement true
-    private Set<ServiceState> orStates = new HashSet<>();
+    private Set<ServiceState> orStates = new LinkedHashSet<>();
 
     // Required states of services that will make this statement true
-    private Set<ServiceState> orNotStates = new HashSet<>();
-
-    // condition string
-    private String conditionString = xMsgConstants.UNDEFINED.toString();
+    private Set<ServiceState> orNotStates = new LinkedHashSet<>();
 
     // The name of the service that this condition is relevant to.
     private String serviceName = xMsgConstants.UNDEFINED.toString();
 
     public Condition(String conditionString, String serviceName) throws CException {
-        this.conditionString = conditionString;
         this.serviceName = serviceName;
         process(conditionString);
     }
@@ -111,82 +109,115 @@ public class Condition {
 
         if(cs.contains("&&")){
             parseCondition(cs,"&&");
-        } else if(cs.contains("||")){
-            parseCondition(cs,"||");
+        } else if(cs.contains("!!")){
+            parseCondition(cs,"!!");
         } else {
-            throw new CException("syntax error: malformed conditional statement");
+            parseCondition(cs,null);
         }
 
     }
 
     private void parseCondition(String cs, String logicOperator) throws CException {
+
+
         StringTokenizer t0, t1;
-        if(cs.contains("&&") && !cs.contains("||")) {
-            t0 = new StringTokenizer(cs, logicOperator);
-            while (t0.hasMoreTokens()) {
-                String ac = t0.nextToken();
+        if(logicOperator==null){
+            Pattern p = Pattern.compile(CCompiler.sCond);
+            Matcher m = p.matcher(cs);
+            if(m.matches()) {
 
-                Pattern p = Pattern.compile(CCompiler.sCond);
-                Matcher m = p.matcher(CCompiler.sCond);
-                if(m.matches()) {
-
-                    if (ac.contains("!")) {
-                        t1 = new StringTokenizer(t0.nextToken(), "!");
-                        if (t1.countTokens() == 2) {
-                            throw new CException("syntax error: malformed conditional statement");
-                        }
-                        ServiceState sst = new ServiceState(t1.nextToken(), t1.nextToken());
-                        addAndNotState(sst);
-
-                    } else if (ac.contains("?")) {
-                        t1 = new StringTokenizer(t0.nextToken(), "?");
-                        if (t1.countTokens() == 2) {
-                            throw new CException("syntax error: malformed conditional statement");
-                        }
-                        ServiceState sst = new ServiceState(t1.nextToken(), t1.nextToken());
-                        addAndState(sst);
-
-                    } else {
+                if (cs.contains("!=")) {
+                    t1 = new StringTokenizer(cs, "!=");
+                    if (t1.countTokens() != 2) {
                         throw new CException("syntax error: malformed conditional statement");
                     }
+                    ServiceState sst = new ServiceState(t1.nextToken(), t1.nextToken());
+                    addOrNotState(sst);
+
+                } else if (cs.contains("==")) {
+                    t1 = new StringTokenizer(cs, "==");
+                    if (t1.countTokens() != 2) {
+                        throw new CException("syntax error: malformed conditional statement");
+                    }
+                    ServiceState sst = new ServiceState(t1.nextToken(), t1.nextToken());
+                    addOrState(sst);
+
                 } else {
                     throw new CException("syntax error: malformed conditional statement");
                 }
+            } else {
+                throw new CException("syntax error: malformed conditional statement");
             }
-        } else if(cs.contains("||") && !cs.contains("&&")) {
-            t0 = new StringTokenizer(cs, logicOperator);
-            while (t0.hasMoreTokens()) {
-                String ac = t0.nextToken();
 
-                Pattern p = Pattern.compile(CCompiler.sCond);
-                Matcher m = p.matcher(CCompiler.sCond);
-                if(m.matches()) {
-
-                    if (ac.contains("!")) {
-                        t1 = new StringTokenizer(t0.nextToken(), "!");
-                        if (t1.countTokens() == 2) {
-                            throw new CException("syntax error: malformed conditional statement");
-                        }
-                        ServiceState sst = new ServiceState(t1.nextToken(), t1.nextToken());
-                        addOrNotState(sst);
-
-                    } else if (ac.contains("?")) {
-                        t1 = new StringTokenizer(t0.nextToken(), "?");
-                        if (t1.countTokens() == 2) {
-                            throw new CException("syntax error: malformed conditional statement");
-                        }
-                        ServiceState sst = new ServiceState(t1.nextToken(), t1.nextToken());
-                        addOrState(sst);
-
-                    } else {
-                        throw new CException("syntax error: malformed conditional statement");
-                    }
-                } else {
-                    throw new CException("syntax error: malformed conditional statement");
-                }
-            }
         } else {
-            throw new CException("syntax error: malformed or unsupported conditional statement");
+
+            if (cs.contains("&&") && !cs.contains("!!")) {
+                t0 = new StringTokenizer(cs, logicOperator);
+                while (t0.hasMoreTokens()) {
+                    String ac = t0.nextToken();
+
+                    Pattern p = Pattern.compile(CCompiler.sCond);
+                    Matcher m = p.matcher(ac);
+                    if (m.matches()) {
+
+                        if (ac.contains("!=")) {
+                            t1 = new StringTokenizer(t0.nextToken(), "!=");
+                            if (t1.countTokens() != 2) {
+                                throw new CException("syntax error: malformed conditional statement");
+                            }
+                            ServiceState sst = new ServiceState(t1.nextToken(), t1.nextToken());
+                            addAndNotState(sst);
+
+                        } else if (ac.contains("==")) {
+                            t1 = new StringTokenizer(t0.nextToken(), "==");
+                            if (t1.countTokens() != 2) {
+                                throw new CException("syntax error: malformed conditional statement");
+                            }
+                            ServiceState sst = new ServiceState(t1.nextToken(), t1.nextToken());
+                            addAndState(sst);
+
+                        } else {
+                            throw new CException("syntax error: malformed conditional statement");
+                        }
+                    } else {
+                        throw new CException("syntax error: malformed conditional statement");
+                    }
+                }
+            } else if (cs.contains("!!") && !cs.contains("&&")) {
+                t0 = new StringTokenizer(cs, logicOperator);
+                while (t0.hasMoreTokens()) {
+                    String ac = t0.nextToken();
+
+                    Pattern p = Pattern.compile(CCompiler.sCond);
+                    Matcher m = p.matcher(ac);
+                    if (m.matches()) {
+
+                        if (ac.contains("!=")) {
+                            t1 = new StringTokenizer(t0.nextToken(), "!=");
+                            if (t1.countTokens() != 2) {
+                                throw new CException("syntax error: malformed conditional statement");
+                            }
+                            ServiceState sst = new ServiceState(t1.nextToken(), t1.nextToken());
+                            addOrNotState(sst);
+
+                        } else if (ac.contains("==")) {
+                            t1 = new StringTokenizer(t0.nextToken(), "==");
+                            if (t1.countTokens() != 2) {
+                                throw new CException("syntax error: malformed conditional statement");
+                            }
+                            ServiceState sst = new ServiceState(t1.nextToken(), t1.nextToken());
+                            addOrState(sst);
+
+                        } else {
+                            throw new CException("syntax error: malformed conditional statement");
+                        }
+                    } else {
+                        throw new CException("syntax error: malformed conditional statement");
+                    }
+                }
+            } else {
+                throw new CException("syntax error: malformed or unsupported conditional statement");
+            }
         }
     }
 
@@ -230,4 +261,14 @@ public class Condition {
         return b;
     }
 
+    @Override
+    public String toString() {
+        return "Condition{" +
+                "andStates=" + andStates +
+                ", andNotStates=" + andNotStates +
+                ", orStates=" + orStates +
+                ", orNotStates=" + orNotStates +
+                ", serviceName='" + serviceName + '\'' +
+                '}';
+    }
 }
