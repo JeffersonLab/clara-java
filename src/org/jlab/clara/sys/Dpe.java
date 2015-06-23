@@ -468,27 +468,40 @@ public class Dpe extends CBase{
         }
     }
 
-
     public static void main(String[] args) {
-        if(args.length == 2){
-            if (args[0].equals("-fe_host")){
-                try {
-                    new Dpe(args[1]);
-                } catch (xMsgException | SocketException e) {
-                    System.out.println(e.getMessage());
-                    System.out.println("exiting...");
-                }
-            } else {
-                System.out.println("wrong option. Accepts -fe_host option only.");
+        String frontEnd = "";
+        int i = 0;
+        while (i < args.length) {
+            switch (args[i++]) {
+                case "-fe_host":
+                    if (i < args.length) {
+                        frontEnd = args[i++];
+                    } else {
+                        usage();
+                        System.exit(1);
+                    }
+                    break;
+                default:
+                    usage();
+                    System.exit(1);
             }
-        } else if(args.length == 0){
-            try {
+        }
+
+        try {
+            if (frontEnd.isEmpty()) {
                 new Dpe(false);
-            } catch (xMsgException | SocketException e) {
-                System.out.println(e.getMessage());
-                System.out.println("exiting...");
+            } else {
+                new Dpe(frontEnd);
             }
+        } catch (xMsgException | SocketException e) {
+            System.out.println(e.getMessage());
+            System.out.println("exiting...");
+            System.exit(1);
         }
     }
 
+
+    public static void usage() {
+        System.err.println("Usage: j_dpe [ -fe_host <front_end> ]");
+    }
 }
