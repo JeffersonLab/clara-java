@@ -80,19 +80,8 @@ public class Container extends CBase {
                 CConstants.CONTAINER + ":" + feHost,
                 CConstants.CONTAINER_UP+"?"+getName());
 
-        Thread t1 = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                // Subscribe messages published to this container
-                try {
-                    genericReceive(CConstants.CONTAINER + ":" + getName(),
-                            new ContainerCallBack());
-                } catch (xMsgException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-        t1.start();
+        // Subscribe messages published to this container
+        genericReceive(CConstants.CONTAINER + ":" + getName(), new ContainerCallBack());
     }
 
     /**
@@ -115,20 +104,8 @@ public class Container extends CBase {
 
         System.out.println(CUtility.getCurrentTimeInH()+": Started container = "+getName());
 
-        Thread t1 = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                // Subscribe messages published to this container
-                try {
-                    genericReceive(CConstants.CONTAINER + ":" + getName(),
-                            new ContainerCallBack());
-                } catch (xMsgException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-        t1.start();
-
+        // Subscribe messages published to this container
+        genericReceive(CConstants.CONTAINER + ":" + getName(), new ContainerCallBack());
     }
 
 
@@ -314,19 +291,8 @@ public class Container extends CBase {
         public ServiceDispatcher(final String serviceCanonicalName) throws xMsgException, SocketException {
             super();
 
-            Thread t1 = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    // Subscribe messages published to this service
-                    try {
-                        serviceReceive(serviceCanonicalName,
-                                new ServiceCallBack());
-                    } catch (xMsgException e) {
-                        e.printStackTrace();
-                    }
-                }
-            });
-            t1.start();
+            // Subscribe messages published to this service
+            serviceReceive(serviceCanonicalName, new ServiceCallBack());
 
         }
     }
