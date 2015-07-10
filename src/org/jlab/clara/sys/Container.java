@@ -7,6 +7,7 @@ import org.jlab.clara.util.CUtility;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
+import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.data.xMsgD;
 import org.jlab.coda.xmsg.excp.xMsgException;
 
@@ -81,7 +82,15 @@ public class Container extends CBase {
                 CConstants.CONTAINER_UP+"?"+getName());
 
         // Subscribe messages published to this container
-        genericReceive(CConstants.CONTAINER + ":" + getName(), new ContainerCallBack());
+        String topic = CConstants.CONTAINER + ":" + name;
+        genericReceive(topic, new ContainerCallBack());
+
+        //register container
+        registerSubscriber(name,
+                xMsgUtil.getTopicDomain(topic),
+                xMsgUtil.getTopicSubject(topic),
+                xMsgUtil.getTopicType(topic),
+                "Service Container");
     }
 
     /**
@@ -105,7 +114,15 @@ public class Container extends CBase {
         System.out.println(CUtility.getCurrentTimeInH()+": Started container = "+getName());
 
         // Subscribe messages published to this container
-        genericReceive(CConstants.CONTAINER + ":" + getName(), new ContainerCallBack());
+        String topic = CConstants.CONTAINER + ":" + name;
+        genericReceive(topic, new ContainerCallBack());
+
+        //register container
+        registerSubscriber(name,
+                xMsgUtil.getTopicDomain(topic),
+                xMsgUtil.getTopicSubject(topic),
+                xMsgUtil.getTopicType(topic),
+                "Service Container");
     }
 
 
