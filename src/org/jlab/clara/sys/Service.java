@@ -143,8 +143,6 @@ public class Service extends CBase {
                 CConstants.SERVICE_UP+"?"+getName());
 
         System.out.println("\n"+CUtility.getCurrentTimeInH()+": Started service = "+getName());
-        register();
-
     }
 
     /**

@@ -189,6 +189,10 @@ public class Container extends CBase {
 
         new ServiceDispatcher(canonical_name);
 
+        Service service = lbq.peek();
+        if (service != null) {
+            service.register();
+        }
     }
 
     public void removeService(String name)
