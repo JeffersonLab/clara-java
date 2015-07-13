@@ -344,7 +344,7 @@ public class CBase extends xMsg {
 
             // Create a socket connections to the remote dpe.
             xMsgAddress address = new xMsgAddress(dpeHost);
-            xMsgConnection con = connect(address);
+            xMsgConnection con = connect(address, 100);
             serviceSend(con, serviceName, data);
 
         } else {
@@ -409,7 +409,7 @@ public class CBase extends xMsg {
 
             // Create a socket connections to the remote dpe.
             xMsgAddress address = new xMsgAddress(dpeHost);
-            xMsgConnection con = connect(address);
+            xMsgConnection con = connect(address, 100);
             return serviceSyncSend(con, serviceName, data, timeOut);
 
         } else {
@@ -463,7 +463,7 @@ public class CBase extends xMsg {
         } else {
             // Create a socket connections to the remote dpe.
             xMsgAddress address = new xMsgAddress(dpeHost);
-            xMsgConnection con = connect(address);
+            xMsgConnection con = connect(address, 100);
             genericSend(con, topic, data);
         }
     }
