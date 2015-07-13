@@ -589,12 +589,12 @@ public class Service extends CBase {
      */
     public void register()
             throws xMsgException {
-        System.out.println(CUtility.getCurrentTimeInH() + ": " + getName() + " sending registration request.");
         registerSubscriber(getName(),
                 xMsgUtil.getTopicDomain(getName()),
                 xMsgUtil.getTopicSubject(getName()),
                 xMsgUtil.getTopicType(getName()),
                 engine_object.get_description());
+        System.out.println(CUtility.getCurrentTimeInH() + ": Registered service = " + getName());
     }
 
     /**

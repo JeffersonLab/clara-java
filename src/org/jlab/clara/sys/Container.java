@@ -91,6 +91,7 @@ public class Container extends CBase {
                 xMsgUtil.getTopicSubject(topic),
                 xMsgUtil.getTopicType(topic),
                 "Service Container");
+        System.out.println(CUtility.getCurrentTimeInH() + ": Registered container = " + name);
     }
 
     /**
@@ -123,6 +124,7 @@ public class Container extends CBase {
                 xMsgUtil.getTopicSubject(topic),
                 xMsgUtil.getTopicType(topic),
                 "Service Container");
+        System.out.println(CUtility.getCurrentTimeInH() + ": Registered container = " + name);
     }
 
 
