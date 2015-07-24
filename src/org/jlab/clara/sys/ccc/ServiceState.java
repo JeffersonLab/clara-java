@@ -33,8 +33,8 @@ import org.jlab.coda.xmsg.core.xMsgConstants;
  */
 public class ServiceState implements Comparable{
 
-    private String name = xMsgConstants.UNDEFINED.getStringValue();
-    private String state = xMsgConstants.UNDEFINED.getStringValue();
+    private String name = xMsgConstants.UNDEFINED.toString();
+    private String state = xMsgConstants.UNDEFINED.toString();
 
     public String getName() {
         return name;

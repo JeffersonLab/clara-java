@@ -40,10 +40,10 @@ import org.jlab.coda.xmsg.core.xMsgConstants;
  */
 public class ServiceStatus {
     private String name =
-            xMsgConstants.UNDEFINED.getStringValue();
+            xMsgConstants.UNDEFINED.toString();
 
     private String description =
-            xMsgConstants.UNDEFINED.getStringValue();
+            xMsgConstants.UNDEFINED.toString();
 
     private volatile int requestNumber;
 

@@ -34,6 +34,7 @@ import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.sys.CBase;
 import org.jlab.clara.util.CConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
+import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 import org.jlab.coda.xmsg.excp.xMsgException;
 
@@ -54,7 +55,6 @@ public class BaseOrchestrator {
     public BaseOrchestrator() throws ClaraException {
         try {
             base = getClaraBase("localhost");
-            base.setMyName(generateName());
         } catch (SocketException | xMsgException e) {
             throw new ClaraException("Could not start orchestrator", e);
         }
@@ -70,7 +70,6 @@ public class BaseOrchestrator {
     public BaseOrchestrator(String frontEndHost) throws ClaraException {
         try {
             base = getClaraBase(frontEndHost);
-            base.setMyName(generateName());
         } catch (SocketException | xMsgException e) {
             throw new ClaraException("Could not start orchestrator", e);
         }
@@ -82,7 +81,7 @@ public class BaseOrchestrator {
      * It can be overridden to return a mock for testing purposes.
      */
     CBase getClaraBase(String frontEndHost) throws SocketException, xMsgException {
-        return new CBase(frontEndHost);
+        return new CBase(generateName(), frontEndHost);
     }
 
 
@@ -92,14 +91,14 @@ public class BaseOrchestrator {
     }
 
 
-    private String buildTopic(Object... args) {
+    private xMsgTopic buildTopic(Object... args) {
         StringBuilder topic  = new StringBuilder();
         topic.append(args[0]);
         for (int i = 1; i < args.length; i++) {
             topic.append(CConstants.TOPIC_SEP);
             topic.append(args[i]);
         }
-        return topic.toString();
+        return xMsgTopic.wrap(topic.toString());
     }
 
 
@@ -111,6 +110,19 @@ public class BaseOrchestrator {
             topic.append(args[i]);
         }
         return topic.toString();
+    }
+
+
+    private xMsgMessage buildMessage(xMsgTopic topic, String data) {
+        return new xMsgMessage(topic, data);
+    }
+
+
+    private xMsgMessage buildMessage(xMsgTopic topic, EngineData data) {
+        xMsgMessage msg = new xMsgMessage(topic);
+        msg.setMetaData(data.getMetaData());
+        msg.setData(data.getxData().build());
+        return msg;
     }
 
 
@@ -136,9 +148,9 @@ public class BaseOrchestrator {
                 throw new IllegalArgumentException("Malformed DPE name: " + dpeName);
             }
             String host = ClaraUtil.getHostName(dpeName);
-            String topic = buildTopic(CConstants.DPE, dpeName);
+            xMsgTopic topic = buildTopic(CConstants.DPE, dpeName);
             String data = CConstants.DPE_EXIT;
-            xMsgMessage msg = new xMsgMessage(topic, data);
+            xMsgMessage msg = buildMessage(topic, data);
             base.genericSend(host, msg);
         } catch (xMsgException | IOException e) {
             throw new ClaraException("Could not send request", e);
@@ -164,9 +176,9 @@ public class BaseOrchestrator {
             String host = ClaraUtil.getHostName(containerName);
             String dpe = ClaraUtil.getDpeName(containerName);
             String name = ClaraUtil.getContainerName(containerName);
-            String topic = buildTopic(CConstants.DPE, dpe);
+            xMsgTopic topic = buildTopic(CConstants.DPE, dpe);
             String data = buildData(CConstants.START_CONTAINER, name);
-            xMsgMessage msg = new xMsgMessage(topic, data);
+            xMsgMessage msg = buildMessage(topic, data);
             base.genericSend(host, msg);
         } catch (IOException | xMsgException e) {
             throw new ClaraException("Could not send request", e);
@@ -198,9 +210,9 @@ public class BaseOrchestrator {
             String host = ClaraUtil.getHostName(containerName);
             String dpe = ClaraUtil.getDpeName(containerName);
             String name = ClaraUtil.getContainerName(containerName);
-            String topic = buildTopic(CConstants.DPE, dpe);
+            xMsgTopic topic = buildTopic(CConstants.DPE, dpe);
             String data = buildData(CConstants.START_CONTAINER, name);
-            xMsgMessage msg = new xMsgMessage(topic, data);
+            xMsgMessage msg = buildMessage(topic, data);
             base.genericSyncSend(host, msg, timeout);
         } catch (IOException | xMsgException e) {
             throw new ClaraException("Could not send request", e);
@@ -226,9 +238,9 @@ public class BaseOrchestrator {
             String host = ClaraUtil.getHostName(containerName);
             String dpe = ClaraUtil.getDpeName(containerName);
             String name = ClaraUtil.getContainerName(containerName);
-            String topic = buildTopic(CConstants.DPE, dpe);
+            xMsgTopic topic = buildTopic(CConstants.DPE, dpe);
             String data = buildData(CConstants.REMOVE_CONTAINER, name);
-            xMsgMessage msg = new xMsgMessage(topic, data);
+            xMsgMessage msg = buildMessage(topic, data);
             base.genericSend(host, msg);
         } catch (IOException | xMsgException e) {
             throw new ClaraException("Could not send request", e);
@@ -260,9 +272,9 @@ public class BaseOrchestrator {
             String host = ClaraUtil.getHostName(containerName);
             String dpe = ClaraUtil.getDpeName(containerName);
             String name = ClaraUtil.getContainerName(containerName);
-            String topic = buildTopic(CConstants.DPE, dpe);
+            xMsgTopic topic = buildTopic(CConstants.DPE, dpe);
             String data = buildData(CConstants.REMOVE_CONTAINER, name);
-            xMsgMessage msg = new xMsgMessage(topic, data);
+            xMsgMessage msg = buildMessage(topic, data);
             base.genericSyncSend(host, msg, timeout);
         } catch (IOException | xMsgException e) {
             throw new ClaraException("Could not send request", e);
@@ -294,9 +306,9 @@ public class BaseOrchestrator {
             String host = ClaraUtil.getHostName(serviceName);
             String containerName = ClaraUtil.getContainerCanonicalName(serviceName);
             String engineName = ClaraUtil.getEngineName(serviceName);
-            String topic = buildTopic(CConstants.CONTAINER, containerName);
+            xMsgTopic topic = buildTopic(CConstants.CONTAINER, containerName);
             String data = buildData(CConstants.DEPLOY_SERVICE, engineName, poolSize);
-            xMsgMessage msg = new xMsgMessage(topic, data);
+            xMsgMessage msg = buildMessage(topic, data);
             base.genericSend(host, msg);
         } catch (IOException | xMsgException e) {
             throw new ClaraException("Could not send request", e);
@@ -332,9 +344,9 @@ public class BaseOrchestrator {
             String host = ClaraUtil.getHostName(serviceName);
             String containerName = ClaraUtil.getContainerCanonicalName(serviceName);
             String engineName = ClaraUtil.getEngineName(serviceName);
-            String topic = buildTopic(CConstants.CONTAINER, containerName);
+            xMsgTopic topic = buildTopic(CConstants.CONTAINER, containerName);
             String data = buildData(CConstants.DEPLOY_SERVICE, engineName, poolSize);
-            xMsgMessage msg = new xMsgMessage(topic, data);
+            xMsgMessage msg = buildMessage(topic, data);
             base.genericSyncSend(host, msg, timeout);
         } catch (IOException | xMsgException e) {
             throw new ClaraException("Could not send request", e);
@@ -359,9 +371,9 @@ public class BaseOrchestrator {
             String host = ClaraUtil.getHostName(serviceName);
             String containerName = ClaraUtil.getContainerCanonicalName(serviceName);
             String engineName = ClaraUtil.getEngineName(serviceName);
-            String topic = buildTopic(CConstants.CONTAINER, containerName);
+            xMsgTopic topic = buildTopic(CConstants.CONTAINER, containerName);
             String data = buildData(CConstants.REMOVE_SERVICE, engineName);
-            xMsgMessage msg = new xMsgMessage(topic, data);
+            xMsgMessage msg = buildMessage(topic, data);
             base.genericSend(host, msg);
         } catch (IOException | xMsgException e) {
             throw new ClaraException("Could not send request", e);
@@ -392,9 +404,9 @@ public class BaseOrchestrator {
             String host = ClaraUtil.getHostName(serviceName);
             String containerName = ClaraUtil.getContainerCanonicalName(serviceName);
             String engineName = ClaraUtil.getEngineName(serviceName);
-            String topic = buildTopic(CConstants.CONTAINER, containerName);
+            xMsgTopic topic = buildTopic(CConstants.CONTAINER, containerName);
             String data = buildData(CConstants.REMOVE_SERVICE, engineName);
-            xMsgMessage msg = new xMsgMessage(topic, data);
+            xMsgMessage msg = buildMessage(topic, data);
             base.genericSyncSend(host, msg, timeout);
         } catch (IOException | xMsgException e) {
             throw new ClaraException("Could not send request", e);
@@ -418,10 +430,11 @@ public class BaseOrchestrator {
                 throw new IllegalArgumentException("Malformed service name: " + serviceName);
             }
             String host = ClaraUtil.getHostName(serviceName);
-            xMsgMeta.Builder msgMeta = xMsgMeta.newBuilder();
+            xMsgTopic topic = xMsgTopic.wrap(serviceName);
+            xMsgMessage msg = buildMessage(topic, data);
+            xMsgMeta.Builder msgMeta = msg.getMetaData();
             msgMeta.setComposition(serviceName);
             msgMeta.setAction(xMsgMeta.ControlAction.CONFIGURE);
-            xMsgMessage msg = new xMsgMessage(serviceName, msgMeta, data);
             base.genericSend(host, msg);
         } catch (IOException | xMsgException e) {
             throw new ClaraException("Could not send request", e);
@@ -451,10 +464,11 @@ public class BaseOrchestrator {
             validateTimeout(timeout);
 
             String host = ClaraUtil.getHostName(serviceName);
-            xMsgMeta.Builder msgMeta = xMsgMeta.newBuilder();
+            xMsgTopic topic = xMsgTopic.wrap(serviceName);
+            xMsgMessage msg = buildMessage(topic, data);
+            xMsgMeta.Builder msgMeta = msg.getMetaData();
             msgMeta.setComposition(serviceName);
             msgMeta.setAction(xMsgMeta.ControlAction.CONFIGURE);
-            xMsgMessage msg = new xMsgMessage(serviceName, msgMeta, data);
             base.genericSyncSend(host, msg, timeout);
         } catch (IOException | xMsgException e) {
             throw new ClaraException("Could not send request", e);
@@ -479,10 +493,11 @@ public class BaseOrchestrator {
                 throw new IllegalArgumentException("Malformed service name: " + serviceName);
             }
             String host = ClaraUtil.getHostName(serviceName);
-            xMsgMeta.Builder msgMeta = xMsgMeta.newBuilder();
+            xMsgTopic topic = xMsgTopic.wrap(serviceName);
+            xMsgMessage msg = buildMessage(topic, data);
+            xMsgMeta.Builder msgMeta = msg.getMetaData();
             msgMeta.setComposition(serviceName);
             msgMeta.setAction(xMsgMeta.ControlAction.EXECUTE);
-            xMsgMessage msg = new xMsgMessage(serviceName, msgMeta, data);
             base.genericSend(host, msg);
         } catch (IOException | xMsgException e) {
             throw new ClaraException("Could not send request", e);
@@ -512,10 +527,11 @@ public class BaseOrchestrator {
             validateTimeout(timeout);
 
             String host = ClaraUtil.getHostName(serviceName);
-            xMsgMeta.Builder msgMeta = xMsgMeta.newBuilder();
+            xMsgTopic topic = xMsgTopic.wrap(serviceName);
+            xMsgMessage msg = buildMessage(topic, data);
+            xMsgMeta.Builder msgMeta = msg.getMetaData();
             msgMeta.setComposition(serviceName);
             msgMeta.setAction(xMsgMeta.ControlAction.EXECUTE);
-            xMsgMessage msg = new xMsgMessage(serviceName, msgMeta, data);
             base.genericSyncSend(host, msg, timeout);
         } catch (IOException | xMsgException e) {
             throw new ClaraException("Could not send request", e);
@@ -539,10 +555,11 @@ public class BaseOrchestrator {
 
             String firstService = composition.firstService();
             String host = ClaraUtil.getHostName(firstService);
-            xMsgMeta.Builder msgMeta = xMsgMeta.newBuilder();
+            xMsgTopic topic = xMsgTopic.wrap(firstService);
+            xMsgMessage msg = buildMessage(topic, data);
+            xMsgMeta.Builder msgMeta = msg.getMetaData();
             msgMeta.setComposition(composition.toString());
             msgMeta.setAction(xMsgMeta.ControlAction.EXECUTE);
-            xMsgMessage msg = new xMsgMessage(firstService, msgMeta, data);
             base.genericSend(host, msg);
         } catch (IOException | xMsgException e) {
             throw new ClaraException("Could not send request", e);
@@ -570,10 +587,11 @@ public class BaseOrchestrator {
 
             String firstService = composition.firstService();
             String host = ClaraUtil.getHostName(firstService);
-            xMsgMeta.Builder msgMeta = xMsgMeta.newBuilder();
+            xMsgTopic topic = xMsgTopic.wrap(firstService);
+            xMsgMessage msg = buildMessage(topic, data);
+            xMsgMeta.Builder msgMeta = msg.getMetaData();
             msgMeta.setComposition(composition.toString());
             msgMeta.setAction(xMsgMeta.ControlAction.EXECUTE);
-            xMsgMessage msg = new xMsgMessage(firstService, msgMeta, data);
             base.genericSyncSend(host, msg, timeout);
         } catch (IOException | xMsgException e) {
             throw new ClaraException("Could not send request", e);
@@ -602,7 +620,8 @@ public class BaseOrchestrator {
             }
             String host = ClaraUtil.getHostName(serviceName);
             String data = buildData(CConstants.SERVICE_REPORT_DONE, eventCount);
-            xMsgMessage msg = new xMsgMessage(serviceName, data);
+            xMsgTopic topic = xMsgTopic.wrap(serviceName);
+            xMsgMessage msg = buildMessage(topic, data);
             base.genericSend(host, msg);
         } catch (IOException | xMsgException e) {
             throw new ClaraException("Could not send request", e);
@@ -644,7 +663,8 @@ public class BaseOrchestrator {
             }
             String host = ClaraUtil.getHostName(serviceName);
             String data = buildData(CConstants.SERVICE_REPORT_DATA, eventCount);
-            xMsgMessage msg = new xMsgMessage(serviceName, data);
+            xMsgTopic topic = xMsgTopic.wrap(serviceName);
+            xMsgMessage msg = buildMessage(topic, data);
             base.genericSend(host, msg);
         } catch (IOException | xMsgException e) {
             throw new ClaraException("Could not send request", e);

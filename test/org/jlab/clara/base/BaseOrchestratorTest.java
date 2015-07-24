@@ -641,9 +641,10 @@ public class BaseOrchestratorTest {
     }
 
 
-    private void assertMessage(xMsgMessage msg, String topic, String data) {
-        xMsgData.Builder msgData = (xMsgData.Builder) msg.getData();
-        assertThat(msg.getTopic(), is(topic));
+    private void assertMessage(xMsgMessage msg, String topic, String data)
+        throws Exception {
+        xMsgData msgData = xMsgData.parseFrom(msg.getData());
+        assertThat(msg.getTopic().toString(), is(topic));
         assertThat(msgData.getSTRING(), is(data));
     }
 
@@ -652,7 +653,7 @@ public class BaseOrchestratorTest {
                                String composition, xMsgMeta.ControlAction action) {
         xMsgMeta.Builder msgMeta = msg.getMetaData();
 
-        assertThat(msg.getTopic(), is(topic));
+        assertThat(msg.getTopic().toString(), is(topic));
         assertThat(msgMeta.getComposition(), is(composition));
         assertThat(msgMeta.getAction(), is(action));
     }

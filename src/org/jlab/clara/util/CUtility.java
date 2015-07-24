@@ -22,6 +22,7 @@
 package org.jlab.clara.util;
 
 import org.jlab.clara.base.CException;
+import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.excp.xMsgException;
 import org.w3c.dom.Document;
@@ -33,6 +34,7 @@ import org.xml.sax.SAXException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
+
 import java.io.*;
 import java.net.InetAddress;
 import java.net.SocketException;
@@ -87,7 +89,7 @@ public class CUtility {
             throws CException {
 
         try {
-            return xMsgUtil.host_to_ip("localhost") +
+            return xMsgUtil.toHostAddress("localhost") +
                     ":" +
                     container +
                     ":" +
@@ -110,7 +112,7 @@ public class CUtility {
             throws CException {
 
         try {
-            return xMsgUtil.host_to_ip(host) +
+            return xMsgUtil.toHostAddress(host) +
                     ":" +
                     container;
         } catch (xMsgException  | SocketException e) {
@@ -129,7 +131,7 @@ public class CUtility {
             throws CException {
 
         try {
-            return xMsgUtil.host_to_ip("localhost") +
+            return xMsgUtil.toHostAddress("localhost") +
                     ":" +
                     container;
         } catch (xMsgException  | SocketException e) {
@@ -147,20 +149,22 @@ public class CUtility {
 
     /**
      * Checks to see if the service is locally deployed
-     * @param s_name service canonical name (dpe-ip:container:engine)
+     * @param serviceName service canonical name (dpe-ip:container:engine)
      *
      * @return true/false
      * @throws CException
      */
-    public static Boolean isRemoteService(String s_name)
+    public static Boolean isRemoteService(String serviceName)
             throws CException {
 
-        try{
-            String s_host = xMsgUtil.getTopicDomain(s_name);
-            for(String s:xMsgUtil.getLocalHostIps()){
-                if (s.equals(s_host)) return false;
+        try {
+            xMsgTopic topic = xMsgTopic.wrap(serviceName);
+            for (String s : xMsgUtil.getLocalHostIps()) {
+                if (s.equals(topic.domain())) {
+                    return false;
+                }
             }
-        } catch (xMsgException | SocketException e) {
+        } catch (SocketException e) {
             throw new CException(e.getMessage());
         }
 
@@ -177,7 +181,7 @@ public class CUtility {
      *    composition are deployed on a same dpe and the same container
      *
      * </p>
-     * @param dpe dpe canonical name 
+     * @param dpe dpe canonical name
      *            (IP address of the host where DPE is deployed)
      * @param container the name of the container
      * @param composition Clara composition string (non canonical)
@@ -301,21 +305,16 @@ public class CUtility {
         if (!CUtility.isCanonical(serviceCanonicalName)) {
             throw new CException("not a canonical name");
         }
-        try {
-            return xMsgUtil.getTopicDomain(serviceCanonicalName);
-        } catch (xMsgException e) {
-            throw new CException(e.getMessage());
-        }
+        return xMsgTopic.wrap(serviceCanonicalName).domain();
     }
 
     public static String getContainerCanonicalName(String serviceCanonicalName)
             throws CException {
-        try {
-            return xMsgUtil.getTopicDomain(serviceCanonicalName) +
-                    ":" + xMsgUtil.getTopicSubject(serviceCanonicalName);
-        } catch (xMsgException e) {
-            throw new CException("wrong dpe and/or container");
+        if (!CUtility.isCanonical(serviceCanonicalName)) {
+            throw new CException("not a canonical name");
         }
+        xMsgTopic topic = xMsgTopic.wrap(serviceCanonicalName);
+        return topic.domain() + ":" + topic.subject();
     }
 
     public static String getContainerName(String serviceCanonicalName)
@@ -323,11 +322,7 @@ public class CUtility {
         if (!CUtility.isCanonical(serviceCanonicalName)) {
             throw new CException("not a canonical name");
         }
-        try {
-            return xMsgUtil.getTopicSubject(serviceCanonicalName);
-        } catch (xMsgException e) {
-            throw new CException(e.getMessage());
-        }
+        return xMsgTopic.wrap(serviceCanonicalName).subject();
     }
 
     public static String getEngineName(String serviceCanonicalName)
@@ -335,11 +330,7 @@ public class CUtility {
         if (!CUtility.isCanonical(serviceCanonicalName)) {
             throw new CException("not a canonical name");
         }
-        try {
-            return xMsgUtil.getTopicType(serviceCanonicalName);
-        } catch (xMsgException e) {
-            throw new CException(e.getMessage());
-        }
+        return xMsgTopic.wrap(serviceCanonicalName).type();
     }
 
     public static Boolean isCanonical(String name){

@@ -25,14 +25,17 @@ import org.jlab.clara.base.CException;
 import org.jlab.clara.util.CConstants;
 import org.jlab.clara.util.CServiceSysConfig;
 import org.jlab.clara.util.CUtility;
-import org.jlab.coda.xmsg.core.SubscriptionHandler;
+import org.jlab.coda.xmsg.core.xMsgSubscription;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
+import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.data.xMsgD.xMsgData;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 import org.jlab.coda.xmsg.excp.xMsgException;
+
+import com.google.protobuf.InvalidProtocolBufferException;
 
 import java.io.IOException;
 import java.net.SocketException;
@@ -77,12 +80,12 @@ public class Container extends CBase {
             _sysConfigs = new ConcurrentHashMap<>();
 
     private String feHost =
-            xMsgConstants.UNDEFINED.getStringValue();
+            xMsgConstants.UNDEFINED.toString();
 
     // Unique id for services within the container
     private AtomicInteger uniqueId = new AtomicInteger(0);
 
-    private SubscriptionHandler subscriptionHandler;
+    private xMsgSubscription subscriptionHandler;
 
     private Map<String, ServiceDispatcher>
             _myServiceDispatchers = new HashMap<>();
@@ -100,10 +103,8 @@ public class Container extends CBase {
     public Container(String name,
                      String feHost)
             throws xMsgException, IOException {
-        super(feHost);
+        super(name, feHost);
         this.feHost = feHost;
-
-        setMyName(name);
 
         // Create a socket connections to the local dpe proxy
         connect();
@@ -114,15 +115,11 @@ public class Container extends CBase {
         //register container
         System.out.println(CUtility.getCurrentTimeInH() + ": " + getMyName() +
                 " container sending registration request.");
-        registerSubscriber(getMyName(),
-                xMsgUtil.getTopicDomain(getMyName()),
-                xMsgUtil.getTopicSubject(getMyName()),
-                xMsgConstants.UNDEFINED.getStringValue(),
-                "Service Container");
+        registerSubscriber(xMsgTopic.wrap(getMyName()), "Service Container");
 
         // Subscribe messages published to this container
-        subscriptionHandler = genericReceive(CConstants.CONTAINER + ":" + getMyName(),
-                                             new ContainerCallBack());
+        xMsgTopic topic = xMsgTopic.wrap(CConstants.CONTAINER + ":" + getMyName());
+        subscriptionHandler = genericReceive(topic, new ContainerCallBack());
     }
 
     /**
@@ -136,9 +133,7 @@ public class Container extends CBase {
      */
     public Container(String name)
             throws xMsgException, SocketException {
-        super();
-
-        setMyName(name);
+        super(name);
 
         // Create a socket connections to the local dpe proxy
         connect();
@@ -149,30 +144,24 @@ public class Container extends CBase {
         //register container
         System.out.println(CUtility.getCurrentTimeInH() + ": " + getMyName() +
                 " container sending registration request.");
-        registerSubscriber(getMyName(),
-                xMsgUtil.getTopicDomain(getMyName()),
-                xMsgUtil.getTopicSubject(getMyName()),
-                xMsgConstants.UNDEFINED.getStringValue(),
-                "Service Container");
+        registerSubscriber(xMsgTopic.wrap(getMyName()), "Service Container");
 
         // Subscribe messages published to this container
-        subscriptionHandler = genericReceive(CConstants.CONTAINER + ":" + getMyName(),
-                                             new ContainerCallBack());
+        xMsgTopic topic = xMsgTopic.wrap(CConstants.CONTAINER + ":" + getMyName());
+        subscriptionHandler = genericReceive(topic, new ContainerCallBack());
     }
 
     public void exitContainer() throws xMsgException, IOException {
 
         reportFE(CConstants.CONTAINER_DOWN + "?" + getMyName());
 
-        subscriptionHandler.unsubscribe();
-        removeSubscriberRegistration(getMyName(),
-                xMsgUtil.getTopicDomain(getMyName()),
-                xMsgUtil.getTopicSubject(getMyName()),
-                xMsgConstants.UNDEFINED.getStringValue());
+        unsubscribe(subscriptionHandler);
+        removeSubscriber(xMsgTopic.wrap(getMyName()));
 
         for (ServiceDispatcher sd : _myServiceDispatchers.values()) {
             sd.exitDispatcher();
         }
+
         _myServiceDispatchers.clear();
         _myServiceDispatchers = null;
         _objectPoolMap.clear();
@@ -260,7 +249,7 @@ public class Container extends CBase {
             // Create an object of the Service class by passing
             // service name as a parameter. service name = canonical
             // name of this container + engine name of a service
-            if(feHost.equals(xMsgConstants.UNDEFINED.getStringValue())) {
+            if(feHost.equals(xMsgConstants.UNDEFINED.toString())) {
                 service =  new Service(packageName, canonical_name, sharedMemoryLocation);
                 service.updateMyState(initialState);
             } else {
@@ -333,13 +322,19 @@ public class Container extends CBase {
         public xMsgMessage callback(xMsgMessage msg) {
 
             final xMsgMeta.Builder metadata = msg.getMetaData();
-            if (metadata.getDataType().equals(xMsgMeta.DataType.X_Object)) {
-                final xMsgData.Builder data = (xMsgData.Builder) msg.getData();
+            if (metadata.getDataType().equals("binary/native")) {
+                xMsgData data;
+                try {
+                    data = xMsgData.parseFrom(msg.getData());
+                } catch (InvalidProtocolBufferException e1) {
+                    e1.printStackTrace();
+                    return msg;
+                }
                 if (data.getType().equals(xMsgData.Type.T_STRING)) {
                     String cmdData = data.getSTRING();
                     String cmd = null, seName = null,
                             objectPoolSize = null,
-                            initialState = xMsgConstants.UNDEFINED.getStringValue();
+                            initialState = xMsgConstants.UNDEFINED.toString();
                     try {
                         StringTokenizer st = new StringTokenizer(cmdData, "?");
                         cmd = st.nextToken();
@@ -414,18 +409,16 @@ public class Container extends CBase {
      */
     private class ServiceDispatcher extends CBase {
 
-        private String description = xMsgConstants.UNDEFINED.getStringValue();
-        private String myName = xMsgConstants.UNDEFINED.getStringValue();
-        private SubscriptionHandler serviceSubscriptionHandler;
+        private String description = xMsgConstants.UNDEFINED.toString();
+        private xMsgSubscription serviceSubscriptionHandler;
 
         public ServiceDispatcher(final String serviceCanonicalName,
                                  String description)
                 throws xMsgException,
                 IOException, CException {
-            super();
+            super(serviceCanonicalName);
 
             this.description = description;
-            this.myName = serviceCanonicalName;
 
             // Subscribe messages published to this service
             serviceSubscriptionHandler = serviceReceive(serviceCanonicalName,
@@ -438,10 +431,11 @@ public class Container extends CBase {
                 register(feHost);
             }
 
-            if(!feHost.equals(xMsgConstants.UNDEFINED.getStringValue())) {
+            if(!feHost.equals(xMsgConstants.UNDEFINED.toString())) {
+                xMsgTopic topic = xMsgTopic.wrap(CConstants.SERVICE + ":" + feHost);
+                String data = CConstants.SERVICE_UP + "?" + myName;
                 // Send service_up message to the FE
-                xMsgMessage msg = new xMsgMessage(CConstants.SERVICE + ":" + feHost,
-                        CConstants.SERVICE_UP + "?" + myName);
+                xMsgMessage msg = new xMsgMessage(topic, data);
                 genericSend(feHost, msg);
             }
         }
@@ -456,11 +450,7 @@ public class Container extends CBase {
                 throws xMsgException {
             System.out.println(CUtility.getCurrentTimeInH() + ": " + myName +
                     " sending registration request.");
-            registerSubscriber(myName,
-                    xMsgUtil.getTopicDomain(myName),
-                    xMsgUtil.getTopicSubject(myName),
-                    xMsgUtil.getTopicType(myName),
-                    description);
+            registerLocalSubscriber(xMsgTopic.wrap(myName), description);
         }
 
         /**
@@ -473,13 +463,7 @@ public class Container extends CBase {
                 throws xMsgException {
             System.out.println(CUtility.getCurrentTimeInH() + ": " + getMyName() +
                     " sending registration request.");
-            registerSubscriber(myName,
-                    feHost,
-                    xMsgConstants.DEFAULT_PORT.getIntValue(),
-                    xMsgUtil.getTopicDomain(myName),
-                    xMsgUtil.getTopicSubject(myName),
-                    xMsgUtil.getTopicType(myName),
-                    description);
+            registerSubscriber(xMsgTopic.wrap(myName), description);
         }
 
         /**
@@ -490,17 +474,14 @@ public class Container extends CBase {
          * @throws xMsgException
          */
         public void unregister() throws xMsgException {
-            removeSubscriberRegistration(myName,
-                    xMsgUtil.getTopicDomain(myName),
-                    xMsgUtil.getTopicSubject(myName),
-                    xMsgUtil.getTopicType(myName));
+            removeLocalSubscriber(xMsgTopic.wrap(myName));
+            removeSubscriber(xMsgTopic.wrap(myName));
         }
 
         public void exitDispatcher() throws xMsgException {
-            serviceSubscriptionHandler.unsubscribe();
+            unsubscribe(serviceSubscriptionHandler);
             unregister();
             description = null;
-            myName = null;
         }
 
     }
@@ -521,8 +502,7 @@ public class Container extends CBase {
         public xMsgMessage callback(xMsgMessage msg) {
 
             try {
-                String receiver;
-                receiver = msg.getTopic();
+                String receiver = msg.getTopic().toString();
 
                 final xMsgMeta.Builder metadata = msg.getMetaData();
                 final Object data = msg.getData();
@@ -534,7 +514,7 @@ public class Container extends CBase {
 
                 final xMsgData.Builder xData;
 
-                if (metadata.getDataType().equals(xMsgMeta.DataType.X_Object)) {
+                if (metadata.getDataType().equals("binary/native")) {
                     xData = (xMsgData.Builder) data;
 
                     // Check to see if this is a service external

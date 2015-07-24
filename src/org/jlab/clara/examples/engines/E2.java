@@ -23,7 +23,6 @@ package org.jlab.clara.examples.engines;
 
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.ICEngine;
-import org.jlab.coda.xmsg.data.xMsgM;
 
 import java.util.List;
 import java.util.Set;
@@ -60,12 +59,12 @@ public class E2 implements ICEngine {
     }
 
     @Override
-    public xMsgM.xMsgMeta.DataType getInDataType() {
+    public String getInDataType() {
         return null;
     }
 
     @Override
-    public xMsgM.xMsgMeta.DataType getOutDataType() {
+    public String getOutDataType() {
         return null;
     }
 

@@ -21,8 +21,6 @@
 
 package org.jlab.clara.engine;
 
-import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
-
 import java.util.List;
 import java.util.Set;
 
@@ -43,9 +41,9 @@ public interface ICEngine {
 
     public List<String> getStates();
 
-    public xMsgMeta.DataType getInDataType();
+    public String getInDataType();
 
-    public xMsgMeta.DataType getOutDataType();
+    public String getOutDataType();
 
     public String getDescription();
 

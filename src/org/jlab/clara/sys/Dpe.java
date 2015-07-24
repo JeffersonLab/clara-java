@@ -27,13 +27,17 @@ import org.jlab.clara.util.CUtility;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
+import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.data.xMsgD;
+import org.jlab.coda.xmsg.data.xMsgD.xMsgData;
 import org.jlab.coda.xmsg.data.xMsgM;
 import org.jlab.coda.xmsg.excp.xMsgException;
 import org.jlab.coda.xmsg.net.xMsgAddress;
 import org.jlab.coda.xmsg.net.xMsgConnection;
 import org.jlab.coda.xmsg.xsys.xMsgRegistrar;
+
+import com.google.protobuf.InvalidProtocolBufferException;
 
 import java.io.IOException;
 import java.net.SocketException;
@@ -60,14 +64,16 @@ import java.util.concurrent.TimeUnit;
  */
 public class Dpe extends CBase {
 
+    private xMsgRegistrar registrar;
+
     // The name of this dpe. usually it is the IP address
     // of a node where this class is instantiated.
     private String
-            dpeName = xMsgConstants.UNDEFINED.getStringValue();
+            dpeName = xMsgConstants.UNDEFINED.toString();
 
     // The name of the Front-End dpe
     private String
-            feHostIp = xMsgConstants.UNDEFINED.getStringValue();
+            feHostIp = xMsgConstants.UNDEFINED.toString();
 
     // Indicates if this DPE is assigned to be the Front-End of the cloud.
     private Boolean isFE = false;
@@ -94,10 +100,9 @@ public class Dpe extends CBase {
      * @throws SocketException
      */
     public Dpe(Boolean isFE) throws xMsgException, SocketException {
-        super();
+        super(xMsgUtil.getLocalHostIps().get(0));
 
-        dpeName = xMsgUtil.getLocalHostIps().get(0);
-        setMyName(dpeName);
+        dpeName = myName;
         this.isFE = isFE;
         if (isFE) {
             feHostIp = dpeName;
@@ -141,12 +146,13 @@ public class Dpe extends CBase {
         }
 
         // Subscribe messages published to this container
-        genericReceive(CConstants.DPE + ":" + getMyName(),
-                new DpeCallBack());
+        xMsgTopic topic = xMsgTopic.wrap(CConstants.DPE + ":" + getMyName());
+        genericReceive(topic, new DpeCallBack());
 
         // Create the xMsgNode object that will provide
         // dpe registration and discovery service.
-        new xMsgRegistrar();
+        registrar = new xMsgRegistrar();
+        registrar.start();
         _myCloud.put(dpeName, new HashMap<String, Set<String>>());
 
         startHeartBeatReport();
@@ -162,30 +168,31 @@ public class Dpe extends CBase {
      * @throws SocketException
      */
     public Dpe(String feName) throws xMsgException, SocketException {
-        super();
+        super(xMsgUtil.getLocalHostIps().get(0));
 
-        dpeName = xMsgUtil.getLocalHostIps().get(0);
-        setMyName(dpeName);
-        feHostIp = xMsgUtil.host_to_ip(feName);
+        dpeName = myName;
+        feHostIp = xMsgUtil.toHostAddress(feName);
 
         printLogo();
 
         // Send dpe_up message to the FE
         try {
-            xMsgMessage msg = new xMsgMessage(CConstants.DPE + ":" + feHostIp,
-                    CConstants.DPE_UP + "?" + getMyName());
+            String data = CConstants.DPE_UP + "?" + getMyName();
+            xMsgTopic topic = xMsgTopic.wrap(CConstants.DPE + ":" + feHostIp);
+            xMsgMessage msg = new xMsgMessage(topic, data);
             genericSend(feHostIp, msg);
         } catch (IOException e) {
             e.printStackTrace();
         }
 
         // Subscribe messages published to this container
-        genericReceive(CConstants.DPE + ":" + getMyName(),
-                new DpeCallBack());
+        xMsgTopic topic = xMsgTopic.wrap(CConstants.DPE + ":" + getMyName());
+        genericReceive(topic, new DpeCallBack());
 
         // Create the xMsgNode object that will provide
         // dpe registration and discovery service.
-        new xMsgRegistrar();
+        registrar = new xMsgRegistrar();
+        registrar.start();
         _myCloud.put(dpeName, new HashMap<String, Set<String>>());
 
         startHeartBeatReport();
@@ -283,8 +290,14 @@ public class Dpe extends CBase {
             String sender = metadata.getSender();
             String returnTopic = metadata.getReplyTo();
 
-            if (metadata.getDataType().equals(xMsgM.xMsgMeta.DataType.X_Object)) {
-                final xMsgD.xMsgData.Builder data = (xMsgD.xMsgData.Builder) msg.getData();
+            if (metadata.getDataType().equals("binary/native")) {
+                xMsgData data;
+                try {
+                    data = xMsgData.parseFrom(msg.getData());
+                } catch (InvalidProtocolBufferException e) {
+                    e.printStackTrace();
+                    return msg;
+                }
                 if (data.getType().equals(xMsgD.xMsgData.Type.T_STRING)) {
 
                     String cmdData = data.getSTRING();
@@ -336,8 +349,8 @@ public class Dpe extends CBase {
                             case CConstants.DPE_PING:
                                 System.out.println("Info: got pinged from DPE = " + sender);
                                 try {
-                                    xMsgMessage amsg = new xMsgMessage(CConstants.DPE + ":" + value1,
-                                            CConstants.ALIVE);
+                                    xMsgTopic topic = xMsgTopic.wrap(CConstants.DPE + ":" + value1);
+                                    xMsgMessage amsg = new xMsgMessage(topic, CConstants.ALIVE);
                                     String dpe = CUtility.getDpeName(returnTopic);
                                     genericSend(dpe, amsg);
                                 } catch (xMsgException | IOException | CException e) {
@@ -376,7 +389,7 @@ public class Dpe extends CBase {
                                     } else {
 
                                         if (tmpDpeName.equals(dpeName)) {
-                                            if (feHostIp.equals(xMsgConstants.UNDEFINED.getStringValue())) {
+                                            if (feHostIp.equals(xMsgConstants.UNDEFINED.toString())) {
                                                 startContainer(value1);
                                             } else {
                                                 startContainer(value1, feHostIp);
@@ -414,7 +427,7 @@ public class Dpe extends CBase {
                                     String tmpDpeName = CUtility.getDpeName(value1);
                                     if (tmpDpeName.equals(dpeName)) {
                                         removeContainer(dpeName, value1);
-                                        if (!feHostIp.equals(xMsgConstants.UNDEFINED.getStringValue()) &&
+                                        if (!feHostIp.equals(xMsgConstants.UNDEFINED.toString()) &&
                                                 !feHostIp.equals(dpeName)) {
 
                                             // report FE container is down
@@ -494,7 +507,7 @@ public class Dpe extends CBase {
                                         String tmpContainerName = CUtility.getContainerName(value1);
                                         if (tmpDpeName.equals(dpeName)) {
                                             startService(tmpDpeName, value1, value2, value3);
-                                            if (!feHostIp.equals(xMsgConstants.UNDEFINED.getStringValue()) &&
+                                            if (!feHostIp.equals(xMsgConstants.UNDEFINED.toString()) &&
                                                     !feHostIp.equals(dpeName)) {
 
                                                 // report FE container is down
@@ -522,7 +535,7 @@ public class Dpe extends CBase {
                                         String tmpContainerName = CUtility.getContainerName(value1);
                                         if (tmpDpeName.equals(dpeName)) {
                                             removeService(tmpDpeName, value1);
-                                            if (!feHostIp.equals(xMsgConstants.UNDEFINED.getStringValue()) &&
+                                            if (!feHostIp.equals(xMsgConstants.UNDEFINED.toString()) &&
                                                     !feHostIp.equals(dpeName)) {
 
                                                 // report FE container is down
@@ -588,80 +601,81 @@ public class Dpe extends CBase {
                                 }
                                 break;
 
-                            case CConstants.LIST_DPES:
-                                returnMsg = new xMsgMessage(returnTopic,
-                                        _myCloud.keySet().toArray(
-                                                new String[_myCloud.keySet().size()]));
-                                break;
-
-                            case CConstants.LIST_CONTAINERS:
-                                String tmpDpeName = CUtility.getIPAddress(value1);
-                                if (tmpDpeName != null && xMsgUtil.isIP(tmpDpeName)) {
-                                    if (_myCloud.containsKey(tmpDpeName)) {
-                                        returnMsg = new xMsgMessage(returnTopic,
-                                                _myCloud.get(tmpDpeName).keySet().toArray(
-                                                        new String[_myCloud.get(tmpDpeName).keySet().size()]));
-                                    }
-                                }
-                                break;
-
-                            case CConstants.LIST_SERVICES:
-                                if (CUtility.isCanonical(value1)) {
-                                    try {
-                                        String tmpDpeN = CUtility.getIPAddress(CUtility.getDpeName(value1));
-                                        List<String> tmpServices = new ArrayList<>();
-
-                                        if (tmpDpeN != null) {
-
-                                            // all DPEs
-                                            if (tmpDpeN.equals("*")) {
-                                                for (Map<String, Set<String>> m : _myCloud.values()) {
-                                                    String tmpContainerName = CUtility.getContainerName(value1);
-
-                                                    // all containers
-                                                    if (tmpContainerName.equals("*")) {
-                                                        for (Set<String> ser : m.values()) {
-                                                            for (String s : ser) {
-                                                                tmpServices.add(s);
-                                                            }
-                                                        }
-                                                        // specific container
-                                                    } else {
-                                                        Set<String> ser = m.get(tmpContainerName);
-                                                        for (String s : ser) {
-                                                            tmpServices.add(s);
-                                                        }
-                                                    }
-                                                }
-
-                                                // specific DPE
-                                            } else {
-                                                String tmpContainerName = CUtility.getContainerName(value1);
-
-                                                // all containers
-                                                if (tmpContainerName.equals("*")) {
-                                                    for (Set<String> ser : _myCloud.get(tmpDpeN).values()) {
-                                                        for (String s : ser) {
-                                                            tmpServices.add(s);
-                                                        }
-                                                    }
-                                                    // specific container
-                                                } else {
-                                                    Set<String> ser = _myCloud.get(tmpDpeN).get(tmpContainerName);
-                                                    for (String s : ser) {
-                                                        tmpServices.add(s);
-                                                    }
-                                                }
-                                            }
-
-                                        }
-                                        returnMsg = new xMsgMessage(returnTopic,
-                                                tmpServices.toArray(new String[tmpServices.size()]));
-                                    } catch (CException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                                break;
+                                // TODO Implement this
+//                            case CConstants.LIST_DPES:
+//                                returnMsg = new xMsgMessage(xMsgTopic.wrap(returnTopic),
+//                                        _myCloud.keySet().toArray(
+//                                                new String[_myCloud.keySet().size()]));
+//                                break;
+//
+//                            case CConstants.LIST_CONTAINERS:
+//                                String tmpDpeName = CUtility.getIPAddress(value1);
+//                                if (tmpDpeName != null && xMsgUtil.isIP(tmpDpeName)) {
+//                                    if (_myCloud.containsKey(tmpDpeName)) {
+//                                        returnMsg = new xMsgMessage(xMsgTopic.wrap(returnTopic),
+//                                                _myCloud.get(tmpDpeName).keySet().toArray(
+//                                                        new String[_myCloud.get(tmpDpeName).keySet().size()]));
+//                                    }
+//                                }
+//                                break;
+//
+//                            case CConstants.LIST_SERVICES:
+//                                if (CUtility.isCanonical(value1)) {
+//                                    try {
+//                                        String tmpDpeN = CUtility.getIPAddress(CUtility.getDpeName(value1));
+//                                        List<String> tmpServices = new ArrayList<>();
+//
+//                                        if (tmpDpeN != null) {
+//
+//                                            // all DPEs
+//                                            if (tmpDpeN.equals("*")) {
+//                                                for (Map<String, Set<String>> m : _myCloud.values()) {
+//                                                    String tmpContainerName = CUtility.getContainerName(value1);
+//
+//                                                    // all containers
+//                                                    if (tmpContainerName.equals("*")) {
+//                                                        for (Set<String> ser : m.values()) {
+//                                                            for (String s : ser) {
+//                                                                tmpServices.add(s);
+//                                                            }
+//                                                        }
+//                                                        // specific container
+//                                                    } else {
+//                                                        Set<String> ser = m.get(tmpContainerName);
+//                                                        for (String s : ser) {
+//                                                            tmpServices.add(s);
+//                                                        }
+//                                                    }
+//                                                }
+//
+//                                                // specific DPE
+//                                            } else {
+//                                                String tmpContainerName = CUtility.getContainerName(value1);
+//
+//                                                // all containers
+//                                                if (tmpContainerName.equals("*")) {
+//                                                    for (Set<String> ser : _myCloud.get(tmpDpeN).values()) {
+//                                                        for (String s : ser) {
+//                                                            tmpServices.add(s);
+//                                                        }
+//                                                    }
+//                                                    // specific container
+//                                                } else {
+//                                                    Set<String> ser = _myCloud.get(tmpDpeN).get(tmpContainerName);
+//                                                    for (String s : ser) {
+//                                                        tmpServices.add(s);
+//                                                    }
+//                                                }
+//                                            }
+//
+//                                        }
+//                                        returnMsg = new xMsgMessage(xMsgTopic.wrap(returnTopic),
+//                                                tmpServices.toArray(new String[tmpServices.size()]));
+//                                    } catch (CException e) {
+//                                        e.printStackTrace();
+//                                    }
+//                                }
+//                                break;
                         }
                     }
                 }
@@ -686,7 +700,7 @@ public class Dpe extends CBase {
                 int availableProcessors = Runtime.getRuntime().availableProcessors();
                 String claraHome = System.getenv("CLARA_HOME");
 
-                String topic = CConstants.DPE_ALIVE + ":" + feHostIp;
+                xMsgTopic topic = xMsgTopic.wrap(CConstants.DPE_ALIVE + ":" + feHostIp);
                 String data = dpeName + "?" + availableProcessors + "?" + claraHome;
 
                 xMsgAddress address = new xMsgAddress(feHostIp);

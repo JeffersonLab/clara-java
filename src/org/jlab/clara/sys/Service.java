@@ -32,6 +32,7 @@ import org.jlab.clara.util.CServiceSysConfig;
 import org.jlab.clara.util.CUtility;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
+import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 import org.jlab.coda.xmsg.excp.xMsgException;
@@ -53,15 +54,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Service extends CBase {
 
     private ServiceState myServiceState =
-            new ServiceState(getMyName(),xMsgConstants.UNDEFINED.getStringValue());
+            new ServiceState(getMyName(),xMsgConstants.UNDEFINED.toString());
 
     public AtomicBoolean isAvailable;
     // Already recorded (previous) composition
     private String
-            p_composition = xMsgConstants.UNDEFINED.getStringValue();
+            p_composition = xMsgConstants.UNDEFINED.toString();
     // user provided engine class container class name
     private String
-            engine_class_name = xMsgConstants.UNDEFINED.getStringValue();
+            engine_class_name = xMsgConstants.UNDEFINED.toString();
     // Engine instantiated object
     private ICEngine
             engine_object = null;
@@ -69,7 +70,7 @@ public class Service extends CBase {
     // key in the shared memory map of DPE to
     // locate this service resulting data object
     private String
-            sharedMemoryKey = xMsgConstants.UNDEFINED.getStringValue();
+            sharedMemoryKey = xMsgConstants.UNDEFINED.toString();
     // Simple average of the service engine
     // execution times over all received requests
     private long _avEngineExecutionTime;
@@ -104,8 +105,7 @@ public class Service extends CBase {
             IllegalAccessException,
             InstantiationException,
             ClassNotFoundException {
-        super(feHost);
-        setMyName(name);
+        super(name, feHost);
 
         this.sharedMemoryKey = sharedMemoryKey;
 
@@ -150,8 +150,7 @@ public class Service extends CBase {
             IllegalAccessException,
             InstantiationException,
             ClassNotFoundException {
-        super();
-        setMyName(name);
+        super(name);
         this.sharedMemoryKey = sharedMemoryKey;
         this.engine_class_name = packageName+"."+CUtility.getEngineName(getMyName());
 
@@ -193,11 +192,12 @@ public class Service extends CBase {
 
             engine_object.configure(new EngineData(metadata, data));
             // If this is a sync request, send done to the requester
-            if (!metadata.getReplyTo().equals(xMsgConstants.UNDEFINED.getStringValue()) &&
+            if (!metadata.getReplyTo().equals(xMsgConstants.UNDEFINED.toString()) &&
                     CUtility.isCanonical(metadata.getReplyTo())) {
                 int remainingInstances = configureCountDown.decrementAndGet();
                 if (remainingInstances == 0) {
-                    xMsgMessage msg = new xMsgMessage(metadata.getReplyTo(), xMsgConstants.DONE.getStringValue());
+                    xMsgTopic topic = xMsgTopic.wrap(metadata.getReplyTo());
+                    xMsgMessage msg = new xMsgMessage(topic, xMsgConstants.DONE.toString());
                     String dpe = CUtility.getDpeName(metadata.getReplyTo());
                     genericSend(dpe, msg);
                 }
@@ -413,20 +413,17 @@ public class Service extends CBase {
             } else {
                 engineData.getMetaData().setIsDataSerialized(false);
             }
-            transit.setTopic(ss);
+            transit.setTopic(xMsgTopic.wrap(ss));
             serviceSend(transit);
         }
     }
 
 
     private xMsgMessage engineDataToxMsg(EngineData engineData){
-        // Create transit data
-        xMsgMessage transit;
-        if (engineData.getMetaData().getDataType().equals(xMsgMeta.DataType.X_Object)) {
-            transit = new xMsgMessage(engineData.getMetaData().getReplyTo(), engineData.getMetaData(), engineData.getxData());
-        } else {
-            transit = new xMsgMessage(engineData.getMetaData().getReplyTo(), engineData.getMetaData(), engineData.getData());
-        }
+        xMsgTopic topic = xMsgTopic.wrap(engineData.getMetaData().getReplyTo());
+        xMsgMessage transit = new xMsgMessage(topic);
+        transit.setMetaData(engineData.getMetaData());
+        transit.setData(engineData.getxData().build());
         return transit;
     }
 
@@ -446,22 +443,17 @@ public class Service extends CBase {
         data.newData(EDataType.UNDEFINED, null);
 
         // Create transit data
-        xMsgMessage transit;
-        if (data.getMetaData().getDataType().equals(xMsgMeta.DataType.X_Object)) {
-            transit = new xMsgMessage(data.getMetaData().getReplyTo(), data.getMetaData(), data.getxData());
-        } else {
-            transit = new xMsgMessage(data.getMetaData().getReplyTo(), data.getMetaData(), data.getData());
-        }
-        transit.setTopic(xMsgConstants.DONE.getStringValue() + ":" + getMyName());
+        xMsgTopic topic = xMsgTopic.wrap(xMsgConstants.DONE.toString() + ":" + getMyName());
+        xMsgMessage transit = new xMsgMessage(topic);
+        transit.setMetaData(data.getMetaData());
+        transit.setData(data.getxData().build());
 
         String dpe = "localhost";
-        if(!getFeHostName().equals(xMsgConstants.UNDEFINED.getStringValue())) {
+        if(!getFeHostName().equals(xMsgConstants.UNDEFINED.toString())) {
             dpe = getFeHostName();
         }
         // send always serialized. We want to keep shared memory for data only.
-        transit.setIsDataSerialized(true);
         genericSend(dpe, transit);
-
     }
 
     /**
@@ -479,22 +471,17 @@ public class Service extends CBase {
             throws xMsgException, IOException {
 
         // Create transit data
-        xMsgMessage transit;
-        if (data.getMetaData().getDataType().equals(xMsgMeta.DataType.X_Object)) {
-            transit = new xMsgMessage(data.getMetaData().getReplyTo(), data.getMetaData(), data.getxData());
-        } else {
-            transit = new xMsgMessage(data.getMetaData().getReplyTo(), data.getMetaData(), data.getData());
-        }
-        transit.setTopic(xMsgConstants.DATA.getStringValue() + ":" + getMyName());
+        xMsgTopic topic = xMsgTopic.wrap(xMsgConstants.DATA.toString() + ":" + getMyName());
+        xMsgMessage transit = new xMsgMessage(topic);
+        transit.setMetaData(data.getMetaData());
+        transit.setData(data.getxData().build());
 
         String dpe = "localhost";
-        if (!getFeHostName().equals(xMsgConstants.UNDEFINED.getStringValue())) {
+        if (!getFeHostName().equals(xMsgConstants.UNDEFINED.toString())) {
             dpe = getFeHostName();
         }
         // send always serialized. We want to keep shared memory for application data only.
-        transit.setIsDataSerialized(true);
         genericSend(dpe, transit);
-
     }
 
     /**
@@ -511,25 +498,24 @@ public class Service extends CBase {
         data.newData(EDataType.UNDEFINED, null);
 
         // Create transit data
-        xMsgMessage transit;
-        if (data.getMetaData().getDataType().equals(xMsgMeta.DataType.X_Object)) {
-            transit = new xMsgMessage(data.getMetaData().getReplyTo(), data.getMetaData(), data.getxData());
-        } else {
-            transit = new xMsgMessage(data.getMetaData().getReplyTo(), data.getMetaData(), data.getData());
-        }
+        xMsgTopic topic;
         if (data.getMetaData().getStatus().equals(xMsgMeta.Status.ERROR)) {
-            transit.setTopic(xMsgConstants.ERROR.getStringValue() + ":" + getMyName());
+            topic = xMsgTopic.wrap(xMsgConstants.ERROR.toString() + ":" + getMyName());
         } else if (data.getMetaData().getStatus().equals(xMsgMeta.Status.WARNING)) {
-            transit.setTopic(xMsgConstants.WARNING.getStringValue() + ":" + getMyName());
+            topic = xMsgTopic.wrap(xMsgConstants.WARNING.toString() + ":" + getMyName());
+        } else {
+            return;
         }
+
+        xMsgMessage transit = new xMsgMessage(topic);
+        transit.setMetaData(data.getMetaData());
+        transit.setData(data.getxData().build());
         String dpe = "localhost";
-        if (!getFeHostName().equals(xMsgConstants.UNDEFINED.getStringValue())) {
+        if (!getFeHostName().equals(xMsgConstants.UNDEFINED.toString())) {
             dpe = getFeHostName();
         }
         // send always serialized. We want to keep shared memory for data only.
-        transit.setIsDataSerialized(true);
         genericSend(dpe, transit);
-
     }
 
 
@@ -542,10 +528,7 @@ public class Service extends CBase {
     public void remove_registration()
             throws xMsgException {
 
-        removeSubscriberRegistration(getMyName(),
-                xMsgUtil.getTopicDomain(getMyName()),
-                xMsgUtil.getTopicSubject(getMyName()),
-                xMsgUtil.getTopicType(getMyName()));
+        removeSubscriber(xMsgTopic.wrap(getMyName()));
     }
 
     /**
@@ -555,16 +538,18 @@ public class Service extends CBase {
     public void dispose() throws xMsgException, IOException {
         remove_registration();
 
+        String data = CConstants.SERVICE_DOWN + "?" + getMyName();
+
         // Send service_down message
         String localDpe = xMsgUtil.getLocalHostIps().get(0);
-
-        xMsgMessage msg1 = new xMsgMessage(CConstants.SERVICE + ":" + localDpe,
-                CConstants.SERVICE_DOWN + "?" + getMyName());
+        xMsgTopic topic = xMsgTopic.wrap(CConstants.SERVICE + ":" + localDpe);
+        xMsgMessage msg1 = new xMsgMessage(topic, data);
 
         genericSend(localDpe, msg1);
-        if(!getFeHostName().equals(xMsgConstants.UNDEFINED.getStringValue())) {
-            xMsgMessage msg2 = new xMsgMessage(CConstants.SERVICE + ":" + getFeHostName(),
-                    CConstants.SERVICE_DOWN + "?" + getMyName());
+
+        if(!getFeHostName().equals(xMsgConstants.UNDEFINED.toString())) {
+            xMsgTopic topic2 = xMsgTopic.wrap(CConstants.SERVICE + ":" + getFeHostName());
+            xMsgMessage msg2 = new xMsgMessage(topic2, data);
             genericSend(getFeHostName(), msg2);
         }
     }
