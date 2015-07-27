@@ -123,10 +123,9 @@ public class Service extends CBase {
 
         isAvailable = new AtomicBoolean(true);
 
-        System.out.println("Service = " + getMyName()+" is up.");
-
         // create an object of the composition parser
         compiler = new CCompiler(getMyName());
+        System.out.println(CUtility.getCurrentTimeInH()+": Started service = "+getMyName());
     }
 
     /**

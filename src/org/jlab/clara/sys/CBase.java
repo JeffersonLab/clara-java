@@ -42,6 +42,8 @@ import org.jlab.coda.xmsg.data.xMsgR.xMsgRegistration;
 import org.jlab.coda.xmsg.excp.xMsgException;
 import org.jlab.coda.xmsg.net.xMsgAddress;
 import org.jlab.coda.xmsg.net.xMsgConnection;
+import org.jlab.coda.xmsg.net.xMsgConnectionSetup;
+import org.zeromq.ZMQ.Socket;
 
 /**
  * Clara base class.
@@ -54,6 +56,19 @@ public class CBase extends xMsg {
 
     private xMsgConnection nodeConnection = null;
     private String feHostname = xMsgConstants.UNDEFINED.toString();
+
+    private static xMsgConnectionSetup setup = new xMsgConnectionSetup() {
+            @Override
+            public void preConnection(Socket socket) {
+                socket.setRcvHWM(0);
+                socket.setSndHWM(0);
+            }
+
+            @Override
+            public void postConnection() {
+                xMsgUtil.sleep(100);
+            }
+    };
 
     /**
      * Constructor.
@@ -313,7 +328,7 @@ public class CBase extends xMsg {
         } else {
             // Create a socket connections to the remote dpe.
             xMsgAddress address = new xMsgAddress(dpeHost);
-            xMsgConnection con = connect(address);
+            xMsgConnection con = connect(address, setup);
             publish(con, msg);
         }
     }
@@ -361,7 +376,7 @@ public class CBase extends xMsg {
         } else {
             // Create a socket connections to the remote dpe.
             xMsgAddress address = new xMsgAddress(dpeHost);
-            connection = connect(address);
+            connection = connect(address, setup);
         }
 
         return syncPublish(connection, msg, timeOut);
@@ -409,7 +424,7 @@ public class CBase extends xMsg {
 
             // Create a socket connections to the remote dpe.
             xMsgAddress address = new xMsgAddress(dpeHost);
-            xMsgConnection con = connect(address);
+            xMsgConnection con = connect(address, setup);
             genericSend(con, msg);
 
         } else {
@@ -465,7 +480,7 @@ public class CBase extends xMsg {
 
             // Create a socket connections to the remote dpe.
             xMsgAddress address = new xMsgAddress(dpeHost);
-            xMsgConnection con = connect(address);
+            xMsgConnection con = connect(address, setup);
             return genericSyncSend(con, msg, timeOut);
 
         } else {

@@ -109,17 +109,15 @@ public class Container extends CBase {
         // Create a socket connections to the local dpe proxy
         connect();
 
-        System.out.println(CUtility.getCurrentTimeInH() +
-                ": Started container = " + getMyName() + "\n");
-
-        //register container
-        System.out.println(CUtility.getCurrentTimeInH() + ": " + getMyName() +
-                " container sending registration request.");
-        registerSubscriber(xMsgTopic.wrap(getMyName()), "Service Container");
+        System.out.println(CUtility.getCurrentTimeInH()+": Started container = "+getMyName());
 
         // Subscribe messages published to this container
         xMsgTopic topic = xMsgTopic.wrap(CConstants.CONTAINER + ":" + getMyName());
         subscriptionHandler = genericReceive(topic, new ContainerCallBack());
+
+        //register container
+        registerSubscriber(xMsgTopic.wrap(getMyName()), "Service Container");
+        System.out.println(CUtility.getCurrentTimeInH() + ": Registered container = " + name);
     }
 
     /**
@@ -138,17 +136,15 @@ public class Container extends CBase {
         // Create a socket connections to the local dpe proxy
         connect();
 
-        System.out.println(CUtility.getCurrentTimeInH() +
-                ": Started container = " + getMyName() + "\n");
-
-        //register container
-        System.out.println(CUtility.getCurrentTimeInH() + ": " + getMyName() +
-                " container sending registration request.");
-        registerSubscriber(xMsgTopic.wrap(getMyName()), "Service Container");
+        System.out.println(CUtility.getCurrentTimeInH()+": Started container = "+getMyName());
 
         // Subscribe messages published to this container
         xMsgTopic topic = xMsgTopic.wrap(CConstants.CONTAINER + ":" + getMyName());
         subscriptionHandler = genericReceive(topic, new ContainerCallBack());
+
+        //register container
+        registerSubscriber(xMsgTopic.wrap(getMyName()), "Service Container");
+        System.out.println(CUtility.getCurrentTimeInH() + ": Registered container = " + name);
     }
 
     public void exitContainer() throws xMsgException, IOException {
@@ -448,9 +444,9 @@ public class Container extends CBase {
          */
         public void register()
                 throws xMsgException {
-            System.out.println(CUtility.getCurrentTimeInH() + ": " + myName +
-                    " sending registration request.");
             registerLocalSubscriber(xMsgTopic.wrap(myName), description);
+
+            System.out.println(CUtility.getCurrentTimeInH() + ": Registered service = " + myName);
         }
 
         /**
@@ -461,9 +457,8 @@ public class Container extends CBase {
          */
         public void register(String feHost)
                 throws xMsgException {
-            System.out.println(CUtility.getCurrentTimeInH() + ": " + getMyName() +
-                    " sending registration request.");
             registerSubscriber(xMsgTopic.wrap(myName), description);
+            System.out.println(CUtility.getCurrentTimeInH() + ": Registered service = " + myName);
         }
 
         /**

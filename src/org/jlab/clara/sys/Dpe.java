@@ -100,7 +100,7 @@ public class Dpe extends CBase {
      * @throws SocketException
      */
     public Dpe(Boolean isFE) throws xMsgException, SocketException {
-        super(xMsgUtil.getLocalHostIps().get(0));
+        super(xMsgUtil.toHostAddress("localhost"));
 
         dpeName = myName;
         this.isFE = isFE;
@@ -168,7 +168,7 @@ public class Dpe extends CBase {
      * @throws SocketException
      */
     public Dpe(String feName) throws xMsgException, SocketException {
-        super(xMsgUtil.getLocalHostIps().get(0));
+        super(xMsgUtil.toHostAddress("localhost"));
 
         dpeName = myName;
         feHostIp = xMsgUtil.toHostAddress(feName);
@@ -199,38 +199,45 @@ public class Dpe extends CBase {
     }
 
     public static void main(String[] args) {
-        if (args.length == 2) {
-            switch (args[0]) {
+        String frontEnd = "";
+        boolean cloudController = false;
+        int i = 0;
+        while (i < args.length) {
+            switch (args[i++]) {
                 case "-fh":
-                    try {
-                        new Dpe(args[1]);
-                    } catch (xMsgException | SocketException e) {
-                        System.out.println(e.getMessage());
-                        System.out.println("exiting...");
+                    if (i < args.length) {
+                        frontEnd = args[i++];
+                    } else {
+                        usage();
+                        System.exit(1);
                     }
                     break;
                 case "-cc":
-                    try {
-                        new Dpe(true);
-                    } catch (xMsgException | SocketException e) {
-                        e.printStackTrace();
-                    }
+                    cloudController = true;
                     break;
-                case "-h":
-                case "-help":
-                    System.out.println("synopsis: j_dpe [-cc (start as a cloud controller)] " +
-                            "[-fh (host IP of the cloud controller, i.e.FE)] " +
-                            "[-h or help] ");
-                    break;
-            }
-        } else if (args.length == 0) {
-            try {
-                new Dpe(false);
-            } catch (xMsgException | SocketException e) {
-                System.out.println(e.getMessage());
-                System.out.println("exiting...");
+                default:
+                    usage();
+                    System.exit(1);
             }
         }
+
+        try {
+            if (cloudController) {
+                new Dpe(true);
+            } else if (frontEnd.isEmpty()) {
+                new Dpe(false);
+            } else {
+                new Dpe(frontEnd);
+            }
+        } catch (xMsgException | SocketException e) {
+            System.out.println(e.getMessage());
+            System.out.println("exiting...");
+            System.exit(1);
+        }
+    }
+
+    public static void usage() {
+        System.err.println("Usage: j_dpe [ -cc | -fh <front_end> ]");
     }
 
     /**
