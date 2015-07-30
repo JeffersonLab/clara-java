@@ -38,7 +38,6 @@ import org.jlab.coda.xmsg.excp.xMsgException;
 import com.google.protobuf.InvalidProtocolBufferException;
 
 import java.io.IOException;
-import java.net.SocketException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -159,21 +158,15 @@ public class Container extends CBase {
      * @param engineClassName service engine class name
      * @param objectPoolSize size of the object pool
      */
-    public void addService(String packageName,
-                           String engineClassName,
+    public void addService(String engineName,
+                           String engineClassPath,
                            int objectPoolSize,
                            String initialState)
-            throws CException,
-            xMsgException,
-            IOException,
-            IllegalAccessException,
-            ClassNotFoundException,
-            InstantiationException {
-
+            throws CException, xMsgException, IOException {
 
         // We need final variables to pass
         // abstract method implementation
-        final String canonical_name = getName() + ":" + engineClassName;
+        final String canonical_name = getName() + ":" + engineName;
 
         if(_threadPoolMap.containsKey(canonical_name)){
             throw new CException("service exists");
@@ -181,8 +174,6 @@ public class Container extends CBase {
 
         // Create and add sys config object for a service
         _sysConfigs.put(canonical_name, new CServiceSysConfig());
-
-        final String fe = getFrontEndAddress();
 
         // Define the key in the shared
         // memory map (defined in the DPE).
@@ -207,12 +198,13 @@ public class Container extends CBase {
 
         // Fill the object pool
         for(int i=0; i<objectPoolSize; i++){
-            Service service =  new Service(packageName,
-                                           canonical_name,
+            Service service =  new Service(canonical_name,
+                                           engineClassPath,
                                            getLocalAddress(),
                                            getFrontEndAddress(),
                                            sharedMemoryLocation);
-                service.updateMyState(initialState);
+
+            service.updateMyState(initialState);
             // add object to the pool
             sop[i] = service;
         }
@@ -323,12 +315,11 @@ public class Container extends CBase {
                                     objectPoolSize = String.valueOf(ps);
                                 }
                                 try {
-                                    String packageName = seName.substring(0, seName.lastIndexOf("."));
-                                    String className = seName.substring((seName.lastIndexOf(".")) + 1, seName.length());
+                                    String classPath = seName;
+                                    String engineName = seName.substring((seName.lastIndexOf(".")) + 1, seName.length());
 
-                                    addService(packageName, className, Integer.parseInt(objectPoolSize), initialState);
-                                } catch (xMsgException | NumberFormatException | CException | ClassNotFoundException |
-                                        InstantiationException | IllegalAccessException | IOException e) {
+                                    addService(engineName, classPath, Integer.parseInt(objectPoolSize), initialState);
+                                } catch (xMsgException | NumberFormatException | CException | IOException e) {
                                     e.printStackTrace();
                                 }
                                 break;

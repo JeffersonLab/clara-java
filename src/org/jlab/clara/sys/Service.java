@@ -38,7 +38,6 @@ import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 import org.jlab.coda.xmsg.excp.xMsgException;
 
 import java.io.IOException;
-import java.net.SocketException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -62,10 +61,10 @@ public class Service extends CBase {
     private String p_composition = xMsgConstants.UNDEFINED.toString();
 
     // user provided engine class container class name
-    private String engineClassName = xMsgConstants.UNDEFINED.toString();
+    private String engineClassPath = xMsgConstants.UNDEFINED.toString();
 
     // Engine instantiated object
-    private ICEngine engineObject = null;
+    private final ICEngine engineObject;
 
     // key in the shared memory map of DPE to
     // locate this service resulting data object
@@ -95,27 +94,25 @@ public class Service extends CBase {
      *               centralized registration database.
      * @throws xMsgException
      */
-    public Service(String packageName,
-                   String name,
+    public Service(String name,
+                   String classPath,
                    String localAddress,
-                   String frontEndAddress,
+                   String frontEndAddres,
                    String sharedMemoryKey)
-            throws xMsgException,
-            CException,
-            SocketException,
-            IllegalAccessException,
-            InstantiationException,
-            ClassNotFoundException {
-        super(name, localAddress, frontEndAddress);
+            throws CException {
+        super(name, localAddress, frontEndAddres);
 
         this.sharedMemoryKey = sharedMemoryKey;
 
-        engineClassName  = packageName+"."+CUtility.getEngineName(getName());
-
         // Dynamic loading of the Clara engine class
         // Note: using system class loader
-        CClassLoader cl = new CClassLoader(ClassLoader.getSystemClassLoader());
-        engineObject = cl.load(engineClassName);
+        try {
+            CClassLoader cl = new CClassLoader(ClassLoader.getSystemClassLoader());
+            engineClassPath = classPath;
+            engineObject = cl.load(engineClassPath);
+        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
+            throw new CException(e.getMessage());
+        }
 
         // Create a socket connections
         // to the local dpe proxy
