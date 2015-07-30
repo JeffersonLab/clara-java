@@ -24,7 +24,6 @@ package org.jlab.clara.util;
 import org.jlab.clara.base.CException;
 import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.core.xMsgUtil;
-import org.jlab.coda.xmsg.excp.xMsgException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -94,7 +93,7 @@ public class CUtility {
                     container +
                     ":" +
                     engine_name;
-        } catch (xMsgException  | SocketException e) {
+        } catch (IOException e) {
             throw new CException(e.getMessage());
         }
     }
@@ -115,7 +114,7 @@ public class CUtility {
             return xMsgUtil.toHostAddress(host) +
                     ":" +
                     container;
-        } catch (xMsgException  | SocketException e) {
+        } catch (IOException e) {
             throw new CException(e.getMessage());
         }
     }
@@ -134,7 +133,7 @@ public class CUtility {
             return xMsgUtil.toHostAddress("localhost") +
                     ":" +
                     container;
-        } catch (xMsgException  | SocketException e) {
+        } catch (IOException e) {
             throw new CException(e.getMessage());
         }
     }

@@ -22,7 +22,6 @@
 package org.jlab.clara.base;
 
 import java.io.IOException;
-import java.net.SocketException;
 import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.TimeoutException;
@@ -35,6 +34,7 @@ import org.jlab.clara.sys.CBase;
 import org.jlab.clara.util.CConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgTopic;
+import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 import org.jlab.coda.xmsg.excp.xMsgException;
 
@@ -55,7 +55,7 @@ public class BaseOrchestrator {
     public BaseOrchestrator() throws ClaraException {
         try {
             base = getClaraBase("localhost");
-        } catch (SocketException | xMsgException e) {
+        } catch (IOException | xMsgException e) {
             throw new ClaraException("Could not start orchestrator", e);
         }
     }
@@ -70,7 +70,7 @@ public class BaseOrchestrator {
     public BaseOrchestrator(String frontEndHost) throws ClaraException {
         try {
             base = getClaraBase(frontEndHost);
-        } catch (SocketException | xMsgException e) {
+        } catch (IOException | xMsgException e) {
             throw new ClaraException("Could not start orchestrator", e);
         }
     }
@@ -79,9 +79,10 @@ public class BaseOrchestrator {
     /**
      * Creates the internal Clara object.
      * It can be overridden to return a mock for testing purposes.
+     * @throws IOException
      */
-    CBase getClaraBase(String frontEndHost) throws SocketException, xMsgException {
-        return new CBase(generateName(), frontEndHost);
+    CBase getClaraBase(String frontEndHost) throws xMsgException, IOException {
+        return new CBase(generateName(), xMsgUtil.localhost(), frontEndHost);
     }
 
 

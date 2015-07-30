@@ -99,8 +99,8 @@ public class Dpe extends CBase {
      * @throws xMsgException
      * @throws SocketException
      */
-    public Dpe(Boolean isFE) throws xMsgException, SocketException {
-        super(xMsgUtil.toHostAddress("localhost"));
+    public Dpe(String localAddress, Boolean isFE) throws xMsgException, IOException {
+        super(localAddress, localAddress, localAddress);
 
         dpeName = myName;
         this.isFE = isFE;
@@ -118,7 +118,7 @@ public class Dpe extends CBase {
                 @Override
                 public void run() {
                     for (String dpn : _myCloud.keySet()) {
-                        if (!dpn.equals(getMyName())) {
+                        if (!dpn.equals(getName())) {
                             try {
                                 Object response = syncPing(dpn, 2);
                                 if (response == null) {
@@ -146,7 +146,7 @@ public class Dpe extends CBase {
         }
 
         // Subscribe messages published to this container
-        xMsgTopic topic = xMsgTopic.wrap(CConstants.DPE + ":" + getMyName());
+        xMsgTopic topic = xMsgTopic.wrap(CConstants.DPE + ":" + getName());
         genericReceive(topic, new DpeCallBack());
 
         // Create the xMsgNode object that will provide
@@ -163,21 +163,20 @@ public class Dpe extends CBase {
      * Constructor for the DPE that is part of the Clara cloud.
      * </p>
      *
-     * @param feName the name, i.e. IP address of the FE DPE
+     * @param frontEndAddress the name, i.e. IP address of the FE DPE
      * @throws xMsgException
-     * @throws SocketException
+     * @throws IOException
      */
-    public Dpe(String feName) throws xMsgException, SocketException {
-        super(xMsgUtil.toHostAddress("localhost"));
+    public Dpe(String localAddress, String frontEndAddress) throws xMsgException, IOException {
+        super(localAddress, localAddress, frontEndAddress);
 
-        dpeName = myName;
-        feHostIp = xMsgUtil.toHostAddress(feName);
-
+        dpeName = getName();
+        feHostIp = getFrontEndAddress();
         printLogo();
 
         // Send dpe_up message to the FE
         try {
-            String data = CConstants.DPE_UP + "?" + getMyName();
+            String data = CConstants.DPE_UP + "?" + getName();
             xMsgTopic topic = xMsgTopic.wrap(CConstants.DPE + ":" + feHostIp);
             xMsgMessage msg = new xMsgMessage(topic, data);
             genericSend(feHostIp, msg);
@@ -186,7 +185,7 @@ public class Dpe extends CBase {
         }
 
         // Subscribe messages published to this container
-        xMsgTopic topic = xMsgTopic.wrap(CConstants.DPE + ":" + getMyName());
+        xMsgTopic topic = xMsgTopic.wrap(CConstants.DPE + ":" + getName());
         genericReceive(topic, new DpeCallBack());
 
         // Create the xMsgNode object that will provide
@@ -222,14 +221,15 @@ public class Dpe extends CBase {
         }
 
         try {
+            String localAddress = xMsgUtil.localhost();
             if (cloudController) {
-                new Dpe(true);
+                new Dpe(localAddress, true);
             } else if (frontEnd.isEmpty()) {
-                new Dpe(false);
+                new Dpe(localAddress, false);
             } else {
-                new Dpe(frontEnd);
+                new Dpe(localAddress, frontEnd);
             }
-        } catch (xMsgException | SocketException e) {
+        } catch (xMsgException | IOException e) {
             System.out.println(e.getMessage());
             System.out.println("exiting...");
             System.exit(1);
@@ -255,7 +255,7 @@ public class Dpe extends CBase {
         System.out.println("================================");
         System.out.println(" Binding = Java");
         System.out.println(" Date    = " + CUtility.getCurrentTimeInH());
-        System.out.println(" Host    = " + getMyName());
+        System.out.println(" Host    = " + getName());
         System.out.println("================================");
     }
 

@@ -79,9 +79,6 @@ public class Container extends CBase {
     private ConcurrentHashMap<String, CServiceSysConfig>
             _sysConfigs = new ConcurrentHashMap<>();
 
-    private String feHost =
-            xMsgConstants.UNDEFINED.toString();
-
     // Unique id for services within the container
     private AtomicInteger uniqueId = new AtomicInteger(0);
 
@@ -100,59 +97,30 @@ public class Container extends CBase {
      *               centralized registration database.
      * @throws xMsgException
      */
-    public Container(String name,
-                     String feHost)
+    public Container(String name, String localAddress, String frontEndAddres)
             throws xMsgException, IOException {
-        super(name, feHost);
-        this.feHost = feHost;
+        super(name, localAddress, frontEndAddres);
 
         // Create a socket connections to the local dpe proxy
         connect();
 
-        System.out.println(CUtility.getCurrentTimeInH()+": Started container = "+getMyName());
+        System.out.println(CUtility.getCurrentTimeInH()+": Started container = "+getName());
 
         // Subscribe messages published to this container
-        xMsgTopic topic = xMsgTopic.wrap(CConstants.CONTAINER + ":" + getMyName());
+        xMsgTopic topic = xMsgTopic.wrap(CConstants.CONTAINER + ":" + getName());
         subscriptionHandler = genericReceive(topic, new ContainerCallBack());
 
         //register container
-        registerSubscriber(xMsgTopic.wrap(getMyName()), "Service Container");
-        System.out.println(CUtility.getCurrentTimeInH() + ": Registered container = " + name);
-    }
-
-    /**
-     * <p>
-     *     Constructor
-     * </p>
-     *
-     * @param name  Clara service canonical name (such as dep:container:engine)
-     *
-     * @throws xMsgException
-     */
-    public Container(String name)
-            throws xMsgException, SocketException {
-        super(name);
-
-        // Create a socket connections to the local dpe proxy
-        connect();
-
-        System.out.println(CUtility.getCurrentTimeInH()+": Started container = "+getMyName());
-
-        // Subscribe messages published to this container
-        xMsgTopic topic = xMsgTopic.wrap(CConstants.CONTAINER + ":" + getMyName());
-        subscriptionHandler = genericReceive(topic, new ContainerCallBack());
-
-        //register container
-        registerSubscriber(xMsgTopic.wrap(getMyName()), "Service Container");
+        registerSubscriber(xMsgTopic.wrap(getName()), "Service Container");
         System.out.println(CUtility.getCurrentTimeInH() + ": Registered container = " + name);
     }
 
     public void exitContainer() throws xMsgException, IOException {
 
-        reportFE(CConstants.CONTAINER_DOWN + "?" + getMyName());
+        reportFE(CConstants.CONTAINER_DOWN + "?" + getName());
 
         unsubscribe(subscriptionHandler);
-        removeSubscriber(xMsgTopic.wrap(getMyName()));
+        removeSubscriber(xMsgTopic.wrap(getName()));
 
         for (ServiceDispatcher sd : _myServiceDispatchers.values()) {
             sd.exitDispatcher();
@@ -169,7 +137,6 @@ public class Container extends CBase {
         _sysConfigs.clear();
         _sysConfigs = null;
 
-        feHost = null;
         uniqueId = null;
         subscriptionHandler = null;
     }
@@ -206,7 +173,7 @@ public class Container extends CBase {
 
         // We need final variables to pass
         // abstract method implementation
-        final String canonical_name = getMyName() + ":" + engineClassName;
+        final String canonical_name = getName() + ":" + engineClassName;
 
         if(_threadPoolMap.containsKey(canonical_name)){
             throw new CException("service exists");
@@ -215,7 +182,7 @@ public class Container extends CBase {
         // Create and add sys config object for a service
         _sysConfigs.put(canonical_name, new CServiceSysConfig());
 
-        final String fe = feHost;
+        final String fe = getFrontEndAddress();
 
         // Define the key in the shared
         // memory map (defined in the DPE).
@@ -240,18 +207,12 @@ public class Container extends CBase {
 
         // Fill the object pool
         for(int i=0; i<objectPoolSize; i++){
-            Service service;
-
-            // Create an object of the Service class by passing
-            // service name as a parameter. service name = canonical
-            // name of this container + engine name of a service
-            if(feHost.equals(xMsgConstants.UNDEFINED.toString())) {
-                service =  new Service(packageName, canonical_name, sharedMemoryLocation);
+            Service service =  new Service(packageName,
+                                           canonical_name,
+                                           getLocalAddress(),
+                                           getFrontEndAddress(),
+                                           sharedMemoryLocation);
                 service.updateMyState(initialState);
-            } else {
-                service =  new Service(packageName, canonical_name, sharedMemoryLocation, fe);
-                service.updateMyState(initialState);
-            }
             // add object to the pool
             sop[i] = service;
         }
@@ -412,7 +373,9 @@ public class Container extends CBase {
                                  String description)
                 throws xMsgException,
                 IOException, CException {
-            super(serviceCanonicalName);
+            super(serviceCanonicalName,
+                  Container.this.getLocalAddress(),
+                  Container.this.getFrontEndAddress());
 
             this.description = description;
 
@@ -423,17 +386,16 @@ public class Container extends CBase {
             // register with the registrar
             register();
 
+            String feHost = getFrontEndAddress();
             if(!xMsgUtil.getLocalHostIps().contains(feHost)){
                 register(feHost);
             }
 
-            if(!feHost.equals(xMsgConstants.UNDEFINED.toString())) {
-                xMsgTopic topic = xMsgTopic.wrap(CConstants.SERVICE + ":" + feHost);
-                String data = CConstants.SERVICE_UP + "?" + myName;
-                // Send service_up message to the FE
-                xMsgMessage msg = new xMsgMessage(topic, data);
-                genericSend(feHost, msg);
-            }
+            xMsgTopic topic = xMsgTopic.wrap(CConstants.SERVICE + ":" + feHost);
+            String data = CConstants.SERVICE_UP + "?" + myName;
+            // Send service_up message to the FE
+            xMsgMessage msg = new xMsgMessage(topic, data);
+            genericSend(feHost, msg);
         }
 
         /**
@@ -564,7 +526,8 @@ public class Container extends CBase {
                         rps.set(_poolSizeMap.get(receiver) - i);
                         final Service ser = requestedServiceObjectPool[i];
                         threadPool.submit(new Runnable() {
-                                              public void run() {
+                                              @Override
+                                            public void run() {
                                                   try {
                                                       ser.configure(metadata, data, rps);
                                                   } catch (xMsgException | InterruptedException | CException |
@@ -586,7 +549,8 @@ public class Container extends CBase {
                                 final CServiceSysConfig serConfig = _sysConfigs.get(receiver);
 
                                 threadPool.submit(new Runnable() {
-                                                      public void run() {
+                                                      @Override
+                                                    public void run() {
                                                           try {
                                                               ser.process(serConfig, metadata, data);
                                                           } catch (xMsgException | InterruptedException | CException |

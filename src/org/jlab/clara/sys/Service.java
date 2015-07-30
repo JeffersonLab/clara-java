@@ -54,29 +54,29 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Service extends CBase {
 
     private ServiceState myServiceState =
-            new ServiceState(getMyName(),xMsgConstants.UNDEFINED.toString());
+            new ServiceState(getName(),xMsgConstants.UNDEFINED.toString());
 
     public AtomicBoolean isAvailable;
+
     // Already recorded (previous) composition
-    private String
-            p_composition = xMsgConstants.UNDEFINED.toString();
+    private String p_composition = xMsgConstants.UNDEFINED.toString();
+
     // user provided engine class container class name
-    private String
-            engine_class_name = xMsgConstants.UNDEFINED.toString();
+    private String engineClassName = xMsgConstants.UNDEFINED.toString();
+
     // Engine instantiated object
-    private ICEngine
-            engine_object = null;
+    private ICEngine engineObject = null;
 
     // key in the shared memory map of DPE to
     // locate this service resulting data object
-    private String
-            sharedMemoryKey = xMsgConstants.UNDEFINED.toString();
+    private String sharedMemoryKey = xMsgConstants.UNDEFINED.toString();
+
     // Simple average of the service engine
     // execution times over all received requests
-    private long _avEngineExecutionTime;
+    private long averageExecutionTime;
     // Number of received requests to this service.
     // Note: common for different compositions
-    private long _numberOfRequests;
+    private long numberOfRequests;
 
     private CCompiler compiler;
 
@@ -97,51 +97,8 @@ public class Service extends CBase {
      */
     public Service(String packageName,
                    String name,
-                   String sharedMemoryKey,
-                   String feHost)
-            throws xMsgException,
-            CException,
-            SocketException,
-            IllegalAccessException,
-            InstantiationException,
-            ClassNotFoundException {
-        super(name, feHost);
-
-        this.sharedMemoryKey = sharedMemoryKey;
-
-        this.engine_class_name = packageName+"."+CUtility.getEngineName(getMyName());
-
-        // Dynamic loading of the Clara engine class
-        // Note: using system class loader
-        CClassLoader cl = new CClassLoader(ClassLoader.getSystemClassLoader());
-        engine_object = cl.load(engine_class_name);
-
-
-        // Create a socket connections
-        // to the local dpe proxy
-        connect();
-
-        isAvailable = new AtomicBoolean(true);
-
-        // create an object of the composition parser
-        compiler = new CCompiler(getMyName());
-        System.out.println(CUtility.getCurrentTimeInH()+": Started service = "+getMyName());
-    }
-
-    /**
-     * <p>
-     * Constructor
-     * </p>
-     *
-     * @param packageName service engine package name
-     * @param name Clara service canonical name
-     *             (such as dep:container:engine)
-     * @param sharedMemoryKey key in the shared memory map of DPE to
-     *                        locate this service resulting data object
-     * @throws xMsgException
-     */
-    public Service(String packageName,
-                   String name,
+                   String localAddress,
+                   String frontEndAddress,
                    String sharedMemoryKey)
             throws xMsgException,
             CException,
@@ -149,14 +106,16 @@ public class Service extends CBase {
             IllegalAccessException,
             InstantiationException,
             ClassNotFoundException {
-        super(name);
+        super(name, localAddress, frontEndAddress);
+
         this.sharedMemoryKey = sharedMemoryKey;
-        this.engine_class_name = packageName+"."+CUtility.getEngineName(getMyName());
+
+        engineClassName  = packageName+"."+CUtility.getEngineName(getName());
 
         // Dynamic loading of the Clara engine class
         // Note: using system class loader
-        Class exampleClass = Class.forName(engine_class_name);
-        engine_object = (ICEngine) exampleClass.newInstance();
+        CClassLoader cl = new CClassLoader(ClassLoader.getSystemClassLoader());
+        engineObject = cl.load(engineClassName);
 
         // Create a socket connections
         // to the local dpe proxy
@@ -164,10 +123,9 @@ public class Service extends CBase {
 
         isAvailable = new AtomicBoolean(true);
 
-        System.out.println("Service = " + getMyName()+" is up.");
-
         // create an object of the composition parser
-        compiler = new CCompiler(getMyName());
+        compiler = new CCompiler(getName());
+        System.out.println(CUtility.getCurrentTimeInH()+": Started service = "+getName());
     }
 
     public ServiceState getMyServiceState() {
@@ -189,7 +147,7 @@ public class Service extends CBase {
 
         if (metadata.getAction().equals(xMsgMeta.ControlAction.CONFIGURE)) {
 
-            engine_object.configure(new EngineData(metadata, data));
+            engineObject.configure(new EngineData(metadata, data));
             // If this is a sync request, send done to the requester
             if (!metadata.getReplyTo().equals(xMsgConstants.UNDEFINED.toString()) &&
                     CUtility.isCanonical(metadata.getReplyTo())) {
@@ -287,14 +245,14 @@ public class Service extends CBase {
 
         try {
             // increment request count
-            _numberOfRequests++;
+            numberOfRequests++;
             // get engine execution start time
             startTime = System.nanoTime();
 
             if(inData.size()==1) {
-                outData = engine_object.execute(inData.iterator().next());
+                outData = engineObject.execute(inData.iterator().next());
             } else {
-                outData = engine_object.execute_group(inData);
+                outData = engineObject.execute_group(inData);
 
             }
             // get engine execution end time
@@ -302,7 +260,7 @@ public class Service extends CBase {
             // service engine execution time
             execTime = endTime - startTime;
             // Calculate a simple average for the execution time
-            _avEngineExecutionTime = (_avEngineExecutionTime + execTime) / _numberOfRequests;
+            averageExecutionTime = (averageExecutionTime + execTime) / numberOfRequests;
 
             // update service state based on the engine set state
             updateMyState(outData.getState());
@@ -442,14 +400,14 @@ public class Service extends CBase {
         data.newData(EDataType.UNDEFINED, null);
 
         // Create transit data
-        xMsgTopic topic = xMsgTopic.wrap(xMsgConstants.DONE.toString() + ":" + getMyName());
+        xMsgTopic topic = xMsgTopic.wrap(xMsgConstants.DONE.toString() + ":" + getName());
         xMsgMessage transit = new xMsgMessage(topic);
         transit.setMetaData(data.getMetaData());
         transit.setData(data.getxData().build());
 
         String dpe = "localhost";
-        if(!getFeHostName().equals(xMsgConstants.UNDEFINED.toString())) {
-            dpe = getFeHostName();
+        if(!getFrontEndAddress().equals(xMsgConstants.UNDEFINED.toString())) {
+            dpe = getFrontEndAddress();
         }
         // send always serialized. We want to keep shared memory for data only.
         genericSend(dpe, transit);
@@ -470,14 +428,14 @@ public class Service extends CBase {
             throws xMsgException, IOException {
 
         // Create transit data
-        xMsgTopic topic = xMsgTopic.wrap(xMsgConstants.DATA.toString() + ":" + getMyName());
+        xMsgTopic topic = xMsgTopic.wrap(xMsgConstants.DATA.toString() + ":" + getName());
         xMsgMessage transit = new xMsgMessage(topic);
         transit.setMetaData(data.getMetaData());
         transit.setData(data.getxData().build());
 
         String dpe = "localhost";
-        if (!getFeHostName().equals(xMsgConstants.UNDEFINED.toString())) {
-            dpe = getFeHostName();
+        if (!getFrontEndAddress().equals(xMsgConstants.UNDEFINED.toString())) {
+            dpe = getFrontEndAddress();
         }
         // send always serialized. We want to keep shared memory for application data only.
         genericSend(dpe, transit);
@@ -499,9 +457,9 @@ public class Service extends CBase {
         // Create transit data
         xMsgTopic topic;
         if (data.getMetaData().getStatus().equals(xMsgMeta.Status.ERROR)) {
-            topic = xMsgTopic.wrap(xMsgConstants.ERROR.toString() + ":" + getMyName());
+            topic = xMsgTopic.wrap(xMsgConstants.ERROR.toString() + ":" + getName());
         } else if (data.getMetaData().getStatus().equals(xMsgMeta.Status.WARNING)) {
-            topic = xMsgTopic.wrap(xMsgConstants.WARNING.toString() + ":" + getMyName());
+            topic = xMsgTopic.wrap(xMsgConstants.WARNING.toString() + ":" + getName());
         } else {
             return;
         }
@@ -510,8 +468,8 @@ public class Service extends CBase {
         transit.setMetaData(data.getMetaData());
         transit.setData(data.getxData().build());
         String dpe = "localhost";
-        if (!getFeHostName().equals(xMsgConstants.UNDEFINED.toString())) {
-            dpe = getFeHostName();
+        if (!getFrontEndAddress().equals(xMsgConstants.UNDEFINED.toString())) {
+            dpe = getFrontEndAddress();
         }
         // send always serialized. We want to keep shared memory for data only.
         genericSend(dpe, transit);
@@ -527,7 +485,7 @@ public class Service extends CBase {
     public void remove_registration()
             throws xMsgException {
 
-        removeSubscriber(xMsgTopic.wrap(getMyName()));
+        removeSubscriber(xMsgTopic.wrap(getName()));
     }
 
     /**
@@ -537,7 +495,7 @@ public class Service extends CBase {
     public void dispose() throws xMsgException, IOException {
         remove_registration();
 
-        String data = CConstants.SERVICE_DOWN + "?" + getMyName();
+        String data = CConstants.SERVICE_DOWN + "?" + getName();
 
         // Send service_down message
         String localDpe = xMsgUtil.getLocalHostIps().get(0);
@@ -546,10 +504,10 @@ public class Service extends CBase {
 
         genericSend(localDpe, msg1);
 
-        if(!getFeHostName().equals(xMsgConstants.UNDEFINED.toString())) {
-            xMsgTopic topic2 = xMsgTopic.wrap(CConstants.SERVICE + ":" + getFeHostName());
+        if(!getFrontEndAddress().equals(xMsgConstants.UNDEFINED.toString())) {
+            xMsgTopic topic2 = xMsgTopic.wrap(CConstants.SERVICE + ":" + getFrontEndAddress());
             xMsgMessage msg2 = new xMsgMessage(topic2, data);
-            genericSend(getFeHostName(), msg2);
+            genericSend(getFrontEndAddress(), msg2);
         }
     }
 

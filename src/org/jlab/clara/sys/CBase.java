@@ -55,7 +55,6 @@ import org.zeromq.ZMQ.Socket;
 public class CBase extends xMsg {
 
     private xMsgConnection nodeConnection = null;
-    private String feHostname = xMsgConstants.UNDEFINED.toString();
 
     private static xMsgConnectionSetup setup = new xMsgConnectionSetup() {
             @Override
@@ -73,99 +72,13 @@ public class CBase extends xMsg {
     /**
      * Constructor.
      *
-     * @param feHost the host name of the Clara front-end
-     * @throws xMsgException
+     * @param name the name of this Clara actor
+     * @param localAddress the address of the local Clara node
+     * @param frontEndAddress the address of the Clara front-end
      */
-    public CBase(String name, String feHost) throws xMsgException, SocketException {
-        super(name, feHost);
-
-        this.feHostname = feHost;
-
-        // Create a socket connections to the xMsg node.
-        // This is a local DPE, and uses default port number.
-        xMsgAddress address = new xMsgAddress("localhost");
-        this.nodeConnection = connect(address);
-    }
-
-    /**
-     * Constructor.
-     *
-     * @param dpeHost the host name of the Clara DPE of interest
-     * @param feHost the host name of the Clara front-end
-     * @throws xMsgException
-     * @throws SocketException
-     */
-    public CBase(String name, String dpeHost, String feHost) throws xMsgException, SocketException {
-        super(name, feHost);
-
-        this.feHostname = feHost;
-
-        // Create a socket connections to the xMsg node.
-        // This is a local DPE, and uses default port number.
-        xMsgAddress address = new xMsgAddress(dpeHost);
-        this.nodeConnection = connect(address);
-    }
-
-
-    /**
-     * Constructor.
-     *
-     * @param feHost   the host name of the Clara front-end
-     * @param poolSize thread pool size for servicing subscription callbacks
-     * @throws xMsgException
-     * @throws SocketException
-     */
-    public CBase(String name, String feHost, int poolSize) throws xMsgException, SocketException {
-        super(name, feHost, poolSize);
-
-        // Create a socket connections to the xMsg node.
-        // This is a local DPE, and uses default port number.
-        xMsgAddress address = new xMsgAddress("localhost");
-        this.nodeConnection = connect(address);
-    }
-
-    /**
-     * Constructor.
-     *
-     * @throws xMsgException
-     * @throws SocketException
-     */
-    public CBase(String name) throws xMsgException, SocketException {
-        super(name, "localhost");
-
-        // Create a socket connections to the xMsg node.
-        // This is a local DPE, and uses default port number.
-        xMsgAddress address = new xMsgAddress("localhost");
-        this.nodeConnection = connect(address);
-    }
-
-    /**
-     * Constructor.
-     *
-     * @param poolSize thread pool size for servicing subscription callbacks
-     * @throws xMsgException
-     * @throws SocketException
-     */
-    public CBase(String name, int poolSize) throws xMsgException, SocketException {
-        super(name, "localhost", poolSize);
-
-        // Create a socket connections to the xMsg node.
-        // This is a local DPE, and uses default port number.
-        xMsgAddress address = new xMsgAddress("localhost");
-        this.nodeConnection = connect(address);
-    }
-
-    public String getFeHostName() {
-        return feHostname;
-    }
-
-    /**
-     * Returns the given name of this component.
-     *
-     * @return name of the component
-     */
-    public String getMyName() {
-        return myName;
+    public CBase(String name, String localAddress, String frontEndAddress) {
+        super(name, localAddress, frontEndAddress);
+        nodeConnection = connect();
     }
 
     /**
@@ -619,14 +532,9 @@ public class CBase extends xMsg {
 
 
     public void reportFE(String command) throws IOException, xMsgException {
-        if (!feHostname.equals(xMsgConstants.UNDEFINED.toString())
-                && xMsgUtil.isIP(feHostname)) {
-            xMsgTopic topic = xMsgTopic.wrap(CConstants.DPE + ":" + feHostname);
-            xMsgMessage msg = new xMsgMessage(topic, command);
-            genericSend(feHostname, msg);
-        } else {
-            throw new xMsgException("FE host is not properly defined.");
-        }
+        xMsgTopic topic = xMsgTopic.wrap(CConstants.DPE + ":" + getFrontEndAddress());
+        xMsgMessage msg = new xMsgMessage(topic, command);
+        genericSend(getFrontEndAddress(), msg);
     }
 
     /**
@@ -652,15 +560,15 @@ public class CBase extends xMsg {
         if (!CUtility.isCanonical(containerName)) {
             throw new xMsgException("Not a canonical name.");
         }
-        new Container(containerName);
+        new Container(containerName, getLocalAddress(), getFrontEndAddress());
     }
 
-    public void startContainer(String containerName, String feHost)
+    public void startContainer(String containerName, String frontEndAddress)
             throws xMsgException, IOException {
         if (!CUtility.isCanonical(containerName)) {
             throw new xMsgException("Not a canonical name.");
         }
-        new Container(containerName, feHost);
+        new Container(containerName, getLocalAddress(), frontEndAddress);
     }
 
     public void startRemoteContainer(String dpeName, String containerName)
