@@ -50,7 +50,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @version 1.x
  * @since 1/30/15
  */
-public class Service extends CBase {
+public class ServiceEngine extends CBase {
 
     private ServiceState myServiceState =
             new ServiceState(getName(),xMsgConstants.UNDEFINED.toString());
@@ -94,11 +94,11 @@ public class Service extends CBase {
      *               centralized registration database.
      * @throws xMsgException
      */
-    public Service(String name,
-                   String classPath,
-                   String localAddress,
-                   String frontEndAddres,
-                   String sharedMemoryKey)
+    public ServiceEngine(String name,
+                         String classPath,
+                         String localAddress,
+                         String frontEndAddres,
+                         String sharedMemoryKey)
             throws CException {
         super(name, localAddress, frontEndAddres);
 

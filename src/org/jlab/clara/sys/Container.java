@@ -64,7 +64,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Container extends CBase {
 
     // Map containing service object pools for every service in the container
-    private HashMap<String, Service[]>
+    private HashMap<String, ServiceEngine[]>
             _objectPoolMap = new HashMap<>();
 
     // Map of thread pools for every service in the container
@@ -194,15 +194,15 @@ public class Container extends CBase {
         _poolSizeMap.put(canonical_name,objectPoolSize);
 
         // Creating service object pool
-        Service[] sop = new Service[objectPoolSize];
+        ServiceEngine[] sop = new ServiceEngine[objectPoolSize];
 
         // Fill the object pool
         for(int i=0; i<objectPoolSize; i++){
-            Service service =  new Service(canonical_name,
-                                           engineClassPath,
-                                           getLocalAddress(),
-                                           getFrontEndAddress(),
-                                           sharedMemoryLocation);
+            ServiceEngine service =  new ServiceEngine(canonical_name,
+                                                       engineClassPath,
+                                                       getLocalAddress(),
+                                                       getFrontEndAddress(),
+                                                       sharedMemoryLocation);
 
             service.updateMyState(initialState);
             // add object to the pool
@@ -243,10 +243,10 @@ public class Container extends CBase {
             // Clear object pool of a service by calling dispose
             // method of a service (for every service object
             // in the pool)
-            Service[] op = _objectPoolMap.get(name);
-            for(Service s:op) {
+            ServiceEngine[] op = _objectPoolMap.get(name);
+            for(ServiceEngine e:op) {
                 // remove registration of a service and exit
-                s.dispose();
+                e.dispose();
             }
         }
 
@@ -457,7 +457,7 @@ public class Container extends CBase {
 
                 // Take object and thread pool for a service.
                 // This will block if there is no available object in the pool
-                final Service[] requestedServiceObjectPool = _objectPoolMap.get(receiver);
+                final ServiceEngine[] requestedServiceObjectPool = _objectPoolMap.get(receiver);
                 ExecutorService threadPool = _threadPoolMap.get(receiver);
 
                 final xMsgData.Builder xData;
@@ -515,7 +515,7 @@ public class Container extends CBase {
                     final AtomicInteger rps = new AtomicInteger();
                     for (int i = 0; i < _poolSizeMap.get(receiver); i++) {
                         rps.set(_poolSizeMap.get(receiver) - i);
-                        final Service ser = requestedServiceObjectPool[i];
+                        final ServiceEngine ser = requestedServiceObjectPool[i];
                         threadPool.submit(new Runnable() {
                                               @Override
                                             public void run() {
@@ -534,7 +534,7 @@ public class Container extends CBase {
                 } else {
                     boolean _of = false;
                     do {
-                        for (final Service ser : requestedServiceObjectPool) {
+                        for (final ServiceEngine ser : requestedServiceObjectPool) {
                             if (ser.isAvailable.get()) {
                                 _of = true;
                                 final CServiceSysConfig serConfig = _sysConfigs.get(receiver);
