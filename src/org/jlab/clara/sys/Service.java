@@ -32,6 +32,7 @@ import org.jlab.clara.base.CException;
 import org.jlab.clara.util.CConstants;
 import org.jlab.clara.util.CServiceSysConfig;
 import org.jlab.clara.util.CUtility;
+import org.jlab.clara.util.RequestParser;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
@@ -203,16 +204,18 @@ public class Service extends CBase {
     private void setup(xMsgMessage msg) {
         try {
             xMsgData data = xMsgData.parseFrom(msg.getData());
-            ReportSetup setup = new ReportSetup(data);
-            switch (setup.cmd) {
+            RequestParser setup = RequestParser.build(data);
+            String report = setup.nextString();
+            int value = setup.nextInteger();
+            switch (report) {
             case CConstants.SERVICE_REPORT_DONE:
                 sysConfig.setDoneRequest(true);
-                sysConfig.setDoneReportThreshold(setup.value);
+                sysConfig.setDoneReportThreshold(value);
                 sysConfig.resetDoneRequestCount();
                 break;
             case CConstants.SERVICE_REPORT_DATA:
                 sysConfig.setDataRequest(true);
-                sysConfig.setDataReportThreshold(setup.value);
+                sysConfig.setDataReportThreshold(value);
                 sysConfig.resetDataRequestCount();
                 break;
             }
@@ -267,35 +270,6 @@ public class Service extends CBase {
                 e.printStackTrace();
             }
             return null;
-        }
-    }
-
-
-
-    class ReportSetup {
-
-        private String cmd;
-        private int value;
-
-        public ReportSetup(xMsgData data) {
-            try {
-                String cmdData = data.getSTRING();
-                if (cmdData == null) {
-                    throw new IllegalArgumentException("Missing command data");
-                }
-                if (cmdData.contains("?")) {
-                    throw new IllegalArgumentException("Malformed command " + cmdData);
-                }
-                StringTokenizer st = new StringTokenizer(cmdData, "?");
-                cmd = st.nextToken();
-
-                if (!st.hasMoreTokens()) {
-                    throw new IllegalArgumentException("Missing param1");
-                }
-                value = Integer.parseInt(st.nextToken());
-            } catch (NoSuchElementException e) {
-                System.err.println(e.getMessage());
-            }
         }
     }
 }
