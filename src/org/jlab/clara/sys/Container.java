@@ -24,22 +24,17 @@ package org.jlab.clara.sys;
 import org.jlab.clara.base.CException;
 import org.jlab.clara.util.CConstants;
 import org.jlab.clara.util.CUtility;
+import org.jlab.clara.util.RequestParser;
 import org.jlab.coda.xmsg.core.xMsgSubscription;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgTopic;
-import org.jlab.coda.xmsg.data.xMsgD.xMsgData;
-import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 import org.jlab.coda.xmsg.excp.xMsgException;
-
-import com.google.protobuf.InvalidProtocolBufferException;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.StringTokenizer;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -113,12 +108,12 @@ public class Container extends CBase {
      * @param engineClassPath the service engine class path
      * @param servicePoolSize the size of the engines pool
      */
-    public void addService(String engineName,
-                           String engineClassPath,
-                           int servicePoolSize,
-                           String initialState)
-            throws CException, xMsgException {
+    private void addService(String engineClassPath,
+                            int servicePoolSize,
+                            String initialState)
+            throws CException, xMsgException, IOException {
 
+        String engineName = engineClassPath.substring(engineClassPath.lastIndexOf(".") + 1);
         String serviceName = getName() + ":" + engineName;
 
         if (_myServices.containsKey(serviceName)) {
@@ -150,7 +145,7 @@ public class Container extends CBase {
      *
      * @param serviceName the service canonical name
      */
-    public void removeService(String serviceName)
+    private void removeService(String serviceName)
             throws CException {
         if (_myServices.containsKey(serviceName)) {
             Service service = _myServices.remove(serviceName);
@@ -166,81 +161,32 @@ public class Container extends CBase {
 
         @Override
         public xMsgMessage callback(xMsgMessage msg) {
+            try {
+                RequestParser parser = RequestParser.build(msg);
+                String command = parser.nextString();
+                String serviceName = parser.nextString();
 
-            final xMsgMeta.Builder metadata = msg.getMetaData();
-            if (metadata.getDataType().equals("binary/native")) {
-                xMsgData data;
-                try {
-                    data = xMsgData.parseFrom(msg.getData());
-                } catch (InvalidProtocolBufferException e1) {
-                    e1.printStackTrace();
-                    return msg;
+                switch (command) {
+
+                    case CConstants.DEPLOY_SERVICE:
+                        int poolSize = parser.nextInteger();
+                        String state = parser.nextString(xMsgConstants.UNDEFINED.toString());
+                        addService(serviceName, poolSize, state);
+                        break;
+
+                    case CConstants.REMOVE_SERVICE:
+                        removeService(serviceName);
+                        break;
+
+                    case CConstants.REMOVE_CONTAINER:
+                        exit();
+                        break;
+
+                    default:
+                        throw new CException("Invalid request");
                 }
-                if (data.getType().equals(xMsgData.Type.T_STRING)) {
-                    String cmdData = data.getSTRING();
-                    String cmd = null, seName = null,
-                            objectPoolSize = null,
-                            initialState = xMsgConstants.UNDEFINED.toString();
-                    try {
-                        StringTokenizer st = new StringTokenizer(cmdData, "?");
-                        cmd = st.nextToken();
-                        seName = st.nextToken();
-                        if(st.hasMoreTokens())objectPoolSize = st.nextToken();
-                        if(st.hasMoreTokens())initialState = st.nextToken();
-
-                    } catch (NoSuchElementException e) {
-                        System.out.println(e.getMessage());
-//                    e.printStackTrace();
-                    }
-                    if (cmd != null && seName != null) {
-                        switch (cmd) {
-                            case CConstants.DEPLOY_SERVICE:
-                                // Note: in this case seName is the pull path to the engine class
-                                if (!seName.contains(".")) {
-                                    System.out.println("Warning: Deployment failed. " +
-                                            "Clara accepts fully qualified class names only.");
-                                    return null;
-                                }
-
-
-                                if (objectPoolSize == null) {
-
-                                    // if object pool size is not defined set
-                                    // the size equal to the number of cores
-                                    // in the node where this container is deployed
-                                    int ps = Runtime.getRuntime().availableProcessors();
-                                    objectPoolSize = String.valueOf(ps);
-                                }
-                                try {
-                                    String classPath = seName;
-                                    String engineName = seName.substring((seName.lastIndexOf(".")) + 1, seName.length());
-
-                                    addService(engineName, classPath, Integer.parseInt(objectPoolSize), initialState);
-                                } catch (xMsgException | NumberFormatException | CException e) {
-                                    e.printStackTrace();
-                                }
-                                break;
-                            case CConstants.REMOVE_SERVICE:
-                                // Note: in this case seName is the canonical name of the service
-                                try {
-                                    removeService(seName);
-                                } catch (CException e) {
-                                    e.printStackTrace();
-                                }
-                                break;
-                            case CConstants.REMOVE_CONTAINER:
-                                try {
-                                    exit();
-                                } catch (CException | xMsgException | IOException e) {
-                                    e.printStackTrace();
-                                }
-                                break;
-                        }
-                    } else {
-                        System.out.println("Error: malformed deployment string: " +
-                                "command or service name is not defined.");
-                    }
-                }
+            } catch (CException | xMsgException | IOException e) {
+                e.printStackTrace();
             }
             return null;
         }
