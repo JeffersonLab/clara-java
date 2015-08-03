@@ -40,23 +40,22 @@ import org.jlab.coda.xmsg.xsys.xMsgRegistrar;
 import com.google.protobuf.InvalidProtocolBufferException;
 
 import java.io.IOException;
-import java.net.SocketException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 /**
- * <p>
- *     Clara data processing environment. It can play the role of
- *     the Front-End (FE), which is the static point of the entire cloud.
- *     It creates and manages the registration database (local and
- *     case of being assigned as an FE: global database). Note this is a
- *     copy of the subscribers database resident in the xMsg registration
- *     database. This also creates a shared memory for communicating Clara
- *     transient data objects between services within the same process
- *     (this avoids data serialization and de-serialization).
- * </p>
+ * Clara data processing environment. It can play the role of the Front-End
+ * (FE), which is the static point of the entire cloud. It creates and manages
+ * the registration database (local and case of being assigned as an FE: global
+ * database). Note this is a copy of the subscribers database resident in the
+ * xMsg registration database. This also creates a shared memory for
+ * communicating Clara transient data objects between services within the same
+ * process (this avoids data serialization and de-serialization).
  *
  * @author gurjyan
  * @version 1.x
@@ -135,13 +134,11 @@ public class Dpe extends CBase {
 
 
     /**
-     * <p>
-     * Constructor for a standalone or Front-End DPE
-     * </p>
+     * Constructor for a standalone or Front-End DPE.
      *
      * @param isFE true if this DPE is assumed the role of the FE
      * @throws xMsgException
-     * @throws SocketException
+     * @throws IOException
      */
     public Dpe(String localAddress, Boolean isFE) throws xMsgException, IOException {
         super(localAddress, localAddress, localAddress);
@@ -203,11 +200,9 @@ public class Dpe extends CBase {
     }
 
     /**
-     * <p>
      * Constructor for the DPE that is part of the Clara cloud.
-     * </p>
      *
-     * @param frontEndAddress the name, i.e. IP address of the FE DPE
+     * @param frontEndAddress the address of the front-end DPE
      * @throws xMsgException
      * @throws IOException
      */
@@ -243,30 +238,7 @@ public class Dpe extends CBase {
 
 
     /**
-     * <p>
-     * DPE callback. This will react to messages such as:
-     * <ul>
-     * <li>
-     * start/stop DPE/Containers/Services
-     * </li>
-     * <li>
-     * DPE is up/down
-     * </li>
-     * <li>
-     * Container is up/down
-     * </li>
-     * <li>
-     * Service is up/down
-     * </li>
-     * <li>
-     * etc.
-     * </li>
-     * </ul>
-     * Note: The message comes with the xMsg envelope,
-     * with xMsgMeta and xMsgData. data type is defined as string
-     * in xMsgMeta and data value in xMsgData has a
-     * pre_defined_command?value structure
-     * </p>
+     * DPE callback.
      */
     private class DpeCallBack implements xMsgCallBack {
 
@@ -701,11 +673,6 @@ public class Dpe extends CBase {
     }
 
 
-    /**
-     * <p>
-     * Prints some entry information
-     * </p>
-     */
     private void printLogo() {
         System.out.println("================================");
         if (isFE) {
