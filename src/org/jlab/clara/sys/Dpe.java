@@ -90,6 +90,50 @@ public class Dpe extends CBase {
     private HeartBeatReport heartBeat;
 
 
+    public static void main(String[] args) {
+        String frontEnd = "";
+        boolean cloudController = false;
+        int i = 0;
+        while (i < args.length) {
+            switch (args[i++]) {
+                case "-fh":
+                    if (i < args.length) {
+                        frontEnd = args[i++];
+                    } else {
+                        usage();
+                        System.exit(1);
+                    }
+                    break;
+                case "-cc":
+                    cloudController = true;
+                    break;
+                default:
+                    usage();
+                    System.exit(1);
+            }
+        }
+
+        try {
+            String localAddress = xMsgUtil.localhost();
+            if (cloudController) {
+                new Dpe(localAddress, true);
+            } else if (frontEnd.isEmpty()) {
+                new Dpe(localAddress, false);
+            } else {
+                new Dpe(localAddress, frontEnd);
+            }
+        } catch (xMsgException | IOException e) {
+            System.out.println(e.getMessage());
+            System.out.println("exiting...");
+            System.exit(1);
+        }
+    }
+
+    public static void usage() {
+        System.err.println("Usage: j_dpe [ -cc | -fh <front_end> ]");
+    }
+
+
     /**
      * <p>
      * Constructor for a standalone or Front-End DPE
@@ -195,68 +239,6 @@ public class Dpe extends CBase {
         _myCloud.put(dpeName, new HashMap<String, Set<String>>());
 
         startHeartBeatReport();
-    }
-
-    public static void main(String[] args) {
-        String frontEnd = "";
-        boolean cloudController = false;
-        int i = 0;
-        while (i < args.length) {
-            switch (args[i++]) {
-                case "-fh":
-                    if (i < args.length) {
-                        frontEnd = args[i++];
-                    } else {
-                        usage();
-                        System.exit(1);
-                    }
-                    break;
-                case "-cc":
-                    cloudController = true;
-                    break;
-                default:
-                    usage();
-                    System.exit(1);
-            }
-        }
-
-        try {
-            String localAddress = xMsgUtil.localhost();
-            if (cloudController) {
-                new Dpe(localAddress, true);
-            } else if (frontEnd.isEmpty()) {
-                new Dpe(localAddress, false);
-            } else {
-                new Dpe(localAddress, frontEnd);
-            }
-        } catch (xMsgException | IOException e) {
-            System.out.println(e.getMessage());
-            System.out.println("exiting...");
-            System.exit(1);
-        }
-    }
-
-    public static void usage() {
-        System.err.println("Usage: j_dpe [ -cc | -fh <front_end> ]");
-    }
-
-    /**
-     * <p>
-     * Prints some entry information
-     * </p>
-     */
-    private void printLogo() {
-        System.out.println("================================");
-        if (isFE) {
-            System.out.println("             CLARA FE         ");
-        } else {
-            System.out.println("             CLARA DPE        ");
-        }
-        System.out.println("================================");
-        System.out.println(" Binding = Java");
-        System.out.println(" Date    = " + CUtility.getCurrentTimeInH());
-        System.out.println(" Host    = " + getName());
-        System.out.println("================================");
     }
 
 
@@ -692,14 +674,6 @@ public class Dpe extends CBase {
     }
 
 
-
-    private void startHeartBeatReport() {
-        heartBeat = new HeartBeatReport();
-        heartBeat.start();
-    }
-
-
-
     private class HeartBeatReport extends Thread {
         @Override
         public void run() {
@@ -724,5 +698,30 @@ public class Dpe extends CBase {
                 Thread.currentThread().interrupt();
             }
         }
+    }
+
+
+    /**
+     * <p>
+     * Prints some entry information
+     * </p>
+     */
+    private void printLogo() {
+        System.out.println("================================");
+        if (isFE) {
+            System.out.println("             CLARA FE         ");
+        } else {
+            System.out.println("             CLARA DPE        ");
+        }
+        System.out.println("================================");
+        System.out.println(" Binding = Java");
+        System.out.println(" Date    = " + CUtility.getCurrentTimeInH());
+        System.out.println(" Host    = " + getName());
+        System.out.println("================================");
+    }
+
+    private void startHeartBeatReport() {
+        heartBeat = new HeartBeatReport();
+        heartBeat.start();
     }
 }
