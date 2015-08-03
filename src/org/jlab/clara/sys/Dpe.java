@@ -24,20 +24,17 @@ package org.jlab.clara.sys;
 import org.jlab.clara.base.CException;
 import org.jlab.clara.util.CConstants;
 import org.jlab.clara.util.CUtility;
+import org.jlab.clara.util.RequestParser;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.core.xMsgUtil;
-import org.jlab.coda.xmsg.data.xMsgD;
-import org.jlab.coda.xmsg.data.xMsgD.xMsgData;
-import org.jlab.coda.xmsg.data.xMsgM;
+import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 import org.jlab.coda.xmsg.excp.xMsgException;
 import org.jlab.coda.xmsg.net.xMsgAddress;
 import org.jlab.coda.xmsg.net.xMsgConnection;
 import org.jlab.coda.xmsg.xsys.xMsgRegistrar;
-
-import com.google.protobuf.InvalidProtocolBufferException;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -244,402 +241,110 @@ public class Dpe extends CBase {
 
         @Override
         public xMsgMessage callback(xMsgMessage msg) {
-
             xMsgMessage returnMsg = null;
+            xMsgMeta.Builder metadata = msg.getMetaData();
+            try {
+                String sender = metadata.getSender();
+                String returnTopic = metadata.getReplyTo();
 
-            final xMsgM.xMsgMeta.Builder metadata = msg.getMetaData();
-            String sender = metadata.getSender();
-            String returnTopic = metadata.getReplyTo();
+                RequestParser parser = RequestParser.build(msg);
+                String cmd = parser.nextString();
 
-            if (metadata.getDataType().equals("binary/native")) {
-                xMsgData data;
-                try {
-                    data = xMsgData.parseFrom(msg.getData());
-                } catch (InvalidProtocolBufferException e) {
-                    e.printStackTrace();
-                    return msg;
+                switch (cmd) {
+                    case CConstants.ACCEPT_FE:
+                        turnFE(parser.nextString());
+                        break;
+
+                    // Sent from orchestrator. Assuming this is the FE
+                    case CConstants.START_DPE:
+                        runDpe(parser.nextString());
+                        break;
+
+                    // Sent from orchestrator.
+                    case CConstants.STOP_DPE:
+                        stopDpe(parser.nextString());
+                        break;
+
+                    // Sent from master DPE (FE). In this case the value
+                    // is the canonical name of the master DPE (FE)
+                    case CConstants.DPE_PING:
+                        pingDpe(parser.nextString(), sender, returnTopic);
+                        break;
+
+                    // Sent by some other dpe, assuming this is a master DPE.
+                    // The value is the canonical name of a dpe
+                    case CConstants.DPE_UP:
+                        dbRegisterDpe(parser.nextString());
+                        break;
+
+                    // Sent by the dpe assuming this is a master DPE.
+                    // The value is the canonical name of a dpe
+                    case CConstants.DPE_DOWN:
+                        dbRemoveDpe(parser.nextString());
+                        break;
+
+                    // Sent from orchestrator. Value is the name (not canonical)of the container.
+                    case CConstants.START_CONTAINER:
+                        runContainer(parser.nextString());
+                        break;
+
+                    // Sent from orchestrator. Value is the name of the container.
+                    // Note that the container name should be a canonical name
+                    case CConstants.STOP_CONTAINER:
+                        stopContainer(parser.nextString());
+                        break;
+
+                    // Sent by the container assuming this is a master DPE.
+                    // The value is the canonical name of a container
+                    case CConstants.CONTAINER_UP:
+                        dbRegisterContainer(parser.nextString(), msg);
+                        break;
+
+                    // Sent by the container assuming this is a master DPE.
+                    // The value is the canonical name of a container
+                    case CConstants.CONTAINER_DOWN:
+                        dbRemoveContainer(parser.nextString(), msg);
+                        break;
+
+                    case CConstants.START_SERVICE:
+                        runService(parser.nextString(), parser.nextString(), parser.nextString());
+                        break;
+
+                    case CConstants.STOP_SERVICE:
+                        stopService(parser.nextString());
+                        break;
+
+                    // Sent by the service assuming this is a master DPE.
+                    // The value is the canonical name of a service
+                    case CConstants.SERVICE_UP:
+                        dbRegisterService(parser.nextString(), msg);
+                        break;
+
+                    // Sent by the container assuming this is a master DPE.
+                    // The value is the canonical name of a container
+                    case CConstants.SERVICE_DOWN:
+                        dbRemoveService(parser.nextString(), msg);
+                        break;
+
+                    // TODO Implement these requests
+
+                    case CConstants.LIST_DPES:
+                        dbListDpes(returnTopic);
+                        break;
+
+                    case CConstants.LIST_CONTAINERS:
+                        dbListContainers(returnTopic);
+                        break;
+
+                    case CConstants.LIST_SERVICES:
+                        dbListServices(returnTopic);
+                        break;
+
+                    default:
+                        break;
                 }
-                if (data.getType().equals(xMsgD.xMsgData.Type.T_STRING)) {
-
-                    String cmdData = data.getSTRING();
-                    String cmd = null, value1 = null, value2 = null, value3 = null;
-                    try {
-                        StringTokenizer st = new StringTokenizer(cmdData, "?");
-                        cmd = st.nextToken();
-                        if (st.hasMoreTokens()) value1 = st.nextToken();
-                        if (st.hasMoreTokens()) value2 = st.nextToken();
-                        if (st.hasMoreTokens()) value3 = st.nextToken();
-                    } catch (NoSuchElementException e) {
-                        e.printStackTrace();
-                    }
-                    if (cmd != null && value1 != null) {
-                        switch (cmd) {
-
-                            case CConstants.ACCEPT_FE:
-                                feHostIp = value1;
-                                isFE = feHostIp.equals(dpeName);
-                                break;
-
-                            // Sent from orchestrator. Assuming this is the FE
-                            case CConstants.START_DPE:
-                                if (isFE) startRemoteDpe(value1);
-                                break;
-
-                            // Sent from orchestrator.
-                            case CConstants.STOP_DPE:
-                                if (dpeName.equals(value1)) {
-                                    if (!isFE) {
-                                        try {
-                                            reportFE(CConstants.DPE_DOWN);
-                                        } catch (IOException | xMsgException e) {
-                                            e.printStackTrace();
-                                        }
-                                    }
-                                    System.exit(1);
-                                } else if (isFE) {
-                                    try {
-                                        removeRemoteDpe(value1);
-                                    } catch (IOException | xMsgException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                                break;
-
-                            // Sent from master DPE (FE). In this case the value
-                            // is the canonical name of the master DPE (FE)
-                            case CConstants.DPE_PING:
-                                System.out.println("Info: got pinged from DPE = " + sender);
-                                try {
-                                    xMsgTopic topic = xMsgTopic.wrap(CConstants.DPE + ":" + value1);
-                                    xMsgMessage amsg = new xMsgMessage(topic, CConstants.ALIVE);
-                                    String dpe = CUtility.getDpeName(returnTopic);
-                                    genericSend(dpe, amsg);
-                                } catch (xMsgException | IOException | CException e) {
-                                    e.printStackTrace();
-                                }
-                                break;
-
-                            // Sent by some other dpe, assuming this is a master DPE.
-                            // The value is the canonical name of a dpe
-                            case CConstants.DPE_UP:
-                                if (isFE && !value1.equals(dpeName)) {
-                                    _myCloud.put(value1, new HashMap<String, Set<String>>());
-                                }
-                                break;
-
-                            // Sent by the dpe assuming this is a master DPE.
-                            // The value is the canonical name of a dpe
-                            case CConstants.DPE_DOWN:
-                                if (isFE && !value1.equals(dpeName)) {
-                                    _myCloud.remove(value1);
-
-                                }
-                                break;
-
-                            // Sent from orchestrator. Value is the name (not canonical)of the container.
-                            case CConstants.START_CONTAINER:
-                                if (!CUtility.isCanonical(value1)) {
-                                    // if container name is not canonical we assume it to be started in this DPE
-                                    value1 = dpeName + ":" + value1;
-                                }
-                                try {
-                                    String tmpDpeName = CUtility.getDpeName(value1);
-                                    if (_myCloud.get(tmpDpeName).containsKey(value1)) {
-                                        System.err.println("Warning: container = " + value1 +
-                                                " is registered on this Dpe. No new container is created.");
-                                    } else {
-
-                                        if (tmpDpeName.equals(dpeName)) {
-                                            if (feHostIp.equals(xMsgConstants.UNDEFINED.toString())) {
-                                                startContainer(value1);
-                                            } else {
-                                                startContainer(value1, feHostIp);
-                                                if (!feHostIp.equals(dpeName)) {
-                                                    // report FE container is up
-                                                    reportFE(CConstants.CONTAINER_UP + "?" + value1);
-                                                }
-                                            }
-                                        } else if (isFE) {
-                                            startRemoteContainer(tmpDpeName, value1);
-                                            if (_myCloud.containsKey(tmpDpeName)) {
-                                                _myCloud.get(tmpDpeName).put(value1, new HashSet<String>());
-                                            } else {
-                                                System.out.println("Warning: DPE = " + tmpDpeName +
-                                                        " was not registered previously.");
-                                                Map<String, Set<String>> tmpContainer = new HashMap<>();
-                                                tmpContainer.put(value1, new HashSet<String>());
-                                                _myCloud.put(tmpDpeName, tmpContainer);
-                                            }
-                                        }
-                                    }
-                                } catch (CException | xMsgException | IOException e) {
-                                    e.printStackTrace();
-                                }
-                                break;
-
-
-                            // Sent from orchestrator. Value is the name of the container.
-                            // Note that the container name should be a canonical name
-                            case CConstants.STOP_CONTAINER:
-                                if (!CUtility.isCanonical(value1)) {
-                                    value1 = dpeName + ":" + value1;
-                                }
-                                try {
-                                    String tmpDpeName = CUtility.getDpeName(value1);
-                                    if (tmpDpeName.equals(dpeName)) {
-                                        removeContainer(dpeName, value1);
-                                        if (!feHostIp.equals(xMsgConstants.UNDEFINED.toString()) &&
-                                                !feHostIp.equals(dpeName)) {
-
-                                            // report FE container is down
-                                            reportFE(CConstants.CONTAINER_DOWN + "?" + value1);
-                                        }
-                                    } else if (isFE) {
-                                        removeContainer(tmpDpeName, value1);
-                                        if (_myCloud.containsKey(tmpDpeName)) {
-                                            _myCloud.get(tmpDpeName).remove(value1);
-                                            System.out.println("Warning: Container = " + value1 + " is down.");
-                                        }
-                                    }
-                                } catch (CException | xMsgException | IOException e) {
-                                    e.printStackTrace();
-                                }
-                                break;
-
-                            // Sent by the container assuming this is a master DPE.
-                            // The value is the canonical name of a container
-                            case CConstants.CONTAINER_UP:
-                                if (!CUtility.isCanonical(value1)) {
-                                    try {
-                                        String tmpDpeName = CUtility.getDpeName(value1);
-
-                                        if (_myCloud.containsKey(tmpDpeName)) {
-                                            _myCloud.get(tmpDpeName).put(value1, new HashSet<String>());
-                                        } else {
-                                            System.out.println("Warning: DPE = " + tmpDpeName +
-                                                    " was not registered previously.");
-                                            Map<String, Set<String>> tmpContainer = new HashMap<>();
-                                            tmpContainer.put(value1, new HashSet<String>());
-                                            _myCloud.put(tmpDpeName, tmpContainer);
-                                        }
-                                        System.out.println("Info: Container = " + value1 + " is up.");
-
-                                        // Forward this to FE DPE
-                                        if (!isFE) {
-                                            genericSend(feHostIp, msg);
-                                        }
-                                    } catch (CException | xMsgException | IOException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                                break;
-
-                            // Sent by the container assuming this is a master DPE.
-                            // The value is the canonical name of a container
-                            case CConstants.CONTAINER_DOWN:
-                                if (!CUtility.isCanonical(value1)) {
-
-                                    try {
-                                        String tmpDpeName = CUtility.getDpeName(value1);
-
-                                        if (_myCloud.containsKey(tmpDpeName)) {
-                                            _myCloud.get(tmpDpeName).remove(value1);
-                                            System.out.println("Warning: Container = " + value1 + " is down.");
-                                        }
-
-                                        // Forward this to FE DPE
-                                        if (!isFE) {
-                                            genericSend(feHostIp, msg);
-                                        }
-                                    } catch (CException | xMsgException | IOException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                                break;
-
-                            case CConstants.START_SERVICE:
-                                // in this case value1 is the canonical name of the service
-                                // and value 2 is the pull path to the class
-                                // we do not accept non canonical names in this case.
-                                // The 3rd value is the pool size
-                                if (CUtility.isCanonical(value1)) {
-                                    try {
-                                        String tmpDpeName = CUtility.getDpeName(value1);
-                                        String tmpContainerName = CUtility.getContainerName(value1);
-                                        if (tmpDpeName.equals(dpeName)) {
-                                            startService(tmpDpeName, value1, value2, value3);
-                                            if (!feHostIp.equals(xMsgConstants.UNDEFINED.toString()) &&
-                                                    !feHostIp.equals(dpeName)) {
-
-                                                // report FE container is down
-                                                reportFE(CConstants.SERVICE_UP + "?" + value1);
-                                            }
-                                        } else if (isFE) {
-                                            startService(tmpDpeName, value1, value2, value3);
-                                            if (_myCloud.containsKey(tmpDpeName)) {
-                                                if (_myCloud.get(tmpDpeName).containsKey(tmpContainerName)) {
-                                                    _myCloud.get(tmpDpeName).get(tmpContainerName).add(value1);
-                                                }
-                                            }
-                                        }
-                                    } catch (CException | xMsgException | IOException e) {
-                                        e.printStackTrace();
-                                    }
-
-                                }
-                                break;
-
-                            case CConstants.STOP_SERVICE:
-                                if (CUtility.isCanonical(value1)) {
-                                    try {
-                                        String tmpDpeName = CUtility.getDpeName(value1);
-                                        String tmpContainerName = CUtility.getContainerName(value1);
-                                        if (tmpDpeName.equals(dpeName)) {
-                                            removeService(tmpDpeName, value1);
-                                            if (!feHostIp.equals(xMsgConstants.UNDEFINED.toString()) &&
-                                                    !feHostIp.equals(dpeName)) {
-
-                                                // report FE container is down
-                                                reportFE(CConstants.SERVICE_DOWN + "?" + value1);
-                                            }
-                                        } else if (isFE) {
-                                            removeService(tmpDpeName, value1);
-                                            if (_myCloud.containsKey(tmpDpeName)) {
-                                                if (_myCloud.get(tmpDpeName).containsKey(tmpContainerName)) {
-                                                    _myCloud.get(tmpDpeName).get(tmpContainerName).remove(value1);
-                                                }
-                                            }
-                                        }
-                                    } catch (CException | xMsgException | IOException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                                break;
-
-                            // Sent by the service assuming this is a master DPE.
-                            // The value is the canonical name of a service
-                            case CConstants.SERVICE_UP:
-                                if (CUtility.isCanonical(value1)) {
-                                    try {
-                                        String tmpDpeName = CUtility.getDpeName(value1);
-                                        String tmpContainerName = CUtility.getContainerName(value1);
-                                        if (_myCloud.containsKey(tmpDpeName)) {
-                                            if (_myCloud.get(tmpDpeName).containsKey(tmpContainerName)) {
-                                                _myCloud.get(tmpDpeName).get(tmpContainerName).add(value1);
-                                            }
-                                        }
-                                        // Forward this to FE DPE
-                                        if (!isFE) {
-                                            genericSend(feHostIp, msg);
-                                        }
-
-                                    } catch (CException | xMsgException | IOException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                                break;
-
-                            // Sent by the container assuming this is a master DPE.
-                            // The value is the canonical name of a container
-                            case CConstants.SERVICE_DOWN:
-                                if (CUtility.isCanonical(value1)) {
-                                    try {
-                                        String tmpDpeName = CUtility.getDpeName(value1);
-                                        String tmpContainerName = CUtility.getContainerName(value1);
-                                        if (_myCloud.containsKey(tmpDpeName)) {
-                                            if (_myCloud.get(tmpDpeName).containsKey(tmpContainerName)) {
-                                                _myCloud.get(tmpDpeName).get(tmpContainerName).remove(value1);
-                                            }
-                                        }
-
-                                        // Forward this to FE DPE
-                                        if (!isFE) {
-                                            genericSend(feHostIp, msg);
-                                        }
-                                    } catch (CException | xMsgException | IOException e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                                break;
-
-                                // TODO Implement this
-//                            case CConstants.LIST_DPES:
-//                                returnMsg = new xMsgMessage(xMsgTopic.wrap(returnTopic),
-//                                        _myCloud.keySet().toArray(
-//                                                new String[_myCloud.keySet().size()]));
-//                                break;
-//
-//                            case CConstants.LIST_CONTAINERS:
-//                                String tmpDpeName = CUtility.getIPAddress(value1);
-//                                if (tmpDpeName != null && xMsgUtil.isIP(tmpDpeName)) {
-//                                    if (_myCloud.containsKey(tmpDpeName)) {
-//                                        returnMsg = new xMsgMessage(xMsgTopic.wrap(returnTopic),
-//                                                _myCloud.get(tmpDpeName).keySet().toArray(
-//                                                        new String[_myCloud.get(tmpDpeName).keySet().size()]));
-//                                    }
-//                                }
-//                                break;
-//
-//                            case CConstants.LIST_SERVICES:
-//                                if (CUtility.isCanonical(value1)) {
-//                                    try {
-//                                        String tmpDpeN = CUtility.getIPAddress(CUtility.getDpeName(value1));
-//                                        List<String> tmpServices = new ArrayList<>();
-//
-//                                        if (tmpDpeN != null) {
-//
-//                                            // all DPEs
-//                                            if (tmpDpeN.equals("*")) {
-//                                                for (Map<String, Set<String>> m : _myCloud.values()) {
-//                                                    String tmpContainerName = CUtility.getContainerName(value1);
-//
-//                                                    // all containers
-//                                                    if (tmpContainerName.equals("*")) {
-//                                                        for (Set<String> ser : m.values()) {
-//                                                            for (String s : ser) {
-//                                                                tmpServices.add(s);
-//                                                            }
-//                                                        }
-//                                                        // specific container
-//                                                    } else {
-//                                                        Set<String> ser = m.get(tmpContainerName);
-//                                                        for (String s : ser) {
-//                                                            tmpServices.add(s);
-//                                                        }
-//                                                    }
-//                                                }
-//
-//                                                // specific DPE
-//                                            } else {
-//                                                String tmpContainerName = CUtility.getContainerName(value1);
-//
-//                                                // all containers
-//                                                if (tmpContainerName.equals("*")) {
-//                                                    for (Set<String> ser : _myCloud.get(tmpDpeN).values()) {
-//                                                        for (String s : ser) {
-//                                                            tmpServices.add(s);
-//                                                        }
-//                                                    }
-//                                                    // specific container
-//                                                } else {
-//                                                    Set<String> ser = _myCloud.get(tmpDpeN).get(tmpContainerName);
-//                                                    for (String s : ser) {
-//                                                        tmpServices.add(s);
-//                                                    }
-//                                                }
-//                                            }
-//
-//                                        }
-//                                        returnMsg = new xMsgMessage(xMsgTopic.wrap(returnTopic),
-//                                                tmpServices.toArray(new String[tmpServices.size()]));
-//                                    } catch (CException e) {
-//                                        e.printStackTrace();
-//                                    }
-//                                }
-//                                break;
-                        }
-                    }
-                }
+            } catch (CException | IOException | xMsgException e) {
+                e.printStackTrace();
             }
             return returnMsg;
         }
@@ -690,5 +395,310 @@ public class Dpe extends CBase {
     private void startHeartBeatReport() {
         heartBeat = new HeartBeatReport();
         heartBeat.start();
+    }
+
+    private void turnFE(String feAddress) {
+        feHostIp = feAddress;
+        isFE = feHostIp.equals(dpeName);
+    }
+
+    private void runDpe(String dpe) {
+        if (isFE) {
+            startRemoteDpe(dpe);
+        }
+    }
+
+    private void stopDpe(String dpe)
+            throws IOException, xMsgException {
+        if (dpeName.equals(dpe)) {
+            if (!isFE) {
+                reportFE(CConstants.DPE_DOWN);
+            }
+            System.exit(1);
+        } else if (isFE) {
+            removeRemoteDpe(dpe);
+        }
+    }
+
+    private void pingDpe(String dpe, String sender, String returnTopic)
+            throws xMsgException, IOException, CException {
+        System.out.println("Info: got pinged from DPE = " + sender);
+        xMsgTopic topic = xMsgTopic.wrap(CConstants.DPE + ":" + dpe);
+        xMsgMessage amsg = new xMsgMessage(topic, CConstants.ALIVE);
+        String adpe = CUtility.getDpeName(returnTopic);
+        genericSend(adpe, amsg);
+    }
+
+    private void runContainer(String container)
+            throws CException, xMsgException, IOException {
+        if (!CUtility.isCanonical(container)) {
+            // if container name is not canonical we assume it to be started in this DPE
+            container = dpeName + ":" + container;
+        }
+        String tmpDpeName = CUtility.getDpeName(container);
+        if (_myCloud.get(tmpDpeName).containsKey(container)) {
+            System.err.println("Warning: container = " + container +
+                    " is registered on this Dpe. No new container is created.");
+        } else {
+
+            if (tmpDpeName.equals(dpeName)) {
+                if (feHostIp.equals(xMsgConstants.UNDEFINED.toString())) {
+                    startContainer(container);
+                } else {
+                    startContainer(container, feHostIp);
+                    if (!feHostIp.equals(dpeName)) {
+                        // report FE container is up
+                        reportFE(CConstants.CONTAINER_UP + "?" + container);
+                    }
+                }
+            } else if (isFE) {
+                startRemoteContainer(tmpDpeName, container);
+                if (_myCloud.containsKey(tmpDpeName)) {
+                    _myCloud.get(tmpDpeName).put(container, new HashSet<String>());
+                } else {
+                    System.out.println("Warning: DPE = " + tmpDpeName +
+                            " was not registered previously.");
+                    Map<String, Set<String>> tmpContainer = new HashMap<>();
+                    tmpContainer.put(container, new HashSet<String>());
+                    _myCloud.put(tmpDpeName, tmpContainer);
+                }
+            }
+        }
+    }
+
+    private void stopContainer(String container)
+            throws CException, xMsgException, IOException {
+        if (!CUtility.isCanonical(container)) {
+            container = dpeName + ":" + container;
+        }
+        String tmpDpeName = CUtility.getDpeName(container);
+        if (tmpDpeName.equals(dpeName)) {
+            removeContainer(dpeName, container);
+            if (!feHostIp.equals(xMsgConstants.UNDEFINED.toString()) &&
+                    !feHostIp.equals(dpeName)) {
+
+                // report FE container is down
+                reportFE(CConstants.CONTAINER_DOWN + "?" + container);
+            }
+        } else if (isFE) {
+            removeContainer(tmpDpeName, container);
+            if (_myCloud.containsKey(tmpDpeName)) {
+                _myCloud.get(tmpDpeName).remove(container);
+                System.out.println("Warning: Container = " + container + " is down.");
+            }
+        }
+    }
+
+    private void runService(String service, String classPath, String poolSize)
+            throws CException, xMsgException, IOException {
+        // in this case value1 is the canonical name of the service
+        // and value 2 is the pull path to the class
+        // we do not accept non canonical names in this case.
+        // The 3rd value is the pool size
+        if (CUtility.isCanonical(service)) {
+            String tmpDpeName = CUtility.getDpeName(service);
+            String tmpContainerName = CUtility.getContainerName(service);
+            if (tmpDpeName.equals(dpeName)) {
+                startService(tmpDpeName, service, classPath, poolSize);
+                if (!feHostIp.equals(xMsgConstants.UNDEFINED.toString()) &&
+                        !feHostIp.equals(dpeName)) {
+
+                    // report FE container is down
+                    reportFE(CConstants.SERVICE_UP + "?" + service);
+                }
+            } else if (isFE) {
+                startService(tmpDpeName, service, classPath, poolSize);
+                if (_myCloud.containsKey(tmpDpeName)) {
+                    if (_myCloud.get(tmpDpeName).containsKey(tmpContainerName)) {
+                        _myCloud.get(tmpDpeName).get(tmpContainerName).add(service);
+                    }
+                }
+            }
+        }
+    }
+
+    private void stopService(String service)
+            throws CException, xMsgException, IOException {
+        if (CUtility.isCanonical(service)) {
+            String tmpDpeName = CUtility.getDpeName(service);
+            String tmpContainerName = CUtility.getContainerName(service);
+            if (tmpDpeName.equals(dpeName)) {
+                removeService(tmpDpeName, service);
+                if (!feHostIp.equals(xMsgConstants.UNDEFINED.toString()) &&
+                        !feHostIp.equals(dpeName)) {
+
+                    // report FE container is down
+                    reportFE(CConstants.SERVICE_DOWN + "?" + service);
+                }
+            } else if (isFE) {
+                removeService(tmpDpeName, service);
+                if (_myCloud.containsKey(tmpDpeName)) {
+                    if (_myCloud.get(tmpDpeName).containsKey(tmpContainerName)) {
+                        _myCloud.get(tmpDpeName).get(tmpContainerName).remove(service);
+                    }
+                }
+            }
+        }
+    }
+
+    private void dbRegisterDpe(String dpe) {
+        if (isFE && !dpe.equals(dpeName)) {
+            _myCloud.put(dpe, new HashMap<String, Set<String>>());
+        }
+    }
+
+    private void dbRemoveDpe(String dpe) {
+        if (isFE && !dpe.equals(dpeName)) {
+            _myCloud.remove(dpe);
+        }
+    }
+
+    private void dbRegisterContainer(String container, xMsgMessage msg)
+            throws CException, xMsgException, IOException {
+        if (!CUtility.isCanonical(container)) {
+            String tmpDpeName = CUtility.getDpeName(container);
+
+            if (_myCloud.containsKey(tmpDpeName)) {
+                _myCloud.get(tmpDpeName).put(container, new HashSet<String>());
+            } else {
+                System.out.println("Warning: DPE = " + tmpDpeName +
+                        " was not registered previously.");
+                Map<String, Set<String>> tmpContainer = new HashMap<>();
+                tmpContainer.put(container, new HashSet<String>());
+                _myCloud.put(tmpDpeName, tmpContainer);
+            }
+            System.out.println("Info: Container = " + container + " is up.");
+
+            // Forward this to FE DPE
+            if (!isFE) {
+                genericSend(feHostIp, msg);
+            }
+        }
+    }
+
+    private void dbRemoveContainer(String container, xMsgMessage msg)
+            throws CException, xMsgException, IOException {
+        if (!CUtility.isCanonical(container)) {
+            String tmpDpeName = CUtility.getDpeName(container);
+
+            if (_myCloud.containsKey(tmpDpeName)) {
+                _myCloud.get(tmpDpeName).remove(container);
+                System.out.println("Warning: Container = " + container + " is down.");
+            }
+
+            // Forward this to FE DPE
+            if (!isFE) {
+                genericSend(feHostIp, msg);
+            }
+        }
+    }
+
+    private void dbRegisterService(String service, xMsgMessage msg)
+            throws CException, xMsgException, IOException {
+        if (CUtility.isCanonical(service)) {
+            String tmpDpeName = CUtility.getDpeName(service);
+            String tmpContainerName = CUtility.getContainerName(service);
+            if (_myCloud.containsKey(tmpDpeName)) {
+                if (_myCloud.get(tmpDpeName).containsKey(tmpContainerName)) {
+                    _myCloud.get(tmpDpeName).get(tmpContainerName).add(service);
+                }
+            }
+            // Forward this to FE DPE
+            if (!isFE) {
+                genericSend(feHostIp, msg);
+            }
+        }
+    }
+
+    private void dbRemoveService(String service, xMsgMessage msg)
+            throws CException, xMsgException, IOException {
+        if (CUtility.isCanonical(service)) {
+            String tmpDpeName = CUtility.getDpeName(service);
+            String tmpContainerName = CUtility.getContainerName(service);
+            if (_myCloud.containsKey(tmpDpeName)) {
+                if (_myCloud.get(tmpDpeName).containsKey(tmpContainerName)) {
+                    _myCloud.get(tmpDpeName).get(tmpContainerName).remove(service);
+                }
+            }
+            // Forward this to FE DPE
+            if (!isFE) {
+                genericSend(feHostIp, msg);
+            }
+        }
+    }
+
+    private void dbListDpes(String returnTopic) {
+//        returnMsg = new xMsgMessage(xMsgTopic.wrap(returnTopic),
+//                _myCloud.keySet().toArray(
+//                        new String[_myCloud.keySet().size()]));
+    }
+
+    private void dbListContainers(String returnTopic) {
+//        String tmpDpeName = CUtility.getIPAddress(value1);
+//        if (tmpDpeName != null && xMsgUtil.isIP(tmpDpeName)) {
+//            if (_myCloud.containsKey(tmpDpeName)) {
+//                returnMsg = new xMsgMessage(xMsgTopic.wrap(returnTopic),
+//                        _myCloud.get(tmpDpeName).keySet().toArray(
+//                                new String[_myCloud.get(tmpDpeName).keySet().size()]));
+//            }
+//        }
+    }
+
+    private void dbListServices(String returnTopic) {
+//        if (CUtility.isCanonical(value1)) {
+//            try {
+//                String tmpDpeN = CUtility.getIPAddress(CUtility.getDpeName(value1));
+//                List<String> tmpServices = new ArrayList<>();
+//
+//                if (tmpDpeN != null) {
+//
+//                    // all DPEs
+//                    if (tmpDpeN.equals("*")) {
+//                        for (Map<String, Set<String>> m : _myCloud.values()) {
+//                            String tmpContainerName = CUtility.getContainerName(value1);
+//
+//                            // all containers
+//                            if (tmpContainerName.equals("*")) {
+//                                for (Set<String> ser : m.values()) {
+//                                    for (String s : ser) {
+//                                        tmpServices.add(s);
+//                                    }
+//                                }
+//                                // specific container
+//                            } else {
+//                                Set<String> ser = m.get(tmpContainerName);
+//                                for (String s : ser) {
+//                                    tmpServices.add(s);
+//                                }
+//                            }
+//                        }
+//
+//                        // specific DPE
+//                    } else {
+//                        String tmpContainerName = CUtility.getContainerName(value1);
+//
+//                        // all containers
+//                        if (tmpContainerName.equals("*")) {
+//                            for (Set<String> ser : _myCloud.get(tmpDpeN).values()) {
+//                                for (String s : ser) {
+//                                    tmpServices.add(s);
+//                                }
+//                            }
+//                            // specific container
+//                        } else {
+//                            Set<String> ser = _myCloud.get(tmpDpeN).get(tmpContainerName);
+//                            for (String s : ser) {
+//                                tmpServices.add(s);
+//                            }
+//                        }
+//                    }
+//
+//                }
+//                returnMsg = new xMsgMessage(xMsgTopic.wrap(returnTopic),
+//                        tmpServices.toArray(new String[tmpServices.size()]));
+//            } catch (CException e) {
+//                e.printStackTrace();
+//            }
+//        }
     }
 }
