@@ -25,7 +25,11 @@ import org.jlab.clara.base.CException;
 import org.jlab.clara.engine.EDataType;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.ICEngine;
-import org.jlab.clara.sys.ccc.*;
+import org.jlab.clara.sys.ccc.CCompiler;
+import org.jlab.clara.sys.ccc.Condition;
+import org.jlab.clara.sys.ccc.Instruction;
+import org.jlab.clara.sys.ccc.ServiceState;
+import org.jlab.clara.sys.ccc.Statement;
 import org.jlab.clara.util.CClassLoader;
 import org.jlab.clara.util.CConstants;
 import org.jlab.clara.util.CServiceSysConfig;
@@ -38,13 +42,16 @@ import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 import org.jlab.coda.xmsg.excp.xMsgException;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * <p>
- * </p>
+ * A Service engine.
+ * A Service can have multiple engines.
+ * The Service distributes its requests to the available engines.
+ * Every engine process a request in its own thread.
  *
  * @author gurjyan
  * @version 1.x
@@ -58,7 +65,7 @@ public class ServiceEngine extends CBase {
     public AtomicBoolean isAvailable;
 
     // Already recorded (previous) composition
-    private String p_composition = xMsgConstants.UNDEFINED.toString();
+    private String prevComposition = xMsgConstants.UNDEFINED.toString();
 
     // user provided engine class container class name
     private String engineClassPath = xMsgConstants.UNDEFINED.toString();
@@ -81,13 +88,10 @@ public class ServiceEngine extends CBase {
 
 
     /**
-     * <p>
-     * Constructor
-     * </p>
+     * Constructor.
      *
      * @param packageName service engine package name
-     * @param name   Clara service canonical name
-     *               (such as dep:container:engine)
+     * @param name the service canonical name
      * @param sharedMemoryKey key in the shared memory map of DPE to
      *                        locate this service resulting data object
      * @param feHost front-end host name. This is the host that holds
@@ -177,7 +181,7 @@ public class ServiceEngine extends CBase {
         // Increment request count in the sysConfig object
         config.addRequest();
 
-        String c_composition = metadata.getComposition();
+        String currentComposition = metadata.getComposition();
 
         ServiceState senderServiceState =
                 new ServiceState(metadata.getSender(), metadata.getSenderState());
@@ -185,10 +189,10 @@ public class ServiceEngine extends CBase {
 
         if (metadata.getAction().equals(xMsgMeta.ControlAction.EXECUTE)) {
 
-            if (!c_composition.equals(p_composition)) {
+            if (!currentComposition.equals(prevComposition)) {
                 // analyze composition
-                compiler.compile(c_composition);
-                p_composition = c_composition;
+                compiler.compile(currentComposition);
+                prevComposition = currentComposition;
             }
 
 
@@ -196,26 +200,26 @@ public class ServiceEngine extends CBase {
 
                 // get the condition of the instruction
                 // if condition...
-                Condition if_cnd = inst.getIfCondition();
-                Condition elseif_cnd = inst.getElseifCondition();
+                Condition ifCond = inst.getIfCondition();
+                Condition elseifCond = inst.getElseifCondition();
 
                 // the set of routing statements
-                Set<Statement> r_stmt;
+                Set<Statement> routingStatements;
 
-                if (if_cnd != null) {
+                if (ifCond != null) {
                     // Conditional routing.
 
-                    if (if_cnd.isTrue(getMyServiceState(), senderServiceState)) {
-                        r_stmt = inst.getIfCondStatements();
-                    } else if (elseif_cnd.isTrue(getMyServiceState(), senderServiceState)) {
-                        r_stmt = inst.getElseifCondStatements();
+                    if (ifCond.isTrue(getMyServiceState(), senderServiceState)) {
+                        routingStatements = inst.getIfCondStatements();
+                    } else if (elseifCond.isTrue(getMyServiceState(), senderServiceState)) {
+                        routingStatements = inst.getElseifCondStatements();
                     } else {
-                        r_stmt = inst.getElseCondStatements();
+                        routingStatements = inst.getElseCondStatements();
                     }
                 } else {
 
                     // unconditional routing
-                    r_stmt = inst.getUnCondStatements();
+                    routingStatements = inst.getUnCondStatements();
                 }
 
                 // execute service engine and route the statements
@@ -224,13 +228,13 @@ public class ServiceEngine extends CBase {
                 // Execute service engine
                 EngineData inData = new EngineData(metadata, data);
 
-                execAndRoute(config, r_stmt, senderServiceState, inData);
+                execAndRoute(config, routingStatements, senderServiceState, inData);
             }
         }
         isAvailable.set(true);
     }
 
-    private EngineData executeEngine( Set<EngineData> inData)
+    private EngineData executeEngine(Set<EngineData> inData)
             throws IOException, xMsgException {
         EngineData outData = null;
 
@@ -267,21 +271,21 @@ public class ServiceEngine extends CBase {
             fst.getMetaData().setDescription(t.getMessage());
             fst.getMetaData().setStatus(xMsgMeta.Status.ERROR);
             fst.getMetaData().setSeverityId(3);
-            report_problem(fst);
+            reportProblem(fst);
             t.printStackTrace();
         }
         return outData;
     }
 
     private void execAndRoute(CServiceSysConfig config,
-                              Set<Statement> r_stmt,
+                              Set<Statement> routingStatements,
                               ServiceState inServiceState,
                               EngineData inData)
             throws IOException, xMsgException, CException {
 
         EngineData outData;
-        for (Statement st : r_stmt) {
-            if(st.getInputLinks().contains(inServiceState.getName())) {
+        for (Statement st : routingStatements) {
+            if (st.getInputLinks().contains(inServiceState.getName())) {
 
                 Set<EngineData> ens = new HashSet<>();
                 ens.add(inData);
@@ -327,9 +331,7 @@ public class ServiceEngine extends CBase {
 
 
     /**
-     * <p>
      * Calls a service that is linked according to the composition.
-     * </p>
      *
      * @param config     additional pre-ordered actions,
      *                   such as reportData or reportDone
@@ -346,14 +348,14 @@ public class ServiceEngine extends CBase {
             throws xMsgException, IOException, CException {
 
         // External broadcast data
-        if (config.isDataRequest()){
-            report_data(engineData);
+        if (config.isDataRequest()) {
+            reportData(engineData);
             config.resetDataRequestCount();
         }
 
         // External done broadcasting
         if (config.isDoneRequest()) {
-            report_done(engineData);
+            reportDone(engineData);
             config.resetDoneRequestCount();
         }
 
@@ -384,13 +386,9 @@ public class ServiceEngine extends CBase {
 
 
     /**
-     * <p>
-     *    Broadcasts the average engine execution time to
-     *    done:<service_name></service_name>, averageExecutionTime
-     *
-     * </p>
+     * Broadcast a done report of an engine execution.
      */
-    public void report_done(EngineData data)
+    public void reportDone(EngineData data)
             throws xMsgException, IOException {
 
         // we are not sending data
@@ -411,17 +409,13 @@ public class ServiceEngine extends CBase {
     }
 
     /**
-     * <p>
-     *     Broadcasts a xMsgData transient data
-     *     containing data generated by the engine,
-     *     i.e. unaltered user engine output data.
-     *     Severity = 1 is used to report data.
-     *    Note: that the data contains service engine
-     *    execution current/instantaneous time
-     * </p>
-     * @param data EngineData object
+     * Broadcasts the output data generated by the engine.
+     * Severity = 1 is used to report data.
+     * Note: that the data contains service engine execution current/instantaneous time.
+     *
+     * @param data the output data of the engine
      */
-    public void report_data(EngineData data)
+    public void reportData(EngineData data)
             throws xMsgException, IOException {
 
         // Create transit data
@@ -439,13 +433,11 @@ public class ServiceEngine extends CBase {
     }
 
     /**
-     * <p>
-     *    Broadcasts the average engine execution time to
-     *    done:<service_name></service_name>, averageExecutionTime
+     * Broadcasts a problem reported by the engine.
      *
-     * </p>
+     * @param data the output data of the engine
      */
-    public void report_problem(EngineData data)
+    public void reportProblem(EngineData data)
             throws xMsgException, IOException {
 
         // we are not sending data
@@ -475,22 +467,22 @@ public class ServiceEngine extends CBase {
 
 
     /**
-     * <p>
-     *  Removes service xMsg registration
-     * <p/>
+     * Removes service xMsg registration.
      */
-    public void remove_registration()
+    public void removeRegistration()
             throws xMsgException {
 
         removeSubscriber(xMsgTopic.wrap(getName()));
     }
 
     /**
+     * Destroys the engine.
      *
      * @throws xMsgException
+     * @throws IOException
      */
     public void dispose() throws xMsgException, IOException {
-        remove_registration();
+        removeRegistration();
 
         String data = CConstants.SERVICE_DOWN + "?" + getName();
 
