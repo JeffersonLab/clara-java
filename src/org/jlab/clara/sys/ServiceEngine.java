@@ -24,7 +24,7 @@ package org.jlab.clara.sys;
 import org.jlab.clara.base.CException;
 import org.jlab.clara.engine.EDataType;
 import org.jlab.clara.engine.EngineData;
-import org.jlab.clara.engine.ICEngine;
+import org.jlab.clara.engine.Engine;
 import org.jlab.clara.sys.ccc.CCompiler;
 import org.jlab.clara.sys.ccc.Condition;
 import org.jlab.clara.sys.ccc.Instruction;
@@ -73,7 +73,7 @@ public class ServiceEngine extends CBase {
     private String engineClassPath = xMsgConstants.UNDEFINED.toString();
 
     // Engine instantiated object
-    private final ICEngine engineObject;
+    private final Engine engineObject;
 
     // key in the shared memory map of DPE to
     // locate this service resulting data object
@@ -256,7 +256,7 @@ public class ServiceEngine extends CBase {
             if(inData.size()==1) {
                 outData = engineObject.execute(inData.iterator().next());
             } else {
-                outData = engineObject.execute_group(inData);
+                outData = engineObject.executeGroup(inData);
 
             }
             // get engine execution end time

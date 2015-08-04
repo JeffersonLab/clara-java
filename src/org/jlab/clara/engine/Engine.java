@@ -31,28 +31,27 @@ import java.util.Set;
  * @version 1.x
  * @since 1/31/15
  */
-public interface ICEngine {
+public interface Engine {
 
-    public EngineData execute(EngineData x);
+    EngineData configure(EngineData x);
 
-    public EngineData execute_group(Set<EngineData> x);
+    EngineData execute(EngineData x);
 
-    public void configure(EngineData x);
+    EngineData executeGroup(Set<EngineData> x);
 
-    public List<String> getStates();
+    String getInDataType();
 
-    public String getInDataType();
+    String getOutDataType();
 
-    public String getOutDataType();
+    List<String> getStates();
 
-    public String getDescription();
+    String getDescription();
 
-    public String getVersion();
+    String getVersion();
 
-    public String getAuthor();
+    String getAuthor();
 
-    public void reset();
+    void reset();
 
-    public void dispose();
-
+    void destroy();
 }

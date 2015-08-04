@@ -22,7 +22,7 @@
 package org.jlab.clara.examples.engines;
 
 import org.jlab.clara.engine.EngineData;
-import org.jlab.clara.engine.ICEngine;
+import org.jlab.clara.engine.Engine;
 import org.jlab.clara.util.CConstants;
 
 import java.util.List;
@@ -37,7 +37,7 @@ import java.util.Set;
  * @version 1.x
  * @since 2/9/15
  */
-public class E1 implements ICEngine {
+public class E1 implements Engine {
     private long nr = 0;
     private long t1;
     private long t2;
@@ -61,14 +61,15 @@ public class E1 implements ICEngine {
     }
 
     @Override
-    public EngineData execute_group(Set<EngineData> x) {
+    public EngineData executeGroup(Set<EngineData> x) {
         System.out.println("E1 engine group execute...");
         return x.iterator().next();
     }
 
     @Override
-    public void configure(EngineData x) {
+    public EngineData configure(EngineData x) {
         System.out.println("E1 engine configure...");
+        return x;
     }
 
     @Override
@@ -107,7 +108,7 @@ public class E1 implements ICEngine {
     }
 
     @Override
-    public void dispose() {
+    public void destroy() {
 
     }
 }
