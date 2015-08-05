@@ -22,9 +22,9 @@
 package org.jlab.clara.sys;
 
 import org.jlab.clara.base.CException;
-import org.jlab.clara.engine.EDataType;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.Engine;
+import org.jlab.clara.engine.EngineStatus;
 import org.jlab.clara.sys.ccc.CCompiler;
 import org.jlab.clara.sys.ccc.Condition;
 import org.jlab.clara.sys.ccc.Instruction;
@@ -271,9 +271,8 @@ public class ServiceEngine extends CBase {
 
         } catch (Throwable t) {
             EngineData fst = inData.iterator().next();
-            fst.getMetaData().setDescription(t.getMessage());
-            fst.getMetaData().setStatus(xMsgMeta.Status.ERROR);
-            fst.getMetaData().setSeverityId(3);
+            fst.setDescription(t.getMessage());
+            fst.setStatus(EngineStatus.ERROR, 3);
             reportProblem(fst);
             t.printStackTrace();
         }
@@ -374,7 +373,7 @@ public class ServiceEngine extends CBase {
             throws xMsgException, IOException {
 
         // we are not sending data
-        data.newData(EDataType.UNDEFINED, null);
+        data.setData(xMsgConstants.UNDEFINED.toString(), null);
 
         // Create transit data
         xMsgTopic topic = xMsgTopic.wrap(xMsgConstants.DONE.toString() + ":" + getName());
@@ -421,13 +420,13 @@ public class ServiceEngine extends CBase {
             throws xMsgException, IOException {
 
         // we are not sending data
-        data.newData(EDataType.UNDEFINED, null);
+        data.setData(xMsgConstants.UNDEFINED.toString(), null);
 
         // Create transit data
         xMsgTopic topic;
-        if (data.getMetaData().getStatus().equals(xMsgMeta.Status.ERROR)) {
+        if (data.getStatus().equals(xMsgMeta.Status.ERROR)) {
             topic = xMsgTopic.wrap(xMsgConstants.ERROR.toString() + ":" + getName());
-        } else if (data.getMetaData().getStatus().equals(xMsgMeta.Status.WARNING)) {
+        } else if (data.getStatus().equals(xMsgMeta.Status.WARNING)) {
             topic = xMsgTopic.wrap(xMsgConstants.WARNING.toString() + ":" + getName());
         } else {
             return;
