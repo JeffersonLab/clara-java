@@ -150,13 +150,14 @@ public class ServiceEngine extends CBase {
 
             engineObject.configure(new EngineData(metadata, data));
             // If this is a sync request, send done to the requester
-            if (!metadata.getReplyTo().equals(xMsgConstants.UNDEFINED.toString()) &&
-                    CUtility.isCanonical(metadata.getReplyTo())) {
+            String replyTo = metadata.getReplyTo();
+            if (!replyTo.equals(xMsgConstants.UNDEFINED.toString()) &&
+                    CUtility.isCanonical(replyTo)) {
                 int remainingInstances = configureCountDown.decrementAndGet();
                 if (remainingInstances == 0) {
-                    xMsgTopic topic = xMsgTopic.wrap(metadata.getReplyTo());
+                    xMsgTopic topic = xMsgTopic.wrap(replyTo);
                     xMsgMessage msg = new xMsgMessage(topic, xMsgConstants.DONE.toString());
-                    String dpe = CUtility.getDpeName(metadata.getReplyTo());
+                    String dpe = CUtility.getDpeName(replyTo);
                     genericSend(dpe, msg);
                 }
             }
