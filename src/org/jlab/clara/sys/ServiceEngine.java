@@ -59,6 +59,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class ServiceEngine extends CBase {
 
+    private CServiceSysConfig sysConfig;
+
     private ServiceState myServiceState =
             new ServiceState(getName(),xMsgConstants.UNDEFINED.toString());
 
@@ -100,12 +102,14 @@ public class ServiceEngine extends CBase {
      */
     public ServiceEngine(String name,
                          String classPath,
+                         CServiceSysConfig config,
                          String localAddress,
                          String frontEndAddres,
                          String sharedMemoryKey)
             throws CException {
         super(name, localAddress, frontEndAddres);
 
+        this.sysConfig = config;
         this.sharedMemoryKey = sharedMemoryKey;
 
         // Dynamic loading of the Clara engine class
@@ -168,9 +172,7 @@ public class ServiceEngine extends CBase {
      * Service process method. Note that configure
      * will never be execute within this method.
      */
-    public void process(CServiceSysConfig config,
-                        xMsgMeta.Builder metadata,
-                        Object data)
+    public void process(xMsgMeta.Builder metadata, Object data)
             throws CException,
             xMsgException,
             IOException,
@@ -180,7 +182,7 @@ public class ServiceEngine extends CBase {
         isAvailable.set(false);
 
         // Increment request count in the sysConfig object
-        config.addRequest();
+        sysConfig.addRequest();
 
         String currentComposition = metadata.getComposition();
 
@@ -229,7 +231,7 @@ public class ServiceEngine extends CBase {
                 // Execute service engine
                 EngineData inData = new EngineData(metadata, data);
 
-                execAndRoute(config, routingStatements, senderServiceState, inData);
+                execAndRoute(routingStatements, senderServiceState, inData);
             }
         }
         isAvailable.set(true);
@@ -278,8 +280,7 @@ public class ServiceEngine extends CBase {
         return outData;
     }
 
-    private void execAndRoute(CServiceSysConfig config,
-                              Set<Statement> routingStatements,
+    private void execAndRoute(Set<Statement> routingStatements,
                               ServiceState inServiceState,
                               EngineData inData)
             throws IOException, xMsgException, CException {
@@ -292,7 +293,7 @@ public class ServiceEngine extends CBase {
                 ens.add(inData);
                 outData =  executeEngine(ens);
 
-                callLinked(config, outData, st.getOutputLinks());
+                callLinked(outData, st.getOutputLinks());
 
             } else if(st.getLogAndInputs().containsKey(inServiceState.getName())){
 
@@ -318,7 +319,7 @@ public class ServiceEngine extends CBase {
                     }
                     outData = executeEngine(ens);
 
-                    callLinked(config,outData,st.getOutputLinks());
+                    callLinked(outData, st.getOutputLinks());
 
                     // reset data in the logAndInputs map
                     for(String s : st.getLogAndInputs().keySet()){
@@ -343,21 +344,20 @@ public class ServiceEngine extends CBase {
      * @throws IOException
      * @throws CException
      */
-    private void callLinked(CServiceSysConfig config,
-                            EngineData engineData,
+    private void callLinked(EngineData engineData,
                             Set<String> outLinks)
             throws xMsgException, IOException, CException {
 
         // External broadcast data
-        if (config.isDataRequest()) {
+        if (sysConfig.isDataRequest()) {
             reportData(engineData);
-            config.resetDataRequestCount();
+            sysConfig.resetDataRequestCount();
         }
 
         // External done broadcasting
-        if (config.isDoneRequest()) {
+        if (sysConfig.isDoneRequest()) {
             reportDone(engineData);
-            config.resetDoneRequestCount();
+            sysConfig.resetDoneRequestCount();
         }
 
         // Send to all output-linked services.

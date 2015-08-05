@@ -96,6 +96,7 @@ public class Service extends CBase {
 
         this.name = name;
         this.sharedMemoryLocation = name + id;
+        this.sysConfig = new CServiceSysConfig();
 
         // Creating thread pool
         this.executionPool = Executors.newFixedThreadPool(poolSize);
@@ -108,6 +109,7 @@ public class Service extends CBase {
         for (int i = 0; i < poolSize; i++) {
             ServiceEngine engine = new ServiceEngine(name,
                                                      className,
+                                                     sysConfig,
                                                      localAddress,
                                                      frontEndAddress,
                                                      sharedMemoryLocation);
@@ -115,7 +117,6 @@ public class Service extends CBase {
             enginePool[i] = engine;
         }
 
-        this.sysConfig = new CServiceSysConfig();
         this.subscription = serviceReceive(name, new ServiceCallBack());
 
         System.out.println(CUtility.getCurrentTimeInH() + ": Started service = " + name + "\n");
@@ -188,7 +189,7 @@ public class Service extends CBase {
                         @Override
                         public void run() {
                             try {
-                                engine.process(sysConfig, msg.getMetaData(), msg.getData());
+                                engine.process(msg.getMetaData(), msg.getData());
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
