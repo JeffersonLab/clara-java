@@ -121,8 +121,7 @@ public class BaseOrchestrator {
 
     private xMsgMessage buildMessage(xMsgTopic topic, EngineData data) {
         xMsgMessage msg = new xMsgMessage(topic);
-        msg.setMetaData(data.getMetaData());
-        msg.setData(data.getxData().build());
+        base.serialize(data, msg);
         return msg;
     }
 

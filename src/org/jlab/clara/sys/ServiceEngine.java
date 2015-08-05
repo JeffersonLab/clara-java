@@ -360,31 +360,12 @@ public class ServiceEngine extends CBase {
             sysConfig.resetDoneRequestCount();
         }
 
-        // Send to all output-linked services.
-        // Note: multiple sub compositions
-        xMsgMessage transit = engineDataToxMsg(engineData);
-
         for(String ss:outLinks) {
-            if (CUtility.isRemoteService(ss)) {
-                engineData.getMetaData().setIsDataSerialized(true);
-            } else {
-                engineData.getMetaData().setIsDataSerialized(false);
-            }
-            transit.setTopic(xMsgTopic.wrap(ss));
+            xMsgMessage transit = new xMsgMessage(xMsgTopic.wrap(ss));
+            serialize(engineData, transit);
             serviceSend(transit);
         }
     }
-
-
-    private xMsgMessage engineDataToxMsg(EngineData engineData){
-        xMsgTopic topic = xMsgTopic.wrap(engineData.getMetaData().getReplyTo());
-        xMsgMessage transit = new xMsgMessage(topic);
-        transit.setMetaData(engineData.getMetaData());
-        transit.setData(engineData.getxData().build());
-        return transit;
-    }
-
-
 
     /**
      * Broadcast a done report of an engine execution.
@@ -398,8 +379,7 @@ public class ServiceEngine extends CBase {
         // Create transit data
         xMsgTopic topic = xMsgTopic.wrap(xMsgConstants.DONE.toString() + ":" + getName());
         xMsgMessage transit = new xMsgMessage(topic);
-        transit.setMetaData(data.getMetaData());
-        transit.setData(data.getxData().build());
+        serialize(data, transit);
 
         String dpe = "localhost";
         if(!getFrontEndAddress().equals(xMsgConstants.UNDEFINED.toString())) {
@@ -422,8 +402,7 @@ public class ServiceEngine extends CBase {
         // Create transit data
         xMsgTopic topic = xMsgTopic.wrap(xMsgConstants.DATA.toString() + ":" + getName());
         xMsgMessage transit = new xMsgMessage(topic);
-        transit.setMetaData(data.getMetaData());
-        transit.setData(data.getxData().build());
+        serialize(data, transit);
 
         String dpe = "localhost";
         if (!getFrontEndAddress().equals(xMsgConstants.UNDEFINED.toString())) {
@@ -455,8 +434,7 @@ public class ServiceEngine extends CBase {
         }
 
         xMsgMessage transit = new xMsgMessage(topic);
-        transit.setMetaData(data.getMetaData());
-        transit.setData(data.getxData().build());
+        serialize(data, transit);
         String dpe = "localhost";
         if (!getFrontEndAddress().equals(xMsgConstants.UNDEFINED.toString())) {
             dpe = getFrontEndAddress();

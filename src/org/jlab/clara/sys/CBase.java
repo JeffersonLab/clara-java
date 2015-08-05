@@ -29,6 +29,7 @@ import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
 import org.jlab.clara.base.CException;
+import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.util.CConstants;
 import org.jlab.clara.util.CUtility;
 import org.jlab.coda.xmsg.core.xMsg;
@@ -514,6 +515,16 @@ public class CBase extends xMsg {
         }
 
         return genericReceive(connection, xMsgTopic.wrap(serviceName), callback);
+    }
+
+
+    public EngineData parseFrom(xMsgMessage msg) {
+        return null;
+    }
+
+
+    public void serialize(EngineData data, xMsgMessage msg) {
+
     }
 
 
