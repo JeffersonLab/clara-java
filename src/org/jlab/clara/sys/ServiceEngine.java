@@ -141,18 +141,16 @@ public class ServiceEngine extends CBase {
         myServiceState.setState(state);
     }
 
-    public void configure(xMsgMeta.Builder metadata,
-                          Object data,
-                          AtomicInteger configureCountDown)
+    public void configure(xMsgMessage msg, AtomicInteger configureCountDown)
             throws CException,
             xMsgException,
             InterruptedException,
             IOException,
             ClassNotFoundException {
 
+        xMsgMeta.Builder metadata = msg.getMetaData();
         if (metadata.getAction().equals(xMsgMeta.ControlAction.CONFIGURE)) {
-
-            engineObject.configure(new EngineData(metadata, data));
+            engineObject.configure(parseFrom(msg));
             // If this is a sync request, send done to the requester
             String replyTo = metadata.getReplyTo();
             if (!replyTo.equals(xMsgConstants.UNDEFINED.toString()) &&
@@ -160,9 +158,9 @@ public class ServiceEngine extends CBase {
                 int remainingInstances = configureCountDown.decrementAndGet();
                 if (remainingInstances == 0) {
                     xMsgTopic topic = xMsgTopic.wrap(replyTo);
-                    xMsgMessage msg = new xMsgMessage(topic, xMsgConstants.DONE.toString());
+                    xMsgMessage outMsg = new xMsgMessage(topic, xMsgConstants.DONE.toString());
                     String dpe = CUtility.getDpeName(replyTo);
-                    genericSend(dpe, msg);
+                    genericSend(dpe, outMsg);
                 }
             }
         }
@@ -172,7 +170,7 @@ public class ServiceEngine extends CBase {
      * Service process method. Note that configure
      * will never be execute within this method.
      */
-    public void process(xMsgMeta.Builder metadata, Object data)
+    public void process(xMsgMessage message)
             throws CException,
             xMsgException,
             IOException,
@@ -180,6 +178,8 @@ public class ServiceEngine extends CBase {
             ClassNotFoundException {
 
         isAvailable.set(false);
+
+        xMsgMeta.Builder metadata = message.getMetaData();
 
         // Increment request count in the sysConfig object
         sysConfig.addRequest();
@@ -229,7 +229,7 @@ public class ServiceEngine extends CBase {
                 // note that service engine will not be executed if
                 // data for all inputs are present in the logical AND case.
                 // Execute service engine
-                EngineData inData = new EngineData(metadata, data);
+                EngineData inData = parseFrom(message);
 
                 execAndRoute(routingStatements, senderServiceState, inData);
             }

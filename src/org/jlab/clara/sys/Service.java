@@ -169,7 +169,7 @@ public class Service extends CBase {
                 @Override
                 public void run() {
                     try {
-                        engine.configure(msg.getMetaData(), msg.getData(), rps);
+                        engine.configure(msg, rps);
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -189,7 +189,7 @@ public class Service extends CBase {
                         @Override
                         public void run() {
                             try {
-                                engine.process(msg.getMetaData(), msg.getData());
+                                engine.process(msg);
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
