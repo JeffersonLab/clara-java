@@ -27,7 +27,7 @@ package org.jlab.clara.engine;
  * @version 1.x
  * @since 2/27/15
  */
-public enum EStatus {
+public enum EngineStatus {
     INFO,
     WARNING,
     ERROR
