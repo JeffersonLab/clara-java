@@ -39,9 +39,9 @@ public interface Engine {
 
     EngineData executeGroup(Set<EngineData> x);
 
-    String getInDataType();
+    List<EngineDataType> getInputDataTypes();
 
-    String getOutDataType();
+    List<EngineDataType> getOutputDataTypes();
 
     List<String> getStates();
 
