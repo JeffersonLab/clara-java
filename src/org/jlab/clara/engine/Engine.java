@@ -28,16 +28,14 @@ import java.util.Set;
  * Service engine interface.
  *
  * @author gurjyan
- * @version 1.x
- * @since 1/31/15
  */
 public interface Engine {
 
-    EngineData configure(EngineData x);
+    EngineData configure(EngineData data);
 
-    EngineData execute(EngineData x);
+    EngineData execute(EngineData data);
 
-    EngineData executeGroup(Set<EngineData> x);
+    EngineData executeGroup(Set<EngineData> data);
 
     List<EngineDataType> getInputDataTypes();
 
