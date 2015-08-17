@@ -21,6 +21,7 @@
 
 package org.jlab.clara.engine;
 
+import org.jlab.clara.sys.CBase.EngineDataAccessor;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 
 /**
@@ -30,6 +31,19 @@ public class EngineData {
 
     private Object data;
     private xMsgMeta.Builder metadata = xMsgMeta.newBuilder();
+
+    public EngineData() {
+        this.metadata = xMsgMeta.newBuilder();
+    }
+
+    private EngineData(Object data, xMsgMeta.Builder metadata) {
+        this.data = data;
+        this.metadata = metadata;
+    }
+
+    private xMsgMeta.Builder getMetadata() {
+        return metadata;
+    }
 
     public Object getData() {
         return data;
@@ -124,5 +138,23 @@ public class EngineData {
 
     public long getExecutionTime() {
         return metadata.getExecutionTime();
+    }
+
+
+    static {
+        EngineDataAccessor.setDefault(new Accessor());
+    }
+
+    private static class Accessor extends EngineDataAccessor {
+
+        @Override
+        protected xMsgMeta.Builder getMetadata(EngineData data) {
+            return data.getMetadata();
+        }
+
+        @Override
+        protected EngineData build(Object data, xMsgMeta.Builder metadata) {
+            return new EngineData(data, metadata);
+        }
     }
 }

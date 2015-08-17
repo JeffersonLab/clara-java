@@ -39,6 +39,7 @@ import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgSubscription;
 import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.core.xMsgUtil;
+import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 import org.jlab.coda.xmsg.data.xMsgR.xMsgRegistration;
 import org.jlab.coda.xmsg.excp.xMsgException;
 import org.jlab.coda.xmsg.net.xMsgAddress;
@@ -56,6 +57,7 @@ import org.zeromq.ZMQ.Socket;
 public class CBase extends xMsg {
 
     private xMsgConnection nodeConnection = null;
+    private EngineDataAccessor dataAccessor;
 
     private static xMsgConnectionSetup setup = new xMsgConnectionSetup() {
             @Override
@@ -80,6 +82,7 @@ public class CBase extends xMsg {
     public CBase(String name, String localAddress, String frontEndAddress) {
         super(name, localAddress, frontEndAddress);
         nodeConnection = connect();
+        dataAccessor = EngineDataAccessor.getDefault();
     }
 
     /**
@@ -633,5 +636,40 @@ public class CBase extends xMsg {
         xMsgMessage msg = new xMsgMessage(topic, data);
 
         genericSend(dpeName, msg);
+    }
+
+
+    /*
+     * Convoluted way to access the internal EngineData metadata,
+     * which is hidden to users.
+     */
+    public xMsgMeta.Builder getMetadata(EngineData data) {
+        return dataAccessor.getMetadata(data);
+    }
+
+    public abstract static class EngineDataAccessor {
+
+        // CHECKSTYLE.OFF: StaticVariableName
+        private static volatile EngineDataAccessor DEFAULT;
+        // CHECKSTYLE.ON: StaticVariableName
+
+        public static EngineDataAccessor getDefault() {
+            EngineDataAccessor a = DEFAULT;
+            if (a == null) {
+                throw new IllegalStateException("EngineDataAccessor should not be null");
+            }
+            return a;
+        }
+
+        public static void setDefault(EngineDataAccessor accessor) {
+            if (DEFAULT != null) {
+                throw new IllegalStateException("EngineDataAccessor should be null");
+            }
+            DEFAULT = accessor;
+        }
+
+        protected abstract xMsgMeta.Builder getMetadata(EngineData data);
+
+        protected abstract EngineData build(Object data, xMsgMeta.Builder metadata);
     }
 }
