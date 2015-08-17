@@ -21,7 +21,6 @@
 
 package org.jlab.clara.engine;
 
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -37,11 +36,11 @@ public interface Engine {
 
     EngineData executeGroup(Set<EngineData> data);
 
-    List<EngineDataType> getInputDataTypes();
+    Set<EngineDataType> getInputDataTypes();
 
-    List<EngineDataType> getOutputDataTypes();
+    Set<EngineDataType> getOutputDataTypes();
 
-    List<String> getStates();
+    Set<String> getStates();
 
     String getDescription();
 

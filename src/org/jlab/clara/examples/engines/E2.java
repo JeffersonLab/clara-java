@@ -25,7 +25,6 @@ import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.Engine;
 import org.jlab.clara.engine.EngineDataType;
 
-import java.util.List;
 import java.util.Set;
 
 /**
@@ -56,17 +55,17 @@ public class E2 implements Engine {
     }
 
     @Override
-    public List<String> getStates() {
+    public Set<String> getStates() {
         return null;
     }
 
     @Override
-    public List<EngineDataType> getInputDataTypes() {
+    public Set<EngineDataType> getInputDataTypes() {
         return null;
     }
 
     @Override
-    public List<EngineDataType> getOutputDataTypes() {
+    public Set<EngineDataType> getOutputDataTypes() {
         return null;
     }
 
