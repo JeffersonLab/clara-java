@@ -309,7 +309,7 @@ public class ServiceEngine extends CBase {
             averageExecutionTime = (averageExecutionTime + execTime) / numberOfRequests;
 
             // update service state based on the engine set state
-            updateMyState(outData.getState());
+            updateMyState(outData.getEngineState());
 
         } catch (Throwable t) {
             EngineData fst = inData.iterator().next();

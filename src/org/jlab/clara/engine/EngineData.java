@@ -94,27 +94,35 @@ public class EngineData {
         metadata.setSeverityId(severity);
     }
 
-    public String getState() {
+    public String getEngineState() {
         return metadata.getSenderState();
     }
 
-    public void setState(String state) {
+    public void setEngineState(String state) {
         metadata.setSenderState(state);
     }
 
-    public int getRequestId() {
+    public String getEngineAuthor() {
+        return metadata.getAuthor();
+    }
+
+    public String getEngineVersion() {
+        return metadata.getVersion();
+    }
+
+    public int getCommunicationId() {
         return metadata.getCommunicationId();
+    }
+
+    public void setCommunicationId(String state) {
+        metadata.setSenderState(state);
+    }
+
+    public String getComposition() {
+        return metadata.getComposition();
     }
 
     public long getExecutionTime() {
         return metadata.getExecutionTime();
-    }
-
-    public String getAuthor() {
-        return metadata.getAuthor();
-    }
-
-    public String getVersion() {
-        return metadata.getVersion();
     }
 }
