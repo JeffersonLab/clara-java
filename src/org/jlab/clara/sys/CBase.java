@@ -23,13 +23,16 @@ package org.jlab.clara.sys;
 
 import java.io.IOException;
 import java.net.SocketException;
+import java.nio.ByteBuffer;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
 import org.jlab.clara.base.CException;
+import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineData;
+import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.util.CConstants;
 import org.jlab.clara.util.CUtility;
 import org.jlab.coda.xmsg.core.xMsg;
@@ -521,13 +524,42 @@ public class CBase extends xMsg {
     }
 
 
-    public EngineData parseFrom(xMsgMessage msg) {
-        return null;
+    public EngineData parseFrom(xMsgMessage msg, Set<EngineDataType> dataTypes)
+            throws CException {
+        xMsgMeta.Builder metadata = msg.getMetaData();
+        String mimeType = metadata.getDataType();
+        for (EngineDataType dt : dataTypes) {
+            if (dt.dataType().equals(mimeType)) {
+                try {
+                    ByteBuffer bb = ByteBuffer.wrap(msg.getData());
+                    Object userData = dt.serializer().read(bb);
+                    return dataAccessor.build(userData, metadata);
+                } catch (ClaraException e) {
+                    throw new CException(e.getMessage());
+                }
+            }
+        }
+        throw new CException("Unsupported mime-type = " + mimeType);
     }
 
 
-    public void serialize(EngineData data, xMsgMessage msg) {
-
+    public void serialize(EngineData data, xMsgMessage msg, Set<EngineDataType> dataTypes)
+            throws CException {
+        xMsgMeta.Builder metadata = dataAccessor.getMetadata(data);
+        String mimeType = metadata.getDataType();
+        for (EngineDataType dt : dataTypes) {
+            if (dt.dataType().equals(mimeType)) {
+                try {
+                    ByteBuffer bb = dt.serializer().write(data.getData());
+                    msg.setMetaData(metadata);
+                    msg.setData(mimeType, bb.array());
+                    return;
+                } catch (ClaraException e) {
+                    throw new CException(e.getMessage());
+                }
+            }
+        }
+        throw new CException("Unsupported mime-type = " + mimeType);
     }
 
 

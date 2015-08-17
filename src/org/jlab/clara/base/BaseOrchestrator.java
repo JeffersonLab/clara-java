@@ -22,14 +22,17 @@
 package org.jlab.clara.base;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Objects;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineData;
+import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.sys.CBase;
 import org.jlab.clara.util.CConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
@@ -46,6 +49,7 @@ import org.jlab.coda.xmsg.excp.xMsgException;
 public class BaseOrchestrator {
 
     private final CBase base;
+    private final Set<EngineDataType> dataTypes = new HashSet<>();
 
     /**
      * Creates a new orchestrator. Uses localhost as front-end node.
@@ -119,10 +123,14 @@ public class BaseOrchestrator {
     }
 
 
-    private xMsgMessage buildMessage(xMsgTopic topic, EngineData data) {
-        xMsgMessage msg = new xMsgMessage(topic);
-        base.serialize(data, msg);
-        return msg;
+    private xMsgMessage buildMessage(xMsgTopic topic, EngineData data) throws ClaraException {
+        try {
+            xMsgMessage msg = new xMsgMessage(topic);
+            base.serialize(data, msg, dataTypes);
+            return msg;
+        } catch (CException e) {
+            throw new ClaraException("Could not serialize data", e);
+        }
     }
 
 
@@ -130,6 +138,16 @@ public class BaseOrchestrator {
         if (timeout <= 0) {
             throw new IllegalArgumentException("Invalid timeout: " + timeout);
         }
+    }
+
+
+    /**
+     * Registers a new data-type to be sent to services.
+     *
+     * @param dataType the information about the type
+     */
+    public void registerDataType(EngineDataType dataType) {
+        dataTypes.add(dataType);
     }
 
 

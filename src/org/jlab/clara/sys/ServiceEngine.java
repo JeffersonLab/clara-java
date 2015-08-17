@@ -148,7 +148,7 @@ public class ServiceEngine extends CBase {
             IOException,
             ClassNotFoundException {
 
-        engineObject.configure(parseFrom(msg));
+        engineObject.configure(parseFrom(msg, engineObject.getInputDataTypes()));
         // If this is a sync request, send done to the requester
         String replyTo = msg.getMetaData().getReplyTo();
         if (!replyTo.equals(xMsgConstants.UNDEFINED.toString()) &&
@@ -221,7 +221,7 @@ public class ServiceEngine extends CBase {
             // note that service engine will not be executed if
             // data for all inputs are present in the logical AND case.
             // Execute service engine
-            EngineData inData = parseFrom(message);
+            EngineData inData = parseFrom(message, engineObject.getInputDataTypes());
 
             execAndRoute(routingStatements, senderServiceState, inData);
         }
@@ -280,7 +280,7 @@ public class ServiceEngine extends CBase {
     }
 
     private EngineData executeEngine(Set<EngineData> inData)
-            throws IOException, xMsgException {
+            throws IOException, xMsgException, CException {
         EngineData outData = null;
 
         // Variables to measure service
@@ -352,7 +352,7 @@ public class ServiceEngine extends CBase {
 
         for (String ss : outLinks) {
             xMsgMessage transit = new xMsgMessage(xMsgTopic.wrap(ss));
-            serialize(engineData, transit);
+            serialize(engineData, transit, engineObject.getOutputDataTypes());
             serviceSend(transit);
         }
     }
@@ -361,7 +361,7 @@ public class ServiceEngine extends CBase {
      * Broadcast a done report of an engine execution.
      */
     public void reportDone(EngineData data)
-            throws xMsgException, IOException {
+            throws xMsgException, IOException, CException {
 
         // we are not sending data
         data.setData(xMsgConstants.UNDEFINED.toString(), null);
@@ -369,7 +369,7 @@ public class ServiceEngine extends CBase {
         // Create transit data
         xMsgTopic topic = xMsgTopic.wrap(xMsgConstants.DONE.toString() + ":" + getName());
         xMsgMessage transit = new xMsgMessage(topic);
-        serialize(data, transit);
+        serialize(data, transit, engineObject.getOutputDataTypes());
 
         String dpe = "localhost";
         if (!getFrontEndAddress().equals(xMsgConstants.UNDEFINED.toString())) {
@@ -387,12 +387,12 @@ public class ServiceEngine extends CBase {
      * @param data the output data of the engine
      */
     public void reportData(EngineData data)
-            throws xMsgException, IOException {
+            throws xMsgException, IOException, CException {
 
         // Create transit data
         xMsgTopic topic = xMsgTopic.wrap(xMsgConstants.DATA.toString() + ":" + getName());
         xMsgMessage transit = new xMsgMessage(topic);
-        serialize(data, transit);
+        serialize(data, transit, engineObject.getOutputDataTypes());
 
         String dpe = "localhost";
         if (!getFrontEndAddress().equals(xMsgConstants.UNDEFINED.toString())) {
@@ -408,7 +408,7 @@ public class ServiceEngine extends CBase {
      * @param data the output data of the engine
      */
     public void reportProblem(EngineData data)
-            throws xMsgException, IOException {
+            throws xMsgException, IOException, CException {
 
         // we are not sending data
         data.setData(xMsgConstants.UNDEFINED.toString(), null);
@@ -424,7 +424,7 @@ public class ServiceEngine extends CBase {
         }
 
         xMsgMessage transit = new xMsgMessage(topic);
-        serialize(data, transit);
+        serialize(data, transit, engineObject.getOutputDataTypes());
         String dpe = "localhost";
         if (!getFrontEndAddress().equals(xMsgConstants.UNDEFINED.toString())) {
             dpe = getFrontEndAddress();
