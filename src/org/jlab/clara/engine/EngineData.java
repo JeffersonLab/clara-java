@@ -29,31 +29,31 @@ import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 public class EngineData {
 
     private Object data;
-    private xMsgMeta.Builder metaData = xMsgMeta.newBuilder();
+    private xMsgMeta.Builder metadata = xMsgMeta.newBuilder();
 
     public Object getData() {
         return data;
     }
 
     public String getMimeType() {
-        return metaData.getDataType();
+        return metadata.getDataType();
     }
 
     public void setData(String mimeType, Object data) {
         this.data = data;
-        this.metaData.setDataType(mimeType);
+        this.metadata.setDataType(mimeType);
     }
 
     public String getDescription() {
-        return metaData.getDescription();
+        return metadata.getDescription();
     }
 
     public void setDescription(String description) {
-        metaData.setDescription(description);
+        metadata.setDescription(description);
     }
 
     public EngineStatus getStatus() {
-        xMsgMeta.Status status = metaData.getStatus();
+        xMsgMeta.Status status = metadata.getStatus();
         switch (status) {
             case INFO:
                 return EngineStatus.INFO;
@@ -67,7 +67,7 @@ public class EngineData {
     }
 
     public int getStatusSeverity() {
-        return metaData.getSeverityId();
+        return metadata.getSeverityId();
     }
 
     public void setStatus(EngineStatus status) {
@@ -80,41 +80,41 @@ public class EngineData {
         }
         switch (status) {
             case INFO:
-                metaData.setStatus(xMsgMeta.Status.INFO);
+                metadata.setStatus(xMsgMeta.Status.INFO);
                 break;
             case WARNING:
-                metaData.setStatus(xMsgMeta.Status.WARNING);
+                metadata.setStatus(xMsgMeta.Status.WARNING);
                 break;
             case ERROR:
-                metaData.setStatus(xMsgMeta.Status.ERROR);
+                metadata.setStatus(xMsgMeta.Status.ERROR);
                 break;
             default:
                 throw new IllegalStateException("Unknown status " + status);
         }
-        metaData.setSeverityId(severity);
+        metadata.setSeverityId(severity);
     }
 
     public String getState() {
-        return metaData.getSenderState();
+        return metadata.getSenderState();
     }
 
     public void setState(String state) {
-        metaData.setSenderState(state);
+        metadata.setSenderState(state);
     }
 
     public int getRequestId() {
-        return metaData.getCommunicationId();
+        return metadata.getCommunicationId();
     }
 
     public long getExecutionTime() {
-        return metaData.getExecutionTime();
+        return metadata.getExecutionTime();
     }
 
     public String getAuthor() {
-        return metaData.getAuthor();
+        return metadata.getAuthor();
     }
 
     public String getVersion() {
-        return metaData.getVersion();
+        return metadata.getVersion();
     }
 }
