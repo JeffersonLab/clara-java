@@ -64,7 +64,7 @@ public class CConstants {
     public static final String LIST_SERVICES = "listServices";
 
 
-
+    public static final String SHARED_MEMORY_KEY = "clara/shmkey";
     public static final String ALIVE = "alive";
 
     public static final String TOPIC_SEP = ":";

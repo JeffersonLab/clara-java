@@ -71,10 +71,6 @@ public class ServiceEngine extends CBase {
     // Engine instantiated object
     private final Engine engineObject;
 
-    // key in the shared memory map of DPE to
-    // locate this service resulting data object
-    private String sharedMemoryKey = xMsgConstants.UNDEFINED.toString();
-
     // Simple average of the service engine
     // execution times over all received requests
     private long averageExecutionTime;
@@ -100,13 +96,11 @@ public class ServiceEngine extends CBase {
                          String classPath,
                          CServiceSysConfig config,
                          String localAddress,
-                         String frontEndAddres,
-                         String sharedMemoryKey)
+                         String frontEndAddres)
             throws CException {
         super(name, localAddress, frontEndAddres);
 
         this.sysConfig = config;
-        this.sharedMemoryKey = sharedMemoryKey;
 
         // Dynamic loading of the Clara engine class
         // Note: using system class loader
@@ -144,7 +138,7 @@ public class ServiceEngine extends CBase {
             IOException,
             ClassNotFoundException {
 
-        engineObject.configure(parseFrom(message, engineObject.getInputDataTypes()));
+        engineObject.configure(getEngineData(message));
         // If this is a sync request, send done to the requester
         String replyTo = message.getMetaData().getReplyTo();
         if (!replyTo.equals(xMsgConstants.UNDEFINED.toString()) &&
@@ -283,7 +277,7 @@ public class ServiceEngine extends CBase {
         // Increment request count in the sysConfig object
         sysConfig.addRequest();
         try {
-            EngineData inData = parseFrom(message, engineObject.getInputDataTypes());
+            EngineData inData = getEngineData(message);
             EngineData outData;
 
             parseComposition(inData);
@@ -387,7 +381,7 @@ public class ServiceEngine extends CBase {
             throws xMsgException, IOException, CException {
         for (String ss : outLinks) {
             xMsgMessage transit = new xMsgMessage(xMsgTopic.wrap(ss));
-            serialize(outData, transit, engineObject.getOutputDataTypes());
+            putEngineData(outData, ss, transit);
             serviceSend(transit);
         }
     }
@@ -466,6 +460,37 @@ public class ServiceEngine extends CBase {
         }
         // send always serialized. We want to keep shared memory for data only.
         genericSend(dpe, transit);
+    }
+
+    private EngineData getEngineData(xMsgMessage message) throws CException {
+        xMsgMeta.Builder metadata = message.getMetaData();
+        String mimeType = metadata.getDataType();
+        if (mimeType.equals(CConstants.SHARED_MEMORY_KEY)) {
+            String sender = metadata.getSender();
+            int id = metadata.getCommunicationId();
+            return SharedMemory.getEngineData(getName(), sender, id);
+        } else {
+            return parseFrom(message, engineObject.getInputDataTypes());
+        }
+    }
+
+    private void putEngineData(EngineData data, String receiver, xMsgMessage message)
+            throws CException {
+        if (SharedMemory.containsReceiver(receiver)) {
+            int id = data.getCommunicationId();
+            SharedMemory.putEngineData(receiver, getName(), id, data);
+
+            xMsgMeta.Builder metadata = xMsgMeta.newBuilder();
+            metadata.setDataType(CConstants.SHARED_MEMORY_KEY);
+            metadata.setSender(getName());
+            metadata.setCommunicationId(id);
+            metadata.setAction(xMsgMeta.ControlAction.EXECUTE);
+
+            message.setMetaData(metadata);
+            message.setData(CConstants.SHARED_MEMORY_KEY);
+        } else {
+            serialize(data, message, engineObject.getOutputDataTypes());
+        }
     }
 
     /**

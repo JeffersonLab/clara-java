@@ -52,7 +52,6 @@ import org.jlab.coda.xmsg.excp.xMsgException;
 public class Service extends CBase {
 
     private final String name;
-    private final String sharedMemoryLocation;
 
     private ExecutorService executionPool;
     private ServiceEngine[] enginePool;
@@ -75,7 +74,6 @@ public class Service extends CBase {
      * @param localAddress the address of the local Clara node
      * @param frontEndAddress the name of the front-end Clara node
      * @param poolSize the size of the engines pool
-     * @param id the unique shared-memory id given by the container
      * @param initialState initial state of this service
      * @throws CException if the engine could not be loaded
      * @throws IOException
@@ -85,14 +83,12 @@ public class Service extends CBase {
                    String localAddress,
                    String frontEndAddress,
                    int poolSize,
-                   int id,
                    String initialState)
             throws CException, xMsgException {
 
         super(name, localAddress, frontEndAddress);
 
         this.name = name;
-        this.sharedMemoryLocation = name + id;
         this.sysConfig = new CServiceSysConfig();
 
         // Creating thread pool
@@ -108,8 +104,7 @@ public class Service extends CBase {
                                                      className,
                                                      sysConfig,
                                                      localAddress,
-                                                     frontEndAddress,
-                                                     sharedMemoryLocation);
+                                                     frontEndAddress);
             engine.updateMyState(initialState);
             enginePool[i] = engine;
         }

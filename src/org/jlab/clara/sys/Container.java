@@ -35,7 +35,6 @@ import org.jlab.coda.xmsg.excp.xMsgException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A container for services.
@@ -45,9 +44,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @since 1/30/15
  */
 public class Container extends CBase {
-
-    // Unique id for services within the container
-    private AtomicInteger uniqueId = new AtomicInteger(0);
 
     private xMsgSubscription subscriptionHandler;
 
@@ -97,7 +93,6 @@ public class Container extends CBase {
             service.exit();
         }
 
-        uniqueId = null;
         subscriptionHandler = null;
     }
 
@@ -120,10 +115,6 @@ public class Container extends CBase {
             throw new CException("service exists");
         }
 
-        // Define the key in the shared
-        // memory map (defined in the DPE).
-        int id = uniqueId.incrementAndGet();
-
         // Object pool size is set to be 2 in case
         // it was requested to be 0 or negative number.
         if (servicePoolSize <= 0) {
@@ -135,7 +126,6 @@ public class Container extends CBase {
                                       getLocalAddress(),
                                       getFrontEndAddress(),
                                       servicePoolSize,
-                                      id,
                                       initialState);
         _myServices.put(serviceName, service);
     }
