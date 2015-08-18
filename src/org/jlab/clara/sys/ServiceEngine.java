@@ -231,48 +231,6 @@ public class ServiceEngine extends CBase {
         isAvailable.set(true);
     }
 
-    private EngineData executeEngine(Set<EngineData> inData)
-            throws IOException, xMsgException {
-        EngineData outData = null;
-
-        // Variables to measure service
-        // engine execution time
-        long startTime;
-        long endTime;
-        long execTime;
-
-        try {
-            // increment request count
-            numberOfRequests++;
-            // get engine execution start time
-            startTime = System.nanoTime();
-
-            if(inData.size()==1) {
-                outData = engineObject.execute(inData.iterator().next());
-            } else {
-                outData = engineObject.executeGroup(inData);
-
-            }
-            // get engine execution end time
-            endTime = System.nanoTime();
-            // service engine execution time
-            execTime = endTime - startTime;
-            // Calculate a simple average for the execution time
-            averageExecutionTime = (averageExecutionTime + execTime) / numberOfRequests;
-
-            // update service state based on the engine set state
-            updateMyState(outData.getState());
-
-        } catch (Throwable t) {
-            EngineData fst = inData.iterator().next();
-            fst.setDescription(t.getMessage());
-            fst.setStatus(EngineStatus.ERROR, 3);
-            reportProblem(fst);
-            t.printStackTrace();
-        }
-        return outData;
-    }
-
     private void execAndRoute(Set<Statement> routingStatements,
                               ServiceState inServiceState,
                               EngineData inData)
@@ -322,6 +280,48 @@ public class ServiceEngine extends CBase {
 
             }
         }
+    }
+
+    private EngineData executeEngine(Set<EngineData> inData)
+            throws IOException, xMsgException {
+        EngineData outData = null;
+
+        // Variables to measure service
+        // engine execution time
+        long startTime;
+        long endTime;
+        long execTime;
+
+        try {
+            // increment request count
+            numberOfRequests++;
+            // get engine execution start time
+            startTime = System.nanoTime();
+
+            if(inData.size()==1) {
+                outData = engineObject.execute(inData.iterator().next());
+            } else {
+                outData = engineObject.executeGroup(inData);
+
+            }
+            // get engine execution end time
+            endTime = System.nanoTime();
+            // service engine execution time
+            execTime = endTime - startTime;
+            // Calculate a simple average for the execution time
+            averageExecutionTime = (averageExecutionTime + execTime) / numberOfRequests;
+
+            // update service state based on the engine set state
+            updateMyState(outData.getState());
+
+        } catch (Throwable t) {
+            EngineData fst = inData.iterator().next();
+            fst.setDescription(t.getMessage());
+            fst.setStatus(EngineStatus.ERROR, 3);
+            reportProblem(fst);
+            t.printStackTrace();
+        }
+        return outData;
     }
 
 
