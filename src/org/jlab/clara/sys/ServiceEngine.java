@@ -176,23 +176,20 @@ public class ServiceEngine extends CBase {
 
         isAvailable.set(false);
 
-        xMsgMeta.Builder metadata = message.getMetaData();
-
         // Increment request count in the sysConfig object
         sysConfig.addRequest();
 
+        xMsgMeta.Builder metadata = message.getMetaData();
+
         String currentComposition = metadata.getComposition();
-
-        ServiceState senderServiceState =
-                new ServiceState(metadata.getSender(), metadata.getSenderState());
-
-
         if (!currentComposition.equals(prevComposition)) {
             // analyze composition
             compiler.compile(currentComposition);
             prevComposition = currentComposition;
         }
 
+        ServiceState senderServiceState =
+                new ServiceState(metadata.getSender(), metadata.getSenderState());
 
         for (Instruction inst : compiler.getInstructions()) {
 
