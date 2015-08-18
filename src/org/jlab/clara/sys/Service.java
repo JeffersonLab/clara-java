@@ -37,7 +37,6 @@ import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgSubscription;
 import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.core.xMsgUtil;
-import org.jlab.coda.xmsg.data.xMsgD.xMsgData;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 import org.jlab.coda.xmsg.excp.xMsgException;
 
@@ -200,26 +199,23 @@ public class Service extends CBase {
     }
 
 
-    private void setup(xMsgMessage msg) {
-        try {
-            xMsgData data = xMsgData.parseFrom(msg.getData());
-            RequestParser setup = RequestParser.build(data);
-            String report = setup.nextString();
-            int value = setup.nextInteger();
-            switch (report) {
-                case CConstants.SERVICE_REPORT_DONE:
-                    sysConfig.setDoneRequest(true);
-                    sysConfig.setDoneReportThreshold(value);
-                    sysConfig.resetDoneRequestCount();
-                    break;
-                case CConstants.SERVICE_REPORT_DATA:
-                    sysConfig.setDataRequest(true);
-                    sysConfig.setDataReportThreshold(value);
-                    sysConfig.resetDataRequestCount();
-                    break;
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+    private void setup(xMsgMessage msg) throws CException {
+        RequestParser setup = RequestParser.build(msg);
+        String report = setup.nextString();
+        int value = setup.nextInteger();
+        switch (report) {
+            case CConstants.SERVICE_REPORT_DONE:
+                sysConfig.setDoneRequest(true);
+                sysConfig.setDoneReportThreshold(value);
+                sysConfig.resetDoneRequestCount();
+                break;
+            case CConstants.SERVICE_REPORT_DATA:
+                sysConfig.setDataRequest(true);
+                sysConfig.setDataReportThreshold(value);
+                sysConfig.resetDataRequestCount();
+                break;
+            default:
+                throw new CException("Invalid report request: " + report);
         }
     }
 
