@@ -148,20 +148,17 @@ public class ServiceEngine extends CBase {
             IOException,
             ClassNotFoundException {
 
-        xMsgMeta.Builder metadata = msg.getMetaData();
-        if (metadata.getAction().equals(xMsgMeta.ControlAction.CONFIGURE)) {
-            engineObject.configure(parseFrom(msg));
-            // If this is a sync request, send done to the requester
-            String replyTo = metadata.getReplyTo();
-            if (!replyTo.equals(xMsgConstants.UNDEFINED.toString()) &&
-                    CUtility.isCanonical(replyTo)) {
-                int remainingInstances = configureCountDown.decrementAndGet();
-                if (remainingInstances == 0) {
-                    xMsgTopic topic = xMsgTopic.wrap(replyTo);
-                    xMsgMessage outMsg = new xMsgMessage(topic, xMsgConstants.DONE.toString());
-                    String dpe = CUtility.getDpeName(replyTo);
-                    genericSend(dpe, outMsg);
-                }
+        engineObject.configure(parseFrom(msg));
+        // If this is a sync request, send done to the requester
+        String replyTo = msg.getMetaData().getReplyTo();
+        if (!replyTo.equals(xMsgConstants.UNDEFINED.toString()) &&
+                CUtility.isCanonical(replyTo)) {
+            int remainingInstances = configureCountDown.decrementAndGet();
+            if (remainingInstances == 0) {
+                xMsgTopic topic = xMsgTopic.wrap(replyTo);
+                xMsgMessage outMsg = new xMsgMessage(topic, xMsgConstants.DONE.toString());
+                String dpe = CUtility.getDpeName(replyTo);
+                genericSend(dpe, outMsg);
             }
         }
     }
@@ -190,49 +187,46 @@ public class ServiceEngine extends CBase {
                 new ServiceState(metadata.getSender(), metadata.getSenderState());
 
 
-        if (metadata.getAction().equals(xMsgMeta.ControlAction.EXECUTE)) {
-
-            if (!currentComposition.equals(prevComposition)) {
-                // analyze composition
-                compiler.compile(currentComposition);
-                prevComposition = currentComposition;
-            }
+        if (!currentComposition.equals(prevComposition)) {
+            // analyze composition
+            compiler.compile(currentComposition);
+            prevComposition = currentComposition;
+        }
 
 
-            for (Instruction inst : compiler.getInstructions()) {
+        for (Instruction inst : compiler.getInstructions()) {
 
-                // get the condition of the instruction
-                // if condition...
-                Condition ifCond = inst.getIfCondition();
-                Condition elseifCond = inst.getElseifCondition();
+            // get the condition of the instruction
+            // if condition...
+            Condition ifCond = inst.getIfCondition();
+            Condition elseifCond = inst.getElseifCondition();
 
-                // the set of routing statements
-                Set<Statement> routingStatements;
+            // the set of routing statements
+            Set<Statement> routingStatements;
 
-                if (ifCond != null) {
-                    // Conditional routing.
+            if (ifCond != null) {
+                // Conditional routing.
 
-                    if (ifCond.isTrue(getMyServiceState(), senderServiceState)) {
-                        routingStatements = inst.getIfCondStatements();
-                    } else if (elseifCond.isTrue(getMyServiceState(), senderServiceState)) {
-                        routingStatements = inst.getElseifCondStatements();
-                    } else {
-                        routingStatements = inst.getElseCondStatements();
-                    }
+                if (ifCond.isTrue(getMyServiceState(), senderServiceState)) {
+                    routingStatements = inst.getIfCondStatements();
+                } else if (elseifCond.isTrue(getMyServiceState(), senderServiceState)) {
+                    routingStatements = inst.getElseifCondStatements();
                 } else {
-
-                    // unconditional routing
-                    routingStatements = inst.getUnCondStatements();
+                    routingStatements = inst.getElseCondStatements();
                 }
+            } else {
 
-                // execute service engine and route the statements
-                // note that service engine will not be executed if
-                // data for all inputs are present in the logical AND case.
-                // Execute service engine
-                EngineData inData = parseFrom(message);
-
-                execAndRoute(routingStatements, senderServiceState, inData);
+                // unconditional routing
+                routingStatements = inst.getUnCondStatements();
             }
+
+            // execute service engine and route the statements
+            // note that service engine will not be executed if
+            // data for all inputs are present in the logical AND case.
+            // Execute service engine
+            EngineData inData = parseFrom(message);
+
+            execAndRoute(routingStatements, senderServiceState, inData);
         }
         isAvailable.set(true);
     }
