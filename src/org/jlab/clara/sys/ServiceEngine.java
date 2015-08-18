@@ -62,7 +62,7 @@ public class ServiceEngine extends CBase {
     private CServiceSysConfig sysConfig;
 
     private ServiceState myServiceState =
-            new ServiceState(getName(),xMsgConstants.UNDEFINED.toString());
+            new ServiceState(getName(), xMsgConstants.UNDEFINED.toString());
 
     public AtomicBoolean isAvailable;
 
@@ -130,7 +130,7 @@ public class ServiceEngine extends CBase {
 
         // create an object of the composition parser
         compiler = new CCompiler(getName());
-        System.out.println(CUtility.getCurrentTimeInH()+": Started service = "+getName());
+        System.out.println(CUtility.getCurrentTimeInH() + ": Started service = " + getName());
     }
 
     public ServiceState getMyServiceState() {
@@ -243,35 +243,35 @@ public class ServiceEngine extends CBase {
 
                 callLinked(outData, st.getOutputLinks());
 
-            } else if(st.getLogAndInputs().containsKey(inServiceState.getName())){
+            } else if (st.getLogAndInputs().containsKey(inServiceState.getName())) {
 
                 st.getLogAndInputs().put(inServiceState.getName(), inData);
 
                 // check to see if all required data is present (are not null)
 
                 boolean groupExecute = true;
-                for(EngineData ed : st.getLogAndInputs().values()){
-                    if(ed == null) {
+                for (EngineData ed : st.getLogAndInputs().values()) {
+                    if (ed == null) {
                         groupExecute = false;
                         break;
                     }
                 }
 
-                if(groupExecute){
+                if (groupExecute) {
 
                     Set<EngineData> ens = new HashSet<>();
                     // engine group execute
 
-                    for(EngineData ed: st.getLogAndInputs().values()){
-                            ens.add(ed);
+                    for (EngineData ed : st.getLogAndInputs().values()) {
+                        ens.add(ed);
                     }
                     outData = executeEngine(ens);
 
                     callLinked(outData, st.getOutputLinks());
 
                     // reset data in the logAndInputs map
-                    for(String s : st.getLogAndInputs().keySet()){
-                        st.getLogAndInputs().put(s,null);
+                    for (String s : st.getLogAndInputs().keySet()) {
+                        st.getLogAndInputs().put(s, null);
                     }
                 }
 
@@ -295,7 +295,7 @@ public class ServiceEngine extends CBase {
             // get engine execution start time
             startTime = System.nanoTime();
 
-            if(inData.size()==1) {
+            if (inData.size() == 1) {
                 outData = engineObject.execute(inData.iterator().next());
             } else {
                 outData = engineObject.executeGroup(inData);
@@ -350,7 +350,7 @@ public class ServiceEngine extends CBase {
             sysConfig.resetDoneRequestCount();
         }
 
-        for(String ss:outLinks) {
+        for (String ss : outLinks) {
             xMsgMessage transit = new xMsgMessage(xMsgTopic.wrap(ss));
             serialize(engineData, transit);
             serviceSend(transit);
@@ -372,7 +372,7 @@ public class ServiceEngine extends CBase {
         serialize(data, transit);
 
         String dpe = "localhost";
-        if(!getFrontEndAddress().equals(xMsgConstants.UNDEFINED.toString())) {
+        if (!getFrontEndAddress().equals(xMsgConstants.UNDEFINED.toString())) {
             dpe = getFrontEndAddress();
         }
         // send always serialized. We want to keep shared memory for data only.
@@ -433,8 +433,6 @@ public class ServiceEngine extends CBase {
         genericSend(dpe, transit);
     }
 
-
-
     /**
      * Removes service xMsg registration.
      */
@@ -462,11 +460,10 @@ public class ServiceEngine extends CBase {
 
         genericSend(localDpe, msg1);
 
-        if(!getFrontEndAddress().equals(xMsgConstants.UNDEFINED.toString())) {
+        if (!getFrontEndAddress().equals(xMsgConstants.UNDEFINED.toString())) {
             xMsgTopic topic2 = xMsgTopic.wrap(CConstants.SERVICE + ":" + getFrontEndAddress());
             xMsgMessage msg2 = new xMsgMessage(topic2, data);
             genericSend(getFrontEndAddress(), msg2);
         }
     }
-
 }

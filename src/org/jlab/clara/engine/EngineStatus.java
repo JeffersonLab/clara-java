@@ -18,10 +18,11 @@
  * HEREUNDER IS PROVIDED "AS IS". JLAB HAS NO OBLIGATION TO PROVIDE MAINTENANCE,
  * SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  */
+
 package org.jlab.clara.engine;
 
 /**
- * Data processing status
+ * Data processing status.
  *
  * @author gurjyan
  * @version 1.x

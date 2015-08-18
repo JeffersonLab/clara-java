@@ -178,11 +178,11 @@ public class Service extends CBase {
 
 
     private void execute(final xMsgMessage msg) {
-        boolean _of = false;
+        boolean processed = false;
         do {
             for (final ServiceEngine engine : enginePool) {
                 if (engine.isAvailable.get()) {
-                    _of = true;
+                    processed = true;
                     executionPool.submit(new Runnable() {
                         @Override
                         public void run() {
@@ -196,7 +196,7 @@ public class Service extends CBase {
                     break;
                 }
             }
-        } while (!_of);
+        } while (!processed);
     }
 
 
@@ -207,16 +207,16 @@ public class Service extends CBase {
             String report = setup.nextString();
             int value = setup.nextInteger();
             switch (report) {
-            case CConstants.SERVICE_REPORT_DONE:
-                sysConfig.setDoneRequest(true);
-                sysConfig.setDoneReportThreshold(value);
-                sysConfig.resetDoneRequestCount();
-                break;
-            case CConstants.SERVICE_REPORT_DATA:
-                sysConfig.setDataRequest(true);
-                sysConfig.setDataReportThreshold(value);
-                sysConfig.resetDataRequestCount();
-                break;
+                case CConstants.SERVICE_REPORT_DONE:
+                    sysConfig.setDoneRequest(true);
+                    sysConfig.setDoneReportThreshold(value);
+                    sysConfig.resetDoneRequestCount();
+                    break;
+                case CConstants.SERVICE_REPORT_DATA:
+                    sysConfig.setDataRequest(true);
+                    sysConfig.setDataReportThreshold(value);
+                    sysConfig.resetDataRequestCount();
+                    break;
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -229,11 +229,11 @@ public class Service extends CBase {
         String description = "Clara Service";
         String feHost = getFrontEndAddress();
         registerLocalSubscriber(xMsgTopic.wrap(name), description);
-        if(!xMsgUtil.getLocalHostIps().contains(feHost)){
+        if (!xMsgUtil.getLocalHostIps().contains(feHost)) {
             registerSubscriber(xMsgTopic.wrap(name), description);
         }
 
-        if(!feHost.equals(xMsgConstants.UNDEFINED.toString())) {
+        if (!feHost.equals(xMsgConstants.UNDEFINED.toString())) {
             xMsgTopic topic = xMsgTopic.wrap(CConstants.SERVICE + ":" + feHost);
             String data = CConstants.SERVICE_UP + "?" + name;
             // Send service_up message to the FE

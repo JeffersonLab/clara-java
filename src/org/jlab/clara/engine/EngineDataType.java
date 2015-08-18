@@ -207,7 +207,7 @@ public class EngineDataType {
 
         private final String name;
 
-        private MimeType(String name){
+        private MimeType(String name) {
             this.name = name;
         }
 
@@ -309,7 +309,7 @@ public class EngineDataType {
                     proto.addAllFLSINT64A(Arrays.asList(a));
                     break;
                 }
-                case ARRAY_DOUBLE :{
+                case ARRAY_DOUBLE: {
                     Double[] a = (Double[]) data;
                     proto.addAllDOUBLEA(Arrays.asList(a));
                     break;
@@ -379,7 +379,7 @@ public class EngineDataType {
                     }
                     return a;
                 }
-                case ARRAY_DOUBLE :{
+                case ARRAY_DOUBLE: {
                     Double[] a = new Double[proto.getDOUBLEACount()];
                     for (int i = 0; i < a.length; i++) {
                         a[i] = proto.getDOUBLEA(i);
