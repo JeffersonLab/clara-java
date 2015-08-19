@@ -25,8 +25,8 @@ import org.jlab.clara.base.CException;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.Engine;
 import org.jlab.clara.engine.EngineStatus;
-import org.jlab.clara.sys.ccc.CCompiler;
 import org.jlab.clara.sys.ccc.ServiceState;
+import org.jlab.clara.sys.ccc.SimpleCompiler;
 import org.jlab.clara.util.CClassLoader;
 import org.jlab.clara.util.CConstants;
 import org.jlab.clara.util.CServiceSysConfig;
@@ -82,7 +82,7 @@ public class ServiceEngine extends CBase {
     // Note: common for different compositions
     private long numberOfRequests;
 
-    private CCompiler compiler;
+    private SimpleCompiler compiler;
 
 
     /**
@@ -125,7 +125,7 @@ public class ServiceEngine extends CBase {
         isAvailable = new AtomicBoolean(true);
 
         // create an object of the composition parser
-        compiler = new CCompiler(getName());
+        compiler = new SimpleCompiler(getName());
         System.out.println(CUtility.getCurrentTimeInH() + ": Started service = " + getName());
     }
 
@@ -277,6 +277,19 @@ public class ServiceEngine extends CBase {
 
     public void execute(xMsgMessage message)
             throws CException, xMsgException, IOException {
+    }
+
+    private void parseComposition(EngineData inData) throws CException {
+        String currentComposition = inData.getComposition();
+        if (!currentComposition.equals(prevComposition)) {
+            // analyze composition
+            compiler.compile(currentComposition);
+            prevComposition = currentComposition;
+        }
+    }
+
+    private Set<String> getLinks(EngineData inData, EngineData outData) {
+        return compiler.getOutputs();
     }
 
     private EngineData executeEngine(EngineData inData)
