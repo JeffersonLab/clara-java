@@ -26,10 +26,7 @@ import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.Engine;
 import org.jlab.clara.engine.EngineStatus;
 import org.jlab.clara.sys.ccc.CCompiler;
-import org.jlab.clara.sys.ccc.Condition;
-import org.jlab.clara.sys.ccc.Instruction;
 import org.jlab.clara.sys.ccc.ServiceState;
-import org.jlab.clara.sys.ccc.Statement;
 import org.jlab.clara.util.CClassLoader;
 import org.jlab.clara.util.CConstants;
 import org.jlab.clara.util.CServiceSysConfig;
@@ -42,7 +39,6 @@ import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 import org.jlab.coda.xmsg.excp.xMsgException;
 
 import java.io.IOException;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -163,121 +159,121 @@ public class ServiceEngine extends CBase {
         }
     }
 
-    /**
-     * Service process method. Note that configure
-     * will never be execute within this method.
-     */
-    public void process(xMsgMessage message)
-            throws CException,
-            xMsgException,
-            IOException,
-            InterruptedException,
-            ClassNotFoundException {
-
-        isAvailable.set(false);
-
-        // Increment request count in the sysConfig object
-        sysConfig.addRequest();
-
-        xMsgMeta.Builder metadata = message.getMetaData();
-
-        String currentComposition = metadata.getComposition();
-        if (!currentComposition.equals(prevComposition)) {
-            // analyze composition
-            compiler.compile(currentComposition);
-            prevComposition = currentComposition;
-        }
-
-        ServiceState senderServiceState =
-                new ServiceState(metadata.getSender(), metadata.getSenderState());
-
-        for (Instruction inst : compiler.getInstructions()) {
-
-            // get the condition of the instruction
-            // if condition...
-            Condition ifCond = inst.getIfCondition();
-            Condition elseifCond = inst.getElseifCondition();
-
-            // the set of routing statements
-            Set<Statement> routingStatements;
-
-            if (ifCond != null) {
-                // Conditional routing.
-
-                if (ifCond.isTrue(getMyServiceState(), senderServiceState)) {
-                    routingStatements = inst.getIfCondStatements();
-                } else if (elseifCond.isTrue(getMyServiceState(), senderServiceState)) {
-                    routingStatements = inst.getElseifCondStatements();
-                } else {
-                    routingStatements = inst.getElseCondStatements();
-                }
-            } else {
-
-                // unconditional routing
-                routingStatements = inst.getUnCondStatements();
-            }
-
-            // execute service engine and route the statements
-            // note that service engine will not be executed if
-            // data for all inputs are present in the logical AND case.
-            // Execute service engine
-            EngineData inData = parseFrom(message, engineObject.getInputDataTypes());
-
-            execAndRoute(routingStatements, senderServiceState, inData);
-        }
-        isAvailable.set(true);
-    }
-
-    private void execAndRoute(Set<Statement> routingStatements,
-                              ServiceState inServiceState,
-                              EngineData inData)
-            throws IOException, xMsgException, CException {
-
-        EngineData outData;
-        for (Statement st : routingStatements) {
-            if (st.getInputLinks().contains(inServiceState.getName())) {
-
-                Set<EngineData> ens = new HashSet<>();
-                ens.add(inData);
-                outData =  executeEngine(ens);
-
-                callLinked(outData, st.getOutputLinks());
-
-            } else if (st.getLogAndInputs().containsKey(inServiceState.getName())) {
-
-                st.getLogAndInputs().put(inServiceState.getName(), inData);
-
-                // check to see if all required data is present (are not null)
-
-                boolean groupExecute = true;
-                for (EngineData ed : st.getLogAndInputs().values()) {
-                    if (ed == null) {
-                        groupExecute = false;
-                        break;
-                    }
-                }
-
-                if (groupExecute) {
-
-                    Set<EngineData> ens = new HashSet<>();
-                    // engine group execute
-
-                    for (EngineData ed : st.getLogAndInputs().values()) {
-                        ens.add(ed);
-                    }
-                    outData = executeEngine(ens);
-
-                    callLinked(outData, st.getOutputLinks());
-
-                    // reset data in the logAndInputs map
-                    for (String s : st.getLogAndInputs().keySet()) {
-                        st.getLogAndInputs().put(s, null);
-                    }
-                }
-
-            }
-        }
-    }
+//    /**
+//     * Service process method. Note that configure
+//     * will never be execute within this method.
+//     */
+//    public void process(xMsgMessage message)
+//            throws CException,
+//            xMsgException,
+//            IOException,
+//            InterruptedException,
+//            ClassNotFoundException {
+//
+//        isAvailable.set(false);
+//
+//        // Increment request count in the sysConfig object
+//        sysConfig.addRequest();
+//
+//        xMsgMeta.Builder metadata = message.getMetaData();
+//
+//        String currentComposition = metadata.getComposition();
+//        if (!currentComposition.equals(prevComposition)) {
+//            // analyze composition
+//            compiler.compile(currentComposition);
+//            prevComposition = currentComposition;
+//        }
+//
+//        ServiceState senderServiceState =
+//                new ServiceState(metadata.getSender(), metadata.getSenderState());
+//
+//        for (Instruction inst : compiler.getInstructions()) {
+//
+//            // get the condition of the instruction
+//            // if condition...
+//            Condition ifCond = inst.getIfCondition();
+//            Condition elseifCond = inst.getElseifCondition();
+//
+//            // the set of routing statements
+//            Set<Statement> routingStatements;
+//
+//            if (ifCond != null) {
+//                // Conditional routing.
+//
+//                if (ifCond.isTrue(getMyServiceState(), senderServiceState)) {
+//                    routingStatements = inst.getIfCondStatements();
+//                } else if (elseifCond.isTrue(getMyServiceState(), senderServiceState)) {
+//                    routingStatements = inst.getElseifCondStatements();
+//                } else {
+//                    routingStatements = inst.getElseCondStatements();
+//                }
+//            } else {
+//
+//                // unconditional routing
+//                routingStatements = inst.getUnCondStatements();
+//            }
+//
+//            // execute service engine and route the statements
+//            // note that service engine will not be executed if
+//            // data for all inputs are present in the logical AND case.
+//            // Execute service engine
+//            EngineData inData = parseFrom(message, engineObject.getInputDataTypes());
+//
+//            execAndRoute(routingStatements, senderServiceState, inData);
+//        }
+//        isAvailable.set(true);
+//    }
+//
+//    private void execAndRoute(Set<Statement> routingStatements,
+//                              ServiceState inServiceState,
+//                              EngineData inData)
+//            throws IOException, xMsgException, CException {
+//
+//        EngineData outData;
+//        for (Statement st : routingStatements) {
+//            if (st.getInputLinks().contains(inServiceState.getName())) {
+//
+//                Set<EngineData> ens = new HashSet<>();
+//                ens.add(inData);
+//                outData =  executeEngine(ens);
+//
+//                callLinked(outData, st.getOutputLinks());
+//
+//            } else if (st.getLogAndInputs().containsKey(inServiceState.getName())) {
+//
+//                st.getLogAndInputs().put(inServiceState.getName(), inData);
+//
+//                // check to see if all required data is present (are not null)
+//
+//                boolean groupExecute = true;
+//                for (EngineData ed : st.getLogAndInputs().values()) {
+//                    if (ed == null) {
+//                        groupExecute = false;
+//                        break;
+//                    }
+//                }
+//
+//                if (groupExecute) {
+//
+//                    Set<EngineData> ens = new HashSet<>();
+//                    // engine group execute
+//
+//                    for (EngineData ed : st.getLogAndInputs().values()) {
+//                        ens.add(ed);
+//                    }
+//                    outData = executeEngine(ens);
+//
+//                    callLinked(outData, st.getOutputLinks());
+//
+//                    // reset data in the logAndInputs map
+//                    for (String s : st.getLogAndInputs().keySet()) {
+//                        st.getLogAndInputs().put(s, null);
+//                    }
+//                }
+//
+//            }
+//        }
+//    }
 
     public void execute(xMsgMessage message)
             throws CException, xMsgException, IOException {
