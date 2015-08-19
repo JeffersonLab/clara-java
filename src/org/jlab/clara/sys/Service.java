@@ -186,7 +186,7 @@ public class Service extends CBase {
                         @Override
                         public void run() {
                             try {
-                                engine.process(msg);
+                                engine.execute(msg);
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }

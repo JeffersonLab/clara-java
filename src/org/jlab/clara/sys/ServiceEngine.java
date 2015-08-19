@@ -279,6 +279,10 @@ public class ServiceEngine extends CBase {
         }
     }
 
+    public void execute(xMsgMessage message)
+            throws CException, xMsgException, IOException {
+    }
+
     private EngineData executeEngine(Set<EngineData> inData)
             throws IOException, xMsgException, CException {
         EngineData outData = null;
