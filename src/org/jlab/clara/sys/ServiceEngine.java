@@ -277,6 +277,31 @@ public class ServiceEngine extends CBase {
 
     public void execute(xMsgMessage message)
             throws CException, xMsgException, IOException {
+
+        isAvailable.set(false);
+
+        // Increment request count in the sysConfig object
+        sysConfig.addRequest();
+        try {
+            EngineData inData = parseFrom(message, engineObject.getInputDataTypes());
+            EngineData outData;
+
+            parseComposition(inData);
+
+            outData = executeEngine(inData);
+            updateMetadata(inData, outData);
+
+            reportProblem(outData);
+            if (outData.getStatus() == EngineStatus.ERROR) {
+                return;
+            }
+
+            sendReports(outData);
+            sendResponse(outData, getLinks(inData, outData));
+
+        } finally {
+            isAvailable.set(true);
+        }
     }
 
     private void parseComposition(EngineData inData) throws CException {
