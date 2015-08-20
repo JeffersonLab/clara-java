@@ -279,7 +279,7 @@ public class ServiceEngine extends CBase {
             throws CException, xMsgException, IOException {
     }
 
-    private EngineData executeEngine(Set<EngineData> inData)
+    private EngineData executeEngine(EngineData inData)
             throws IOException, xMsgException, CException {
         EngineData outData = null;
 
@@ -295,12 +295,8 @@ public class ServiceEngine extends CBase {
             // get engine execution start time
             startTime = System.nanoTime();
 
-            if (inData.size() == 1) {
-                outData = engineObject.execute(inData.iterator().next());
-            } else {
-                outData = engineObject.executeGroup(inData);
+            outData = engineObject.execute(inData);
 
-            }
             // get engine execution end time
             endTime = System.nanoTime();
             // service engine execution time
@@ -312,7 +308,7 @@ public class ServiceEngine extends CBase {
             updateMyState(outData.getEngineState());
 
         } catch (Throwable t) {
-            EngineData fst = inData.iterator().next();
+            EngineData fst = inData;
             fst.setDescription(t.getMessage());
             fst.setStatus(EngineStatus.ERROR, 3);
             reportProblem(fst);
