@@ -317,38 +317,26 @@ public class ServiceEngine extends CBase {
         return outData;
     }
 
-
-    /**
-     * Calls a service that is linked according to the composition.
-     *
-     * @param config     additional pre-ordered actions,
-     *                   such as reportData or reportDone
-     * @param engineData output data of this service
-     *                   that is going to be an input
-     *                   for the linked service
-     * @throws xMsgException
-     * @throws IOException
-     * @throws CException
-     */
-    private void callLinked(EngineData engineData,
-                            Set<String> outLinks)
+    private void sendReports(EngineData outData)
             throws xMsgException, IOException, CException {
-
         // External broadcast data
         if (sysConfig.isDataRequest()) {
-            reportData(engineData);
+            reportData(outData);
             sysConfig.resetDataRequestCount();
         }
 
         // External done broadcasting
         if (sysConfig.isDoneRequest()) {
-            reportDone(engineData);
+            reportDone(outData);
             sysConfig.resetDoneRequestCount();
         }
+    }
 
+    private void sendResponse(EngineData outData, Set<String> outLinks)
+            throws xMsgException, IOException, CException {
         for (String ss : outLinks) {
             xMsgMessage transit = new xMsgMessage(xMsgTopic.wrap(ss));
-            serialize(engineData, transit, engineObject.getOutputDataTypes());
+            serialize(outData, transit, engineObject.getOutputDataTypes());
             serviceSend(transit);
         }
     }
