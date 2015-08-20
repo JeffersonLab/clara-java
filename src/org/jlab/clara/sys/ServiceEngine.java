@@ -40,7 +40,7 @@ import org.jlab.coda.xmsg.excp.xMsgException;
 
 import java.io.IOException;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -60,7 +60,7 @@ public class ServiceEngine extends CBase {
     private ServiceState myServiceState =
             new ServiceState(getName(), xMsgConstants.UNDEFINED.toString());
 
-    public AtomicBoolean isAvailable;
+    private Semaphore semaphore = new Semaphore(1);
 
     // Already recorded (previous) composition
     private String prevComposition = xMsgConstants.UNDEFINED.toString();
@@ -115,8 +115,6 @@ public class ServiceEngine extends CBase {
         // Create a socket connections
         // to the local dpe proxy
         connect();
-
-        isAvailable = new AtomicBoolean(true);
 
         // create an object of the composition parser
         compiler = new SimpleCompiler(getName());
@@ -272,8 +270,6 @@ public class ServiceEngine extends CBase {
     public void execute(xMsgMessage message)
             throws CException, xMsgException, IOException {
 
-        isAvailable.set(false);
-
         // Increment request count in the sysConfig object
         sysConfig.addRequest();
         try {
@@ -294,7 +290,7 @@ public class ServiceEngine extends CBase {
             sendResponse(outData, getLinks(inData, outData));
 
         } finally {
-            isAvailable.set(true);
+            semaphore.release();
         }
     }
 
@@ -491,6 +487,10 @@ public class ServiceEngine extends CBase {
         } else {
             serialize(data, message, engineObject.getOutputDataTypes());
         }
+    }
+
+    public boolean tryAcquire() {
+        return semaphore.tryAcquire();
     }
 
     /**

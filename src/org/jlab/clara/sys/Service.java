@@ -172,11 +172,9 @@ public class Service extends CBase {
 
 
     private void execute(final xMsgMessage msg) {
-        boolean processed = false;
-        do {
+        while (true) {
             for (final ServiceEngine engine : enginePool) {
-                if (engine.isAvailable.get()) {
-                    processed = true;
+                if (engine.tryAcquire()) {
                     executionPool.submit(new Runnable() {
                         @Override
                         public void run() {
@@ -187,10 +185,10 @@ public class Service extends CBase {
                             }
                         }
                     });
-                    break;
+                    return;
                 }
             }
-        } while (!processed);
+        }
     }
 
 
