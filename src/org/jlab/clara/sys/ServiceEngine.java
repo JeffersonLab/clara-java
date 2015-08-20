@@ -317,9 +317,6 @@ public class ServiceEngine extends CBase {
             // Calculate a simple average for the execution time
             averageExecutionTime = (averageExecutionTime + execTime) / numberOfRequests;
 
-            // update service state based on the engine set state
-            updateMyState(outData.getEngineState());
-
         } catch (Throwable t) {
             EngineData fst = inData;
             fst.setDescription(t.getMessage());
@@ -328,6 +325,22 @@ public class ServiceEngine extends CBase {
             t.printStackTrace();
         }
         return outData;
+    }
+
+    private void updateMetadata(EngineData inData, EngineData outData) {
+        xMsgMeta.Builder outMeta = getMetadata(outData);
+        outMeta.setAuthor(getName());
+        outMeta.setVersion(engineObject.getVersion());
+
+        if (!outMeta.hasCommunicationId()) {
+            outMeta.setCommunicationId(inData.getCommunicationId());
+        }
+        outMeta.setComposition(inData.getComposition());
+        outMeta.setExecutionTime(averageExecutionTime);
+
+        if (outMeta.hasSenderState()) {
+            updateMyState(outMeta.getSenderState());
+        }
     }
 
     private void sendReports(EngineData outData)
