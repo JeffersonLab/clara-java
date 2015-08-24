@@ -24,7 +24,6 @@ package org.jlab.clara.sys;
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jlab.clara.base.CException;
 import org.jlab.clara.engine.Engine;
@@ -155,26 +154,20 @@ public class Service extends CBase {
 
 
     private void configure(final xMsgMessage msg) throws Exception {
-        if (enginePool.length != poolSize) {
-            throw new CException("service is busy. Can not configure.");
-        }
-        final AtomicInteger rps = new AtomicInteger();
-        for (int i = 0; i < poolSize; i++) {
-            rps.set(poolSize - i);
-            final ServiceEngine engine = enginePool[i];
-            while (true) {
+        while (true) {
+            for (final ServiceEngine engine : enginePool) {
                 if (engine.tryAcquire()) {
                     executionPool.submit(new Runnable() {
                         @Override
                         public void run() {
                             try {
-                                engine.configure(msg, rps);
+                                engine.configure(msg);
                             } catch (Exception e) {
                                 e.printStackTrace();
                             }
                         }
                     });
-                    break;
+                    return;
                 }
             }
         }

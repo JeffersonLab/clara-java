@@ -39,7 +39,6 @@ import org.jlab.coda.xmsg.excp.xMsgException;
 import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * A Service engine.
@@ -115,7 +114,7 @@ public class ServiceEngine extends CBase {
         myServiceState.setState(state);
     }
 
-    public void configure(xMsgMessage message, AtomicInteger configureCountDown)
+    public void configure(xMsgMessage message)
             throws CException,
             xMsgException,
             InterruptedException,
@@ -123,18 +122,13 @@ public class ServiceEngine extends CBase {
             ClassNotFoundException {
 
         try {
-            engineObject.configure(getEngineData(message));
-            // If this is a sync request, send done to the requester
+            EngineData outData = engineObject.configure(getEngineData(message));
             String replyTo = message.getMetaData().getReplyTo();
             if (!replyTo.equals(xMsgConstants.UNDEFINED.toString()) &&
                     CUtility.isCanonical(replyTo)) {
-                int remainingInstances = configureCountDown.decrementAndGet();
-                if (remainingInstances == 0) {
-                    xMsgTopic topic = xMsgTopic.wrap(replyTo);
-                    xMsgMessage outMsg = new xMsgMessage(topic, xMsgConstants.DONE.toString());
-                    String dpe = CUtility.getDpeName(replyTo);
-                    genericSend(dpe, outMsg);
-                }
+                xMsgMessage outMsg = new xMsgMessage(xMsgTopic.wrap(replyTo));
+                putEngineData(outData, replyTo, message);
+                genericSend(CUtility.getDpeName(replyTo), outMsg);
             }
         } finally {
             semaphore.release();
