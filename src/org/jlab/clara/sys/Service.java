@@ -27,6 +27,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.jlab.clara.base.CException;
+import org.jlab.clara.engine.Engine;
+import org.jlab.clara.util.CClassLoader;
 import org.jlab.clara.util.CConstants;
 import org.jlab.clara.util.CServiceSysConfig;
 import org.jlab.clara.util.CUtility;
@@ -56,6 +58,7 @@ public class Service extends CBase {
     private ExecutorService executionPool;
     private ServiceEngine[] enginePool;
     private int poolSize;
+    private Engine userEngine;
 
     private CServiceSysConfig sysConfig;
     private xMsgSubscription subscription;
@@ -91,6 +94,15 @@ public class Service extends CBase {
         this.name = name;
         this.sysConfig = new CServiceSysConfig();
 
+        // Dynamic loading of the Clara engine class
+        // Note: using system class loader
+        try {
+            CClassLoader cl = new CClassLoader(ClassLoader.getSystemClassLoader());
+            userEngine = cl.load(className);
+        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
+            throw new CException(e.getMessage());
+        }
+
         // Creating thread pool
         this.executionPool = Executors.newFixedThreadPool(poolSize);
 
@@ -101,7 +113,7 @@ public class Service extends CBase {
         // Fill the object pool
         for (int i = 0; i < poolSize; i++) {
             ServiceEngine engine = new ServiceEngine(name,
-                                                     className,
+                                                     userEngine,
                                                      sysConfig,
                                                      localAddress,
                                                      frontEndAddress);
@@ -118,6 +130,7 @@ public class Service extends CBase {
     public void exit() throws CException {
         boolean error = false;
         executionPool.shutdown();
+        userEngine.destroy();
 
         try {
             unregister();

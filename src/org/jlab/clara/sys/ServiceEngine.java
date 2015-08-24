@@ -27,7 +27,6 @@ import org.jlab.clara.engine.Engine;
 import org.jlab.clara.engine.EngineStatus;
 import org.jlab.clara.sys.ccc.ServiceState;
 import org.jlab.clara.sys.ccc.SimpleCompiler;
-import org.jlab.clara.util.CClassLoader;
 import org.jlab.clara.util.CConstants;
 import org.jlab.clara.util.CServiceSysConfig;
 import org.jlab.clara.util.CUtility;
@@ -64,9 +63,6 @@ public class ServiceEngine extends CBase {
     // Already recorded (previous) composition
     private String prevComposition = xMsgConstants.UNDEFINED.toString();
 
-    // user provided engine class container class name
-    private String engineClassPath = xMsgConstants.UNDEFINED.toString();
-
     // Engine instantiated object
     private final Engine engineObject;
 
@@ -92,24 +88,15 @@ public class ServiceEngine extends CBase {
      * @throws xMsgException
      */
     public ServiceEngine(String name,
-                         String classPath,
+                         Engine userEngine,
                          CServiceSysConfig config,
                          String localAddress,
                          String frontEndAddres)
             throws CException {
         super(name, localAddress, frontEndAddres);
 
+        this.engineObject = userEngine;
         this.sysConfig = config;
-
-        // Dynamic loading of the Clara engine class
-        // Note: using system class loader
-        try {
-            CClassLoader cl = new CClassLoader(ClassLoader.getSystemClassLoader());
-            engineClassPath = classPath;
-            engineObject = cl.load(engineClassPath);
-        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
-            throw new CException(e.getMessage());
-        }
 
         // Create a socket connections
         // to the local dpe proxy
