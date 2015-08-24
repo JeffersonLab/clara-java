@@ -137,16 +137,16 @@ public class ServiceEngine extends CBase {
         myServiceState.setState(state);
     }
 
-    public void configure(xMsgMessage msg, AtomicInteger configureCountDown)
+    public void configure(xMsgMessage message, AtomicInteger configureCountDown)
             throws CException,
             xMsgException,
             InterruptedException,
             IOException,
             ClassNotFoundException {
 
-        engineObject.configure(parseFrom(msg, engineObject.getInputDataTypes()));
+        engineObject.configure(parseFrom(message, engineObject.getInputDataTypes()));
         // If this is a sync request, send done to the requester
-        String replyTo = msg.getMetaData().getReplyTo();
+        String replyTo = message.getMetaData().getReplyTo();
         if (!replyTo.equals(xMsgConstants.UNDEFINED.toString()) &&
                 CUtility.isCanonical(replyTo)) {
             int remainingInstances = configureCountDown.decrementAndGet();
