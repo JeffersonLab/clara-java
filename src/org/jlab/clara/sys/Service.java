@@ -23,7 +23,6 @@ package org.jlab.clara.sys;
 
 import java.io.IOException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import org.jlab.clara.base.CException;
 import org.jlab.clara.engine.Engine;
@@ -103,7 +102,7 @@ public class Service extends CBase {
         }
 
         // Creating thread pool
-        this.executionPool = Executors.newFixedThreadPool(poolSize);
+        this.executionPool = xMsgUtil.newFixedThreadPool(poolSize, name);
 
         // Creating service object pool
         this.enginePool = new ServiceEngine[poolSize];
