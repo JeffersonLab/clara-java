@@ -51,11 +51,6 @@ public class Container extends CBase {
 
     /**
      * Constructor.
-     *
-     * @param name Clara service canonical name (such as dep:container:engine)
-     * @param feHost front-end host name. This is the host that holds
-     *               centralized registration database.
-     * @throws xMsgException
      */
     public Container(String name, String localAddress, String frontEndAddres)
             throws xMsgException, IOException {

@@ -42,7 +42,7 @@ public interface ClaraSerializer {
     /**
      * Deserializes the byte buffer into the user object and returns it.
      *
-     * @param data the serialized data
+     * @param buffer the serialized data
      * @throws ClaraException if the data could not be deserialized
      */
     Object read(ByteBuffer buffer) throws ClaraException;

@@ -77,14 +77,6 @@ public class ServiceEngine extends CBase {
 
     /**
      * Constructor.
-     *
-     * @param packageName service engine package name
-     * @param name the service canonical name
-     * @param sharedMemoryKey key in the shared memory map of DPE to
-     *                        locate this service resulting data object
-     * @param feHost front-end host name. This is the host that holds
-     *               centralized registration database.
-     * @throws xMsgException
      */
     public ServiceEngine(String name,
                          Engine userEngine,
