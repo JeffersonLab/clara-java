@@ -30,7 +30,6 @@ import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.sys.CBase;
 import org.jlab.coda.xmsg.core.xMsgMessage;
-import org.jlab.coda.xmsg.data.xMsgD.xMsgData;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 import org.jlab.coda.xmsg.excp.xMsgException;
 import org.junit.Before;
@@ -643,9 +642,9 @@ public class BaseOrchestratorTest {
 
     private void assertMessage(xMsgMessage msg, String topic, String data)
         throws Exception {
-        xMsgData msgData = xMsgData.parseFrom(msg.getData());
+        String msgData = new String(msg.getData());
         assertThat(msg.getTopic().toString(), is(topic));
-        assertThat(msgData.getSTRING(), is(data));
+        assertThat(msgData, is(data));
     }
 
 
