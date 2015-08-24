@@ -118,18 +118,10 @@ public class Service extends CBase {
     public void exit() throws CException {
         boolean error = false;
         executionPool.shutdown();
-        for (ServiceEngine engine : enginePool) {
-            try {
-                engine.dispose();
-            } catch (xMsgException | IOException e) {
-                e.printStackTrace();
-                error = true;
-            }
-        }
 
         try {
             unregister();
-        } catch (xMsgException e) {
+        } catch (xMsgException | IOException e) {
             e.printStackTrace();
             error = true;
         }
@@ -239,11 +231,25 @@ public class Service extends CBase {
     }
 
 
-    public void unregister() throws xMsgException {
+    public void unregister() throws xMsgException, IOException {
         removeLocalSubscriber(xMsgTopic.wrap(name));
         removeSubscriber(xMsgTopic.wrap(name));
-    }
 
+        String data = CConstants.SERVICE_DOWN + "?" + getName();
+
+        // Send service_down message
+        String localDpe = xMsgUtil.getLocalHostIps().get(0);
+        xMsgTopic topic = xMsgTopic.wrap(CConstants.SERVICE + ":" + localDpe);
+        xMsgMessage msg1 = new xMsgMessage(topic, data);
+
+        genericSend(localDpe, msg1);
+
+        if (!getFrontEndAddress().equals(xMsgConstants.UNDEFINED.toString())) {
+            xMsgTopic topic2 = xMsgTopic.wrap(CConstants.SERVICE + ":" + getFrontEndAddress());
+            xMsgMessage msg2 = new xMsgMessage(topic2, data);
+            genericSend(getFrontEndAddress(), msg2);
+        }
+    }
 
 
     private class ServiceCallBack implements xMsgCallBack {

@@ -34,7 +34,6 @@ import org.jlab.clara.util.CUtility;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgTopic;
-import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 import org.jlab.coda.xmsg.excp.xMsgException;
 
@@ -495,39 +494,5 @@ public class ServiceEngine extends CBase {
 
     public boolean tryAcquire() {
         return semaphore.tryAcquire();
-    }
-
-    /**
-     * Removes service xMsg registration.
-     */
-    public void removeRegistration()
-            throws xMsgException {
-
-        removeSubscriber(xMsgTopic.wrap(getName()));
-    }
-
-    /**
-     * Destroys the engine.
-     *
-     * @throws xMsgException
-     * @throws IOException
-     */
-    public void dispose() throws xMsgException, IOException {
-        removeRegistration();
-
-        String data = CConstants.SERVICE_DOWN + "?" + getName();
-
-        // Send service_down message
-        String localDpe = xMsgUtil.getLocalHostIps().get(0);
-        xMsgTopic topic = xMsgTopic.wrap(CConstants.SERVICE + ":" + localDpe);
-        xMsgMessage msg1 = new xMsgMessage(topic, data);
-
-        genericSend(localDpe, msg1);
-
-        if (!getFrontEndAddress().equals(xMsgConstants.UNDEFINED.toString())) {
-            xMsgTopic topic2 = xMsgTopic.wrap(CConstants.SERVICE + ":" + getFrontEndAddress());
-            xMsgMessage msg2 = new xMsgMessage(topic2, data);
-            genericSend(getFrontEndAddress(), msg2);
-        }
     }
 }
