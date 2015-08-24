@@ -157,16 +157,21 @@ public class Service extends CBase {
         for (int i = 0; i < poolSize; i++) {
             rps.set(poolSize - i);
             final ServiceEngine engine = enginePool[i];
-            executionPool.submit(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        engine.configure(msg, rps);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+            while (true) {
+                if (engine.tryAcquire()) {
+                    executionPool.submit(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                engine.configure(msg, rps);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    });
+                    break;
                 }
-            });
+            }
         }
     }
 

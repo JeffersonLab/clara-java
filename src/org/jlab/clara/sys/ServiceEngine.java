@@ -136,18 +136,22 @@ public class ServiceEngine extends CBase {
             IOException,
             ClassNotFoundException {
 
-        engineObject.configure(getEngineData(message));
-        // If this is a sync request, send done to the requester
-        String replyTo = message.getMetaData().getReplyTo();
-        if (!replyTo.equals(xMsgConstants.UNDEFINED.toString()) &&
-                CUtility.isCanonical(replyTo)) {
-            int remainingInstances = configureCountDown.decrementAndGet();
-            if (remainingInstances == 0) {
-                xMsgTopic topic = xMsgTopic.wrap(replyTo);
-                xMsgMessage outMsg = new xMsgMessage(topic, xMsgConstants.DONE.toString());
-                String dpe = CUtility.getDpeName(replyTo);
-                genericSend(dpe, outMsg);
+        try {
+            engineObject.configure(getEngineData(message));
+            // If this is a sync request, send done to the requester
+            String replyTo = message.getMetaData().getReplyTo();
+            if (!replyTo.equals(xMsgConstants.UNDEFINED.toString()) &&
+                    CUtility.isCanonical(replyTo)) {
+                int remainingInstances = configureCountDown.decrementAndGet();
+                if (remainingInstances == 0) {
+                    xMsgTopic topic = xMsgTopic.wrap(replyTo);
+                    xMsgMessage outMsg = new xMsgMessage(topic, xMsgConstants.DONE.toString());
+                    String dpe = CUtility.getDpeName(replyTo);
+                    genericSend(dpe, outMsg);
+                }
             }
+        } finally {
+            semaphore.release();
         }
     }
 
