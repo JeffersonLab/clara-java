@@ -57,7 +57,7 @@ public class EngineDataType {
     /**
      * Returns the name of this data type.
      */
-    public String dataType() {
+    public String mimeType() {
         return mimeType;
     }
 

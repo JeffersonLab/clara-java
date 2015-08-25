@@ -529,7 +529,7 @@ public class CBase extends xMsg {
         xMsgMeta.Builder metadata = msg.getMetaData();
         String mimeType = metadata.getDataType();
         for (EngineDataType dt : dataTypes) {
-            if (dt.dataType().equals(mimeType)) {
+            if (dt.mimeType().equals(mimeType)) {
                 try {
                     ByteBuffer bb = ByteBuffer.wrap(msg.getData());
                     Object userData = dt.serializer().read(bb);
@@ -548,7 +548,7 @@ public class CBase extends xMsg {
         xMsgMeta.Builder metadata = dataAccessor.getMetadata(data);
         String mimeType = metadata.getDataType();
         for (EngineDataType dt : dataTypes) {
-            if (dt.dataType().equals(mimeType)) {
+            if (dt.mimeType().equals(mimeType)) {
                 try {
                     ByteBuffer bb = dt.serializer().write(data.getData());
                     msg.setMetaData(metadata);
