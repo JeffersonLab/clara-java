@@ -9,7 +9,7 @@ apply plugin: 'idea'
 
 archivesBaseName = 'jclara'
 group = 'org.jlab.coda'
-version = '1.2-SNAPSHOT'
+version = '4.2-SNAPSHOT'
 
 defaultTasks 'build'
 
