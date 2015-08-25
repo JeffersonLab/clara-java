@@ -128,8 +128,8 @@ public class EngineData {
         return metadata.getCommunicationId();
     }
 
-    public void setCommunicationId(String state) {
-        metadata.setSenderState(state);
+    public void setCommunicationId(int value) {
+        metadata.setCommunicationId(value);
     }
 
     public String getComposition() {
