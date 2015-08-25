@@ -30,11 +30,11 @@ import java.util.Set;
  */
 public interface Engine {
 
-    EngineData configure(EngineData data);
+    EngineData configure(EngineData input);
 
-    EngineData execute(EngineData data);
+    EngineData execute(EngineData input);
 
-    EngineData executeGroup(Set<EngineData> data);
+    EngineData executeGroup(Set<EngineData> inputs);
 
     Set<EngineDataType> getInputDataTypes();
 
