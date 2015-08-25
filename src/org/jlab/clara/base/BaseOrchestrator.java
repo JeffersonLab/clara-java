@@ -306,11 +306,12 @@ public class BaseOrchestrator {
      * If there is a service with the given name in the container, the request is ignored.
      *
      * @param serviceName the canonical name of the service
+     * @param serviceClass the classpath to the service engine
      * @param poolSize the maximum number of parallel engines to be created
      *                 to process multi-threading requests
      * @throws ClaraException if the request could not be sent
      */
-    public void deployService(String serviceName, int poolSize)
+    public void deployService(String serviceName, String serviceClass, int poolSize)
             throws ClaraException {
         try {
             Objects.requireNonNull(serviceName, "Null service name");
@@ -325,7 +326,7 @@ public class BaseOrchestrator {
             String containerName = ClaraUtil.getContainerCanonicalName(serviceName);
             String engineName = ClaraUtil.getEngineName(serviceName);
             xMsgTopic topic = buildTopic(CConstants.CONTAINER, containerName);
-            String data = buildData(CConstants.DEPLOY_SERVICE, engineName, poolSize);
+            String data = buildData(CConstants.DEPLOY_SERVICE, engineName, serviceClass, poolSize);
             xMsgMessage msg = buildMessage(topic, data);
             base.genericSend(host, msg);
         } catch (IOException | xMsgException e) {
@@ -341,13 +342,15 @@ public class BaseOrchestrator {
      * A response is received once the service has been deployed.
      *
      * @param serviceName the canonical name of the service
+     * @param serviceClass the classpath to the service engine
      * @param poolSize the maximum number of parallel engines to be created
      *                 to process multi-threading requests
      * @param timeout the time to wait for a response, in milliseconds
      * @throws ClaraException if the request could not be sent
      * @throws TimeoutException if a response is not received
      */
-    public void deployServiceSync(String serviceName, int poolSize, int timeout)
+    public void deployServiceSync(String serviceName, String serviceClass,
+                                  int poolSize, int timeout)
            throws ClaraException, TimeoutException {
         try {
             Objects.requireNonNull(serviceName, "Null service name");
@@ -363,7 +366,7 @@ public class BaseOrchestrator {
             String containerName = ClaraUtil.getContainerCanonicalName(serviceName);
             String engineName = ClaraUtil.getEngineName(serviceName);
             xMsgTopic topic = buildTopic(CConstants.CONTAINER, containerName);
-            String data = buildData(CConstants.DEPLOY_SERVICE, engineName, poolSize);
+            String data = buildData(CConstants.DEPLOY_SERVICE, engineName, serviceClass, poolSize);
             xMsgMessage msg = buildMessage(topic, data);
             base.genericSyncSend(host, msg, timeout);
         } catch (IOException | xMsgException e) {

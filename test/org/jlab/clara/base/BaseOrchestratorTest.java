@@ -196,55 +196,55 @@ public class BaseOrchestratorTest {
 
     @Test
     public void deployServiceSendsRequest() throws Exception {
-        orchestrator.deployService("10.2.9.96_java:master:E1", 10);
+        orchestrator.deployService("10.2.9.96_java:master:E1", "org.example.service.E1", 10);
 
         assertSendCall("10.2.9.96", "container:10.2.9.96_java:master",
-                "deployService?E1?10");
+                "deployService?E1?org.example.service.E1?10");
     }
 
 
     @Test
     public void deployServiceThrowsOnFailure() throws Exception {
         expectClaraExceptionOnSend();
-        orchestrator.deployService("10.2.9.96_java:master:E1", 10);
+        orchestrator.deployService("10.2.9.96_java:master:E1", "org.example.service.E1", 10);
     }
 
 
     @Test
     public void deployServiceThrowsOnBadServiceName() throws Exception {
         expectedEx.expect(IllegalArgumentException.class);
-        orchestrator.deployService("10.2.9.96_java::E1", 10);
+        orchestrator.deployService("10.2.9.96_java::E1", "org.example.service.E1", 10);
     }
 
 
 
     @Test
     public void deployServiceSyncSendsRequest() throws Exception {
-        orchestrator.deployServiceSync("10.2.9.96_java:master:E1", 8, 30);
+        orchestrator.deployServiceSync("10.2.9.96_java:master:E1", "org.example.service.E1", 8, 30);
 
         assertSyncSendCall("10.2.9.96", "container:10.2.9.96_java:master",
-                "deployService?E1?8", 30);
+                "deployService?E1?org.example.service.E1?8", 30);
     }
 
 
     @Test
     public void deployServiceSyncThrowsOnFailure() throws Exception {
         expectClaraExceptionOnSyncSend();
-        orchestrator.deployServiceSync("10.2.9.96_java:master:E1", 8, 30);
+        orchestrator.deployServiceSync("10.2.9.96_java:master:E1", "org.example.service.E1", 8, 30);
     }
 
 
     @Test
     public void deployServiceSyncThrowsOnTimeout() throws Exception {
         expectTimeoutExceptionOnSyncSend();
-        orchestrator.deployServiceSync("10.2.9.96_java:master:E1", 8, 30);
+        orchestrator.deployServiceSync("10.2.9.96_java:master:E1", "org.example.service.E1", 8, 30);
     }
 
 
     @Test
     public void deployServiceSyncThrowsOnBadServiceName() throws Exception {
         expectedEx.expect(IllegalArgumentException.class);
-        orchestrator.deployServiceSync("10.2.9.96_java::E1", 10, 30);
+        orchestrator.deployServiceSync("10.2.9.96_java::E1", "org.example.service.E1", 10, 30);
     }
 
 
