@@ -116,7 +116,7 @@ public class EngineData {
         metadata.setSenderState(state);
     }
 
-    public String getEngineAuthor() {
+    public String getEngineName() {
         return metadata.getAuthor();
     }
 
