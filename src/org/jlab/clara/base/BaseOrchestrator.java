@@ -600,27 +600,15 @@ public class BaseOrchestrator {
      * @param composition the composition of services
      * @param data the input data for the composition
      * @param timeout the time to wait for a response, in milliseconds
+     * @return the output data of the last service in the composition
      * @throws ClaraException if the request could not be sent
      * @throws TimeoutException if a response is not received
      */
-    public void executeCompositionSync(Composition composition, EngineData data, int timeout)
+    public EngineData executeCompositionSync(Composition composition,
+                                             EngineData data,
+                                             int timeout)
             throws ClaraException, TimeoutException {
-        try {
-            Objects.requireNonNull(composition, "Null service composition");
-            Objects.requireNonNull(data, "Null input data");
-            validateTimeout(timeout);
-
-            String firstService = composition.firstService();
-            String host = ClaraUtil.getHostName(firstService);
-            xMsgTopic topic = xMsgTopic.wrap(firstService);
-            xMsgMessage msg = buildMessage(topic, data);
-            xMsgMeta.Builder msgMeta = msg.getMetaData();
-            msgMeta.setComposition(composition.toString());
-            msgMeta.setAction(xMsgMeta.ControlAction.EXECUTE);
-            base.genericSyncSend(host, msg, timeout);
-        } catch (IOException | xMsgException e) {
-            throw new ClaraException("Could not send request", e);
-        }
+        throw new UnsupportedOperationException("Not implemented yet");
     }
 
 
