@@ -534,10 +534,11 @@ public class BaseOrchestrator {
      * @param serviceName the canonical name of the service
      * @param data the input data for the service
      * @param timeout the time to wait for a response, in milliseconds
+     * @return the service output data
      * @throws ClaraException if the request could not be sent
      * @throws TimeoutException if a response is not received
      */
-    public void executeServiceSync(String serviceName, EngineData data, int timeout)
+    public EngineData executeServiceSync(String serviceName, EngineData data, int timeout)
             throws ClaraException, TimeoutException {
         try {
             Objects.requireNonNull(serviceName, "Null service name");
@@ -553,9 +554,12 @@ public class BaseOrchestrator {
             xMsgMeta.Builder msgMeta = msg.getMetaData();
             msgMeta.setComposition(serviceName);
             msgMeta.setAction(xMsgMeta.ControlAction.EXECUTE);
-            base.genericSyncSend(host, msg, timeout);
+            xMsgMessage response = base.genericSyncSend(host, msg, timeout);
+            return base.parseFrom(response, dataTypes);
         } catch (IOException | xMsgException e) {
             throw new ClaraException("Could not send request", e);
+        } catch (CException e) {
+            throw new ClaraException("Could not deserialize response", e);
         }
     }
 
