@@ -912,6 +912,30 @@ public class BaseOrchestrator {
     }
 
 
+    /**
+     * Returns the assigned orchestrator name.
+     */
+    public String getName() {
+        return base.getName();
+    }
+
+
+    /**
+     * Returns the registered local address.
+     */
+    public String getLocalAddress() {
+        return base.getLocalAddress();
+    }
+
+
+    /**
+     * Returns the registered front-end address.
+     */
+    public String getFrontEndAddress() {
+        return base.getFrontEndAddress();
+    }
+
+
     private String getStatusText(EngineStatus status) {
         switch (status) {
             case INFO:
