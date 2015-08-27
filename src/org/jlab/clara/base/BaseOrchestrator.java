@@ -913,6 +913,50 @@ public class BaseOrchestrator {
 
 
     /**
+     * Subscribes to the periodic alive message reported by the running DPEs.
+     *
+     * @param callback the action to be run when a report is received
+     * @throws ClaraException if there was an error starting the subscription
+     */
+    public void listenDpes(GenericCallback callback) throws ClaraException {
+        try {
+            Objects.requireNonNull(callback, "Null callback");
+            String host = base.getFrontEndAddress();
+            xMsgTopic topic = buildTopic(CConstants.DPE_ALIVE);
+            String key = host + "#" + topic;
+            if (subscriptions.containsKey(key)) {
+                throw new IllegalStateException("Duplicated subscription to: " + topic);
+            }
+            xMsgCallBack wrapperCallback = wrapGenericCallback(callback);
+            xMsgSubscription handler = base.genericReceive(host, topic, wrapperCallback);
+            subscriptions.put(key, handler);
+        } catch (IOException | xMsgException e) {
+            throw new ClaraException("Could not subscribe to DPEs", e);
+        }
+    }
+
+
+    /**
+     * Unsubscribes from the alive reports of the running DPEs.
+     *
+     * @throws ClaraException if there was an error stopping the subscription
+     */
+    public void unlistenDpes() throws ClaraException {
+        try {
+            xMsgTopic topic = buildTopic(CConstants.DPE_ALIVE);
+            String host = base.getFrontEndAddress();
+            String key = host + "#" + topic;
+            xMsgSubscription handler = subscriptions.remove(key);
+            if (handler != null) {
+                base.unsubscribe(handler);
+            }
+        } catch (xMsgException e) {
+            throw new ClaraException("Could not unsubscribe to DPEs", e);
+        }
+    }
+
+
+    /**
      * Returns the assigned orchestrator name.
      */
     public String getName() {

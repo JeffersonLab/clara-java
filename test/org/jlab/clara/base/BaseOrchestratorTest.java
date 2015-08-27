@@ -900,6 +900,71 @@ public class BaseOrchestratorTest {
     }
 
 
+    @Test
+    public void listenDpesSendsRequest() throws Exception {
+        GenericCallback callback = mock(GenericCallback.class);
+
+        orchestrator.listenDpes(callback);
+
+        assertSubscriptionStarted("dpeAlive", callback);
+    }
+
+
+    @Test
+    public void listenDpesThrowsOnFailure() throws Exception {
+        GenericCallback callback = mock(GenericCallback.class);
+        expectClaraExceptionOnReceive();
+
+        orchestrator.listenDpes(callback);
+    }
+
+
+    @Test
+    public void listenDpesStoresSubscriptionHandler() throws Exception {
+        GenericCallback callback = mock(GenericCallback.class);
+        xMsgSubscription handler = mockSubscriptionHandler();
+        String key = "10.2.9.1#dpeAlive";
+
+        orchestrator.listenDpes(callback);
+
+        assertSubscriptionRegistered(key, handler);
+    }
+
+
+    @Test
+    public void listenDpesThrowsOnDuplicatedSubscription() throws Exception {
+        GenericCallback callback = mock(GenericCallback.class);
+        orchestrator.listenDpes(callback);
+
+        expectedEx.expect(IllegalStateException.class);
+        orchestrator.listenDpes(callback);
+    }
+
+
+
+    @Test
+    public void unlistenDpesStopsSubscription() throws Exception {
+        String key = "10.2.9.1#dpeAlive";
+        xMsgSubscription handler = mock(xMsgSubscription.class);
+        orchestrator.getSubscriptions().put(key, handler);
+
+        orchestrator.unlistenDpes();
+
+        verify(baseMock).unsubscribe(handler);
+    }
+
+
+    @Test
+    public void unlistenDpesRemovesSubscriptionHandler() throws Exception {
+        String key = "10.2.9.1#dpeAlive";
+        orchestrator.getSubscriptions().put(key, mock(xMsgSubscription.class));
+
+        orchestrator.unlistenDpes();
+
+        assertSubscriptionRemoved(key);
+    }
+
+
 
     private void assertSendCall(String host, String topic, String data) throws Exception {
         ArgumentCaptor<xMsgMessage> msgArg = ArgumentCaptor.forClass(xMsgMessage.class);
@@ -967,6 +1032,16 @@ public class BaseOrchestratorTest {
     }
 
 
+    private void assertSubscriptionStarted(String topic, GenericCallback callback)
+            throws Exception {
+        OrchestratorMock orchMock = (OrchestratorMock) orchestrator;
+        verify(baseMock).genericReceive(feHost,
+                                        xMsgTopic.wrap(topic),
+                                        orchMock.userWrapperCallback);
+        assertThat(orchMock.userGenericCallback, is(sameInstance(callback)));
+    }
+
+
     private void assertSubscriptionRegistered(String key, xMsgSubscription handler) {
         assertThat(orchestrator.getSubscriptions(), hasEntry(key, handler));
     }
@@ -1017,6 +1092,7 @@ public class BaseOrchestratorTest {
     private class OrchestratorMock extends BaseOrchestrator {
         public EngineStatus userEngineStatus;
         public EngineCallback userEngineCallback;
+        public GenericCallback userGenericCallback;
         public xMsgCallBack userWrapperCallback;
 
         public OrchestratorMock() throws ClaraException {
@@ -1034,6 +1110,13 @@ public class BaseOrchestratorTest {
             userEngineStatus = userStatus;
             userEngineCallback = userCallback;
             userWrapperCallback = super.wrapEngineCallback(userCallback, userStatus);
+            return userWrapperCallback;
+        }
+
+        @Override
+        xMsgCallBack wrapGenericCallback(final GenericCallback userCallback) {
+            userGenericCallback = userCallback;
+            userWrapperCallback = super.wrapGenericCallback(userCallback);
             return userWrapperCallback;
         }
     }
