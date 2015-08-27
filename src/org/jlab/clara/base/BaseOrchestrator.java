@@ -957,6 +957,100 @@ public class BaseOrchestrator {
 
 
     /**
+     * Returns the canonical names of all the actors that match the given query.
+     * The returned actors (DPEs, containers or services) depend of the type of
+     * the query.
+     *
+     * @param query the search filter
+     * @return the canonical names that match the filter
+     * @throws ClaraException if there was a problem with the request
+     */
+    public Set<String> getCanonicalNames(ClaraFilter query) throws ClaraException {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+
+    /**
+     * Returns the registration information of the selected Clara actor.
+     * The actor can be a DPE, a container or a service.
+     *
+     * @param canonicalName the name of the actor
+     * @return a JSON object with the registration information of the actor
+     * @throws ClaraException if there was a problem with the request
+     */
+    public String getRegistrationInfo(String canonicalName) throws ClaraException {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+
+    /**
+     * Returns the registration information of all the actors that match the
+     * given query.
+     * The returned actors (DPEs, containers or services) depend of the type of
+     * the query.
+     *
+     * @param query the search filter
+     * @return a JSON array with the registration information of all selected actorss
+     * @throws ClaraException if there was a problem with the request
+     */
+    public String getRegistrationInfo(ClaraFilter query) throws ClaraException {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+
+    /**
+     * Checks if the given DPE is up and running.
+     *
+     * @param dpeName the name of the DPE
+     * @return true if the DPE is running
+     * @throws ClaraException if there was a problem with the request
+     */
+    public boolean pingDpe(String dpeName) throws ClaraException {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+
+    /**
+     * Checks if the given service is up and running.
+     *
+     * @param serviceName the name of the service
+     * @return true if the service is running
+     * @throws ClaraException if there was a problem with the request
+     */
+    public boolean pingService(String serviceName) throws ClaraException {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+
+    /**
+     * Returns the runtime information of the selected Clara actor.
+     * The actor can be a DPE, a container or a service.
+     *
+     * @param canonicalName the name of the actor
+     * @return a JSON object with the runtime information of the actor
+     * @throws ClaraException if there was a problem with the request
+     */
+    public String getRuntimeState(String canonicalName) throws ClaraException {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+
+    /**
+     * Returns the runtime information of all the actors that match the
+     * given query.
+     * The returned actors (DPEs, containers or services) depend of the type of
+     * the query.
+     *
+     * @param query the search filter
+     * @return a JSON array with the runtime information of all selected actorss
+     * @throws ClaraException if there was a problem with the request
+     */
+    public String getRuntimeState(ClaraFilter query) throws ClaraException {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+
+    /**
      * Returns the assigned orchestrator name.
      */
     public String getName() {
