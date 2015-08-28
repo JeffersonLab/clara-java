@@ -22,10 +22,12 @@
 package org.jlab.clara.sys;
 
 import java.io.IOException;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
 import org.jlab.clara.base.CException;
 import org.jlab.clara.engine.Engine;
+import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.util.CClassLoader;
 import org.jlab.clara.util.CConstants;
 import org.jlab.clara.util.CServiceSysConfig;
@@ -97,6 +99,7 @@ public class Service extends CBase {
         try {
             CClassLoader cl = new CClassLoader(ClassLoader.getSystemClassLoader());
             userEngine = cl.load(className);
+            validateEngine(userEngine);
         } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
             throw new CException(e.getMessage());
         }
@@ -127,6 +130,34 @@ public class Service extends CBase {
         registerSubscriber(topic, "Clara Service");
         System.out.printf("%s: Registered service = %s%n",
                           CUtility.getCurrentTimeInH(), getName());
+    }
+
+
+    private void validateEngine(Engine engine) throws CException {
+        validateDataTypes(engine.getInputDataTypes(), "input data types");
+        validateDataTypes(engine.getOutputDataTypes(), "output data types");
+        validateString(engine.getDescription(), "description");
+        validateString(engine.getVersion(), "version");
+        validateString(engine.getAuthor(), "author");
+    }
+
+
+    private void validateString(String value, String field) throws CException {
+        if (value == null || value.isEmpty()) {
+            throw new CException("missing engine " + field);
+        }
+    }
+
+
+    private void validateDataTypes(Set<EngineDataType> types, String field) throws CException {
+        if (types == null || types.isEmpty()) {
+            throw new CException("missing engine " + field);
+        }
+        for (EngineDataType dt : types) {
+            if (dt == null) {
+                throw new CException("null data type on engine " + field);
+            }
+        }
     }
 
 
