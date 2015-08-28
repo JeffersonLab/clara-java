@@ -299,7 +299,7 @@ public class Service extends CBase {
         public xMsgMessage callback(xMsgMessage msg) {
             try {
                 xMsgMeta.Builder metadata = msg.getMetaData();
-                if (metadata.getDataType().equals("binary/native")) {
+                if (!metadata.hasAction()) {
                     setup(msg);
                 } else if (metadata.getAction().equals(xMsgMeta.ControlAction.CONFIGURE)) {
                     configure(msg);
