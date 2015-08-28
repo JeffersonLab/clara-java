@@ -66,7 +66,7 @@ public class Container extends CBase {
         subscriptionHandler = genericReceive(topic, new ContainerCallBack());
 
         //register container
-        registerSubscriber(xMsgTopic.wrap(getName()), "Service Container");
+        registerSubscriber(topic, "Service Container");
         System.out.println(CUtility.getCurrentTimeInH() + ": Registered container = " + name);
     }
 
