@@ -23,6 +23,7 @@ package org.jlab.clara.engine;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
+import java.util.Objects;
 
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.coda.xmsg.data.xMsgD.xMsgData;
@@ -50,6 +51,11 @@ public class EngineDataType {
      * @param serializer the custom serializer for this data-type
      */
     public EngineDataType(String mimeType, ClaraSerializer serializer) {
+        Objects.requireNonNull(mimeType, "null mime-type");
+        Objects.requireNonNull(serializer, "null serializer");
+        if (mimeType.isEmpty()) {
+            throw new IllegalArgumentException("empty mime-type");
+        }
         this.mimeType = mimeType;
         this.serializer = serializer;
     }
