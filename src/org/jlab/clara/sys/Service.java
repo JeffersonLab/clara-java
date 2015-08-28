@@ -101,7 +101,7 @@ public class Service extends CBase {
             userEngine = cl.load(className);
             validateEngine(userEngine);
         } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
-            throw new CException(e.getMessage());
+            throw new CException("Could not load engine", e);
         }
 
         // Creating thread pool

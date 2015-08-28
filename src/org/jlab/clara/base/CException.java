@@ -32,4 +32,8 @@ public class CException extends Exception {
     public CException(String message) {
         super(message);
     }
+
+    public CException(String message, Throwable cause) {
+        super(message, cause);
+    }
 }

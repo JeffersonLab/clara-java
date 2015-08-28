@@ -535,7 +535,7 @@ public class CBase extends xMsg {
                     Object userData = dt.serializer().read(bb);
                     return dataAccessor.build(userData, metadata);
                 } catch (ClaraException e) {
-                    throw new CException(e.getMessage());
+                    throw new CException("Could not deserialize " + mimeType, e);
                 }
             }
         }
@@ -555,7 +555,7 @@ public class CBase extends xMsg {
                     msg.setData(mimeType, bb.array());
                     return;
                 } catch (ClaraException e) {
-                    throw new CException(e.getMessage());
+                    throw new CException("Could not serialize " + mimeType, e);
                 }
             }
         }
