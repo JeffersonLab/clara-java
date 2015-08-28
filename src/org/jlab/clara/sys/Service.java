@@ -123,6 +123,10 @@ public class Service extends CBase {
         this.subscription = genericReceive(topic, new ServiceCallBack());
         System.out.printf("%s: Started service = %s  poolsize = %d%n",
                           CUtility.getCurrentTimeInH(), getName(), poolSize);
+
+        registerSubscriber(topic, "Clara Service");
+        System.out.printf("%s: Registered service = %s%n",
+                          CUtility.getCurrentTimeInH(), getName());
     }
 
 
