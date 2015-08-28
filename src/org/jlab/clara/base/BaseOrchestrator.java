@@ -971,4 +971,29 @@ public class BaseOrchestrator {
             }
         };
     }
+
+
+    /**
+     * Extracts the JSON data from the received message and calls the user
+     * callback.
+     */
+    xMsgCallBack wrapGenericCallback(final GenericCallback userCallback) {
+        return new xMsgCallBack() {
+            @Override
+            public xMsgMessage callback(xMsgMessage msg) {
+                try {
+                    String mimeType = msg.getMimeType();
+                    if (mimeType.equals("text/string")) {
+                        userCallback.callback(new String(msg.getData()));
+                    } else {
+                        throw new CException("Unexpected mime-type: " + mimeType);
+                    }
+                } catch (CException e) {
+                    System.out.println("Error receiving data to " + msg.getTopic());
+                    e.printStackTrace();
+                }
+                return null;
+            }
+        };
+    }
 }
