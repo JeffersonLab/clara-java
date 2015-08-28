@@ -22,6 +22,8 @@
 package org.jlab.clara.sys;
 
 import org.jlab.clara.base.CException;
+import org.jlab.clara.base.ClaraLang;
+import org.jlab.clara.base.ClaraUtil;
 import org.jlab.clara.util.CConstants;
 import org.jlab.clara.util.CUtility;
 import org.jlab.clara.util.RequestParser;
@@ -138,7 +140,7 @@ public class Dpe extends CBase {
      * @throws IOException
      */
     public Dpe(String localAddress, Boolean isFE) throws xMsgException, IOException {
-        super(localAddress, localAddress, localAddress);
+        super(ClaraUtil.formDpeName(localAddress, ClaraLang.JAVA), localAddress, localAddress);
 
         dpeName = getName();
         feHostIp = getFrontEndAddress();
@@ -202,7 +204,7 @@ public class Dpe extends CBase {
      * @throws IOException
      */
     public Dpe(String localAddress, String frontEndAddress) throws xMsgException, IOException {
-        super(localAddress, localAddress, frontEndAddress);
+        super(ClaraUtil.formDpeName(localAddress, ClaraLang.JAVA), localAddress, frontEndAddress);
 
         dpeName = getName();
         feHostIp = getFrontEndAddress();
@@ -386,7 +388,7 @@ public class Dpe extends CBase {
         System.out.println("================================");
         System.out.println(" Binding = Java");
         System.out.println(" Date    = " + CUtility.getCurrentTimeInH());
-        System.out.println(" Host    = " + getName());
+        System.out.println(" Host    = " + getLocalAddress());
         System.out.println("================================");
     }
 
@@ -397,7 +399,7 @@ public class Dpe extends CBase {
 
     private void turnFE(String feAddress) {
         feHostIp = feAddress;
-        isFE = feHostIp.equals(dpeName);
+        isFE = feHostIp.equals(getLocalAddress());
     }
 
     private void runDpe(String dpe) {
