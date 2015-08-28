@@ -65,7 +65,7 @@ public class BaseOrchestrator {
      */
     public BaseOrchestrator() throws ClaraException {
         try {
-            base = getClaraBase("localhost");
+            base = getClaraBase(xMsgUtil.localhost());
         } catch (IOException | xMsgException e) {
             throw new ClaraException("Could not start orchestrator", e);
         }
