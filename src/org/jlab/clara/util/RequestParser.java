@@ -26,9 +26,6 @@ import java.util.StringTokenizer;
 
 import org.jlab.clara.base.CException;
 import org.jlab.coda.xmsg.core.xMsgMessage;
-import org.jlab.coda.xmsg.data.xMsgD.xMsgData;
-
-import com.google.protobuf.InvalidProtocolBufferException;
 
 public class RequestParser {
 
@@ -37,23 +34,10 @@ public class RequestParser {
 
     public static RequestParser build(xMsgMessage msg) throws CException {
         String mimeType = msg.getMetaData().getDataType();
-        if (mimeType.equals("binary/native")) {
-            try {
-                xMsgData data = xMsgData.parseFrom(msg.getData());
-                return build(data);
-            } catch (InvalidProtocolBufferException e) {
-                throw new CException(e.getMessage());
-            }
+        if (mimeType.equals("text/string")) {
+            return new RequestParser(new String(msg.getData()));
         }
         throw new CException("Invalid mime-type = " + mimeType);
-    }
-
-
-    public static RequestParser build(xMsgData data) throws CException {
-        if (data.hasSTRING()) {
-            return new RequestParser(data.getSTRING());
-        }
-        throw new CException("Empty data");
     }
 
 
