@@ -121,7 +121,8 @@ public class Service extends CBase {
 
         xMsgTopic topic = xMsgTopic.wrap(getName());
         this.subscription = genericReceive(topic, new ServiceCallBack());
-        System.out.println(CUtility.getCurrentTimeInH() + ": Started service = " + getName());
+        System.out.printf("%s: Started service = %s  poolsize = %d%n",
+                          CUtility.getCurrentTimeInH(), getName(), poolSize);
     }
 
 

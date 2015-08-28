@@ -95,7 +95,6 @@ public class ServiceEngine extends CBase {
 
         // create an object of the composition parser
         compiler = new SimpleCompiler(getName());
-        System.out.println(CUtility.getCurrentTimeInH() + ": Started service = " + getName());
     }
 
     public ServiceState getMyServiceState() {
