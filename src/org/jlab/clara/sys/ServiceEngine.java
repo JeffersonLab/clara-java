@@ -123,7 +123,7 @@ public class ServiceEngine extends CBase {
                 } else {
                     putEngineData(outData, replyTo, message);
                 }
-                genericSend(CUtility.getDpeName(replyTo), outMsg);
+                genericSend(getLocalAddress(), outMsg);
             }
         } finally {
             semaphore.release();
