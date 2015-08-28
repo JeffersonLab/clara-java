@@ -686,6 +686,7 @@ public class CBase extends xMsg {
         // CHECKSTYLE.ON: StaticVariableName
 
         public static EngineDataAccessor getDefault() {
+            new EngineData(); // Load the accessor
             EngineDataAccessor a = DEFAULT;
             if (a == null) {
                 throw new IllegalStateException("EngineDataAccessor should not be null");
