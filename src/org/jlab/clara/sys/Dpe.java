@@ -140,11 +140,9 @@ public class Dpe extends CBase {
     public Dpe(String localAddress, Boolean isFE) throws xMsgException, IOException {
         super(localAddress, localAddress, localAddress);
 
-        dpeName = myName;
+        dpeName = getName();
+        feHostIp = getFrontEndAddress();
         this.isFE = isFE;
-        if (isFE) {
-            feHostIp = dpeName;
-        }
 
         printLogo();
 
