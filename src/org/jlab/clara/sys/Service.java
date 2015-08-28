@@ -119,9 +119,9 @@ public class Service extends CBase {
             enginePool[i] = engine;
         }
 
-        this.subscription = serviceReceive(name, new ServiceCallBack());
-
-        System.out.println(CUtility.getCurrentTimeInH() + ": Started service = " + name + "\n");
+        xMsgTopic topic = xMsgTopic.wrap(getName());
+        this.subscription = genericReceive(topic, new ServiceCallBack());
+        System.out.println(CUtility.getCurrentTimeInH() + ": Started service = " + getName());
     }
 
 
