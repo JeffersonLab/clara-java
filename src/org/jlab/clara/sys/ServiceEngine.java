@@ -118,7 +118,11 @@ public class ServiceEngine extends CBase {
             if (!replyTo.equals(xMsgConstants.UNDEFINED.toString()) &&
                     CUtility.isCanonical(replyTo)) {
                 xMsgMessage outMsg = new xMsgMessage(xMsgTopic.wrap(replyTo));
-                putEngineData(outData, replyTo, message);
+                if (outData == null) {
+                    outMsg.setData("done");
+                } else {
+                    putEngineData(outData, replyTo, message);
+                }
                 genericSend(CUtility.getDpeName(replyTo), outMsg);
             }
         } finally {
