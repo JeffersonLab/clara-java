@@ -97,12 +97,12 @@ public class Container extends CBase {
      * @param engineClassPath the service engine class path
      * @param servicePoolSize the size of the engines pool
      */
-    private void addService(String engineClassPath,
+    private void addService(String engineName,
+                            String engineClassPath,
                             int servicePoolSize,
                             String initialState)
             throws CException, xMsgException, IOException {
 
-        String engineName = engineClassPath.substring(engineClassPath.lastIndexOf(".") + 1);
         String serviceName = getName() + ":" + engineName;
 
         if (_myServices.containsKey(serviceName)) {
@@ -153,9 +153,10 @@ public class Container extends CBase {
                 switch (command) {
 
                     case CConstants.DEPLOY_SERVICE:
+                        String className = parser.nextString();
                         int poolSize = parser.nextInteger();
                         String state = parser.nextString(xMsgConstants.UNDEFINED.toString());
-                        addService(serviceName, poolSize, state);
+                        addService(serviceName, className, poolSize, state);
                         break;
 
                     case CConstants.REMOVE_SERVICE:
