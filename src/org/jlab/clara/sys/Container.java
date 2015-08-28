@@ -59,11 +59,10 @@ public class Container extends CBase {
         // Create a socket connections to the local dpe proxy
         connect();
 
-        System.out.println(CUtility.getCurrentTimeInH() + ": Started container = " + getName());
-
         // Subscribe messages published to this container
         xMsgTopic topic = xMsgTopic.wrap(CConstants.CONTAINER + ":" + getName());
         subscriptionHandler = genericReceive(topic, new ContainerCallBack());
+        System.out.println(CUtility.getCurrentTimeInH() + ": Started container = " + getName());
 
         //register container
         registerSubscriber(topic, "Service Container");
