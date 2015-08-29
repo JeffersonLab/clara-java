@@ -121,7 +121,7 @@ public class ServiceEngine extends CBase {
                 if (outData == null) {
                     outMsg.setData("done");
                 } else {
-                    putEngineData(outData, replyTo, message);
+                    putEngineData(outData, replyTo, outMsg);
                 }
                 genericSend(getLocalAddress(), outMsg);
             }
