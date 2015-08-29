@@ -260,6 +260,15 @@ public class ServiceEngine extends CBase {
             outData = executeEngine(inData);
             updateMetadata(inData, outData);
 
+            String replyTo = message.getMetaData().getReplyTo();
+            if (!replyTo.equals(xMsgConstants.UNDEFINED.toString()) &&
+                    CUtility.isCanonical(replyTo)) {
+                xMsgMessage outMsg = new xMsgMessage(xMsgTopic.wrap(replyTo));
+                putEngineData(outData, replyTo, outMsg);
+                genericSend(getLocalAddress(), outMsg);
+                return;
+            }
+
             reportProblem(outData);
             if (outData.getStatus() == EngineStatus.ERROR) {
                 return;
