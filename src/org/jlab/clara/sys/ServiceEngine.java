@@ -114,21 +114,17 @@ public class ServiceEngine extends CBase {
             IOException,
             ClassNotFoundException {
 
-        try {
-            EngineData outData = engineObject.configure(getEngineData(message));
-            String replyTo = message.getMetaData().getReplyTo();
-            if (!replyTo.equals(xMsgConstants.UNDEFINED.toString()) &&
-                    CUtility.isCanonical(replyTo)) {
-                xMsgMessage outMsg = new xMsgMessage(xMsgTopic.wrap(replyTo));
-                if (outData == null) {
-                    outMsg.setData("done");
-                } else {
-                    putEngineData(outData, replyTo, outMsg);
-                }
-                genericSend(getLocalAddress(), outMsg);
+        EngineData outData = engineObject.configure(getEngineData(message));
+        String replyTo = message.getMetaData().getReplyTo();
+        if (!replyTo.equals(xMsgConstants.UNDEFINED.toString()) &&
+                CUtility.isCanonical(replyTo)) {
+            xMsgMessage outMsg = new xMsgMessage(xMsgTopic.wrap(replyTo));
+            if (outData == null) {
+                outMsg.setData("done");
+            } else {
+                putEngineData(outData, replyTo, outMsg);
             }
-        } finally {
-            semaphore.release();
+            genericSend(getLocalAddress(), outMsg);
         }
     }
 
@@ -253,35 +249,31 @@ public class ServiceEngine extends CBase {
 
         // Increment request count in the sysConfig object
         sysConfig.addRequest();
-        try {
-            EngineData inData = getEngineData(message);
-            EngineData outData;
 
-            parseComposition(inData);
+        EngineData inData = getEngineData(message);
+        EngineData outData;
 
-            outData = executeEngine(inData);
-            updateMetadata(inData, outData);
+        parseComposition(inData);
 
-            String replyTo = message.getMetaData().getReplyTo();
-            if (!replyTo.equals(xMsgConstants.UNDEFINED.toString()) &&
-                    CUtility.isCanonical(replyTo)) {
-                xMsgMessage outMsg = new xMsgMessage(xMsgTopic.wrap(replyTo));
-                putEngineData(outData, replyTo, outMsg);
-                genericSend(getLocalAddress(), outMsg);
-                return;
-            }
+        outData = executeEngine(inData);
+        updateMetadata(inData, outData);
 
-            reportProblem(outData);
-            if (outData.getStatus() == EngineStatus.ERROR) {
-                return;
-            }
-
-            sendReports(outData);
-            sendResponse(outData, getLinks(inData, outData));
-
-        } finally {
-            semaphore.release();
+        String replyTo = message.getMetaData().getReplyTo();
+        if (!replyTo.equals(xMsgConstants.UNDEFINED.toString()) &&
+                CUtility.isCanonical(replyTo)) {
+            xMsgMessage outMsg = new xMsgMessage(xMsgTopic.wrap(replyTo));
+            putEngineData(outData, replyTo, outMsg);
+            genericSend(getLocalAddress(), outMsg);
+            return;
         }
+
+        reportProblem(outData);
+        if (outData.getStatus() == EngineStatus.ERROR) {
+            return;
+        }
+
+        sendReports(outData);
+        sendResponse(outData, getLinks(inData, outData));
     }
 
     private void parseComposition(EngineData inData) throws CException {
@@ -475,5 +467,9 @@ public class ServiceEngine extends CBase {
 
     public boolean tryAcquire() {
         return semaphore.tryAcquire();
+    }
+
+    public void release() {
+        semaphore.release();
     }
 }

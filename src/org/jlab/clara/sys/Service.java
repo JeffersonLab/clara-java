@@ -199,6 +199,8 @@ public class Service extends CBase {
                                 engine.configure(msg);
                             } catch (Exception e) {
                                 e.printStackTrace();
+                            } finally {
+                                engine.release();
                             }
                         }
                     });
@@ -220,6 +222,8 @@ public class Service extends CBase {
                                 engine.execute(msg);
                             } catch (Exception e) {
                                 e.printStackTrace();
+                            } finally {
+                                engine.release();
                             }
                         }
                     });
