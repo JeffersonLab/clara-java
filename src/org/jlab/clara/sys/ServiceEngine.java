@@ -34,6 +34,7 @@ import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
+import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta.ControlAction;
 import org.jlab.coda.xmsg.excp.xMsgException;
 
 import java.io.IOException;
@@ -340,6 +341,7 @@ public class ServiceEngine extends CBase {
         }
         outMeta.setComposition(inData.getComposition());
         outMeta.setExecutionTime(averageExecutionTime);
+        outMeta.setAction(ControlAction.EXECUTE);
 
         if (outMeta.hasSenderState()) {
             updateMyState(outMeta.getSenderState());
