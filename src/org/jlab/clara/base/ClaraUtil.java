@@ -21,6 +21,8 @@
 
 package org.jlab.clara.base;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -264,5 +266,18 @@ public final class ClaraUtil {
     public static String formServiceName(String host, ClaraLang lang,
                                          String container, String engine) {
         return formContainerName(host, lang, container) + CConstants.TOPIC_SEP + engine;
+    }
+
+
+    /**
+     * Returns the stack trace of a exception as a string.
+     * @param e an exception
+     * @return a string with the stack trace of the exception
+     */
+    public static String reportException(Throwable e) {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        e.printStackTrace(pw);
+        return sw.toString();
     }
 }
