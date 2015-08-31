@@ -115,15 +115,18 @@ public class ServiceEngine extends CBase {
             ClassNotFoundException {
 
         EngineData outData = engineObject.configure(getEngineData(message));
+        if (outData == null) {
+            outData = new EngineData();
+        }
+        if (outData.getData() ==  null) {
+            outData.setData(EngineDataType.STRING.mimeType(), "done");
+        }
+
         String replyTo = message.getMetaData().getReplyTo();
         if (!replyTo.equals(xMsgConstants.UNDEFINED.toString()) &&
                 CUtility.isCanonical(replyTo)) {
             xMsgMessage outMsg = new xMsgMessage(xMsgTopic.wrap(replyTo));
-            if (outData == null) {
-                outMsg.setData("done");
-            } else {
-                putEngineData(outData, replyTo, outMsg);
-            }
+            putEngineData(outData, replyTo, outMsg);
             genericSend(getLocalAddress(), outMsg);
         }
     }
