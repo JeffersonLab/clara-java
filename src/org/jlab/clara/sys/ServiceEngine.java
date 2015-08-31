@@ -24,6 +24,7 @@ package org.jlab.clara.sys;
 import org.jlab.clara.base.CException;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.Engine;
+import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.engine.EngineStatus;
 import org.jlab.clara.sys.ccc.ServiceState;
 import org.jlab.clara.sys.ccc.SimpleCompiler;
@@ -378,8 +379,11 @@ public class ServiceEngine extends CBase {
     public void reportDone(EngineData data)
             throws xMsgException, IOException, CException {
 
+        String mt = data.getMimeType();
+        Object ob = data.getData();
+
         // we are not sending data
-        data.setData(xMsgConstants.UNDEFINED.toString(), null);
+        data.setData(EngineDataType.STRING.mimeType(), "done");
 
         // Create transit data
         xMsgTopic topic = xMsgTopic.wrap(xMsgConstants.DONE.toString() + ":" + getName());
@@ -389,6 +393,8 @@ public class ServiceEngine extends CBase {
         serialize(data, transit, engineObject.getOutputDataTypes());
 
         genericSend(getFrontEndAddress(), transit);
+
+        data.setData(mt, ob);
     }
 
     /**
