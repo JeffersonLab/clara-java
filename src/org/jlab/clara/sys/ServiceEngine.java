@@ -109,15 +109,23 @@ public class ServiceEngine extends CBase {
             IOException,
             ClassNotFoundException {
 
-        EngineData inputData = getEngineData(message);
-        EngineData outData = configureEngine(inputData);
-
-        updateMetadata(message.getMetaData(), getMetadata(outData));
-        resetClock();
+        EngineData inputData = null;
+        EngineData outData = null;
+        try {
+            inputData = getEngineData(message);
+            outData = configureEngine(inputData);
+        } catch (Exception e) {
+            outData = reportSystemError("unhandled exception", -4, ClaraUtil.reportException(e));
+        } finally {
+            updateMetadata(message.getMetaData(), getMetadata(outData));
+            resetClock();
+        }
 
         String replyTo = getReplyTo(message);
         if (replyTo != null) {
             send(getLocalAddress(), replyTo, outData);
+        } else {
+            reportProblem(outData);
         }
     }
 
