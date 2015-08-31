@@ -35,7 +35,6 @@ import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
-import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta.ControlAction;
 import org.jlab.coda.xmsg.excp.xMsgException;
 
 import java.io.IOException;
@@ -256,7 +255,7 @@ public class ServiceEngine extends CBase {
         parseComposition(inData);
 
         outData = executeEngine(inData);
-        updateMetadata(inData, outData);
+        updateMetadata(message.getMetaData(), getMetadata(outData));
 
         String replyTo = getReplyTo(message);
         if (replyTo != null) {
@@ -328,17 +327,16 @@ public class ServiceEngine extends CBase {
         return outData;
     }
 
-    private void updateMetadata(EngineData inData, EngineData outData) {
-        xMsgMeta.Builder outMeta = getMetadata(outData);
+    private void updateMetadata(xMsgMeta.Builder inMeta, xMsgMeta.Builder outMeta) {
         outMeta.setAuthor(getName());
         outMeta.setVersion(engineObject.getVersion());
 
         if (!outMeta.hasCommunicationId()) {
-            outMeta.setCommunicationId(inData.getCommunicationId());
+            outMeta.setCommunicationId(inMeta.getCommunicationId());
         }
-        outMeta.setComposition(inData.getComposition());
+        outMeta.setComposition(inMeta.getComposition());
         outMeta.setExecutionTime(averageExecutionTime);
-        outMeta.setAction(ControlAction.EXECUTE);
+        outMeta.setAction(inMeta.getAction());
 
         if (outMeta.hasSenderState()) {
             updateMyState(outMeta.getSenderState());
