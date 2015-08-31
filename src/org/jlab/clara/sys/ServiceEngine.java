@@ -384,14 +384,11 @@ public class ServiceEngine extends CBase {
         // Create transit data
         xMsgTopic topic = xMsgTopic.wrap(xMsgConstants.DONE.toString() + ":" + getName());
         xMsgMessage transit = new xMsgMessage(topic);
+
+        // send always serialized. We want to keep shared memory for data only.
         serialize(data, transit, engineObject.getOutputDataTypes());
 
-        String dpe = "localhost";
-        if (!getFrontEndAddress().equals(xMsgConstants.UNDEFINED.toString())) {
-            dpe = getFrontEndAddress();
-        }
-        // send always serialized. We want to keep shared memory for data only.
-        genericSend(dpe, transit);
+        genericSend(getFrontEndAddress(), transit);
     }
 
     /**
@@ -407,14 +404,11 @@ public class ServiceEngine extends CBase {
         // Create transit data
         xMsgTopic topic = xMsgTopic.wrap(xMsgConstants.DATA.toString() + ":" + getName());
         xMsgMessage transit = new xMsgMessage(topic);
+
+        // send always serialized. We want to keep shared memory for application data only.
         serialize(data, transit, engineObject.getOutputDataTypes());
 
-        String dpe = "localhost";
-        if (!getFrontEndAddress().equals(xMsgConstants.UNDEFINED.toString())) {
-            dpe = getFrontEndAddress();
-        }
-        // send always serialized. We want to keep shared memory for application data only.
-        genericSend(dpe, transit);
+        genericSend(getFrontEndAddress(), transit);
     }
 
     /**
@@ -439,13 +433,10 @@ public class ServiceEngine extends CBase {
         }
 
         xMsgMessage transit = new xMsgMessage(topic);
-        serialize(data, transit, engineObject.getOutputDataTypes());
-        String dpe = "localhost";
-        if (!getFrontEndAddress().equals(xMsgConstants.UNDEFINED.toString())) {
-            dpe = getFrontEndAddress();
-        }
         // send always serialized. We want to keep shared memory for data only.
-        genericSend(dpe, transit);
+        serialize(data, transit, engineObject.getOutputDataTypes());
+
+        genericSend(getFrontEndAddress(), transit);
     }
 
     private EngineData getEngineData(xMsgMessage message) throws CException {
