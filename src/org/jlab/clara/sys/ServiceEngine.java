@@ -419,9 +419,6 @@ public class ServiceEngine extends CBase {
     public void reportProblem(EngineData data)
             throws xMsgException, IOException, CException {
 
-        // we are not sending data
-        data.setData(xMsgConstants.UNDEFINED.toString(), null);
-
         // Create transit data
         xMsgTopic topic;
         if (data.getStatus().equals(EngineStatus.ERROR)) {
