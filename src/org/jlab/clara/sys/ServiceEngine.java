@@ -424,9 +424,9 @@ public class ServiceEngine extends CBase {
 
         // Create transit data
         xMsgTopic topic;
-        if (data.getStatus().equals(xMsgMeta.Status.ERROR)) {
+        if (data.getStatus().equals(EngineStatus.ERROR)) {
             topic = xMsgTopic.wrap(xMsgConstants.ERROR.toString() + ":" + getName());
-        } else if (data.getStatus().equals(xMsgMeta.Status.WARNING)) {
+        } else if (data.getStatus().equals(EngineStatus.WARNING)) {
             topic = xMsgTopic.wrap(xMsgConstants.WARNING.toString() + ":" + getName());
         } else {
             return;
