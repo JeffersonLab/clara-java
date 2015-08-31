@@ -317,6 +317,13 @@ public class ServiceEngine extends CBase {
             // Calculate a simple average for the execution time
             averageExecutionTime = (averageExecutionTime + execTime) / numberOfRequests;
 
+            if (outData == null) {
+                throw new CException("null engine result");
+            }
+            if (outData.getData() == null) {
+                throw new CException("empty engine result");
+            }
+
         } catch (Throwable t) {
             EngineData fst = inData;
             fst.setDescription(t.getMessage());
