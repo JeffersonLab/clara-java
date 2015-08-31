@@ -122,9 +122,8 @@ public class ServiceEngine extends CBase {
             outData.setData(EngineDataType.STRING.mimeType(), "done");
         }
 
-        String replyTo = message.getMetaData().getReplyTo();
-        if (!replyTo.equals(xMsgConstants.UNDEFINED.toString()) &&
-                CUtility.isCanonical(replyTo)) {
+        String replyTo = getReplyTo(message);
+        if (replyTo != null) {
             send(getLocalAddress(), replyTo, outData);
         }
     }
@@ -259,9 +258,8 @@ public class ServiceEngine extends CBase {
         outData = executeEngine(inData);
         updateMetadata(inData, outData);
 
-        String replyTo = message.getMetaData().getReplyTo();
-        if (!replyTo.equals(xMsgConstants.UNDEFINED.toString()) &&
-                CUtility.isCanonical(replyTo)) {
+        String replyTo = getReplyTo(message);
+        if (replyTo != null) {
             send(getLocalAddress(), replyTo, outData);
             return;
         }
@@ -441,6 +439,15 @@ public class ServiceEngine extends CBase {
         } else {
             serialize(data, message, engineObject.getOutputDataTypes());
         }
+    }
+
+
+    private String getReplyTo(xMsgMessage message) {
+        String replyTo = message.getMetaData().getReplyTo();
+        if (replyTo.equals(xMsgConstants.UNDEFINED.toString())) {
+            return null;
+        }
+        return replyTo;
     }
 
     public boolean tryAcquire() {
