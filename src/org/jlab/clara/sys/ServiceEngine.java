@@ -54,6 +54,9 @@ import java.util.concurrent.Semaphore;
  */
 public class ServiceEngine extends CBase {
 
+    // Engine instantiated object
+    private final Engine engineObject;
+
     private CServiceSysConfig sysConfig;
 
     private ServiceState myServiceState =
@@ -63,9 +66,6 @@ public class ServiceEngine extends CBase {
 
     // Already recorded (previous) composition
     private String prevComposition = xMsgConstants.UNDEFINED.toString();
-
-    // Engine instantiated object
-    private final Engine engineObject;
 
     // Simple average of the service engine
     // execution times over all received requests
