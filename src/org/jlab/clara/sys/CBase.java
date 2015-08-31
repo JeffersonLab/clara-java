@@ -30,6 +30,7 @@ import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
 import org.jlab.clara.base.CException;
+import org.jlab.clara.base.ClaraUtil;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.EngineDataType;
@@ -340,7 +341,7 @@ public class CBase extends xMsg {
         }
 
         if (CUtility.isRemoteService(msg.getTopic().toString())) {
-            String dpeHost = CUtility.getDpeName(msg.getTopic().toString());
+            String dpeHost = ClaraUtil.getHostName(msg.getTopic().toString());
 
             // Create a socket connections to the remote dpe.
             xMsgAddress address = new xMsgAddress(dpeHost);
