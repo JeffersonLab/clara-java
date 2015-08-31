@@ -22,6 +22,7 @@
 package org.jlab.clara.sys;
 
 import org.jlab.clara.base.CException;
+import org.jlab.clara.base.ClaraUtil;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.Engine;
 import org.jlab.clara.engine.EngineDataType;
@@ -30,7 +31,6 @@ import org.jlab.clara.sys.ccc.ServiceState;
 import org.jlab.clara.sys.ccc.SimpleCompiler;
 import org.jlab.clara.util.CConstants;
 import org.jlab.clara.util.CServiceSysConfig;
-import org.jlab.clara.util.CUtility;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgTopic;
@@ -125,9 +125,7 @@ public class ServiceEngine extends CBase {
         String replyTo = message.getMetaData().getReplyTo();
         if (!replyTo.equals(xMsgConstants.UNDEFINED.toString()) &&
                 CUtility.isCanonical(replyTo)) {
-            xMsgMessage outMsg = new xMsgMessage(xMsgTopic.wrap(replyTo));
-            putEngineData(outData, replyTo, outMsg);
-            genericSend(getLocalAddress(), outMsg);
+            send(getLocalAddress(), replyTo, outData);
         }
     }
 
@@ -264,9 +262,7 @@ public class ServiceEngine extends CBase {
         String replyTo = message.getMetaData().getReplyTo();
         if (!replyTo.equals(xMsgConstants.UNDEFINED.toString()) &&
                 CUtility.isCanonical(replyTo)) {
-            xMsgMessage outMsg = new xMsgMessage(xMsgTopic.wrap(replyTo));
-            putEngineData(outData, replyTo, outMsg);
-            genericSend(getLocalAddress(), outMsg);
+            send(getLocalAddress(), replyTo, outData);
             return;
         }
 
@@ -369,9 +365,7 @@ public class ServiceEngine extends CBase {
     private void sendResponse(EngineData outData, Set<String> outLinks)
             throws xMsgException, IOException, CException {
         for (String ss : outLinks) {
-            xMsgMessage transit = new xMsgMessage(xMsgTopic.wrap(ss));
-            putEngineData(outData, ss, transit);
-            serviceSend(transit);
+            send(ClaraUtil.getHostName(ss), ss, outData);
         }
     }
 
@@ -399,6 +393,14 @@ public class ServiceEngine extends CBase {
         } else if (status.equals(EngineStatus.WARNING)) {
             report(xMsgConstants.WARNING.toString(), data);
         }
+    }
+
+
+    private void send(String host, String receiver, EngineData data)
+            throws xMsgException, CException, IOException {
+        xMsgMessage message = new xMsgMessage(xMsgTopic.wrap(receiver));
+        putEngineData(data, receiver, message);
+        genericSend(host, message);
     }
 
     private void report(String topicPrefix, EngineData data)
