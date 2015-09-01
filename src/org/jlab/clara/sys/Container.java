@@ -106,7 +106,9 @@ public class Container extends CBase {
         String serviceName = getName() + ":" + engineName;
 
         if (_myServices.containsKey(serviceName)) {
-            throw new CException("service exists");
+            String msg = "%s Warning: service %s already exists. No new service is deployed%n";
+            System.err.printf(msg, CUtility.getCurrentTimeInH(), serviceName);
+            return;
         }
 
         // Object pool size is set to be 2 in case
