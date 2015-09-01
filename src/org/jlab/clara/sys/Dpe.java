@@ -432,63 +432,26 @@ public class Dpe extends CBase {
         genericSend(adpe, amsg);
     }
 
-    private void runContainer(String container)
+    private void runContainer(String containerName)
             throws CException, xMsgException, IOException {
-        if (!ClaraUtil.isCanonicalName(container)) {
-            // if container name is not canonical we assume it to be started in this DPE
-            container = dpeName + ":" + container;
-        }
-        String tmpDpeName = ClaraUtil.getDpeName(container);
-        if (_myCloud.get(tmpDpeName).containsKey(container)) {
-            System.err.println("Warning: container = " + container +
-                    " is registered on this Dpe. No new container is created.");
-        } else {
 
-            if (tmpDpeName.equals(dpeName)) {
-                if (feHostIp.equals(xMsgConstants.UNDEFINED.toString())) {
-                    startContainer(container);
-                } else {
-                    startContainer(container, feHostIp);
-                    if (!feHostIp.equals(dpeName)) {
-                        // report FE container is up
-                        reportFE(CConstants.CONTAINER_UP + "?" + container);
-                    }
-                }
-            } else if (isFE) {
-                startRemoteContainer(tmpDpeName, container);
-                if (_myCloud.containsKey(tmpDpeName)) {
-                    _myCloud.get(tmpDpeName).put(container, new HashSet<String>());
-                } else {
-                    System.out.println("Warning: DPE = " + tmpDpeName +
-                            " was not registered previously.");
-                    Map<String, Set<String>> tmpContainer = new HashMap<>();
-                    tmpContainer.put(container, new HashSet<String>());
-                    _myCloud.put(tmpDpeName, tmpContainer);
-                }
-            }
+        containerName = ClaraUtil.formContainerName(dpeName, containerName);
+        if (myContainers.containsKey(containerName)) {
+            String msg = "%s Warning: container %s already exists. No new container is created%n";
+            System.err.printf(msg, CUtility.getCurrentTimeInH(), containerName);
+            return;
         }
+
+        Container container = new Container(containerName, getLocalAddress(), getFrontEndAddress());
+        myContainers.put(containerName, container);
     }
 
-    private void stopContainer(String container)
+    private void stopContainer(String containerName)
             throws CException, xMsgException, IOException {
-        if (!ClaraUtil.isCanonicalName(container)) {
-            container = dpeName + ":" + container;
-        }
-        String tmpDpeName = ClaraUtil.getDpeName(container);
-        if (tmpDpeName.equals(dpeName)) {
-            removeContainer(dpeName, container);
-            if (!feHostIp.equals(xMsgConstants.UNDEFINED.toString()) &&
-                    !feHostIp.equals(dpeName)) {
-
-                // report FE container is down
-                reportFE(CConstants.CONTAINER_DOWN + "?" + container);
-            }
-        } else if (isFE) {
-            removeContainer(tmpDpeName, container);
-            if (_myCloud.containsKey(tmpDpeName)) {
-                _myCloud.get(tmpDpeName).remove(container);
-                System.out.println("Warning: Container = " + container + " is down.");
-            }
+        if (myContainers.containsKey(containerName)) {
+            Container container = myContainers.remove(containerName);
+            System.out.println("Removed container " + containerName);
+            container.exit();
         }
     }
 
