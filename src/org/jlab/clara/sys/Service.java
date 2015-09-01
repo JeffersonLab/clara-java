@@ -56,7 +56,6 @@ public class Service extends CBase {
 
     private ExecutorService executionPool;
     private ServiceEngine[] enginePool;
-    private int poolSize;
     private Engine userEngine;
 
     private ServiceSysConfig sysConfig;
@@ -108,7 +107,6 @@ public class Service extends CBase {
 
         // Creating service object pool
         this.enginePool = new ServiceEngine[poolSize];
-        this.poolSize = poolSize;
 
         // Fill the object pool
         for (int i = 0; i < poolSize; i++) {
