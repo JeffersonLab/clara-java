@@ -421,14 +421,13 @@ public class ServiceEngine extends CBase {
             int id = data.getCommunicationId();
             SharedMemory.putEngineData(receiver, getName(), id, data);
 
-            xMsgMeta.Builder metadata = xMsgMeta.newBuilder();
-            metadata.setDataType(CConstants.SHARED_MEMORY_KEY);
+            xMsgMeta.Builder metadata = message.getMetaData();
             metadata.setSender(getName());
+            metadata.setComposition(data.getComposition());
             metadata.setCommunicationId(id);
             metadata.setAction(xMsgMeta.ControlAction.EXECUTE);
 
-            message.setMetaData(metadata);
-            message.setData(CConstants.SHARED_MEMORY_KEY);
+            message.setData(CConstants.SHARED_MEMORY_KEY, CConstants.SHARED_MEMORY_KEY.getBytes());
         } else {
             serialize(data, message, engineObject.getOutputDataTypes());
         }
