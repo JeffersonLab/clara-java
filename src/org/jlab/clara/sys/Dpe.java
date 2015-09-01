@@ -72,6 +72,9 @@ public class Dpe extends CBase {
     // Indicates if this DPE is assigned to be the Front-End of the cloud.
     private Boolean isFE = false;
 
+    // The containers running on this DPE
+    private Map<String, Container> myContainers = new HashMap<>();
+
     // Local database of names, stores canonical names of
     // cloud DPEs, containers and services.
     // Note. if this is not a FE then these list will contain
