@@ -112,6 +112,8 @@ public class ServiceEngine extends CBase {
         EngineData inputData = getEngineData(message);
         EngineData outData = configureEngine(inputData);
 
+        updateMetadata(message.getMetaData(), getMetadata(outData));
+
         String replyTo = getReplyTo(message);
         if (replyTo != null) {
             send(getLocalAddress(), replyTo, outData);
