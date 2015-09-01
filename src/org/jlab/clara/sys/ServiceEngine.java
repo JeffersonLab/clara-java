@@ -113,7 +113,19 @@ public class ServiceEngine extends CBase {
             IOException,
             ClassNotFoundException {
 
-        EngineData outData = engineObject.configure(getEngineData(message));
+        EngineData inputData = getEngineData(message);
+        EngineData outData = configureEngine(inputData);
+
+        String replyTo = getReplyTo(message);
+        if (replyTo != null) {
+            send(getLocalAddress(), replyTo, outData);
+        }
+    }
+
+
+    private EngineData configureEngine(EngineData inputData) {
+        EngineData outData = engineObject.configure(inputData);
+
         if (outData == null) {
             outData = new EngineData();
         }
@@ -121,10 +133,7 @@ public class ServiceEngine extends CBase {
             outData.setData(EngineDataType.STRING.mimeType(), "done");
         }
 
-        String replyTo = getReplyTo(message);
-        if (replyTo != null) {
-            send(getLocalAddress(), replyTo, outData);
-        }
+        return outData;
     }
 
 //    /**
