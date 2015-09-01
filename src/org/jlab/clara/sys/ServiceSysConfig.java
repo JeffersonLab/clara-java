@@ -21,10 +21,15 @@
 
 package org.jlab.clara.sys;
 
+import org.jlab.clara.sys.ccc.ServiceState;
+
 /**
  *  Service system configuration.
  */
 public class ServiceSysConfig {
+
+    private final ServiceState state;
+
     private boolean isDataRequest;
     private boolean isDoneRequest;
     private int doneReportThreshold;
@@ -32,6 +37,10 @@ public class ServiceSysConfig {
 
     private int dataRequestCount;
     private int doneRequestCount;
+
+    public ServiceSysConfig(String name, String initialState) {
+        state = new ServiceState(name, initialState);
+    }
 
     public void addRequest() {
         dataRequestCount++;
@@ -84,5 +93,9 @@ public class ServiceSysConfig {
 
     public int getDoneRequestCount() {
         return doneRequestCount;
+    }
+
+    public void updateState(String newState) {
+        state.setState(newState);
     }
 }

@@ -91,7 +91,7 @@ public class Service extends CBase {
         super(name, localAddress, frontEndAddress);
 
         this.name = name;
-        this.sysConfig = new ServiceSysConfig();
+        this.sysConfig = new ServiceSysConfig(name, initialState);
 
         // Dynamic loading of the Clara engine class
         // Note: using system class loader
@@ -117,7 +117,6 @@ public class Service extends CBase {
                                                      sysConfig,
                                                      localAddress,
                                                      frontEndAddress);
-            engine.updateMyState(initialState);
             enginePool[i] = engine;
         }
 

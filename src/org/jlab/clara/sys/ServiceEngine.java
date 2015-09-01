@@ -27,7 +27,6 @@ import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.Engine;
 import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.engine.EngineStatus;
-import org.jlab.clara.sys.ccc.ServiceState;
 import org.jlab.clara.sys.ccc.SimpleCompiler;
 import org.jlab.clara.util.CConstants;
 import org.jlab.coda.xmsg.core.xMsgConstants;
@@ -56,9 +55,6 @@ public class ServiceEngine extends CBase {
     private final Engine engineObject;
 
     private ServiceSysConfig sysConfig;
-
-    private ServiceState myServiceState =
-            new ServiceState(getName(), xMsgConstants.UNDEFINED.toString());
 
     private Semaphore semaphore = new Semaphore(1);
 
@@ -91,14 +87,6 @@ public class ServiceEngine extends CBase {
 
         // create an object of the composition parser
         compiler = new SimpleCompiler(getName());
-    }
-
-    public ServiceState getMyServiceState() {
-        return myServiceState;
-    }
-
-    public void updateMyState(String state) {
-        myServiceState.setState(state);
     }
 
     public void configure(xMsgMessage message)
@@ -345,9 +333,10 @@ public class ServiceEngine extends CBase {
         outMeta.setAction(inMeta.getAction());
 
         if (outMeta.hasSenderState()) {
-            updateMyState(outMeta.getSenderState());
+            sysConfig.updateState(outMeta.getSenderState());
         }
     }
+
 
     private void sendReports(EngineData outData)
             throws xMsgException, IOException, CException {
