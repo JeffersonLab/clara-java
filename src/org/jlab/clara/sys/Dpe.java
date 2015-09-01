@@ -118,6 +118,7 @@ public class Dpe extends CBase {
             } else if (frontEnd.isEmpty()) {
                 new Dpe(localAddress, false);
             } else {
+                frontEnd = xMsgUtil.toHostAddress(frontEnd);
                 new Dpe(localAddress, frontEnd);
             }
         } catch (xMsgException | IOException e) {
