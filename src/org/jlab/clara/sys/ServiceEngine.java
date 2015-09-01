@@ -113,6 +113,7 @@ public class ServiceEngine extends CBase {
         EngineData outData = configureEngine(inputData);
 
         updateMetadata(message.getMetaData(), getMetadata(outData));
+        resetClock();
 
         String replyTo = getReplyTo(message);
         if (replyTo != null) {
@@ -122,7 +123,11 @@ public class ServiceEngine extends CBase {
 
 
     private EngineData configureEngine(EngineData inputData) {
+        long startTime = startClock();
+
         EngineData outData = engineObject.configure(inputData);
+
+        stopClock(startTime);
 
         if (outData == null) {
             outData = new EngineData();
