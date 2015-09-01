@@ -65,7 +65,7 @@ public class Container extends CBase {
         System.out.println(CUtility.getCurrentTimeInH() + ": Started container = " + getName());
 
         //register container
-        registerSubscriber(topic, "Service Container");
+        registerLocalSubscriber(topic, "Service Container");
         System.out.println(CUtility.getCurrentTimeInH() + ": Registered container = " + name);
     }
 

@@ -126,7 +126,7 @@ public class Service extends CBase {
         System.out.printf("%s: Started service = %s  poolsize = %d%n",
                           CUtility.getCurrentTimeInH(), getName(), poolSize);
 
-        registerSubscriber(topic, "Clara Service");
+        registerLocalSubscriber(topic, "Clara Service");
         System.out.printf("%s: Registered service = %s%n",
                           CUtility.getCurrentTimeInH(), getName());
     }
