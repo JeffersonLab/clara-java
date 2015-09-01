@@ -269,14 +269,19 @@ public class ServiceEngine extends CBase {
         // Increment request count in the sysConfig object
         sysConfig.addRequest();
 
-        EngineData inData = getEngineData(message);
-        EngineData outData;
+        EngineData inData = null;
+        EngineData outData = null;
 
-        parseComposition(inData);
-
-        outData = executeEngine(inData);
-        updateMetadata(message.getMetaData(), getMetadata(outData));
-        resetClock();
+        try {
+            inData = getEngineData(message);
+            parseComposition(inData);
+            outData = executeEngine(inData);
+        } catch (Exception e) {
+            outData = reportSystemError("unhandled exception", -4, ClaraUtil.reportException(e));
+        } finally {
+            updateMetadata(message.getMetaData(), getMetadata(outData));
+            resetClock();
+        }
 
         String replyTo = getReplyTo(message);
         if (replyTo != null) {
@@ -307,30 +312,20 @@ public class ServiceEngine extends CBase {
     }
 
     private EngineData executeEngine(EngineData inData)
-            throws IOException, xMsgException, CException {
-        EngineData outData = null;
+            throws CException {
+        long startTime = startClock();
 
-        try {
-            long startTime = startClock();
+        EngineData outData = engineObject.execute(inData);
 
-            outData = engineObject.execute(inData);
+        stopClock(startTime);
 
-            stopClock(startTime);
-
-            if (outData == null) {
-                throw new CException("null engine result");
-            }
-            if (outData.getData() == null) {
-                throw new CException("empty engine result");
-            }
-
-        } catch (Throwable t) {
-            EngineData fst = inData;
-            fst.setDescription(t.getMessage());
-            fst.setStatus(EngineStatus.ERROR, 3);
-            reportProblem(fst);
-            t.printStackTrace();
+        if (outData == null) {
+            throw new CException("null engine result");
         }
+        if (outData.getData() == null) {
+            throw new CException("empty engine result");
+        }
+
         return outData;
     }
 
