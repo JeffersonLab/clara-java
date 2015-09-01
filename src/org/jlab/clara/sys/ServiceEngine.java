@@ -323,7 +323,12 @@ public class ServiceEngine extends CBase {
             throw new CException("null engine result");
         }
         if (outData.getData() == null) {
-            throw new CException("empty engine result");
+            if (outData.getStatus() == EngineStatus.ERROR) {
+                outData.setData(EngineDataType.STRING.mimeType(),
+                                xMsgConstants.UNDEFINED.toString());
+            } else {
+                throw new CException("empty engine result");
+            }
         }
 
         return outData;
