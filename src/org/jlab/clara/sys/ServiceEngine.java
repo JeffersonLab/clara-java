@@ -66,14 +66,10 @@ public class ServiceEngine extends CBase {
     // Already recorded (previous) composition
     private String prevComposition = xMsgConstants.UNDEFINED.toString();
 
-    // Simple average of the service engine
-    // execution times over all received requests
-    private long averageExecutionTime;
-    // Number of received requests to this service.
-    // Note: common for different compositions
-    private long numberOfRequests;
-
     private SimpleCompiler compiler;
+
+    // The last execution time
+    private long executionTime;
 
 
     /**
@@ -265,6 +261,7 @@ public class ServiceEngine extends CBase {
 
         outData = executeEngine(inData);
         updateMetadata(message.getMetaData(), getMetadata(outData));
+        resetClock();
 
         String replyTo = getReplyTo(message);
         if (replyTo != null) {
@@ -298,26 +295,12 @@ public class ServiceEngine extends CBase {
             throws IOException, xMsgException, CException {
         EngineData outData = null;
 
-        // Variables to measure service
-        // engine execution time
-        long startTime;
-        long endTime;
-        long execTime;
-
         try {
-            // increment request count
-            numberOfRequests++;
-            // get engine execution start time
-            startTime = System.nanoTime();
+            long startTime = startClock();
 
             outData = engineObject.execute(inData);
 
-            // get engine execution end time
-            endTime = System.nanoTime();
-            // service engine execution time
-            execTime = endTime - startTime;
-            // Calculate a simple average for the execution time
-            averageExecutionTime = (averageExecutionTime + execTime) / numberOfRequests;
+            stopClock(startTime);
 
             if (outData == null) {
                 throw new CException("null engine result");
@@ -344,7 +327,7 @@ public class ServiceEngine extends CBase {
             outMeta.setCommunicationId(inMeta.getCommunicationId());
         }
         outMeta.setComposition(inMeta.getComposition());
-        outMeta.setExecutionTime(averageExecutionTime);
+        outMeta.setExecutionTime(executionTime);
         outMeta.setAction(inMeta.getAction());
 
         if (outMeta.hasSenderState()) {
@@ -456,6 +439,20 @@ public class ServiceEngine extends CBase {
         }
         return replyTo;
     }
+
+
+    private void resetClock() {
+        executionTime = 0;
+    }
+
+    private long startClock() {
+        return System.nanoTime();
+    }
+
+    private void stopClock(long watch) {
+        executionTime = (System.nanoTime() - watch) / 1000;
+    }
+
 
     public boolean tryAcquire() {
         return semaphore.tryAcquire();
