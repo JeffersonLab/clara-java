@@ -118,6 +118,9 @@ public class Service extends CBase {
             enginePool[i] = engine;
         }
 
+        // Register with the shared memory
+        SharedMemory.addReceiver(name);
+
         xMsgTopic topic = xMsgTopic.wrap(getName());
         this.subscription = genericReceive(topic, new ServiceCallBack());
         System.out.printf("%s: Started service = %s  poolsize = %d%n",
