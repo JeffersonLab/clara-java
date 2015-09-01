@@ -95,6 +95,7 @@ public class Dpe extends CBase {
         while (i < args.length) {
             switch (args[i++]) {
                 case "-fh":
+                case "-fe_host":
                     if (i < args.length) {
                         frontEnd = args[i++];
                     } else {
