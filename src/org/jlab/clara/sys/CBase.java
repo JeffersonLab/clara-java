@@ -564,6 +564,19 @@ public class CBase extends xMsg {
     }
 
 
+    public EngineData reportSystemError(String msg, int severity, String description) {
+        EngineData outData = new EngineData();
+        outData.setData(EngineDataType.STRING.mimeType(), msg);
+        outData.setDescription(description);
+
+        xMsgMeta.Builder outMeta = getMetadata(outData);
+        outMeta.setStatus(xMsgMeta.Status.ERROR);
+        outMeta.setSeverityId(severity);
+
+        return outData;
+    }
+
+
     // DPE specific methods
     public Object syncPing(String dpeName, int timeOut)
             throws xMsgException, IOException {
