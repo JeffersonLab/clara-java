@@ -1,0 +1,15 @@
+#!/bin/sh
+
+if [ -n "$CLARA_HOME" ]; then
+    export CLASSPATH="$CLARA_HOME/lib/*:$CLARA_HOME/services/*"
+fi
+
+if [ "$1" = "-h" ] || [ "$1" = "-help" ]; then
+    echo ""
+    echo "Starts CLARA proxy (java binding)"
+    echo "-------------------------------- "
+    echo "synopsis: j_proxy"
+    echo ""
+else
+    java -XX:+UseNUMA -XX:+UseBiasedLocking org.jlab.coda.xmsg.xsys.xMsgProxy "$@"
+fi
