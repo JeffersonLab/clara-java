@@ -317,7 +317,7 @@ public class CBase extends xMsg {
                             xMsgMessage msg)
             throws IOException, xMsgException, CException {
 
-        if (!CUtility.isCanonical(msg.getTopic().toString())) {
+        if (!ClaraUtil.isCanonicalName(msg.getTopic().toString())) {
             throw new CException("service name is not canonical");
         }
         genericSend(connection, msg);
@@ -336,7 +336,7 @@ public class CBase extends xMsg {
     public void serviceSend(xMsgMessage msg)
             throws xMsgException, CException, IOException {
 
-        if (!CUtility.isCanonical(msg.getTopic().toString())) {
+        if (!ClaraUtil.isCanonicalName(msg.getTopic().toString())) {
             throw new CException("service name is not canonical");
         }
 
@@ -370,7 +370,7 @@ public class CBase extends xMsg {
                                        int timeOut)
             throws xMsgException, TimeoutException, IOException, CException {
 
-        if (!CUtility.isCanonical(msg.getTopic().toString())) {
+        if (!ClaraUtil.isCanonicalName(msg.getTopic().toString())) {
             throw new CException("service name is not canonical");
         }
 
@@ -393,7 +393,7 @@ public class CBase extends xMsg {
                                        int timeOut)
             throws xMsgException, TimeoutException, IOException, CException {
 
-        if (!CUtility.isCanonical(msg.getTopic().toString())) {
+        if (!ClaraUtil.isCanonicalName(msg.getTopic().toString())) {
             throw new CException("service name is not canonical");
         }
         if (CUtility.isRemoteService(msg.getTopic().toString())) {
@@ -494,7 +494,7 @@ public class CBase extends xMsg {
     public xMsgSubscription serviceReceive(String serviceName,
                                            xMsgCallBack callback)
             throws xMsgException, CException {
-        if (!CUtility.isCanonical(serviceName)) {
+        if (!ClaraUtil.isCanonicalName(serviceName)) {
             throw new CException("service name is not canonical");
         }
 
@@ -517,7 +517,7 @@ public class CBase extends xMsg {
                                            String serviceName,
                                            xMsgCallBack callback)
             throws xMsgException, CException {
-        if (!CUtility.isCanonical(serviceName)) {
+        if (!ClaraUtil.isCanonicalName(serviceName)) {
             throw new CException("service name is not canonical");
         }
 
@@ -608,7 +608,7 @@ public class CBase extends xMsg {
     }
 
     public void removeRemoteDpe(String dpeName) throws IOException, xMsgException {
-        dpeName = CUtility.getIPAddress(dpeName);
+        dpeName = ClaraUtil.getHostName(dpeName);
         xMsgTopic topic = xMsgTopic.wrap(CConstants.DPE + ":" + dpeName);
         String data = CConstants.STOP_DPE + "?" + dpeName;
         xMsgMessage msg = new xMsgMessage(topic, data);
@@ -617,7 +617,7 @@ public class CBase extends xMsg {
     }
 
     public void startContainer(String containerName) throws xMsgException, IOException {
-        if (!CUtility.isCanonical(containerName)) {
+        if (!ClaraUtil.isCanonicalName(containerName)) {
             throw new xMsgException("Not a canonical name.");
         }
         new Container(containerName, getLocalAddress(), getFrontEndAddress());
@@ -625,7 +625,7 @@ public class CBase extends xMsg {
 
     public void startContainer(String containerName, String frontEndAddress)
             throws xMsgException, IOException {
-        if (!CUtility.isCanonical(containerName)) {
+        if (!ClaraUtil.isCanonicalName(containerName)) {
             throw new xMsgException("Not a canonical name.");
         }
         new Container(containerName, getLocalAddress(), frontEndAddress);
@@ -633,7 +633,7 @@ public class CBase extends xMsg {
 
     public void startRemoteContainer(String dpeName, String containerName)
             throws IOException, xMsgException {
-        if (!CUtility.isCanonical(containerName)) {
+        if (!ClaraUtil.isCanonicalName(containerName)) {
             throw new xMsgException("Not a canonical name.");
         }
         xMsgTopic topic = xMsgTopic.wrap(CConstants.DPE + ":" + dpeName);
@@ -645,7 +645,7 @@ public class CBase extends xMsg {
 
     public void removeContainer(String dpeName, String containerName)
             throws IOException, xMsgException {
-        if (!CUtility.isCanonical(containerName)) {
+        if (!ClaraUtil.isCanonicalName(containerName)) {
             throw new xMsgException("Not a canonical name.");
         }
         xMsgTopic topic = xMsgTopic.wrap(CConstants.CONTAINER + ":" + containerName);
@@ -659,11 +659,11 @@ public class CBase extends xMsg {
                              String serviceClassPath,
                              String poolSize)
             throws xMsgException, IOException, CException {
-        if (!CUtility.isCanonical(serviceName)) {
+        if (!ClaraUtil.isCanonicalName(serviceName)) {
             throw new CException("Not a canonical name.");
 
         }
-        String containerName = CUtility.getContainerName(serviceName);
+        String containerName = ClaraUtil.getContainerName(serviceName);
         xMsgTopic topic = xMsgTopic.wrap(CConstants.CONTAINER + ":" + containerName);
         String data = CConstants.DEPLOY_SERVICE + "?" + serviceClassPath + "?" + poolSize;
         xMsgMessage msg = new xMsgMessage(topic, data);
@@ -672,11 +672,11 @@ public class CBase extends xMsg {
 
     public void removeService(String dpeName, String serviceName)
             throws CException, IOException, xMsgException {
-        if (!CUtility.isCanonical(serviceName)) {
+        if (!ClaraUtil.isCanonicalName(serviceName)) {
             throw new CException("Not a canonical name.");
 
         }
-        String containerName = CUtility.getContainerName(serviceName);
+        String containerName = ClaraUtil.getContainerName(serviceName);
         xMsgTopic topic = xMsgTopic.wrap(CConstants.CONTAINER + ":" + containerName);
         String data = CConstants.REMOVE_SERVICE + "?" + serviceName;
         xMsgMessage msg = new xMsgMessage(topic, data);

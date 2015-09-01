@@ -425,17 +425,17 @@ public class Dpe extends CBase {
         System.out.println("Info: got pinged from DPE = " + sender);
         xMsgTopic topic = xMsgTopic.wrap(CConstants.DPE + ":" + dpe);
         xMsgMessage amsg = new xMsgMessage(topic, CConstants.ALIVE);
-        String adpe = CUtility.getDpeName(returnTopic);
+        String adpe = ClaraUtil.getHostName(returnTopic);
         genericSend(adpe, amsg);
     }
 
     private void runContainer(String container)
             throws CException, xMsgException, IOException {
-        if (!CUtility.isCanonical(container)) {
+        if (!ClaraUtil.isCanonicalName(container)) {
             // if container name is not canonical we assume it to be started in this DPE
             container = dpeName + ":" + container;
         }
-        String tmpDpeName = CUtility.getDpeName(container);
+        String tmpDpeName = ClaraUtil.getDpeName(container);
         if (_myCloud.get(tmpDpeName).containsKey(container)) {
             System.err.println("Warning: container = " + container +
                     " is registered on this Dpe. No new container is created.");
@@ -468,10 +468,10 @@ public class Dpe extends CBase {
 
     private void stopContainer(String container)
             throws CException, xMsgException, IOException {
-        if (!CUtility.isCanonical(container)) {
+        if (!ClaraUtil.isCanonicalName(container)) {
             container = dpeName + ":" + container;
         }
-        String tmpDpeName = CUtility.getDpeName(container);
+        String tmpDpeName = ClaraUtil.getDpeName(container);
         if (tmpDpeName.equals(dpeName)) {
             removeContainer(dpeName, container);
             if (!feHostIp.equals(xMsgConstants.UNDEFINED.toString()) &&
@@ -495,9 +495,9 @@ public class Dpe extends CBase {
         // and value 2 is the pull path to the class
         // we do not accept non canonical names in this case.
         // The 3rd value is the pool size
-        if (CUtility.isCanonical(service)) {
-            String tmpDpeName = CUtility.getDpeName(service);
-            String tmpContainerName = CUtility.getContainerName(service);
+        if (ClaraUtil.isCanonicalName(service)) {
+            String tmpDpeName = ClaraUtil.getDpeName(service);
+            String tmpContainerName = ClaraUtil.getContainerName(service);
             if (tmpDpeName.equals(dpeName)) {
                 startService(tmpDpeName, service, classPath, poolSize);
                 if (!feHostIp.equals(xMsgConstants.UNDEFINED.toString()) &&
@@ -519,9 +519,9 @@ public class Dpe extends CBase {
 
     private void stopService(String service)
             throws CException, xMsgException, IOException {
-        if (CUtility.isCanonical(service)) {
-            String tmpDpeName = CUtility.getDpeName(service);
-            String tmpContainerName = CUtility.getContainerName(service);
+        if (ClaraUtil.isCanonicalName(service)) {
+            String tmpDpeName = ClaraUtil.getDpeName(service);
+            String tmpContainerName = ClaraUtil.getContainerName(service);
             if (tmpDpeName.equals(dpeName)) {
                 removeService(tmpDpeName, service);
                 if (!feHostIp.equals(xMsgConstants.UNDEFINED.toString()) &&
@@ -555,8 +555,8 @@ public class Dpe extends CBase {
 
     private void dbRegisterContainer(String container, xMsgMessage msg)
             throws CException, xMsgException, IOException {
-        if (!CUtility.isCanonical(container)) {
-            String tmpDpeName = CUtility.getDpeName(container);
+        if (!ClaraUtil.isCanonicalName(container)) {
+            String tmpDpeName = ClaraUtil.getDpeName(container);
 
             if (_myCloud.containsKey(tmpDpeName)) {
                 _myCloud.get(tmpDpeName).put(container, new HashSet<String>());
@@ -578,8 +578,8 @@ public class Dpe extends CBase {
 
     private void dbRemoveContainer(String container, xMsgMessage msg)
             throws CException, xMsgException, IOException {
-        if (!CUtility.isCanonical(container)) {
-            String tmpDpeName = CUtility.getDpeName(container);
+        if (!ClaraUtil.isCanonicalName(container)) {
+            String tmpDpeName = ClaraUtil.getDpeName(container);
 
             if (_myCloud.containsKey(tmpDpeName)) {
                 _myCloud.get(tmpDpeName).remove(container);
@@ -595,9 +595,9 @@ public class Dpe extends CBase {
 
     private void dbRegisterService(String service, xMsgMessage msg)
             throws CException, xMsgException, IOException {
-        if (CUtility.isCanonical(service)) {
-            String tmpDpeName = CUtility.getDpeName(service);
-            String tmpContainerName = CUtility.getContainerName(service);
+        if (ClaraUtil.isCanonicalName(service)) {
+            String tmpDpeName = ClaraUtil.getDpeName(service);
+            String tmpContainerName = ClaraUtil.getContainerName(service);
             if (_myCloud.containsKey(tmpDpeName)) {
                 if (_myCloud.get(tmpDpeName).containsKey(tmpContainerName)) {
                     _myCloud.get(tmpDpeName).get(tmpContainerName).add(service);
@@ -612,9 +612,9 @@ public class Dpe extends CBase {
 
     private void dbRemoveService(String service, xMsgMessage msg)
             throws CException, xMsgException, IOException {
-        if (CUtility.isCanonical(service)) {
-            String tmpDpeName = CUtility.getDpeName(service);
-            String tmpContainerName = CUtility.getContainerName(service);
+        if (ClaraUtil.isCanonicalName(service)) {
+            String tmpDpeName = ClaraUtil.getDpeName(service);
+            String tmpContainerName = ClaraUtil.getContainerName(service);
             if (_myCloud.containsKey(tmpDpeName)) {
                 if (_myCloud.get(tmpDpeName).containsKey(tmpContainerName)) {
                     _myCloud.get(tmpDpeName).get(tmpContainerName).remove(service);
@@ -634,7 +634,7 @@ public class Dpe extends CBase {
     }
 
     private void dbListContainers(String returnTopic) {
-//        String tmpDpeName = CUtility.getIPAddress(value1);
+//        String tmpDpeName = ClaraUtil.getDpeName(value1);
 //        if (tmpDpeName != null && xMsgUtil.isIP(tmpDpeName)) {
 //            if (_myCloud.containsKey(tmpDpeName)) {
 //                returnMsg = new xMsgMessage(xMsgTopic.wrap(returnTopic),
@@ -645,9 +645,9 @@ public class Dpe extends CBase {
     }
 
     private void dbListServices(String returnTopic) {
-//        if (CUtility.isCanonical(value1)) {
+//        if (ClaraUtil.isCanonicalName(value1)) {
 //            try {
-//                String tmpDpeN = CUtility.getIPAddress(CUtility.getDpeName(value1));
+//                String tmpDpeN = ClaraUtil.getDpeName(value1);
 //                List<String> tmpServices = new ArrayList<>();
 //
 //                if (tmpDpeN != null) {
@@ -655,7 +655,7 @@ public class Dpe extends CBase {
 //                    // all DPEs
 //                    if (tmpDpeN.equals("*")) {
 //                        for (Map<String, Set<String>> m : _myCloud.values()) {
-//                            String tmpContainerName = CUtility.getContainerName(value1);
+//                            String tmpContainerName = ClaraUtil.getContainerName(value1);
 //
 //                            // all containers
 //                            if (tmpContainerName.equals("*")) {
@@ -675,7 +675,7 @@ public class Dpe extends CBase {
 //
 //                        // specific DPE
 //                    } else {
-//                        String tmpContainerName = CUtility.getContainerName(value1);
+//                        String tmpContainerName = ClaraUtil.getContainerName(value1);
 //
 //                        // all containers
 //                        if (tmpContainerName.equals("*")) {

@@ -22,6 +22,7 @@
 package org.jlab.clara.util;
 
 import org.jlab.clara.base.CException;
+import org.jlab.clara.base.ClaraUtil;
 import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.w3c.dom.Document;
@@ -51,92 +52,6 @@ import java.util.regex.Matcher;
  * @since 1/31/15
  */
 public class CUtility {
-
-    /**
-     * Constructs and returns CLARA specified canonical name.
-     * For e.g. service name convention, i.e. host:container:engine
-     *
-     * @param host DPE host IP address
-     * @param container Clara service container name
-     * @param engine_name Clara service engine name
-     * @return canonical name of the Clara service
-     */
-    public static String form_service_name(String host,
-                                           String container,
-                                           String engine_name)
-            throws CException {
-
-//            System.out.println("DDD "+xMsgUtil.host_to_ip(host).equals(host)+" "+xMsgUtil.host_to_ip(host)+" "+host);
-//            return xMsgUtil.host_to_ip(host) +
-        return host +
-                    ":" +
-                    container +
-                    ":" +
-                    engine_name;
-    }
-
-    /**
-     * Constructs and returns CLARA specified canonical name.
-     * For e.g. service name convention, i.e. host:container:engine
-     *
-     * @param container Clara service container name
-     * @param engine_name Clara service engine name
-     * @return canonical name of the Clara service
-     */
-    public static String form_service_name(String container,
-                                           String engine_name)
-            throws CException {
-
-        try {
-            return xMsgUtil.toHostAddress("localhost") +
-                    ":" +
-                    container +
-                    ":" +
-                    engine_name;
-        } catch (IOException e) {
-            throw new CException(e.getMessage());
-        }
-    }
-
-    /**
-     * Constructs and returns CLARA specified canonical name.
-     * For e.g. service name convention, i.e. host:container:engine
-     *
-     * @param host DPE host IP address
-     * @param container Clara service container name
-     * @return canonical name of the Clara service
-     */
-    public static String form_container_name(String host,
-                                             String container)
-            throws CException {
-
-        try {
-            return xMsgUtil.toHostAddress(host) +
-                    ":" +
-                    container;
-        } catch (IOException e) {
-            throw new CException(e.getMessage());
-        }
-    }
-
-    /**
-     * Constructs and returns CLARA specified canonical name.
-     * For e.g. service name convention, i.e. host:container:engine
-     *
-     * @param container Clara service container name
-     * @return canonical name of the Clara service
-     */
-    public static String form_container_name(String container)
-            throws CException {
-
-        try {
-            return xMsgUtil.toHostAddress("localhost") +
-                    ":" +
-                    container;
-        } catch (IOException e) {
-            throw new CException(e.getMessage());
-        }
-    }
 
     public static Boolean isHostLocal(String hostName)
             throws SocketException {
@@ -190,6 +105,9 @@ public class CUtility {
                                            String container,
                                            String composition) throws CException {
 
+        // the container canonical name
+        String contCanonName = ClaraUtil.formContainerName(dpe, container);
+
         // find branching compositions in supplied composition string
         StringTokenizer st = new StringTokenizer(composition, ";");
 
@@ -227,7 +145,7 @@ public class CUtility {
                     st = new StringTokenizer(se, ",");
                     StringBuilder or_can = new StringBuilder();
                     while(st.hasMoreTokens()) {
-                        String can = CUtility.form_service_name(dpe, container,st.nextToken());
+                        String can = ClaraUtil.formServiceName(contCanonName, st.nextToken());
                         or_can.append(can).append(",");
                     }
                     // remove the last character and add
@@ -236,12 +154,12 @@ public class CUtility {
 
                     // logical AND case. (a,b+&c)
                 } else if (se.startsWith("&")){
-                    String can = CUtility.form_service_name(dpe, container,remove_first(se));
+                    String can = ClaraUtil.formServiceName(contCanonName, remove_first(se));
                     sub_can_comp.append("&").append(can);
 
                     // single engine case (a+b)
                 } else {
-                    String can = CUtility.form_service_name(dpe, container,se);
+                    String can = ClaraUtil.formServiceName(contCanonName, se);
                     sub_can_comp.append(can);
                 }
             }
@@ -299,43 +217,6 @@ public class CUtility {
         return new GregorianCalendar().getTimeInMillis();
     }
 
-    public static String getDpeName(String serviceCanonicalName)
-            throws CException {
-        if (!CUtility.isCanonical(serviceCanonicalName)) {
-            throw new CException("not a canonical name");
-        }
-        return xMsgTopic.wrap(serviceCanonicalName).domain();
-    }
-
-    public static String getContainerCanonicalName(String serviceCanonicalName)
-            throws CException {
-        if (!CUtility.isCanonical(serviceCanonicalName)) {
-            throw new CException("not a canonical name");
-        }
-        xMsgTopic topic = xMsgTopic.wrap(serviceCanonicalName);
-        return topic.domain() + ":" + topic.subject();
-    }
-
-    public static String getContainerName(String serviceCanonicalName)
-            throws CException {
-        if (!CUtility.isCanonical(serviceCanonicalName)) {
-            throw new CException("not a canonical name");
-        }
-        return xMsgTopic.wrap(serviceCanonicalName).subject();
-    }
-
-    public static String getEngineName(String serviceCanonicalName)
-            throws CException {
-        if (!CUtility.isCanonical(serviceCanonicalName)) {
-            throw new CException("not a canonical name");
-        }
-        return xMsgTopic.wrap(serviceCanonicalName).type();
-    }
-
-    public static Boolean isCanonical(String name){
-        return name.contains(":");
-    }
-
     /**
      * Returns the stack trace of a exception as a string
      * @param e an exception
@@ -346,31 +227,6 @@ public class CUtility {
         PrintWriter pw = new PrintWriter(sw);
         e.printStackTrace(pw);
         return sw.toString();
-    }
-
-
-    /**
-     * Returns IP address of the host
-     * @param hostname the host
-     * @return textual representation of the IP address
-     */
-    public static String getIPAddress(String hostname) {
-        String host = null;
-        try {
-            // resolve the host name for IP address
-            if(hostname.equalsIgnoreCase("localhost")){
-                InetAddress address = InetAddress.getLocalHost();
-                // host will always be in the form of IP address
-                host =address.getHostAddress();
-            } else {
-                // find the IP address based on the host name
-                InetAddress address = InetAddress.getByName(hostname);
-                host = address.getHostAddress();
-            }
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        }
-        return host;
     }
 
     public static byte[] serialize(Object o) throws IOException {
