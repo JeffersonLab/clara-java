@@ -30,7 +30,6 @@ import org.jlab.clara.engine.Engine;
 import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.util.CClassLoader;
 import org.jlab.clara.util.CConstants;
-import org.jlab.clara.util.CServiceSysConfig;
 import org.jlab.clara.util.CUtility;
 import org.jlab.clara.util.RequestParser;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
@@ -60,7 +59,7 @@ public class Service extends CBase {
     private int poolSize;
     private Engine userEngine;
 
-    private CServiceSysConfig sysConfig;
+    private ServiceSysConfig sysConfig;
     private xMsgSubscription subscription;
 
 
@@ -92,7 +91,7 @@ public class Service extends CBase {
         super(name, localAddress, frontEndAddress);
 
         this.name = name;
-        this.sysConfig = new CServiceSysConfig();
+        this.sysConfig = new ServiceSysConfig();
 
         // Dynamic loading of the Clara engine class
         // Note: using system class loader

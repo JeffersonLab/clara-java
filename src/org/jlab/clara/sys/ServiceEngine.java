@@ -30,7 +30,6 @@ import org.jlab.clara.engine.EngineStatus;
 import org.jlab.clara.sys.ccc.ServiceState;
 import org.jlab.clara.sys.ccc.SimpleCompiler;
 import org.jlab.clara.util.CConstants;
-import org.jlab.clara.util.CServiceSysConfig;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgTopic;
@@ -56,7 +55,7 @@ public class ServiceEngine extends CBase {
     // Engine instantiated object
     private final Engine engineObject;
 
-    private CServiceSysConfig sysConfig;
+    private ServiceSysConfig sysConfig;
 
     private ServiceState myServiceState =
             new ServiceState(getName(), xMsgConstants.UNDEFINED.toString());
@@ -77,7 +76,7 @@ public class ServiceEngine extends CBase {
      */
     public ServiceEngine(String name,
                          Engine userEngine,
-                         CServiceSysConfig config,
+                         ServiceSysConfig config,
                          String localAddress,
                          String frontEndAddres)
             throws CException {

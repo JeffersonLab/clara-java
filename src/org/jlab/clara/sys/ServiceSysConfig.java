@@ -19,18 +19,12 @@
  * SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-package org.jlab.clara.util;
+package org.jlab.clara.sys;
 
 /**
- * <p>
- *     Service system configuration class
- * </p>
- *
- * @author gurjyan
- * @version 1.x
- * @since 3/9/15
+ *  Service system configuration.
  */
-public class CServiceSysConfig {
+public class ServiceSysConfig {
     private boolean isDataRequest;
     private boolean isDoneRequest;
     private int doneReportThreshold;
@@ -39,16 +33,16 @@ public class CServiceSysConfig {
     private int dataRequestCount;
     private int doneRequestCount;
 
-    public void addRequest(){
+    public void addRequest() {
         dataRequestCount++;
         doneRequestCount++;
     }
 
-    public void resetDoneRequestCount(){
+    public void resetDoneRequestCount() {
         doneRequestCount = 0;
     }
 
-    public void resetDataRequestCount(){
+    public void resetDataRequestCount() {
         dataRequestCount = 0;
     }
 
