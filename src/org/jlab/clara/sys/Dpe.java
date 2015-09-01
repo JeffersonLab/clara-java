@@ -62,16 +62,12 @@ import java.util.concurrent.TimeUnit;
  */
 public class Dpe extends CBase {
 
-    private xMsgRegistrar registrar;
-
     // The name of this dpe. usually it is the IP address
     // of a node where this class is instantiated.
-    private String
-            dpeName = xMsgConstants.UNDEFINED.toString();
+    private String dpeName = xMsgConstants.UNDEFINED.toString();
 
     // The name of the Front-End dpe
-    private String
-            feHostIp = xMsgConstants.UNDEFINED.toString();
+    private String feHostIp = xMsgConstants.UNDEFINED.toString();
 
     // Indicates if this DPE is assigned to be the Front-End of the cloud.
     private Boolean isFE = false;
@@ -84,6 +80,8 @@ public class Dpe extends CBase {
     // key = DPE_name
     // value = Map (key = containerName, value = Set of service names
     private Map<String, Map<String, Set<String>>> _myCloud = new HashMap<>();
+
+    private xMsgRegistrar registrar;
 
     private HeartBeatReport heartBeat;
 
