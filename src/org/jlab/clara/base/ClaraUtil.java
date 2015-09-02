@@ -26,10 +26,9 @@ import java.io.StringWriter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.annotation.ParametersAreNonnullByDefault;
 
 import org.jlab.clara.util.CConstants;
-
-import javax.annotation.ParametersAreNonnullByDefault;
 
 /**
  * Extra helper methods for Clara orchestrator and services.
