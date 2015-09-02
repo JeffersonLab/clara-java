@@ -157,12 +157,24 @@ public class BaseOrchestrator {
 
 
     /**
-     * Registers a new data-type to be sent to services.
+     * Registers the necessary data-types to communicate with to services.
      *
-     * @param dataType the information about the type
+     * @param dataTypes the data-types used by the services
      */
-    public void registerDataType(EngineDataType dataType) {
-        dataTypes.add(dataType);
+    public void registerDataTypes(EngineDataType... dataTypes) {
+        for (EngineDataType dt : dataTypes) {
+            this.dataTypes.add(dt);
+        }
+    }
+
+
+    /**
+     * Registers the necessary data-types to communicate with to services.
+     *
+     * @param dataTypes the data-types used by the services
+     */
+    public void registerDataTypes(Set<EngineDataType> dataTypes) {
+        this.dataTypes.addAll(dataTypes);
     }
 
 
