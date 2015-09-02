@@ -23,11 +23,14 @@ package org.jlab.clara.base;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
+import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.util.CConstants;
 
 /**
@@ -265,6 +268,21 @@ public final class ClaraUtil {
     public static String formServiceName(String host, ClaraLang lang,
                                          String container, String engine) {
         return formContainerName(host, lang, container) + CConstants.TOPIC_SEP + engine;
+    }
+
+
+    /**
+     * Helps creating a set of engine data types.
+     *
+     * @param dataTypes all the data types
+     * @return a set with the data types
+     */
+    public static Set<EngineDataType> buildDataTypes(EngineDataType... dataTypes) {
+        Set<EngineDataType> set = new HashSet<EngineDataType>();
+        for (EngineDataType dt : dataTypes) {
+            set.add(dt);
+        }
+        return set;
     }
 
 
