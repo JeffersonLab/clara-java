@@ -175,7 +175,7 @@ public class Container extends CBase {
             } catch (CException | xMsgException | IOException e) {
                 e.printStackTrace();
             }
-            return null;
+            return new xMsgMessage(null);
         }
     }
 }
