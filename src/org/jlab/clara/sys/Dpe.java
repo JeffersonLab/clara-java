@@ -244,7 +244,7 @@ public class Dpe extends CBase {
 
         @Override
         public xMsgMessage callback(xMsgMessage msg) {
-            xMsgMessage returnMsg = null;
+            xMsgMessage returnMsg = new xMsgMessage(null);
             xMsgMeta.Builder metadata = msg.getMetaData();
             try {
                 String sender = metadata.getSender();
