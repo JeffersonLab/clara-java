@@ -383,6 +383,8 @@ public class ServiceEngine extends CBase {
             report(xMsgConstants.ERROR.toString(), data);
         } else if (status.equals(EngineStatus.WARNING)) {
             report(xMsgConstants.WARNING.toString(), data);
+        } else if (status.equals(EngineStatus.INFO)) {
+            report(xMsgConstants.INFO.toString(), data);
         }
     }
 
