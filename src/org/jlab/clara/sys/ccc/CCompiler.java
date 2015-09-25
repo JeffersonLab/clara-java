@@ -41,11 +41,11 @@ import java.util.regex.PatternSyntaxException;
  *
  *     S1 + S2;
  *     if ( S1 == "abc" && S2 != "xyz") {
- *       S2 + S3
+ *       S2 + S3;
  *     } elseif ( S1 == "fred" ) {
- *         S2 + S4
+ *         S2 + S4;
  *     } else {
- *         S2 + S5,S6,S7
+ *         S2 + S5,S6,S7;
  *     }
  *     S4,S5 + &S8;
  * </p>
@@ -138,9 +138,10 @@ public class CCompiler {
      *    Clara conditional statement
      * </p>
      *
+     * Note: closing brace after RStmt is removed by pre-process
      */
 //    public static final String Cond = "((if|elseif)\\("+cCond+"\\)\\{"+RStmt+" )|else\\{"+RStmt;
-    public static final String Cond = "((if|elseif)\\("+cCond+"\\)\\{"+RStmt+"\\})|(else\\{"+RStmt+"\\})";
+    public static final String Cond = "((if|elseif)\\("+cCond+"\\)\\{"+RStmt+")|(else\\{"+RStmt+")";
 
     // The name of the service relative to which compilation will be done.
     private String myServiceName;

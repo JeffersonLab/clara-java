@@ -27,7 +27,12 @@ import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.Engine;
 import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.engine.EngineStatus;
+import org.jlab.clara.sys.ccc.CCompiler;
+import org.jlab.clara.sys.ccc.Condition;
+import org.jlab.clara.sys.ccc.Instruction;
+import org.jlab.clara.sys.ccc.ServiceState;
 import org.jlab.clara.sys.ccc.SimpleCompiler;
+import org.jlab.clara.sys.ccc.Statement;
 import org.jlab.clara.util.CConstants;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
@@ -36,6 +41,7 @@ import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 import org.jlab.coda.xmsg.excp.xMsgException;
 
 import java.io.IOException;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
 
@@ -61,7 +67,7 @@ public class ServiceEngine extends CBase {
     // Already recorded (previous) composition
     private String prevComposition = xMsgConstants.UNDEFINED.toString();
 
-    private SimpleCompiler compiler;
+    private CCompiler compiler;
 
     // The last execution time
     private long executionTime;
@@ -86,7 +92,7 @@ public class ServiceEngine extends CBase {
         connect();
 
         // create an object of the composition parser
-        compiler = new SimpleCompiler(getName());
+        compiler = new CCompiler(getName());
     }
 
     public void configure(xMsgMessage message)
@@ -295,7 +301,90 @@ public class ServiceEngine extends CBase {
     }
 
     private Set<String> getLinks(EngineData inData, EngineData outData) {
-        return compiler.getOutputs();
+        
+        Set<String> outputs = new HashSet<String>();
+        
+        
+        // The list of routing instructions supply the output links
+        //
+        // Instructions with unconditional routing always provide output links
+        //
+        // Conditional routing is performed by multiple adjacent instructions:
+        //
+        //   * one if-conditional instruction
+        //   * zero-or-more else-if conditional instructions
+        //   * zero-or-one else conditional instruction
+        //
+        // The first "true" conditional is the only one that supplies output links
+       
+        // keep track of when one of the if/elseif/else conditions has been chosen
+        boolean inCondition = false;
+        boolean conditionChosen = false;
+        
+        for (Instruction inst : compiler.getInstructions()) {        
+                      
+            // if have unconditional statements, can't be in a conditional any more
+            if (!inst.getUnCondStatements().isEmpty()) {
+                
+                inCondition = false;
+                
+                for (Statement stmt : inst.getUnCondStatements()) {
+                    outputs.addAll(stmt.getOutputLinks());
+                }
+                
+                continue;
+            }
+            
+            ServiceState ownerSS = new ServiceState(outData.getEngineName(), outData.getEngineState());
+            ServiceState inputSS = new ServiceState(inData.getEngineName(), inData.getEngineState());
+            
+            
+            // check conditional routing statements
+            if (inst.getIfCondition() != null) {
+                
+                inCondition = true;
+                conditionChosen = false;
+            
+                if (inst.getIfCondition().isTrue(ownerSS,inputSS)) {
+                        
+                    conditionChosen = true;
+                    for (Statement stmt : inst.getIfCondStatements()) {
+                        outputs.addAll(stmt.getOutputLinks());
+                    }
+                }
+                
+                continue;
+            } 
+            
+            // must be in a conditional already to process an elseif or else
+            if (inCondition && !conditionChosen) {
+                
+                if (inst.getElseifCondition() != null) {
+                    
+                    if (inst.getElseifCondition().isTrue(ownerSS, inputSS)) {
+                        
+                        conditionChosen = true;
+                        
+                        for (Statement stmt : inst.getElseifCondStatements()) {
+                            outputs.addAll(stmt.getOutputLinks());
+                        }
+                    }
+                    
+                    continue;
+                }
+            
+                if (!inst.getElseCondStatements().isEmpty()) {
+                    
+                    conditionChosen = true;
+              
+                    for (Statement stmt : inst.getElseCondStatements()) {
+                        outputs.addAll(stmt.getOutputLinks());
+                    }
+                }
+            }
+        }
+        
+        return outputs;
     }
 
     private EngineData executeEngine(EngineData inData)
