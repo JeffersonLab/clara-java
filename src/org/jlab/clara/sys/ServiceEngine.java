@@ -309,37 +309,37 @@ public class ServiceEngine extends CBase {
         //
         // Instructions with unconditional routing always provide output links
         //
-        // Conditional routing is performed by multiple adjacent instructions:
+        // Conditional routing evaluates a sequence of instructions:
         //
         //   * one if-conditional instruction
         //   * zero-or-more else-if conditional instructions
         //   * zero-or-one else conditional instruction
         //
-        // The first "true" conditional is the only one that supplies output links
+        // In a sequence, only the first conditional to evaluate to "true" supplies output links
        
         // keep track of when one of the if/elseif/else conditions has been chosen
         boolean inCondition = false;
         boolean conditionChosen = false;
         
+        // service-states for conditional routing
+        ServiceState ownerSS = new ServiceState(outData.getEngineName(), outData.getEngineState());
+        ServiceState inputSS = new ServiceState(inData.getEngineName(), inData.getEngineState());
+          
         for (Instruction inst : compiler.getInstructions()) {        
-                      
-            // if have unconditional statements, can't be in a conditional any more
+                
+            // instruction routing statements are exclusive: will be either unconditional, if, elseif, or else.
+            //
+            
             if (!inst.getUnCondStatements().isEmpty()) {
                 
+                // no longer in a conditional now
                 inCondition = false;
                 
                 for (Statement stmt : inst.getUnCondStatements()) {
                     outputs.addAll(stmt.getOutputLinks());
                 }
-                
-                continue;
             }
-            
-            ServiceState ownerSS = new ServiceState(outData.getEngineName(), outData.getEngineState());
-            ServiceState inputSS = new ServiceState(inData.getEngineName(), inData.getEngineState());
-            
-            
-            // check conditional routing statements
+           
             if (inst.getIfCondition() != null) {
                 
                 inCondition = true;
@@ -383,6 +383,14 @@ public class ServiceEngine extends CBase {
                 }
             }
         }
+        
+        System.out.println("From: "+outData.getEngineName()+" "+outData.getEngineState());
+        System.out.print("To: ");
+        for (String output : outputs) {
+            System.out.print(output+" ");
+        }
+        System.out.println();
+        
         
         return outputs;
     }

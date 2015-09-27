@@ -71,8 +71,7 @@ public class Statement {
             this.serviceName = serviceName;
             process(statementString);
         } else {
-            // ADB irrelevant to this service yes, but should not be an exception I think
-            // throw new CException("irrelevant statement");
+            throw new CException("irrelevant statement");
         }
     }
 
