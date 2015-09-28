@@ -327,8 +327,7 @@ public class ServiceEngine extends CBase {
           
         for (Instruction inst : compiler.getInstructions()) {        
                 
-            // instruction routing statements are exclusive: will be either unconditional, if, elseif, or else.
-            //
+            // NOTE: instruction routing statements are exclusive: will be either unconditional, if, elseif, or else.
             
             if (!inst.getUnCondStatements().isEmpty()) {
                 
@@ -338,6 +337,8 @@ public class ServiceEngine extends CBase {
                 for (Statement stmt : inst.getUnCondStatements()) {
                     outputs.addAll(stmt.getOutputLinks());
                 }
+                
+                continue;
             }
            
             if (inst.getIfCondition() != null) {
@@ -480,8 +481,6 @@ public class ServiceEngine extends CBase {
             report(xMsgConstants.ERROR.toString(), data);
         } else if (status.equals(EngineStatus.WARNING)) {
             report(xMsgConstants.WARNING.toString(), data);
-        } else if (status.equals(EngineStatus.INFO)) {
-            report(xMsgConstants.INFO.toString(), data);
         }
     }
 

@@ -229,36 +229,27 @@ public class Condition {
      */
     public boolean isTrue(ServiceState ownerSS, ServiceState inputSS){
 
-        boolean checkAnd = checkANDCondition(getAndStates(), ownerSS, inputSS);
-        boolean checkAndNot = checkANDCondition(getAndNotStates(), ownerSS, inputSS);
-        boolean checkOr = checkORCondition(getOrStates(), ownerSS, inputSS);
-        boolean checkOrNot = checkORCondition(getOrNotStates(), ownerSS, inputSS);
+        boolean checkAnd = getAndStates().isEmpty() || checkANDCondition(getAndStates(), ownerSS, inputSS);
+        boolean checkAndNot = getAndNotStates().isEmpty() || !checkANDCondition(getAndNotStates(), ownerSS, inputSS);
+        boolean checkOr = getOrStates().isEmpty() || checkORCondition(getOrStates(), ownerSS, inputSS);
+        boolean checkOrNot = getOrNotStates().isEmpty() || !checkORCondition(getOrNotStates(), ownerSS, inputSS);
 
         return checkAnd && checkAndNot && checkOr && checkOrNot;
     }
 
     private boolean checkANDCondition(Set<ServiceState> sc, ServiceState s1, ServiceState s2){
-        boolean b = false;
-        if(sc.isEmpty()){
-            b = true;
-        } else {
-            if (sc.contains(s1) && sc.contains(s2)) {
-                return true;
-            }
+        if (sc.contains(s1) && sc.contains(s2)) {
+            return true;
         }
-        return b;
+        return false;
     }
 
     private boolean checkORCondition(Set<ServiceState> sc, ServiceState s1, ServiceState s2){
         boolean b = false;
-        if(sc.isEmpty()){
-            b = true;
-        } else {
-            if (sc.contains(s1) || sc.contains(s2)) {
-                return true;
-            }
+        if (sc.contains(s1) || sc.contains(s2)) {
+            return true;
         }
-        return b;
+        return false;
     }
 
     @Override

@@ -162,9 +162,9 @@ public class CCompiler {
         // Create a single string with no blanks
         String pCode = noBlanks(iCode);
 
-        System.out.println("DDD-1 ");
-        System.out.println(pCode);
-        System.out.println("------------ \n");
+        //System.out.println("DDD-1 ");
+        //System.out.println(pCode);
+        //System.out.println("------------ \n");
 
         // split single string program using
         // Clara ; end of statement operator
@@ -180,9 +180,9 @@ public class CCompiler {
         while(++i < ppi.length){
 
             String scs1 = ppi[i];
-            System.out.println("DDD-2 ");
-            System.out.println(scs1);
-            System.out.println("------------ \n");
+            //System.out.println("DDD-2 ");
+            //System.out.println(scs1);
+            //System.out.println("------------ \n");
 
             // conditional statement
             if (scs1.startsWith("if(") ||
@@ -204,9 +204,9 @@ public class CCompiler {
                             !scs2.startsWith("}elseif(") &&
                             !scs2.startsWith("}else")) {
                         
-                        System.out.println("DDD-22");
-                        System.out.println(scs2);
-                        System.out.println("=================");        
+                        //System.out.println("DDD-22");
+                        //System.out.println(scs2);
+                        //System.out.println("=================");        
                         
                         // if ignoring the conditional, then ignore its statements also
                         if (instruction != null) {
@@ -228,11 +228,11 @@ public class CCompiler {
             }
         }
 
-        System.out.println("DDD-3 ");
-        for(Instruction ins:instructions){
-            System.out.println(ins);
-        }
-        System.out.println("------------ \n");
+        //System.out.println("DDD-3 ");
+        //for(Instruction ins:instructions){
+        //    System.out.println(ins);
+       // }
+        //System.out.println("------------ \n");
 
     }
 
