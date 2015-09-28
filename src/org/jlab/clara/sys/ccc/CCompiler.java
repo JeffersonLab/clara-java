@@ -72,7 +72,7 @@ public class CCompiler {
      *     and can have preceding number
      * </p>
      */
-    public static final String STR = "([^&!][A-Z|a-z]+[0-9]*)";
+    public static final String STR = "([A-Z|a-z]+[0-9]*)";
 
     /**
      * <p>
@@ -228,6 +228,9 @@ public class CCompiler {
             }
         }
 
+        
+        if (instructions.isEmpty()) throw new CException("Composition is irrevant for service.");
+        
         //System.out.println("DDD-3 ");
         //for(Instruction ins:instructions){
         //    System.out.println(ins);
@@ -421,6 +424,98 @@ public class CCompiler {
 //        Matcher m = p.matcher(z);
 //        CUtility.testRegexMatch(m);
 
+    }
+
+    public Set<String> getLinks(ServiceState ownerSS, ServiceState inputSS) {
+        
+        Set<String> outputs = new HashSet<String>();
+        
+        // The list of routing instructions supply the output links
+        //
+        // Instructions with unconditional routing always provide output links
+        //
+        // Conditional routing evaluates a sequence of instructions:
+        //
+        //   * one if-conditional instruction
+        //   * zero-or-more else-if conditional instructions
+        //   * zero-or-one else conditional instruction
+        //
+        // In a sequence, only the first conditional to evaluate to "true" supplies output links
+       
+        // keep track of when one of the if/elseif/else conditions has been chosen
+        boolean inCondition = false;
+        boolean conditionChosen = false;
+        
+           
+        for (Instruction inst : instructions) {        
+                
+            // NOTE: instruction routing statements are exclusive: will be either unconditional, if, elseif, or else.
+            
+            if (!inst.getUnCondStatements().isEmpty()) {
+                
+                // no longer in a conditional now
+                inCondition = false;
+                
+                for (Statement stmt : inst.getUnCondStatements()) {
+                    outputs.addAll(stmt.getOutputLinks());
+                }
+                
+                continue;
+            }
+           
+            if (inst.getIfCondition() != null) {
+                
+                inCondition = true;
+                conditionChosen = false;
+            
+                if (inst.getIfCondition().isTrue(ownerSS,inputSS)) {
+                        
+                    conditionChosen = true;
+                    for (Statement stmt : inst.getIfCondStatements()) {
+                        outputs.addAll(stmt.getOutputLinks());
+                    }
+                }
+                
+                continue;
+            } 
+            
+            // must be in a conditional already to process an elseif or else
+            if (inCondition && !conditionChosen) {
+                
+                if (inst.getElseifCondition() != null) {
+                    
+                    if (inst.getElseifCondition().isTrue(ownerSS, inputSS)) {
+                        
+                        conditionChosen = true;
+                        
+                        for (Statement stmt : inst.getElseifCondStatements()) {
+                            outputs.addAll(stmt.getOutputLinks());
+                        }
+                    }
+                    
+                    continue;
+                }
+            
+                if (!inst.getElseCondStatements().isEmpty()) {
+                    
+                    conditionChosen = true;
+              
+                    for (Statement stmt : inst.getElseCondStatements()) {
+                        outputs.addAll(stmt.getOutputLinks());
+                    }
+                }
+            }
+        }
+        
+        //System.out.println("From: "+outData.getEngineName()+" "+outData.getEngineState());
+        //System.out.print("To: ");
+        //for (String output : outputs) {
+        //    System.out.print(output+" ");
+        //}
+        //System.out.println();
+        
+        
+        return outputs;
     }
 }
 
