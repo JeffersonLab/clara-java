@@ -385,12 +385,12 @@ public class ServiceEngine extends CBase {
             }
         }
         
-        System.out.println("From: "+outData.getEngineName()+" "+outData.getEngineState());
-        System.out.print("To: ");
-        for (String output : outputs) {
-            System.out.print(output+" ");
-        }
-        System.out.println();
+        //System.out.println("From: "+outData.getEngineName()+" "+outData.getEngineState());
+        //System.out.print("To: ");
+        //for (String output : outputs) {
+        //    System.out.print(output+" ");
+        //}
+        //System.out.println();
         
         
         return outputs;
