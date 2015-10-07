@@ -48,7 +48,7 @@ import org.jlab.coda.xmsg.data.xMsgR.xMsgRegistration;
 import org.jlab.coda.xmsg.excp.xMsgException;
 import org.jlab.coda.xmsg.net.xMsgAddress;
 import org.jlab.coda.xmsg.net.xMsgConnection;
-import org.jlab.coda.xmsg.net.xMsgConnectionSetup;
+import org.jlab.coda.xmsg.net.xMsgConnectionOption;
 import org.zeromq.ZMQ.Socket;
 
 /**
@@ -63,7 +63,8 @@ public class CBase extends xMsg {
     private xMsgConnection nodeConnection = null;
     private EngineDataAccessor dataAccessor;
 
-    private static xMsgConnectionSetup setup = new xMsgConnectionSetup() {
+
+    private static xMsgConnectionOption setup = new xMsgConnectionOption() {
             @Override
             public void preConnection(Socket socket) {
                 socket.setRcvHWM(0);
@@ -84,7 +85,7 @@ public class CBase extends xMsg {
      * @param frontEndAddress the address of the Clara front-end
      */
     public CBase(String name, String localAddress, String frontEndAddress) {
-        super(name, localAddress, frontEndAddress);
+        super(name, localAddress);
         nodeConnection = connect();
         dataAccessor = EngineDataAccessor.getDefault();
     }

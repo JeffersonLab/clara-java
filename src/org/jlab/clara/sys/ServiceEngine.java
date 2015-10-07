@@ -41,8 +41,6 @@ import java.util.concurrent.Semaphore;
 
 /**
  * A Service engine.
- * A Service can have multiple engines.
- * The Service distributes its requests to the available engines.
  * Every engine process a request in its own thread.
  *
  * @author gurjyan
