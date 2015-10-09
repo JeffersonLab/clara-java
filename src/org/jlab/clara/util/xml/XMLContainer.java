@@ -1,4 +1,4 @@
-package org.jlab.clara.util;
+package org.jlab.clara.util.xml;
 
 import java.util.ArrayList;
 import java.util.List;

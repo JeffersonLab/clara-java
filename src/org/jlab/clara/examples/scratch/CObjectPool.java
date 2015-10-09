@@ -19,7 +19,7 @@
  * SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-package org.jlab.clara.util;
+package org.jlab.clara.examples.scratch;
 
 import org.jlab.coda.xmsg.excp.xMsgException;
 

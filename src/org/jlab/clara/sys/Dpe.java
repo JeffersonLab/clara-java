@@ -21,12 +21,12 @@
 
 package org.jlab.clara.sys;
 
-import org.jlab.clara.base.CException;
+import org.jlab.clara.base.ClaraException;
 import org.jlab.clara.base.ClaraLang;
-import org.jlab.clara.base.ClaraUtil;
+import org.jlab.clara.util.ClaraUtil;
 import org.jlab.clara.util.CConstants;
-import org.jlab.clara.util.CUtility;
-import org.jlab.clara.util.RequestParser;
+import org.jlab.clara.util.ClaraUtil;
+import org.jlab.clara.util.xml.RequestParser;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
@@ -346,7 +346,7 @@ public class Dpe extends CBase {
                     default:
                         break;
                 }
-            } catch (CException | IOException | xMsgException e) {
+            } catch (ClaraException | IOException | xMsgException e) {
                 e.printStackTrace();
             }
             return returnMsg;
@@ -390,7 +390,7 @@ public class Dpe extends CBase {
         }
         System.out.println("================================");
         System.out.println(" Binding = Java");
-        System.out.println(" Date    = " + CUtility.getCurrentTimeInH());
+        System.out.println(" Date    = " + ClaraUtil.getCurrentTimeInH());
         System.out.println(" Host    = " + getLocalAddress());
         System.out.println("================================");
     }
@@ -424,7 +424,7 @@ public class Dpe extends CBase {
     }
 
     private void pingDpe(String dpe, String sender, String returnTopic)
-            throws xMsgException, IOException, CException {
+            throws xMsgException, IOException, ClaraException {
         System.out.println("Info: got pinged from DPE = " + sender);
         xMsgTopic topic = xMsgTopic.wrap(CConstants.DPE + ":" + dpe);
         xMsgMessage amsg = new xMsgMessage(topic, CConstants.ALIVE);
@@ -433,12 +433,12 @@ public class Dpe extends CBase {
     }
 
     private void runContainer(String containerName)
-            throws CException, xMsgException, IOException {
+            throws ClaraException, xMsgException, IOException {
 
         containerName = ClaraUtil.formContainerName(dpeName, containerName);
         if (myContainers.containsKey(containerName)) {
             String msg = "%s Warning: container %s already exists. No new container is created%n";
-            System.err.printf(msg, CUtility.getCurrentTimeInH(), containerName);
+            System.err.printf(msg, ClaraUtil.getCurrentTimeInH(), containerName);
             return;
         }
 
@@ -447,7 +447,7 @@ public class Dpe extends CBase {
     }
 
     private void stopContainer(String containerName)
-            throws CException, xMsgException, IOException {
+            throws ClaraException, xMsgException, IOException {
         if (myContainers.containsKey(containerName)) {
             Container container = myContainers.remove(containerName);
             System.out.println("Removed container " + containerName);
@@ -456,7 +456,7 @@ public class Dpe extends CBase {
     }
 
     private void runService(String service, String classPath, String poolSize)
-            throws CException, xMsgException, IOException {
+            throws ClaraException, xMsgException, IOException {
         // in this case value1 is the canonical name of the service
         // and value 2 is the pull path to the class
         // we do not accept non canonical names in this case.
@@ -484,7 +484,7 @@ public class Dpe extends CBase {
     }
 
     private void stopService(String service)
-            throws CException, xMsgException, IOException {
+            throws ClaraException, xMsgException, IOException {
         if (ClaraUtil.isCanonicalName(service)) {
             String tmpDpeName = ClaraUtil.getDpeName(service);
             String tmpContainerName = ClaraUtil.getContainerName(service);
@@ -520,7 +520,7 @@ public class Dpe extends CBase {
     }
 
     private void dbRegisterContainer(String container, xMsgMessage msg)
-            throws CException, xMsgException, IOException {
+            throws ClaraException, xMsgException, IOException {
         if (!ClaraUtil.isCanonicalName(container)) {
             String tmpDpeName = ClaraUtil.getDpeName(container);
 
@@ -543,7 +543,7 @@ public class Dpe extends CBase {
     }
 
     private void dbRemoveContainer(String container, xMsgMessage msg)
-            throws CException, xMsgException, IOException {
+            throws ClaraException, xMsgException, IOException {
         if (!ClaraUtil.isCanonicalName(container)) {
             String tmpDpeName = ClaraUtil.getDpeName(container);
 
@@ -560,7 +560,7 @@ public class Dpe extends CBase {
     }
 
     private void dbRegisterService(String service, xMsgMessage msg)
-            throws CException, xMsgException, IOException {
+            throws ClaraException, xMsgException, IOException {
         if (ClaraUtil.isCanonicalName(service)) {
             String tmpDpeName = ClaraUtil.getDpeName(service);
             String tmpContainerName = ClaraUtil.getContainerName(service);
@@ -577,7 +577,7 @@ public class Dpe extends CBase {
     }
 
     private void dbRemoveService(String service, xMsgMessage msg)
-            throws CException, xMsgException, IOException {
+            throws ClaraException, xMsgException, IOException {
         if (ClaraUtil.isCanonicalName(service)) {
             String tmpDpeName = ClaraUtil.getDpeName(service);
             String tmpContainerName = ClaraUtil.getContainerName(service);
@@ -662,7 +662,7 @@ public class Dpe extends CBase {
 //                }
 //                returnMsg = new xMsgMessage(xMsgTopic.wrap(returnTopic),
 //                        tmpServices.toArray(new String[tmpServices.size()]));
-//            } catch (CException e) {
+//            } catch (ClaraException e) {
 //                e.printStackTrace();
 //            }
 //        }

@@ -20,8 +20,8 @@
  */
 package org.jlab.clara.sys.ccc;
 
-import org.jlab.clara.base.CException;
-import org.jlab.clara.util.CUtility;
+import org.jlab.clara.base.ClaraException;
+import org.jlab.clara.util.ClaraUtil;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 
 import java.util.LinkedHashSet;
@@ -59,7 +59,7 @@ public class Condition {
     // The name of the service that this condition is relevant to.
     private String serviceName = xMsgConstants.UNDEFINED.toString();
 
-    public Condition(String conditionString, String serviceName) throws CException {
+    public Condition(String conditionString, String serviceName) throws ClaraException {
         this.serviceName = serviceName;
         process(conditionString);
     }
@@ -102,7 +102,7 @@ public class Condition {
     }
 
 
-    private void process(String cs) throws CException {
+    private void process(String cs) throws ClaraException {
 
         if(cs.contains("(")) cs = cs.replaceAll("\\(","");
         if(cs.contains(")")) cs = cs.replaceAll("\\)","");
@@ -117,7 +117,7 @@ public class Condition {
 
     }
 
-    private void parseCondition(String cs, String logicOperator) throws CException {
+    private void parseCondition(String cs, String logicOperator) throws ClaraException {
 
 
         StringTokenizer t0, t1;
@@ -129,7 +129,7 @@ public class Condition {
                 if (cs.contains("!=")) {
                     t1 = new StringTokenizer(cs, "!=");
                     if (t1.countTokens() != 2) {
-                        throw new CException("syntax error: malformed conditional statement");
+                        throw new ClaraException("syntax error: malformed conditional statement");
                     }
                     ServiceState sst = new ServiceState(t1.nextToken(), t1.nextToken());
                     addOrNotState(sst);
@@ -137,16 +137,16 @@ public class Condition {
                 } else if (cs.contains("==")) {
                     t1 = new StringTokenizer(cs, "==");
                     if (t1.countTokens() != 2) {
-                        throw new CException("syntax error: malformed conditional statement");
+                        throw new ClaraException("syntax error: malformed conditional statement");
                     }
                     ServiceState sst = new ServiceState(t1.nextToken(), t1.nextToken());
                     addOrState(sst);
 
                 } else {
-                    throw new CException("syntax error: malformed conditional statement");
+                    throw new ClaraException("syntax error: malformed conditional statement");
                 }
             } else {
-                throw new CException("syntax error: malformed conditional statement");
+                throw new ClaraException("syntax error: malformed conditional statement");
             }
 
         } else {
@@ -163,7 +163,7 @@ public class Condition {
                         if (ac.contains("!=")) {
                             t1 = new StringTokenizer(t0.nextToken(), "!=");
                             if (t1.countTokens() != 2) {
-                                throw new CException("syntax error: malformed conditional statement");
+                                throw new ClaraException("syntax error: malformed conditional statement");
                             }
                             ServiceState sst = new ServiceState(t1.nextToken(), t1.nextToken());
                             addAndNotState(sst);
@@ -171,16 +171,16 @@ public class Condition {
                         } else if (ac.contains("==")) {
                             t1 = new StringTokenizer(t0.nextToken(), "==");
                             if (t1.countTokens() != 2) {
-                                throw new CException("syntax error: malformed conditional statement");
+                                throw new ClaraException("syntax error: malformed conditional statement");
                             }
                             ServiceState sst = new ServiceState(t1.nextToken(), t1.nextToken());
                             addAndState(sst);
 
                         } else {
-                            throw new CException("syntax error: malformed conditional statement");
+                            throw new ClaraException("syntax error: malformed conditional statement");
                         }
                     } else {
-                        throw new CException("syntax error: malformed conditional statement");
+                        throw new ClaraException("syntax error: malformed conditional statement");
                     }
                 }
             } else if (cs.contains("!!") && !cs.contains("&&")) {
@@ -195,7 +195,7 @@ public class Condition {
                         if (ac.contains("!=")) {
                             t1 = new StringTokenizer(t0.nextToken(), "!=");
                             if (t1.countTokens() != 2) {
-                                throw new CException("syntax error: malformed conditional statement");
+                                throw new ClaraException("syntax error: malformed conditional statement");
                             }
                             ServiceState sst = new ServiceState(t1.nextToken(), t1.nextToken());
                             addOrNotState(sst);
@@ -203,20 +203,20 @@ public class Condition {
                         } else if (ac.contains("==")) {
                             t1 = new StringTokenizer(t0.nextToken(), "==");
                             if (t1.countTokens() != 2) {
-                                throw new CException("syntax error: malformed conditional statement");
+                                throw new ClaraException("syntax error: malformed conditional statement");
                             }
                             ServiceState sst = new ServiceState(t1.nextToken(), t1.nextToken());
                             addOrState(sst);
 
                         } else {
-                            throw new CException("syntax error: malformed conditional statement");
+                            throw new ClaraException("syntax error: malformed conditional statement");
                         }
                     } else {
-                        throw new CException("syntax error: malformed conditional statement");
+                        throw new ClaraException("syntax error: malformed conditional statement");
                     }
                 }
             } else {
-                throw new CException("syntax error: malformed or unsupported conditional statement");
+                throw new ClaraException("syntax error: malformed or unsupported conditional statement");
             }
         }
     }

@@ -1,7 +1,7 @@
-package org.jlab.clara.util;
+package org.jlab.clara.util.xml;
 
-import org.jlab.clara.util.CUtility;
-import org.jlab.clara.util.XMLContainer;
+import org.jlab.clara.util.ClaraUtil;
+import org.jlab.clara.util.xml.XMLContainer;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -20,17 +20,17 @@ public class ApplicationParser {
     public static void main(String[] args) {
 
         try {
-            Document doc = CUtility.getXMLDocument(args[0]);
+            Document doc = ClaraUtil.getXMLDocument(args[0]);
 
             String[] serviceTags = {"dpe", "container", "engine", "pool"};
-            List<XMLContainer> services = CUtility.parseXML(doc, "service", serviceTags);
+            List<XMLContainer> services = ClaraUtil.parseXML(doc, "service", serviceTags);
 
             for (XMLContainer s : services) {
                 System.out.println(s);
             }
 
             String[] applicationTags = {"composition", "data"};
-            List<XMLContainer> application = CUtility.parseXML(doc, "application", applicationTags);
+            List<XMLContainer> application = ClaraUtil.parseXML(doc, "application", applicationTags);
 
             for (XMLContainer a : application) {
                 System.out.println(a);

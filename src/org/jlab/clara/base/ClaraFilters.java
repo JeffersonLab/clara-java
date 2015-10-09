@@ -96,11 +96,11 @@ public final class ClaraFilters {
      *
      * @param lang the language to filter
      */
-    public static ClaraFilter dpesByLanguage(final ClaraLang lang) {
+    public static ClaraFilter dpesByLanguage(final String lang) {
         return new ClaraFilter() {
             @Override
             String filter() {
-                return "lang=" + lang.toString();
+                return "lang=" + lang;
             }
 
             @Override
@@ -169,11 +169,11 @@ public final class ClaraFilters {
      *
      * @param lang the language to filter
      */
-    public static ClaraFilter containersByLanguage(final ClaraLang lang) {
+    public static ClaraFilter containersByLanguage(final String lang) {
         return new ClaraFilter() {
             @Override
             String filter() {
-                return "lang=" + lang.toString();
+                return "lang=" + lang;
             }
 
             @Override
@@ -289,11 +289,11 @@ public final class ClaraFilters {
      *
      * @param lang the language to filter
      */
-    public static ClaraFilter servicesByLanguage(final ClaraLang lang) {
+    public static ClaraFilter servicesByLanguage(final String lang) {
         return new ClaraFilter() {
             @Override
             String filter() {
-                return "lang=" + lang.toString();
+                return "lang=" + lang;
             }
 
             @Override

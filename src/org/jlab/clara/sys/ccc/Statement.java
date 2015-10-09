@@ -20,9 +20,9 @@
  */
 package org.jlab.clara.sys.ccc;
 
-import org.jlab.clara.base.CException;
+import org.jlab.clara.base.ClaraException;
 import org.jlab.clara.engine.EngineData;
-import org.jlab.clara.util.CUtility;
+import org.jlab.clara.util.ClaraUtil;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 
 import java.util.*;
@@ -65,13 +65,13 @@ public class Statement {
     private String serviceName = xMsgConstants.UNDEFINED.toString();
 
 
-    public Statement(String statementString, String serviceName) throws CException {
+    public Statement(String statementString, String serviceName) throws ClaraException {
         if(statementString.contains(serviceName)) {
             this.statementString = statementString;
             this.serviceName = serviceName;
             process(statementString);
         } else {
-            throw new CException("irrelevant statement");
+            throw new ClaraException("irrelevant statement");
         }
     }
 
@@ -102,9 +102,9 @@ public class Statement {
      * </p>
      *
      * @param statement string
-     * @throws CException
+     * @throws ClaraException
      */
-    private void process(String statement) throws CException {
+    private void process(String statement) throws ClaraException {
         // This is new routing statement
         // clear local containers
         inputLinks.clear();
@@ -139,7 +139,7 @@ public class Statement {
      * @return the list containing names of linked services
      */
     private void parse_linked(String service_name,
-                              String statement) throws CException {
+                              String statement) throws ClaraException {
 
         // List that contains composition elements
         Set<String> elm_set = new LinkedHashSet<>();
@@ -147,8 +147,8 @@ public class Statement {
         StringTokenizer st = new StringTokenizer(statement, "+");
         while (st.hasMoreTokens()) {
             String el = st.nextToken();
-            el =  CUtility.removeFirst(el, "&");
-            el =  CUtility.removeFirst(el, "{");
+            el =  ClaraUtil.removeFirst(el, "&");
+            el =  ClaraUtil.removeFirst(el, "{");
             elm_set.add(el);
         }
 
@@ -164,12 +164,12 @@ public class Statement {
             }
         }
         if (index == -1) {
-            throw new CException("Routing statement parsing exception. " +
+            throw new ClaraException("Routing statement parsing exception. " +
                     "Service name can not be found in the statement.");
         } else {
             int pIndex = index -1;
             if(pIndex >= 0) {
-                String element = CUtility.getJSetElementAt(elm_set, pIndex);
+                String element = ClaraUtil.getJSetElementAt(elm_set, pIndex);
                 // the case to fan out the output of this service
                 if (element.contains(",")) {
                     StringTokenizer st1 = new StringTokenizer(element, ",");
@@ -184,7 +184,7 @@ public class Statement {
             // define output links
             int nIndex = index +1;
             if (elm_set.size() > nIndex) {
-                String element = CUtility.getJSetElementAt(elm_set, nIndex);
+                String element = ClaraUtil.getJSetElementAt(elm_set, nIndex);
                 // the case to fan out the output of this service
                 if (element.contains(",")) {
                     StringTokenizer st1 = new StringTokenizer(element, ",");

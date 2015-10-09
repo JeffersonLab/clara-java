@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 
-import org.jlab.clara.base.ClaraUtil;
+import org.jlab.clara.util.ClaraUtil;
 
 public class SimpleCompiler {
 

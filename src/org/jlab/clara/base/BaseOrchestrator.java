@@ -38,6 +38,7 @@ import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.engine.EngineStatus;
 import org.jlab.clara.sys.CBase;
 import org.jlab.clara.util.CConstants;
+import org.jlab.clara.util.ClaraUtil;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
@@ -143,7 +144,7 @@ public class BaseOrchestrator {
             xMsgMessage msg = new xMsgMessage(topic);
             base.serialize(data, msg, dataTypes);
             return msg;
-        } catch (CException e) {
+        } catch (ClaraException e) {
             throw new ClaraException("Could not serialize data", e);
         }
     }
@@ -585,7 +586,7 @@ public class BaseOrchestrator {
             return base.parseFrom(response, dataTypes);
         } catch (IOException | xMsgException e) {
             throw new ClaraException("Could not send request", e);
-        } catch (CException e) {
+        } catch (ClaraException e) {
             throw new ClaraException("Could not deserialize response", e);
         }
     }
@@ -1113,7 +1114,7 @@ public class BaseOrchestrator {
             public xMsgMessage callback(xMsgMessage msg) {
                 try {
                     userCallback.callback(base.parseFrom(msg, dataTypes));
-                } catch (CException e) {
+                } catch (ClaraException e) {
                     System.out.println("Error receiving data to " + msg.getTopic());
                     e.printStackTrace();
                 }
@@ -1136,9 +1137,9 @@ public class BaseOrchestrator {
                     if (mimeType.equals("text/string")) {
                         userCallback.callback(new String(msg.getData()));
                     } else {
-                        throw new CException("Unexpected mime-type: " + mimeType);
+                        throw new ClaraException("Unexpected mime-type: " + mimeType);
                     }
-                } catch (CException e) {
+                } catch (ClaraException e) {
                     System.out.println("Error receiving data to " + msg.getTopic());
                     e.printStackTrace();
                 }

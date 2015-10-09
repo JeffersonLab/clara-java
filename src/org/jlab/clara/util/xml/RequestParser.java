@@ -19,12 +19,12 @@
  * SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-package org.jlab.clara.util;
+package org.jlab.clara.util.xml;
 
 import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
-import org.jlab.clara.base.CException;
+import org.jlab.clara.base.error.ClaraException;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 
 public class RequestParser {
@@ -32,12 +32,12 @@ public class RequestParser {
     private final String cmdData;
     private StringTokenizer tokenizer;
 
-    public static RequestParser build(xMsgMessage msg) throws CException {
+    public static RequestParser build(xMsgMessage msg) throws ClaraException {
         String mimeType = msg.getMetaData().getDataType();
         if (mimeType.equals("text/string")) {
             return new RequestParser(new String(msg.getData()));
         }
-        throw new CException("Invalid mime-type = " + mimeType);
+        throw new ClaraException("Invalid mime-type = " + mimeType);
     }
 
 
@@ -47,11 +47,11 @@ public class RequestParser {
     }
 
 
-    public String nextString() throws CException {
+    public String nextString() throws ClaraException {
         try {
             return tokenizer.nextToken();
         } catch (NoSuchElementException e) {
-            throw new CException("Invalid request: " + cmdData);
+            throw new ClaraException("Invalid request: " + cmdData);
         }
     }
 
@@ -61,11 +61,11 @@ public class RequestParser {
     }
 
 
-    public int nextInteger() throws CException {
+    public int nextInteger() throws ClaraException {
         try {
             return Integer.parseInt(tokenizer.nextToken());
         } catch (NoSuchElementException | NumberFormatException e) {
-            throw new CException("Invalid request: " + cmdData);
+            throw new ClaraException("Invalid request: " + cmdData);
         }
     }
 }

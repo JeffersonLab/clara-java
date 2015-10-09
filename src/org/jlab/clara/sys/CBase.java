@@ -29,13 +29,13 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
-import org.jlab.clara.base.CException;
-import org.jlab.clara.base.ClaraUtil;
+import org.jlab.clara.base.ClaraException;
+import org.jlab.clara.util.ClaraUtil;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.util.CConstants;
-import org.jlab.clara.util.CUtility;
+import org.jlab.clara.util.ClaraUtil;
 import org.jlab.coda.xmsg.core.xMsg;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgConstants;
@@ -98,12 +98,12 @@ public class CBase extends xMsg {
      *
      * @param containerName container canonical name
      * @return MsgR.xMsgRegistrationData object
-     * @throws CException
+     * @throws ClaraException
      * @throws xMsgException
      * @throws SocketException
      */
     public xMsgRegistration findContainer(String containerName)
-            throws xMsgException, CException, SocketException {
+            throws xMsgException, ClaraException, SocketException {
 
         xMsgTopic topic = xMsgTopic.wrap(containerName);
         // Check the case when the requested container is local
@@ -137,12 +137,12 @@ public class CBase extends xMsg {
      *
      * @param dpeName DPE name
      * @return set of xMsgRegistration objects
-     * @throws CException
+     * @throws ClaraException
      * @throws xMsgException
      * @throws SocketException
      */
     public Set<xMsgRegistration> findContainers(String dpeName)
-            throws xMsgException, CException, SocketException {
+            throws xMsgException, ClaraException, SocketException {
 
         xMsgTopic topic = xMsgTopic.wrap(dpeName);
         Set<xMsgRegistration> result = new HashSet<xMsgRegistration>();
@@ -181,12 +181,12 @@ public class CBase extends xMsg {
      *
      * @param serviceName service canonical name
      * @return set of xMsgR.xMsgRegistrationData objects
-     * @throws CException
+     * @throws ClaraException
      * @throws xMsgException
      * @throws SocketException
      */
     public Set<xMsgRegistration> findService(String serviceName)
-            throws xMsgException, CException, SocketException {
+            throws xMsgException, ClaraException, SocketException {
 
         xMsgTopic topic = xMsgTopic.wrap(serviceName);
 
@@ -207,12 +207,12 @@ public class CBase extends xMsg {
      *
      * @param serviceName service canonical name
      * @return true if service is deployed
-     * @throws CException
+     * @throws ClaraException
      * @throws xMsgException
      * @throws SocketException
      */
     public boolean isServiceDeployed(String serviceName)
-            throws xMsgException, CException, SocketException {
+            throws xMsgException, ClaraException, SocketException {
         return findService(serviceName).size() > 0;
     }
 
@@ -245,7 +245,7 @@ public class CBase extends xMsg {
     public void genericSend(String dpeHost, xMsgMessage msg)
             throws xMsgException, IOException {
 
-        if (CUtility.isHostLocal(dpeHost)) {
+        if (ClaraUtil.isHostLocal(dpeHost)) {
             publish(nodeConnection, msg);
         } else {
             // Create a socket connections to the remote dpe.
@@ -293,7 +293,7 @@ public class CBase extends xMsg {
             throws xMsgException, TimeoutException, IOException {
 
         xMsgConnection connection;
-        if (CUtility.isHostLocal(dpeHost)) {
+        if (ClaraUtil.isHostLocal(dpeHost)) {
             connection = nodeConnection;
         } else {
             // Create a socket connections to the remote dpe.
@@ -311,15 +311,15 @@ public class CBase extends xMsg {
      * @param connection zmq connection socket
      * @param msg the message to be sent
      * @throws xMsgException
-     * @throws CException
+     * @throws ClaraException
      * @throws IOException
      */
     public void serviceSend(xMsgConnection connection,
                             xMsgMessage msg)
-            throws IOException, xMsgException, CException {
+            throws IOException, xMsgException, ClaraException {
 
         if (!ClaraUtil.isCanonicalName(msg.getTopic().toString())) {
-            throw new CException("service name is not canonical");
+            throw new ClaraException("service name is not canonical");
         }
         genericSend(connection, msg);
 
@@ -331,17 +331,17 @@ public class CBase extends xMsg {
      *
      * @param msg the message to be sent
      * @throws xMsgException
-     * @throws CException
+     * @throws ClaraException
      * @throws IOException
      */
     public void serviceSend(xMsgMessage msg)
-            throws xMsgException, CException, IOException {
+            throws xMsgException, ClaraException, IOException {
 
         if (!ClaraUtil.isCanonicalName(msg.getTopic().toString())) {
-            throw new CException("service name is not canonical");
+            throw new ClaraException("service name is not canonical");
         }
 
-        if (CUtility.isRemoteService(msg.getTopic().toString())) {
+        if (ClaraUtil.isRemoteService(msg.getTopic().toString())) {
             String dpeHost = ClaraUtil.getHostName(msg.getTopic().toString());
 
             // Create a socket connections to the remote dpe.
@@ -364,15 +364,15 @@ public class CBase extends xMsg {
      * @throws xMsgException
      * @throws TimeoutException
      * @throws IOException
-     * @throws CException
+     * @throws ClaraException
      */
     public xMsgMessage serviceSyncSend(xMsgConnection connection,
                                        xMsgMessage msg,
                                        int timeOut)
-            throws xMsgException, TimeoutException, IOException, CException {
+            throws xMsgException, TimeoutException, IOException, ClaraException {
 
         if (!ClaraUtil.isCanonicalName(msg.getTopic().toString())) {
-            throw new CException("service name is not canonical");
+            throw new ClaraException("service name is not canonical");
         }
 
         return genericSyncSend(connection, msg, timeOut);
@@ -388,16 +388,16 @@ public class CBase extends xMsg {
      * @throws xMsgException
      * @throws TimeoutException
      * @throws IOException
-     * @throws CException
+     * @throws ClaraException
      */
     public xMsgMessage serviceSyncSend(xMsgMessage msg,
                                        int timeOut)
-            throws xMsgException, TimeoutException, IOException, CException {
+            throws xMsgException, TimeoutException, IOException, ClaraException {
 
         if (!ClaraUtil.isCanonicalName(msg.getTopic().toString())) {
-            throw new CException("service name is not canonical");
+            throw new ClaraException("service name is not canonical");
         }
-        if (CUtility.isRemoteService(msg.getTopic().toString())) {
+        if (ClaraUtil.isRemoteService(msg.getTopic().toString())) {
             String dpeHost = msg.getTopic().domain();
 
             // Create a socket connections to the remote dpe.
@@ -490,13 +490,13 @@ public class CBase extends xMsg {
      * @param serviceName service canonical name that this method will subscribe
      * @param callback    user provided callback function
      * @throws xMsgException
-     * @throws CException
+     * @throws ClaraException
      */
     public xMsgSubscription serviceReceive(String serviceName,
                                            xMsgCallBack callback)
-            throws xMsgException, CException {
+            throws xMsgException, ClaraException {
         if (!ClaraUtil.isCanonicalName(serviceName)) {
-            throw new CException("service name is not canonical");
+            throw new ClaraException("service name is not canonical");
         }
 
         return genericReceive(nodeConnection, xMsgTopic.wrap(serviceName), callback);
@@ -512,14 +512,14 @@ public class CBase extends xMsg {
      * @param serviceName service canonical name that this method will subscribe
      * @param callback    user provided callback function
      * @throws xMsgException
-     * @throws CException
+     * @throws ClaraException
      */
     public xMsgSubscription serviceReceive(xMsgConnection connection,
                                            String serviceName,
                                            xMsgCallBack callback)
-            throws xMsgException, CException {
+            throws xMsgException, ClaraException {
         if (!ClaraUtil.isCanonicalName(serviceName)) {
-            throw new CException("service name is not canonical");
+            throw new ClaraException("service name is not canonical");
         }
 
         return genericReceive(connection, xMsgTopic.wrap(serviceName), callback);
@@ -527,7 +527,7 @@ public class CBase extends xMsg {
 
 
     public EngineData parseFrom(xMsgMessage msg, Set<EngineDataType> dataTypes)
-            throws CException {
+            throws ClaraException {
         xMsgMeta.Builder metadata = msg.getMetaData();
         String mimeType = metadata.getDataType();
         for (EngineDataType dt : dataTypes) {
@@ -537,16 +537,16 @@ public class CBase extends xMsg {
                     Object userData = dt.serializer().read(bb);
                     return dataAccessor.build(userData, metadata);
                 } catch (ClaraException e) {
-                    throw new CException("Could not deserialize " + mimeType, e);
+                    throw new ClaraException("Could not deserialize " + mimeType, e);
                 }
             }
         }
-        throw new CException("Unsupported mime-type = " + mimeType);
+        throw new ClaraException("Unsupported mime-type = " + mimeType);
     }
 
 
     public void serialize(EngineData data, xMsgMessage msg, Set<EngineDataType> dataTypes)
-            throws CException {
+            throws ClaraException {
         xMsgMeta.Builder metadata = dataAccessor.getMetadata(data);
         String mimeType = metadata.getDataType();
         for (EngineDataType dt : dataTypes) {
@@ -557,11 +557,11 @@ public class CBase extends xMsg {
                     msg.setData(mimeType, bb.array());
                     return;
                 } catch (ClaraException e) {
-                    throw new CException("Could not serialize " + mimeType, e);
+                    throw new ClaraException("Could not serialize " + mimeType, e);
                 }
             }
         }
-        throw new CException("Unsupported mime-type = " + mimeType);
+        throw new ClaraException("Unsupported mime-type = " + mimeType);
     }
 
 
@@ -659,9 +659,9 @@ public class CBase extends xMsg {
                              String serviceName,
                              String serviceClassPath,
                              String poolSize)
-            throws xMsgException, IOException, CException {
+            throws xMsgException, IOException, ClaraException {
         if (!ClaraUtil.isCanonicalName(serviceName)) {
-            throw new CException("Not a canonical name.");
+            throw new ClaraException("Not a canonical name.");
 
         }
         String containerName = ClaraUtil.getContainerName(serviceName);
@@ -672,9 +672,9 @@ public class CBase extends xMsg {
     }
 
     public void removeService(String dpeName, String serviceName)
-            throws CException, IOException, xMsgException {
+            throws ClaraException, IOException, xMsgException {
         if (!ClaraUtil.isCanonicalName(serviceName)) {
-            throw new CException("Not a canonical name.");
+            throw new ClaraException("Not a canonical name.");
 
         }
         String containerName = ClaraUtil.getContainerName(serviceName);

@@ -21,8 +21,8 @@
 
 package org.jlab.clara.sys;
 
-import org.jlab.clara.base.CException;
-import org.jlab.clara.base.ClaraUtil;
+import org.jlab.clara.base.ClaraException;
+import org.jlab.clara.util.ClaraUtil;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.Engine;
 import org.jlab.clara.engine.EngineDataType;
@@ -73,7 +73,7 @@ public class ServiceEngine extends CBase {
                          ServiceSysConfig config,
                          String localAddress,
                          String frontEndAddres)
-            throws CException {
+            throws ClaraException {
         super(name, localAddress, frontEndAddres);
 
         this.engineObject = userEngine;
@@ -88,7 +88,7 @@ public class ServiceEngine extends CBase {
     }
 
     public void configure(xMsgMessage message)
-            throws CException,
+            throws ClaraException,
             xMsgException,
             InterruptedException,
             IOException,
@@ -137,7 +137,7 @@ public class ServiceEngine extends CBase {
 //     * will never be execute within this method.
 //     */
 //    public void process(xMsgMessage message)
-//            throws CException,
+//            throws ClaraException,
 //            xMsgException,
 //            IOException,
 //            InterruptedException,
@@ -200,7 +200,7 @@ public class ServiceEngine extends CBase {
 //    private void execAndRoute(Set<Statement> routingStatements,
 //                              ServiceState inServiceState,
 //                              EngineData inData)
-//            throws IOException, xMsgException, CException {
+//            throws IOException, xMsgException, ClaraException {
 //
 //        EngineData outData;
 //        for (Statement st : routingStatements) {
@@ -249,7 +249,7 @@ public class ServiceEngine extends CBase {
 //    }
 
     public void execute(xMsgMessage message)
-            throws CException, xMsgException, IOException {
+            throws ClaraException, xMsgException, IOException {
 
         // Increment request count in the sysConfig object
         sysConfig.addRequest();
@@ -283,7 +283,7 @@ public class ServiceEngine extends CBase {
         sendResponse(outData, getLinks(inData, outData));
     }
 
-    private void parseComposition(EngineData inData) throws CException {
+    private void parseComposition(EngineData inData) throws ClaraException {
         String currentComposition = inData.getComposition();
         if (!currentComposition.equals(prevComposition)) {
             // analyze composition
@@ -297,7 +297,7 @@ public class ServiceEngine extends CBase {
     }
 
     private EngineData executeEngine(EngineData inData)
-            throws CException {
+            throws ClaraException {
         long startTime = startClock();
 
         EngineData outData = engineObject.execute(inData);
@@ -305,14 +305,14 @@ public class ServiceEngine extends CBase {
         stopClock(startTime);
 
         if (outData == null) {
-            throw new CException("null engine result");
+            throw new ClaraException("null engine result");
         }
         if (outData.getData() == null) {
             if (outData.getStatus() == EngineStatus.ERROR) {
                 outData.setData(EngineDataType.STRING.mimeType(),
                                 xMsgConstants.UNDEFINED.toString());
             } else {
-                throw new CException("empty engine result");
+                throw new ClaraException("empty engine result");
             }
         }
 
@@ -337,7 +337,7 @@ public class ServiceEngine extends CBase {
 
 
     private void sendReports(EngineData outData)
-            throws xMsgException, IOException, CException {
+            throws xMsgException, IOException, ClaraException {
         // External broadcast data
         if (sysConfig.isDataRequest()) {
             reportData(outData);
@@ -352,14 +352,14 @@ public class ServiceEngine extends CBase {
     }
 
     private void sendResponse(EngineData outData, Set<String> outLinks)
-            throws xMsgException, IOException, CException {
+            throws xMsgException, IOException, ClaraException {
         for (String ss : outLinks) {
             send(ClaraUtil.getHostName(ss), ss, outData);
         }
     }
 
     private void reportDone(EngineData data)
-            throws xMsgException, IOException, CException {
+            throws xMsgException, IOException, ClaraException {
         String mt = data.getMimeType();
         Object ob = data.getData();
         data.setData(EngineDataType.STRING.mimeType(), "done");
@@ -370,12 +370,12 @@ public class ServiceEngine extends CBase {
     }
 
     private void reportData(EngineData data)
-            throws xMsgException, IOException, CException {
+            throws xMsgException, IOException, ClaraException {
         report(xMsgConstants.DATA.toString(), data);
     }
 
     private void reportProblem(EngineData data)
-            throws xMsgException, IOException, CException {
+            throws xMsgException, IOException, ClaraException {
         EngineStatus status = data.getStatus();
         if (status.equals(EngineStatus.ERROR)) {
             report(xMsgConstants.ERROR.toString(), data);
@@ -386,14 +386,14 @@ public class ServiceEngine extends CBase {
 
 
     private void send(String host, String receiver, EngineData data)
-            throws xMsgException, CException, IOException {
+            throws xMsgException, ClaraException, IOException {
         xMsgMessage message = new xMsgMessage(xMsgTopic.wrap(receiver));
         putEngineData(data, receiver, message);
         genericSend(host, message);
     }
 
     private void report(String topicPrefix, EngineData data)
-            throws CException, xMsgException, IOException {
+            throws ClaraException, xMsgException, IOException {
         xMsgTopic topic = xMsgTopic.wrap(topicPrefix + ":" + getName());
         xMsgMessage transit = new xMsgMessage(topic);
         serialize(data, transit, engineObject.getOutputDataTypes());
@@ -401,7 +401,7 @@ public class ServiceEngine extends CBase {
     }
 
 
-    private EngineData getEngineData(xMsgMessage message) throws CException {
+    private EngineData getEngineData(xMsgMessage message) throws ClaraException {
         xMsgMeta.Builder metadata = message.getMetaData();
         String mimeType = metadata.getDataType();
         if (mimeType.equals(CConstants.SHARED_MEMORY_KEY)) {
@@ -414,7 +414,7 @@ public class ServiceEngine extends CBase {
     }
 
     private void putEngineData(EngineData data, String receiver, xMsgMessage message)
-            throws CException {
+            throws ClaraException {
         if (SharedMemory.containsReceiver(receiver)) {
             int id = data.getCommunicationId();
             SharedMemory.putEngineData(receiver, getName(), id, data);

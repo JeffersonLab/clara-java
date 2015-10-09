@@ -19,21 +19,46 @@
  * SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-package org.jlab.clara.base;
+package org.jlab.clara.util.shell;
 
 /**
- * Simple exception class
- *
- * @author gurjyan
- * @version 1.x
- * @since 2/1/15
+ * Created by gurjyan on 10/9/15.
  */
-public class CException extends Exception {
-    public CException(String message) {
-        super(message);
+public class ClaraStdIO {
+    private String stdio = "";
+    private String stdErr = "";
+    private int exitValue = -777;
+
+    public String getStdio() {
+        return stdio;
     }
 
-    public CException(String message, Throwable cause) {
-        super(message, cause);
+    public void setStdio(String stdio) {
+        this.stdio = stdio;
+    }
+
+    public String getStdErr() {
+        return stdErr;
+    }
+
+    public void setStdErr(String stderr) {
+        this.stdErr = stderr;
+    }
+
+    public int getExitValue() {
+        return exitValue;
+    }
+
+    public void setExitValue(int exitValue) {
+        this.exitValue = exitValue;
+    }
+
+    @Override
+    public String toString() {
+        return "StdOutput{" +
+                "stdio='" + stdio + '\'' +
+                ", stdErr='" + stdErr + '\'' +
+                ", exitValue=" + exitValue +
+                '}';
     }
 }

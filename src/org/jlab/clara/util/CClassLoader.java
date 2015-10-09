@@ -21,13 +21,11 @@
 
 package org.jlab.clara.util;
 
-import org.jlab.clara.base.CException;
+import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.Engine;
 
 /**
- * <p>
  *     Clara dynamic class loader
- * </p>
  *
  * @author gurjyan
  * @version 1.x
@@ -42,7 +40,7 @@ public class CClassLoader {
     }
 
     public Engine load(String className)
-            throws CException, ClassNotFoundException, IllegalAccessException, InstantiationException {
+            throws ClaraException, ClassNotFoundException, IllegalAccessException, InstantiationException {
             Class aClass = classLoader.loadClass(className);
 
             Object aInstance = aClass.newInstance();
@@ -50,7 +48,7 @@ public class CClassLoader {
         if (aInstance instanceof Engine) {
             return (Engine) aInstance;
             } else {
-                throw new CException("not a Clara service engine");
+                throw new ClaraException("not a Clara service engine");
             }
     }
 

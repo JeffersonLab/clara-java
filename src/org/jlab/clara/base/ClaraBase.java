@@ -21,14 +21,18 @@
 
 package org.jlab.clara.base;
 
+import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineDataAccessor;
 import org.jlab.coda.xmsg.core.*;
+import org.jlab.coda.xmsg.data.xMsgR;
 import org.jlab.coda.xmsg.excp.xMsgException;
 import org.jlab.coda.xmsg.net.xMsgConnection;
 import org.jlab.coda.xmsg.net.xMsgConnectionOption;
+import org.jlab.coda.xmsg.net.xMsgRegAddress;
 import org.zeromq.ZMQ;
 
 import java.io.IOException;
+import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
 /**
@@ -42,7 +46,7 @@ public class ClaraBase extends xMsg {
 
 
     private EngineDataAccessor dataAccessor;
-
+    private ClaraComponent myAddress;
 
     private xMsgConnectionOption connectionOption = new xMsgConnectionOption() {
         @Override
@@ -57,7 +61,7 @@ public class ClaraBase extends xMsg {
         }
     };
 
-    public ClaraBase(ClaraAddress me,
+    public ClaraBase(ClaraComponent me,
                      String defaultRegistrarHost,
                      int defaultRegistrarPort,
                      int subCallbackPoolSize)
@@ -67,9 +71,10 @@ public class ClaraBase extends xMsg {
                 defaultRegistrarHost, defaultRegistrarPort,
                 subCallbackPoolSize);
         setDefaultConnectionOption(connectionOption);
+        myAddress = me;
     }
 
-    public ClaraBase(ClaraAddress me,
+    public ClaraBase(ClaraComponent me,
                      String defaultRegistrarHost,
                      int defaultRegistrarPort)
             throws IOException {
@@ -77,62 +82,128 @@ public class ClaraBase extends xMsg {
                 xMsgConstants.DEFAULT_POOL_SIZE.getIntValue());
     }
 
-    public ClaraBase(ClaraAddress me)
+    public ClaraBase(ClaraComponent me)
             throws IOException {
         this(me, xMsgUtil.localhost(),
                 xMsgConstants.REGISTRAR_PORT.getIntValue(),
                 xMsgConstants.DEFAULT_POOL_SIZE.getIntValue());
     }
 
-    public void send(ClaraAddress address, xMsgMessage msg)
+    public void send(ClaraComponent component, xMsgMessage msg)
             throws xMsgException {
-        xMsgConnection con = connect(address.getProxyAddress());
+        xMsgConnection con = connect(component.getProxyAddress());
         publish(con,msg);
         release(con);
     }
 
-    public void send(ClaraAddress address, String requestText)
+    public void send(ClaraComponent component, String requestText)
             throws IOException, xMsgException {
-        xMsgMessage msg = new xMsgMessage(address.getTopic(), requestText);
-        xMsgConnection con = connect(address.getProxyAddress());
+        xMsgMessage msg = new xMsgMessage(component.getTopic(), requestText);
+        xMsgConnection con = connect(component.getProxyAddress());
         publish(con,msg);
         release(con);
     }
 
-    public xMsgMessage syncSend(ClaraAddress address, xMsgMessage msg, int timeout)
+    public xMsgMessage syncSend(ClaraComponent component, xMsgMessage msg, int timeout)
             throws xMsgException, TimeoutException {
-        xMsgConnection con = connect(address.getProxyAddress());
+        xMsgConnection con = connect(component.getProxyAddress());
         xMsgMessage m = syncPublish(con, msg, timeout);
         release(con);
         return m;
     }
 
-    public xMsgMessage syncSend(ClaraAddress address, String requestText, int timeout)
+    public xMsgMessage syncSend(ClaraComponent component, String requestText, int timeout)
             throws IOException, xMsgException, TimeoutException {
-        xMsgMessage msg = new xMsgMessage(address.getTopic(), requestText);
-        xMsgConnection con = connect(address.getProxyAddress());
+        xMsgMessage msg = new xMsgMessage(component.getTopic(), requestText);
+        xMsgConnection con = connect(component.getProxyAddress());
         xMsgMessage m = syncPublish(con, msg, timeout);
         release(con);
         return m;
     }
 
-    public xMsgSubscription listen(ClaraAddress address, xMsgCallBack callback)
+    public xMsgSubscription listen(ClaraComponent component, xMsgCallBack callback)
             throws xMsgException {
-        xMsgConnection con = connect(address.getProxyAddress());
-        return subscribe(con, address.getTopic(), callback);
+        xMsgConnection con = connect(component.getProxyAddress());
+        return subscribe(con, component.getTopic(), callback);
     }
 
-    public xMsgSubscription listen(ClaraAddress address, xMsgTopic topic, xMsgCallBack callback)
+    public xMsgSubscription listen(ClaraComponent component, xMsgTopic topic, xMsgCallBack callback)
             throws xMsgException {
-        xMsgConnection con = connect(address.getProxyAddress());
+        xMsgConnection con = connect(component.getProxyAddress());
         return subscribe(con, topic, callback);
     }
 
-    public void stopListening(xMsgSubscription handle) throws xMsgException {
+    public void stopListening(xMsgSubscription handle)
+            throws xMsgException {
         unsubscribe(handle);
     }
 
+    public void register(String regHost, int regPort, String description )
+            throws IOException, xMsgException {
+        xMsgRegAddress regAddress = new xMsgRegAddress(regHost, regPort);
+        registerAsSubscriber(regAddress, myAddress.getTopic(), description);
+    }
 
+    public void register(String regHost, String description )
+            throws IOException, xMsgException {
+        xMsgRegAddress regAddress = new xMsgRegAddress(regHost);
+        registerAsSubscriber(regAddress, myAddress.getTopic(), description);
+    }
+
+    public void register(String description )
+            throws IOException, xMsgException {
+        registerAsSubscriber(myAddress.getTopic(),description);
+    }
+
+    public void removeRegistration(String regHost, int regPort)
+            throws IOException, xMsgException {
+        xMsgRegAddress regAddress = new xMsgRegAddress(regHost, regPort);
+        removeSubscriberRegistration(regAddress, myAddress.getTopic());
+    }
+
+    public void removeRegistration(String regHost)
+            throws IOException, xMsgException {
+        xMsgRegAddress regAddress = new xMsgRegAddress(regHost);
+        removeSubscriberRegistration(regAddress, myAddress.getTopic());
+    }
+
+    public void removeRegistration()
+            throws IOException, xMsgException {
+        removeSubscriberRegistration(myAddress.getTopic());
+    }
+
+    public Set<xMsgR.xMsgRegistration> discover(String regHost, int regPort, xMsgTopic topic )
+            throws IOException, xMsgException {
+        xMsgRegAddress regAddress = new xMsgRegAddress(regHost, regPort);
+        return findSubscribers(regAddress, topic);
+    }
+
+    public Set<xMsgR.xMsgRegistration> discover(String regHost, xMsgTopic topic)
+            throws IOException, xMsgException {
+        xMsgRegAddress regAddress = new xMsgRegAddress(regHost);
+        return findSubscribers(regAddress, topic);
+    }
+
+    public Set<xMsgR.xMsgRegistration> discover(xMsgTopic topic )
+            throws IOException, xMsgException {
+        return findSubscribers(topic);
+    }
+
+    public void deploy(ClaraComponent component) throws ClaraException {
+        if(component.isOrchestrator()) {
+            throw new IllegalArgumentException("Clara-Error: can not deploy an orchestrator.");
+        }
+        if(component.isDpe()){
+
+        } else if(component.isContainer()){
+
+        } else if(component.isService()){
+
+        } else {
+            throw new ClaraException("Clara-Error: unknown or undefined component type. ");
+        }
+
+    }
 
 }
 

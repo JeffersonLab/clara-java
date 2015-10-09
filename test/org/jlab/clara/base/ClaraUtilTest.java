@@ -23,6 +23,7 @@ package org.jlab.clara.base;
 
 import java.lang.reflect.Method;
 
+import org.jlab.clara.util.ClaraUtil;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;

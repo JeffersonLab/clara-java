@@ -25,13 +25,13 @@ import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
-import org.jlab.clara.base.CException;
+import org.jlab.clara.base.ClaraException;
 import org.jlab.clara.engine.Engine;
 import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.util.CClassLoader;
 import org.jlab.clara.util.CConstants;
-import org.jlab.clara.util.CUtility;
-import org.jlab.clara.util.RequestParser;
+import org.jlab.clara.util.ClaraUtil;
+import org.jlab.clara.util.xml.RequestParser;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
@@ -76,7 +76,7 @@ public class Service extends CBase {
      * @param frontEndAddress the name of the front-end Clara node
      * @param poolSize the size of the engines pool
      * @param initialState initial state of this service
-     * @throws CException if the engine could not be loaded
+     * @throws ClaraException if the engine could not be loaded
      * @throws IOException
      */
     public Service(String name,
@@ -85,7 +85,7 @@ public class Service extends CBase {
                    String frontEndAddress,
                    int poolSize,
                    String initialState)
-            throws CException, xMsgException {
+            throws ClaraException, xMsgException {
 
         super(name, localAddress, frontEndAddress);
 
@@ -99,7 +99,7 @@ public class Service extends CBase {
             userEngine = cl.load(className);
             validateEngine(userEngine);
         } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
-            throw new CException("Could not load engine", e);
+            throw new ClaraException("Could not load engine", e);
         }
 
         // Creating thread pool
@@ -124,15 +124,15 @@ public class Service extends CBase {
         xMsgTopic topic = xMsgTopic.wrap(getName());
         this.subscription = genericReceive(topic, new ServiceCallBack());
         System.out.printf("%s: Started service = %s  poolsize = %d%n",
-                          CUtility.getCurrentTimeInH(), getName(), poolSize);
+                          ClaraUtil.getCurrentTimeInH(), getName(), poolSize);
 
         registerLocalSubscriber(topic, "Clara Service");
         System.out.printf("%s: Registered service = %s%n",
-                          CUtility.getCurrentTimeInH(), getName());
+                          ClaraUtil.getCurrentTimeInH(), getName());
     }
 
 
-    private void validateEngine(Engine engine) throws CException {
+    private void validateEngine(Engine engine) throws ClaraException {
         validateDataTypes(engine.getInputDataTypes(), "input data types");
         validateDataTypes(engine.getOutputDataTypes(), "output data types");
         validateString(engine.getDescription(), "description");
@@ -141,26 +141,26 @@ public class Service extends CBase {
     }
 
 
-    private void validateString(String value, String field) throws CException {
+    private void validateString(String value, String field) throws ClaraException {
         if (value == null || value.isEmpty()) {
-            throw new CException("missing engine " + field);
+            throw new ClaraException("missing engine " + field);
         }
     }
 
 
-    private void validateDataTypes(Set<EngineDataType> types, String field) throws CException {
+    private void validateDataTypes(Set<EngineDataType> types, String field) throws ClaraException {
         if (types == null || types.isEmpty()) {
-            throw new CException("missing engine " + field);
+            throw new ClaraException("missing engine " + field);
         }
         for (EngineDataType dt : types) {
             if (dt == null) {
-                throw new CException("null data type on engine " + field);
+                throw new ClaraException("null data type on engine " + field);
             }
         }
     }
 
 
-    public void exit() throws CException {
+    public void exit() throws ClaraException {
         boolean error = false;
         executionPool.shutdown();
         userEngine.destroy();
@@ -180,10 +180,10 @@ public class Service extends CBase {
         }
 
         if (error) {
-            throw new CException("Error removing service = " + name);
+            throw new ClaraException("Error removing service = " + name);
         }
 
-        System.out.println(CUtility.getCurrentTimeInH() + ": Removed service = " + name + "\n");
+        System.out.println(ClaraUtil.getCurrentTimeInH() + ": Removed service = " + name + "\n");
     }
 
 
@@ -233,7 +233,7 @@ public class Service extends CBase {
     }
 
 
-    private void setup(xMsgMessage msg) throws CException {
+    private void setup(xMsgMessage msg) throws ClaraException {
         RequestParser setup = RequestParser.build(msg);
         String report = setup.nextString();
         int value = setup.nextInteger();
@@ -249,7 +249,7 @@ public class Service extends CBase {
                 sysConfig.resetDataRequestCount();
                 break;
             default:
-                throw new CException("Invalid report request: " + report);
+                throw new ClaraException("Invalid report request: " + report);
         }
     }
 
@@ -271,7 +271,7 @@ public class Service extends CBase {
             genericSend(feHost, msg);
         }
 
-        System.out.println(CUtility.getCurrentTimeInH() + ": Registered service = " + name);
+        System.out.println(ClaraUtil.getCurrentTimeInH() + ": Registered service = " + name);
     }
 
 

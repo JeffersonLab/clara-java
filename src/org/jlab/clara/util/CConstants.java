@@ -74,4 +74,10 @@ public class CConstants {
 
     public static final int BENCHMARK = 10000;
 
+    public static final String JAVA_LANG = "java";
+    public static final String PYTHON_LANG = "python";
+    public static final String CPP_LANG = "cpp";
+
+    public static final String UNDEFINED = "undefined";
+
 }

@@ -20,8 +20,8 @@
  */
 package org.jlab.clara.sys.ccc;
 
-import org.jlab.clara.base.CException;
-import org.jlab.clara.util.CUtility;
+import org.jlab.clara.base.ClaraException;
+import org.jlab.clara.util.ClaraUtil;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -151,7 +151,7 @@ public class CCompiler {
         myServiceName = service;
     }
 
-    public void compile(String iCode) throws CException {
+    public void compile(String iCode) throws ClaraException {
 
         // This is a new request reset
         reset();
@@ -224,11 +224,11 @@ public class CCompiler {
      * @param pCode code string
      * @return set of tokens, including simple
      * routing statements as well as conditionals
-     * @throws CException
+     * @throws ClaraException
      */
-    private Set<String> preProcess(String pCode) throws CException {
+    private Set<String> preProcess(String pCode) throws ClaraException {
         if (!pCode.contains(";") && !pCode.endsWith(";")){
-            throw new CException("Syntax error in the Clara routing program. " +
+            throw new ClaraException("Syntax error in the Clara routing program. " +
                     "Missing end of statement operator = \";\"");
         }
         Set<String> r = new LinkedHashSet<>();
@@ -237,13 +237,13 @@ public class CCompiler {
         while (st.hasMoreTokens()){
             String text = st.nextToken();
             // this will get read of very last }
-            text = CUtility.removeFirst(text, "}");
+            text = ClaraUtil.removeFirst(text, "}");
             if(!text.equals("")) r.add(text);
         }
         return r;
     }
 
-    private boolean parseStatement(String iStmt) throws CException {
+    private boolean parseStatement(String iStmt) throws ClaraException {
         boolean b = false;
         Instruction ti = new Instruction(myServiceName);
 
@@ -262,7 +262,7 @@ public class CCompiler {
                     instructions.add(ti);
                     b = true;
                 } else {
-                    throw new CException("Syntax error in the Clara routing program. " +
+                    throw new ClaraException("Syntax error in the Clara routing program. " +
                             "Malformed routing statement");
                 }
             } catch (PatternSyntaxException e){
@@ -272,7 +272,7 @@ public class CCompiler {
         return b;
     }
 
-    private boolean parseStatement(String iStmt, Instruction ti) throws CException {
+    private boolean parseStatement(String iStmt, Instruction ti) throws ClaraException {
         boolean b = false;
 
         if(!iStmt.startsWith("if(") &&
@@ -287,14 +287,14 @@ public class CCompiler {
                 ti.addUnCondStatement(ts);
                 b = true;
             } else {
-                throw new CException("Syntax error in the Clara routing program. " +
+                throw new ClaraException("Syntax error in the Clara routing program. " +
                         "Malformed routing statement");
             }
         }
         return b;
     }
 
-    private Instruction parseCondition(String iCnd) throws CException {
+    private Instruction parseCondition(String iCnd) throws ClaraException {
         Instruction ti;
 
         Pattern p = Pattern.compile(Cond);
@@ -326,11 +326,11 @@ public class CCompiler {
                 }
             } catch (StringIndexOutOfBoundsException e) {
                 e.printStackTrace();
-                throw new CException("Syntax error in the Clara routing program. " +
+                throw new ClaraException("Syntax error in the Clara routing program. " +
                         "Missing parenthesis");
             }
         } else {
-            throw new CException("Syntax error in the Clara routing program. " +
+            throw new ClaraException("Syntax error in the Clara routing program. " +
                     "Malformed conditional statement");
         }
         return ti;
@@ -371,7 +371,7 @@ public class CCompiler {
             String t = new String(Files.readAllBytes(Paths.get(df)), StandardCharsets.UTF_8);
             compiler.compile(t);
 
-        } catch (IOException | CException e) {
+        } catch (IOException | ClaraException e) {
             e.printStackTrace();
         }
 //        String z = "elseif(10.2.9.96_java:container1:engine0!=aman){10.2.9.96_java:container1:engine1+10.2.9.96_java:container1:engine1";
@@ -380,7 +380,7 @@ public class CCompiler {
 //        System.out.println(sCond);
 //        Pattern p = Pattern.compile(sCond);
 //        Matcher m = p.matcher(z);
-//        CUtility.testRegexMatch(m);
+//        ClaraUtil.testRegexMatch(m);
 
     }
 }

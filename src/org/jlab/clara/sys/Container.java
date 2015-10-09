@@ -21,10 +21,10 @@
 
 package org.jlab.clara.sys;
 
-import org.jlab.clara.base.CException;
+import org.jlab.clara.base.ClaraException;
 import org.jlab.clara.util.CConstants;
-import org.jlab.clara.util.CUtility;
-import org.jlab.clara.util.RequestParser;
+import org.jlab.clara.util.ClaraUtil;
+import org.jlab.clara.util.xml.RequestParser;
 import org.jlab.coda.xmsg.core.xMsgSubscription;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgConstants;
@@ -62,11 +62,11 @@ public class Container extends CBase {
         // Subscribe messages published to this container
         xMsgTopic topic = xMsgTopic.wrap(CConstants.CONTAINER + ":" + getName());
         subscriptionHandler = genericReceive(topic, new ContainerCallBack());
-        System.out.println(CUtility.getCurrentTimeInH() + ": Started container = " + getName());
+        System.out.println(ClaraUtil.getCurrentTimeInH() + ": Started container = " + getName());
 
         //register container
         registerLocalSubscriber(topic, "Service Container");
-        System.out.println(CUtility.getCurrentTimeInH() + ": Registered container = " + name);
+        System.out.println(ClaraUtil.getCurrentTimeInH() + ": Registered container = " + name);
     }
 
     /**
@@ -76,7 +76,7 @@ public class Container extends CBase {
      * @throws xMsgException
      * @throws IOException
      */
-    public void exit() throws CException, xMsgException, IOException {
+    public void exit() throws ClaraException, xMsgException, IOException {
 
         reportFE(CConstants.CONTAINER_DOWN + "?" + getName());
 
@@ -101,13 +101,13 @@ public class Container extends CBase {
                             String engineClassPath,
                             int servicePoolSize,
                             String initialState)
-            throws CException, xMsgException, IOException {
+            throws ClaraException, xMsgException, IOException {
 
         String serviceName = getName() + ":" + engineName;
 
         if (_myServices.containsKey(serviceName)) {
             String msg = "%s Warning: service %s already exists. No new service is deployed%n";
-            System.err.printf(msg, CUtility.getCurrentTimeInH(), serviceName);
+            System.err.printf(msg, ClaraUtil.getCurrentTimeInH(), serviceName);
             return;
         }
 
@@ -132,7 +132,7 @@ public class Container extends CBase {
      * @param serviceName the service canonical name
      */
     private void removeService(String serviceName)
-            throws CException {
+            throws ClaraException {
         if (_myServices.containsKey(serviceName)) {
             Service service = _myServices.remove(serviceName);
             service.exit();
@@ -170,9 +170,9 @@ public class Container extends CBase {
                         break;
 
                     default:
-                        throw new CException("Invalid request");
+                        throw new ClaraException("Invalid request");
                 }
-            } catch (CException | xMsgException | IOException e) {
+            } catch (ClaraException | xMsgException | IOException e) {
                 e.printStackTrace();
             }
             return new xMsgMessage(null);

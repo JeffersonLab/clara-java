@@ -21,19 +21,9 @@
 
 package org.jlab.clara.examples.orchestrators;
 
-import org.jlab.clara.base.CException;
-import org.jlab.clara.util.CUtility;
-import org.jlab.clara.util.XMLContainer;
-import org.jlab.clara.util.XMLTagValue;
 import org.jlab.coda.xmsg.excp.xMsgException;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
 import java.net.SocketException;
-import java.util.List;
-import java.util.Scanner;
 
 /**
  * <p>
@@ -65,10 +55,10 @@ public class OrInteractive {
             if (args.length > 0 && args[0].equalsIgnoreCase("-f")) {
                 // read xml file and get deployment details
                 try {
-                    Document doc = CUtility.getXMLDocument(args[1]);
+                    Document doc = ClaraUtil.getXMLDocument(args[1]);
 
                     String[] serviceTags = {"dpe", "container", "engine", "pool"};
-                    List<XMLContainer> services = CUtility.parseXML(doc, "service", serviceTags);
+                    List<XMLContainer> services = ClaraUtil.parseXML(doc, "service", serviceTags);
 
 
                     for (XMLContainer s : services) {
@@ -86,16 +76,16 @@ public class OrInteractive {
                             // ask if container exists
                             // start a container
                             or.start_container(dpe, container);
-                            CUtility.sleep(1000);
+                            ClaraUtil.sleep(1000);
 
                             // start a service
                             or.start_service(dpe + ":" + container, engine, pool);
-                            CUtility.sleep(1000);
+                            ClaraUtil.sleep(1000);
                         }
                     }
 
                     String[] applicationTags = {"composition", "data"};
-                    List<XMLContainer> application = CUtility.parseXML(doc, "application", applicationTags);
+                    List<XMLContainer> application = ClaraUtil.parseXML(doc, "application", applicationTags);
 
                     for (XMLContainer a : application) {
                         String comp = null, inData = null;
@@ -210,7 +200,7 @@ public class OrInteractive {
                     }
                 }
             }
-        }catch(xMsgException | CException | SocketException e){
+        }catch(xMsgException | ClaraException | SocketException e){
             e.printStackTrace();
         }
         */
