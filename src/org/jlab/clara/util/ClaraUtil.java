@@ -49,6 +49,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+import sun.jvm.hotspot.ui.tree.CStringTreeNodeAdapter;
 
 /**
  * Extra helper methods for Clara orchestrator and services.
@@ -64,13 +65,13 @@ public final class ClaraUtil {
      * <p>
      * A canonical name should have any of the following structures:
      * <pre>
-     * {@literal <host>_<language>}
-     * {@literal <host>_<language>:<container>}
-     * {@literal <host>_<language>:<container>:<engine>}
+     * {@literal <host>%<port>_<language>}
+     * {@literal <host>%<port>_<language>:<container>}
+     * {@literal <host>%<port>_<language>:<container>:<engine>}
      * </pre>
      */
     public static final Pattern CANONICAL_NAME_PATTERN =
-            Pattern.compile("^([^:_ ]+_(java|python|cpp))(:(\\w+)(:(\\w+))?)?$");
+            Pattern.compile("^([^:_ ]+(%\\d*)+_(java|python|cpp))(:(\\w+)(:(\\w+))?)?$");
 
 
     /**
@@ -78,9 +79,9 @@ public final class ClaraUtil {
      * <p>
      * A canonical name should have any of the following structures:
      * <pre>
-     * {@literal <host>_<language>}
-     * {@literal <host>_<language>:<container>}
-     * {@literal <host>_<language>:<container>:<engine>}
+     * {@literal <host>%<port>_<language>}
+     * {@literal <host>%<port>_<language>:<container>}
+     * {@literal <host>%<port>_<language>:<container>:<engine>}
      * </pre>
      *
      * @param name the name to be checked
@@ -90,6 +91,64 @@ public final class ClaraUtil {
         return matcher.matches();
     }
 
+    public static String getDpeName(String canonicalName) throws ClaraException {
+        if(!isCanonicalName(canonicalName)) {
+            throw new ClaraException("Clara-Error: not a canonical name");
+        }
+        xMsgTopic topic = xMsgTopic.wrap(canonicalName);
+        return topic.domain();
+    }
+
+    public static String getContainerName(String canonicalName) throws ClaraException {
+        if(!isCanonicalName(canonicalName)) {
+            throw new ClaraException("Clara-Error: not a canonical name");
+        }
+        xMsgTopic topic = xMsgTopic.wrap(canonicalName);
+        return topic.subject();
+    }
+
+    public static String getEngineName(String canonicalName) throws ClaraException {
+        if(!isCanonicalName(canonicalName)) {
+            throw new ClaraException("Clara-Error: not a canonical name");
+        }
+        xMsgTopic topic = xMsgTopic.wrap(canonicalName);
+        return topic.type();
+    }
+
+    public static String getDpeHost(String canonicalName) throws ClaraException {
+      if(!isCanonicalName(canonicalName)) {
+          throw new ClaraException("Clara-Error: not a canonical name");
+      }
+        String dpeName = getDpeName(canonicalName);
+        StringTokenizer st = new StringTokenizer(dpeName,CConstants.PRXHOSTPORT_SEP);
+        if(st.countTokens()!=2){
+            throw new ClaraException("Clara-Error: malformed name of a DPE");
+        }
+        return st.nextToken();
+    }
+
+    public static int getDpePort(String canonicalName) throws ClaraException {
+      if(!isCanonicalName(canonicalName)) {
+          throw new ClaraException("Clara-Error: not a canonical name");
+      }
+        String dpeName = getDpeName(canonicalName);
+        StringTokenizer st = new StringTokenizer(dpeName,CConstants.PRXHOSTPORT_SEP);
+        if(st.countTokens()!=2){
+            throw new ClaraException("Clara-Error: malformed name of a DPE");
+        }
+        st.nextToken();
+        String dpl = st.nextToken();
+        String p = dpl.substring(0, dpl.indexOf(CConstants.LANG_SEP));
+        return Integer.parseInt(p);
+    }
+
+    public static String getDpeLang(String canonicalName) throws ClaraException {
+      if(!isCanonicalName(canonicalName)) {
+          throw new ClaraException("Clara-Error: not a canonical name");
+      }
+        String dpeName = getDpeName(canonicalName);
+         return dpeName.substring(dpeName.indexOf(CConstants.LANG_SEP));
+    }
 
     /**
      * Helps creating a set of engine data types.
@@ -180,7 +239,7 @@ public final class ClaraUtil {
         if (s == null || s.length() == 0) {
             return s;
         }
-        return s.substring(0, s.length()-1);
+        return s.substring(0, s.length() - 1);
     }
 
     /**
@@ -301,5 +360,27 @@ public final class ClaraUtil {
         input = input.startsWith(firstCharacter) ? input.substring(1) : input;
         return input;
     }
+
+    public static  xMsgTopic buildTopic(Object... args) {
+        StringBuilder topic  = new StringBuilder();
+        topic.append(args[0]);
+        for (int i = 1; i < args.length; i++) {
+            topic.append(CConstants.TOPIC_SEP);
+            topic.append(args[i]);
+        }
+        return xMsgTopic.wrap(topic.toString());
+    }
+
+
+    public static String buildData(Object... args) {
+        StringBuilder topic  = new StringBuilder();
+        topic.append(args[0]);
+        for (int i = 1; i < args.length; i++) {
+            topic.append(CConstants.DATA_SEP);
+            topic.append(args[i]);
+        }
+        return topic.toString();
+    }
+
 
 }

@@ -29,13 +29,11 @@ import java.util.Iterator;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
-import org.jlab.clara.base.ClaraException;
 import org.jlab.clara.util.ClaraUtil;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.util.CConstants;
-import org.jlab.clara.util.ClaraUtil;
 import org.jlab.coda.xmsg.core.xMsg;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgConstants;

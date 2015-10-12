@@ -21,7 +21,9 @@
 
 package org.jlab.clara.base;
 
+import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.util.CConstants;
+import org.jlab.clara.util.ClaraUtil;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.core.xMsgUtil;
@@ -30,8 +32,8 @@ import org.jlab.coda.xmsg.net.xMsgPrxAddress;
 import java.io.IOException;
 
 /**
- *  Clara addressee. This is used to define
- *  service, container or DPE addresses.
+ *  Clara component. This is used to define
+ *  service, container, DPE and orchestrator components.
  *
  * @author gurjyan
  * @since 4.x
@@ -43,20 +45,24 @@ public class ClaraComponent {
     private String dpeLang;
     private String dpeHost;
     private int dpePort;
-    private String dpeName;
 
+    private String dpeName;
     private String containerName;
     private String engineName;
+    private String engineClass = CConstants.UNDEFINED;
+
     private String name;
 
+    private int subscriptionPoolSize;
 
     private boolean isOrchestrator = false;
     private boolean isDpe = false;
     private boolean isContainer = false;
     private boolean isService = false;
 
-    private ClaraComponent(String dpeLang, String dpeHost, int dpePort, String container, String engine){
+    private ClaraComponent(String dpeLang, String dpeHost, int dpePort, String container, String engine, int subscriptionPoolSize){
         this.dpeLang = dpeLang;
+        this.subscriptionPoolSize = subscriptionPoolSize;
         this.dpeHost = dpeHost;
         this.dpePort = dpePort;
         this.dpeName = dpeHost + CConstants.PRXHOSTPORT_SEP +
@@ -67,169 +73,211 @@ public class ClaraComponent {
         name = topic.toString();
     }
 
-    public static ClaraComponent orchestrator(String name, String dpeHost, int dpePort, String dpeLang){
+
+    public static ClaraComponent orchestrator(String name, String dpeHost, int dpePort, String dpeLang, int subscriptionPoolSize){
         ClaraComponent a = new ClaraComponent(dpeLang,
                 dpeHost,
                 dpePort,
                 xMsgTopic.ANY,
-                xMsgTopic.ANY);
+                xMsgTopic.ANY,
+                subscriptionPoolSize);
         a.setName(name);
         a.isOrchestrator = true;
         return a;
     }
 
-    public static ClaraComponent orchestrator(String name, String dpeHost, String dpeLang){
+    public static ClaraComponent orchestrator(String name, String dpeHost, String dpeLang, int subscriptionPoolSize){
         ClaraComponent a = new ClaraComponent(dpeLang,
                 dpeHost,
                 xMsgConstants.DEFAULT_PORT.getIntValue(),
                 xMsgTopic.ANY,
-                xMsgTopic.ANY);
+                xMsgTopic.ANY,
+                subscriptionPoolSize);
         a.setName(name);
         a.isOrchestrator = true;
         return a;
     }
 
-    public static ClaraComponent orchestrator(String name, String dpeHost){
+    public static ClaraComponent orchestrator(String name, String dpeHost, int subscriptionPoolSize){
         ClaraComponent a = new ClaraComponent(CConstants.JAVA_LANG,
                 dpeHost,
                 xMsgConstants.DEFAULT_PORT.getIntValue(),
                 xMsgTopic.ANY,
-                xMsgTopic.ANY);
+                xMsgTopic.ANY,
+                subscriptionPoolSize);
         a.setName(name);
         a.isOrchestrator = true;
         return a;
     }
 
-    public static ClaraComponent orchestrator(String name) throws IOException {
+    public static ClaraComponent orchestrator(String name, int subscriptionPoolSize) throws IOException {
         ClaraComponent a = new ClaraComponent(CConstants.JAVA_LANG,
                 xMsgUtil.localhost(),
                 xMsgConstants.DEFAULT_PORT.getIntValue(),
                 xMsgTopic.ANY,
-                xMsgTopic.ANY);
+                xMsgTopic.ANY,
+                subscriptionPoolSize);
         a.setName(name);
         a.isOrchestrator = true;
         return a;
     }
 
 
-    public static ClaraComponent dpe(String dpeHost, int dpePort, String dpeLang){
+    public static ClaraComponent dpe(String dpeHost, int dpePort, String dpeLang, int subscriptionPoolSize){
         ClaraComponent a = new ClaraComponent(dpeLang,
                 dpeHost,
                 dpePort,
                 xMsgTopic.ANY,
-                xMsgTopic.ANY);
+                xMsgTopic.ANY,
+                subscriptionPoolSize);
         a.isDpe = true;
         return a;
     }
 
-    public static ClaraComponent dpe(String dpeHost, String dpeLang){
+    public static ClaraComponent dpe(String dpeHost, String dpeLang, int subscriptionPoolSize){
         ClaraComponent a = new ClaraComponent(dpeLang,
                 dpeHost,
                 xMsgConstants.DEFAULT_PORT.getIntValue(),
                 xMsgTopic.ANY,
-                xMsgTopic.ANY);
+                xMsgTopic.ANY,
+                subscriptionPoolSize);
         a.isDpe = true;
         return a;
     }
 
-    public static ClaraComponent dpe(String dpeHost){
+    public static ClaraComponent dpe(String dpeHost, int subscriptionPoolSize){
         ClaraComponent a = new ClaraComponent(CConstants.JAVA_LANG,
                 dpeHost,
                 xMsgConstants.DEFAULT_PORT.getIntValue(),
                 xMsgTopic.ANY,
-                xMsgTopic.ANY);
+                xMsgTopic.ANY,
+                subscriptionPoolSize);
         a.isDpe = true;
         return a;
     }
 
-    public static ClaraComponent dpe() throws IOException {
+    public static ClaraComponent dpe(int subscriptionPoolSize) throws IOException {
         ClaraComponent a = new ClaraComponent(CConstants.JAVA_LANG,
                 xMsgUtil.localhost(),
                 xMsgConstants.DEFAULT_PORT.getIntValue(),
                 xMsgTopic.ANY,
-                xMsgTopic.ANY);
+                xMsgTopic.ANY,
+                subscriptionPoolSize);
         a.isDpe = true;
         return a;
     }
 
-    public static ClaraComponent container(String dpeHost, int dpePort, String dpeLang, String container){
+    public static ClaraComponent container(String dpeHost, int dpePort, String dpeLang, String container, int subscriptionPoolSize){
         ClaraComponent a = new ClaraComponent(dpeLang,
                 dpeHost,
                 dpePort,
                 container,
-                xMsgTopic.ANY);
+                xMsgTopic.ANY,
+                subscriptionPoolSize);
         a.isContainer = true;
         return a;
     }
 
-    public static ClaraComponent container(String dpeHost, String dpeLang, String container){
+    public static ClaraComponent container(String dpeHost, String dpeLang, String container, int subscriptionPoolSize){
         ClaraComponent a = new ClaraComponent(dpeLang,
                 dpeHost,
                 xMsgConstants.DEFAULT_PORT.getIntValue(),
                 container,
-                xMsgTopic.ANY);
+                xMsgTopic.ANY,
+                subscriptionPoolSize);
         a.isContainer = true;
         return a;
     }
 
-    public static ClaraComponent container(String dpeHost, String container){
+    public static ClaraComponent container(String dpeHost, String container, int subscriptionPoolSize){
         ClaraComponent a = new ClaraComponent(CConstants.JAVA_LANG,
                 dpeHost,
                 xMsgConstants.DEFAULT_PORT.getIntValue(),
                 container,
-                xMsgTopic.ANY);
+                xMsgTopic.ANY,
+                subscriptionPoolSize);
         a.isContainer = true;
         return a;
     }
 
-    public static ClaraComponent container(String container) throws IOException {
+    public static ClaraComponent container(String container, int subscriptionPoolSize) throws IOException {
         ClaraComponent a = new ClaraComponent(CConstants.JAVA_LANG,
                 xMsgUtil.localhost(),
                 xMsgConstants.DEFAULT_PORT.getIntValue(),
                 container,
-                xMsgTopic.ANY);
+                xMsgTopic.ANY,
+                subscriptionPoolSize);
         a.isContainer = true;
         return a;
     }
 
-    public static ClaraComponent service(String dpeHost, int dpePort, String dpeLang, String container, String engine){
+    public static ClaraComponent container(String containerCanonicalName) throws ClaraException {
+        return container(ClaraUtil.getDpeHost(containerCanonicalName),
+        ClaraUtil.getDpePort(containerCanonicalName),
+        ClaraUtil.getDpeLang(containerCanonicalName),
+        ClaraUtil.getContainerName(containerCanonicalName), 1);
+
+    }
+
+    public static ClaraComponent service(String dpeHost, int dpePort, String dpeLang, String container,
+                                         String engine, String engineClass, int subscriptionPoolSize){
         ClaraComponent a = new ClaraComponent(dpeLang,
                 dpeHost,
                 dpePort,
                 container,
-                engine);
+                engine,
+                subscriptionPoolSize);
         a.isService = true;
+        a.engineClass = engineClass;
         return a;
     }
 
-    public static ClaraComponent service(String dpeHost, String dpeLang, String container, String engine){
+    public static ClaraComponent service(String dpeHost, String dpeLang, String container,
+                                         String engine, String engineClass,int subscriptionPoolSize){
         ClaraComponent a = new ClaraComponent(dpeLang,
                 dpeHost,
                 xMsgConstants.DEFAULT_PORT.getIntValue(),
                 container,
-                engine);
+                engine,
+                subscriptionPoolSize);
         a.isService = true;
+        a.engineClass = engineClass;
         return a;
     }
 
-    public static ClaraComponent service(String dpeHost, String container, String engine){
+    public static ClaraComponent service(String dpeHost, String container,
+                                         String engine, String engineClass, int subscriptionPoolSize){
         ClaraComponent a = new ClaraComponent(CConstants.JAVA_LANG,
                 dpeHost,
                 xMsgConstants.DEFAULT_PORT.getIntValue(),
                 container,
-                engine);
+                engine,
+                subscriptionPoolSize);
         a.isService = true;
+        a.engineClass = engineClass;
         return a;
     }
 
-    public static ClaraComponent service(String container, String engine) throws IOException {
+    public static ClaraComponent service(String container,
+                                         String engine, String engineClass, int subscriptionPoolSize) throws IOException {
         ClaraComponent a = new ClaraComponent(CConstants.JAVA_LANG,
                 xMsgUtil.localhost(),
                 xMsgConstants.DEFAULT_PORT.getIntValue(),
                 container,
-                engine);
+                engine,
+                subscriptionPoolSize);
         a.isService = true;
+        a.engineClass = engineClass;
         return a;
+    }
+
+    public static ClaraComponent service(String serviceCanonicalName) throws ClaraException {
+        return service(ClaraUtil.getDpeHost(serviceCanonicalName),
+                ClaraUtil.getDpePort(serviceCanonicalName),
+                ClaraUtil.getDpeLang(serviceCanonicalName),
+                ClaraUtil.getContainerName(serviceCanonicalName),
+                ClaraUtil.getEngineName(serviceCanonicalName),
+                CConstants.UNDEFINED,1);
     }
 
     public xMsgTopic getTopic() {
@@ -260,8 +308,16 @@ public class ClaraComponent {
         return engineName;
     }
 
+    public String getEngineClass() {
+        return engineClass;
+    }
+
     public String getName(){
         return name;
+    }
+
+    public int getSubscriptionPoolSize() {
+        return subscriptionPoolSize;
     }
 
     public void setName(String name) {

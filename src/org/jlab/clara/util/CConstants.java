@@ -58,9 +58,6 @@ public class CConstants {
     public static final String REMOVE_SERVICE = "removeService";
     public static final String SERVICE_UP = "serviceIsUp";
     public static final String SERVICE_DOWN = "serviceIsDown";
-    public static final String SERVICE_REPORT_DONE = "serviceReportDone";
-    public static final String SERVICE_REPORT_DATA = "serviceReportData";
-    public static final String RUN_SERVICE = "runService";
     public static final String LIST_SERVICES = "listServices";
 
 
