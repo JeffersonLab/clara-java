@@ -24,6 +24,7 @@ package org.jlab.clara.base;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.EngineDataAccessor;
+import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.util.CConstants;
 import org.jlab.clara.util.CReport;
 import org.jlab.clara.util.ClaraUtil;
@@ -33,12 +34,12 @@ import org.jlab.coda.xmsg.data.xMsgM;
 import org.jlab.coda.xmsg.data.xMsgR;
 import org.jlab.coda.xmsg.excp.xMsgException;
 import org.jlab.coda.xmsg.net.xMsgConnection;
-import org.jlab.coda.xmsg.net.xMsgConnectionOption;
+import org.jlab.coda.xmsg.net.xMsgProxyAddress;
 import org.jlab.coda.xmsg.net.xMsgRegAddress;
-import org.zeromq.ZMQ;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
@@ -56,51 +57,36 @@ public class ClaraBase extends xMsg {
     private String claraHome;
 
     private EngineDataAccessor dataAccessor;
-    private ClaraComponent myAddress;
+    private ClaraComponent me;
 
-    private xMsgConnectionOption connectionOption = new xMsgConnectionOption() {
-        @Override
-        public void preConnection(ZMQ.Socket socket) {
-            socket.setRcvHWM(0);
-            socket.setSndHWM(0);
-        }
-
-        @Override
-        public void postConnection() {
-            xMsgUtil.sleep(100);
-        }
-    };
 
     public ClaraBase(ClaraComponent me,
                      String defaultRegistrarHost,
-                     int defaultRegistrarPort,
-                     int subCallbackPoolSize)
+                     int defaultRegistrarPort)
             throws IOException, ClaraException {
-        super(me.getName(),
-                me.getDpeHost(), me.getDpePort(),
-                defaultRegistrarHost, defaultRegistrarPort,
-                subCallbackPoolSize);
-        setDefaultConnectionOption(connectionOption);
-        myAddress = me;
+        super(me.getName(), new xMsgProxyAddress(me.getDpeHost(), me.getDpePort()),
+                new xMsgRegAddress(defaultRegistrarHost, defaultRegistrarPort),
+                me.getSubscriptionPoolSize());
+        dataAccessor = EngineDataAccessor.getDefault();
+        this.me = me;
         claraHome = System.getenv("CLARA_HOME");
         if(claraHome ==null) {
             throw new ClaraException("Clara-Error: CLARA_HOME environmental variable is not defined.");
         }
     }
 
-    public ClaraBase(ClaraComponent me,
-                     String defaultRegistrarHost,
-                     int defaultRegistrarPort)
-            throws IOException, ClaraException {
-        this(me, defaultRegistrarHost, defaultRegistrarPort,
-                xMsgConstants.DEFAULT_POOL_SIZE.getIntValue());
-    }
-
     public ClaraBase(ClaraComponent me)
             throws IOException, ClaraException {
         this(me, xMsgUtil.localhost(),
-                xMsgConstants.REGISTRAR_PORT.getIntValue(),
-                xMsgConstants.DEFAULT_POOL_SIZE.getIntValue());
+                xMsgConstants.REGISTRAR_PORT.getIntValue());
+    }
+
+    public String getClaraHome() {
+        return claraHome;
+    }
+
+    public ClaraComponent getMe() {
+        return me;
     }
 
     public void send(ClaraComponent component, xMsgMessage msg)
@@ -155,35 +141,35 @@ public class ClaraBase extends xMsg {
     public void register(String regHost, int regPort, String description )
             throws IOException, xMsgException {
         xMsgRegAddress regAddress = new xMsgRegAddress(regHost, regPort);
-        registerAsSubscriber(regAddress, myAddress.getTopic(), description);
+        registerAsSubscriber(regAddress, me.getTopic(), description);
     }
 
     public void register(String regHost, String description )
             throws IOException, xMsgException {
         xMsgRegAddress regAddress = new xMsgRegAddress(regHost);
-        registerAsSubscriber(regAddress, myAddress.getTopic(), description);
+        registerAsSubscriber(regAddress, me.getTopic(), description);
     }
 
     public void register(String description )
             throws IOException, xMsgException {
-        registerAsSubscriber(myAddress.getTopic(), description);
+        registerAsSubscriber(me.getTopic(), description);
     }
 
     public void removeRegistration(String regHost, int regPort)
             throws IOException, xMsgException {
         xMsgRegAddress regAddress = new xMsgRegAddress(regHost, regPort);
-        removeSubscriberRegistration(regAddress, myAddress.getTopic());
+        removeSubscriberRegistration(regAddress, me.getTopic());
     }
 
     public void removeRegistration(String regHost)
             throws IOException, xMsgException {
         xMsgRegAddress regAddress = new xMsgRegAddress(regHost);
-        removeSubscriberRegistration(regAddress, myAddress.getTopic());
+        removeSubscriberRegistration(regAddress, me.getTopic());
     }
 
     public void removeRegistration()
             throws IOException, xMsgException {
-        removeSubscriberRegistration(myAddress.getTopic());
+        removeSubscriberRegistration(me.getTopic());
     }
 
     public Set<xMsgR.xMsgRegistration> discover(String regHost, int regPort, xMsgTopic topic )
@@ -268,6 +254,54 @@ public class ClaraBase extends xMsg {
     public void stopReporting(ClaraComponent component, CReport report)
             throws IOException, xMsgException {
         startReporting(component, report, 0);
+    }
+
+    public xMsgMessage ping(ClaraComponent component, int timeout)
+            throws IOException, xMsgException, TimeoutException {
+
+        String data = ClaraUtil.buildData(CReport.INFO.getValue());
+        xMsgTopic topic = component.getTopic();
+        xMsgMessage msg = new xMsgMessage(topic, data);
+        return syncSend(component, msg, timeout);
+    }
+
+
+    public EngineData deSerialize(xMsgMessage msg, Set<EngineDataType> dataTypes)
+            throws ClaraException {
+        xMsgM.xMsgMeta.Builder metadata = msg.getMetaData();
+        String mimeType = metadata.getDataType();
+        for (EngineDataType dt : dataTypes) {
+            if (dt.mimeType().equals(mimeType)) {
+                try {
+                    ByteBuffer bb = ByteBuffer.wrap(msg.getData());
+                    Object userData = dt.serializer().read(bb);
+                    return dataAccessor.build(userData, metadata);
+                } catch (ClaraException e) {
+                    throw new ClaraException("Clara-Error: Could not deserialize " + mimeType, e);
+                }
+            }
+        }
+        throw new ClaraException("Clara-Error: Unsupported mime-type = " + mimeType);
+    }
+
+
+    public void serialize(EngineData data, xMsgMessage msg, Set<EngineDataType> dataTypes)
+            throws ClaraException {
+        xMsgM.xMsgMeta.Builder metadata = dataAccessor.getMetadata(data);
+        String mimeType = metadata.getDataType();
+        for (EngineDataType dt : dataTypes) {
+            if (dt.mimeType().equals(mimeType)) {
+                try {
+                    ByteBuffer bb = dt.serializer().write(data.getData());
+                    msg.setMetaData(metadata);
+                    msg.setData(bb.array());
+                    return;
+                } catch (ClaraException e) {
+                    throw new ClaraException("Could not serialize " + mimeType, e);
+                }
+            }
+        }
+        throw new ClaraException("Unsupported mime-type = " + mimeType);
     }
 
     /** ************************ Private Methods ***************************** */

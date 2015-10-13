@@ -50,7 +50,7 @@ public abstract class EngineDataAccessor {
         DEFAULT = accessor;
     }
 
-    protected abstract xMsgM.xMsgMeta.Builder getMetadata(EngineData data);
+    public abstract xMsgM.xMsgMeta.Builder getMetadata(EngineData data);
 
-    protected abstract EngineData build(Object data, xMsgM.xMsgMeta.Builder metadata);
+    public abstract EngineData build(Object data, xMsgM.xMsgMeta.Builder metadata);
 }

@@ -27,7 +27,7 @@ import org.jlab.clara.util.ClaraUtil;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.core.xMsgUtil;
-import org.jlab.coda.xmsg.net.xMsgPrxAddress;
+import org.jlab.coda.xmsg.net.xMsgProxyAddress;
 
 import java.io.IOException;
 
@@ -167,6 +167,18 @@ public class ClaraComponent {
         return a;
     }
 
+    public static ClaraComponent dpe(String dpeCanonicalName) throws ClaraException {
+        if (!ClaraUtil.isCanonicalName(dpeCanonicalName)) {
+            throw new ClaraException("Clara-Error: not a canonical name.");
+        }
+        return dpe(ClaraUtil.getDpeHost(dpeCanonicalName),
+                ClaraUtil.getDpePort(dpeCanonicalName),
+                ClaraUtil.getDpeLang(dpeCanonicalName),
+                xMsgConstants.DEFAULT_POOL_SIZE.getIntValue());
+
+    }
+
+
     public static ClaraComponent container(String dpeHost, int dpePort, String dpeLang, String container, int subscriptionPoolSize){
         ClaraComponent a = new ClaraComponent(dpeLang,
                 dpeHost,
@@ -212,10 +224,13 @@ public class ClaraComponent {
     }
 
     public static ClaraComponent container(String containerCanonicalName) throws ClaraException {
+        if (!ClaraUtil.isCanonicalName(containerCanonicalName)) {
+            throw new ClaraException("Clara-Error: not a canonical name.");
+        }
         return container(ClaraUtil.getDpeHost(containerCanonicalName),
         ClaraUtil.getDpePort(containerCanonicalName),
         ClaraUtil.getDpeLang(containerCanonicalName),
-        ClaraUtil.getContainerName(containerCanonicalName), 1);
+                ClaraUtil.getContainerName(containerCanonicalName), xMsgConstants.DEFAULT_POOL_SIZE.getIntValue());
 
     }
 
@@ -272,12 +287,15 @@ public class ClaraComponent {
     }
 
     public static ClaraComponent service(String serviceCanonicalName) throws ClaraException {
+        if (!ClaraUtil.isCanonicalName(serviceCanonicalName)) {
+            throw new ClaraException("Clara-Error: not a canonical name.");
+        }
         return service(ClaraUtil.getDpeHost(serviceCanonicalName),
                 ClaraUtil.getDpePort(serviceCanonicalName),
                 ClaraUtil.getDpeLang(serviceCanonicalName),
                 ClaraUtil.getContainerName(serviceCanonicalName),
                 ClaraUtil.getEngineName(serviceCanonicalName),
-                CConstants.UNDEFINED,1);
+                CConstants.UNDEFINED, xMsgConstants.DEFAULT_POOL_SIZE.getIntValue());
     }
 
     public xMsgTopic getTopic() {
@@ -312,16 +330,24 @@ public class ClaraComponent {
         return engineClass;
     }
 
+    public void setEngineClass(String engineClass) {
+        this.engineClass = engineClass;
+    }
+
     public String getName(){
         return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public int getSubscriptionPoolSize() {
         return subscriptionPoolSize;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setSubscriptionPoolSize(int subscriptionPoolSize) {
+        this.subscriptionPoolSize = subscriptionPoolSize;
     }
 
     public boolean isOrchestrator() {
@@ -340,7 +366,7 @@ public class ClaraComponent {
         return isService;
     }
 
-    public xMsgPrxAddress getProxyAddress(){
-        return new xMsgPrxAddress(getDpeHost(), getDpePort());
+    public xMsgProxyAddress getProxyAddress() {
+        return new xMsgProxyAddress(getDpeHost(), getDpePort());
     }
 }

@@ -24,6 +24,7 @@ package org.jlab.clara.util;
  * Created by gurjyan on 10/12/15.
  */
 public enum CReport {
+    INFO("serviceReportInfo"),
     DONE ("serviceReportDone"),
     DATA ("serviceReportData");
 

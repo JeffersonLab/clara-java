@@ -21,6 +21,24 @@
 
 package org.jlab.clara.util;
 
+import org.jlab.clara.base.error.ClaraException;
+import org.jlab.clara.engine.EngineDataType;
+import org.jlab.clara.engine.EngineStatus;
+import org.jlab.clara.util.xml.XMLContainer;
+import org.jlab.clara.util.xml.XMLTagValue;
+import org.jlab.coda.xmsg.core.xMsgConstants;
+import org.jlab.coda.xmsg.core.xMsgTopic;
+import org.jlab.coda.xmsg.core.xMsgUtil;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
+
+import javax.annotation.ParametersAreNonnullByDefault;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -32,32 +50,11 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import javax.annotation.ParametersAreNonnullByDefault;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.jlab.clara.base.error.ClaraException;
-import org.jlab.clara.engine.EngineDataType;
-import org.jlab.clara.util.CConstants;
-import org.jlab.clara.util.xml.XMLContainer;
-import org.jlab.clara.util.xml.XMLTagValue;
-import org.jlab.coda.xmsg.core.xMsgTopic;
-import org.jlab.coda.xmsg.core.xMsgUtil;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
-import sun.jvm.hotspot.ui.tree.CStringTreeNodeAdapter;
-
 /**
  * Extra helper methods for Clara orchestrator and services.
  */
 @ParametersAreNonnullByDefault
 public final class ClaraUtil {
-
-    private ClaraUtil() { }
 
     /**
      * Regex to validate a full canonical name.
@@ -73,6 +70,8 @@ public final class ClaraUtil {
     public static final Pattern CANONICAL_NAME_PATTERN =
             Pattern.compile("^([^:_ ]+(%\\d*)+_(java|python|cpp))(:(\\w+)(:(\\w+))?)?$");
 
+    private ClaraUtil() {
+    }
 
     /**
      * Checks if the given name is a proper Clara canonical name.
@@ -197,7 +196,7 @@ public final class ClaraUtil {
 
 
     public static Boolean isHostLocal(String hostName)
-            throws SocketException {
+            throws IOException {
         for(String s: xMsgUtil.getLocalHostIps()){
             if(s.equals(hostName)) return true;
         }
@@ -212,7 +211,7 @@ public final class ClaraUtil {
      * @throws org.jlab.clara.base.error.ClaraException
      */
     public static Boolean isRemoteService(String serviceName)
-            throws ClaraException {
+            throws ClaraException, IOException {
 
         try {
             xMsgTopic topic = xMsgTopic.wrap(serviceName);
@@ -380,6 +379,34 @@ public final class ClaraUtil {
             topic.append(args[i]);
         }
         return topic.toString();
+    }
+
+    public static String getUniqueName() {
+        return UUID.randomUUID().toString();
+    }
+
+    public static String generateName() {
+        Random rand = new Random();
+        return "orchestrator" + rand.nextInt(1000) + ":" + "localhost";
+    }
+
+    public static void validateTimeout(int timeout) {
+        if (timeout <= 0) {
+            throw new IllegalArgumentException("Invalid timeout: " + timeout);
+        }
+    }
+
+    public static String getStatusText(EngineStatus status) {
+        switch (status) {
+            case INFO:
+                return xMsgConstants.INFO.toString();
+            case WARNING:
+                return xMsgConstants.WARNING.toString();
+            case ERROR:
+                return xMsgConstants.ERROR.toString();
+            default:
+                throw new IllegalStateException("Clara-Error: Unknown status " + status);
+        }
     }
 
 
