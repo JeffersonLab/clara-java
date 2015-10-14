@@ -21,11 +21,6 @@
 
 package org.jlab.clara.base;
 
-import java.net.SocketException;
-import java.util.concurrent.TimeoutException;
-
-import javax.annotation.ParametersAreNonnullByDefault;
-
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.EngineStatus;
@@ -42,32 +37,24 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 
+import javax.annotation.ParametersAreNonnullByDefault;
+import java.net.SocketException;
+import java.util.concurrent.TimeoutException;
+
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasEntry;
-import static org.hamcrest.Matchers.hasKey;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.sameInstance;
+import static org.hamcrest.Matchers.*;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.anyInt;
-import static org.mockito.Mockito.anyString;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 public class BaseOrchestratorTest {
 
+    @Rule
+    public ExpectedException expectedEx = ExpectedException.none();
     private CBase baseMock;
     private BaseOrchestrator orchestrator;
     private String feHost = "10.2.9.1";
-
     private Composition composition =
             new Composition("10.2.9.96_java:master:E1+10.2.9.96_java:master:E2");
-
-    @Rule
-    public ExpectedException expectedEx = ExpectedException.none();
 
     @Before
     public void setUp() throws Exception {
@@ -684,7 +671,7 @@ public class BaseOrchestratorTest {
         xMsgSubscription handler = mock(xMsgSubscription.class);
         orchestrator.getSubscriptions().put(key, handler);
 
-        orchestrator.unlistenServiceStatus("10.2.9.96_java:master:SimpleEngine", status);
+        orchestrator.unListenServiceStatus("10.2.9.96_java:master:SimpleEngine", status);
 
         verify(baseMock).unsubscribe(handler);
     }
@@ -694,13 +681,13 @@ public class BaseOrchestratorTest {
     public void unlistenServiceStatusThrowsOnBadCanonicalName() throws Exception {
         EngineStatus status = EngineStatus.ERROR;
 
-        orchestrator.unlistenServiceStatus("10.2.9.96_java", status);
-        orchestrator.unlistenServiceStatus("10.2.9.96_java:master", status);
-        orchestrator.unlistenServiceStatus("10.2.9.96_java:master:SimpleEngine", status);
+        orchestrator.unListenServiceStatus("10.2.9.96_java", status);
+        orchestrator.unListenServiceStatus("10.2.9.96_java:master", status);
+        orchestrator.unListenServiceStatus("10.2.9.96_java:master:SimpleEngine", status);
 
         expectedEx.expect(IllegalArgumentException.class);
 
-        orchestrator.unlistenServiceStatus("10.2.9.96_java#master", status);
+        orchestrator.unListenServiceStatus("10.2.9.96_java#master", status);
     }
 
 
@@ -710,7 +697,7 @@ public class BaseOrchestratorTest {
         String key = "10.2.9.1#ERROR:10.2.9.96_java:master:SimpleEngine";
         orchestrator.getSubscriptions().put(key, mock(xMsgSubscription.class));
 
-        orchestrator.unlistenServiceStatus("10.2.9.96_java:master:SimpleEngine", status);
+        orchestrator.unListenServiceStatus("10.2.9.96_java:master:SimpleEngine", status);
 
         assertSubscriptionRemoved(key);
     }
@@ -779,7 +766,7 @@ public class BaseOrchestratorTest {
         xMsgSubscription handler = mock(xMsgSubscription.class);
         orchestrator.getSubscriptions().put(key, handler);
 
-        orchestrator.unlistenServiceData("10.2.9.96_java:master:SimpleEngine");
+        orchestrator.unListenServiceData("10.2.9.96_java:master:SimpleEngine");
 
         verify(baseMock).unsubscribe(handler);
     }
@@ -787,13 +774,13 @@ public class BaseOrchestratorTest {
 
     @Test
     public void unlistenServiceDataThrowsOnBadCanonicalName() throws Exception {
-        orchestrator.unlistenServiceData("10.2.9.96_java");
-        orchestrator.unlistenServiceData("10.2.9.96_java:master");
-        orchestrator.unlistenServiceData("10.2.9.96_java:master:SimpleEngine");
+        orchestrator.unListenServiceData("10.2.9.96_java");
+        orchestrator.unListenServiceData("10.2.9.96_java:master");
+        orchestrator.unListenServiceData("10.2.9.96_java:master:SimpleEngine");
 
         expectedEx.expect(IllegalArgumentException.class);
 
-        orchestrator.unlistenServiceData("10.2.9.96#java:master");
+        orchestrator.unListenServiceData("10.2.9.96#java:master");
     }
 
 
@@ -802,7 +789,7 @@ public class BaseOrchestratorTest {
         String key = "10.2.9.1#data:10.2.9.96_java:master:SimpleEngine";
         orchestrator.getSubscriptions().put(key, mock(xMsgSubscription.class));
 
-        orchestrator.unlistenServiceData("10.2.9.96_java:master:SimpleEngine");
+        orchestrator.unListenServiceData("10.2.9.96_java:master:SimpleEngine");
 
         assertSubscriptionRemoved(key);
     }
@@ -871,7 +858,7 @@ public class BaseOrchestratorTest {
         xMsgSubscription handler = mock(xMsgSubscription.class);
         orchestrator.getSubscriptions().put(key, handler);
 
-        orchestrator.unlistenServiceDone("10.2.9.96_java:master:SimpleEngine");
+        orchestrator.unListenServiceDone("10.2.9.96_java:master:SimpleEngine");
 
         verify(baseMock).unsubscribe(handler);
     }
@@ -879,13 +866,13 @@ public class BaseOrchestratorTest {
 
     @Test
     public void unlistenServiceDoneThrowsOnBadCanonicalName() throws Exception {
-        orchestrator.unlistenServiceDone("10.2.9.96_java");
-        orchestrator.unlistenServiceDone("10.2.9.96_java:master");
-        orchestrator.unlistenServiceDone("10.2.9.96_java:master:SimpleEngine");
+        orchestrator.unListenServiceDone("10.2.9.96_java");
+        orchestrator.unListenServiceDone("10.2.9.96_java:master");
+        orchestrator.unListenServiceDone("10.2.9.96_java:master:SimpleEngine");
 
         expectedEx.expect(IllegalArgumentException.class);
 
-        orchestrator.unlistenServiceDone("10.2.9.96_java#master");
+        orchestrator.unListenServiceDone("10.2.9.96_java#master");
     }
 
 
@@ -894,7 +881,7 @@ public class BaseOrchestratorTest {
         String key = "10.2.9.1#done:10.2.9.96_java:master:SimpleEngine";
         orchestrator.getSubscriptions().put(key, mock(xMsgSubscription.class));
 
-        orchestrator.unlistenServiceDone("10.2.9.96_java:master:SimpleEngine");
+        orchestrator.unListenServiceDone("10.2.9.96_java:master:SimpleEngine");
 
         assertSubscriptionRemoved(key);
     }
@@ -948,7 +935,7 @@ public class BaseOrchestratorTest {
         xMsgSubscription handler = mock(xMsgSubscription.class);
         orchestrator.getSubscriptions().put(key, handler);
 
-        orchestrator.unlistenDpes();
+        orchestrator.unListenDpes();
 
         verify(baseMock).unsubscribe(handler);
     }
@@ -959,7 +946,7 @@ public class BaseOrchestratorTest {
         String key = "10.2.9.1#dpeAlive";
         orchestrator.getSubscriptions().put(key, mock(xMsgSubscription.class));
 
-        orchestrator.unlistenDpes();
+        orchestrator.unListenDpes();
 
         assertSubscriptionRemoved(key);
     }

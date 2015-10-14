@@ -29,14 +29,13 @@ import org.jlab.clara.util.CConstants;
 import org.jlab.clara.util.CReport;
 import org.jlab.clara.util.ClaraUtil;
 import org.jlab.coda.xmsg.core.*;
+import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
+import org.jlab.coda.xmsg.data.xMsgR.xMsgRegistration;
 import org.jlab.coda.xmsg.excp.xMsgException;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeoutException;
 
 
@@ -54,6 +53,9 @@ public class BaseOrchestrator {
     public BaseOrchestrator() throws ClaraException, IOException {
         this(ClaraUtil.getUniqueName(),
                 xMsgUtil.localhost(),
+                xMsgConstants.REGISTRAR_PORT.getIntValue(),
+
+                xMsgUtil.localhost(),
                 xMsgConstants.DEFAULT_PORT.getIntValue(),
                 CConstants.JAVA_LANG,
                 xMsgConstants.DEFAULT_POOL_SIZE.getIntValue());
@@ -61,6 +63,8 @@ public class BaseOrchestrator {
 
     public BaseOrchestrator(int subPoolSize) throws ClaraException, IOException {
         this(ClaraUtil.getUniqueName(),
+                xMsgUtil.localhost(),
+                xMsgConstants.REGISTRAR_PORT.getIntValue(),
                 xMsgUtil.localhost(),
                 xMsgConstants.DEFAULT_PORT.getIntValue(),
                 CConstants.JAVA_LANG,
@@ -70,51 +74,33 @@ public class BaseOrchestrator {
     public BaseOrchestrator(String dpeHost, int subPoolSize) throws ClaraException {
         this(ClaraUtil.getUniqueName(),
                 dpeHost,
+                xMsgConstants.REGISTRAR_PORT.getIntValue(),
+                dpeHost,
                 xMsgConstants.DEFAULT_PORT.getIntValue(),
                 CConstants.JAVA_LANG,
                 subPoolSize);
     }
 
-    /**
-     *
-     * @param name
-     * @param dpeHost
-     * @param dpePort
-     * @param dpeLang
-     * @param subPoolSize
-     * @throws ClaraException
-     */
     public BaseOrchestrator(String name,
+                            String regHost,
+                            int regPort,
                             String dpeHost,
                             int dpePort,
                             String dpeLang,
                             int subPoolSize)
             throws ClaraException {
         try {
-            base = new ClaraBase(ClaraComponent.orchestrator(name, dpeHost, dpePort, dpeLang, subPoolSize));
+            base = new ClaraBase(ClaraComponent.orchestrator(name, dpeHost, dpePort, dpeLang, subPoolSize), regHost, regPort);
         } catch (IOException e) {
             throw new ClaraException("Clara-Error: Could not start orchestrator", e);
         }
     }
-
-
 
     /**
      * Returns the map of subscriptions for testing purposes.
      */
     Map<String, xMsgSubscription> getSubscriptions() {
         return subscriptions;
-    }
-
-
-    private xMsgMessage buildMessage(xMsgTopic topic, EngineData data) throws ClaraException, xMsgException, IOException {
-        try {
-            xMsgMessage msg = new xMsgMessage(topic, data);
-            base.serialize(data, msg, dataTypes);
-            return msg;
-        } catch (ClaraException e) {
-            throw new ClaraException("Could not serialize data", e);
-        }
     }
 
 
@@ -511,13 +497,13 @@ public class BaseOrchestrator {
 
 
     /**
-     * Unsubscribes from the specified status reports of the selected service.
+     * Un-subscribes from the specified status reports of the selected service.
      *
      * @param serviceCanonicalName the service being listened
      * @param status the status being listened
      * @throws ClaraException if there was an error stopping the subscription
      */
-    public void unlistenServiceStatus(String serviceCanonicalName, EngineStatus status)
+    public void unListenServiceStatus(String serviceCanonicalName, EngineStatus status)
             throws ClaraException, xMsgException {
         xMsgTopic topic = ClaraUtil.buildTopic(ClaraUtil.getStatusText(status), serviceCanonicalName);
         String key = ClaraUtil.getDpeHost(serviceCanonicalName) + CConstants.MAPKEY_SEP + topic;
@@ -559,12 +545,12 @@ public class BaseOrchestrator {
 
 
     /**
-     * Unsubscribes from the data reports of the selected service.
+     * Un-subscribes from the data reports of the selected service.
      *
      * @param serviceCanonicalName the service being listened
      * @throws ClaraException if there was an error stopping the subscription
      */
-    public void unlistenServiceData(String serviceCanonicalName)
+    public void unListenServiceData(String serviceCanonicalName)
             throws ClaraException, xMsgException {
 
         xMsgTopic topic = ClaraUtil.buildTopic(xMsgConstants.DATA.toString(), serviceCanonicalName);
@@ -612,7 +598,7 @@ public class BaseOrchestrator {
      * @param serviceCanonicalName the service being listened
      * @throws ClaraException if there was an error stopping the subscription
      */
-    public void unlistenServiceDone(String serviceCanonicalName)
+    public void unListenServiceDone(String serviceCanonicalName)
             throws ClaraException, xMsgException {
 
         xMsgTopic topic = ClaraUtil.buildTopic(xMsgConstants.DONE.toString(), serviceCanonicalName);
@@ -650,7 +636,7 @@ public class BaseOrchestrator {
      *
      * @throws ClaraException if there was an error stopping the subscription
      */
-    public void unlistenDpes(String FrontEndDpeCanonicalName)
+    public void unListenDpes(String FrontEndDpeCanonicalName)
             throws ClaraException, xMsgException {
 
         ClaraComponent dpe = ClaraComponent.dpe(FrontEndDpeCanonicalName);
@@ -704,6 +690,60 @@ public class BaseOrchestrator {
         return response.getMetaData().getSenderState();
     }
 
+    public Set<String> getDpeNames() throws ClaraException, xMsgException {
+        xMsgTopic topic = xMsgTopic.build("xyz)");
+        String rs = base.findSubscriberDomainNames(topic);
+        StringTokenizer st = new StringTokenizer(rs);
+        HashSet<String> result = new HashSet<>();
+        while (st.hasMoreTokens()) {
+            result.add(st.nextToken());
+        }
+        return result;
+    }
+
+    public Set<String> getContainerNames(String dpeName) throws ClaraException, xMsgException {
+        xMsgTopic topic = xMsgTopic.build(dpeName);
+        String rs = base.findSubscriberSubjectNames(topic);
+        StringTokenizer st = new StringTokenizer(rs);
+        HashSet<String> result = new HashSet<>();
+        while (st.hasMoreTokens()) {
+            result.add(st.nextToken());
+        }
+        return result;
+    }
+
+    public Set<String> getEngineNames(String dpeName, String containerName) throws ClaraException, xMsgException {
+        xMsgTopic topic = xMsgTopic.build(dpeName, containerName);
+        String rs = base.findSubscriberTypeNames(topic);
+        StringTokenizer st = new StringTokenizer(rs);
+        HashSet<String> result = new HashSet<>();
+        while (st.hasMoreTokens()) {
+            result.add(st.nextToken());
+        }
+        return result;
+    }
+
+
+    /**
+     * Returns the registration information of the selected Clara actor.
+     * The actor can be a DPE, a container or a service.
+     *
+     * @param canonicalName the name of the actor
+     */
+    public Set<xMsgRegistration> getRegistrationInfo(String canonicalName)
+            throws ClaraException, xMsgException {
+        xMsgTopic topic = xMsgTopic.wrap(canonicalName);
+        return base.findSubscribers(topic);
+    }
+
+
+    public String meta2Json(xMsgMeta meta) throws ClaraException {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
+
+    public String reg2Json(xMsgRegistration regData) throws ClaraException {
+        throw new UnsupportedOperationException("Not implemented yet");
+    }
 
     /**
      * Returns the assigned orchestrator name.
@@ -761,60 +801,5 @@ public class BaseOrchestrator {
     }
 
 
-    /**
-     * Returns the canonical names of all the actors that match the given query.
-     * The returned actors (DPEs, containers or services) depend of the type of
-     * the query.
-     *
-     * @param query the search filter
-     * @return the canonical names that match the filter
-     * @throws ClaraException if there was a problem with the request
-     */
-    public Set<String> getCanonicalNames(ClaraFilter query) throws ClaraException {
-
-        throw new UnsupportedOperationException("Not implemented yet");
-    }
-
-
-    /**
-     * Returns the registration information of the selected Clara actor.
-     * The actor can be a DPE, a container or a service.
-     *
-     * @param canonicalName the name of the actor
-     * @return a JSON object with the registration information of the actor
-     * @throws ClaraException if there was a problem with the request
-     */
-    public String getRegistrationInfo(String canonicalName) throws ClaraException {
-        throw new UnsupportedOperationException("Not implemented yet");
-    }
-
-
-    /**
-     * Returns the registration information of all the actors that match the
-     * given query.
-     * The returned actors (DPEs, containers or services) depend of the type of
-     * the query.
-     *
-     * @param query the search filter
-     * @return a JSON array with the registration information of all selected actorss
-     * @throws ClaraException if there was a problem with the request
-     */
-    public String getRegistrationInfo(ClaraFilter query) throws ClaraException {
-        throw new UnsupportedOperationException("Not implemented yet");
-    }
-
-    /**
-     * Returns the runtime information of all the actors that match the
-     * given query.
-     * The returned actors (DPEs, containers or services) depend of the type of
-     * the query.
-     *
-     * @param query the search filter
-     * @return a JSON array with the runtime information of all selected actorss
-     * @throws ClaraException if there was a problem with the request
-     */
-    public String getRuntimeState(ClaraFilter query) throws ClaraException {
-        throw new UnsupportedOperationException("Not implemented yet");
-    }
 
 }

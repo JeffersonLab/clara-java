@@ -21,17 +21,11 @@
 
 package org.jlab.clara.sys;
 
-import org.jlab.clara.base.ClaraException;
-import org.jlab.clara.base.ClaraLang;
-import org.jlab.clara.util.ClaraUtil;
+import org.jlab.clara.base.ClaraBase;
 import org.jlab.clara.util.CConstants;
 import org.jlab.clara.util.ClaraUtil;
 import org.jlab.clara.util.xml.RequestParser;
-import org.jlab.coda.xmsg.core.xMsgCallBack;
-import org.jlab.coda.xmsg.core.xMsgConstants;
-import org.jlab.coda.xmsg.core.xMsgMessage;
-import org.jlab.coda.xmsg.core.xMsgTopic;
-import org.jlab.coda.xmsg.core.xMsgUtil;
+import org.jlab.coda.xmsg.core.*;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 import org.jlab.coda.xmsg.excp.xMsgException;
 import org.jlab.coda.xmsg.net.xMsgAddress;
@@ -60,7 +54,7 @@ import java.util.concurrent.TimeUnit;
  * @version 1.x
  * @since 1/30/15
  */
-public class Dpe extends CBase {
+public class Dpe extends ClaraBase {
 
     // The name of this dpe. usually it is the IP address
     // of a node where this class is instantiated.
@@ -87,52 +81,6 @@ public class Dpe extends CBase {
     private xMsgRegistrar registrar;
 
     private HeartBeatReport heartBeat;
-
-
-    public static void main(String[] args) {
-        String frontEnd = "";
-        boolean cloudController = false;
-        int i = 0;
-        while (i < args.length) {
-            switch (args[i++]) {
-                case "-fh":
-                case "-fe_host":
-                    if (i < args.length) {
-                        frontEnd = args[i++];
-                    } else {
-                        usage();
-                        System.exit(1);
-                    }
-                    break;
-                case "-cc":
-                    cloudController = true;
-                    break;
-                default:
-                    usage();
-                    System.exit(1);
-            }
-        }
-
-        try {
-            String localAddress = xMsgUtil.localhost();
-            if (cloudController) {
-                new Dpe(localAddress, true);
-            } else if (frontEnd.isEmpty()) {
-                new Dpe(localAddress, false);
-            } else {
-                frontEnd = xMsgUtil.toHostAddress(frontEnd);
-                new Dpe(localAddress, frontEnd);
-            }
-        } catch (xMsgException | IOException e) {
-            System.out.println(e.getMessage());
-            System.out.println("exiting...");
-            System.exit(1);
-        }
-    }
-
-    public static void usage() {
-        System.err.println("Usage: j_dpe [ -cc | -fh <front_end> ]");
-    }
 
 
     /**
@@ -236,150 +184,50 @@ public class Dpe extends CBase {
         startHeartBeatReport();
     }
 
-
-    /**
-     * DPE callback.
-     */
-    private class DpeCallBack implements xMsgCallBack {
-
-        @Override
-        public xMsgMessage callback(xMsgMessage msg) {
-            xMsgMessage returnMsg = new xMsgMessage(null);
-            xMsgMeta.Builder metadata = msg.getMetaData();
-            try {
-                String sender = metadata.getSender();
-                String returnTopic = metadata.getReplyTo();
-
-                RequestParser parser = RequestParser.build(msg);
-                String cmd = parser.nextString();
-
-                switch (cmd) {
-                    case CConstants.ACCEPT_FE:
-                        turnFE(parser.nextString());
-                        break;
-
-                    // Sent from orchestrator. Assuming this is the FE
-                    case CConstants.START_DPE:
-                        runDpe(parser.nextString());
-                        break;
-
-                    // Sent from orchestrator.
-                    case CConstants.STOP_DPE:
-                        stopDpe(parser.nextString());
-                        break;
-
-                    // Sent from master DPE (FE). In this case the value
-                    // is the canonical name of the master DPE (FE)
-                    case CConstants.DPE_PING:
-                        pingDpe(parser.nextString(), sender, returnTopic);
-                        break;
-
-                    // Sent by some other dpe, assuming this is a master DPE.
-                    // The value is the canonical name of a dpe
-                    case CConstants.DPE_UP:
-                        dbRegisterDpe(parser.nextString());
-                        break;
-
-                    // Sent by the dpe assuming this is a master DPE.
-                    // The value is the canonical name of a dpe
-                    case CConstants.DPE_DOWN:
-                        dbRemoveDpe(parser.nextString());
-                        break;
-
-                    // Sent from orchestrator. Value is the name (not canonical)of the container.
-                    case CConstants.START_CONTAINER:
-                        runContainer(parser.nextString());
-                        break;
-
-                    // Sent from orchestrator. Value is the name of the container.
-                    // Note that the container name should be a canonical name
-                    case CConstants.STOP_CONTAINER:
-                        stopContainer(parser.nextString());
-                        break;
-
-                    // Sent by the container assuming this is a master DPE.
-                    // The value is the canonical name of a container
-                    case CConstants.CONTAINER_UP:
-                        dbRegisterContainer(parser.nextString(), msg);
-                        break;
-
-                    // Sent by the container assuming this is a master DPE.
-                    // The value is the canonical name of a container
-                    case CConstants.CONTAINER_DOWN:
-                        dbRemoveContainer(parser.nextString(), msg);
-                        break;
-
-                    case CConstants.START_SERVICE:
-                        runService(parser.nextString(), parser.nextString(), parser.nextString());
-                        break;
-
-                    case CConstants.STOP_SERVICE:
-                        stopService(parser.nextString());
-                        break;
-
-                    // Sent by the service assuming this is a master DPE.
-                    // The value is the canonical name of a service
-                    case CConstants.SERVICE_UP:
-                        dbRegisterService(parser.nextString(), msg);
-                        break;
-
-                    // Sent by the container assuming this is a master DPE.
-                    // The value is the canonical name of a container
-                    case CConstants.SERVICE_DOWN:
-                        dbRemoveService(parser.nextString(), msg);
-                        break;
-
-                    // TODO Implement these requests
-
-                    case CConstants.LIST_DPES:
-                        dbListDpes(returnTopic);
-                        break;
-
-                    case CConstants.LIST_CONTAINERS:
-                        dbListContainers(returnTopic);
-                        break;
-
-                    case CConstants.LIST_SERVICES:
-                        dbListServices(returnTopic);
-                        break;
-
-                    default:
-                        break;
-                }
-            } catch (ClaraException | IOException | xMsgException e) {
-                e.printStackTrace();
+    public static void main(String[] args) {
+        String frontEnd = "";
+        boolean cloudController = false;
+        int i = 0;
+        while (i < args.length) {
+            switch (args[i++]) {
+                case "-fh":
+                case "-fe_host":
+                    if (i < args.length) {
+                        frontEnd = args[i++];
+                    } else {
+                        usage();
+                        System.exit(1);
+                    }
+                    break;
+                case "-cc":
+                    cloudController = true;
+                    break;
+                default:
+                    usage();
+                    System.exit(1);
             }
-            return returnMsg;
+        }
+
+        try {
+            String localAddress = xMsgUtil.localhost();
+            if (cloudController) {
+                new Dpe(localAddress, true);
+            } else if (frontEnd.isEmpty()) {
+                new Dpe(localAddress, false);
+            } else {
+                frontEnd = xMsgUtil.toHostAddress(frontEnd);
+                new Dpe(localAddress, frontEnd);
+            }
+        } catch (xMsgException | IOException e) {
+            System.out.println(e.getMessage());
+            System.out.println("exiting...");
+            System.exit(1);
         }
     }
 
-
-    private class HeartBeatReport extends Thread {
-        @Override
-        public void run() {
-            try {
-                int availableProcessors = Runtime.getRuntime().availableProcessors();
-                String claraHome = System.getenv("CLARA_HOME");
-
-                xMsgTopic topic = xMsgTopic.wrap(CConstants.DPE_ALIVE + ":" + feHostIp);
-                String data = dpeName + "?" + availableProcessors + "?" + claraHome;
-
-                xMsgAddress address = new xMsgAddress(feHostIp);
-                xMsgConnection socket = getNewConnection(address);
-
-                while (true) {
-                    xMsgMessage msg = new xMsgMessage(topic, data);
-                    genericSend(socket, msg);
-                    Thread.sleep(5000);
-                }
-            } catch (IOException | xMsgException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-            }
-        }
+    public static void usage() {
+        System.err.println("Usage: j_dpe [ -cc | -fh <front_end> ]");
     }
-
 
     private void printLogo() {
         System.out.println("================================");
@@ -666,5 +514,147 @@ public class Dpe extends CBase {
 //                e.printStackTrace();
 //            }
 //        }
+    }
+
+    /**
+     * DPE callback.
+     */
+    private class DpeCallBack implements xMsgCallBack {
+
+        @Override
+        public xMsgMessage callback(xMsgMessage msg) {
+            xMsgMessage returnMsg = new xMsgMessage(null);
+            xMsgMeta.Builder metadata = msg.getMetaData();
+            try {
+                String sender = metadata.getSender();
+                String returnTopic = metadata.getReplyTo();
+
+                RequestParser parser = RequestParser.build(msg);
+                String cmd = parser.nextString();
+
+                switch (cmd) {
+                    case CConstants.ACCEPT_FE:
+                        turnFE(parser.nextString());
+                        break;
+
+                    // Sent from orchestrator. Assuming this is the FE
+                    case CConstants.START_DPE:
+                        runDpe(parser.nextString());
+                        break;
+
+                    // Sent from orchestrator.
+                    case CConstants.STOP_DPE:
+                        stopDpe(parser.nextString());
+                        break;
+
+                    // Sent from master DPE (FE). In this case the value
+                    // is the canonical name of the master DPE (FE)
+                    case CConstants.DPE_PING:
+                        pingDpe(parser.nextString(), sender, returnTopic);
+                        break;
+
+                    // Sent by some other dpe, assuming this is a master DPE.
+                    // The value is the canonical name of a dpe
+                    case CConstants.DPE_UP:
+                        dbRegisterDpe(parser.nextString());
+                        break;
+
+                    // Sent by the dpe assuming this is a master DPE.
+                    // The value is the canonical name of a dpe
+                    case CConstants.DPE_DOWN:
+                        dbRemoveDpe(parser.nextString());
+                        break;
+
+                    // Sent from orchestrator. Value is the name (not canonical)of the container.
+                    case CConstants.START_CONTAINER:
+                        runContainer(parser.nextString());
+                        break;
+
+                    // Sent from orchestrator. Value is the name of the container.
+                    // Note that the container name should be a canonical name
+                    case CConstants.STOP_CONTAINER:
+                        stopContainer(parser.nextString());
+                        break;
+
+                    // Sent by the container assuming this is a master DPE.
+                    // The value is the canonical name of a container
+                    case CConstants.CONTAINER_UP:
+                        dbRegisterContainer(parser.nextString(), msg);
+                        break;
+
+                    // Sent by the container assuming this is a master DPE.
+                    // The value is the canonical name of a container
+                    case CConstants.CONTAINER_DOWN:
+                        dbRemoveContainer(parser.nextString(), msg);
+                        break;
+
+                    case CConstants.START_SERVICE:
+                        runService(parser.nextString(), parser.nextString(), parser.nextString());
+                        break;
+
+                    case CConstants.STOP_SERVICE:
+                        stopService(parser.nextString());
+                        break;
+
+                    // Sent by the service assuming this is a master DPE.
+                    // The value is the canonical name of a service
+                    case CConstants.SERVICE_UP:
+                        dbRegisterService(parser.nextString(), msg);
+                        break;
+
+                    // Sent by the container assuming this is a master DPE.
+                    // The value is the canonical name of a container
+                    case CConstants.SERVICE_DOWN:
+                        dbRemoveService(parser.nextString(), msg);
+                        break;
+
+                    // TODO Implement these requests
+
+                    case CConstants.LIST_DPES:
+                        dbListDpes(returnTopic);
+                        break;
+
+                    case CConstants.LIST_CONTAINERS:
+                        dbListContainers(returnTopic);
+                        break;
+
+                    case CConstants.LIST_SERVICES:
+                        dbListServices(returnTopic);
+                        break;
+
+                    default:
+                        break;
+                }
+            } catch (ClaraException | IOException | xMsgException e) {
+                e.printStackTrace();
+            }
+            return returnMsg;
+        }
+    }
+
+    private class HeartBeatReport extends Thread {
+        @Override
+        public void run() {
+            try {
+                int availableProcessors = Runtime.getRuntime().availableProcessors();
+                String claraHome = System.getenv("CLARA_HOME");
+
+                xMsgTopic topic = xMsgTopic.wrap(CConstants.DPE_ALIVE + ":" + feHostIp);
+                String data = dpeName + "?" + availableProcessors + "?" + claraHome;
+
+                xMsgAddress address = new xMsgAddress(feHostIp);
+                xMsgConnection socket = getNewConnection(address);
+
+                while (true) {
+                    xMsgMessage msg = new xMsgMessage(topic, data);
+                    genericSend(socket, msg);
+                    Thread.sleep(5000);
+                }
+            } catch (IOException | xMsgException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+        }
     }
 }

@@ -80,12 +80,12 @@ public class EngineData {
         }
     }
 
-    public int getStatusSeverity() {
-        return metadata.getSeverityId();
-    }
-
     public void setStatus(EngineStatus status) {
         setStatus(status, 1);
+    }
+
+    public int getStatusSeverity() {
+        return metadata.getSeverityId();
     }
 
     public void setStatus(EngineStatus status, int severity) {
@@ -117,7 +117,7 @@ public class EngineData {
     }
 
     public String getEngineName() {
-        return metadata.getAuthor();
+        return metadata.getSender();
     }
 
     public String getEngineVersion() {

@@ -26,11 +26,12 @@ package org.jlab.clara.base;
  */
 public final class ClaraFilters {
 
-    private ClaraFilters() { }
-
     static final String TYPE_DPE = "dpe";
     static final String TYPE_CONTAINER = "container";
     static final String TYPE_SERVICE = "service";
+
+    private ClaraFilters() {
+    }
 
     /**
      * Returns a filter to select all DPEs in the Clara cloud.
@@ -40,7 +41,7 @@ public final class ClaraFilters {
         return new ClaraFilter() {
             @Override
             String filter() {
-                return "name=*";
+                return "name";
             }
 
             @Override

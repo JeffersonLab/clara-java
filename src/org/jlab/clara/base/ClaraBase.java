@@ -304,6 +304,17 @@ public class ClaraBase extends xMsg {
         throw new ClaraException("Unsupported mime-type = " + mimeType);
     }
 
+    public xMsgMessage buildMessage(xMsgTopic topic, EngineData data, Set<EngineDataType> dataTypes)
+            throws ClaraException, xMsgException, IOException {
+        try {
+            xMsgMessage msg = new xMsgMessage(topic, data);
+            serialize(data, msg, dataTypes);
+            return msg;
+        } catch (ClaraException e) {
+            throw new ClaraException("Clara-Error: Could not serialize data", e);
+        }
+    }
+
     /** ************************ Private Methods ***************************** */
 
     private xMsgMessage _deploy(ClaraComponent component, int timeout)

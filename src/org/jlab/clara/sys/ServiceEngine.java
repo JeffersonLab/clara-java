@@ -21,14 +21,15 @@
 
 package org.jlab.clara.sys;
 
-import org.jlab.clara.base.ClaraException;
-import org.jlab.clara.util.ClaraUtil;
-import org.jlab.clara.engine.EngineData;
+import org.jlab.clara.base.ClaraBase;
+import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.Engine;
+import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.engine.EngineStatus;
 import org.jlab.clara.sys.ccc.SimpleCompiler;
 import org.jlab.clara.util.CConstants;
+import org.jlab.clara.util.ClaraUtil;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgTopic;
@@ -47,7 +48,7 @@ import java.util.concurrent.Semaphore;
  * @version 1.x
  * @since 1/30/15
  */
-public class ServiceEngine extends CBase {
+public class ServiceEngine extends ClaraBase {
 
     // Engine instantiated object
     private final Engine engineObject;
