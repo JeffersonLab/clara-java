@@ -26,8 +26,8 @@ import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.engine.EngineStatus;
 import org.jlab.clara.util.CConstants;
-import org.jlab.clara.util.CReport;
 import org.jlab.clara.util.ClaraUtil;
+import org.jlab.clara.util.report.CReportTypes;
 import org.jlab.coda.xmsg.core.*;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 import org.jlab.coda.xmsg.data.xMsgR.xMsgRegistration;
@@ -415,7 +415,7 @@ public class BaseOrchestrator {
     public void startReportingDone(String serviceCanonicalName, int eventCount)
             throws ClaraException, IOException, xMsgException {
 
-        base.startReporting(ClaraComponent.service(serviceCanonicalName), CReport.DONE, eventCount);
+        base.startReporting(ClaraComponent.service(serviceCanonicalName), CReportTypes.DONE, eventCount);
     }
 
 
@@ -429,7 +429,7 @@ public class BaseOrchestrator {
      */
     public void stopReportingDone(String serviceCanonicalName)
             throws ClaraException, IOException, xMsgException {
-        base.stopReporting(ClaraComponent.service(serviceCanonicalName), CReport.DONE);
+        base.stopReporting(ClaraComponent.service(serviceCanonicalName), CReportTypes.DONE);
     }
 
 
@@ -446,7 +446,7 @@ public class BaseOrchestrator {
     public void startReportingData(String serviceCanonicalName, int eventCount)
             throws ClaraException, IOException, xMsgException {
 
-        base.startReporting(ClaraComponent.service(serviceCanonicalName), CReport.DATA, eventCount);
+        base.startReporting(ClaraComponent.service(serviceCanonicalName), CReportTypes.DATA, eventCount);
 
     }
 
@@ -461,7 +461,7 @@ public class BaseOrchestrator {
      */
     public void stopReportingData(String serviceCanonicalName)
             throws ClaraException, IOException, xMsgException {
-        base.stopReporting(ClaraComponent.service(serviceCanonicalName), CReport.DATA);
+        base.stopReporting(ClaraComponent.service(serviceCanonicalName), CReportTypes.DATA);
     }
 
 

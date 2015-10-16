@@ -18,38 +18,15 @@
  * HEREUNDER IS PROVIDED "AS IS". JLAB HAS NO OBLIGATION TO PROVIDE MAINTENANCE,
  * SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  */
-
-package org.jlab.clara.util;
-
-import org.jlab.clara.base.error.ClaraException;
-import org.jlab.clara.engine.Engine;
+package org.jlab.clara.util.report;
 
 /**
- *     Clara dynamic class loader
- *
  * @author gurjyan
  * @version 4.x
- * @since 2/9/15
  */
-public class CClassLoader {
-
-    private ClassLoader classLoader;
-
-    public CClassLoader(ClassLoader cl){
-        classLoader = cl;
+public class JsonReportBuilder implements ExternalReport {
+    @Override
+    public String generateReport(DpeReport dpeData) {
+        return null;
     }
-
-    public Engine load(String className)
-            throws ClaraException, ClassNotFoundException, IllegalAccessException, InstantiationException {
-            Class aClass = classLoader.loadClass(className);
-
-            Object aInstance = aClass.newInstance();
-
-        if (aInstance instanceof Engine) {
-            return (Engine) aInstance;
-            } else {
-                throw new ClaraException("not a Clara service engine");
-            }
-    }
-
 }

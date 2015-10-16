@@ -4,7 +4,7 @@ package org.jlab.clara.util.xml;
  * Describe.....
  *
  * @author gurjyan
- * @version 1.x
+ * @version 4.x
  * @since 4/9/15
  */
 public class XMLTagValue {

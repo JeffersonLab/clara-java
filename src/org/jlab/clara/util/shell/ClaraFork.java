@@ -33,8 +33,8 @@ import java.util.List;
 import java.util.StringTokenizer;
 
 /**
- *
- *  
+ * @author gurjyan
+ * @version 4.x
  */
 public class ClaraFork {
 

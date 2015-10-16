@@ -4,13 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * <p>
  * Class that plays the role of a container for
  * {@link XMLTagValue} objects
- * </p>
  *
  * @author gurjyan
- * @version 1.x
+ * @version 4.x
  * @since 4/9/15
  */
 public class XMLContainer {

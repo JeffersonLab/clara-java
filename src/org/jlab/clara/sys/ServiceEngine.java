@@ -339,7 +339,7 @@ public class ServiceEngine extends ClaraBase {
 
     private void sendReports(EngineData outData)
             throws xMsgException, IOException, ClaraException {
-        // External broadcast data
+        // External send data
         if (sysConfig.isDataRequest()) {
             reportData(outData);
             sysConfig.resetDataRequestCount();

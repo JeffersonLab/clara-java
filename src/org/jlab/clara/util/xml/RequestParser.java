@@ -21,16 +21,25 @@
 
 package org.jlab.clara.util.xml;
 
-import java.util.NoSuchElementException;
-import java.util.StringTokenizer;
-
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 
+import java.util.NoSuchElementException;
+import java.util.StringTokenizer;
+
+/**
+ * @author gurjyan
+ * @version 4.x
+ */
 public class RequestParser {
 
     private final String cmdData;
     private StringTokenizer tokenizer;
+
+    public RequestParser(String data) {
+        cmdData = data;
+        tokenizer = new StringTokenizer(cmdData, "?");
+    }
 
     public static RequestParser build(xMsgMessage msg) throws ClaraException {
         String mimeType = msg.getMetaData().getDataType();
@@ -39,13 +48,6 @@ public class RequestParser {
         }
         throw new ClaraException("Invalid mime-type = " + mimeType);
     }
-
-
-    public RequestParser(String data) {
-        cmdData = data;
-        tokenizer = new StringTokenizer(cmdData, "?");
-    }
-
 
     public String nextString() throws ClaraException {
         try {

@@ -1,10 +1,10 @@
 /*
- * Copyright (C) 2015. Jefferson Lab, xMsg framework (JLAB). All Rights Reserved.
+ * Copyright (C) 2015. Jefferson Lab, CLARA framework (JLAB). All Rights Reserved.
  * Permission to use, copy, modify, and distribute this software and its
  * documentation for educational, research, and not-for-profit purposes,
  * without fee and without a signed licensing agreement.
  *
- * Contact Vardan Gyurjyan
+ * Author Vardan Gyurjyan
  * Department of Experimental Nuclear Physics, Jefferson Lab.
  *
  * IN NO EVENT SHALL JLAB BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL,
@@ -18,24 +18,14 @@
  * HEREUNDER IS PROVIDED "AS IS". JLAB HAS NO OBLIGATION TO PROVIDE MAINTENANCE,
  * SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  */
-package org.jlab.clara.util;
+package org.jlab.clara.util.report;
 
 /**
- * Created by gurjyan on 10/12/15.
+ * @author gurjyan
+ * @version 4.x
  */
-public enum CReport {
-    INFO("serviceReportInfo"),
-    DONE ("serviceReportDone"),
-    DATA ("serviceReportData");
+public interface ExternalReport {
 
-    private final String stringValue;
-
-    CReport(String stringValue) {
-        this.stringValue = stringValue;
-    }
-
-    public String getValue() {
-        return stringValue;
-    }
+    public String generateReport(DpeReport dpeData);
 
 }

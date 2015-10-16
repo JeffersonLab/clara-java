@@ -18,38 +18,49 @@
  * HEREUNDER IS PROVIDED "AS IS". JLAB HAS NO OBLIGATION TO PROVIDE MAINTENANCE,
  * SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  */
+package org.jlab.clara.util.report;
 
-package org.jlab.clara.util;
-
-import org.jlab.clara.base.error.ClaraException;
-import org.jlab.clara.engine.Engine;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- *     Clara dynamic class loader
- *
  * @author gurjyan
  * @version 4.x
- * @since 2/9/15
  */
-public class CClassLoader {
+public class ContainerReport extends CReportBase {
+    private int serviceCount;
 
-    private ClassLoader classLoader;
+    private Map<String, ServiceReport> services = new HashMap<>();
 
-    public CClassLoader(ClassLoader cl){
-        classLoader = cl;
+    public int getServiceCount() {
+        return serviceCount;
     }
 
-    public Engine load(String className)
-            throws ClaraException, ClassNotFoundException, IllegalAccessException, InstantiationException {
-            Class aClass = classLoader.loadClass(className);
-
-            Object aInstance = aClass.newInstance();
-
-        if (aInstance instanceof Engine) {
-            return (Engine) aInstance;
-            } else {
-                throw new ClaraException("not a Clara service engine");
-            }
+    public void setServiceCount(int serviceCount) {
+        this.serviceCount = serviceCount;
     }
 
+    public Map<String, ServiceReport> getServices() {
+        return services;
+    }
+
+    public void setServices(Map<String, ServiceReport> services) {
+        this.services = services;
+    }
+
+    public void addServiceReport(ServiceReport sr) {
+        if (!services.containsKey(sr.getName())) {
+            services.put(sr.getName(), sr);
+        }
+    }
+
+    public void removeServiceReport(String serviceName) {
+        if (services.containsKey(serviceName)) {
+            services.remove(serviceName);
+        }
+    }
+
+    public void removeAllServiceReportings() {
+        services.clear();
+    }
 }

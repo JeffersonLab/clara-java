@@ -21,15 +21,13 @@
 
 package org.jlab.clara.sys;
 
-import org.jlab.clara.base.ClaraException;
+import org.jlab.clara.base.ClaraBase;
+import org.jlab.clara.base.ClaraComponent;
+import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.util.CConstants;
 import org.jlab.clara.util.ClaraUtil;
 import org.jlab.clara.util.xml.RequestParser;
-import org.jlab.coda.xmsg.core.xMsgSubscription;
-import org.jlab.coda.xmsg.core.xMsgCallBack;
-import org.jlab.coda.xmsg.core.xMsgConstants;
-import org.jlab.coda.xmsg.core.xMsgMessage;
-import org.jlab.coda.xmsg.core.xMsgTopic;
+import org.jlab.coda.xmsg.core.*;
 import org.jlab.coda.xmsg.excp.xMsgException;
 
 import java.io.IOException;
@@ -37,13 +35,12 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * A container for services.
+ * Service container
  *
  * @author gurjyan
- * @version 2.x
- * @since 1/30/15
+ * @version 4.x
  */
-public class Container extends CBase {
+public class Container extends ClaraBase {
 
     private xMsgSubscription subscriptionHandler;
 
@@ -51,37 +48,54 @@ public class Container extends CBase {
 
     /**
      * Constructor.
+     * Note that container runs on a localhost: on a host where
+     * dpe is running ( within the dpe process).
+     *
+     * @param regHost
+     * @param regPort
+     * @param description
+     * @throws xMsgException
+     * @throws IOException
+     * @throws ClaraException
      */
-    public Container(String name, String localAddress, String frontEndAddres)
-            throws xMsgException, IOException {
-        super(name, localAddress, frontEndAddres);
+    public Container(ClaraComponent comp,
+                     String regHost,
+                     int regPort,
+                     String description)
+            throws xMsgException, IOException, ClaraException {
+        super(comp, regHost, regPort);
 
         // Create a socket connections to the local dpe proxy
         connect();
 
         // Subscribe messages published to this container
-        xMsgTopic topic = xMsgTopic.wrap(CConstants.CONTAINER + ":" + getName());
-        subscriptionHandler = genericReceive(topic, new ContainerCallBack());
-        System.out.println(ClaraUtil.getCurrentTimeInH() + ": Started container = " + getName());
+        xMsgTopic topic = xMsgTopic.wrap(CConstants.CONTAINER + ":" + comp.getName());
 
-        //register container
-        registerLocalSubscriber(topic, "Service Container");
-        System.out.println(ClaraUtil.getCurrentTimeInH() + ": Registered container = " + name);
+        // Register this subscriber
+        registerAsSubscriber(topic, description);
+        System.out.println(ClaraUtil.getCurrentTimeInH() + ": Registered container = " + comp.getName());
+
+        // Subscribe by passing a callback to the subscription
+        subscriptionHandler = listen(topic, new ContainerCallBack());
+        System.out.println(ClaraUtil.getCurrentTimeInH() + ": Started container = " + comp.getName());
+
     }
+
 
     /**
      * Stops this container.
-     * Destroys all services, unsubscribes and unregister.
+     * Destroys all services, un-subscribes and unregister.
      *
      * @throws xMsgException
      * @throws IOException
      */
     public void exit() throws ClaraException, xMsgException, IOException {
 
-        reportFE(CConstants.CONTAINER_DOWN + "?" + getName());
+        // broadcast to the local proxy
+        send(CConstants.CONTAINER_DOWN + "?" + getName());
 
-        unsubscribe(subscriptionHandler);
-        removeSubscriber(xMsgTopic.wrap(getName()));
+        stopListening(subscriptionHandler);
+        removeRegistration();
 
         for (Service service : _myServices.values()) {
             service.exit();
@@ -147,8 +161,12 @@ public class Container extends CBase {
 
         @Override
         public xMsgMessage callback(xMsgMessage msg) {
+
             try {
-                RequestParser parser = RequestParser.build(msg);
+                if (msg.getMetaData().getReplyTo().equals(xMsgConstants.UNDEFINED.getStringValue())) {
+
+                    RequestParser parser = null;
+                    parser = RequestParser.build(msg);
                 String command = parser.nextString();
                 String serviceName = parser.nextString();
 
@@ -172,10 +190,20 @@ public class Container extends CBase {
                     default:
                         throw new ClaraException("Invalid request");
                 }
+                } else {
+                    // sync request, updates the received xMsgMessage and sends it to the sender
+                    // reset relyTo metadata field
+                    msg.getMetaData().setReplyTo(xMsgConstants.UNDEFINED.getStringValue());
+
+                    // sends back "Done" string
+                    msg.updateData("Done");
+                    send(msg);
+
+                }
             } catch (ClaraException | xMsgException | IOException e) {
                 e.printStackTrace();
             }
-            return new xMsgMessage(null);
+            return msg;
         }
     }
 }

@@ -26,8 +26,8 @@ import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.EngineDataAccessor;
 import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.util.CConstants;
-import org.jlab.clara.util.CReport;
 import org.jlab.clara.util.ClaraUtil;
+import org.jlab.clara.util.report.CReportTypes;
 import org.jlab.clara.util.shell.ClaraFork;
 import org.jlab.coda.xmsg.core.*;
 import org.jlab.coda.xmsg.data.xMsgM;
@@ -121,6 +121,21 @@ public class ClaraBase extends xMsg {
         return m;
     }
 
+    public void send(xMsgConnection con, xMsgMessage msg)
+            throws xMsgException {
+        publish(con, msg);
+    }
+
+    public void send(xMsgMessage msg)
+            throws IOException, xMsgException {
+        send(me, msg);
+    }
+
+    public void send(String msgText)
+            throws IOException, xMsgException {
+        send(me, msgText);
+    }
+
     public xMsgSubscription listen(ClaraComponent component, xMsgCallBack callback)
             throws xMsgException {
         xMsgConnection con = connect(component.getProxyAddress());
@@ -130,6 +145,12 @@ public class ClaraBase extends xMsg {
     public xMsgSubscription listen(ClaraComponent component, xMsgTopic topic, xMsgCallBack callback)
             throws xMsgException {
         xMsgConnection con = connect(component.getProxyAddress());
+        return subscribe(con, topic, callback);
+    }
+
+    public xMsgSubscription listen(xMsgTopic topic, xMsgCallBack callback)
+            throws xMsgException {
+        xMsgConnection con = connect(me.getProxyAddress());
         return subscribe(con, topic, callback);
     }
 
@@ -239,7 +260,7 @@ public class ClaraBase extends xMsg {
        return  _executeComp(composition, data, timeout);
     }
 
-    public void startReporting(ClaraComponent component, CReport report, int eventCount)
+    public void startReporting(ClaraComponent component, CReportTypes report, int eventCount)
             throws IOException, xMsgException {
 
         if (eventCount < 0) {
@@ -251,7 +272,7 @@ public class ClaraBase extends xMsg {
         send(component,msg);
     }
 
-    public void stopReporting(ClaraComponent component, CReport report)
+    public void stopReporting(ClaraComponent component, CReportTypes report)
             throws IOException, xMsgException {
         startReporting(component, report, 0);
     }
@@ -259,7 +280,7 @@ public class ClaraBase extends xMsg {
     public xMsgMessage ping(ClaraComponent component, int timeout)
             throws IOException, xMsgException, TimeoutException {
 
-        String data = ClaraUtil.buildData(CReport.INFO.getValue());
+        String data = ClaraUtil.buildData(CReportTypes.INFO.getValue());
         xMsgTopic topic = component.getTopic();
         xMsgMessage msg = new xMsgMessage(topic, data);
         return syncSend(component, msg, timeout);

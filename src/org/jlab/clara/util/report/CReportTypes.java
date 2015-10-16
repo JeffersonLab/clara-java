@@ -1,10 +1,10 @@
 /*
- * Copyright (C) 2015. Jefferson Lab, CLARA framework (JLAB). All Rights Reserved.
+ * Copyright (C) 2015. Jefferson Lab, xMsg framework (JLAB). All Rights Reserved.
  * Permission to use, copy, modify, and distribute this software and its
  * documentation for educational, research, and not-for-profit purposes,
  * without fee and without a signed licensing agreement.
  *
- * Author Vardan Gyurjyan
+ * Contact Vardan Gyurjyan
  * Department of Experimental Nuclear Physics, Jefferson Lab.
  *
  * IN NO EVENT SHALL JLAB BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL,
@@ -18,38 +18,24 @@
  * HEREUNDER IS PROVIDED "AS IS". JLAB HAS NO OBLIGATION TO PROVIDE MAINTENANCE,
  * SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  */
-
-package org.jlab.clara.util;
-
-import org.jlab.clara.base.error.ClaraException;
-import org.jlab.clara.engine.Engine;
+package org.jlab.clara.util.report;
 
 /**
- *     Clara dynamic class loader
- *
- * @author gurjyan
- * @version 4.x
- * @since 2/9/15
+ * Created by gurjyan on 10/12/15.
  */
-public class CClassLoader {
+public enum CReportTypes {
+    INFO("serviceReportInfo"),
+    DONE ("serviceReportDone"),
+    DATA ("serviceReportData");
 
-    private ClassLoader classLoader;
+    private final String stringValue;
 
-    public CClassLoader(ClassLoader cl){
-        classLoader = cl;
+    CReportTypes(String stringValue) {
+        this.stringValue = stringValue;
     }
 
-    public Engine load(String className)
-            throws ClaraException, ClassNotFoundException, IllegalAccessException, InstantiationException {
-            Class aClass = classLoader.loadClass(className);
-
-            Object aInstance = aClass.newInstance();
-
-        if (aInstance instanceof Engine) {
-            return (Engine) aInstance;
-            } else {
-                throw new ClaraException("not a Clara service engine");
-            }
+    public String getValue() {
+        return stringValue;
     }
 
 }

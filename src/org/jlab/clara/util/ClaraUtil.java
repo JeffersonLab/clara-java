@@ -36,6 +36,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import javax.annotation.ParametersAreNonnullByDefault;
+import javax.management.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -43,6 +44,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.management.ManagementFactory;
 import java.net.SocketException;
 import java.text.Format;
 import java.text.SimpleDateFormat;
@@ -52,6 +54,9 @@ import java.util.regex.Pattern;
 
 /**
  * Extra helper methods for Clara orchestrator and services.
+ *
+ * @author gurjyan
+ * @version 4.x
  */
 @ParametersAreNonnullByDefault
 public final class ClaraUtil {
@@ -409,5 +414,28 @@ public final class ClaraUtil {
         }
     }
 
+    public static double getCpuUsage()
+            throws MalformedObjectNameException, ReflectionException, InstanceNotFoundException {
 
+        MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+        ObjectName name = ObjectName.getInstance("java.lang:type=OperatingSystem");
+        AttributeList list = mbs.getAttributes(name, new String[]{"ProcessCpuLoad"});
+
+        if (list.isEmpty()) {
+            return Double.NaN;
+        }
+
+        Attribute att = (Attribute) list.get(0);
+        Double value = (Double) att.getValue();
+
+        if (value == -1.0) {
+            return Double.NaN;
+        }
+
+        return ((int) (value * 1000) / 10.0);        // returns a percentage value with 1 decimal point precision
+    }
+
+    public static long getMemoryUsage() {
+        return Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+    }
 }

@@ -22,12 +22,10 @@
 package org.jlab.clara.util;
 
 /**
- * <p>
  *     Clara internal constants
- * </p>
  *
  * @author gurjyan
- * @version 1.x
+ * @version 4.x
  * @since 2/7/15
  */
 public class CConstants {
@@ -44,6 +42,7 @@ public class CConstants {
     public static final String LIST_DPES = "listDpes";
 
     public static final String CONTAINER = "container";
+    public static final String STATE_CONTAINER = "getContainerState";
     public static final String START_CONTAINER = "startContainer";
     public static final String STOP_CONTAINER = "stopContainer";
     public static final String CONTAINER_UP = "containerIsUp";
@@ -52,6 +51,7 @@ public class CConstants {
     public static final String LIST_CONTAINERS = "listContainers";
 
     public static final String SERVICE = "service";
+    public static final String STATE_SERVICE = "getServiceState";
     public static final String START_SERVICE = "startService";
     public static final String STOP_SERVICE = "stopService";
     public static final String DEPLOY_SERVICE = "deployService";

@@ -1,7 +1,6 @@
 package org.jlab.clara.util.xml;
 
 import org.jlab.clara.util.ClaraUtil;
-import org.jlab.clara.util.xml.XMLContainer;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 
@@ -13,7 +12,7 @@ import java.util.List;
  * XML parser test
  *
  * @author gurjyan
- * @version 1.x
+ * @version 4.x
  * @since 4/9/15
  */
 public class ApplicationParser {

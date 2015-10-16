@@ -28,15 +28,15 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 
 /**
- * Created by gurjyan on 10/9/15.
+ * @author gurjyan
+ * @version 4.x
  */
 public class ClaraLogger {
 
-    public final Logger logger = Logger.getLogger("Clara");
     private static ClaraLogger instance = null;
     private static String logFileDir =
             System.getenv("CLARA_LOG");
-
+    public final Logger logger = Logger.getLogger("Clara");
 
     public static ClaraLogger getInstance(){
         if(instance == null) {
@@ -53,7 +53,7 @@ public class ClaraLogger {
         File f = new File(logFileDir);
 
         if(!f.exists()){
-            if(f.mkdirs()) System.out.println("can not create the log file.");
+            if (f.mkdirs()) System.out.println("Clara-Error: Can not create the log file.");
         }
 
         try {
