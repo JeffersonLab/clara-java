@@ -38,6 +38,10 @@ public class DpeReport extends CReportBase {
 
     private Map<String, ContainerReport> containers = new HashMap<>();
 
+    public DpeReport(String name) {
+        super(name);
+    }
+
     public String getHost() {
         return host;
     }

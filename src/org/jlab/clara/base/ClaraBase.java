@@ -59,12 +59,14 @@ public class ClaraBase extends xMsg {
     private EngineDataAccessor dataAccessor;
     private ClaraComponent me;
 
+    //@todo
+    private ClaraComponent frontEnd;
 
     public ClaraBase(ClaraComponent me,
                      String defaultRegistrarHost,
                      int defaultRegistrarPort)
             throws IOException, ClaraException {
-        super(me.getName(), new xMsgProxyAddress(me.getDpeHost(), me.getDpePort()),
+        super(me.getCanonicalName(), new xMsgProxyAddress(me.getDpeHost(), me.getDpePort()),
                 new xMsgRegAddress(defaultRegistrarHost, defaultRegistrarPort),
                 me.getSubscriptionPoolSize());
         dataAccessor = EngineDataAccessor.getDefault();
@@ -78,7 +80,7 @@ public class ClaraBase extends xMsg {
     public ClaraBase(ClaraComponent me)
             throws IOException, ClaraException {
         this(me, xMsgUtil.localhost(),
-                xMsgConstants.REGISTRAR_PORT.getIntValue());
+                xMsgConstants.REGISTRAR_PORT);
     }
 
     public String getClaraHome() {
@@ -336,8 +338,34 @@ public class ClaraBase extends xMsg {
         }
     }
 
-    /** ************************ Private Methods ***************************** */
+    public EngineData reportSystemError(String msg, int severity, String description) {
+        EngineData outData = new EngineData();
+        outData.setData(EngineDataType.STRING.mimeType(), msg);
+        outData.setDescription(description);
 
+        xMsgM.xMsgMeta.Builder outMeta = getMetadata(outData);
+        outMeta.setStatus(xMsgM.xMsgMeta.Status.ERROR);
+        outMeta.setSeverityId(severity);
+
+        return outData;
+    }
+
+    /*
+ * Convoluted way to access the internal EngineData metadata,
+ * which is hidden to users.
+ */
+    public xMsgM.xMsgMeta.Builder getMetadata(EngineData data) {
+        return dataAccessor.getMetadata(data);
+    }
+
+    public ClaraComponent getFrontEnd() {
+        return frontEnd;
+    }
+
+    /**
+     * *********************** Private Methods *****************************
+     */
+//@todo revisit _deploy.....Note that request must be sent to DPE, as well as first DPE must be started by hand.
     private xMsgMessage _deploy(ClaraComponent component, int timeout)
             throws ClaraException, IOException, xMsgException, TimeoutException {
         if(component.isOrchestrator()) {
@@ -388,7 +416,7 @@ public class ClaraBase extends xMsg {
             }
         } else if(component.isContainer()){
             String dpeName = component.getDpeName();
-            String contName = component.getName();
+            String contName = component.getCanonicalName();
 
             xMsgTopic topic = ClaraUtil.buildTopic(CConstants.DPE + dpeName);
             String data = ClaraUtil.buildData(CConstants.START_CONTAINER, contName);
@@ -439,7 +467,7 @@ public class ClaraBase extends xMsg {
             }
         } else if(component.isContainer()){
             String dpeName = component.getDpeName();
-            String contName = component.getName();
+            String contName = component.getCanonicalName();
 
             xMsgTopic topic = ClaraUtil.buildTopic(CConstants.DPE, dpeName);
             String data = ClaraUtil.buildData(CConstants.REMOVE_CONTAINER, contName);

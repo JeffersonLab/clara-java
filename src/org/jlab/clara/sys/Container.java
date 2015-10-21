@@ -26,13 +26,12 @@ import org.jlab.clara.base.ClaraComponent;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.util.CConstants;
 import org.jlab.clara.util.ClaraUtil;
-import org.jlab.clara.util.xml.RequestParser;
-import org.jlab.coda.xmsg.core.*;
+import org.jlab.clara.util.report.ContainerReport;
+import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.excp.xMsgException;
 
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Service container
@@ -42,15 +41,13 @@ import java.util.Map;
  */
 public class Container extends ClaraBase {
 
-    private xMsgSubscription subscriptionHandler;
 
-    private Map<String, Service> _myServices = new HashMap<>();
+    private ConcurrentHashMap<String, Service> myServices = new ConcurrentHashMap<>();
+    private ContainerReport myReport;
 
     /**
-     * Constructor.
-     * Note that container runs on a localhost: on a host where
-     * dpe is running ( within the dpe process).
      *
+     * @param comp
      * @param regHost
      * @param regPort
      * @param description
@@ -65,27 +62,39 @@ public class Container extends ClaraBase {
             throws xMsgException, IOException, ClaraException {
         super(comp, regHost, regPort);
 
-        // Create a socket connections to the local dpe proxy
+        if (!comp.isContainer()) {
+            throw new ClaraException("Clara-Error: incompatible component.");
+        }
+
+        // Create a socket connections to the dpe proxy
         connect();
 
         // Subscribe messages published to this container
-        xMsgTopic topic = xMsgTopic.wrap(CConstants.CONTAINER + ":" + comp.getName());
+        xMsgTopic topic = xMsgTopic.wrap(CConstants.CONTAINER + ":" + comp.getCanonicalName());
 
         // Register this subscriber
         registerAsSubscriber(topic, description);
-        System.out.println(ClaraUtil.getCurrentTimeInH() + ": Registered container = " + comp.getName());
+        System.out.println(ClaraUtil.getCurrentTimeInH() + ": Registered container = " + comp.getCanonicalName());
 
-        // Subscribe by passing a callback to the subscription
-        subscriptionHandler = listen(topic, new ContainerCallBack());
-        System.out.println(ClaraUtil.getCurrentTimeInH() + ": Started container = " + comp.getName());
+        System.out.println(ClaraUtil.getCurrentTimeInH() + ": Started container = " + comp.getCanonicalName());
 
+        myReport = new ContainerReport(comp.getCanonicalName());
+        myReport.setLang(getMe().getDpeLang());
+        myReport.setDescription(description);
+        myReport.setAuthor(System.getenv("USER"));
+        myReport.setStartTime(ClaraUtil.getCurrentTimeInH());
     }
 
+    /**
+     * @return
+     */
+    public ContainerReport getReport() {
+        return myReport;
+    }
 
     /**
-     * Stops this container.
-     * Destroys all services, un-subscribes and unregister.
      *
+     * @throws ClaraException
      * @throws xMsgException
      * @throws IOException
      */
@@ -94,116 +103,65 @@ public class Container extends ClaraBase {
         // broadcast to the local proxy
         send(CConstants.CONTAINER_DOWN + "?" + getName());
 
-        stopListening(subscriptionHandler);
         removeRegistration();
-
-        for (Service service : _myServices.values()) {
-            service.exit();
-        }
-
-        subscriptionHandler = null;
+        removeAllServices();
     }
 
     /**
-     * Adds a new service to this container.
      *
-     * @param engineName the service engine name
-     * @param engineClassPath the service engine class path
-     * @param servicePoolSize the size of the engines pool
+     * @param comp
+     * @param regHost
+     * @param regPort
+     * @param description
+     * @param initialState
+     * @throws ClaraException
+     * @throws xMsgException
+     * @throws IOException
      */
-    private void addService(String engineName,
-                            String engineClassPath,
-                            int servicePoolSize,
-                            String initialState)
-            throws ClaraException, xMsgException, IOException {
+    public void addService(ClaraComponent comp,
+                           String regHost,
+                           int regPort,
+                           String description,
+                           String initialState)
+    throws ClaraException, xMsgException, IOException {
 
-        String serviceName = getName() + ":" + engineName;
+        // in this case serviceName is a canonical name
+        String serviceName = comp.getCanonicalName();
 
-        if (_myServices.containsKey(serviceName)) {
-            String msg = "%s Warning: service %s already exists. No new service is deployed%n";
+
+        if (myServices.containsKey(serviceName)) {
+            String msg = "%s Clara-Warning: service %s already exists. No new service is deployed%n";
             System.err.printf(msg, ClaraUtil.getCurrentTimeInH(), serviceName);
             return;
         }
 
-        // Object pool size is set to be 2 in case
-        // it was requested to be 0 or negative number.
-        if (servicePoolSize <= 0) {
-            servicePoolSize = 1;
-        }
-
-        Service service = new Service(serviceName,
-                                      engineClassPath,
-                                      getLocalAddress(),
-                                      getFrontEndAddress(),
-                                      servicePoolSize,
-                                      initialState);
-        _myServices.put(serviceName, service);
+        Service service = new Service(comp, regHost, regPort,
+                description, initialState);
+        myServices.put(serviceName, service);
     }
 
     /**
-     * Removes a service from this container.
      *
-     * @param serviceName the service canonical name
+     * @param serviceName service canonical name
+     * @throws ClaraException
      */
-    private void removeService(String serviceName)
-            throws ClaraException {
-        if (_myServices.containsKey(serviceName)) {
-            Service service = _myServices.remove(serviceName);
+    public void removeService(String serviceName)
+            throws ClaraException, IOException, xMsgException {
+        if (myServices.containsKey(serviceName)) {
+            Service service = myServices.remove(serviceName);
             service.exit();
         }
     }
 
-
     /**
-     * Processes messages published to this container.
+     *
+     * @throws ClaraException
      */
-    private class ContainerCallBack implements xMsgCallBack {
-
-        @Override
-        public xMsgMessage callback(xMsgMessage msg) {
-
-            try {
-                if (msg.getMetaData().getReplyTo().equals(xMsgConstants.UNDEFINED.getStringValue())) {
-
-                    RequestParser parser = null;
-                    parser = RequestParser.build(msg);
-                String command = parser.nextString();
-                String serviceName = parser.nextString();
-
-                switch (command) {
-
-                    case CConstants.DEPLOY_SERVICE:
-                        String className = parser.nextString();
-                        int poolSize = parser.nextInteger();
-                        String state = parser.nextString(xMsgConstants.UNDEFINED.toString());
-                        addService(serviceName, className, poolSize, state);
-                        break;
-
-                    case CConstants.REMOVE_SERVICE:
-                        removeService(serviceName);
-                        break;
-
-                    case CConstants.REMOVE_CONTAINER:
-                        exit();
-                        break;
-
-                    default:
-                        throw new ClaraException("Invalid request");
-                }
-                } else {
-                    // sync request, updates the received xMsgMessage and sends it to the sender
-                    // reset relyTo metadata field
-                    msg.getMetaData().setReplyTo(xMsgConstants.UNDEFINED.getStringValue());
-
-                    // sends back "Done" string
-                    msg.updateData("Done");
-                    send(msg);
-
-                }
-            } catch (ClaraException | xMsgException | IOException e) {
-                e.printStackTrace();
-            }
-            return msg;
+    public void removeAllServices() throws ClaraException, IOException, xMsgException {
+        for (Service s : myServices.values()) {
+            s.exit();
         }
+        myServices.clear();
     }
+
 }

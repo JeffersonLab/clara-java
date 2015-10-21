@@ -124,7 +124,7 @@ public final class ClaraUtil {
           throw new ClaraException("Clara-Error: not a canonical name");
       }
         String dpeName = getDpeName(canonicalName);
-        StringTokenizer st = new StringTokenizer(dpeName,CConstants.PRXHOSTPORT_SEP);
+        StringTokenizer st = new StringTokenizer(dpeName, xMsgConstants.PRXHOSTPORT_SEP);
         if(st.countTokens()!=2){
             throw new ClaraException("Clara-Error: malformed name of a DPE");
         }
@@ -136,13 +136,13 @@ public final class ClaraUtil {
           throw new ClaraException("Clara-Error: not a canonical name");
       }
         String dpeName = getDpeName(canonicalName);
-        StringTokenizer st = new StringTokenizer(dpeName,CConstants.PRXHOSTPORT_SEP);
+        StringTokenizer st = new StringTokenizer(dpeName, xMsgConstants.PRXHOSTPORT_SEP);
         if(st.countTokens()!=2){
             throw new ClaraException("Clara-Error: malformed name of a DPE");
         }
         st.nextToken();
         String dpl = st.nextToken();
-        String p = dpl.substring(0, dpl.indexOf(CConstants.LANG_SEP));
+        String p = dpl.substring(0, dpl.indexOf(xMsgConstants.LANG_SEP));
         return Integer.parseInt(p);
     }
 
@@ -151,7 +151,7 @@ public final class ClaraUtil {
           throw new ClaraException("Clara-Error: not a canonical name");
       }
         String dpeName = getDpeName(canonicalName);
-         return dpeName.substring(dpeName.indexOf(CConstants.LANG_SEP));
+        return dpeName.substring(dpeName.indexOf(xMsgConstants.LANG_SEP));
     }
 
     /**
@@ -369,7 +369,7 @@ public final class ClaraUtil {
         StringBuilder topic  = new StringBuilder();
         topic.append(args[0]);
         for (int i = 1; i < args.length; i++) {
-            topic.append(CConstants.TOPIC_SEP);
+            topic.append(xMsgConstants.TOPIC_SEP);
             topic.append(args[i]);
         }
         return xMsgTopic.wrap(topic.toString());
@@ -380,7 +380,7 @@ public final class ClaraUtil {
         StringBuilder topic  = new StringBuilder();
         topic.append(args[0]);
         for (int i = 1; i < args.length; i++) {
-            topic.append(CConstants.DATA_SEP);
+            topic.append(xMsgConstants.DATA_SEP);
             topic.append(args[i]);
         }
         return topic.toString();

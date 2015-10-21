@@ -34,6 +34,10 @@ public class ServiceReport extends CReportBase {
     private int bytesSent;
     private int executionTIme;
 
+    public ServiceReport(String name) {
+        super(name);
+    }
+
     public String getEngineName() {
         return engineName;
     }

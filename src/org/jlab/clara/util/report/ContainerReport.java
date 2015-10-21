@@ -28,16 +28,15 @@ import java.util.Map;
  * @version 4.x
  */
 public class ContainerReport extends CReportBase {
-    private int serviceCount;
 
     private Map<String, ServiceReport> services = new HashMap<>();
 
-    public int getServiceCount() {
-        return serviceCount;
+    public ContainerReport(String name) {
+        super(name);
     }
 
-    public void setServiceCount(int serviceCount) {
-        this.serviceCount = serviceCount;
+    public int getServiceCount() {
+        return services.size();
     }
 
     public Map<String, ServiceReport> getServices() {

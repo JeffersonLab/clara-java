@@ -21,6 +21,8 @@
 
 package org.jlab.clara.sys;
 
+import org.jlab.clara.base.ClaraBase;
+import org.jlab.clara.base.ClaraComponent;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.Engine;
 import org.jlab.clara.engine.EngineDataType;
@@ -28,7 +30,10 @@ import org.jlab.clara.util.CClassLoader;
 import org.jlab.clara.util.CConstants;
 import org.jlab.clara.util.ClaraUtil;
 import org.jlab.clara.util.xml.RequestParser;
-import org.jlab.coda.xmsg.core.*;
+import org.jlab.coda.xmsg.core.xMsgCallBack;
+import org.jlab.coda.xmsg.core.xMsgMessage;
+import org.jlab.coda.xmsg.core.xMsgSubscription;
+import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 import org.jlab.coda.xmsg.excp.xMsgException;
 
@@ -45,7 +50,7 @@ import java.util.concurrent.ExecutorService;
  * Number of threads in the pool is equal to the size of the object pool.
  * Thread pool is fixed size, however object pool is capable of expanding.
  */
-public class Service extends CBase {
+public class Service extends ClaraBase {
 
     private final String name;
 
@@ -58,72 +63,69 @@ public class Service extends CBase {
 
 
     /**
-     * Starts a service.
+     * Constructor of a service.
      * <p>
      * Create thread pool to run requests to this service.
      * Create object pool to hold the engines this service.
      * Object pool size is set to be 2 in case it was requested
      * to be 0 or negative number.
      *
-     * @param name the service canonical name
-     * @param className the class path of the service engine
-     * @param localAddress the address of the local Clara node
-     * @param frontEndAddress the name of the front-end Clara node
-     * @param poolSize the size of the engines pool
      * @param initialState initial state of this service
      * @throws ClaraException if the engine could not be loaded
      * @throws IOException
      */
-    public Service(String name,
-                   String className,
-                   String localAddress,
-                   String frontEndAddress,
-                   int poolSize,
+    public Service(ClaraComponent comp,
+                   String regHost,
+                   int regPort,
+                   String description,
                    String initialState)
-            throws ClaraException, xMsgException {
+            throws ClaraException, xMsgException, IOException {
 
-        super(name, localAddress, frontEndAddress);
+        super(comp, regHost, regPort);
 
-        this.name = name;
+        // Create a socket connections to the dpe proxy
+        connect();
+
+        this.name = comp.getCanonicalName();
         this.sysConfig = new ServiceSysConfig(name, initialState);
 
         // Dynamic loading of the Clara engine class
         // Note: using system class loader
         try {
             CClassLoader cl = new CClassLoader(ClassLoader.getSystemClassLoader());
-            userEngine = cl.load(className);
+            userEngine = cl.load(comp.getEngineClass());
             validateEngine(userEngine);
         } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
-            throw new ClaraException("Could not load engine", e);
+            throw new ClaraException("Clara-Error: Could not load engine", e.getCause());
         }
 
         // Creating thread pool
-        this.executionPool = xMsgUtil.newFixedThreadPool(poolSize, name);
+        this.executionPool = xMsgUtil.newFixedThreadPool(comp.getSubscriptionPoolSize(), name);
 
         // Creating service object pool
-        this.enginePool = new ServiceEngine[poolSize];
+        this.enginePool = new ServiceEngine[comp.getSubscriptionPoolSize()];
 
         // Fill the object pool
-        for (int i = 0; i < poolSize; i++) {
-            ServiceEngine engine = new ServiceEngine(name,
+        for (int i = 0; i < comp.getSubscriptionPoolSize(); i++) {
+            ServiceEngine engine = new ServiceEngine(getMe(),
                                                      userEngine,
-                                                     sysConfig,
-                                                     localAddress,
-                                                     frontEndAddress);
+                    sysConfig);
             enginePool[i] = engine;
         }
 
         // Register with the shared memory
         SharedMemory.addReceiver(name);
 
-        xMsgTopic topic = xMsgTopic.wrap(getName());
-        this.subscription = genericReceive(topic, new ServiceCallBack());
-        System.out.printf("%s: Started service = %s  poolsize = %d%n",
-                          ClaraUtil.getCurrentTimeInH(), getName(), poolSize);
+        // subscription
 
-        registerLocalSubscriber(topic, "Clara Service");
+        this.subscription = listen(comp.getTopic(), new ServiceCallBack());
+        System.out.printf("%s: Started service = %s  pool_size = %d%n",
+                ClaraUtil.getCurrentTimeInH(), name, comp.getSubscriptionPoolSize());
+
+        // Register this subscriber
+        registerAsSubscriber(comp.getTopic(), description);
         System.out.printf("%s: Registered service = %s%n",
-                          ClaraUtil.getCurrentTimeInH(), getName());
+                ClaraUtil.getCurrentTimeInH(), name);
     }
 
 
@@ -138,46 +140,29 @@ public class Service extends CBase {
 
     private void validateString(String value, String field) throws ClaraException {
         if (value == null || value.isEmpty()) {
-            throw new ClaraException("missing engine " + field);
+            throw new ClaraException("Clara-Error: missing engine " + field);
         }
     }
 
 
     private void validateDataTypes(Set<EngineDataType> types, String field) throws ClaraException {
         if (types == null || types.isEmpty()) {
-            throw new ClaraException("missing engine " + field);
+            throw new ClaraException("Clara-Error: missing engine " + field);
         }
         for (EngineDataType dt : types) {
             if (dt == null) {
-                throw new ClaraException("null data type on engine " + field);
+                throw new ClaraException("Clara-Error: null data type on engine " + field);
             }
         }
     }
 
 
-    public void exit() throws ClaraException {
-        boolean error = false;
+    public void exit() throws ClaraException, IOException, xMsgException {
         executionPool.shutdown();
         userEngine.destroy();
 
-        try {
-            unregister();
-        } catch (xMsgException | IOException e) {
-            e.printStackTrace();
-            error = true;
-        }
-
-        try {
-            unsubscribe(subscription);
-        } catch (xMsgException e) {
-            e.printStackTrace();
-            error = true;
-        }
-
-        if (error) {
-            throw new ClaraException("Error removing service = " + name);
-        }
-
+        removeRegistration();
+        stopListening(subscription);
         System.out.println(ClaraUtil.getCurrentTimeInH() + ": Removed service = " + name + "\n");
     }
 
@@ -245,48 +230,6 @@ public class Service extends CBase {
                 break;
             default:
                 throw new ClaraException("Invalid report request: " + report);
-        }
-    }
-
-
-    public void register()
-            throws xMsgException, IOException {
-        String description = "Clara Service";
-        String feHost = getFrontEndAddress();
-        registerLocalSubscriber(xMsgTopic.wrap(name), description);
-        if (!xMsgUtil.getLocalHostIps().contains(feHost)) {
-            registerSubscriber(xMsgTopic.wrap(name), description);
-        }
-
-        if (!feHost.equals(xMsgConstants.UNDEFINED.toString())) {
-            xMsgTopic topic = xMsgTopic.wrap(CConstants.SERVICE + ":" + feHost);
-            String data = CConstants.SERVICE_UP + "?" + name;
-            // Send service_up message to the FE
-            xMsgMessage msg = new xMsgMessage(topic, data);
-            genericSend(feHost, msg);
-        }
-
-        System.out.println(ClaraUtil.getCurrentTimeInH() + ": Registered service = " + name);
-    }
-
-
-    public void unregister() throws xMsgException, IOException {
-        removeLocalSubscriber(xMsgTopic.wrap(name));
-        removeSubscriber(xMsgTopic.wrap(name));
-
-        String data = CConstants.SERVICE_DOWN + "?" + getName();
-
-        // Send service_down message
-        String localDpe = xMsgUtil.getLocalHostIps().get(0);
-        xMsgTopic topic = xMsgTopic.wrap(CConstants.SERVICE + ":" + localDpe);
-        xMsgMessage msg1 = new xMsgMessage(topic, data);
-
-        genericSend(localDpe, msg1);
-
-        if (!getFrontEndAddress().equals(xMsgConstants.UNDEFINED.toString())) {
-            xMsgTopic topic2 = xMsgTopic.wrap(CConstants.SERVICE + ":" + getFrontEndAddress());
-            xMsgMessage msg2 = new xMsgMessage(topic2, data);
-            genericSend(getFrontEndAddress(), msg2);
         }
     }
 

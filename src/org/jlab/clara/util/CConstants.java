@@ -26,48 +26,40 @@ package org.jlab.clara.util;
  *
  * @author gurjyan
  * @version 4.x
- * @since 2/7/15
  */
 public class CConstants {
 
-    public static final String ACCEPT_FE = "acceptFe";
     public static final String DPE = "dpe";
     public static final String START_DPE = "startDpe";
     public static final String STOP_DPE = "stopDpe";
-    public static final String DPE_UP = "dpeIsUp";
-    public static final String DPE_DOWN = "dpeIsDown";
+    public static final String STOP_REMOTE_DPE = "stopRemoteDpe";
     public static final String DPE_EXIT = "dpeExit";
-    public static final String DPE_PING = "dpePing";
+    public static final String PING_DPE = "pingDpe";
+    public static final String PING_REMOTE_DPE = "pingRemoteDpe";
     public static final String DPE_ALIVE = "dpeAlive";
-    public static final String LIST_DPES = "listDpes";
 
     public static final String CONTAINER = "container";
     public static final String STATE_CONTAINER = "getContainerState";
     public static final String START_CONTAINER = "startContainer";
+    public static final String START_REMOTE_CONTAINER = "startRemoteContainer";
     public static final String STOP_CONTAINER = "stopContainer";
-    public static final String CONTAINER_UP = "containerIsUp";
+    public static final String STOP_REMOTE_CONTAINER = "stopRemoteContainer";
     public static final String CONTAINER_DOWN = "containerIsDown";
     public static final String REMOVE_CONTAINER = "removeContainer";
-    public static final String LIST_CONTAINERS = "listContainers";
 
-    public static final String SERVICE = "service";
     public static final String STATE_SERVICE = "getServiceState";
     public static final String START_SERVICE = "startService";
+    public static final String START_REMOTE_SERVICE = "startRemoteService";
     public static final String STOP_SERVICE = "stopService";
+    public static final String STOP_REMOTE_SERVICE = "stopRemoteService";
     public static final String DEPLOY_SERVICE = "deployService";
     public static final String REMOVE_SERVICE = "removeService";
-    public static final String SERVICE_UP = "serviceIsUp";
-    public static final String SERVICE_DOWN = "serviceIsDown";
-    public static final String LIST_SERVICES = "listServices";
+    public static final String SERVICE_REPORT_DONE = "serviceReportDone";
+    public static final String SERVICE_REPORT_DATA = "serviceReportData";
 
 
     public static final String SHARED_MEMORY_KEY = "clara/shmkey";
-    public static final String ALIVE = "alive";
 
-    public static final String TOPIC_SEP = ":";
-    public static final String DATA_SEP = "?";
-    public static final String LANG_SEP = "_";
-    public static final String PRXHOSTPORT_SEP = "%";
     public static final String MAPKEY_SEP = "#";
 
     public static final int BENCHMARK = 10000;

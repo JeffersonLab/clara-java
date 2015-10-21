@@ -22,9 +22,9 @@
 package org.jlab.clara.util.xml;
 
 import org.jlab.clara.base.error.ClaraException;
+import org.jlab.clara.util.CConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 
-import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
 /**
@@ -38,7 +38,7 @@ public class RequestParser {
 
     public RequestParser(String data) {
         cmdData = data;
-        tokenizer = new StringTokenizer(cmdData, "?");
+        tokenizer = new StringTokenizer(cmdData, CConstants.DATA_SEP);
     }
 
     public static RequestParser build(xMsgMessage msg) throws ClaraException {
@@ -46,15 +46,11 @@ public class RequestParser {
         if (mimeType.equals("text/string")) {
             return new RequestParser(new String(msg.getData()));
         }
-        throw new ClaraException("Invalid mime-type = " + mimeType);
+        throw new ClaraException("Clara-Error: Invalid mime-type = " + mimeType);
     }
 
     public String nextString() throws ClaraException {
-        try {
             return tokenizer.nextToken();
-        } catch (NoSuchElementException e) {
-            throw new ClaraException("Invalid request: " + cmdData);
-        }
     }
 
 
@@ -64,10 +60,6 @@ public class RequestParser {
 
 
     public int nextInteger() throws ClaraException {
-        try {
             return Integer.parseInt(tokenizer.nextToken());
-        } catch (NoSuchElementException | NumberFormatException e) {
-            throw new ClaraException("Invalid request: " + cmdData);
-        }
     }
 }

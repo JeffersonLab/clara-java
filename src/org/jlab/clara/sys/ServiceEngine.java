@@ -22,6 +22,7 @@
 package org.jlab.clara.sys;
 
 import org.jlab.clara.base.ClaraBase;
+import org.jlab.clara.base.ClaraComponent;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.Engine;
 import org.jlab.clara.engine.EngineData;
@@ -45,8 +46,7 @@ import java.util.concurrent.Semaphore;
  * Every engine process a request in its own thread.
  *
  * @author gurjyan
- * @version 1.x
- * @since 1/30/15
+ * @version 4.x
  */
 public class ServiceEngine extends ClaraBase {
 
@@ -58,7 +58,7 @@ public class ServiceEngine extends ClaraBase {
     private Semaphore semaphore = new Semaphore(1);
 
     // Already recorded (previous) composition
-    private String prevComposition = xMsgConstants.UNDEFINED.toString();
+    private String prevComposition = xMsgConstants.UNDEFINED;
 
     private SimpleCompiler compiler;
 
@@ -69,13 +69,12 @@ public class ServiceEngine extends ClaraBase {
     /**
      * Constructor.
      */
-    public ServiceEngine(String name,
+    public ServiceEngine(ClaraComponent comp,
                          Engine userEngine,
-                         ServiceSysConfig config,
-                         String localAddress,
-                         String frontEndAddres)
-            throws ClaraException {
-        super(name, localAddress, frontEndAddres);
+                         ServiceSysConfig config
+    )
+            throws ClaraException, IOException {
+        super(comp);
 
         this.engineObject = userEngine;
         this.sysConfig = config;
@@ -85,7 +84,7 @@ public class ServiceEngine extends ClaraBase {
         connect();
 
         // create an object of the composition parser
-        compiler = new SimpleCompiler(getName());
+        compiler = new SimpleCompiler(comp.getCanonicalName());
     }
 
     public void configure(xMsgMessage message)
@@ -95,7 +94,7 @@ public class ServiceEngine extends ClaraBase {
             IOException,
             ClassNotFoundException {
 
-        EngineData inputData = null;
+        EngineData inputData;
         EngineData outData = null;
         try {
             inputData = getEngineData(message);
@@ -109,7 +108,10 @@ public class ServiceEngine extends ClaraBase {
 
         String replyTo = getReplyTo(message);
         if (replyTo != null) {
-            send(getLocalAddress(), replyTo, outData);
+            ClaraComponent comp = ClaraComponent.dpe(replyTo);
+            xMsgMessage msOut = message.response();
+            putEngineData(outData, replyTo, msOut);
+            send(comp, msOut);
         } else {
             reportProblem(outData);
         }
@@ -133,121 +135,6 @@ public class ServiceEngine extends ClaraBase {
         return outData;
     }
 
-//    /**
-//     * Service process method. Note that configure
-//     * will never be execute within this method.
-//     */
-//    public void process(xMsgMessage message)
-//            throws ClaraException,
-//            xMsgException,
-//            IOException,
-//            InterruptedException,
-//            ClassNotFoundException {
-//
-//        isAvailable.set(false);
-//
-//        // Increment request count in the sysConfig object
-//        sysConfig.addRequest();
-//
-//        xMsgMeta.Builder metadata = message.getMetaData();
-//
-//        String currentComposition = metadata.getComposition();
-//        if (!currentComposition.equals(prevComposition)) {
-//            // analyze composition
-//            compiler.compile(currentComposition);
-//            prevComposition = currentComposition;
-//        }
-//
-//        ServiceState senderServiceState =
-//                new ServiceState(metadata.getSender(), metadata.getSenderState());
-//
-//        for (Instruction inst : compiler.getInstructions()) {
-//
-//            // get the condition of the instruction
-//            // if condition...
-//            Condition ifCond = inst.getIfCondition();
-//            Condition elseifCond = inst.getElseifCondition();
-//
-//            // the set of routing statements
-//            Set<Statement> routingStatements;
-//
-//            if (ifCond != null) {
-//                // Conditional routing.
-//
-//                if (ifCond.isTrue(getMyServiceState(), senderServiceState)) {
-//                    routingStatements = inst.getIfCondStatements();
-//                } else if (elseifCond.isTrue(getMyServiceState(), senderServiceState)) {
-//                    routingStatements = inst.getElseifCondStatements();
-//                } else {
-//                    routingStatements = inst.getElseCondStatements();
-//                }
-//            } else {
-//
-//                // unconditional routing
-//                routingStatements = inst.getUnCondStatements();
-//            }
-//
-//            // execute service engine and route the statements
-//            // note that service engine will not be executed if
-//            // data for all inputs are present in the logical AND case.
-//            // Execute service engine
-//            EngineData inData = parseFrom(message, engineObject.getInputDataTypes());
-//
-//            execAndRoute(routingStatements, senderServiceState, inData);
-//        }
-//        isAvailable.set(true);
-//    }
-//
-//    private void execAndRoute(Set<Statement> routingStatements,
-//                              ServiceState inServiceState,
-//                              EngineData inData)
-//            throws IOException, xMsgException, ClaraException {
-//
-//        EngineData outData;
-//        for (Statement st : routingStatements) {
-//            if (st.getInputLinks().contains(inServiceState.getName())) {
-//
-//                Set<EngineData> ens = new HashSet<>();
-//                ens.add(inData);
-//                outData =  executeEngine(ens);
-//
-//                callLinked(outData, st.getOutputLinks());
-//
-//            } else if (st.getLogAndInputs().containsKey(inServiceState.getName())) {
-//
-//                st.getLogAndInputs().put(inServiceState.getName(), inData);
-//
-//                // check to see if all required data is present (are not null)
-//
-//                boolean groupExecute = true;
-//                for (EngineData ed : st.getLogAndInputs().values()) {
-//                    if (ed == null) {
-//                        groupExecute = false;
-//                        break;
-//                    }
-//                }
-//
-//                if (groupExecute) {
-//
-//                    Set<EngineData> ens = new HashSet<>();
-//                    // engine group execute
-//
-//                    for (EngineData ed : st.getLogAndInputs().values()) {
-//                        ens.add(ed);
-//                    }
-//                    outData = executeEngine(ens);
-//
-//                    callLinked(outData, st.getOutputLinks());
-//
-//                    // reset data in the logAndInputs map
-//                    for (String s : st.getLogAndInputs().keySet()) {
-//                        st.getLogAndInputs().put(s, null);
-//                    }
-//                }
-//
-//            }
-//        }
-//    }
 
     public void execute(xMsgMessage message)
             throws ClaraException, xMsgException, IOException {
@@ -271,7 +158,9 @@ public class ServiceEngine extends ClaraBase {
 
         String replyTo = getReplyTo(message);
         if (replyTo != null) {
-            send(getLocalAddress(), replyTo, outData);
+            xMsgMessage msgReply = message.response(outData);
+            ClaraComponent comp = ClaraComponent.service(replyTo);
+            send(comp, msgReply);
             return;
         }
 
@@ -281,7 +170,7 @@ public class ServiceEngine extends ClaraBase {
         }
 
         sendReports(outData);
-        sendResponse(outData, getLinks(inData, outData));
+        sendResponse(outData, getLinks());
     }
 
     private void parseComposition(EngineData inData) throws ClaraException {
@@ -293,7 +182,7 @@ public class ServiceEngine extends ClaraBase {
         }
     }
 
-    private Set<String> getLinks(EngineData inData, EngineData outData) {
+    private Set<String> getLinks() {
         return compiler.getOutputs();
     }
 
@@ -321,7 +210,7 @@ public class ServiceEngine extends ClaraBase {
     }
 
     private void updateMetadata(xMsgMeta.Builder inMeta, xMsgMeta.Builder outMeta) {
-        outMeta.setAuthor(getName());
+        outMeta.setAuthor(getMe().getCanonicalName());
         outMeta.setVersion(engineObject.getVersion());
 
         if (!outMeta.hasCommunicationId()) {
@@ -355,7 +244,10 @@ public class ServiceEngine extends ClaraBase {
     private void sendResponse(EngineData outData, Set<String> outLinks)
             throws xMsgException, IOException, ClaraException {
         for (String ss : outLinks) {
-            send(ClaraUtil.getHostName(ss), ss, outData);
+            ClaraComponent comp = ClaraComponent.dpe(ss);
+            xMsgMessage msOut = new xMsgMessage(xMsgTopic.wrap(ss), null);
+            putEngineData(outData, ss, msOut);
+            send(comp, msOut);
         }
     }
 
@@ -363,42 +255,35 @@ public class ServiceEngine extends ClaraBase {
             throws xMsgException, IOException, ClaraException {
         String mt = data.getMimeType();
         Object ob = data.getData();
-        data.setData(EngineDataType.STRING.mimeType(), "done");
+        data.setData(EngineDataType.STRING.mimeType(), xMsgConstants.DONE);
 
-        report(xMsgConstants.DONE.toString(), data);
+        report(xMsgConstants.DONE, data);
 
         data.setData(mt, ob);
     }
 
     private void reportData(EngineData data)
             throws xMsgException, IOException, ClaraException {
-        report(xMsgConstants.DATA.toString(), data);
+        report(xMsgConstants.DATA, data);
     }
 
     private void reportProblem(EngineData data)
             throws xMsgException, IOException, ClaraException {
         EngineStatus status = data.getStatus();
         if (status.equals(EngineStatus.ERROR)) {
-            report(xMsgConstants.ERROR.toString(), data);
+            report(xMsgConstants.ERROR, data);
         } else if (status.equals(EngineStatus.WARNING)) {
-            report(xMsgConstants.WARNING.toString(), data);
+            report(xMsgConstants.WARNING, data);
         }
     }
 
 
-    private void send(String host, String receiver, EngineData data)
-            throws xMsgException, ClaraException, IOException {
-        xMsgMessage message = new xMsgMessage(xMsgTopic.wrap(receiver));
-        putEngineData(data, receiver, message);
-        genericSend(host, message);
-    }
-
     private void report(String topicPrefix, EngineData data)
             throws ClaraException, xMsgException, IOException {
-        xMsgTopic topic = xMsgTopic.wrap(topicPrefix + ":" + getName());
-        xMsgMessage transit = new xMsgMessage(topic);
+        xMsgTopic topic = xMsgTopic.wrap(topicPrefix + xMsgConstants.TOPIC_SEP + getName());
+        xMsgMessage transit = new xMsgMessage(topic, null);
         serialize(data, transit, engineObject.getOutputDataTypes());
-        genericSend(getFrontEndAddress(), transit);
+        send(getFrontEnd(), transit);
     }
 
 
@@ -410,7 +295,7 @@ public class ServiceEngine extends ClaraBase {
             int id = metadata.getCommunicationId();
             return SharedMemory.getEngineData(getName(), sender, id);
         } else {
-            return parseFrom(message, engineObject.getInputDataTypes());
+            return deSerialize(message, engineObject.getInputDataTypes());
         }
     }
 
@@ -426,7 +311,7 @@ public class ServiceEngine extends ClaraBase {
             metadata.setCommunicationId(id);
             metadata.setAction(xMsgMeta.ControlAction.EXECUTE);
 
-            message.setData(CConstants.SHARED_MEMORY_KEY, CConstants.SHARED_MEMORY_KEY.getBytes());
+            message.setData(CConstants.SHARED_MEMORY_KEY.getBytes());
         } else {
             serialize(data, message, engineObject.getOutputDataTypes());
         }
@@ -435,7 +320,7 @@ public class ServiceEngine extends ClaraBase {
 
     private String getReplyTo(xMsgMessage message) {
         String replyTo = message.getMetaData().getReplyTo();
-        if (replyTo.equals(xMsgConstants.UNDEFINED.toString())) {
+        if (replyTo.equals(xMsgConstants.UNDEFINED)) {
             return null;
         }
         return replyTo;

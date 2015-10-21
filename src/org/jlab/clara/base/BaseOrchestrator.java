@@ -53,20 +53,20 @@ public class BaseOrchestrator {
     public BaseOrchestrator() throws ClaraException, IOException {
         this(ClaraUtil.getUniqueName(),
                 xMsgUtil.localhost(),
-                xMsgConstants.REGISTRAR_PORT.getIntValue(),
+                xMsgConstants.REGISTRAR_PORT,
 
                 xMsgUtil.localhost(),
-                xMsgConstants.DEFAULT_PORT.getIntValue(),
+                xMsgConstants.DEFAULT_PORT,
                 CConstants.JAVA_LANG,
-                xMsgConstants.DEFAULT_POOL_SIZE.getIntValue());
+                xMsgConstants.DEFAULT_POOL_SIZE);
     }
 
     public BaseOrchestrator(int subPoolSize) throws ClaraException, IOException {
         this(ClaraUtil.getUniqueName(),
                 xMsgUtil.localhost(),
-                xMsgConstants.REGISTRAR_PORT.getIntValue(),
+                xMsgConstants.REGISTRAR_PORT,
                 xMsgUtil.localhost(),
-                xMsgConstants.DEFAULT_PORT.getIntValue(),
+                xMsgConstants.DEFAULT_PORT,
                 CConstants.JAVA_LANG,
                 subPoolSize);
     }
@@ -74,9 +74,9 @@ public class BaseOrchestrator {
     public BaseOrchestrator(String dpeHost, int subPoolSize) throws ClaraException {
         this(ClaraUtil.getUniqueName(),
                 dpeHost,
-                xMsgConstants.REGISTRAR_PORT.getIntValue(),
+                xMsgConstants.REGISTRAR_PORT,
                 dpeHost,
-                xMsgConstants.DEFAULT_PORT.getIntValue(),
+                xMsgConstants.DEFAULT_PORT,
                 CConstants.JAVA_LANG,
                 subPoolSize);
     }
