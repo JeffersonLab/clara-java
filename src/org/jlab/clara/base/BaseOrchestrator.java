@@ -71,14 +71,14 @@ public class BaseOrchestrator {
                 subPoolSize);
     }
 
-    public BaseOrchestrator(String dpeHost, int subPoolSize) throws ClaraException {
+    public BaseOrchestrator(String dpeHost, int subPoolSize, String description) throws ClaraException {
         this(ClaraUtil.getUniqueName(),
                 dpeHost,
                 xMsgConstants.REGISTRAR_PORT,
                 dpeHost,
                 xMsgConstants.DEFAULT_PORT,
                 CConstants.JAVA_LANG,
-                subPoolSize);
+                subPoolSize, description);
     }
 
     public BaseOrchestrator(String name,
@@ -87,10 +87,19 @@ public class BaseOrchestrator {
                             String dpeHost,
                             int dpePort,
                             String dpeLang,
-                            int subPoolSize)
+                            int subPoolSize,
+                            String description)
             throws ClaraException {
         try {
-            base = new ClaraBase(ClaraComponent.orchestrator(name, dpeHost, dpePort, dpeLang, subPoolSize), regHost, regPort);
+            base = new ClaraBase(ClaraComponent.orchestrator(name, dpeHost, dpePort, dpeLang, subPoolSize, description), regHost, regPort) {
+                @Override
+                public void exit() {
+                }
+
+                @Override
+                public void start(ClaraComponent component) {
+                }
+            };
         } catch (IOException e) {
             throw new ClaraException("Clara-Error: Could not start orchestrator", e);
         }
@@ -110,9 +119,7 @@ public class BaseOrchestrator {
      * @param dataTypes the data-types used by the services
      */
     public void registerDataTypes(EngineDataType... dataTypes) {
-        for (EngineDataType dt : dataTypes) {
-            this.dataTypes.add(dt);
-        }
+        Collections.addAll(this.dataTypes, dataTypes);
     }
 
     /**
@@ -131,11 +138,24 @@ public class BaseOrchestrator {
      * @param dpeCanonicalName the name of the DPE
      * @throws ClaraException if the request could not be sent
      */
-    public void deployDpe(String dpeCanonicalName)
+    public void deployDpe(String dpeCanonicalName, String description)
             throws ClaraException, xMsgException, IOException, TimeoutException {
 
         ClaraComponent dpe = ClaraComponent.dpe(dpeCanonicalName);
-        base.deploy(dpe);
+        base.deploy(dpe, description, true);
+    }
+
+    /**
+     * @param dpe
+     * @param frontEnd
+     */
+    public void setFrontEnd(ClaraComponent dpe, ClaraComponent frontEnd)
+            throws IOException, xMsgException {
+        xMsgTopic topic = ClaraUtil.buildTopic(CConstants.DPE, dpe.getCanonicalName());
+        String data = ClaraUtil.buildData(CConstants.SET_FRONT_END_REMOTE, dpe.getDpeHost(),
+                dpe.getDpePort(), dpe.getDpeLang(), frontEnd.getDpeHost(),
+                frontEnd.getDpePort(), frontEnd.getDpeLang());
+        base.send(dpe, new xMsgMessage(topic, data));
     }
 
     /**
@@ -146,11 +166,11 @@ public class BaseOrchestrator {
      * @param dpeCanonicalName the name of the DPE
      * @throws ClaraException if the request could not be sent
      */
-    public void exitDpe(String dpeCanonicalName)
+    public void exitDpe(String dpeCanonicalName, boolean isRemote)
             throws ClaraException, xMsgException, IOException, TimeoutException {
 
         ClaraComponent dpe = ClaraComponent.dpe(dpeCanonicalName);
-        base.exit(dpe);
+        base.exitComponent(dpe, isRemote);
     }
 
     /**
@@ -162,10 +182,10 @@ public class BaseOrchestrator {
      * @param contCanonicalName the canonical name of the container
      * @throws ClaraException if the request could not be sent
      */
-    public void deployContainer(String contCanonicalName)
+    public void deployContainer(String contCanonicalName, String description, boolean isRemote)
             throws ClaraException, xMsgException, IOException, TimeoutException {
         ClaraComponent container = ClaraComponent.container(contCanonicalName);
-        base.deploy(container);
+        base.deploy(container, description, isRemote);
     }
 
 
@@ -181,11 +201,11 @@ public class BaseOrchestrator {
      * @throws ClaraException if the request could not be sent
      * @throws TimeoutException if a response is not received
      */
-    public xMsgMessage deployContainerSync(String contCanonicalName, int timeout)
+    public xMsgMessage deployContainerSync(String contCanonicalName, String description, boolean isRemote, int timeout)
             throws ClaraException, xMsgException, IOException, TimeoutException {
 
         ClaraComponent container = ClaraComponent.container(contCanonicalName);
-        return base.syncDeploy(container, timeout);
+        return base.syncDeploy(container, description, isRemote, timeout);
     }
 
 
@@ -198,11 +218,11 @@ public class BaseOrchestrator {
      * @param contCanonicalName the canonical name of the container
      * @throws ClaraException if the request could not be sent
      */
-    public void removeContainer(String contCanonicalName)
+    public void removeContainer(String contCanonicalName, boolean isRemote)
             throws ClaraException, xMsgException, IOException, TimeoutException {
 
         ClaraComponent container = ClaraComponent.container(contCanonicalName);
-        base.exit(container);
+        base.exitComponent(container, isRemote);
     }
 
 
@@ -218,11 +238,11 @@ public class BaseOrchestrator {
      * @throws ClaraException if the request could not be sent
      * @throws TimeoutException if a response is not received
      */
-    public xMsgMessage removeContainerSync(String contCanonicalName, int timeout)
+    public xMsgMessage removeContainerSync(String contCanonicalName, boolean isRemote, int timeout)
             throws ClaraException, TimeoutException, xMsgException, IOException {
 
         ClaraComponent container = ClaraComponent.container(contCanonicalName);
-        return base.syncExit(container, timeout);
+        return base.syncExitComponent(container, isRemote, timeout);
     }
 
 
@@ -237,13 +257,14 @@ public class BaseOrchestrator {
      *                 to process multi-threading requests
      * @throws ClaraException if the request could not be sent
      */
-    public void deployService(String serviceCanonicalName, String serviceClass, int poolSize)
+    public void deployService(String serviceCanonicalName, String serviceClass,
+                              int poolSize, String description, boolean isRemote)
             throws ClaraException, xMsgException, IOException, TimeoutException {
         ClaraComponent service = ClaraComponent.service(serviceCanonicalName);
         service.setEngineClass(serviceClass);
         service.setSubscriptionPoolSize(poolSize);
 
-        base.deploy(service);
+        base.deploy(service, description, isRemote);
     }
 
 
@@ -262,14 +283,14 @@ public class BaseOrchestrator {
      * @throws TimeoutException if a response is not received
      */
     public xMsgMessage deployServiceSync(String serviceCanonicalName, String serviceClass,
-                                         int poolSize, int timeout)
+                                         int poolSize, String description, boolean isRemote, int timeout)
             throws ClaraException, TimeoutException, IOException, xMsgException {
 
         ClaraComponent service = ClaraComponent.service(serviceCanonicalName);
         service.setEngineClass(serviceClass);
         service.setSubscriptionPoolSize(poolSize);
 
-        return base.syncDeploy(service, timeout);
+        return base.syncDeploy(service, description, isRemote, timeout);
     }
 
 
@@ -281,9 +302,9 @@ public class BaseOrchestrator {
      * @param serviceCanonicalName the canonical name of the service
      * @throws ClaraException if the request could not be sent
      */
-    public void removeService(String serviceCanonicalName)
+    public void removeService(String serviceCanonicalName, boolean isRemote)
             throws ClaraException, xMsgException, IOException, TimeoutException {
-        base.exit(ClaraComponent.service(serviceCanonicalName));
+        base.exitComponent(ClaraComponent.service(serviceCanonicalName), isRemote);
     }
 
 
@@ -298,9 +319,9 @@ public class BaseOrchestrator {
      * @throws ClaraException if the request could not be sent
      * @throws TimeoutException if a response is not received
      */
-    public xMsgMessage removeServiceSync(String serviceCanonicalName, int timeout)
+    public xMsgMessage removeServiceSync(String serviceCanonicalName, boolean isRemote, int timeout)
             throws ClaraException, TimeoutException, IOException, xMsgException {
-        return base.syncExit(ClaraComponent.service(serviceCanonicalName), timeout);
+        return base.syncExitComponent(ClaraComponent.service(serviceCanonicalName), isRemote, timeout);
     }
 
 

@@ -390,11 +390,6 @@ public final class ClaraUtil {
         return UUID.randomUUID().toString();
     }
 
-    public static String generateName() {
-        Random rand = new Random();
-        return "orchestrator" + rand.nextInt(1000) + ":" + "localhost";
-    }
-
     public static void validateTimeout(int timeout) {
         if (timeout <= 0) {
             throw new IllegalArgumentException("Invalid timeout: " + timeout);

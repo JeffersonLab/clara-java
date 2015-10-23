@@ -28,7 +28,6 @@ import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.util.CConstants;
 import org.jlab.clara.util.ClaraUtil;
 import org.jlab.clara.util.report.CReportTypes;
-import org.jlab.clara.util.shell.ClaraFork;
 import org.jlab.coda.xmsg.core.*;
 import org.jlab.coda.xmsg.data.xMsgM;
 import org.jlab.coda.xmsg.data.xMsgR;
@@ -37,7 +36,6 @@ import org.jlab.coda.xmsg.net.xMsgConnection;
 import org.jlab.coda.xmsg.net.xMsgProxyAddress;
 import org.jlab.coda.xmsg.net.xMsgRegAddress;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.Objects;
@@ -51,7 +49,7 @@ import java.util.concurrent.TimeoutException;
  * @author gurjyan
  * @since 4.x
  */
-public class ClaraBase extends xMsg {
+public abstract class ClaraBase extends xMsg {
 
 
     private String claraHome;
@@ -59,8 +57,7 @@ public class ClaraBase extends xMsg {
     private EngineDataAccessor dataAccessor;
     private ClaraComponent me;
 
-    //@todo
-    private ClaraComponent frontEnd;
+    private ClaraComponent frontEnd = null;
 
     public ClaraBase(ClaraComponent me,
                      String defaultRegistrarHost,
@@ -82,6 +79,10 @@ public class ClaraBase extends xMsg {
         this(me, xMsgUtil.localhost(),
                 xMsgConstants.REGISTRAR_PORT);
     }
+
+    public abstract void exit();
+
+    public abstract void start(ClaraComponent component);
 
     public String getClaraHome() {
         return claraHome;
@@ -212,29 +213,29 @@ public class ClaraBase extends xMsg {
         return findSubscribers(topic);
     }
 
-    public void deploy(ClaraComponent component)
+    public void deploy(ClaraComponent component, boolean isRemote)
             throws ClaraException, IOException, xMsgException, TimeoutException {
-        _deploy(component, -1);
-     }
-
-    public xMsgMessage syncDeploy(ClaraComponent component, int timeout)
-            throws ClaraException, IOException, xMsgException, TimeoutException {
-        return _deploy(component, timeout);
-     }
-
-    public void exit(ClaraComponent component)
-            throws ClaraException, IOException, xMsgException, TimeoutException {
-        _exit(component, -1);
+        _deploy(component, isRemote, -1);
     }
 
-    public xMsgMessage syncExit(ClaraComponent component, int timeout)
+    public xMsgMessage syncDeploy(ClaraComponent component, boolean isRemote, int timeout)
             throws ClaraException, IOException, xMsgException, TimeoutException {
-        return _exit(component, timeout);
+        return _deploy(component, isRemote, timeout);
+    }
+
+    public void exitComponent(ClaraComponent component, boolean isRemote)
+            throws ClaraException, IOException, xMsgException, TimeoutException {
+        _exit(component, isRemote, -1);
+    }
+
+    public xMsgMessage syncExitComponent(ClaraComponent component, boolean isRemote, int timeout)
+            throws ClaraException, IOException, xMsgException, TimeoutException {
+        return _exit(component, isRemote, timeout);
     }
 
     public void configureService(ClaraComponent component, EngineData data)
             throws ClaraException, TimeoutException, xMsgException, IOException {
-         _configure(component, data, -1);
+        _configure(component, data, -1);
     }
 
     public xMsgMessage syncConfigureService(ClaraComponent component, EngineData data, int timeout)
@@ -244,7 +245,7 @@ public class ClaraBase extends xMsg {
 
     public void executeService(ClaraComponent component, EngineData data)
             throws ClaraException, TimeoutException, xMsgException, IOException {
-         _execute(component, data, -1);
+        _execute(component, data, -1);
     }
 
     public xMsgMessage syncExecuteService(ClaraComponent component, EngineData data, int timeout)
@@ -259,7 +260,7 @@ public class ClaraBase extends xMsg {
 
     public xMsgMessage syncExecuteComposition(Composition composition, EngineData data, int timeout)
             throws ClaraException, TimeoutException, xMsgException, IOException {
-       return  _executeComp(composition, data, timeout);
+        return _executeComp(composition, data, timeout);
     }
 
     public void startReporting(ClaraComponent component, CReportTypes report, int eventCount)
@@ -362,145 +363,107 @@ public class ClaraBase extends xMsg {
         return frontEnd;
     }
 
+    public void setFrontEnd(ClaraComponent frontEnd) {
+        this.frontEnd = frontEnd;
+    }
+
     /**
      * *********************** Private Methods *****************************
      */
-//@todo revisit _deploy.....Note that request must be sent to DPE, as well as first DPE must be started by hand.
-    private xMsgMessage _deploy(ClaraComponent component, int timeout)
+
+    private xMsgMessage __send(ClaraComponent component, xMsgMessage msg, int timeout)
+            throws TimeoutException, xMsgException {
+        if (timeout > 0) {
+            return syncSend(component, msg, timeout);
+        } else {
+            send(component, msg);
+            return null;
+        }
+    }
+
+    private xMsgMessage _deploy(ClaraComponent component, boolean isRemote, int timeout)
             throws ClaraException, IOException, xMsgException, TimeoutException {
         if(component.isOrchestrator()) {
             throw new IllegalArgumentException("Clara-Error: can not deploy nor exit an orchestrator.");
         }
-        if(component.isDpe() && timeout>0){
-            throw new ClaraException("Clara-Error: sync deployment of a DPE is not supported. ");
-        }
-        if(component.isDpe()){
-            String pHost = component.getDpeHost();
-            int pPort = component.getDpePort();
-            if(ClaraUtil.isHostLocal(pHost)){
-                switch (component.getDpeLang()) {
-                    case CConstants.JAVA_LANG:
-                        ClaraFork.fork(claraHome + File.separator +
-                                "bin" + File.separator +
-                                "j_dpe -p" + pPort, false);
-                        break;
-                    case CConstants.PYTHON_LANG:
-                        ClaraFork.fork(claraHome + File.separator +
-                                "bin" + File.separator +
-                                "p_dpe -p" + pPort, false);
-                        break;
-                    case CConstants.CPP_LANG:
-                        ClaraFork.fork(claraHome + File.separator +
-                                "bin" + File.separator +
-                                "c_dpe -p" + pPort, false);
-                        break;
-                }
-            } else {
-                switch (component.getDpeLang()) {
-                    case CConstants.JAVA_LANG:
-                        ClaraFork.fork("ssh " + pHost + " "+ claraHome + File.separator +
-                                "bin" + File.separator +
-                                "j_dpe -p" + pPort, false);
-                        break;
-                    case CConstants.PYTHON_LANG:
-                        ClaraFork.fork("ssh " + pHost + " "+ claraHome + File.separator +
-                                "bin" + File.separator +
-                                "p_dpe -p" + pPort, false);
-                        break;
-                    case CConstants.CPP_LANG:
-                        ClaraFork.fork("ssh " + pHost + " "+ claraHome + File.separator +
-                                "bin" + File.separator +
-                                "c_dpe -p" + pPort, false);
-                        break;
-                }
-            }
-        } else if(component.isContainer()){
-            String dpeName = component.getDpeName();
-            String contName = component.getCanonicalName();
-
-            xMsgTopic topic = ClaraUtil.buildTopic(CConstants.DPE + dpeName);
-            String data = ClaraUtil.buildData(CConstants.START_CONTAINER, contName);
-            xMsgMessage msg = new xMsgMessage(topic, data);
-            if(timeout>0){
-                return syncSend(component, msg, timeout);
-            } else {
-                send(component, msg);
-                return null;
-            }
-
-        } else if(component.isService()){
-            String containerName = component.getContainerName();
-            String engineName = component.getEngineName();
-            String engineClass = component.getEngineClass();
-            int poolSize = component.getSubscriptionPoolSize();
-
-            xMsgTopic topic = ClaraUtil.buildTopic(CConstants.CONTAINER, containerName);
-            String data = ClaraUtil.buildData(CConstants.DEPLOY_SERVICE, engineName, engineClass, poolSize);
-            xMsgMessage msg = new xMsgMessage(topic, data);
-            if(timeout>0){
-                return syncSend(component, msg, timeout);
-            } else {
-                send(component, msg);
-                return null;
-            }
+        if (!isRemote) {
+            start(component);
+            return null;
         } else {
-            throw new ClaraException("Clara-Error: unknown or undefined component type. ");
+            String data;
+            xMsgTopic topic = ClaraUtil.buildTopic(CConstants.DPE, component.getCanonicalName());
+            if (component.isDpe()) {
+                data = ClaraUtil.buildData(CConstants.START_DPE,
+                        component.getDpeHost(),
+                        component.getDpePort(),
+                        component.getDpeLang(),
+                        component.getSubscriptionPoolSize(),
+                        getDefaultRegistrarAddress().host(),
+                        getDefaultRegistrarAddress().port(),
+                        component.getDescription());
+
+            } else if (component.isContainer()) {
+                data = ClaraUtil.buildData(CConstants.START_CONTAINER,
+                        component.getDpeHost(),
+                        component.getDpePort(),
+                        component.getDpeLang(),
+                        component.getContainerName(),
+                        component.getSubscriptionPoolSize(),
+                        component.getDescription());
+            } else if (component.isService()) {
+                data = ClaraUtil.buildData(CConstants.START_SERVICE,
+                        component.getDpeHost(),
+                        component.getDpePort(),
+                        component.getDpeLang(),
+                        component.getContainerName(),
+                        component.getEngineName(),
+                        component.getEngineClass(),
+                        component.getSubscriptionPoolSize(),
+                        component.getDescription());
+
+            } else {
+                throw new ClaraException("Clara-Error: unknown or undefined component type. ");
+            }
+            xMsgMessage msg = new xMsgMessage(topic, data);
+            return __send(component, msg, timeout);
         }
-        return null;
     }
 
-    private xMsgMessage _exit(ClaraComponent component, int timeout)
+    private xMsgMessage _exit(ClaraComponent component, boolean isRemote, int timeout)
             throws IOException, xMsgException, TimeoutException, ClaraException {
         if(component.isOrchestrator()) {
-            throw new IllegalArgumentException("Clara-Error: can not deploy nor exit an orchestrator.");
+            throw new IllegalArgumentException("Clara-Error: can not deploy nor exitComponent an orchestrator.");
         }
-        if(component.isDpe()){
-            String dpeName = component.getDpeName();
-            xMsgTopic topic = ClaraUtil.buildTopic(CConstants.DPE, dpeName);
-            String data = CConstants.DPE_EXIT;
-            xMsgMessage msg = new xMsgMessage(topic, data);
-            if(timeout>0){
-                return syncSend(component, msg, timeout);
-            } else {
-                send(component, msg);
-                return null;
-            }
-        } else if(component.isContainer()){
-            String dpeName = component.getDpeName();
-            String contName = component.getCanonicalName();
-
-            xMsgTopic topic = ClaraUtil.buildTopic(CConstants.DPE, dpeName);
-            String data = ClaraUtil.buildData(CConstants.REMOVE_CONTAINER, contName);
-            xMsgMessage msg = new xMsgMessage(topic, data);
-            if(timeout>0){
-                return syncSend(component, msg, timeout);
-            } else {
-                send(component, msg);
-                return null;
-            }
-
-        } else if(component.isService()){
-            String containerName = component.getContainerName();
-            String engineName = component.getEngineName();
-
-            xMsgTopic topic = ClaraUtil.buildTopic(CConstants.CONTAINER, containerName);
-            String data = ClaraUtil.buildData(CConstants.REMOVE_SERVICE, engineName);
-            xMsgMessage msg = new xMsgMessage(topic, data);
-            if(timeout>0){
-                return syncSend(component, msg, timeout);
-            } else {
-                send(component, msg);
-                return null;
-            }
+        if (!isRemote) {
+            exit();
+            return null;
         } else {
-            throw new ClaraException("Clara-Error: unknown or undefined component type. ");
+            String data;
+
+            xMsgTopic topic = ClaraUtil.buildTopic(CConstants.DPE, component.getCanonicalName());
+            if (component.isDpe()) {
+                data = CConstants.STOP_DPE;
+
+            } else if (component.isContainer()) {
+                data = ClaraUtil.buildData(CConstants.STOP_CONTAINER,
+                        component.getContainerName());
+            } else if (component.isService()) {
+                data = ClaraUtil.buildData(CConstants.STOP_SERVICE,
+                        component.getContainerName(),
+                        component.getEngineName());
+
+            } else {
+                throw new ClaraException("Clara-Error: unknown or undefined component type. ");
+            }
+            xMsgMessage msg = new xMsgMessage(topic, data);
+            return __send(component, msg, timeout);
         }
     }
 
     private xMsgMessage _configure(ClaraComponent component, EngineData data, int timeout)
             throws ClaraException, IOException, xMsgException, TimeoutException {
         if(component.isOrchestrator() || component.isDpe() || component.isContainer() ) {
-            throw new ClaraException("Clara-Error: orchestrator, dpe and container configuration is not supported");
+            throw new ClaraException("Clara-Error: orchestrator, dpe and container configurations are not supported");
         }
         if(component.isService()){
 
@@ -524,7 +487,7 @@ public class ClaraBase extends xMsg {
     private xMsgMessage _execute(ClaraComponent component, EngineData data, int timeout)
             throws ClaraException, IOException, xMsgException, TimeoutException {
         if(component.isOrchestrator() || component.isDpe() || component.isContainer() ) {
-            throw new ClaraException("Clara-Error: orchestrator, dpe and container configuration is not supported");
+            throw new ClaraException("Clara-Error: orchestrator, dpe and container configurations are not supported");
         }
         if(component.isService()){
 
@@ -547,13 +510,11 @@ public class ClaraBase extends xMsg {
 
     private xMsgMessage _executeComp(Composition composition, EngineData data, int timeout)
             throws ClaraException, xMsgException, IOException, TimeoutException {
-            Objects.requireNonNull(composition, "Null service composition");
-            Objects.requireNonNull(data, "Null input data");
+        Objects.requireNonNull(composition, "Null service composition");
+        Objects.requireNonNull(data, "Null input data");
 
-            String firstService = composition.firstService();
+        String firstService = composition.firstService();
 
-            return _execute(ClaraComponent.service(firstService), data, timeout);
+        return _execute(ClaraComponent.service(firstService), data, timeout);
     }
-
 }
-

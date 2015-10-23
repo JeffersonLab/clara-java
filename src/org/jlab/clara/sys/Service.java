@@ -70,15 +70,12 @@ public class Service extends ClaraBase {
      * Object pool size is set to be 2 in case it was requested
      * to be 0 or negative number.
      *
-     * @param initialState initial state of this service
      * @throws ClaraException if the engine could not be loaded
      * @throws IOException
      */
     public Service(ClaraComponent comp,
                    String regHost,
-                   int regPort,
-                   String description,
-                   String initialState)
+                   int regPort)
             throws ClaraException, xMsgException, IOException {
 
         super(comp, regHost, regPort);
@@ -87,7 +84,7 @@ public class Service extends ClaraBase {
         connect();
 
         this.name = comp.getCanonicalName();
-        this.sysConfig = new ServiceSysConfig(name, initialState);
+        this.sysConfig = new ServiceSysConfig(name, comp.getInitialState());
 
         // Dynamic loading of the Clara engine class
         // Note: using system class loader
@@ -123,11 +120,30 @@ public class Service extends ClaraBase {
                 ClaraUtil.getCurrentTimeInH(), name, comp.getSubscriptionPoolSize());
 
         // Register this subscriber
-        registerAsSubscriber(comp.getTopic(), description);
+        registerAsSubscriber(comp.getTopic(), comp.getDescription());
         System.out.printf("%s: Registered service = %s%n",
                 ClaraUtil.getCurrentTimeInH(), name);
     }
 
+
+    @Override
+    public void exit() {
+        try {
+            executionPool.shutdown();
+            userEngine.destroy();
+
+            removeRegistration();
+            stopListening(subscription);
+            System.out.println(ClaraUtil.getCurrentTimeInH() + ": Removed service = " + name + "\n");
+        } catch (IOException | xMsgException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    @Override
+    public void start(ClaraComponent component) {
+    }
 
     private void validateEngine(Engine engine) throws ClaraException {
         validateDataTypes(engine.getInputDataTypes(), "input data types");
@@ -154,16 +170,6 @@ public class Service extends ClaraBase {
                 throw new ClaraException("Clara-Error: null data type on engine " + field);
             }
         }
-    }
-
-
-    public void exit() throws ClaraException, IOException, xMsgException {
-        executionPool.shutdown();
-        userEngine.destroy();
-
-        removeRegistration();
-        stopListening(subscription);
-        System.out.println(ClaraUtil.getCurrentTimeInH() + ": Removed service = " + name + "\n");
     }
 
 

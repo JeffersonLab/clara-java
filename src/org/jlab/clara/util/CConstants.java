@@ -57,6 +57,9 @@ public class CConstants {
     public static final String SERVICE_REPORT_DONE = "serviceReportDone";
     public static final String SERVICE_REPORT_DATA = "serviceReportData";
 
+    public static final String SET_FRONT_END = "setFrontEnd";
+    public static final String SET_FRONT_END_REMOTE = "setFrontEndRemote";
+
 
     public static final String SHARED_MEMORY_KEY = "clara/shmkey";
 

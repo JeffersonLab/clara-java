@@ -33,8 +33,6 @@ import org.jlab.clara.util.xml.RequestParser;
 import org.jlab.coda.xmsg.core.*;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 import org.jlab.coda.xmsg.excp.xMsgException;
-import org.jlab.coda.xmsg.net.xMsgConnection;
-import org.jlab.coda.xmsg.net.xMsgProxyAddress;
 
 import javax.management.InstanceNotFoundException;
 import javax.management.MalformedObjectNameException;
@@ -66,12 +64,7 @@ public class Dpe extends ClaraBase {
     // The containers running on this DPE
     private Map<String, Container> myContainers = new HashMap<>();
 
-    private String description = xMsgConstants.ANY;
-
     private xMsgSubscription subscriptionHandler;
-
-    private xMsgProxyAddress cloudProxyAddress;
-    private xMsgConnection cloudProxyCon = null;
 
     private DpeReport myReport;
     private JsonReportBuilder myReportBuilder = new JsonReportBuilder();
@@ -100,10 +93,9 @@ public class Dpe extends ClaraBase {
         super(ClaraComponent.dpe(xMsgUtil.localhost(),
                         dpePort,
                         CConstants.JAVA_LANG,
-                        subPoolSize),
+                        subPoolSize, description),
                 regHost, regPort);
 
-        this.description = description;
         // Create a socket connections to the local dpe proxy
         connect();
 
@@ -111,7 +103,7 @@ public class Dpe extends ClaraBase {
         xMsgTopic topic = xMsgTopic.wrap(CConstants.DPE + ":" + getMe().getCanonicalName());
 
         // Register this subscriber
-        registerAsSubscriber(topic, description);
+        register(description);
         System.out.println(ClaraUtil.getCurrentTimeInH() + ": Registered DPE = " + getMe().getCanonicalName());
 
         // Subscribe by passing a callback to the subscription
@@ -119,8 +111,9 @@ public class Dpe extends ClaraBase {
         System.out.println(ClaraUtil.getCurrentTimeInH() + ": Started DPE = " + getMe().getCanonicalName());
 
         if (cloudHost != null && cloudPort > 0) {
-            cloudProxyAddress = new xMsgProxyAddress(cloudHost, cloudPort);
-            cloudProxyCon = connect(cloudProxyAddress);
+            // create a frontEnd dpe component
+            ClaraComponent frontEnd = ClaraComponent.dpe(cloudHost, cloudPort, CConstants.JAVA_LANG, 1, "Front End");
+            setFrontEnd(frontEnd);
         }
 
         printLogo();
@@ -230,6 +223,39 @@ public class Dpe extends ClaraBase {
         }
     }
 
+    @Override
+    public void exit() {
+
+        try {
+            for (Container cont : myContainers.values()) {
+                cont.exit();
+            }
+            stopListening(subscriptionHandler);
+
+            isReporting.set(false);
+            removeRegistration();
+        } catch (IOException | xMsgException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    @Override
+    public void start(ClaraComponent component) {
+        try {
+            if (component.isContainer()) {
+                startContainer(component.getContainerName(), component.getSubscriptionPoolSize(), component.getDescription());
+            } else if (component.isService()) {
+                startService(component.getContainerName(), component.getEngineName(),
+                        component.getEngineClass(), component.getSubscriptionPoolSize(),
+                        component.getDescription(), component.getInitialState());
+            }
+        } catch (ClaraException | xMsgException | IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
     /**
      *
      */
@@ -237,13 +263,14 @@ public class Dpe extends ClaraBase {
         System.out.println("=========================================");
         System.out.println("                 CLARA DPE               ");
         System.out.println("=========================================");
-        System.out.println(" Name             = " + getName());
+        System.out.println(" Name             = " + getMe().getCanonicalName());
         System.out.println(" Date             = " + ClaraUtil.getCurrentTimeInH());
         System.out.println(" Version          = 4.x");
-        System.out.println(" Description      = " + description);
-        if (cloudProxyCon != null) {
-            System.out.println(" CloudProxy Host  = " + cloudProxyAddress.host());
-            System.out.println(" CloudProxy Port  = " + cloudProxyAddress.port());
+        System.out.println(" Description      = " + getMe().getDescription());
+        if (getFrontEnd() != null) {
+            System.out.println(" FrontEnd Host    = " + getFrontEnd().getDpeHost());
+            System.out.println(" FrontEnd Port    = " + getFrontEnd().getDpePort());
+            System.out.println(" FrontEnd Lang    = " + getFrontEnd().getDpeLang());
         }
         System.out.println("=========================================");
     }
@@ -261,15 +288,12 @@ public class Dpe extends ClaraBase {
         }, 10, TimeUnit.SECONDS);
     }
 
-    /**
-     *
-     */
     private void report() {
         try {
 
             xMsgTopic dpeReportTopic = xMsgTopic.wrap(CConstants.DPE_ALIVE + ":" + getDefaultProxyAddress().host());
-            if (cloudProxyCon != null) {
-                dpeReportTopic = xMsgTopic.wrap(CConstants.DPE_ALIVE + ":" + cloudProxyAddress.host());
+            if (getFrontEnd() != null) {
+                dpeReportTopic = ClaraUtil.buildTopic(CConstants.DPE_ALIVE, getFrontEnd().getDpeName());
             }
 
             while (isReporting.get()) {
@@ -281,10 +305,9 @@ public class Dpe extends ClaraBase {
                 String jsonData = myReportBuilder.generateReport(myReport);
 
                 xMsgMessage msg = new xMsgMessage(dpeReportTopic, jsonData);
-                if (cloudProxyCon != null) {
-                    send(cloudProxyCon, msg);
+                if (getFrontEnd() == null || getFrontEnd().getDpeHost().equals(xMsgUtil.localhost())) {
+                    send(msg);
                 } else {
-                    //@todo check to see if front end host is the same is this host
                     send(getFrontEnd(), msg);
                 }
             }
@@ -293,77 +316,6 @@ public class Dpe extends ClaraBase {
             e.printStackTrace();
         }
 
-    }
-
-    /**
-     *
-     * @throws IOException
-     * @throws xMsgException
-     * @throws TimeoutException
-     * @throws ClaraException
-     */
-    private void stopDpe()
-            throws IOException, xMsgException, TimeoutException, ClaraException {
-        for (Container comp : myContainers.values()) {
-            exit(comp.getMe());
-        }
-        stopListening(subscriptionHandler);
-        isReporting.set(false);
-        exit(getMe());
-    }
-
-    private void stopRemoteDpe(String dpeHost, int dpePort, String dpeLang) throws IOException, xMsgException {
-        ClaraComponent dpe = ClaraComponent.dpe(dpeHost, dpePort, dpeLang, 1);
-        xMsgTopic topic = xMsgTopic.wrap(CConstants.DPE + xMsgConstants.TOPIC_SEP + dpe.getCanonicalName());
-        send(dpe, new xMsgMessage(topic, CConstants.STOP_DPE));
-    }
-
-    private void pingRemoteDpe(String dpeHost, int dpePort, String dpeLang) throws IOException, xMsgException {
-        ClaraComponent dpe = ClaraComponent.dpe(dpeHost, dpePort, dpeLang, 1);
-        xMsgTopic topic = xMsgTopic.wrap(CConstants.DPE + xMsgConstants.TOPIC_SEP + dpe.getCanonicalName());
-        send(dpe, new xMsgMessage(topic, CConstants.PING_DPE));
-    }
-
-    private void startRemoteContainer(String dpeHost, int dpePort, String dpeLang,
-                                      String containerName, int poolSize, String description)
-            throws IOException, xMsgException {
-        ClaraComponent dpe = ClaraComponent.dpe(dpeHost, dpePort, dpeLang, 1);
-        xMsgTopic topic = xMsgTopic.wrap(CConstants.DPE + xMsgConstants.TOPIC_SEP + dpe.getCanonicalName());
-        String data = CConstants.START_CONTAINER + xMsgConstants.DATA_SEP + containerName +
-                xMsgConstants.DATA_SEP + poolSize + xMsgConstants.DATA_SEP + description;
-        send(dpe, new xMsgMessage(topic, data));
-    }
-
-    private void stopRemoteContainer(String dpeHost, int dpePort, String dpeLang,
-                                     String containerName)
-            throws IOException, xMsgException {
-        ClaraComponent dpe = ClaraComponent.dpe(dpeHost, dpePort, dpeLang, 1);
-        xMsgTopic topic = xMsgTopic.wrap(CConstants.DPE + xMsgConstants.TOPIC_SEP + dpe.getCanonicalName());
-        String data = CConstants.STOP_CONTAINER + xMsgConstants.DATA_SEP + containerName;
-        send(dpe, new xMsgMessage(topic, data));
-    }
-
-    private void startRemoteService(String dpeHost, int dpePort, String dpeLang,
-                                    String containerName, String engineName, String engineClass, int poolSize, String description)
-            throws IOException, xMsgException {
-        ClaraComponent dpe = ClaraComponent.dpe(dpeHost, dpePort, dpeLang, 1);
-        xMsgTopic topic = xMsgTopic.wrap(CConstants.DPE + xMsgConstants.TOPIC_SEP + dpe.getCanonicalName());
-        String data = CConstants.START_CONTAINER + xMsgConstants.DATA_SEP +
-                containerName + xMsgConstants.DATA_SEP +
-                engineName + xMsgConstants.DATA_SEP +
-                engineClass + xMsgConstants.DATA_SEP +
-                poolSize + xMsgConstants.DATA_SEP +
-                description;
-        send(dpe, new xMsgMessage(topic, data));
-    }
-
-    private void stopRemoteService(String dpeHost, int dpePort, String dpeLang,
-                                   String containerName, String engineName)
-            throws IOException, xMsgException {
-        ClaraComponent dpe = ClaraComponent.dpe(dpeHost, dpePort, dpeLang, 1);
-        xMsgTopic topic = xMsgTopic.wrap(CConstants.DPE + xMsgConstants.TOPIC_SEP + dpe.getCanonicalName());
-        String data = CConstants.STOP_SERVICE + xMsgConstants.DATA_SEP + containerName + xMsgConstants.DATA_SEP + engineName;
-        send(dpe, new xMsgMessage(topic, data));
     }
 
     /**
@@ -379,18 +331,12 @@ public class Dpe extends ClaraBase {
     private void startContainer(String containerName, int poolSize, String description)
             throws ClaraException, xMsgException, IOException {
 
-        if (myContainers.containsKey(containerName)) {
-            String msg = "%s Clara-Warning: container %s already exists. No new container is started%n";
-            System.err.printf(msg, ClaraUtil.getCurrentTimeInH(), containerName);
-            return;
-
-        }
         if (poolSize <= 0) {
             poolSize = getMe().getSubscriptionPoolSize();
         }
 
         ClaraComponent contComp = ClaraComponent.container(getMe().getDpeHost(),
-                getMe().getDpePort(), CConstants.JAVA_LANG, containerName, poolSize);
+                getMe().getDpePort(), CConstants.JAVA_LANG, containerName, poolSize, description);
 
         if (myContainers.containsKey(contComp.getCanonicalName())) {
             String msg = "%s Warning: container %s already exists. No new container is created%n";
@@ -400,25 +346,23 @@ public class Dpe extends ClaraBase {
             System.out.println("Starting container " + contComp.getCanonicalName());
             Container container = new Container(contComp,
                     getDefaultRegistrarAddress().host(),
-                    getDefaultRegistrarAddress().port(),
-                    description);
+                    getDefaultRegistrarAddress().port());
             myContainers.put(containerName, container);
             myReport.addContainerReport(container.getReport());
         }
     }
 
-    private void startService(String containerName, String engineName, String engineClass, int poolSize, String description)
+    private void startService(String containerName, String engineName, String engineClass, int poolSize, String description, String initialState)
             throws xMsgException, ClaraException, IOException {
         if (myContainers.containsKey(containerName)) {
             if (poolSize <= 0) {
                 poolSize = getMe().getSubscriptionPoolSize();
             }
             ClaraComponent serComp = ClaraComponent.service(getMe().getDpeHost(),
-                    getMe().getDpePort(), getMe().getDpeLang(), containerName, engineName, engineClass, poolSize);
+                    getMe().getDpePort(), getMe().getDpeLang(), containerName, engineName, engineClass, poolSize, description, initialState);
             myContainers.get(containerName).addService(serComp,
                     getDefaultRegistrarAddress().host(),
-                    getDefaultProxyAddress().port(),
-                    description, "ready");
+                    getDefaultProxyAddress().port());
         } else {
             System.out.println("Clara-Error: container does not exists");
         }
@@ -428,9 +372,9 @@ public class Dpe extends ClaraBase {
     private void stopService(String containerName, String engineName)
             throws ClaraException, IOException, xMsgException {
         if (myContainers.containsKey(containerName)) {
-            ClaraComponent serComp = ClaraComponent.service(getMe().getDpeHost(),
-                    getMe().getDpePort(), getMe().getDpeLang(), containerName, engineName);
-            myContainers.get(containerName).removeService(serComp.getCanonicalName());
+            String serviceCanonicalName =
+                    ClaraUtil.buildTopic(getMe().getCanonicalName(), containerName, engineName).toString();
+            myContainers.get(containerName).removeService(serviceCanonicalName);
         } else {
             System.out.println("Clara-Error: container does not exists");
         }
@@ -468,6 +412,14 @@ public class Dpe extends ClaraBase {
      *     data = CConstants.STOP_REMOTE_DPE ? dpeHost ? dpePort ? dpeLang
      * </li>
      * <li>
+     *     Set front end:
+     *     <p>
+     *     Local:
+     *     data = CConstants.SET_FRONT_END ? frontEndHost ? frontEndPort ? frontEndLang
+     *     Remote:
+     *     data = CConstants.SET_FRONT_END_REMOTE ? dpeHost ? dpePort ? dpeLang ? frontEndHost ? frontEndPort ? frontEndLang
+     * </li>
+     * <li>
      *     Ping dpe:
      *     <p>
      *     Local:
@@ -495,9 +447,9 @@ public class Dpe extends ClaraBase {
      *     Start service:
      *     <p>
      *     Local:
-     *     data = CConstants.START_SERVICE ? containerName ? engineName ? engineClass ? poolSize ? description
+     *     data = CConstants.START_SERVICE ? containerName ? engineName ? engineClass ? poolSize ? description ? initialState
      *     remote:
-     *     data = CConstants.START_REMOTE_SERVICE ? dpeHost ? dpePort ? dpeLang ? containerName ? engineName ? engineClass ? poolSize ? description
+     *     data = CConstants.START_REMOTE_SERVICE ? dpeHost ? dpePort ? dpeLang ? containerName ? engineName ? engineClass ? poolSize ? description ? initialState
      * </li>
      * <li>
      *     Stop service:
@@ -526,8 +478,14 @@ public class Dpe extends ClaraBase {
                         // This will start a remote DPE
                         // the string of the message has the following constructor:
                         // startDpe ? dpeHost ? dpePort ? dpeLang ? poolSize ? regHost ? regPort
-                        String dpeHost, dpeLang, regHost, containerName, engineName, engineClass, description;
-                        int dpePort, poolSize, regPort;
+                        String dpeHost, dpeLang, regHost, containerName, engineName, engineClass,
+                                description, initialState;
+                        String frontEndHost, frontEndLang;
+                        int dpePort, poolSize, regPort, frontEndPort;
+                        ClaraComponent dpe;
+                        xMsgTopic topic;
+                        String data;
+
                         try {
                             dpeHost = parser.nextString();
                             dpePort = parser.nextInteger();
@@ -556,10 +514,19 @@ public class Dpe extends ClaraBase {
                         }
 
                         ClaraFork.fork(remCommand.toString(), false);
+                        // sync request handling below
+                        if (!returnTopic.equals(xMsgConstants.UNDEFINED)) {
+                            xMsgMessage returnMsg = new xMsgMessage(xMsgTopic.wrap(returnTopic), null);
+                            msg.getMetaData().setReplyTo(xMsgConstants.UNDEFINED);
+
+                            // sends back "Done" string
+                            returnMsg.updateData("Done");
+                            send(returnMsg);
+                        }
                         break;
 
                     case CConstants.STOP_DPE:
-                        stopDpe();
+                        exit();
                         break;
 
                     case CConstants.STOP_REMOTE_DPE:
@@ -567,7 +534,8 @@ public class Dpe extends ClaraBase {
                             dpeHost = parser.nextString();
                             dpePort = parser.nextInteger();
                             dpeLang = parser.nextString();
-                            stopRemoteDpe(dpeHost, dpePort, dpeLang);
+                            dpe = ClaraComponent.dpe(dpeHost, dpePort, dpeLang, 1, CConstants.UNDEFINED);
+                            exitComponent(dpe, true);
                         } catch (NoSuchElementException e) {
                             System.out.println("Clara-Warning: malformed stopRemoteDpe request.");
                             break;
@@ -575,6 +543,35 @@ public class Dpe extends ClaraBase {
                             e1.printStackTrace();
                         }
 
+                        break;
+
+                    case CConstants.SET_FRONT_END:
+                        frontEndHost = parser.nextString();
+                        frontEndPort = parser.nextInteger();
+                        frontEndLang = parser.nextString();
+
+                        ClaraComponent frontEnd = ClaraComponent.dpe(frontEndHost, frontEndPort, frontEndLang, 1, CConstants.UNDEFINED);
+                        setFrontEnd(frontEnd);
+                        for (Container cont : myContainers.values()) {
+                            cont.setFrontEnd(frontEnd);
+                            for (Service ser : cont.geServices().values()) {
+                                ser.setFrontEnd(frontEnd);
+                            }
+                        }
+                        break;
+
+                    case CConstants.SET_FRONT_END_REMOTE:
+                        dpeHost = parser.nextString();
+                        dpePort = parser.nextInteger();
+                        dpeLang = parser.nextString();
+                        frontEndHost = parser.nextString();
+                        frontEndPort = parser.nextInteger();
+                        frontEndLang = parser.nextString();
+
+                        dpe = ClaraComponent.dpe(dpeHost, dpePort, dpeLang, 1, CConstants.UNDEFINED);
+                        topic = ClaraUtil.buildTopic(CConstants.DPE, dpe.getCanonicalName());
+                        data = ClaraUtil.buildData(CConstants.SET_FRONT_END, frontEndHost, frontEndPort, frontEndLang);
+                        send(dpe, new xMsgMessage(topic, data));
                         break;
 
                     case CConstants.PING_DPE:
@@ -586,7 +583,9 @@ public class Dpe extends ClaraBase {
                             dpeHost = parser.nextString();
                             dpePort = parser.nextInteger();
                             dpeLang = parser.nextString();
-                            pingRemoteDpe(dpeHost, dpePort, dpeLang);
+                            dpe = ClaraComponent.dpe(dpeHost, dpePort, dpeLang, 1, CConstants.UNDEFINED);
+                            topic = ClaraUtil.buildTopic(CConstants.DPE, dpe.getCanonicalName());
+                            send(dpe, new xMsgMessage(topic, CConstants.PING_DPE));
                         } catch (NoSuchElementException e) {
                             System.out.println("Clara-Warning: malformed stopRemoteDpe request.");
                             break;
@@ -616,7 +615,7 @@ public class Dpe extends ClaraBase {
                             containerName = parser.nextString();
                             poolSize = parser.nextInteger();
                             description = parser.nextString();
-                            startRemoteContainer(dpeHost, dpePort, dpeLang, containerName, poolSize, description);
+                            deploy(ClaraComponent.container(dpeHost, dpePort, dpeLang, containerName, poolSize, description), true);
 
                         } catch (NoSuchElementException e) {
                             System.out.println("Clara-Error: malformed startRemoteContainer request.");
@@ -640,7 +639,7 @@ public class Dpe extends ClaraBase {
                             dpePort = parser.nextInteger();
                             dpeLang = parser.nextString();
                             containerName = parser.nextString();
-                            stopRemoteContainer(dpeHost, dpePort, dpeLang, containerName);
+                            exitComponent(ClaraComponent.container(dpeHost, dpePort, dpeLang, containerName, 1, CConstants.UNDEFINED), true);
 
                         } catch (NoSuchElementException e) {
                             System.out.println("Clara-Error: malformed stopRemoteContainer request.");
@@ -655,11 +654,12 @@ public class Dpe extends ClaraBase {
                             engineClass = parser.nextString();
                             poolSize = parser.nextInteger();
                             description = parser.nextString();
+                            initialState = parser.nextString();
                         } catch (NoSuchElementException e) {
                             System.out.println("Clara-Warning: malformed startService request.");
                             break;
                         }
-                        startService(containerName, engineName, engineClass, poolSize, description);
+                        startService(containerName, engineName, engineClass, poolSize, description, initialState);
                         break;
 
                     case CConstants.START_REMOTE_SERVICE:
@@ -672,11 +672,13 @@ public class Dpe extends ClaraBase {
                             engineClass = parser.nextString();
                             poolSize = parser.nextInteger();
                             description = parser.nextString();
+                            initialState = parser.nextString();
                         } catch (NoSuchElementException e) {
                             System.out.println("Clara-Warning: malformed startRemoteService request.");
                             break;
                         }
-                        startRemoteService(dpeHost, dpePort, dpeLang, containerName, engineName, engineClass, poolSize, description);
+                        deploy(ClaraComponent.service(dpeHost, dpePort, dpeLang,
+                                containerName, engineName, engineClass, poolSize, description, initialState), true);
                         break;
 
                     case CConstants.STOP_SERVICE:
@@ -701,20 +703,11 @@ public class Dpe extends ClaraBase {
                             System.out.println("Clara-Warning: malformed stopRemoteService request.");
                             break;
                         }
-                        stopRemoteService(dpeHost, dpePort, dpeLang, containerName, engineName);
+                        exitComponent(ClaraComponent.service(dpeHost, dpePort, dpeLang, containerName, engineName), true);
                         break;
 
                     default:
                         break;
-                }
-                // sync request handling below
-                if (!returnTopic.equals(xMsgConstants.UNDEFINED)) {
-                    xMsgMessage returnMsg = new xMsgMessage(xMsgTopic.wrap(returnTopic), null);
-                    msg.getMetaData().setReplyTo(xMsgConstants.UNDEFINED);
-
-                    // sends back "Done" string
-                    returnMsg.updateData("Done");
-                    send(returnMsg);
                 }
             } catch (ClaraException | IOException | xMsgException | TimeoutException e) {
                 e.printStackTrace();

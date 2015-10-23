@@ -45,20 +45,9 @@ public class Container extends ClaraBase {
     private ConcurrentHashMap<String, Service> myServices = new ConcurrentHashMap<>();
     private ContainerReport myReport;
 
-    /**
-     *
-     * @param comp
-     * @param regHost
-     * @param regPort
-     * @param description
-     * @throws xMsgException
-     * @throws IOException
-     * @throws ClaraException
-     */
     public Container(ClaraComponent comp,
                      String regHost,
-                     int regPort,
-                     String description)
+                     int regPort)
             throws xMsgException, IOException, ClaraException {
         super(comp, regHost, regPort);
 
@@ -70,62 +59,60 @@ public class Container extends ClaraBase {
         connect();
 
         // Subscribe messages published to this container
-        xMsgTopic topic = xMsgTopic.wrap(CConstants.CONTAINER + ":" + comp.getCanonicalName());
+        xMsgTopic topic = ClaraUtil.buildTopic(CConstants.CONTAINER, comp.getCanonicalName());
 
         // Register this subscriber
-        registerAsSubscriber(topic, description);
+        registerAsSubscriber(topic, comp.getDescription());
         System.out.println(ClaraUtil.getCurrentTimeInH() + ": Registered container = " + comp.getCanonicalName());
 
         System.out.println(ClaraUtil.getCurrentTimeInH() + ": Started container = " + comp.getCanonicalName());
 
         myReport = new ContainerReport(comp.getCanonicalName());
         myReport.setLang(getMe().getDpeLang());
-        myReport.setDescription(description);
+        myReport.setDescription(comp.getDescription());
         myReport.setAuthor(System.getenv("USER"));
         myReport.setStartTime(ClaraUtil.getCurrentTimeInH());
     }
 
-    /**
-     * @return
-     */
+    @Override
+    public void exit() {
+        try {
+            // broadcast to the local proxy
+            String data = ClaraUtil.buildData(CConstants.CONTAINER_DOWN, getMe().getContainerName());
+            send(getFrontEnd(), data);
+
+            removeRegistration();
+            removeAllServices();
+        } catch (ClaraException | xMsgException | IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void start(ClaraComponent component) {
+
+        try {
+            if (component.isService()) {
+                addService(component, getDefaultRegistrarAddress().host(), getDefaultProxyAddress().port());
+            }
+        } catch (xMsgException e) {
+            e.printStackTrace();
+        } catch (ClaraException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public ContainerReport getReport() {
         return myReport;
     }
 
-    /**
-     *
-     * @throws ClaraException
-     * @throws xMsgException
-     * @throws IOException
-     */
-    public void exit() throws ClaraException, xMsgException, IOException {
-
-        // broadcast to the local proxy
-        send(CConstants.CONTAINER_DOWN + "?" + getName());
-
-        removeRegistration();
-        removeAllServices();
-    }
-
-    /**
-     *
-     * @param comp
-     * @param regHost
-     * @param regPort
-     * @param description
-     * @param initialState
-     * @throws ClaraException
-     * @throws xMsgException
-     * @throws IOException
-     */
     public void addService(ClaraComponent comp,
                            String regHost,
-                           int regPort,
-                           String description,
-                           String initialState)
-    throws ClaraException, xMsgException, IOException {
+                           int regPort) throws xMsgException, ClaraException, IOException {
 
-        // in this case serviceName is a canonical name
+        // in this case serviceName is a canonical nam
         String serviceName = comp.getCanonicalName();
 
 
@@ -135,8 +122,7 @@ public class Container extends ClaraBase {
             return;
         }
 
-        Service service = new Service(comp, regHost, regPort,
-                description, initialState);
+        Service service = new Service(comp, regHost, regPort);
         myServices.put(serviceName, service);
     }
 
@@ -149,7 +135,7 @@ public class Container extends ClaraBase {
             throws ClaraException, IOException, xMsgException {
         if (myServices.containsKey(serviceName)) {
             Service service = myServices.remove(serviceName);
-            service.exit();
+            service.localExit();
         }
     }
 
@@ -159,9 +145,12 @@ public class Container extends ClaraBase {
      */
     public void removeAllServices() throws ClaraException, IOException, xMsgException {
         for (Service s : myServices.values()) {
-            s.exit();
+            s.localExit();
         }
         myServices.clear();
     }
 
+    public ConcurrentHashMap<String, Service> geServices() {
+        return myServices;
+    }
 }
