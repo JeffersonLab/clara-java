@@ -42,7 +42,7 @@ import java.util.Set;
 import java.util.concurrent.Semaphore;
 
 /**
- * A Service engine.
+ * A Service engine. @todo need revisiting .....
  * Every engine process a request in its own thread.
  *
  * @author gurjyan
@@ -85,6 +85,16 @@ public class ServiceEngine extends ClaraBase {
 
         // create an object of the composition parser
         compiler = new SimpleCompiler(comp.getCanonicalName());
+    }
+
+    @Override
+    public void exit() {
+
+    }
+
+    @Override
+    public void start(ClaraComponent component) {
+
     }
 
     public void configure(xMsgMessage message)

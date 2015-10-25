@@ -45,9 +45,9 @@ import java.util.concurrent.TimeoutException;
 @ParametersAreNonnullByDefault
 public class BaseOrchestrator {
 
-    private final ClaraBase base;
     private final Set<EngineDataType> dataTypes = new HashSet<>();
     private final Map<String, xMsgSubscription> subscriptions = new HashMap<>();
+    private ClaraBase base = null;
 
 
     public BaseOrchestrator() throws ClaraException, IOException {
@@ -58,7 +58,8 @@ public class BaseOrchestrator {
                 xMsgUtil.localhost(),
                 xMsgConstants.DEFAULT_PORT,
                 CConstants.JAVA_LANG,
-                xMsgConstants.DEFAULT_POOL_SIZE);
+                xMsgConstants.DEFAULT_POOL_SIZE,
+                CConstants.UNDEFINED);
     }
 
     public BaseOrchestrator(int subPoolSize) throws ClaraException, IOException {
@@ -68,7 +69,8 @@ public class BaseOrchestrator {
                 xMsgUtil.localhost(),
                 xMsgConstants.DEFAULT_PORT,
                 CConstants.JAVA_LANG,
-                subPoolSize);
+                subPoolSize,
+                CConstants.UNDEFINED);
     }
 
     public BaseOrchestrator(String dpeHost, int subPoolSize, String description) throws ClaraException {
@@ -81,6 +83,17 @@ public class BaseOrchestrator {
                 subPoolSize, description);
     }
 
+    /**
+     * @param name        the name of this orchestrator
+     * @param regHost     registration service host
+     * @param regPort     registration service port
+     * @param dpeHost     front-end host
+     * @param dpePort     front-end port
+     * @param dpeLang     front-en d lang
+     * @param subPoolSize thread pool size for subscriptions
+     * @param description description of this orchestrator
+     * @throws ClaraException
+     */
     public BaseOrchestrator(String name,
                             String regHost,
                             int regPort,
@@ -91,7 +104,8 @@ public class BaseOrchestrator {
                             String description)
             throws ClaraException {
         try {
-            base = new ClaraBase(ClaraComponent.orchestrator(name, dpeHost, dpePort, dpeLang, subPoolSize, description), regHost, regPort) {
+            base = new ClaraBase(ClaraComponent.orchestrator(name, dpeHost, dpePort, dpeLang,
+                    subPoolSize, description), regHost, regPort) {
                 @Override
                 public void exit() {
                 }
@@ -100,6 +114,7 @@ public class BaseOrchestrator {
                 public void start(ClaraComponent component) {
                 }
             };
+            base.setFrontEnd(ClaraComponent.dpe(dpeHost, dpePort, dpeLang, 1, "FrontEnd"));
         } catch (IOException e) {
             throw new ClaraException("Clara-Error: Could not start orchestrator", e);
         }
@@ -133,29 +148,35 @@ public class BaseOrchestrator {
 
 
     /**
-     * Requests a start a DPE.
-     *
-     * @param dpeCanonicalName the name of the DPE
-     * @throws ClaraException if the request could not be sent
-     */
-    public void deployDpe(String dpeCanonicalName, String description)
-            throws ClaraException, xMsgException, IOException, TimeoutException {
-
-        ClaraComponent dpe = ClaraComponent.dpe(dpeCanonicalName);
-        base.deploy(dpe, description, true);
-    }
-
-    /**
      * @param dpe
      * @param frontEnd
      */
     public void setFrontEnd(ClaraComponent dpe, ClaraComponent frontEnd)
             throws IOException, xMsgException {
-        xMsgTopic topic = ClaraUtil.buildTopic(CConstants.DPE, dpe.getCanonicalName());
+
+        xMsgTopic topic = ClaraUtil.buildTopic(CConstants.DPE, base.getFrontEnd().getCanonicalName());
+
         String data = ClaraUtil.buildData(CConstants.SET_FRONT_END_REMOTE, dpe.getDpeHost(),
                 dpe.getDpePort(), dpe.getDpeLang(), frontEnd.getDpeHost(),
                 frontEnd.getDpePort(), frontEnd.getDpeLang());
-        base.send(dpe, new xMsgMessage(topic, data));
+        base.send(base.getFrontEnd(), new xMsgMessage(topic, data));
+    }
+
+    public void deployDpe(ClaraComponent comp, String regHost, int regPort)
+            throws ClaraException, xMsgException, IOException, TimeoutException {
+        if (comp.isDpe()) {
+            xMsgTopic topic = ClaraUtil.buildTopic(CConstants.DPE, base.getFrontEnd().getCanonicalName());
+
+
+            String data = ClaraUtil.buildData(CConstants.START_DPE,
+                    comp.getDpeHost(),
+                    comp.getDpePort(),
+                    comp.getDpeLang(),
+                    comp.getSubscriptionPoolSize(),
+                    regHost, regPort,
+                    comp.getDescription());
+            base.send(base.getFrontEnd(), new xMsgMessage(topic, data));
+        }
     }
 
     /**
@@ -163,230 +184,229 @@ public class BaseOrchestrator {
      * The request is sent to a running DPE of the given language.
      * If no DPE is running in the node, the message is lost.
      *
-     * @param dpeCanonicalName the name of the DPE
      * @throws ClaraException if the request could not be sent
      */
-    public void exitDpe(String dpeCanonicalName, boolean isRemote)
+    public void exitFrontEnd()
             throws ClaraException, xMsgException, IOException, TimeoutException {
+        xMsgTopic topic = ClaraUtil.buildTopic(CConstants.DPE, base.getFrontEnd().getCanonicalName());
 
-        ClaraComponent dpe = ClaraComponent.dpe(dpeCanonicalName);
-        base.exitComponent(dpe, isRemote);
+        String data = CConstants.STOP_DPE;
+        base.send(base.getFrontEnd(), new xMsgMessage(topic, data));
     }
 
-    /**
-     * Sends a request to deploy a container.
-     * The request is sent to a running DPE of the given language.
-     * If no DPE is running in the node, the message is lost.
-     * If there is a container with the given name in the DPE, the request is ignored.
-     *
-     * @param contCanonicalName the canonical name of the container
-     * @throws ClaraException if the request could not be sent
-     */
-    public void deployContainer(String contCanonicalName, String description, boolean isRemote)
-            throws ClaraException, xMsgException, IOException, TimeoutException {
-        ClaraComponent container = ClaraComponent.container(contCanonicalName);
-        base.deploy(container, description, isRemote);
-    }
-
-
-    /**
-     * Sends a request to deploy a container and waits until it is deployed.
-     * The request is sent to a running DPE of the given language.
-     * If no DPE is running in the node, the message is lost.
-     * If there is a container with the given name in the DPE, the request is ignored.
-     * A response is received once the container has been deployed.
-     *
-     * @param contCanonicalName the canonical name of the container
-     * @param timeout the time to wait for a response, in milliseconds
-     * @throws ClaraException if the request could not be sent
-     * @throws TimeoutException if a response is not received
-     */
-    public xMsgMessage deployContainerSync(String contCanonicalName, String description, boolean isRemote, int timeout)
-            throws ClaraException, xMsgException, IOException, TimeoutException {
-
-        ClaraComponent container = ClaraComponent.container(contCanonicalName);
-        return base.syncDeploy(container, description, isRemote, timeout);
-    }
-
-
-    /**
-     * Sends a request to remove a container.
-     * The request is sent to a running DPE of the given language.
-     * If no DPE is running in the node, the message is lost.
-     * If there is no container of the given name in the DPE, the request is ignored.
-     *
-     * @param contCanonicalName the canonical name of the container
-     * @throws ClaraException if the request could not be sent
-     */
-    public void removeContainer(String contCanonicalName, boolean isRemote)
-            throws ClaraException, xMsgException, IOException, TimeoutException {
-
-        ClaraComponent container = ClaraComponent.container(contCanonicalName);
-        base.exitComponent(container, isRemote);
-    }
-
-
-    /**
-     * Sends a request to remove a container and waits until it is removed.
-     * The request is sent to a running DPE of the given language.
-     * If no DPE is running in the node, the message is lost.
-     * If there is no container of the given name in the DPE, the request is ignored.
-     * A response is received once the container has been removed.
-     *
-     * @param contCanonicalName the canonical name of the container
-     * @param timeout the time to wait for a response, in milliseconds
-     * @throws ClaraException if the request could not be sent
-     * @throws TimeoutException if a response is not received
-     */
-    public xMsgMessage removeContainerSync(String contCanonicalName, boolean isRemote, int timeout)
+    public void deploy(ClaraComponent comp)
             throws ClaraException, TimeoutException, xMsgException, IOException {
+        base.deploy(comp);
+    }
 
-        ClaraComponent container = ClaraComponent.container(contCanonicalName);
-        return base.syncExitComponent(container, isRemote, timeout);
+    public xMsgMessage syncDeploy(ClaraComponent comp, int timeout)
+            throws ClaraException, TimeoutException, xMsgException, IOException {
+        return base.syncDeploy(comp, timeout);
     }
 
 
-    /**
-     * Sends a request to deploy a service.
-     * If the container does not exist, the message is lost.
-     * If there is a service with the given name in the container, the request is ignored.
-     *
-     * @param serviceCanonicalName the canonical name of the service
-     * @param serviceClass the classpath to the service engine
-     * @param poolSize the maximum number of parallel engines to be created
-     *                 to process multi-threading requests
-     * @throws ClaraException if the request could not be sent
-     */
-    public void deployService(String serviceCanonicalName, String serviceClass,
-                              int poolSize, String description, boolean isRemote)
+    public void feDeploy(ClaraComponent comp) throws IOException, xMsgException {
+        xMsgTopic topic = ClaraUtil.buildTopic(CConstants.DPE, base.getFrontEnd().getDpeCanonicalName());
+        String data = null;
+        if (comp.isContainer()) {
+            data = ClaraUtil.buildData(CConstants.START_REMOTE_CONTAINER,
+                    comp.getDpeHost(),
+                    comp.getDpePort(),
+                    comp.getDpeLang(),
+                    comp.getContainerName(),
+                    comp.getSubscriptionPoolSize(),
+                    comp.getDescription()
+            );
+        } else if (comp.isService()) {
+            data = ClaraUtil.buildData(CConstants.START_REMOTE_SERVICE,
+                    comp.getDpeHost(),
+                    comp.getDpePort(),
+                    comp.getDpeLang(),
+                    comp.getContainerName(),
+                    comp.getEngineName(),
+                    comp.getEngineClass(),
+                    comp.getSubscriptionPoolSize(),
+                    comp.getDescription(),
+                    comp.getInitialState()
+            );
+        }
+        if (data == null) {
+            throw new IllegalArgumentException("Clara-Error: illegal component to deploy");
+        }
+        base.send(base.getFrontEnd(), new xMsgMessage(topic, data));
+    }
+
+    public xMsgMessage feSyncDeploy(ClaraComponent comp, int timeout) throws IOException, xMsgException, TimeoutException {
+        xMsgTopic topic = ClaraUtil.buildTopic(CConstants.DPE, base.getFrontEnd().getDpeCanonicalName());
+        String data = null;
+        if (comp.isContainer()) {
+            data = ClaraUtil.buildData(CConstants.START_REMOTE_CONTAINER,
+                    comp.getDpeHost(),
+                    comp.getDpePort(),
+                    comp.getDpeLang(),
+                    comp.getContainerName(),
+                    comp.getSubscriptionPoolSize(),
+                    comp.getDescription()
+            );
+        } else if (comp.isService()) {
+            data = ClaraUtil.buildData(CConstants.START_REMOTE_SERVICE,
+                    comp.getDpeHost(),
+                    comp.getDpePort(),
+                    comp.getDpeLang(),
+                    comp.getContainerName(),
+                    comp.getEngineName(),
+                    comp.getEngineClass(),
+                    comp.getSubscriptionPoolSize(),
+                    comp.getDescription(),
+                    comp.getInitialState()
+            );
+        }
+        if (data == null) {
+            throw new IllegalArgumentException("Clara-Error: illegal component to deploy");
+        }
+        return base.syncSend(base.getFrontEnd(), new xMsgMessage(topic, data), timeout);
+    }
+
+    public void exit(ClaraComponent comp)
+            throws ClaraException, TimeoutException, xMsgException, IOException {
+        base.exit(comp);
+    }
+
+    public xMsgMessage syncExit(ClaraComponent comp, int timeout)
+            throws ClaraException, TimeoutException, xMsgException, IOException {
+        return base.syncExit(comp, timeout);
+    }
+
+    public void feExit(ClaraComponent comp)
+            throws ClaraException, TimeoutException, xMsgException, IOException {
+        xMsgTopic topic = ClaraUtil.buildTopic(CConstants.DPE, base.getFrontEnd().getDpeCanonicalName());
+        String data = null;
+        if (comp.isDpe()) {
+            data = ClaraUtil.buildData(CConstants.STOP_REMOTE_DPE,
+                    comp.getDpeHost(),
+                    comp.getDpePort(),
+                    comp.getDpeLang());
+
+        } else if (comp.isContainer()) {
+            data = ClaraUtil.buildData(CConstants.STOP_REMOTE_CONTAINER,
+                    comp.getDpeHost(),
+                    comp.getDpePort(),
+                    comp.getDpeLang(),
+                    comp.getContainerName()
+            );
+        } else if (comp.isService()) {
+            data = ClaraUtil.buildData(CConstants.STOP_REMOTE_SERVICE,
+                    comp.getDpeHost(),
+                    comp.getDpePort(),
+                    comp.getDpeLang(),
+                    comp.getContainerName(),
+                    comp.getEngineName()
+            );
+        }
+        if (data == null) {
+            throw new IllegalArgumentException("Clara-Error: illegal component to exit");
+        }
+        base.send(base.getFrontEnd(), new xMsgMessage(topic, data));
+    }
+
+    public xMsgMessage feSyncExit(ClaraComponent comp, int timeout)
+            throws ClaraException, TimeoutException, xMsgException, IOException {
+        xMsgTopic topic = ClaraUtil.buildTopic(CConstants.DPE, base.getFrontEnd().getDpeCanonicalName());
+        String data = null;
+        if (comp.isDpe()) {
+            data = ClaraUtil.buildData(CConstants.STOP_REMOTE_DPE,
+                    comp.getDpeHost(),
+                    comp.getDpePort(),
+                    comp.getDpeLang());
+
+        } else if (comp.isContainer()) {
+            data = ClaraUtil.buildData(CConstants.STOP_REMOTE_CONTAINER,
+                    comp.getDpeHost(),
+                    comp.getDpePort(),
+                    comp.getDpeLang(),
+                    comp.getContainerName()
+            );
+        } else if (comp.isService()) {
+            data = ClaraUtil.buildData(CConstants.STOP_REMOTE_SERVICE,
+                    comp.getDpeHost(),
+                    comp.getDpePort(),
+                    comp.getDpeLang(),
+                    comp.getContainerName(),
+                    comp.getEngineName()
+            );
+        }
+        if (data == null) {
+            throw new IllegalArgumentException("Clara-Error: illegal component to exit");
+        }
+        return base.syncSend(base.getFrontEnd(), new xMsgMessage(topic, data), timeout);
+    }
+
+    public xMsgMessage pingDpe(ClaraComponent dpe, int timeout)
             throws ClaraException, xMsgException, IOException, TimeoutException {
-        ClaraComponent service = ClaraComponent.service(serviceCanonicalName);
-        service.setEngineClass(serviceClass);
-        service.setSubscriptionPoolSize(poolSize);
-
-        base.deploy(service, description, isRemote);
+        return base.pingDpe(dpe, timeout);
     }
 
-
-    /**
-     * Sends a request to deploy a service and waits until it is deployed.
-     * If the container does not exist, the message is lost.
-     * If there is a service with the given name in the container, the request is ignored.
-     * A response is received once the service has been deployed.
-     *
-     * @param serviceCanonicalName the canonical name of the service
-     * @param serviceClass the classpath to the service engine
-     * @param poolSize the maximum number of parallel engines to be created
-     *                 to process multi-threading requests
-     * @param timeout the time to wait for a response, in milliseconds
-     * @throws ClaraException if the request could not be sent
-     * @throws TimeoutException if a response is not received
-     */
-    public xMsgMessage deployServiceSync(String serviceCanonicalName, String serviceClass,
-                                         int poolSize, String description, boolean isRemote, int timeout)
-            throws ClaraException, TimeoutException, IOException, xMsgException {
-
-        ClaraComponent service = ClaraComponent.service(serviceCanonicalName);
-        service.setEngineClass(serviceClass);
-        service.setSubscriptionPoolSize(poolSize);
-
-        return base.syncDeploy(service, description, isRemote, timeout);
-    }
-
-
-    /**
-     * Sends a request to remove a service.
-     * If the container does not exist, the message is lost.
-     * If there is no service of the given name in the container, the request is ignored.
-     *
-     * @param serviceCanonicalName the canonical name of the service
-     * @throws ClaraException if the request could not be sent
-     */
-    public void removeService(String serviceCanonicalName, boolean isRemote)
+    public xMsgMessage fePingDpe(ClaraComponent comp, int timeout)
             throws ClaraException, xMsgException, IOException, TimeoutException {
-        base.exitComponent(ClaraComponent.service(serviceCanonicalName), isRemote);
+        xMsgTopic topic = ClaraUtil.buildTopic(CConstants.DPE, base.getFrontEnd().getDpeCanonicalName());
+        String data = null;
+        if (comp.isDpe()) {
+            data = ClaraUtil.buildData(CConstants.PING_REMOTE_DPE,
+                    comp.getDpeHost(),
+                    comp.getDpePort(),
+                    comp.getDpeLang());
+
+        }
+        if (data == null) {
+            throw new IllegalArgumentException("Clara-Error: component is not a dpe");
+        }
+        return base.syncSend(base.getFrontEnd(), new xMsgMessage(topic, data), timeout);
     }
 
-
-    /**
-     * Sends a request to remove a service and waits until it is removed.
-     * If the container does not exist, the message is lost.
-     * If there is no service of the given name in the container, the request is ignored.
-     * A response is received once the service has been removed.
-     *
-     * @param serviceCanonicalName the canonical name of the service
-     * @param timeout the time to wait for a response, in milliseconds
-     * @throws ClaraException if the request could not be sent
-     * @throws TimeoutException if a response is not received
-     */
-    public xMsgMessage removeServiceSync(String serviceCanonicalName, boolean isRemote, int timeout)
-            throws ClaraException, TimeoutException, IOException, xMsgException {
-        return base.syncExitComponent(ClaraComponent.service(serviceCanonicalName), isRemote, timeout);
-    }
-
-
-    /**
-     * Sends a request to configure a service.
-     * If the service does not exist, the message is lost.
-     * @param serviceCanonicalName the canonical name of the service
-     * @param data the configuration data for the service
-     * @throws ClaraException if the request could not be sent
-     */
     public void configureService(String serviceCanonicalName, EngineData data)
             throws ClaraException, xMsgException, TimeoutException, IOException {
         base.configureService(ClaraComponent.service(serviceCanonicalName), data);
     }
 
+    public void configureService(ClaraComponent comp, EngineData data)
+            throws ClaraException, xMsgException, TimeoutException, IOException {
+        base.configureService(comp, data);
+    }
 
-    /**
-     * Sends a request to configure a service and waits until it is done.
-     * If the service does not exist, the message is lost.
-     * A response is received once the service has been configured.
-     *
-     * @param serviceCanonicalName the canonical name of the service
-     * @param data the configuration data for the service
-     * @param timeout the time to wait for a response, in milliseconds
-     * @throws ClaraException if the request could not be sent
-     * @throws TimeoutException if a response is not received
-     */
-    public xMsgMessage configureServiceSync(String serviceCanonicalName, EngineData data, int timeout)
-            throws ClaraException, TimeoutException, IOException, xMsgException {
+    public xMsgMessage syncConfigureService(String serviceCanonicalName, EngineData data, int timeout)
+            throws ClaraException, xMsgException, TimeoutException, IOException {
         return base.syncConfigureService(ClaraComponent.service(serviceCanonicalName), data, timeout);
     }
 
+    public xMsgMessage syncConfigureService(ClaraComponent comp, EngineData data, int timeout)
+            throws ClaraException, xMsgException, TimeoutException, IOException {
+        return base.syncConfigureService(comp, data, timeout);
+    }
 
-    /**
-     * Sends a request to execute a service.
-     * If the service does not exist, the message is lost.
-     *
-     * @param serviceCanonicalName the canonical name of the service
-     * @param data the input data for the service
-     * @throws ClaraException if the request could not be sent
-     */
+
     public void executeService(String serviceCanonicalName, EngineData data)
             throws ClaraException, xMsgException, TimeoutException, IOException {
         base.executeService(ClaraComponent.service(serviceCanonicalName), data);
     }
 
+    public void executeService(ClaraComponent comp, EngineData data)
+            throws ClaraException, xMsgException, TimeoutException, IOException {
+        base.executeService(comp, data);
+    }
 
-    /**
-     * Sends a request to execute a service and receives the result.
-     * If the service does not exist, the message is lost.
-     * A response is received with the output data of the execution.
-     *
-     * @param serviceCanonicalName the canonical name of the service
-     * @param data the input data for the service
-     * @param timeout the time to wait for a response, in milliseconds
-     * @return the service output data
-     * @throws ClaraException if the request could not be sent
-     * @throws TimeoutException if a response is not received
-     */
-    public EngineData executeServiceSync(String serviceCanonicalName, EngineData data, int timeout)
+
+    public EngineData syncExecuteService(String serviceCanonicalName, EngineData data, int timeout)
             throws ClaraException, TimeoutException, IOException, xMsgException {
         xMsgMessage response = base.syncExecuteService(ClaraComponent.service(serviceCanonicalName), data, timeout);
-
         return base.deSerialize(response, dataTypes);
     }
+
+    public EngineData syncExecuteService(ClaraComponent comp, EngineData data, int timeout)
+            throws ClaraException, TimeoutException, IOException, xMsgException {
+        xMsgMessage response = base.syncExecuteService(comp, data, timeout);
+        return base.deSerialize(response, dataTypes);
+    }
+
 
     /**
      * Sends a request to execute a composition.
@@ -414,7 +434,7 @@ public class BaseOrchestrator {
      * @throws ClaraException if the request could not be sent
      * @throws TimeoutException if a response is not received
      */
-    public EngineData executeCompositionSync(Composition composition,
+    public EngineData syncExecuteComposition(Composition composition,
                                              EngineData data,
                                              int timeout)
             throws ClaraException, TimeoutException, IOException, xMsgException {
@@ -638,7 +658,7 @@ public class BaseOrchestrator {
      * @param callback the action to be run when a report is received
      * @throws ClaraException if there was an error starting the subscription
      */
-    public void listenDpes(String FrontEndDpeCanonicalName, GenericCallback callback)
+    public void listenDpe(String FrontEndDpeCanonicalName, GenericCallback callback)
             throws ClaraException, xMsgException {
         ClaraComponent dpe = ClaraComponent.dpe(FrontEndDpeCanonicalName);
         xMsgTopic topic = ClaraUtil.buildTopic(CConstants.DPE_ALIVE);
@@ -657,7 +677,7 @@ public class BaseOrchestrator {
      *
      * @throws ClaraException if there was an error stopping the subscription
      */
-    public void unListenDpes(String FrontEndDpeCanonicalName)
+    public void unListenDpe(String FrontEndDpeCanonicalName)
             throws ClaraException, xMsgException {
 
         ClaraComponent dpe = ClaraComponent.dpe(FrontEndDpeCanonicalName);
@@ -670,46 +690,6 @@ public class BaseOrchestrator {
             }
     }
 
-
-    /**
-     * Checks if the given DPE is up and running.
-     *
-     * @param dpeCanonicalName the name of the DPE
-     * @return true if the DPE is running
-     * @throws ClaraException if there was a problem with the request
-     */
-    public xMsgMessage pingDpe(String dpeCanonicalName, int timeout)
-            throws ClaraException, xMsgException, IOException, TimeoutException {
-        return base.ping(ClaraComponent.dpe(dpeCanonicalName), timeout);
-    }
-
-
-    /**
-     * Checks if the given service is up and running.
-     *
-     * @param serviceCanonicalName the name of the service
-     * @return true if the service is running
-     * @throws ClaraException if there was a problem with the request
-     */
-    public xMsgMessage pingService(String serviceCanonicalName, int timeout)
-            throws ClaraException, xMsgException, IOException, TimeoutException {
-        return base.ping(ClaraComponent.service(serviceCanonicalName), timeout);
-    }
-
-
-    /**
-     * Returns the runtime information of the selected Clara actor.
-     * The actor can be a DPE, a container or a service.
-     *
-     * @param serviceCanonicalName the name of the actor
-     * @return a JSON object with the runtime information of the actor
-     * @throws ClaraException if there was a problem with the request
-     */
-    public String getServiceState(String serviceCanonicalName, int timeout)
-            throws ClaraException, xMsgException, IOException, TimeoutException {
-        xMsgMessage response = base.ping(ClaraComponent.service(serviceCanonicalName), timeout);
-        return response.getMetaData().getSenderState();
-    }
 
     public Set<String> getDpeNames() throws ClaraException, xMsgException {
         xMsgTopic topic = xMsgTopic.build("xyz)");

@@ -213,24 +213,25 @@ public abstract class ClaraBase extends xMsg {
         return findSubscribers(topic);
     }
 
-    public void deploy(ClaraComponent component, boolean isRemote)
+    public void deploy(ClaraComponent component)
             throws ClaraException, IOException, xMsgException, TimeoutException {
-        _deploy(component, isRemote, -1);
+        _deploy(component, -1);
     }
 
-    public xMsgMessage syncDeploy(ClaraComponent component, boolean isRemote, int timeout)
+    public xMsgMessage syncDeploy(ClaraComponent component, int timeout)
             throws ClaraException, IOException, xMsgException, TimeoutException {
-        return _deploy(component, isRemote, timeout);
+        return _deploy(component, timeout);
     }
 
-    public void exitComponent(ClaraComponent component, boolean isRemote)
+
+    public void exit(ClaraComponent component)
             throws ClaraException, IOException, xMsgException, TimeoutException {
-        _exit(component, isRemote, -1);
+        _exit(component, -1);
     }
 
-    public xMsgMessage syncExitComponent(ClaraComponent component, boolean isRemote, int timeout)
+    public xMsgMessage syncExit(ClaraComponent component, int timeout)
             throws ClaraException, IOException, xMsgException, TimeoutException {
-        return _exit(component, isRemote, timeout);
+        return _exit(component, timeout);
     }
 
     public void configureService(ClaraComponent component, EngineData data)
@@ -280,13 +281,16 @@ public abstract class ClaraBase extends xMsg {
         startReporting(component, report, 0);
     }
 
-    public xMsgMessage ping(ClaraComponent component, int timeout)
+    public xMsgMessage pingDpe(ClaraComponent component, int timeout)
             throws IOException, xMsgException, TimeoutException {
 
-        String data = ClaraUtil.buildData(CReportTypes.INFO.getValue());
-        xMsgTopic topic = component.getTopic();
-        xMsgMessage msg = new xMsgMessage(topic, data);
-        return syncSend(component, msg, timeout);
+        if (component.isDpe()) {
+            String data = ClaraUtil.buildData(CReportTypes.INFO.getValue());
+            xMsgTopic topic = component.getTopic();
+            xMsgMessage msg = new xMsgMessage(topic, data);
+            return syncSend(component, msg, timeout);
+        }
+        return null;
     }
 
 
@@ -381,28 +385,14 @@ public abstract class ClaraBase extends xMsg {
         }
     }
 
-    private xMsgMessage _deploy(ClaraComponent component, boolean isRemote, int timeout)
+    private xMsgMessage _deploy(ClaraComponent component, int timeout)
             throws ClaraException, IOException, xMsgException, TimeoutException {
-        if(component.isOrchestrator()) {
-            throw new IllegalArgumentException("Clara-Error: can not deploy nor exit an orchestrator.");
+        if (component.isOrchestrator() || component.isDpe()) {
+            throw new IllegalArgumentException("Clara-Error: illegal component to deploy");
         }
-        if (!isRemote) {
-            start(component);
-            return null;
-        } else {
             String data;
-            xMsgTopic topic = ClaraUtil.buildTopic(CConstants.DPE, component.getCanonicalName());
-            if (component.isDpe()) {
-                data = ClaraUtil.buildData(CConstants.START_DPE,
-                        component.getDpeHost(),
-                        component.getDpePort(),
-                        component.getDpeLang(),
-                        component.getSubscriptionPoolSize(),
-                        getDefaultRegistrarAddress().host(),
-                        getDefaultRegistrarAddress().port(),
-                        component.getDescription());
-
-            } else if (component.isContainer()) {
+        xMsgTopic topic = ClaraUtil.buildTopic(CConstants.DPE, component.getDpeCanonicalName());
+        if (component.isContainer()) {
                 data = ClaraUtil.buildData(CConstants.START_CONTAINER,
                         component.getDpeHost(),
                         component.getDpePort(),
@@ -426,21 +416,16 @@ public abstract class ClaraBase extends xMsg {
             }
             xMsgMessage msg = new xMsgMessage(topic, data);
             return __send(component, msg, timeout);
-        }
     }
 
-    private xMsgMessage _exit(ClaraComponent component, boolean isRemote, int timeout)
+    private xMsgMessage _exit(ClaraComponent component, int timeout)
             throws IOException, xMsgException, TimeoutException, ClaraException {
         if(component.isOrchestrator()) {
-            throw new IllegalArgumentException("Clara-Error: can not deploy nor exitComponent an orchestrator.");
+            throw new IllegalArgumentException("Clara-Error: can not deploy nor exit an orchestrator.");
         }
-        if (!isRemote) {
-            exit();
-            return null;
-        } else {
             String data;
 
-            xMsgTopic topic = ClaraUtil.buildTopic(CConstants.DPE, component.getCanonicalName());
+        xMsgTopic topic = ClaraUtil.buildTopic(CConstants.DPE, component.getDpeCanonicalName());
             if (component.isDpe()) {
                 data = CConstants.STOP_DPE;
 
@@ -457,14 +442,10 @@ public abstract class ClaraBase extends xMsg {
             }
             xMsgMessage msg = new xMsgMessage(topic, data);
             return __send(component, msg, timeout);
-        }
     }
 
     private xMsgMessage _configure(ClaraComponent component, EngineData data, int timeout)
             throws ClaraException, IOException, xMsgException, TimeoutException {
-        if(component.isOrchestrator() || component.isDpe() || component.isContainer() ) {
-            throw new ClaraException("Clara-Error: orchestrator, dpe and container configurations are not supported");
-        }
         if(component.isService()){
 
             xMsgTopic topic = component.getTopic();
@@ -479,9 +460,8 @@ public abstract class ClaraBase extends xMsg {
                 return null;
             }
         } else {
-            throw new ClaraException("Clara-Error: unknown or undefined component type. ");
+            throw new ClaraException("Clara-Error: configure is not supported for this component ");
         }
-
     }
 
     private xMsgMessage _execute(ClaraComponent component, EngineData data, int timeout)

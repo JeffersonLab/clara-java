@@ -67,7 +67,7 @@ public class BaseOrchestratorTest {
 
     @Test
     public void exitDpeSendsRequest() throws Exception {
-        orchestrator.exitDpe("10.2.9.96_java");
+        orchestrator.exitRemoteDpe("10.2.9.96_java");
         assertSendCall("10.2.9.96", "dpe:10.2.9.96_java", "dpeExit");
     }
 
@@ -75,14 +75,14 @@ public class BaseOrchestratorTest {
     @Test
     public void exitDpeThrowsOnFailure() throws Exception {
         expectClaraExceptionOnSend();
-        orchestrator.exitDpe("10.2.9.96_java");
+        orchestrator.exitRemoteDpe("10.2.9.96_java");
     }
 
 
     @Test
     public void exitDpeThrowsOnBadDpeName() throws Exception {
         expectedEx.expect(IllegalArgumentException.class);
-        orchestrator.exitDpe("10.2.9.96_java:master");
+        orchestrator.exitRemoteDpe("10.2.9.96_java:master");
     }
 
 
@@ -112,7 +112,7 @@ public class BaseOrchestratorTest {
 
     @Test
     public void deployContainerSyncSendsRequest() throws Exception {
-        orchestrator.deployContainerSync("10.2.9.96_java:master", 10);
+        orchestrator.syncDeployContainer("10.2.9.96_java:master", 10);
 
         assertSyncSendCall("10.2.9.96", "dpe:10.2.9.96_java", "startContainer?master", 10);
     }
@@ -121,21 +121,21 @@ public class BaseOrchestratorTest {
     @Test
     public void deployContainerSyncThrowsOnFailure() throws Exception {
         expectClaraExceptionOnSyncSend();
-        orchestrator.deployContainerSync("10.2.9.96_java:master", 10);
+        orchestrator.syncDeployContainer("10.2.9.96_java:master", 10);
     }
 
 
     @Test
     public void deployContainerSyncThrowsOnTimeout() throws Exception {
         expectTimeoutExceptionOnSyncSend();
-        orchestrator.deployContainerSync("10.2.9.96_java:master", 10);
+        orchestrator.syncDeployContainer("10.2.9.96_java:master", 10);
     }
 
 
     @Test
     public void deployContainerSyncThrowsOnBadContainerName() throws Exception {
         expectedEx.expect(IllegalArgumentException.class);
-        orchestrator.deployContainerSync("10.2.9.96_java", 10);
+        orchestrator.syncDeployContainer("10.2.9.96_java", 10);
     }
 
 

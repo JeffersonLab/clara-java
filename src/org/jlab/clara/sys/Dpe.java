@@ -293,7 +293,7 @@ public class Dpe extends ClaraBase {
 
             xMsgTopic dpeReportTopic = xMsgTopic.wrap(CConstants.DPE_ALIVE + ":" + getDefaultProxyAddress().host());
             if (getFrontEnd() != null) {
-                dpeReportTopic = ClaraUtil.buildTopic(CConstants.DPE_ALIVE, getFrontEnd().getDpeName());
+                dpeReportTopic = ClaraUtil.buildTopic(CConstants.DPE_ALIVE, getFrontEnd().getDpeCanonicalName());
             }
 
             while (isReporting.get()) {
@@ -441,7 +441,7 @@ public class Dpe extends ClaraBase {
      *     Local:
      *     data = CConstants.STOP_CONTAINER ? containerName
      *     Remote:
-     *     data = CConstants.STOP_CONTAINER ? dpeHost ? dpePort ? dpeLang ? containerName
+     *     data = CConstants.STOP_REMOTE_CONTAINER ? dpeHost ? dpePort ? dpeLang ? containerName
      * </li>
      * <li>
      *     Start service:
@@ -535,7 +535,7 @@ public class Dpe extends ClaraBase {
                             dpePort = parser.nextInteger();
                             dpeLang = parser.nextString();
                             dpe = ClaraComponent.dpe(dpeHost, dpePort, dpeLang, 1, CConstants.UNDEFINED);
-                            exitComponent(dpe, true);
+                            exit(dpe);
                         } catch (NoSuchElementException e) {
                             System.out.println("Clara-Warning: malformed stopRemoteDpe request.");
                             break;
@@ -615,7 +615,7 @@ public class Dpe extends ClaraBase {
                             containerName = parser.nextString();
                             poolSize = parser.nextInteger();
                             description = parser.nextString();
-                            deploy(ClaraComponent.container(dpeHost, dpePort, dpeLang, containerName, poolSize, description), true);
+                            deploy(ClaraComponent.container(dpeHost, dpePort, dpeLang, containerName, poolSize, description));
 
                         } catch (NoSuchElementException e) {
                             System.out.println("Clara-Error: malformed startRemoteContainer request.");
@@ -639,7 +639,7 @@ public class Dpe extends ClaraBase {
                             dpePort = parser.nextInteger();
                             dpeLang = parser.nextString();
                             containerName = parser.nextString();
-                            exitComponent(ClaraComponent.container(dpeHost, dpePort, dpeLang, containerName, 1, CConstants.UNDEFINED), true);
+                            exit(ClaraComponent.container(dpeHost, dpePort, dpeLang, containerName, 1, CConstants.UNDEFINED));
 
                         } catch (NoSuchElementException e) {
                             System.out.println("Clara-Error: malformed stopRemoteContainer request.");
@@ -678,7 +678,7 @@ public class Dpe extends ClaraBase {
                             break;
                         }
                         deploy(ClaraComponent.service(dpeHost, dpePort, dpeLang,
-                                containerName, engineName, engineClass, poolSize, description, initialState), true);
+                                containerName, engineName, engineClass, poolSize, description, initialState));
                         break;
 
                     case CConstants.STOP_SERVICE:
@@ -703,7 +703,7 @@ public class Dpe extends ClaraBase {
                             System.out.println("Clara-Warning: malformed stopRemoteService request.");
                             break;
                         }
-                        exitComponent(ClaraComponent.service(dpeHost, dpePort, dpeLang, containerName, engineName), true);
+                        exit(ClaraComponent.service(dpeHost, dpePort, dpeLang, containerName, engineName));
                         break;
 
                     default:

@@ -135,7 +135,7 @@ public class Container extends ClaraBase {
             throws ClaraException, IOException, xMsgException {
         if (myServices.containsKey(serviceName)) {
             Service service = myServices.remove(serviceName);
-            service.localExit();
+            service.exit();
         }
     }
 
@@ -145,7 +145,7 @@ public class Container extends ClaraBase {
      */
     public void removeAllServices() throws ClaraException, IOException, xMsgException {
         for (Service s : myServices.values()) {
-            s.localExit();
+            s.exit();
         }
         myServices.clear();
     }
