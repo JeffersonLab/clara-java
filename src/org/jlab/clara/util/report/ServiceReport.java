@@ -32,7 +32,8 @@ public class ServiceReport extends CReportBase {
     private int shrmWrites;
     private int bytesReceived;
     private int bytesSent;
-    private int executionTIme;
+    private int executionTime;
+    private String version;
 
     public ServiceReport(String name) {
         super(name);
@@ -94,11 +95,19 @@ public class ServiceReport extends CReportBase {
         this.bytesSent = bytesSent;
     }
 
-    public int getExecutionTIme() {
-        return executionTIme;
+    public int getExecutionTime() {
+        return executionTime;
     }
 
-    public void setExecutionTIme(int executionTIme) {
-        this.executionTIme = executionTIme;
+    public void setExecutionTime(int executionTime) {
+        this.executionTime = executionTime;
+    }
+
+    public String getVersion() {
+        return version;
+    }
+
+    public void setVersion(String version) {
+        this.version = version;
     }
 }

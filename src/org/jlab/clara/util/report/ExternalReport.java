@@ -27,5 +27,4 @@ package org.jlab.clara.util.report;
 public interface ExternalReport {
 
     public String generateReport(DpeReport dpeData);
-
 }
