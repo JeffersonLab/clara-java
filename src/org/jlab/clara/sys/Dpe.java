@@ -103,7 +103,7 @@ public class Dpe extends ClaraBase {
         xMsgTopic topic = xMsgTopic.wrap(CConstants.DPE + ":" + getMe().getCanonicalName());
 
         // Register this subscriber
-        register(description);
+        register(regHost, regPort, description);
         System.out.println(ClaraUtil.getCurrentTimeInH() + ": Registered DPE = " + getMe().getCanonicalName());
 
         // Subscribe by passing a callback to the subscription
@@ -224,11 +224,11 @@ public class Dpe extends ClaraBase {
     }
 
     @Override
-    public void exit() {
+    public void end() {
 
         try {
             for (Container cont : myContainers.values()) {
-                cont.exit();
+                cont.end();
             }
             stopListening(subscriptionHandler);
 
@@ -385,7 +385,7 @@ public class Dpe extends ClaraBase {
             throws ClaraException, xMsgException, IOException, TimeoutException {
         if (myContainers.containsKey(containerName)) {
             System.out.println("Removing container " + containerName);
-            myContainers.get(containerName).exit();
+            myContainers.get(containerName).end();
         } else {
             System.out.println("Clara-Warning: wrong address. Container = " + containerName);
         }
@@ -526,7 +526,7 @@ public class Dpe extends ClaraBase {
                         break;
 
                     case CConstants.STOP_DPE:
-                        exit();
+                        end();
                         break;
 
                     case CConstants.STOP_REMOTE_DPE:

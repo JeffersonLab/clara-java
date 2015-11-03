@@ -29,8 +29,8 @@ import org.jlab.clara.util.CConstants;
 import org.jlab.clara.util.ClaraUtil;
 import org.jlab.clara.util.report.CReportTypes;
 import org.jlab.coda.xmsg.core.*;
-import org.jlab.coda.xmsg.data.xMsgM;
-import org.jlab.coda.xmsg.data.xMsgR;
+import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
+import org.jlab.coda.xmsg.data.xMsgR.xMsgRegistration;
 import org.jlab.coda.xmsg.excp.xMsgException;
 import org.jlab.coda.xmsg.net.xMsgConnection;
 import org.jlab.coda.xmsg.net.xMsgProxyAddress;
@@ -51,14 +51,25 @@ import java.util.concurrent.TimeoutException;
  */
 public abstract class ClaraBase extends xMsg {
 
-
     private String claraHome;
 
     private EngineDataAccessor dataAccessor;
+
+    // reference to this component description
     private ClaraComponent me;
 
+    // reference to the front end DPE
     private ClaraComponent frontEnd = null;
 
+    /**
+     * Constructor of this Clara component
+     *
+     * @param me                   Definition of the component: {@link org.jlab.clara.base.ClaraComponent} object
+     * @param defaultRegistrarHost host name of the xMsg registrar
+     * @param defaultRegistrarPort port number of the xMsg registrar
+     * @throws IOException
+     * @throws ClaraException
+     */
     public ClaraBase(ClaraComponent me,
                      String defaultRegistrarHost,
                      int defaultRegistrarPort)
@@ -74,24 +85,48 @@ public abstract class ClaraBase extends xMsg {
         }
     }
 
+    /**
+     * Constructor
+     *
+     * @param me Definition of the component: {@link org.jlab.clara.base.ClaraComponent} object
+     * @throws IOException
+     * @throws ClaraException
+     */
     public ClaraBase(ClaraComponent me)
             throws IOException, ClaraException {
         this(me, xMsgUtil.localhost(),
                 xMsgConstants.REGISTRAR_PORT);
     }
 
-    public abstract void exit();
-
+    // abstract methods
+    public abstract void end();
     public abstract void start(ClaraComponent component);
 
+
+    /**
+     * @return the path to the Clara_home defined
+     * by means of the CLARA_HOME env variable.
+     */
     public String getClaraHome() {
         return claraHome;
     }
 
+
+    /**
+     * @return the description of this component:
+     * {@link org.jlab.clara.base.ClaraComponent} object
+     */
     public ClaraComponent getMe() {
         return me;
     }
 
+    /**
+     * Sends xMsgMessage message to a component.
+     *
+     * @param component {@link org.jlab.clara.base.ClaraComponent} object
+     * @param msg message: {@link org.jlab.coda.xmsg.core.xMsgMessage} object
+     * @throws xMsgException
+     */
     public void send(ClaraComponent component, xMsgMessage msg)
             throws xMsgException {
         xMsgConnection con = connect(component.getProxyAddress());
@@ -99,6 +134,14 @@ public abstract class ClaraBase extends xMsg {
         release(con);
     }
 
+    /**
+     * Sends a string to a component
+     *
+     * @param component {@link org.jlab.clara.base.ClaraComponent} object
+     * @param requestText string of the message
+     * @throws IOException
+     * @throws xMsgException
+     */
     public void send(ClaraComponent component, String requestText)
             throws IOException, xMsgException {
         xMsgMessage msg = new xMsgMessage(component.getTopic(), requestText);
@@ -107,6 +150,16 @@ public abstract class ClaraBase extends xMsg {
         release(con);
     }
 
+    /**
+     * Synchronous xMsgMessage send to a component
+     *
+     * @param component {@link org.jlab.clara.base.ClaraComponent} object
+     * @param msg message: {@link org.jlab.coda.xmsg.core.xMsgMessage} object
+     * @param timeout in milli seconds
+     * @return message: {@link org.jlab.coda.xmsg.core.xMsgMessage} object
+     * @throws xMsgException
+     * @throws TimeoutException
+     */
     public xMsgMessage syncSend(ClaraComponent component, xMsgMessage msg, int timeout)
             throws xMsgException, TimeoutException {
         xMsgConnection con = connect(component.getProxyAddress());
@@ -115,6 +168,17 @@ public abstract class ClaraBase extends xMsg {
         return m;
     }
 
+    /**
+     * Synchronous string send to a component
+     *
+     * @param component {@link org.jlab.clara.base.ClaraComponent} object
+     * @param requestText String of the message
+     * @param timeout in milli seconds
+     * @return message: {@link org.jlab.coda.xmsg.core.xMsgMessage} object
+     * @throws IOException
+     * @throws xMsgException
+     * @throws TimeoutException
+     */
     public xMsgMessage syncSend(ClaraComponent component, String requestText, int timeout)
             throws IOException, xMsgException, TimeoutException {
         xMsgMessage msg = new xMsgMessage(component.getTopic(), requestText);
@@ -124,111 +188,289 @@ public abstract class ClaraBase extends xMsg {
         return m;
     }
 
+    /**
+     * Sending a message using the defined connection
+     *
+     * @param con connection: {@link org.jlab.coda.xmsg.net.xMsgConnection} object
+     * @param msg message: {@link org.jlab.coda.xmsg.core.xMsgMessage} object
+     * @throws xMsgException
+     */
     public void send(xMsgConnection con, xMsgMessage msg)
             throws xMsgException {
         publish(con, msg);
     }
 
+    /**
+     * Sending a message using the dpe host and port of this component
+     *
+     * @param msg message: {@link org.jlab.coda.xmsg.core.xMsgMessage} object
+     * @throws IOException
+     * @throws xMsgException
+     */
     public void send(xMsgMessage msg)
             throws IOException, xMsgException {
         send(me, msg);
     }
 
+    /**
+     * Sending a text message using the dpe host and port of this component
+     *
+     * @param msgText String of the message
+     * @throws IOException
+     * @throws xMsgException
+     */
     public void send(String msgText)
             throws IOException, xMsgException {
         send(me, msgText);
     }
 
+    /**
+     * Listens messages from the defined component.
+     * Connection is done to the dpe of the passed component.
+     * The topic is the name of the define component.
+     *
+     * @param component {@link org.jlab.clara.base.ClaraComponent} object
+     * @param callback {@link org.jlab.coda.xmsg.core.xMsgCallBack} object
+     * @return subscription handler {@link org.jlab.coda.xmsg.core.xMsgMessage} object
+     * @throws xMsgException
+     */
     public xMsgSubscription listen(ClaraComponent component, xMsgCallBack callback)
             throws xMsgException {
         xMsgConnection con = connect(component.getProxyAddress());
         return subscribe(con, component.getTopic(), callback);
     }
 
+    /**
+     * Listens messages from a defined component to a specified topic.
+     * Connection is done to the dpe of the passed component.
+     *
+     * @param component {@link org.jlab.clara.base.ClaraComponent} object
+     * @param topic topic of the subscription
+     * @param callback {@link org.jlab.coda.xmsg.core.xMsgCallBack} object
+     * @return subscription handler {@link org.jlab.coda.xmsg.core.xMsgMessage} object
+     * @throws xMsgException
+     */
     public xMsgSubscription listen(ClaraComponent component, xMsgTopic topic, xMsgCallBack callback)
             throws xMsgException {
         xMsgConnection con = connect(component.getProxyAddress());
         return subscribe(con, topic, callback);
     }
 
+    /**
+     * Listens messages coming to a dpe of this component (i.e. connection
+     * is done to the local dpe) to a specified topic.
+     *
+     * @param topic topic of the subscription
+     * @param callback {@link org.jlab.coda.xmsg.core.xMsgCallBack} object
+     * @return subscription handler {@link org.jlab.coda.xmsg.core.xMsgMessage} object
+     * @throws xMsgException
+     */
     public xMsgSubscription listen(xMsgTopic topic, xMsgCallBack callback)
             throws xMsgException {
         xMsgConnection con = connect(me.getProxyAddress());
         return subscribe(con, topic, callback);
     }
 
+    /**
+     * Stops listening to a subscription defined by the handler
+     *
+     * @param handle subscription handler {@link org.jlab.coda.xmsg.core.xMsgMessage} object
+     * @throws xMsgException
+     */
     public void stopListening(xMsgSubscription handle)
             throws xMsgException {
         unsubscribe(handle);
     }
 
+    /**
+     * Method registers a Clara actor with the xMsg in-memory registration service.
+     * Note that Clara service registers as an xMsg subscriber.
+     *
+     * @param regHost registrar server host
+     * @param regPort registrar server port
+     * @param description service description
+     * @throws IOException
+     * @throws xMsgException
+     */
     public void register(String regHost, int regPort, String description )
             throws IOException, xMsgException {
         xMsgRegAddress regAddress = new xMsgRegAddress(regHost, regPort);
         registerAsSubscriber(regAddress, me.getTopic(), description);
     }
 
+    /**
+     * Registers a Clara actor with the xMsg in-memory registration service.
+     * This will assume that registration service is running on a default port.
+     *
+     * @param regHost registrar server host
+     * @param description service description
+     * @throws IOException
+     * @throws xMsgException
+     */
     public void register(String regHost, String description )
             throws IOException, xMsgException {
         xMsgRegAddress regAddress = new xMsgRegAddress(regHost);
         registerAsSubscriber(regAddress, me.getTopic(), description);
     }
 
+    /**
+     * Registers a Clara actor with the xMsg in-memory registration service.
+     * This assumes registration service is running on a same node with a default port number.
+     *
+     * @param description service description
+     * @throws IOException
+     * @throws xMsgException
+     */
     public void register(String description )
             throws IOException, xMsgException {
         registerAsSubscriber(me.getTopic(), description);
     }
 
+    /**
+     * Removes actor registration
+     *
+     * @param regHost registrar server host
+     * @param regPort registrar server port
+     * @throws IOException
+     * @throws xMsgException
+     */
     public void removeRegistration(String regHost, int regPort)
             throws IOException, xMsgException {
         xMsgRegAddress regAddress = new xMsgRegAddress(regHost, regPort);
         removeSubscriberRegistration(regAddress, me.getTopic());
     }
 
+    /**
+     * Removes actor registration, assuming registrar is running on a default port.
+     *
+     * @param regHost registrar server host
+     * @throws IOException
+     * @throws xMsgException
+     */
     public void removeRegistration(String regHost)
             throws IOException, xMsgException {
         xMsgRegAddress regAddress = new xMsgRegAddress(regHost);
         removeSubscriberRegistration(regAddress, me.getTopic());
     }
 
+    /**
+     * Removes actor registration, assuming registrar is running
+     * on a local host and with a default port.
+     *
+     * @throws IOException
+     * @throws xMsgException
+     */
     public void removeRegistration()
             throws IOException, xMsgException {
         removeSubscriberRegistration(me.getTopic());
     }
 
-    public Set<xMsgR.xMsgRegistration> discover(String regHost, int regPort, xMsgTopic topic )
+    /**
+     * Retrieves Clara actor registration information from the xMsg registrar service.
+     *
+     * @param regHost registrar server host
+     * @param regPort registrar server port
+     * @param topic   the canonical name of an actor: {@link org.jlab.coda.xmsg.core.xMsgTopic}
+     * @return set of {@link org.jlab.coda.xmsg.data.xMsgR.xMsgRegistration} objects
+     * @throws IOException
+     * @throws xMsgException
+     */
+    public Set<xMsgRegistration> discover(String regHost, int regPort, xMsgTopic topic )
             throws IOException, xMsgException {
         xMsgRegAddress regAddress = new xMsgRegAddress(regHost, regPort);
         return findSubscribers(regAddress, topic);
     }
 
-    public Set<xMsgR.xMsgRegistration> discover(String regHost, xMsgTopic topic)
+    /**
+     * Retrieves Clara actor registration information from the xMsg registrar service,
+     * assuming registrar is running using the default port.
+     *
+     * @param regHost registrar server host
+     * @param topic   the canonical name of an actor: {@link org.jlab.coda.xmsg.core.xMsgTopic}
+     * @return set of {@link org.jlab.coda.xmsg.data.xMsgR.xMsgRegistration} objects
+     * @throws IOException
+     * @throws xMsgException
+     */
+    public Set<xMsgRegistration> discover(String regHost, xMsgTopic topic)
             throws IOException, xMsgException {
         xMsgRegAddress regAddress = new xMsgRegAddress(regHost);
         return findSubscribers(regAddress, topic);
     }
 
-    public Set<xMsgR.xMsgRegistration> discover(xMsgTopic topic )
+    /**
+     * Retrieves Clara actor registration information from the xMsg registrar service,
+     * assuming registrar is running on a local host, using the default port.
+     *
+     * @param topic the canonical name of an actor: {@link org.jlab.coda.xmsg.core.xMsgTopic}
+     * @return set of {@link org.jlab.coda.xmsg.data.xMsgR.xMsgRegistration} objects
+     * @throws IOException
+     * @throws xMsgException
+     */
+    public Set<xMsgRegistration> discover(xMsgTopic topic )
             throws IOException, xMsgException {
         return findSubscribers(topic);
     }
 
+    /**
+     * Deploys a Clara actor. Clara component object is used to
+     * extract xMsg proxy host and port for a proper connection.
+     *
+     * @param component Clara actor as a {@link org.jlab.clara.base.ClaraComponent} object
+     * @throws ClaraException
+     * @throws IOException
+     * @throws xMsgException
+     * @throws TimeoutException
+     */
     public void deploy(ClaraComponent component)
             throws ClaraException, IOException, xMsgException, TimeoutException {
         _deploy(component, -1);
     }
 
+    /**
+     * Synchronously deploys a Clara actor. Clara component object is used to
+     * extract xMsg proxy host and port for a proper connection.
+     *
+     * @param component Clara actor as a {@link org.jlab.clara.base.ClaraComponent} object
+     * @param timeout timeout of the sync communication
+     * @return message {@link org.jlab.coda.xmsg.core.xMsgMessage}
+     *         indicating the status of the sync operation.
+     * @throws ClaraException
+     * @throws IOException
+     * @throws xMsgException
+     * @throws TimeoutException
+     */
     public xMsgMessage syncDeploy(ClaraComponent component, int timeout)
             throws ClaraException, IOException, xMsgException, TimeoutException {
         return _deploy(component, timeout);
     }
 
 
+    /**
+     * Sends a message to a Clara component/actor telling to exit/destruct
+     *
+     * @param component Clara actor as a {@link org.jlab.clara.base.ClaraComponent} object
+     * @throws ClaraException
+     * @throws IOException
+     * @throws xMsgException
+     * @throws TimeoutException
+     */
     public void exit(ClaraComponent component)
             throws ClaraException, IOException, xMsgException, TimeoutException {
         _exit(component, -1);
     }
 
+    /**
+     * Sync sends a message to a Clara component/actor telling to exit/destruct
+     *
+     * @param component Clara actor as a {@link org.jlab.clara.base.ClaraComponent} object
+     * @param timeout timeout of the sync communication
+     * @return message {@link org.jlab.coda.xmsg.core.xMsgMessage}
+     *         indicating the status of the sync operation.
+     * @throws ClaraException
+     * @throws IOException
+     * @throws xMsgException
+     * @throws TimeoutException
+     */
     public xMsgMessage syncExit(ClaraComponent component, int timeout)
             throws ClaraException, IOException, xMsgException, TimeoutException {
         return _exit(component, timeout);
@@ -296,7 +538,7 @@ public abstract class ClaraBase extends xMsg {
 
     public EngineData deSerialize(xMsgMessage msg, Set<EngineDataType> dataTypes)
             throws ClaraException {
-        xMsgM.xMsgMeta.Builder metadata = msg.getMetaData();
+        xMsgMeta.Builder metadata = msg.getMetaData();
         String mimeType = metadata.getDataType();
         for (EngineDataType dt : dataTypes) {
             if (dt.mimeType().equals(mimeType)) {
@@ -315,7 +557,7 @@ public abstract class ClaraBase extends xMsg {
 
     public void serialize(EngineData data, xMsgMessage msg, Set<EngineDataType> dataTypes)
             throws ClaraException {
-        xMsgM.xMsgMeta.Builder metadata = dataAccessor.getMetadata(data);
+        xMsgMeta.Builder metadata = dataAccessor.getMetadata(data);
         String mimeType = metadata.getDataType();
         for (EngineDataType dt : dataTypes) {
             if (dt.mimeType().equals(mimeType)) {
@@ -348,8 +590,8 @@ public abstract class ClaraBase extends xMsg {
         outData.setData(EngineDataType.STRING.mimeType(), msg);
         outData.setDescription(description);
 
-        xMsgM.xMsgMeta.Builder outMeta = getMetadata(outData);
-        outMeta.setStatus(xMsgM.xMsgMeta.Status.ERROR);
+        xMsgMeta.Builder outMeta = getMetadata(outData);
+        outMeta.setStatus(xMsgMeta.Status.ERROR);
         outMeta.setSeverityId(severity);
 
         return outData;
@@ -359,7 +601,7 @@ public abstract class ClaraBase extends xMsg {
  * Convoluted way to access the internal EngineData metadata,
  * which is hidden to users.
  */
-    public xMsgM.xMsgMeta.Builder getMetadata(EngineData data) {
+    public xMsgMeta.Builder getMetadata(EngineData data) {
         return dataAccessor.getMetadata(data);
     }
 
@@ -450,9 +692,9 @@ public abstract class ClaraBase extends xMsg {
 
             xMsgTopic topic = component.getTopic();
             xMsgMessage msg = new xMsgMessage(topic, data);
-            xMsgM.xMsgMeta.Builder msgMeta = msg.getMetaData();
+            xMsgMeta.Builder msgMeta = msg.getMetaData();
             msgMeta.setComposition(topic.toString());
-            msgMeta.setAction(xMsgM.xMsgMeta.ControlAction.CONFIGURE);
+            msgMeta.setAction(xMsgMeta.ControlAction.CONFIGURE);
             if(timeout>0){
                 return syncSend(component, msg, timeout);
             } else {
@@ -473,9 +715,9 @@ public abstract class ClaraBase extends xMsg {
 
             xMsgTopic topic = component.getTopic();
             xMsgMessage msg = new xMsgMessage(topic, data);
-            xMsgM.xMsgMeta.Builder msgMeta = msg.getMetaData();
+            xMsgMeta.Builder msgMeta = msg.getMetaData();
             msgMeta.setComposition(topic.toString());
-            msgMeta.setAction(xMsgM.xMsgMeta.ControlAction.EXECUTE);
+            msgMeta.setAction(xMsgMeta.ControlAction.EXECUTE);
             if(timeout>0){
                 return syncSend(component, msg, timeout);
             } else {

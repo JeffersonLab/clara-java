@@ -88,7 +88,7 @@ public class ServiceEngine extends ClaraBase {
     }
 
     @Override
-    public void exit() {
+    public void end() {
 
     }
 

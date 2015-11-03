@@ -20,7 +20,8 @@
  */
 package org.jlab.clara.sys.ccc;
 
-import org.jlab.coda.xmsg.core.xMsgConstants;
+
+import org.jlab.clara.util.CConstants;
 
 /**
  * <p>
@@ -33,8 +34,13 @@ import org.jlab.coda.xmsg.core.xMsgConstants;
  */
 public class ServiceState implements Comparable{
 
-    private String name = xMsgConstants.UNDEFINED.toString();
-    private String state = xMsgConstants.UNDEFINED.toString();
+    private String name = CConstants.UNDEFINED;
+    private String state = CConstants.UNDEFINED;
+
+    public ServiceState(String name, String state) {
+        this.name = name;
+        this.state = state;
+    }
 
     public String getName() {
         return name;
@@ -45,11 +51,6 @@ public class ServiceState implements Comparable{
     }
 
     public void setState(String state) {
-        this.state = state;
-    }
-
-    public ServiceState(String name, String state){
-        this.name = name;
         this.state = state;
     }
 

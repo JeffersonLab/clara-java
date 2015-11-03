@@ -75,7 +75,7 @@ public class Container extends ClaraBase {
     }
 
     @Override
-    public void exit() {
+    public void end() {
         try {
             // broadcast to the local proxy
             String data = ClaraUtil.buildData(CConstants.CONTAINER_DOWN, getMe().getContainerName());
@@ -135,7 +135,7 @@ public class Container extends ClaraBase {
             throws ClaraException, IOException, xMsgException {
         if (myServices.containsKey(serviceName)) {
             Service service = myServices.remove(serviceName);
-            service.exit();
+            service.end();
         }
     }
 
@@ -145,7 +145,7 @@ public class Container extends ClaraBase {
      */
     public void removeAllServices() throws ClaraException, IOException, xMsgException {
         for (Service s : myServices.values()) {
-            s.exit();
+            s.end();
         }
         myServices.clear();
     }

@@ -20,14 +20,16 @@
  */
 package org.jlab.clara.sys.ccc;
 
-import org.jlab.clara.base.ClaraException;
+import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.util.ClaraUtil;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.StringTokenizer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
@@ -56,16 +58,12 @@ import java.util.regex.PatternSyntaxException;
  */
 public class CCompiler {
 
-    public Set<Instruction> instructions = new LinkedHashSet<>();
-
-
     /**
      * <p>
-     *     IP address regex
+     * IP address regex
      * </p>
      */
     public static final String IP = "([0-9]{1,3})\\.([0-9]{1,3})\\.([0-9]{1,3})\\.([0-9]{1,3})";
-
     /**
      * <p>
      *     String that starts with a character
@@ -73,7 +71,6 @@ public class CCompiler {
      * </p>
      */
     public static final String STR = "([^&!][A-Z|a-z]+[0-9]*)";
-
     /**
      * <p>
      *   Service canonical name:
@@ -83,7 +80,6 @@ public class CCompiler {
      * </p>
      */
     public static final String Sn = IP + "_(java|python|cpp):" + STR + ":" + STR;
-
     /**
      * <p>
      *    Routing statement, such as:
@@ -102,8 +98,7 @@ public class CCompiler {
      *    Note that regular expression does not include end of statement operator.
      * </p>
      */
-    public static final String RStmt = Sn + "(,"+ Sn + ")*"+ "((\\+&?"+Sn+")+|(\\+"+ Sn+"(,"+ Sn +")*)+)";
-
+    public static final String RStmt = Sn + "(," + Sn + ")*" + "((\\+&?" + Sn + ")+|(\\+" + Sn + "(," + Sn + ")*)+)";
     /**
      * <p>
      *     CLARA simple Condition, such as:
@@ -115,8 +110,7 @@ public class CCompiler {
      *     </li>
      * </p>
      */
-    public static final String sCond = Sn +"(==|!=)" + STR;
-
+    public static final String sCond = Sn + "(==|!=)" + STR;
     /**
      * <p>
      *     CLARA complex Condition, such as:
@@ -128,8 +122,7 @@ public class CCompiler {
      *     </li>
      * </p>
      */
-    public static final String cCond = sCond + "((&&|!!)" +sCond+")*";
-
+    public static final String cCond = sCond + "((&&|!!)" + sCond + ")*";
     /**
      * <p>
      *    Clara conditional statement
@@ -138,7 +131,7 @@ public class CCompiler {
      */
 //    public static final String Cond = "((if|elseif)\\("+cCond+"\\)\\{"+RStmt+" )|else\\{"+RStmt;
     public static final String Cond = "((if|elseif)\\("+cCond+"\\)\\{"+RStmt+")|(else\\{"+RStmt+")";
-
+    public Set<Instruction> instructions = new LinkedHashSet<>();
     // The name of the service relative to which compilation will be done.
     private String myServiceName;
 
@@ -149,6 +142,29 @@ public class CCompiler {
      */
     public CCompiler(String service){
         myServiceName = service;
+    }
+
+    public static void main(String[] args) {
+//        // composition description file
+        String df = "/Users/gurjyan/Devel/Clara/java/clara-java/src/test/example1.cmp";
+
+        CCompiler compiler = new CCompiler("10.2.9.96_java:container1:engine2");
+
+        try {
+            String t = new String(Files.readAllBytes(Paths.get(df)), StandardCharsets.UTF_8);
+            compiler.compile(t);
+
+        } catch (IOException | ClaraException e) {
+            e.printStackTrace();
+        }
+//        String z = "elseif(10.2.9.96_java:container1:engine0!=aman){10.2.9.96_java:container1:engine1+10.2.9.96_java:container1:engine1";
+//        String z = "else{10.2.9.96_java:container1:engine1+10.2.9.96_java:container1:engine1";
+//        String z = "10.2.9.96_java:container1:engine0==simon";
+//        System.out.println(sCond);
+//        Pattern p = Pattern.compile(sCond);
+//        Matcher m = p.matcher(z);
+//        ClaraUtil.testRegexMatch(m);
+
     }
 
     public void compile(String iCode) throws ClaraException {
@@ -340,7 +356,6 @@ public class CCompiler {
         instructions.clear();
     }
 
-
     /**
      * <p>
      *     returns an entire program one consequent string
@@ -359,29 +374,6 @@ public class CCompiler {
 
     public Set<Instruction> getInstructions() {
         return instructions;
-    }
-
-    public static void main(String[] args) {
-//        // composition description file
-        String df = "/Users/gurjyan/Devel/Clara/java/clara-java/src/test/example1.cmp";
-
-        CCompiler compiler = new CCompiler("10.2.9.96_java:container1:engine2");
-
-        try {
-            String t = new String(Files.readAllBytes(Paths.get(df)), StandardCharsets.UTF_8);
-            compiler.compile(t);
-
-        } catch (IOException | ClaraException e) {
-            e.printStackTrace();
-        }
-//        String z = "elseif(10.2.9.96_java:container1:engine0!=aman){10.2.9.96_java:container1:engine1+10.2.9.96_java:container1:engine1";
-//        String z = "else{10.2.9.96_java:container1:engine1+10.2.9.96_java:container1:engine1";
-//        String z = "10.2.9.96_java:container1:engine0==simon";
-//        System.out.println(sCond);
-//        Pattern p = Pattern.compile(sCond);
-//        Matcher m = p.matcher(z);
-//        ClaraUtil.testRegexMatch(m);
-
     }
 }
 

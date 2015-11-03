@@ -20,14 +20,12 @@
  */
 package org.jlab.clara.sys.ccc;
 
-import org.jlab.clara.base.ClaraException;
-import org.jlab.clara.util.ClaraUtil;
-import org.jlab.coda.xmsg.core.xMsgConstants;
+import org.jlab.clara.base.error.ClaraException;
+import org.jlab.clara.util.CConstants;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.StringTokenizer;
-import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -57,7 +55,7 @@ public class Condition {
     private Set<ServiceState> orNotStates = new LinkedHashSet<>();
 
     // The name of the service that this condition is relevant to.
-    private String serviceName = xMsgConstants.UNDEFINED.toString();
+    private String serviceName = CConstants.UNDEFINED;
 
     public Condition(String conditionString, String serviceName) throws ClaraException {
         this.serviceName = serviceName;
@@ -118,7 +116,6 @@ public class Condition {
     }
 
     private void parseCondition(String cs, String logicOperator) throws ClaraException {
-
 
         StringTokenizer t0, t1;
         if(logicOperator==null){

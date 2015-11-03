@@ -107,7 +107,7 @@ public class BaseOrchestrator {
             base = new ClaraBase(ClaraComponent.orchestrator(name, dpeHost, dpePort, dpeLang,
                     subPoolSize, description), regHost, regPort) {
                 @Override
-                public void exit() {
+                public void end() {
                 }
 
                 @Override
