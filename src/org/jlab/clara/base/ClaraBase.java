@@ -476,11 +476,34 @@ public abstract class ClaraBase extends xMsg {
         return _exit(component, timeout);
     }
 
+    /**
+     * Sends a configuration request to a Clara component
+     *
+     * @param component Clara actor as a {@link org.jlab.clara.base.ClaraComponent} object
+     * @param data      configuration data as a {@link org.jlab.clara.engine.EngineData} object
+     * @throws ClaraException
+     * @throws TimeoutException
+     * @throws xMsgException
+     * @throws IOException
+     */
     public void configureService(ClaraComponent component, EngineData data)
             throws ClaraException, TimeoutException, xMsgException, IOException {
         _configure(component, data, -1);
     }
 
+    /**
+     * Sync sends a configuration request to a Clara component.
+     *
+     * @param component Clara actor as a {@link org.jlab.clara.base.ClaraComponent} object
+     * @param data configuration data as a {@link org.jlab.clara.engine.EngineData} object
+     * @param timeout sync request timeout
+     * @return message {@link org.jlab.coda.xmsg.core.xMsgMessage}
+     *         indicating the status of the sync operation.
+     * @throws ClaraException
+     * @throws TimeoutException
+     * @throws xMsgException
+     * @throws IOException
+     */
     public xMsgMessage syncConfigureService(ClaraComponent component, EngineData data, int timeout)
             throws ClaraException, TimeoutException, xMsgException, IOException {
         return _configure(component, data, timeout);
@@ -496,12 +519,12 @@ public abstract class ClaraBase extends xMsg {
         return _execute(component, data, timeout);
     }
 
-    public void executeComposition(Composition composition, EngineData data)
+    public void executeComposition(String composition, EngineData data)
             throws ClaraException, TimeoutException, xMsgException, IOException {
         _executeComp(composition, data, -1);
     }
 
-    public xMsgMessage syncExecuteComposition(Composition composition, EngineData data, int timeout)
+    public xMsgMessage syncExecuteComposition(String composition, EngineData data, int timeout)
             throws ClaraException, TimeoutException, xMsgException, IOException {
         return _executeComp(composition, data, timeout);
     }
@@ -693,7 +716,7 @@ public abstract class ClaraBase extends xMsg {
             xMsgTopic topic = component.getTopic();
             xMsgMessage msg = new xMsgMessage(topic, data);
             xMsgMeta.Builder msgMeta = msg.getMetaData();
-            msgMeta.setComposition(topic.toString());
+            msgMeta.setComposition(topic.toString() +";");
             msgMeta.setAction(xMsgMeta.ControlAction.CONFIGURE);
             if(timeout>0){
                 return syncSend(component, msg, timeout);
@@ -716,7 +739,7 @@ public abstract class ClaraBase extends xMsg {
             xMsgTopic topic = component.getTopic();
             xMsgMessage msg = new xMsgMessage(topic, data);
             xMsgMeta.Builder msgMeta = msg.getMetaData();
-            msgMeta.setComposition(topic.toString());
+            msgMeta.setComposition(topic.toString() +";");
             msgMeta.setAction(xMsgMeta.ControlAction.EXECUTE);
             if(timeout>0){
                 return syncSend(component, msg, timeout);
@@ -730,12 +753,12 @@ public abstract class ClaraBase extends xMsg {
 
     }
 
-    private xMsgMessage _executeComp(Composition composition, EngineData data, int timeout)
+    private xMsgMessage _executeComp(String composition, EngineData data, int timeout)
             throws ClaraException, xMsgException, IOException, TimeoutException {
         Objects.requireNonNull(composition, "Null service composition");
         Objects.requireNonNull(data, "Null input data");
 
-        String firstService = composition.firstService();
+        String firstService = ClaraUtil.getFirstService(composition);
 
         return _execute(ClaraComponent.service(firstService), data, timeout);
     }

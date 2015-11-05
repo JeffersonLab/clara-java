@@ -433,4 +433,16 @@ public final class ClaraUtil {
     public static long getMemoryUsage() {
         return Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
     }
+
+    public static String getFirstService(String composition) {
+        StringTokenizer st = new StringTokenizer(composition, ";");
+        String a = st.nextToken();
+
+        if (a.contains(",")) {
+            StringTokenizer stk = new StringTokenizer(a, ",");
+            return stk.nextToken();
+        } else {
+            return a;
+        }
+    }
 }

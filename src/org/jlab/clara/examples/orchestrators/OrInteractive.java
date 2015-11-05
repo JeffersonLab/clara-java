@@ -21,34 +21,47 @@
 
 package org.jlab.clara.examples.orchestrators;
 
+import org.jlab.clara.base.BaseOrchestrator;
+import org.jlab.clara.base.ClaraComponent;
+import org.jlab.clara.base.error.ClaraException;
+import org.jlab.clara.engine.EngineData;
+import org.jlab.clara.util.ClaraUtil;
+import org.jlab.clara.util.xml.XMLContainer;
+import org.jlab.clara.util.xml.XMLTagValue;
+import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.excp.xMsgException;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 
+import javax.xml.parsers.ParserConfigurationException;
+import java.io.IOException;
 import java.net.SocketException;
+import java.util.List;
+import java.util.Scanner;
+import java.util.concurrent.TimeoutException;
 
 /**
- * <p>
  *     Interactive orchestrator.
  *     Runs with the local DPE.
- * </p>
+ * <p>
  *
  * @author gurjyan
- * @version 1.x
- * @since 2/9/15
+ * @version 4.x
+ * @since 10/9/15
  */
-public class OrInteractive {
+public class OrInteractive extends BaseOrchestrator {
 
     public OrInteractive(String dpeHost,
-                         String feHost) throws xMsgException, SocketException {
-//        super(dpeHost, feHost);
+                         String feHost) throws xMsgException, SocketException, ClaraException {
+        super(dpeHost, 1, feHost);
     }
 
-    public OrInteractive() throws xMsgException, SocketException {
-//        super();
+    public OrInteractive() throws xMsgException, IOException, ClaraException {
+        super();
     }
 
     public static void main(String[] args) {
 
-        /**
         try {
             OrInteractive or = new OrInteractive();
 
@@ -75,11 +88,13 @@ public class OrInteractive {
 
                             // ask if container exists
                             // start a container
-                            or.start_container(dpe, container);
+                            ClaraComponent cont = ClaraComponent.container(container, pool, "test container");
+                            or.deploy(cont);
                             ClaraUtil.sleep(1000);
 
                             // start a service
-                            or.start_service(dpe + ":" + container, engine, pool);
+                            ClaraComponent serv = ClaraComponent.service(container, engine, pool);
+                            or.deploy(serv);
                             ClaraUtil.sleep(1000);
                         }
                     }
@@ -105,37 +120,29 @@ public class OrInteractive {
                         }
                         if (comp != null && inData != null) {
                             // get canonical composition
-//                            String canComposition = or.engineToCanonical(comp);
-
-                            String canComposition = comp;
 
                             // find the first service in the composition
-                            String firstService = or.getFirstServiceName(canComposition);
+                            String firstService = ClaraUtil.getFirstService(comp);
+
 
                             // create a transient data
-                            xMsgD.Data.Builder data = xMsgD.Data.newBuilder();
-                            data.setComposition(canComposition);
-                            data.setDataType(xMsgD.Data.DType.T_STRING);
-                            data.setSTRING(inData);
-                            data.setAction(xMsgD.Data.ControlAction.EXECUTE);
-                            data.setSender(or.getMyName());
-
+                            EngineData ed = new EngineData();
+                            ed.setData(inData, xMsgConstants.STRING);
 
                             // send the data to the service
-                            or.run_service(firstService, data);
+                            or.executeService(ClaraComponent.service(firstService), ed);
 
-                            int rqc = 1;
                             // check to see if we need to perform bluster test
                             if (args.length == 3 && args[2].equals("-b")) {
                                 while (true) {
                                     // send the data to the service
-                                    or.run_service(firstService, data);
+                                    or.executeService(ClaraComponent.service(firstService), ed);
                                 }
                             }
                         }
                     }
 
-                } catch (ParserConfigurationException | IOException | SAXException e) {
+                } catch (ParserConfigurationException | IOException | SAXException | TimeoutException e) {
                     e.printStackTrace();
                 }
 
@@ -152,10 +159,10 @@ public class OrInteractive {
                         switch (cmd) {
                             case "1":
                                 System.out.println("DPE host ip = ");
-                                String dpe = scanner.nextLine().trim();
                                 System.out.println("Container name = ");
                                 String container = scanner.nextLine().trim();
-                                or.start_container(dpe, container);
+                                ClaraComponent cont = ClaraComponent.container(container, 3, "test container");
+                                or.deploy(cont);
                                 break;
                             case "2":
                                 System.out.println("Container canonical name = ");
@@ -164,46 +171,40 @@ public class OrInteractive {
                                 String engine = scanner.nextLine().trim();
                                 System.out.println("Service object pool size = ");
                                 int pSize = scanner.nextInt();
-                                or.start_service(canCon, engine, pSize);
+                                ClaraComponent serv = ClaraComponent.service(canCon, engine, pSize);
+                                or.deploy(serv);
                                 break;
                             case "3":
-                                System.out.println("Composition = ");
+                                System.out.println("Composition (canonical) = ");
                                 String composition = scanner.nextLine().trim();
                                 System.out.println("Input data = ");
                                 String inData = scanner.nextLine().trim();
 
                                 // get canonical composition
-                                String canComposition = or.engineToCanonical(composition);
 
                                 // find the first service in the composition
-                                String firstService = or.getFirstServiceName(canComposition);
-
+                                String firstService = ClaraUtil.getFirstService(composition);
                                 // create a transient data
-                                xMsgD.Data.Builder data = xMsgD.Data.newBuilder();
-                                data.setComposition(canComposition);
-                                data.setDataType(xMsgD.Data.DType.T_STRING);
-                                data.setSTRING(inData);
-                                data.setAction(xMsgD.Data.ControlAction.EXECUTE);
-                                data.setSender(or.getMyName());
+                                EngineData ed = new EngineData();
+                                ed.setData(inData, xMsgConstants.STRING);
 
                                 // send the data to the service
-                                or.run_service(firstService, data);
+                                or.executeService(ClaraComponent.service(firstService), ed);
+
                                 break;
                             case "4":
                                 System.out.println("DPE name");
                                 String dpe_name = scanner.nextLine().trim();
-                                List<xMsgRegistrationData> containers = or.findContainers(dpe_name);
-                                for (xMsgRegistrationData r : containers) {
-                                    System.out.println(r.getMyName());
+                                for (String name : or.getContainerNames(dpe_name)) {
+                                    System.out.println(name);
                                 }
                         }
                     }
                 }
             }
-        }catch(xMsgException | ClaraException | SocketException e){
+        } catch (xMsgException | ClaraException | TimeoutException | IOException e) {
             e.printStackTrace();
         }
-        */
     }
 
     private void printHelp() {

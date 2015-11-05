@@ -416,7 +416,7 @@ public class BaseOrchestrator {
      * @param data the input data for the composition
      * @throws ClaraException if the request could not be sent
      */
-    public void executeComposition(Composition composition, EngineData data)
+    public void executeComposition(String composition, EngineData data)
             throws ClaraException, xMsgException, TimeoutException, IOException {
         base.executeComposition(composition, data);
     }
@@ -434,7 +434,7 @@ public class BaseOrchestrator {
      * @throws ClaraException if the request could not be sent
      * @throws TimeoutException if a response is not received
      */
-    public EngineData syncExecuteComposition(Composition composition,
+    public EngineData syncExecuteComposition(String composition,
                                              EngineData data,
                                              int timeout)
             throws ClaraException, TimeoutException, IOException, xMsgException {

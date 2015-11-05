@@ -21,7 +21,7 @@
 package org.jlab.clara.sys.ccc;
 
 import org.jlab.clara.base.error.ClaraException;
-import org.jlab.clara.util.CConstants;
+import org.jlab.coda.xmsg.core.xMsgConstants;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -30,14 +30,13 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * <p>
  *     Defines it's own as well as all input service states that if
  *     exists in run-time will make this CLARA composition condition
  *     a true condition.
- * </p>
+ * <p>
  *
  * @author gurjyan
- * @version 1.x
+ * @version 4.x
  * @since 5/21/15
  */
 public class Condition {
@@ -55,7 +54,7 @@ public class Condition {
     private Set<ServiceState> orNotStates = new LinkedHashSet<>();
 
     // The name of the service that this condition is relevant to.
-    private String serviceName = CConstants.UNDEFINED;
+    private String serviceName = xMsgConstants.UNDEFINED.toString();
 
     public Condition(String conditionString, String serviceName) throws ClaraException {
         this.serviceName = serviceName;
@@ -117,6 +116,7 @@ public class Condition {
 
     private void parseCondition(String cs, String logicOperator) throws ClaraException {
 
+
         StringTokenizer t0, t1;
         if(logicOperator==null){
             Pattern p = Pattern.compile(CCompiler.sCond);
@@ -124,7 +124,7 @@ public class Condition {
             if(m.matches()) {
 
                 if (cs.contains("!=")) {
-                    t1 = new StringTokenizer(cs, "!=");
+                    t1 = new StringTokenizer(cs, "!=\"");
                     if (t1.countTokens() != 2) {
                         throw new ClaraException("syntax error: malformed conditional statement");
                     }
@@ -132,7 +132,7 @@ public class Condition {
                     addOrNotState(sst);
 
                 } else if (cs.contains("==")) {
-                    t1 = new StringTokenizer(cs, "==");
+                    t1 = new StringTokenizer(cs, "==\"");
                     if (t1.countTokens() != 2) {
                         throw new ClaraException("syntax error: malformed conditional statement");
                     }
@@ -158,7 +158,7 @@ public class Condition {
                     if (m.matches()) {
 
                         if (ac.contains("!=")) {
-                            t1 = new StringTokenizer(t0.nextToken(), "!=");
+                            t1 = new StringTokenizer(t0.nextToken(), "!=\"");
                             if (t1.countTokens() != 2) {
                                 throw new ClaraException("syntax error: malformed conditional statement");
                             }
@@ -166,7 +166,7 @@ public class Condition {
                             addAndNotState(sst);
 
                         } else if (ac.contains("==")) {
-                            t1 = new StringTokenizer(t0.nextToken(), "==");
+                            t1 = new StringTokenizer(t0.nextToken(), "==\"");
                             if (t1.countTokens() != 2) {
                                 throw new ClaraException("syntax error: malformed conditional statement");
                             }
@@ -190,7 +190,7 @@ public class Condition {
                     if (m.matches()) {
 
                         if (ac.contains("!=")) {
-                            t1 = new StringTokenizer(t0.nextToken(), "!=");
+                            t1 = new StringTokenizer(t0.nextToken(), "!=\"");
                             if (t1.countTokens() != 2) {
                                 throw new ClaraException("syntax error: malformed conditional statement");
                             }
@@ -198,7 +198,7 @@ public class Condition {
                             addOrNotState(sst);
 
                         } else if (ac.contains("==")) {
-                            t1 = new StringTokenizer(t0.nextToken(), "==");
+                            t1 = new StringTokenizer(t0.nextToken(), "==\"");
                             if (t1.countTokens() != 2) {
                                 throw new ClaraException("syntax error: malformed conditional statement");
                             }
@@ -226,36 +226,27 @@ public class Condition {
      */
     public boolean isTrue(ServiceState ownerSS, ServiceState inputSS){
 
-        boolean checkAnd = checkANDCondition(getAndStates(), ownerSS, inputSS);
-        boolean checkAndNot = checkANDCondition(getAndNotStates(), ownerSS, inputSS);
-        boolean checkOr = checkORCondition(getOrStates(), ownerSS, inputSS);
-        boolean checkOrNot = checkORCondition(getOrNotStates(), ownerSS, inputSS);
+        boolean checkAnd = getAndStates().isEmpty() || checkANDCondition(getAndStates(), ownerSS, inputSS);
+        boolean checkAndNot = getAndNotStates().isEmpty() || !checkANDCondition(getAndNotStates(), ownerSS, inputSS);
+        boolean checkOr = getOrStates().isEmpty() || checkORCondition(getOrStates(), ownerSS, inputSS);
+        boolean checkOrNot = getOrNotStates().isEmpty() || !checkORCondition(getOrNotStates(), ownerSS, inputSS);
 
         return checkAnd && checkAndNot && checkOr && checkOrNot;
     }
 
     private boolean checkANDCondition(Set<ServiceState> sc, ServiceState s1, ServiceState s2){
-        boolean b = false;
-        if(sc.isEmpty()){
-            b = true;
-        } else {
-            if (sc.contains(s1) && sc.contains(s2)) {
-                return true;
-            }
+        if (sc.contains(s1) && sc.contains(s2)) {
+            return true;
         }
-        return b;
+        return false;
     }
 
     private boolean checkORCondition(Set<ServiceState> sc, ServiceState s1, ServiceState s2){
         boolean b = false;
-        if(sc.isEmpty()){
-            b = true;
-        } else {
-            if (sc.contains(s1) || sc.contains(s2)) {
-                return true;
-            }
+        if (sc.contains(s1) || sc.contains(s2)) {
+            return true;
         }
-        return b;
+        return false;
     }
 
     @Override

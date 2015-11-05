@@ -354,6 +354,20 @@ public class ClaraComponent {
         return a;
     }
 
+    public static ClaraComponent service(String container,
+                                         String engine, int poolSize) throws IOException {
+        ClaraComponent a = new ClaraComponent(CConstants.JAVA_LANG,
+                xMsgUtil.localhost(),
+                xMsgConstants.DEFAULT_PORT,
+                container,
+                engine,
+                CConstants.UNDEFINED,
+                poolSize, CConstants.UNDEFINED,
+                CConstants.UNDEFINED);
+        a.isService = true;
+        return a;
+    }
+
 
 
     public static ClaraComponent service(String serviceCanonicalName) throws ClaraException {

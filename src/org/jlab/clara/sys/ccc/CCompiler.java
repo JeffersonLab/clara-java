@@ -20,6 +20,7 @@
  */
 package org.jlab.clara.sys.ccc;
 
+
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.util.ClaraUtil;
 
@@ -27,6 +28,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.StringTokenizer;
@@ -35,7 +37,6 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 /**
- * <p>
  *     Clara compiler. Compiles the application logical description,
  *     i.e. simple/conditional routing schema in a sets of instructions
  *     for a specified service. Below is an example of the application
@@ -50,10 +51,10 @@ import java.util.regex.PatternSyntaxException;
  *         S2 + S5,S6,S7;
  *     }
  *     S4,S5 + &S8;
- * </p>
+ * <p>
  *
  * @author gurjyan
- * @version 1.x
+ * @version 4.x
  * @since 5/29/15
  */
 public class CCompiler {
@@ -65,23 +66,20 @@ public class CCompiler {
      */
     public static final String IP = "([0-9]{1,3})\\.([0-9]{1,3})\\.([0-9]{1,3})\\.([0-9]{1,3})";
     /**
-     * <p>
      *     String that starts with a character
      *     and can have preceding number
-     * </p>
-     */
-    public static final String STR = "([^&!][A-Z|a-z]+[0-9]*)";
-    /**
      * <p>
+     */
+    public static final String STR = "([A-Z|a-z]+[0-9]*)";
+    /**
      *   Service canonical name:
      *   <li>
      *       dpe_ip : container_name : service_engine_name
      *   </li>
-     * </p>
+     * <p>
      */
     public static final String Sn = IP + "_(java|python|cpp):" + STR + ":" + STR;
     /**
-     * <p>
      *    Routing statement, such as:
      *    <li>
      *       S1 + S2 + S3;
@@ -95,12 +93,14 @@ public class CCompiler {
      *    <li>
      *       S1 , S2 + &S3;
      *    </li>
+     *    <li>
+     *       S1;
+     *    </li>
      *    Note that regular expression does not include end of statement operator.
-     * </p>
-     */
-    public static final String RStmt = Sn + "(," + Sn + ")*" + "((\\+&?" + Sn + ")+|(\\+" + Sn + "(," + Sn + ")*)+)";
-    /**
      * <p>
+     */
+    public static final String RStmt = Sn + "(," + Sn + ")*" + "((\\+&?" + Sn + ")*|(\\+" + Sn + "(," + Sn + ")*)*)";
+    /**
      *     CLARA simple Condition, such as:
      *     <li>
      *         Service == "state_name"
@@ -108,11 +108,10 @@ public class CCompiler {
      *     <li>
      *         Service != "state_name"
      *     </li>
-     * </p>
-     */
-    public static final String sCond = Sn + "(==|!=)" + STR;
-    /**
      * <p>
+     */
+    public static final String sCond = Sn + "(==|!=)\"" + STR + "\"";
+    /**
      *     CLARA complex Condition, such as:
      *     <li>
      *         (Service1 == "state_name1" && Service2 == "state_name2) {
@@ -120,17 +119,15 @@ public class CCompiler {
      *     <li>
      *         Service1 == "state_name1" !! Service2 == "state_name2" !! Service2 != "state_name3") {
      *     </li>
-     * </p>
+     * <p>
      */
     public static final String cCond = sCond + "((&&|!!)" + sCond + ")*";
     /**
-     * <p>
      *    Clara conditional statement
-     * </p>
+     * <p>
      *
      */
-//    public static final String Cond = "((if|elseif)\\("+cCond+"\\)\\{"+RStmt+" )|else\\{"+RStmt;
-    public static final String Cond = "((if|elseif)\\("+cCond+"\\)\\{"+RStmt+")|(else\\{"+RStmt+")";
+    public static final String Cond = "((\\}?if|\\}elseif)\\(" + cCond + "\\)\\{" + RStmt + ")|(\\}else\\{" + RStmt + ")";
     public Set<Instruction> instructions = new LinkedHashSet<>();
     // The name of the service relative to which compilation will be done.
     private String myServiceName;
@@ -157,14 +154,6 @@ public class CCompiler {
         } catch (IOException | ClaraException e) {
             e.printStackTrace();
         }
-//        String z = "elseif(10.2.9.96_java:container1:engine0!=aman){10.2.9.96_java:container1:engine1+10.2.9.96_java:container1:engine1";
-//        String z = "else{10.2.9.96_java:container1:engine1+10.2.9.96_java:container1:engine1";
-//        String z = "10.2.9.96_java:container1:engine0==simon";
-//        System.out.println(sCond);
-//        Pattern p = Pattern.compile(sCond);
-//        Matcher m = p.matcher(z);
-//        ClaraUtil.testRegexMatch(m);
-
     }
 
     public void compile(String iCode) throws ClaraException {
@@ -174,10 +163,6 @@ public class CCompiler {
 
         // Create a single string with no blanks
         String pCode = noBlanks(iCode);
-
-        System.out.println("DDD-1 ");
-        System.out.println(pCode);
-        System.out.println("------------ \n");
 
         // split single string program using
         // Clara ; end of statement operator
@@ -193,31 +178,40 @@ public class CCompiler {
         while(++i < ppi.length){
 
             String scs1 = ppi[i];
-            System.out.println("DDD-2 ");
-            System.out.println(scs1);
-            System.out.println("------------ \n");
 
             // conditional statement
             if (scs1.startsWith("if(") ||
-                    scs1.startsWith("elseif(") ||
-                    scs1.startsWith("else")) {
+                    scs1.startsWith("}if(") ||
+                    scs1.startsWith("}elseif(") ||
+                    scs1.startsWith("}else")) {
+
                 Instruction instruction = parseCondition(scs1);
-                while(++i < ppi.length){
+
+                // ADB: assuming the intention here was to allow multiple statements under one conditional -- otherwise why make it nested?
+                //
+                while (++i < ppi.length) {
+
                     String scs2 = ppi[i];
 
-                    System.out.println("DDD-22");
-                    System.out.println(scs2);
-                    System.out.println("=================");
+                    if (!scs2.startsWith("}") &&
+                            !scs2.startsWith("if(") &&
+                            !scs2.startsWith("}if(") &&
+                            !scs2.startsWith("}elseif(") &&
+                            !scs2.startsWith("}else")) {
 
-                    if(!scs2.startsWith("if(") &&
-                            !scs2.startsWith("elseif(") &&
-                            !scs2.startsWith("else")) {
-                        parseStatement(scs2, instruction);
+                        // if ignoring the conditional, then ignore its statements also
+                        if (instruction != null) {
+                            parseConditionalStatement(scs2, instruction);
+                        }
                     } else {
                         break;
                     }
+
+
                 }
-                instructions.add(instruction);
+                if (instruction != null) {
+                    instructions.add(instruction);
+                }
                 i--;
                 // routing statement
             } else {
@@ -225,11 +219,8 @@ public class CCompiler {
             }
         }
 
-        System.out.println("DDD-3 ");
-        for(Instruction ins:instructions){
-            System.out.println(ins);
-        }
-        System.out.println("------------ \n");
+
+        if (instructions.isEmpty()) throw new ClaraException("Composition is irrelevant for a service.");
 
     }
 
@@ -250,11 +241,18 @@ public class CCompiler {
         Set<String> r = new LinkedHashSet<>();
         // tokenize by ;
         StringTokenizer st = new StringTokenizer(pCode,";");
+
         while (st.hasMoreTokens()){
+
             String text = st.nextToken();
+
+            // ADB: by stripping out the closing brace here you lose the ability to correctly parse multiple statements in a block
+            //
             // this will get read of very last }
-            text = ClaraUtil.removeFirst(text, "}");
-            if(!text.equals("")) r.add(text);
+            //text = CUtility.removeFirst(text, "}");
+
+            // ignore
+            if (!text.equals("") && !text.equals("}")) r.add(text);
         }
         return r;
     }
@@ -263,50 +261,60 @@ public class CCompiler {
         boolean b = false;
         Instruction ti = new Instruction(myServiceName);
 
-        if(!iStmt.startsWith("if(") &&
-                !iStmt.startsWith("elseif(") &&
-                !iStmt.startsWith("else")){
+        // ignore a leading }
+        iStmt = ClaraUtil.removeFirst(iStmt, "}");
 
-            //unconditional routing statement
-            try {
-                Pattern p = Pattern.compile(RStmt);
-                Matcher m = p.matcher(iStmt);
-
-                if(m.matches()) {
-                    Statement ts = new Statement(iStmt, myServiceName);
-                    ti.addUnCondStatement(ts);
-                    instructions.add(ti);
-                    b = true;
-                } else {
-                    throw new ClaraException("Syntax error in the Clara routing program. " +
-                            "Malformed routing statement");
-                }
-            } catch (PatternSyntaxException e){
-                System.err.println(e.getDescription());
-            }
-        }
-        return b;
-    }
-
-    private boolean parseStatement(String iStmt, Instruction ti) throws ClaraException {
-        boolean b = false;
-
-        if(!iStmt.startsWith("if(") &&
-                !iStmt.startsWith("elseif(") &&
-                !iStmt.startsWith("else")){
-
-            //unconditional routing statement
+        //unconditional routing statement
+        try {
             Pattern p = Pattern.compile(RStmt);
             Matcher m = p.matcher(iStmt);
-            if(m.matches()) {
+
+            if (m.matches()) {
+
+                // ignore conditional statements not concerning me
+                if (!iStmt.contains(myServiceName)) return false;
+
                 Statement ts = new Statement(iStmt, myServiceName);
                 ti.addUnCondStatement(ts);
+                instructions.add(ti);
                 b = true;
             } else {
                 throw new ClaraException("Syntax error in the Clara routing program. " +
                         "Malformed routing statement");
             }
+        } catch (PatternSyntaxException e) {
+            System.err.println(e.getDescription());
         }
+        return b;
+    }
+
+    private boolean parseConditionalStatement(String iStmt, Instruction ti) throws ClaraException {
+        boolean b = false;
+
+        //unconditional routing statement
+        Pattern p = Pattern.compile(RStmt);
+        Matcher m = p.matcher(iStmt);
+        if (m.matches()) {
+
+            // ignore conditional statements not concerning me
+            if (!iStmt.contains(myServiceName)) return false;
+
+            Statement ts = new Statement(iStmt, myServiceName);
+
+            // inside condition, so add as the corect type
+            if (ti.getIfCondition() != null) {
+                ti.addIfCondStatement(ts);
+            } else if (ti.getElseifCondition() != null) {
+                ti.addElseifCondStatement(ts);
+            } else {
+                ti.addElseCondStatement(ts);
+            }
+            b = true;
+        } else {
+            throw new ClaraException("Syntax error in the Clara routing program. " +
+                    "Malformed routing statement");
+        }
+
         return b;
     }
 
@@ -318,26 +326,27 @@ public class CCompiler {
 
         if(m.matches()) {
             try {
-
                 // get first statement  and analyze it
                 String statementStr = iCnd.substring(iCnd.indexOf("{"));
+
+                // ignore conditions not concerning me
+                if (!statementStr.contains(myServiceName)) return null;
+
                 Statement ts = new Statement(statementStr, myServiceName);
 
                 // create Instruction
                 ti = new Instruction(myServiceName);
-                if(iCnd.startsWith("if(")) {
+                if (iCnd.startsWith("}if(") || iCnd.startsWith("if(")) {
                     String conditionStr = iCnd.substring(iCnd.indexOf("(")+1, iCnd.lastIndexOf(")"));
                     Condition tc = new Condition(conditionStr, myServiceName);
                     ti.setIfCondition(tc);
                     ti.addIfCondStatement(ts);
-                }
-                else if(iCnd.startsWith("elseif(")) {
+                } else if (iCnd.startsWith("}elseif(")) {
                     String conditionStr = iCnd.substring(iCnd.indexOf("(")+1, iCnd.lastIndexOf(")"));
                     Condition tc = new Condition(conditionStr, myServiceName);
                     ti.setElseifCondition(tc);
                     ti.addElseifCondStatement(ts);
-                }
-                else if(iCnd.startsWith("else")) {
+                } else if (iCnd.startsWith("}else")) {
                     ti.addElseCondStatement(ts);
                 }
             } catch (StringIndexOutOfBoundsException e) {
@@ -374,6 +383,90 @@ public class CCompiler {
 
     public Set<Instruction> getInstructions() {
         return instructions;
+    }
+
+    public Set<String> getLinks(ServiceState ownerSS, ServiceState inputSS) {
+
+        Set<String> outputs = new HashSet<String>();
+
+        // The list of routing instructions supply the output links
+        //
+        // Instructions with unconditional routing always provide output links
+        //
+        // Conditional routing evaluates a sequence of instructions:
+        //
+        //   * one if-conditional instruction
+        //   * zero-or-more else-if conditional instructions
+        //   * zero-or-one else conditional instruction
+        //
+        // In a sequence, only the first conditional to evaluate to "true" supplies output links
+
+        // keep track of when one of the if/elseif/else conditions has been chosen
+        boolean inCondition = false;
+        boolean conditionChosen = false;
+
+
+        for (Instruction inst : instructions) {
+
+            // NOTE: instruction routing statements are exclusive: will be either unconditional, if, elseif, or else.
+
+            if (!inst.getUnCondStatements().isEmpty()) {
+
+                // no longer in a conditional now
+                inCondition = false;
+
+                for (Statement stmt : inst.getUnCondStatements()) {
+                    outputs.addAll(stmt.getOutputLinks());
+                }
+
+                continue;
+            }
+
+            if (inst.getIfCondition() != null) {
+
+                inCondition = true;
+                conditionChosen = false;
+
+                if (inst.getIfCondition().isTrue(ownerSS, inputSS)) {
+
+                    conditionChosen = true;
+                    for (Statement stmt : inst.getIfCondStatements()) {
+                        outputs.addAll(stmt.getOutputLinks());
+                    }
+                }
+
+                continue;
+            }
+
+            // must be in a conditional already to process an elseif or else
+            if (inCondition && !conditionChosen) {
+
+                if (inst.getElseifCondition() != null) {
+
+                    if (inst.getElseifCondition().isTrue(ownerSS, inputSS)) {
+
+                        conditionChosen = true;
+
+                        for (Statement stmt : inst.getElseifCondStatements()) {
+                            outputs.addAll(stmt.getOutputLinks());
+                        }
+                    }
+
+                    continue;
+                }
+
+                if (!inst.getElseCondStatements().isEmpty()) {
+
+                    conditionChosen = true;
+
+                    for (Statement stmt : inst.getElseCondStatements()) {
+                        outputs.addAll(stmt.getOutputLinks());
+                    }
+                }
+            }
+        }
+
+        return outputs;
     }
 }
 

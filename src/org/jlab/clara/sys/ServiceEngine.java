@@ -28,7 +28,8 @@ import org.jlab.clara.engine.Engine;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.engine.EngineStatus;
-import org.jlab.clara.sys.ccc.SimpleCompiler;
+import org.jlab.clara.sys.ccc.CCompiler;
+import org.jlab.clara.sys.ccc.ServiceState;
 import org.jlab.clara.util.CConstants;
 import org.jlab.clara.util.ClaraUtil;
 import org.jlab.coda.xmsg.core.xMsgConstants;
@@ -42,7 +43,7 @@ import java.util.Set;
 import java.util.concurrent.Semaphore;
 
 /**
- * A Service engine. @todo need revisiting .....
+ * A Service engine.
  * Every engine process a request in its own thread.
  *
  * @author gurjyan
@@ -60,7 +61,7 @@ public class ServiceEngine extends ClaraBase {
     // Already recorded (previous) composition
     private String prevComposition = xMsgConstants.UNDEFINED;
 
-    private SimpleCompiler compiler;
+    private CCompiler compiler;
 
     // The last execution time
     private long executionTime;
@@ -84,7 +85,7 @@ public class ServiceEngine extends ClaraBase {
         connect();
 
         // create an object of the composition parser
-        compiler = new SimpleCompiler(comp.getCanonicalName());
+        compiler = new CCompiler(comp.getCanonicalName());
     }
 
     @Override
@@ -180,7 +181,7 @@ public class ServiceEngine extends ClaraBase {
         }
 
         sendReports(outData);
-        sendResponse(outData, getLinks());
+        sendResponse(outData, getLinks(inData, outData));
     }
 
     private void parseComposition(EngineData inData) throws ClaraException {
@@ -192,8 +193,13 @@ public class ServiceEngine extends ClaraBase {
         }
     }
 
-    private Set<String> getLinks() {
-        return compiler.getOutputs();
+    private Set<String> getLinks(EngineData inData, EngineData outData) {
+
+        // service-states for conditional routing
+        ServiceState ownerSS = new ServiceState(outData.getEngineName(), outData.getEngineState());
+        ServiceState inputSS = new ServiceState(inData.getEngineName(), inData.getEngineState());
+
+        return compiler.getLinks(ownerSS, inputSS);
     }
 
     private EngineData executeEngine(EngineData inData)
@@ -210,7 +216,7 @@ public class ServiceEngine extends ClaraBase {
         if (outData.getData() == null) {
             if (outData.getStatus() == EngineStatus.ERROR) {
                 outData.setData(EngineDataType.STRING.mimeType(),
-                                xMsgConstants.UNDEFINED.toString());
+                        xMsgConstants.UNDEFINED);
             } else {
                 throw new ClaraException("empty engine result");
             }
