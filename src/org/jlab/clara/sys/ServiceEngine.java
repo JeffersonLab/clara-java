@@ -90,12 +90,10 @@ public class ServiceEngine extends ClaraBase {
 
     @Override
     public void end() {
-
     }
 
     @Override
     public void start(ClaraComponent component) {
-
     }
 
     public void configure(xMsgMessage message)
@@ -111,7 +109,7 @@ public class ServiceEngine extends ClaraBase {
             inputData = getEngineData(message);
             outData = configureEngine(inputData);
         } catch (Exception e) {
-            outData = reportSystemError("unhandled exception", -4, ClaraUtil.reportException(e));
+            outData = buildSystemErrorData("unhandled exception", -4, ClaraUtil.reportException(e));
         } finally {
             updateMetadata(message.getMetaData(), getMetadata(outData));
             resetClock();
@@ -161,7 +159,7 @@ public class ServiceEngine extends ClaraBase {
             parseComposition(inData);
             outData = executeEngine(inData);
         } catch (Exception e) {
-            outData = reportSystemError("unhandled exception", -4, ClaraUtil.reportException(e));
+            outData = buildSystemErrorData("unhandled exception", -4, ClaraUtil.reportException(e));
         } finally {
             updateMetadata(message.getMetaData(), getMetadata(outData));
             resetClock();

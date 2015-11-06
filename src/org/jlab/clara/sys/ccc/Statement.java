@@ -59,10 +59,10 @@ public class Statement {
     private Set<String> outputLinks = new LinkedHashSet<>();
 
     // statement string
-    private String statementString = xMsgConstants.UNDEFINED.toString();
+    private String statementString = xMsgConstants.UNDEFINED;
 
     // The name of the service that this statement is relevant to.
-    private String serviceName = xMsgConstants.UNDEFINED.toString();
+    private String serviceName = xMsgConstants.UNDEFINED;
 
 
     public Statement(String statementString, String serviceName) throws ClaraException {

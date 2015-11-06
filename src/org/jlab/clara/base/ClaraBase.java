@@ -509,26 +509,83 @@ public abstract class ClaraBase extends xMsg {
         return _configure(component, data, timeout);
     }
 
+    /**
+     * Execute service method
+     *
+     * @param component Clara actor as a {@link org.jlab.clara.base.ClaraComponent} object
+     * @param data      service input data as a {@link org.jlab.clara.engine.EngineData} object
+     * @throws ClaraException
+     * @throws TimeoutException
+     * @throws xMsgException
+     * @throws IOException
+     */
     public void executeService(ClaraComponent component, EngineData data)
             throws ClaraException, TimeoutException, xMsgException, IOException {
         _execute(component, data, -1);
     }
 
+    /**
+     * Sync execute service
+     *
+     * @param component component Clara actor as a {@link org.jlab.clara.base.ClaraComponent} object
+     * @param data service input data as a {@link org.jlab.clara.engine.EngineData} object
+     * @param timeout sync request timeout
+     * @return message {@link org.jlab.coda.xmsg.core.xMsgMessage}
+     *         indicating the status of the sync operation.
+     * @throws ClaraException
+     * @throws TimeoutException
+     * @throws xMsgException
+     * @throws IOException
+     */
     public xMsgMessage syncExecuteService(ClaraComponent component, EngineData data, int timeout)
             throws ClaraException, TimeoutException, xMsgException, IOException {
         return _execute(component, data, timeout);
     }
 
+    /**
+     * Executes an entire composition. This simply defines the first service
+     * in the composition and sends the input data to trigger the composition data flow.
+     *
+     * @param composition String representation of the composition
+     * @param data service input data as a {@link org.jlab.clara.engine.EngineData} object
+     * @throws ClaraException
+     * @throws TimeoutException
+     * @throws xMsgException
+     * @throws IOException
+     */
     public void executeComposition(String composition, EngineData data)
             throws ClaraException, TimeoutException, xMsgException, IOException {
         _executeComp(composition, data, -1);
     }
 
+    /**
+     * Sync executes an entire composition. This simply defines the first service
+     * in the composition and sends the input data to trigger the composition data flow.
+     *
+     * @param composition String representation of the composition
+     * @param data service input data as a {@link org.jlab.clara.engine.EngineData} object
+     * @param timeout sync request timeout
+     * @return message {@link org.jlab.coda.xmsg.core.xMsgMessage}
+     *         indicating the status of the sync operation.
+     * @throws ClaraException
+     * @throws TimeoutException
+     * @throws xMsgException
+     * @throws IOException
+     */
     public xMsgMessage syncExecuteComposition(String composition, EngineData data, int timeout)
             throws ClaraException, TimeoutException, xMsgException, IOException {
         return _executeComp(composition, data, timeout);
     }
 
+    /**
+     * Sends a message to a Clara component asking to report after processing events = eventCount.
+     *
+     * @param component component Clara actor as a {@link org.jlab.clara.base.ClaraComponent} object
+     * @param report report type define as a {@link org.jlab.clara.util.report.CReportTypes} object
+     * @param eventCount number of events after which component reports/broadcasts required type of a report
+     * @throws IOException
+     * @throws xMsgException
+     */
     public void startReporting(ClaraComponent component, CReportTypes report, int eventCount)
             throws IOException, xMsgException {
 
@@ -541,11 +598,30 @@ public abstract class ClaraBase extends xMsg {
         send(component,msg);
     }
 
+    /**
+     * Sends a message to a Clara component to stop reporting a specific type of report type.
+     *
+     * @param component component Clara actor as a {@link org.jlab.clara.base.ClaraComponent} object
+     * @param report report type define as a {@link org.jlab.clara.util.report.CReportTypes} object
+     * @throws IOException
+     * @throws xMsgException
+     */
     public void stopReporting(ClaraComponent component, CReportTypes report)
             throws IOException, xMsgException {
         startReporting(component, report, 0);
     }
 
+    /**
+     * Sync asks DPE to report
+     *
+     * @param component dpe as a {@link ClaraComponent#dpe()} object
+     * @param timeout sync request timeout
+     * @return message {@link org.jlab.coda.xmsg.core.xMsgMessage}
+     *         back from a dpe.
+     * @throws IOException
+     * @throws xMsgException
+     * @throws TimeoutException
+     */
     public xMsgMessage pingDpe(ClaraComponent component, int timeout)
             throws IOException, xMsgException, TimeoutException {
 
@@ -558,7 +634,19 @@ public abstract class ClaraBase extends xMsg {
         return null;
     }
 
-
+    /**
+     * De-serializes data of the message {@link org.jlab.coda.xmsg.core.xMsgMessage},
+     * represented as a byte[] into an object of az type defined using the mimeType/dataType
+     * of the meta-data (also as a part of the xMsgMessage). Second argument is used to
+     * pass the serialization routine as a method of the {@link org.jlab.clara.engine.EngineDataType}
+     * object.
+     *
+     * @param msg {@link org.jlab.coda.xmsg.core.xMsgMessage} object
+     * @param dataTypes set of {@link org.jlab.clara.engine.EngineDataType} objects
+     * @return {@link org.jlab.clara.engine.EngineData} object containing de-serialized data object
+     *          and metadata
+     * @throws ClaraException
+     */
     public EngineData deSerialize(xMsgMessage msg, Set<EngineDataType> dataTypes)
             throws ClaraException {
         xMsgMeta.Builder metadata = msg.getMetaData();
@@ -578,6 +666,17 @@ public abstract class ClaraBase extends xMsg {
     }
 
 
+    /**
+     * Builds a message: {@link org.jlab.coda.xmsg.core.xMsgMessage} by serializing
+     * passed data: {@link org.jlab.clara.engine.EngineData} object using serialization
+     * routine defined in one of the {@link org.jlab.clara.engine.EngineDataType} object.
+     *
+     * @param data {@link org.jlab.clara.engine.EngineData} object
+     * @param msg {@link org.jlab.coda.xmsg.core.xMsgMessage} object that is going to be furnished with the
+     *            serialized data and the metadata.
+     * @param dataTypes set of {@link org.jlab.clara.engine.EngineDataType} objects
+     * @throws ClaraException
+     */
     public void serialize(EngineData data, xMsgMessage msg, Set<EngineDataType> dataTypes)
             throws ClaraException {
         xMsgMeta.Builder metadata = dataAccessor.getMetadata(data);
@@ -597,6 +696,20 @@ public abstract class ClaraBase extends xMsg {
         throw new ClaraException("Unsupported mime-type = " + mimeType);
     }
 
+    /**
+     * Builds and returns a message that is furnished with a data (serialized) and a metadata.
+     * This method calls {@link #serialize(org.jlab.clara.engine.EngineData,
+     * org.jlab.coda.xmsg.core.xMsgMessage, java.util.Set)} method of ClaraBase class.
+     *
+     * @param topic {@link org.jlab.coda.xmsg.core.xMsgTopic} object, representing Clara actors
+     *              canonical name.
+     * @param data {@link org.jlab.clara.engine.EngineData} object
+     * @param dataTypes set of {@link org.jlab.clara.engine.EngineDataType} objects
+     * @return {@link org.jlab.coda.xmsg.core.xMsgMessage} object
+     * @throws ClaraException
+     * @throws xMsgException
+     * @throws IOException
+     */
     public xMsgMessage buildMessage(xMsgTopic topic, EngineData data, Set<EngineDataType> dataTypes)
             throws ClaraException, xMsgException, IOException {
         try {
@@ -608,7 +721,15 @@ public abstract class ClaraBase extends xMsg {
         }
     }
 
-    public EngineData reportSystemError(String msg, int severity, String description) {
+    /**
+     * Creates system exception data (EngineData object)
+     *
+     * @param msg         the exception message
+     * @param severity    severity ID of the exception
+     * @param description More thorough description of the source of the exception
+     * @return {@link org.jlab.clara.engine.EngineData} object
+     */
+    public EngineData buildSystemErrorData(String msg, int severity, String description) {
         EngineData outData = new EngineData();
         outData.setData(EngineDataType.STRING.mimeType(), msg);
         outData.setDescription(description);
@@ -621,17 +742,33 @@ public abstract class ClaraBase extends xMsg {
     }
 
     /*
- * Convoluted way to access the internal EngineData metadata,
- * which is hidden to users.
  */
+
+    /**
+     * Convoluted way to access the internal EngineData metadata,
+     * which is hidden to users.
+     *
+     * @param data {@link org.jlab.clara.engine.EngineData} object
+     * @return {@link org.jlab.coda.xmsg.data.xMsgM.xMsgMeta.Builder} object
+     */
     public xMsgMeta.Builder getMetadata(EngineData data) {
         return dataAccessor.getMetadata(data);
     }
 
+    /**
+     * Returns the reference to the front-end DPE
+     *
+     * @return {@link org.jlab.clara.base.ClaraComponent} object
+     */
     public ClaraComponent getFrontEnd() {
         return frontEnd;
     }
 
+    /**
+     * Sets a DPE Clara component as a front-end
+     *
+     * @param frontEnd {@link org.jlab.clara.base.ClaraComponent} object
+     */
     public void setFrontEnd(ClaraComponent frontEnd) {
         this.frontEnd = frontEnd;
     }
@@ -640,6 +777,16 @@ public abstract class ClaraBase extends xMsg {
      * *********************** Private Methods *****************************
      */
 
+    /**
+     * xMsg send wrapper
+     *
+     * @param component Clara component
+     * @param msg xMsgMessage object
+     * @param timeout timeout in case sync send. Note timeout <=0 indicates async send
+     * @return xMsgMessage in case sync request, null otherwise
+     * @throws TimeoutException
+     * @throws xMsgException
+     */
     private xMsgMessage __send(ClaraComponent component, xMsgMessage msg, int timeout)
             throws TimeoutException, xMsgException {
         if (timeout > 0) {
@@ -650,6 +797,17 @@ public abstract class ClaraBase extends xMsg {
         }
     }
 
+    /**
+     * Deploys container or service Clara component on a DPE.
+     *
+     * @param component {@link org.jlab.clara.base.ClaraComponent} of the type container or service
+     * @param timeout timeout in case of sync operation. Note timeout <=0 indicates async deploy
+     * @return xMsgMessage in case sync request, null otherwise
+     * @throws ClaraException
+     * @throws IOException
+     * @throws xMsgException
+     * @throws TimeoutException
+     */
     private xMsgMessage _deploy(ClaraComponent component, int timeout)
             throws ClaraException, IOException, xMsgException, TimeoutException {
         if (component.isOrchestrator() || component.isDpe()) {
@@ -683,6 +841,17 @@ public abstract class ClaraBase extends xMsg {
             return __send(component, msg, timeout);
     }
 
+    /**
+     * Request to stop dpe, container or service component
+     *
+     * @param component {@link org.jlab.clara.base.ClaraComponent} of the type dpe, container or service
+     * @param timeout timeout in case of sync operation. Note timeout <=0 indicates async exit
+     * @return xMsgMessage in case sync request, null otherwise
+     * @throws IOException
+     * @throws xMsgException
+     * @throws TimeoutException
+     * @throws ClaraException
+     */
     private xMsgMessage _exit(ClaraComponent component, int timeout)
             throws IOException, xMsgException, TimeoutException, ClaraException {
         if(component.isOrchestrator()) {
@@ -709,6 +878,18 @@ public abstract class ClaraBase extends xMsg {
             return __send(component, msg, timeout);
     }
 
+    /**
+     * Service configure base method.
+     *
+     * @param component {@link org.jlab.clara.base.ClaraComponent} object
+     * @param data {@link org.jlab.clara.engine.EngineData} object
+     * @param timeout timeout in case of sync operation. Note timeout <=0 indicates async configure
+     * @return xMsgMessage in case sync request, null otherwise
+     * @throws ClaraException
+     * @throws IOException
+     * @throws xMsgException
+     * @throws TimeoutException
+     */
     private xMsgMessage _configure(ClaraComponent component, EngineData data, int timeout)
             throws ClaraException, IOException, xMsgException, TimeoutException {
         if(component.isService()){
@@ -729,6 +910,18 @@ public abstract class ClaraBase extends xMsg {
         }
     }
 
+    /**
+     * Service execute base method.
+     *
+     * @param component {@link org.jlab.clara.base.ClaraComponent} object
+     * @param data {@link org.jlab.clara.engine.EngineData} object
+     * @param timeout timeout in case of sync operation. Note timeout <=0 indicates async execute
+     * @return xMsgMessage in case sync request, null otherwise
+     * @throws ClaraException
+     * @throws IOException
+     * @throws xMsgException
+     * @throws TimeoutException
+     */
     private xMsgMessage _execute(ClaraComponent component, EngineData data, int timeout)
             throws ClaraException, IOException, xMsgException, TimeoutException {
         if(component.isOrchestrator() || component.isDpe() || component.isContainer() ) {
@@ -753,13 +946,25 @@ public abstract class ClaraBase extends xMsg {
 
     }
 
+    /**
+     * Composition execute base method. This is the same
+     * {@link #_execute(ClaraComponent, org.jlab.clara.engine.EngineData, int)}
+     * method called on the first service of the composition.
+     *
+     * @param composition composition string representation
+     * @param data {@link org.jlab.clara.engine.EngineData} object
+     * @param timeout timeout in case of sync operation. Note timeout <=0 indicates async execute
+     * @return xMsgMessage in case sync request, null otherwise
+     * @throws ClaraException
+     * @throws IOException
+     * @throws xMsgException
+     * @throws TimeoutException
+     */
     private xMsgMessage _executeComp(String composition, EngineData data, int timeout)
             throws ClaraException, xMsgException, IOException, TimeoutException {
         Objects.requireNonNull(composition, "Null service composition");
         Objects.requireNonNull(data, "Null input data");
-
         String firstService = ClaraUtil.getFirstService(composition);
-
         return _execute(ClaraComponent.service(firstService), data, timeout);
     }
 }

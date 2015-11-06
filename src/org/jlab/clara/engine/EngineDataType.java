@@ -21,15 +21,14 @@
 
 package org.jlab.clara.engine;
 
-import java.nio.ByteBuffer;
-import java.util.Arrays;
-import java.util.Objects;
-
+import com.google.protobuf.ByteString;
+import com.google.protobuf.InvalidProtocolBufferException;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.coda.xmsg.data.xMsgD.xMsgData;
 
-import com.google.protobuf.ByteString;
-import com.google.protobuf.InvalidProtocolBufferException;
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+import java.util.Objects;
 
 /**
  * Defines a data type used by a {@link Engine service engine}.
@@ -38,6 +37,87 @@ import com.google.protobuf.InvalidProtocolBufferException;
  */
 public class EngineDataType {
 
+    /**
+     * Signed int of 32 bits.
+     *
+     * @see <a href="https://developers.google.com/protocol-buffers/docs/encoding">Wire types</a>
+     */
+    public static final EngineDataType SINT32 = buildPrimitive(MimeType.SINT32);
+    /**
+     * Signed int of 64 bits.
+     *
+     * @see <a href="https://developers.google.com/protocol-buffers/docs/encoding">Wire types</a>
+     */
+    public static final EngineDataType SINT64 = buildPrimitive(MimeType.SINT64);
+    /**
+     * Signed fixed integer of 32 bits.
+     *
+     * @see <a href="https://developers.google.com/protocol-buffers/docs/encoding">Wire types</a>
+     */
+    public static final EngineDataType SFIXED32 = buildPrimitive(MimeType.SFIXED32);
+    /**
+     * Signed fixed integer of 64 bits.
+     *
+     * @see <a href="https://developers.google.com/protocol-buffers/docs/encoding">Wire types</a>
+     */
+    public static final EngineDataType SFIXED64 = buildPrimitive(MimeType.SFIXED64);
+    /**
+     * A float (32 bits floating-point number).
+     */
+    public static final EngineDataType FLOAT = buildPrimitive(MimeType.FLOAT);
+    /**
+     * A double (64 bits floating-point number).
+     */
+    public static final EngineDataType DOUBLE = buildPrimitive(MimeType.DOUBLE);
+    /**
+     * A string.
+     */
+    public static final EngineDataType STRING = buildPrimitive(MimeType.STRING);
+    /**
+     * Raw bytes.
+     * On Java a {@link ByteBuffer} is used to wrap the byte array and its endianess.
+     */
+    public static final EngineDataType BYTES = buildRawBytes();
+    /**
+     * An array of signed varints of 32 bits.
+     *
+     * @see <a href="https://developers.google.com/protocol-buffers/docs/encoding">Wire types</a>
+     */
+    public static final EngineDataType ARRAY_SINT32 = buildPrimitive(MimeType.ARRAY_SINT32);
+    /**
+     * An array of signed varints of 64 bits.
+     *
+     * @see <a href="https://developers.google.com/protocol-buffers/docs/encoding">Wire types</a>
+     */
+    public static final EngineDataType ARRAY_SINT64 = buildPrimitive(MimeType.ARRAY_SINT64);
+    /**
+     * An array of signed fixed integers of 32 bits.
+     *
+     * @see <a href="https://developers.google.com/protocol-buffers/docs/encoding">Wire types</a>
+     */
+    public static final EngineDataType ARRAY_SFIXED32 = buildPrimitive(MimeType.ARRAY_SFIXED32);
+    /**
+     * An array of signed fixed integers of 64 bits.
+     *
+     * @see <a href="https://developers.google.com/protocol-buffers/docs/encoding">Wire types</a>
+     */
+    public static final EngineDataType ARRAY_SFIXED64 = buildPrimitive(MimeType.ARRAY_SFIXED64);
+    /**
+     * An array of floats (32 bits floating-point numbers).
+     */
+    public static final EngineDataType ARRAY_FLOAT = buildPrimitive(MimeType.ARRAY_FLOAT);
+    /**
+     * An array of doubles (64 bits floating-point numbers).
+     */
+    public static final EngineDataType ARRAY_DOUBLE = buildPrimitive(MimeType.ARRAY_DOUBLE);
+    /**
+     * An array of strings.
+     */
+    public static final EngineDataType ARRAY_STRING = buildPrimitive(MimeType.ARRAY_STRING);
+    /**
+     * An xMsg native data object.
+     */
+    public static final EngineDataType NATIVE = buildNative();
     private final String mimeType;
     private final ClaraSerializer serializer;
 
@@ -60,6 +140,18 @@ public class EngineDataType {
         this.serializer = serializer;
     }
 
+    private static EngineDataType buildPrimitive(MimeType mimeType) {
+        return new EngineDataType(mimeType.toString(), new PrimitiveSerializer(mimeType));
+    }
+
+    private static EngineDataType buildRawBytes() {
+        return new EngineDataType(MimeType.BYTES.toString(), new RawBytesSerializer());
+    }
+
+    private static EngineDataType buildNative() {
+        return new EngineDataType(MimeType.NATIVE.toString(), new NativeSerializer());
+    }
+
     /**
      * Returns the name of this data type.
      */
@@ -72,121 +164,6 @@ public class EngineDataType {
      */
     public ClaraSerializer serializer() {
         return serializer;
-    }
-
-
-    /**
-     * Signed varint of 32 bits.
-     *
-     * @see <a href="https://developers.google.com/protocol-buffers/docs/encoding">Wire types</a>
-     */
-    public static final EngineDataType SINT32 = buildPrimitive(MimeType.SINT32);
-
-    /**
-     * Signed varint of 64 bits.
-     *
-     * @see <a href="https://developers.google.com/protocol-buffers/docs/encoding">Wire types</a>
-     */
-    public static final EngineDataType SINT64 = buildPrimitive(MimeType.SINT64);
-
-    /**
-     * Signed fixed integer of 32 bits.
-     *
-     * @see <a href="https://developers.google.com/protocol-buffers/docs/encoding">Wire types</a>
-     */
-    public static final EngineDataType SFIXED32 = buildPrimitive(MimeType.SFIXED32);
-
-    /**
-     * Signed fixed integer of 64 bits.
-     *
-     * @see <a href="https://developers.google.com/protocol-buffers/docs/encoding">Wire types</a>
-     */
-    public static final EngineDataType SFIXED64 = buildPrimitive(MimeType.SFIXED64);
-
-    /**
-     * A float (32 bits floating-point number).
-     */
-    public static final EngineDataType FLOAT = buildPrimitive(MimeType.FLOAT);
-
-    /**
-     * A double (64 bits floating-point number).
-     */
-    public static final EngineDataType DOUBLE = buildPrimitive(MimeType.DOUBLE);
-
-    /**
-     * A string.
-     */
-    public static final EngineDataType STRING = buildPrimitive(MimeType.STRING);
-
-    /**
-     * Raw bytes.
-     * On Java a {@link ByteBuffer} is used to wrap the byte array and its endianess.
-     */
-    public static final EngineDataType BYTES = buildRawBytes();
-
-
-    /**
-     * An array of signed varints of 32 bits.
-     *
-     * @see <a href="https://developers.google.com/protocol-buffers/docs/encoding">Wire types</a>
-     */
-    public static final EngineDataType ARRAY_SINT32 = buildPrimitive(MimeType.ARRAY_SINT32);
-
-    /**
-     * An array of signed varints of 64 bits.
-     *
-     * @see <a href="https://developers.google.com/protocol-buffers/docs/encoding">Wire types</a>
-     */
-    public static final EngineDataType ARRAY_SINT64 = buildPrimitive(MimeType.ARRAY_SINT64);
-
-    /**
-     * An array of signed fixed integers of 32 bits.
-     *
-     * @see <a href="https://developers.google.com/protocol-buffers/docs/encoding">Wire types</a>
-     */
-    public static final EngineDataType ARRAY_SFIXED32 = buildPrimitive(MimeType.ARRAY_SFIXED32);
-
-    /**
-     * An array of signed fixed integers of 64 bits.
-     *
-     * @see <a href="https://developers.google.com/protocol-buffers/docs/encoding">Wire types</a>
-     */
-    public static final EngineDataType ARRAY_SFIXED64 = buildPrimitive(MimeType.ARRAY_SFIXED64);
-
-    /**
-     * An array of floats (32 bits floating-point numbers).
-     */
-    public static final EngineDataType ARRAY_FLOAT = buildPrimitive(MimeType.ARRAY_FLOAT);
-
-    /**
-     * An array of doubles (64 bits floating-point numbers).
-     */
-    public static final EngineDataType ARRAY_DOUBLE = buildPrimitive(MimeType.ARRAY_DOUBLE);
-
-    /**
-     * An array of strings.
-     */
-    public static final EngineDataType ARRAY_STRING = buildPrimitive(MimeType.ARRAY_STRING);
-
-
-    /**
-     * An xMsg native data object.
-     */
-    public static final EngineDataType NATIVE = buildNative();
-
-
-    private static EngineDataType buildPrimitive(MimeType mimeType) {
-        return new EngineDataType(mimeType.toString(), new PrimitiveSerializer(mimeType));
-    }
-
-
-    private static EngineDataType buildRawBytes() {
-        return new EngineDataType(MimeType.BYTES.toString(), new RawBytesSerializer());
-    }
-
-
-    private static EngineDataType buildNative() {
-        return new EngineDataType(MimeType.NATIVE.toString(), new NativeSerializer());
     }
 
 

@@ -25,10 +25,10 @@ import org.jlab.clara.base.BaseOrchestrator;
 import org.jlab.clara.base.ClaraComponent;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineData;
+import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.util.ClaraUtil;
 import org.jlab.clara.util.xml.XMLContainer;
 import org.jlab.clara.util.xml.XMLTagValue;
-import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.excp.xMsgException;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
@@ -127,7 +127,7 @@ public class OrInteractive extends BaseOrchestrator {
 
                             // create a transient data
                             EngineData ed = new EngineData();
-                            ed.setData(inData, xMsgConstants.STRING);
+                            ed.setData(inData, EngineDataType.STRING.mimeType());
 
                             // send the data to the service
                             or.executeService(ClaraComponent.service(firstService), ed);
@@ -186,7 +186,7 @@ public class OrInteractive extends BaseOrchestrator {
                                 String firstService = ClaraUtil.getFirstService(composition);
                                 // create a transient data
                                 EngineData ed = new EngineData();
-                                ed.setData(inData, xMsgConstants.STRING);
+                                ed.setData(inData, EngineDataType.STRING.mimeType());
 
                                 // send the data to the service
                                 or.executeService(ClaraComponent.service(firstService), ed);

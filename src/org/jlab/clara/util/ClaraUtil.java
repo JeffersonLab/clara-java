@@ -399,11 +399,11 @@ public final class ClaraUtil {
     public static String getStatusText(EngineStatus status) {
         switch (status) {
             case INFO:
-                return xMsgConstants.INFO.toString();
+                return xMsgConstants.INFO;
             case WARNING:
-                return xMsgConstants.WARNING.toString();
+                return xMsgConstants.WARNING;
             case ERROR:
-                return xMsgConstants.ERROR.toString();
+                return xMsgConstants.ERROR;
             default:
                 throw new IllegalStateException("Clara-Error: Unknown status " + status);
         }

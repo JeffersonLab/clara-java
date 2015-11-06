@@ -54,7 +54,7 @@ public class Condition {
     private Set<ServiceState> orNotStates = new LinkedHashSet<>();
 
     // The name of the service that this condition is relevant to.
-    private String serviceName = xMsgConstants.UNDEFINED.toString();
+    private String serviceName = xMsgConstants.UNDEFINED;
 
     public Condition(String conditionString, String serviceName) throws ClaraException {
         this.serviceName = serviceName;
