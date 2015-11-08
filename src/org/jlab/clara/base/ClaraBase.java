@@ -98,7 +98,7 @@ public abstract class ClaraBase extends xMsg {
                 xMsgConstants.REGISTRAR_PORT);
     }
 
-    // abstract methods
+    // abstract methods to start and gracefully end Clara components
     public abstract void end();
     public abstract void start(ClaraComponent component);
 
