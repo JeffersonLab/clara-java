@@ -21,9 +21,9 @@
 
 package org.jlab.clara.engine;
 
-import java.nio.ByteBuffer;
-
 import org.jlab.clara.base.error.ClaraException;
+
+import java.nio.ByteBuffer;
 
 /**
  * Provides the custom serialization methods to send user defined data through
@@ -40,7 +40,7 @@ public interface ClaraSerializer {
     ByteBuffer write(Object data) throws ClaraException;
 
     /**
-     * Deserializes the byte buffer into the user object and returns it.
+     * De-serializes the byte buffer into the user object and returns it.
      *
      * @param buffer the serialized data
      * @throws ClaraException if the data could not be deserialized

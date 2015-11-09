@@ -95,11 +95,7 @@ public class Container extends ClaraBase {
             if (component.isService()) {
                 addService(component, getDefaultRegistrarAddress().host(), getDefaultProxyAddress().port());
             }
-        } catch (xMsgException e) {
-            e.printStackTrace();
-        } catch (ClaraException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (xMsgException | ClaraException | IOException e) {
             e.printStackTrace();
         }
     }

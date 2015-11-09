@@ -72,13 +72,16 @@ public class Dpe extends ClaraBase {
     private AtomicBoolean isReporting = new AtomicBoolean();
 
     /**
-     * @param dpePort
-     * @param subPoolSize
-     * @param regHost
-     * @param regPort
-     * @param description
-     * @param cloudHost
-     * @param cloudPort
+     * Constructor starts a DPE component, that connects to the local xMsg proxy server.
+     * Does proper subscriptions nad starts heart beat reporting thread.
+     *
+     * @param dpePort xMsg local proxy server port
+     * @param subPoolSize subscription pool size
+     * @param regHost registrar service host
+     * @param regPort registrar service port
+     * @param description textual description of the DPE
+     * @param cloudHost front-end DPE host
+     * @param cloudPort front-end DPE port
      * @throws xMsgException
      * @throws IOException
      * @throws ClaraException
@@ -288,6 +291,9 @@ public class Dpe extends ClaraBase {
         }, 10, TimeUnit.SECONDS);
     }
 
+    /**
+     * Builds a report for the heart beat reporting thread
+     */
     private void report() {
         try {
 
@@ -319,11 +325,11 @@ public class Dpe extends ClaraBase {
     }
 
     /**
-     * Container name is NOT a canonical name
+     * Deploys a container. Note that container name is NOT a canonical name
      *
-     * @param containerName
-     * @param poolSize
-     * @param description
+     * @param containerName the name of the container (not canonical)
+     * @param poolSize size of the subscription pool
+     * @param description textual description of the container
      * @throws ClaraException
      * @throws xMsgException
      * @throws IOException
@@ -352,7 +358,8 @@ public class Dpe extends ClaraBase {
         }
     }
 
-    private void startService(String containerName, String engineName, String engineClass, int poolSize, String description, String initialState)
+    private void startService(String containerName, String engineName, String engineClass,
+                              int poolSize, String description, String initialState)
             throws xMsgException, ClaraException, IOException {
         if (myContainers.containsKey(containerName)) {
             if (poolSize <= 0) {

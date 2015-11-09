@@ -504,17 +504,16 @@ public class ClaraComponent {
      * @param dpeLang language of the DPE
      * @param container the name of the container of the service
      * @param engine the name of the service engine
-     * @param engineClass engine full class name (package name)
      * @return Service {@link org.jlab.clara.base.ClaraComponent} object
      */
     public static ClaraComponent service(String dpeHost, int dpePort, String dpeLang,
-                                         String container, String engine, String engineClass) {
+                                         String container, String engine) {
         ClaraComponent a = new ClaraComponent(dpeLang,
                 dpeHost,
                 dpePort,
                 container,
                 engine,
-                engineClass,
+                CConstants.UNDEFINED,
                 1, CConstants.UNDEFINED,
                 CConstants.UNDEFINED);
         a.isService = true;
@@ -529,17 +528,16 @@ public class ClaraComponent {
      * @param dpeLang language of the DPE
      * @param container the name of the container of the service
      * @param engine the name of the service engine
-     * @param engineClass engine full class name (package name)
      * @return Service {@link org.jlab.clara.base.ClaraComponent} object
      */
     public static ClaraComponent service(String dpeHost, String dpeLang, String container,
-                                         String engine, String engineClass) {
+                                         String engine) {
         ClaraComponent a = new ClaraComponent(dpeLang,
                 dpeHost,
                 xMsgConstants.DEFAULT_PORT,
                 container,
                 engine,
-                engineClass,
+                CConstants.UNDEFINED,
                 1, CConstants.UNDEFINED,
                 CConstants.UNDEFINED);
         a.isService = true;
@@ -552,18 +550,17 @@ public class ClaraComponent {
      *
      * @param container the name of the container of the service
      * @param engine the name of the service engine
-     * @param engineClass engine full class name (package name)
      * @return Service {@link org.jlab.clara.base.ClaraComponent} object
      */
     public static ClaraComponent service(String container,
-                                         String engine, String engineClass)
+                                         String engine)
     throws IOException {
         ClaraComponent a = new ClaraComponent(CConstants.JAVA_LANG,
                 xMsgUtil.localhost(),
                 xMsgConstants.DEFAULT_PORT,
                 container,
                 engine,
-                engineClass,
+                CConstants.UNDEFINED,
                 1, CConstants.UNDEFINED,
                 CConstants.UNDEFINED);
         a.isService = true;
@@ -576,19 +573,18 @@ public class ClaraComponent {
      *
      * @param container the name of the container of the service
      * @param engine the name of the service engine
-     * @param engineClass engine full class name (package name)
      * @param poolSize pool size for the service subscriptions
      * @return Service {@link org.jlab.clara.base.ClaraComponent} object
      */
     public static ClaraComponent service(String container,
-                                         String engine, String engineClass, int poolSize)
+                                         String engine, int poolSize)
     throws IOException {
         ClaraComponent a = new ClaraComponent(CConstants.JAVA_LANG,
                 xMsgUtil.localhost(),
                 xMsgConstants.DEFAULT_PORT,
                 container,
                 engine,
-                engineClass,
+                CConstants.UNDEFINED,
                 poolSize, CConstants.UNDEFINED,
                 CConstants.UNDEFINED);
         a.isService = true;
