@@ -82,7 +82,20 @@ public class ClaraComponent {
     }
 
 
-    public static ClaraComponent orchestrator(String name, String dpeHost, int dpePort, String dpeLang, int subscriptionPoolSize, String description) {
+    /**
+     * Creates and returns Clara orchestrator
+     *
+     * @param name                 of the orchestrator
+     * @param dpeHost              host of the PDE to communicate with
+     * @param dpePort              port of the DPE to communicate with
+     * @param dpeLang              language of the DPE
+     * @param subscriptionPoolSize pool size for the
+     *                             orchestrator to be used for subscriptions
+     * @param description          textual description of this orchestrator
+     * @return orchestrator {@link org.jlab.clara.base.ClaraComponent} object
+     */
+    public static ClaraComponent orchestrator(String name, String dpeHost, int dpePort, String dpeLang,
+                                              int subscriptionPoolSize, String description) {
         ClaraComponent a = new ClaraComponent(dpeLang,
                 dpeHost,
                 dpePort,
@@ -96,7 +109,19 @@ public class ClaraComponent {
         return a;
     }
 
-    public static ClaraComponent orchestrator(String name, String dpeHost, String dpeLang, int subscriptionPoolSize, String description) {
+    /**
+     * Creates and returns Clara orchestrator. Uses default DPE port.
+     *
+     * @param name                 of the orchestrator
+     * @param dpeHost              host of the PDE to communicate with
+     * @param dpeLang              language of the DPE
+     * @param subscriptionPoolSize pool size for the
+     *                             orchestrator to be used for subscriptions
+     * @param description          textual description of this orchestrator
+     * @return orchestrator {@link org.jlab.clara.base.ClaraComponent} object
+     */
+    public static ClaraComponent orchestrator(String name, String dpeHost, String dpeLang,
+                                              int subscriptionPoolSize, String description) {
         ClaraComponent a = new ClaraComponent(dpeLang,
                 dpeHost,
                 xMsgConstants.DEFAULT_PORT,
@@ -110,7 +135,18 @@ public class ClaraComponent {
         return a;
     }
 
-    public static ClaraComponent orchestrator(String name, String dpeHost, int subscriptionPoolSize, String description) {
+    /**
+     * Creates and returns Clara orchestrator. Default port of the DP and Java lang is used.
+     *
+     * @param name                 of the orchestrator
+     * @param dpeHost              host of the PDE to communicate with
+     * @param subscriptionPoolSize pool size for the
+     *                             orchestrator to be used for subscriptions
+     * @param description          textual description of this orchestrator
+     * @return orchestrator {@link org.jlab.clara.base.ClaraComponent} object
+     */
+    public static ClaraComponent orchestrator(String name, String dpeHost,
+                                              int subscriptionPoolSize, String description) {
         ClaraComponent a = new ClaraComponent(CConstants.JAVA_LANG,
                 dpeHost,
                 xMsgConstants.DEFAULT_PORT,
@@ -124,7 +160,18 @@ public class ClaraComponent {
         return a;
     }
 
-    public static ClaraComponent orchestrator(String name, int subscriptionPoolSize, String description) throws IOException {
+    /**
+     * Creates and returns Clara orchestrator. DPE on the local host, with
+     * the default port and Java lang is used.
+     *
+     * @param name of the orchestrator
+     * @param subscriptionPoolSize pool size for the
+     *                             orchestrator to be used for subscriptions
+     * @param description textual description of this orchestrator
+     * @return orchestrator {@link org.jlab.clara.base.ClaraComponent} object
+     */
+    public static ClaraComponent orchestrator(String name, int subscriptionPoolSize, String description)
+            throws IOException {
         ClaraComponent a = new ClaraComponent(CConstants.JAVA_LANG,
                 xMsgUtil.localhost(),
                 xMsgConstants.DEFAULT_PORT,
@@ -138,8 +185,19 @@ public class ClaraComponent {
         return a;
     }
 
-
-    public static ClaraComponent dpe(String dpeHost, int dpePort, String dpeLang, int subscriptionPoolSize, String description) {
+    /**
+     * Creates and returns Clara DPE component
+     *
+     * @param dpeHost              host where the DPE will run
+     * @param dpePort              port of the DPE will use
+     * @param dpeLang              language of the DPE
+     * @param subscriptionPoolSize pool size for the
+     *                             DPE to be used for subscriptions
+     * @param description          textual description of the DPE
+     * @return DPE {@link org.jlab.clara.base.ClaraComponent} object
+     */
+    public static ClaraComponent dpe(String dpeHost, int dpePort, String dpeLang,
+                                     int subscriptionPoolSize, String description) {
         ClaraComponent a = new ClaraComponent(dpeLang,
                 dpeHost,
                 dpePort,
@@ -152,7 +210,18 @@ public class ClaraComponent {
         return a;
     }
 
-    public static ClaraComponent dpe(String dpeHost, String dpeLang, int subscriptionPoolSize, String description) {
+    /**
+     * Creates and returns Clara DPE component. The default DPE port is used.
+     *
+     * @param dpeHost host where the DPE will run
+     * @param dpeLang language of the DPE
+     * @param subscriptionPoolSize pool size for the
+     *                             DPE to be used for subscriptions
+     * @param description textual description of the DPE
+     * @return DPE {@link org.jlab.clara.base.ClaraComponent} object
+     */
+    public static ClaraComponent dpe(String dpeHost, String dpeLang,
+                                     int subscriptionPoolSize, String description) {
         ClaraComponent a = new ClaraComponent(dpeLang,
                 dpeHost,
                 xMsgConstants.DEFAULT_PORT,
@@ -165,7 +234,17 @@ public class ClaraComponent {
         return a;
     }
 
-    public static ClaraComponent dpe(String dpeHost, int subscriptionPoolSize, String description) {
+    /**
+     * Creates and returns Clara DPE component. The default DPE port and Java lang is used.
+     *
+     * @param dpeHost host where the DPE will run
+     * @param subscriptionPoolSize pool size for the
+     *                             DPE to be used for subscriptions
+     * @param description textual description of the DPE
+     * @return DPE {@link org.jlab.clara.base.ClaraComponent} object
+     */
+    public static ClaraComponent dpe(String dpeHost,
+                                     int subscriptionPoolSize, String description) {
         ClaraComponent a = new ClaraComponent(CConstants.JAVA_LANG,
                 dpeHost,
                 xMsgConstants.DEFAULT_PORT,
@@ -178,7 +257,16 @@ public class ClaraComponent {
         return a;
     }
 
-    public static ClaraComponent dpe(int subscriptionPoolSize, String description) throws IOException {
+    /**
+     * Creates and returns Clara DPE component. The local host, default DPE port and Java lang is used.
+     *
+     * @param subscriptionPoolSize pool size for the
+     *                             DPE to be used for subscriptions
+     * @param description textual description of the DPE
+     * @return DPE {@link org.jlab.clara.base.ClaraComponent} object
+     */
+    public static ClaraComponent dpe(int subscriptionPoolSize, String description)
+            throws IOException {
         ClaraComponent a = new ClaraComponent(CConstants.JAVA_LANG,
                 xMsgUtil.localhost(),
                 xMsgConstants.DEFAULT_PORT,
@@ -191,6 +279,12 @@ public class ClaraComponent {
         return a;
     }
 
+    /**
+     * Creates and returns Clara DPE component. DPE default settings are used, including pool-size = 1.
+     *
+     * @return DPE {@link org.jlab.clara.base.ClaraComponent} object
+     * @throws IOException
+     */
     public static ClaraComponent dpe() throws IOException {
         ClaraComponent a = new ClaraComponent(CConstants.JAVA_LANG,
                 xMsgUtil.localhost(),
@@ -204,34 +298,65 @@ public class ClaraComponent {
         return a;
     }
 
-    public static ClaraComponent dpe(String dpeCanonicalName, String description) throws ClaraException {
-        if (!ClaraUtil.isCanonicalName(dpeCanonicalName)) {
+    /**
+     * Creates and returns Clara DPE component from the Clara component
+     * canonical name.. DPE default pool-size = 1 is used.
+     *
+     * @param canonicalName The canonical name of a component
+     * @param description textual description of the DPE
+     * @return {@link org.jlab.clara.base.ClaraComponent} object
+     * @throws ClaraException
+     */
+    public static ClaraComponent dpe(String canonicalName, String description)
+            throws ClaraException {
+        if (!ClaraUtil.isCanonicalName(canonicalName)) {
             throw new ClaraException("Clara-Error: not a canonical name.");
         }
-        ClaraComponent a = dpe(ClaraUtil.getDpeHost(dpeCanonicalName),
-                ClaraUtil.getDpePort(dpeCanonicalName),
-                ClaraUtil.getDpeLang(dpeCanonicalName),
+        ClaraComponent a = dpe(ClaraUtil.getDpeHost(canonicalName),
+                ClaraUtil.getDpePort(canonicalName),
+                ClaraUtil.getDpeLang(canonicalName),
                 xMsgConstants.DEFAULT_POOL_SIZE, description);
         a.isDpe = true;
         return a;
 
     }
 
-    public static ClaraComponent dpe(String dpeCanonicalName) throws ClaraException {
-        if (!ClaraUtil.isCanonicalName(dpeCanonicalName)) {
+    /**
+     * Creates and returns Clara DPE component from the Clara component
+     * canonical name.. DPE default pool-size = 1 is used, leaving description
+     * of the DPE undefined.
+     *
+     * @param canonicalName The canonical name of a component
+     * @return {@link org.jlab.clara.base.ClaraComponent} object
+     * @throws ClaraException
+     */
+    public static ClaraComponent dpe(String canonicalName) throws ClaraException {
+        if (!ClaraUtil.isCanonicalName(canonicalName)) {
             throw new ClaraException("Clara-Error: not a canonical name.");
         }
-        ClaraComponent a = dpe(ClaraUtil.getDpeHost(dpeCanonicalName),
-                ClaraUtil.getDpePort(dpeCanonicalName),
-                ClaraUtil.getDpeLang(dpeCanonicalName),
+        ClaraComponent a = dpe(ClaraUtil.getDpeHost(canonicalName),
+                ClaraUtil.getDpePort(canonicalName),
+                ClaraUtil.getDpeLang(canonicalName),
                 xMsgConstants.DEFAULT_POOL_SIZE, CConstants.UNDEFINED);
         a.isDpe = true;
         return a;
-
     }
 
-
-    public static ClaraComponent container(String dpeHost, int dpePort, String dpeLang, String container, int subscriptionPoolSize, String description) {
+    /**
+     * Creates and returns Clara Container component
+     *
+     * @param dpeHost              host of the DPE where container is/(will be) deployed
+     * @param dpePort              port of the DPE where container is/(will be) deployed
+     * @param dpeLang              language of the DPE
+     * @param container            the name of the container
+     * @param subscriptionPoolSize pool size for the
+     *                             container to be used for subscriptions
+     * @param description          textual description of the container
+     * @return Container {@link org.jlab.clara.base.ClaraComponent} object
+     */
+    public static ClaraComponent container(String dpeHost, int dpePort, String dpeLang,
+                                           String container, int subscriptionPoolSize,
+                                           String description) {
         ClaraComponent a = new ClaraComponent(dpeLang,
                 dpeHost,
                 dpePort,
@@ -244,7 +369,20 @@ public class ClaraComponent {
         return a;
     }
 
-    public static ClaraComponent container(String dpeHost, String dpeLang, String container, int subscriptionPoolSize, String description) {
+    /**
+     * Creates and returns Clara Container component. The default DPE port is used.
+     *
+     * @param dpeHost host of the DPE where container is/(will be) deployed
+     * @param dpeLang language of the DPE
+     * @param container the name of the container
+     * @param subscriptionPoolSize pool size for the
+     *                             container to be used for subscriptions
+     * @param description textual description of the container
+     * @return Container {@link org.jlab.clara.base.ClaraComponent} object
+     */
+    public static ClaraComponent container(String dpeHost, String dpeLang,
+                                           String container, int subscriptionPoolSize,
+                                           String description) {
         ClaraComponent a = new ClaraComponent(dpeLang,
                 dpeHost,
                 xMsgConstants.DEFAULT_PORT,
@@ -257,7 +395,18 @@ public class ClaraComponent {
         return a;
     }
 
-    public static ClaraComponent container(String dpeHost, String container, int subscriptionPoolSize, String description) {
+    /**
+     * Creates and returns Clara Container component. The default DPE port and Java lang is used.
+     *
+     * @param dpeHost host of the DPE where container is/(will be) deployed
+     * @param container the name of the container
+     * @param subscriptionPoolSize pool size for the
+     *                             container to be used for subscriptions
+     * @param description textual description of the container
+     * @return Container {@link org.jlab.clara.base.ClaraComponent} object
+     */
+    public static ClaraComponent container(String dpeHost, String container,
+                                           int subscriptionPoolSize, String description) {
         ClaraComponent a = new ClaraComponent(CConstants.JAVA_LANG,
                 dpeHost,
                 xMsgConstants.DEFAULT_PORT,
@@ -270,7 +419,19 @@ public class ClaraComponent {
         return a;
     }
 
-    public static ClaraComponent container(String container, int subscriptionPoolSize, String description) throws IOException {
+    /**
+     * Creates and returns Clara Container component. The DPE running on a local host,
+     * default DPE port and Java lang is used.
+     *
+     * @param container the name of the container
+     * @param subscriptionPoolSize pool size for the
+     *                             container to be used for subscriptions
+     * @param description textual description of the container
+     * @return Container {@link org.jlab.clara.base.ClaraComponent} object
+     */
+    public static ClaraComponent container(String container, int subscriptionPoolSize,
+                                           String description)
+            throws IOException {
         ClaraComponent a = new ClaraComponent(CConstants.JAVA_LANG,
                 xMsgUtil.localhost(),
                 xMsgConstants.DEFAULT_PORT,
@@ -283,17 +444,39 @@ public class ClaraComponent {
         return a;
     }
 
-    public static ClaraComponent container(String containerCanonicalName, String description) throws ClaraException {
+    /**
+     * Creates and returns Clara Container component, using the container canonical name.
+     * Default subscriptions pool-size = 1 is used.
+     *
+     * @param description textual description of the container
+     * @return Container {@link org.jlab.clara.base.ClaraComponent} object
+     */
+    public static ClaraComponent container(String containerCanonicalName, String description)
+            throws ClaraException {
         if (!ClaraUtil.isCanonicalName(containerCanonicalName)) {
             throw new ClaraException("Clara-Error: not a canonical name.");
         }
         return container(ClaraUtil.getDpeHost(containerCanonicalName),
-        ClaraUtil.getDpePort(containerCanonicalName),
-        ClaraUtil.getDpeLang(containerCanonicalName),
+                ClaraUtil.getDpePort(containerCanonicalName),
+                ClaraUtil.getDpeLang(containerCanonicalName),
                 ClaraUtil.getContainerName(containerCanonicalName), xMsgConstants.DEFAULT_POOL_SIZE, description);
-
     }
 
+    /**
+     * Creates and returns Clara Service component
+     *
+     * @param dpeHost host of the DPE where service is/(will be) deployed
+     * @param dpePort port of the DPE where service is/(will be) deployed
+     * @param dpeLang language of the DPE
+     * @param container the name of the container of the service
+     * @param engine the name of the service engine
+     * @param engineClass engine full class name (package name)
+     * @param subscriptionPoolSize pool size for the
+     *                             service to be used for subscriptions
+     * @param description textual description of the service
+     * @param initialState the initial state of the service
+     * @return Service {@link org.jlab.clara.base.ClaraComponent} object
+     */
     public static ClaraComponent service(String dpeHost, int dpePort, String dpeLang,
                                          String container,
                                          String engine, String engineClass,
@@ -312,64 +495,112 @@ public class ClaraComponent {
         return a;
     }
 
-    public static ClaraComponent service(String dpeHost, int dpePort, String dpeLang, String container,
-                                         String engine) {
+    /**
+     * Creates and returns Clara Service component. Default pool-size=1 is used.
+     * The description of the service is undefined.
+     *
+     * @param dpeHost host of the DPE where service is/(will be) deployed
+     * @param dpePort port of the DPE where service is/(will be) deployed
+     * @param dpeLang language of the DPE
+     * @param container the name of the container of the service
+     * @param engine the name of the service engine
+     * @param engineClass engine full class name (package name)
+     * @return Service {@link org.jlab.clara.base.ClaraComponent} object
+     */
+    public static ClaraComponent service(String dpeHost, int dpePort, String dpeLang,
+                                         String container, String engine, String engineClass) {
         ClaraComponent a = new ClaraComponent(dpeLang,
                 dpeHost,
                 dpePort,
                 container,
                 engine,
-                CConstants.UNDEFINED,
+                engineClass,
                 1, CConstants.UNDEFINED,
                 CConstants.UNDEFINED);
         a.isService = true;
         return a;
     }
 
+    /**
+     * Creates and returns Clara Service component. DPE default port and default pool-size=1 is used.
+     * The description of the service is undefined.
+     *
+     * @param dpeHost host of the DPE where service is/(will be) deployed
+     * @param dpeLang language of the DPE
+     * @param container the name of the container of the service
+     * @param engine the name of the service engine
+     * @param engineClass engine full class name (package name)
+     * @return Service {@link org.jlab.clara.base.ClaraComponent} object
+     */
     public static ClaraComponent service(String dpeHost, String dpeLang, String container,
-                                         String engine) {
+                                         String engine, String engineClass) {
         ClaraComponent a = new ClaraComponent(dpeLang,
                 dpeHost,
                 xMsgConstants.DEFAULT_PORT,
                 container,
                 engine,
-                CConstants.UNDEFINED,
+                engineClass,
                 1, CConstants.UNDEFINED,
                 CConstants.UNDEFINED);
         a.isService = true;
         return a;
     }
 
+    /**
+     * Creates and returns Clara Service component. DPE running on a local host with the
+     * default port and default pool-size=1 is used. The description of the service is undefined.
+     *
+     * @param container the name of the container of the service
+     * @param engine the name of the service engine
+     * @param engineClass engine full class name (package name)
+     * @return Service {@link org.jlab.clara.base.ClaraComponent} object
+     */
     public static ClaraComponent service(String container,
-                                         String engine) throws IOException {
+                                         String engine, String engineClass)
+    throws IOException {
         ClaraComponent a = new ClaraComponent(CConstants.JAVA_LANG,
                 xMsgUtil.localhost(),
                 xMsgConstants.DEFAULT_PORT,
                 container,
                 engine,
-                CConstants.UNDEFINED,
+                engineClass,
                 1, CConstants.UNDEFINED,
                 CConstants.UNDEFINED);
         a.isService = true;
         return a;
     }
 
+    /**
+     * Creates and returns Clara Service component. DPE running on a local host with the
+     * default port used. The description of the service is undefined.
+     *
+     * @param container the name of the container of the service
+     * @param engine the name of the service engine
+     * @param engineClass engine full class name (package name)
+     * @param poolSize pool size for the service subscriptions
+     * @return Service {@link org.jlab.clara.base.ClaraComponent} object
+     */
     public static ClaraComponent service(String container,
-                                         String engine, int poolSize) throws IOException {
+                                         String engine, String engineClass, int poolSize)
+    throws IOException {
         ClaraComponent a = new ClaraComponent(CConstants.JAVA_LANG,
                 xMsgUtil.localhost(),
                 xMsgConstants.DEFAULT_PORT,
                 container,
                 engine,
-                CConstants.UNDEFINED,
+                engineClass,
                 poolSize, CConstants.UNDEFINED,
                 CConstants.UNDEFINED);
         a.isService = true;
         return a;
     }
 
-
-
+    /**
+     * Creates and returns Clara Service component, using the service canonical name.
+     * Default subscriptions pool-size = 1 is used. The description of the service is undefined.
+     *
+     * @return Service {@link org.jlab.clara.base.ClaraComponent} object
+     */
     public static ClaraComponent service(String serviceCanonicalName) throws ClaraException {
         if (!ClaraUtil.isCanonicalName(serviceCanonicalName)) {
             throw new ClaraException("Clara-Error: not a canonical name.");
@@ -383,6 +614,12 @@ public class ClaraComponent {
                 CConstants.UNDEFINED, CConstants.UNDEFINED);
     }
 
+    /**
+     * Returns the topic of the Clara component, i.e. the topic of the xMsg subscriber.
+     * Note that all Clara components are registered as xMsg subscribers.
+     *
+     * @return {@link org.jlab.coda.xmsg.core.xMsgTopic} object
+     */
     public xMsgTopic getTopic() {
         return topic;
     }
@@ -399,6 +636,11 @@ public class ClaraComponent {
         return dpePort;
     }
 
+    /**
+     * Returns DPE canonical, constructed as "dpeHost % dpePort _ dpeLang"
+     *
+     * @return DPE canonical name
+     */
     public String getDpeCanonicalName() {
         return dpeCanonicalName;
     }
@@ -415,6 +657,11 @@ public class ClaraComponent {
         return engineClass;
     }
 
+    /**
+     * Sets the engine class which is the package name of the class.
+     *
+     * @param engineClass package name of the class
+     */
     public void setEngineClass(String engineClass) {
         this.engineClass = engineClass;
     }
@@ -423,6 +670,16 @@ public class ClaraComponent {
         return canonicalName;
     }
 
+    /**
+     * Note. candidate to be deprecated. Do not use to define the
+     * canonical names for DPE, container or service.
+     *
+     * The canonical name of a Clara component is defined internally,
+     * yet this method is used to set the name of an orchestrator, which
+     * considers to be non critical.
+     *
+     * @param canonicalName canonical name
+     */
     public void setCanonicalName(String canonicalName) {
         this.canonicalName = canonicalName;
     }
@@ -431,6 +688,11 @@ public class ClaraComponent {
         return subscriptionPoolSize;
     }
 
+    /**
+     * Sets the subscription pool-size of the component.
+     *
+     * @param subscriptionPoolSize pool size
+     */
     public void setSubscriptionPoolSize(int subscriptionPoolSize) {
         this.subscriptionPoolSize = subscriptionPoolSize;
     }
@@ -451,6 +713,11 @@ public class ClaraComponent {
         return isService;
     }
 
+    /**
+     * Returns the DPE proxy address
+     *
+     * @return {@link org.jlab.coda.xmsg.net.xMsgProxyAddress} object
+     */
     public xMsgProxyAddress getProxyAddress() {
         return new xMsgProxyAddress(getDpeHost(), getDpePort());
     }
