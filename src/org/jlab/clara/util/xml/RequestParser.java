@@ -22,7 +22,7 @@
 package org.jlab.clara.util.xml;
 
 import org.jlab.clara.base.error.ClaraException;
-import org.jlab.clara.util.CConstants;
+import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 
 import java.util.StringTokenizer;
@@ -38,7 +38,7 @@ public class RequestParser {
 
     public RequestParser(String data) {
         cmdData = data;
-        tokenizer = new StringTokenizer(cmdData, CConstants.DATA_SEP);
+        tokenizer = new StringTokenizer(cmdData, xMsgConstants.DATA_SEP);
     }
 
     public static RequestParser build(xMsgMessage msg) throws ClaraException {
