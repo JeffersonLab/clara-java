@@ -35,24 +35,31 @@ public class ClaraUtilTest {
             "192.168.1.102_java",
             "192.168.1.102_cpp",
             "192.168.1.102_python",
+            "192.168.1.102%20000_java",
+            "192.168.1.102%16000_cpp",
+            "192.168.1.102%9999_python",
     };
     private String[] goodContainerNames = new String[] {
             "10.2.58.17_java:master",
-            "10.2.58.17_java:best_container",
             "10.2.58.17_cpp:container1",
             "10.2.58.17_python:User",
+            "10.2.58.17%20000_python:User",
+            "10.2.58.17_java:best_container",
     };
     private String[] goodServiceNames = new String[] {
             "129.57.28.27_java:master:SimpleEngine",
             "129.57.28.27_cpp:container1:IntegrationEngine",
             "129.57.28.27_python:User:StatEngine",
+            "129.57.28.27%20000_python:User:StatEngine",
     };
 
     private String[] badDpeNames = new String[] {
             "192.168.1.102",
+            "192.168.1.102%",
             "192_168_1_102_java",
             "192.168.1.102_erlang",
             "192.168.1.103:python",
+            "192.168.1.103%aaa_python",
             "192 168 1 102 java",
             " 192.168.1.102_java",
     };
@@ -152,18 +159,47 @@ public class ClaraUtilTest {
 
 
     @Test
-    public void getHostNameReturnsTheHost() throws Exception {
-        assertThat(ClaraUtil.getHostName(goodDpeNames[0]),       is("192.168.1.102"));
-        assertThat(ClaraUtil.getHostName(goodContainerNames[0]), is("10.2.58.17"));
-        assertThat(ClaraUtil.getHostName(goodServiceNames[0]),   is("129.57.28.27"));
+    public void getDpeHostReturnsTheHost() throws Exception {
+        assertThat(ClaraUtil.getDpeHost(goodDpeNames[0]),       is("192.168.1.102"));
+        assertThat(ClaraUtil.getDpeHost(goodContainerNames[0]), is("10.2.58.17"));
+        assertThat(ClaraUtil.getDpeHost(goodServiceNames[0]),   is("129.57.28.27"));
+
+        assertThat(ClaraUtil.getDpeHost(goodDpeNames[3]),       is("192.168.1.102"));
+        assertThat(ClaraUtil.getDpeHost(goodContainerNames[3]), is("10.2.58.17"));
+        assertThat(ClaraUtil.getDpeHost(goodServiceNames[3]),   is("129.57.28.27"));
     }
 
+    @Test
+    public void getDpePortReturnsThePort() throws Exception {
+        assertThat(ClaraUtil.getDpePort(goodDpeNames[0]),       is(7771));
+        assertThat(ClaraUtil.getDpePort(goodContainerNames[0]), is(7771));
+        assertThat(ClaraUtil.getDpePort(goodServiceNames[0]),   is(7771));
+
+        assertThat(ClaraUtil.getDpePort(goodDpeNames[3]),       is(20000));
+        assertThat(ClaraUtil.getDpePort(goodContainerNames[3]), is(20000));
+        assertThat(ClaraUtil.getDpePort(goodServiceNames[3]),   is(20000));
+    }
+
+    @Test
+    public void getDpeLangReturnsTheLang() throws Exception {
+        assertThat(ClaraUtil.getDpeLang(goodDpeNames[0]),       is("java"));
+        assertThat(ClaraUtil.getDpeLang(goodContainerNames[0]), is("java"));
+        assertThat(ClaraUtil.getDpeLang(goodServiceNames[0]),   is("java"));
+
+        assertThat(ClaraUtil.getDpeLang(goodDpeNames[3]),       is("java"));
+        assertThat(ClaraUtil.getDpeLang(goodContainerNames[3]), is("python"));
+        assertThat(ClaraUtil.getDpeLang(goodServiceNames[3]),   is("python"));
+    }
 
     @Test
     public void getDpeNameReturnsTheName() throws Exception {
         assertThat(ClaraUtil.getDpeName(goodDpeNames[0]),       is("192.168.1.102_java"));
         assertThat(ClaraUtil.getDpeName(goodContainerNames[0]), is("10.2.58.17_java"));
         assertThat(ClaraUtil.getDpeName(goodServiceNames[0]),   is("129.57.28.27_java"));
+
+        assertThat(ClaraUtil.getDpeName(goodDpeNames[3]),       is("192.168.1.102%20000_java"));
+        assertThat(ClaraUtil.getDpeName(goodContainerNames[3]), is("10.2.58.17%20000_python"));
+        assertThat(ClaraUtil.getDpeName(goodServiceNames[3]),   is("129.57.28.27%20000_python"));
     }
 
 

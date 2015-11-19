@@ -70,8 +70,12 @@ public class ClaraComponent {
         this.subscriptionPoolSize = subscriptionPoolSize;
         this.dpeHost = dpeHost;
         this.dpePort = dpePort;
-        this.dpeCanonicalName = dpeHost + xMsgConstants.PRXHOSTPORT_SEP +
-                Integer.toString(dpePort) + xMsgConstants.LANG_SEP + dpeLang;
+        if (dpePort == xMsgConstants.DEFAULT_PORT) {
+            this.dpeCanonicalName = dpeHost + xMsgConstants.LANG_SEP + dpeLang;
+        } else {
+            this.dpeCanonicalName = dpeHost + xMsgConstants.PRXHOSTPORT_SEP +
+                    Integer.toString(dpePort) + xMsgConstants.LANG_SEP + dpeLang;
+        }
         this.containerName = container;
         this.engineName = engine;
         this.engineClass = engineClass;

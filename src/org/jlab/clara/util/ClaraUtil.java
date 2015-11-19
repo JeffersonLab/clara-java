@@ -73,7 +73,7 @@ public final class ClaraUtil {
      * </pre>
      */
     public static final Pattern CANONICAL_NAME_PATTERN =
-            Pattern.compile("^([^:_ ]+(%\\d*)+_(java|python|cpp))(:(\\w+)(:(\\w+))?)?$");
+            Pattern.compile("^(([^:%_ ]+)(%\\d+)?_(java|python|cpp))(:(\\w+)(:(\\w+))?)?$");
 
     private ClaraUtil() {
     }
@@ -95,8 +95,54 @@ public final class ClaraUtil {
         return matcher.matches();
     }
 
+    /**
+     * Checks if the given name is a proper DPE canonical name.
+     * <p>
+     * A DPE canonical name should have the following structure:
+     * <pre>
+     * {@literal <host>_<language>}
+     * </pre>
+     *
+     * @param name the name to be checked
+     */
+    public static boolean isDpeName(String name) {
+        Matcher matcher = CANONICAL_NAME_PATTERN.matcher(name);
+        return matcher.matches() && matcher.group(5) == null;
+    }
+
+    /**
+     * Checks if the given name is a proper container canonical name.
+     * <p>
+     * A container canonical name should have the following structure:
+     * <pre>
+     * {@literal <host>_<language>:<container>}
+     * </pre>
+     *
+     * @param name the name to be checked
+     */
+    public static boolean isContainerName(String name) {
+        Matcher matcher = CANONICAL_NAME_PATTERN.matcher(name);
+        return matcher.matches() && matcher.group(6) != null && matcher.group(7) == null;
+    }
+
+    /**
+     * Checks if the given name is a proper service canonical name.
+     * <p>
+     * A service canonical name should have the following structure:
+     * <pre>
+     * {@literal <host>_<language>:<container>:<engine>}
+     * </pre>
+     *
+     * @param name the name to be checked
+     */
+    public static boolean isServiceName(String name) {
+        Matcher matcher = CANONICAL_NAME_PATTERN.matcher(name);
+        return matcher.matches() && matcher.group(8) != null;
+    }
+
+
     public static String getDpeName(String canonicalName) throws ClaraException {
-        if(!isCanonicalName(canonicalName)) {
+        if (!isCanonicalName(canonicalName)) {
             throw new ClaraException("Clara-Error: not a canonical name");
         }
         xMsgTopic topic = xMsgTopic.wrap(canonicalName);
@@ -104,15 +150,30 @@ public final class ClaraUtil {
     }
 
     public static String getContainerName(String canonicalName) throws ClaraException {
-        if(!isCanonicalName(canonicalName)) {
+        if (!isCanonicalName(canonicalName)) {
             throw new ClaraException("Clara-Error: not a canonical name");
         }
         xMsgTopic topic = xMsgTopic.wrap(canonicalName);
         return topic.subject();
     }
 
+    public static String getContainerCanonicalName(String canonicalName) throws ClaraException {
+        if (!isCanonicalName(canonicalName)) {
+            throw new ClaraException("Clara-Error: not a canonical name");
+        }
+        int firstSep = canonicalName.indexOf(xMsgConstants.TOPIC_SEP);
+        if (firstSep < 0) {
+            throw new ClaraException("Clara-Error: not a container or service name");
+        }
+        int secondSep = canonicalName.indexOf(xMsgConstants.TOPIC_SEP, firstSep + 1);
+        if (secondSep < 0) {
+            return canonicalName;
+        }
+        return canonicalName.substring(0, secondSep);
+    }
+
     public static String getEngineName(String canonicalName) throws ClaraException {
-        if(!isCanonicalName(canonicalName)) {
+        if (!isCanonicalName(canonicalName)) {
             throw new ClaraException("Clara-Error: not a canonical name");
         }
         xMsgTopic topic = xMsgTopic.wrap(canonicalName);
@@ -120,38 +181,38 @@ public final class ClaraUtil {
     }
 
     public static String getDpeHost(String canonicalName) throws ClaraException {
-      if(!isCanonicalName(canonicalName)) {
-          throw new ClaraException("Clara-Error: not a canonical name");
-      }
-        String dpeName = getDpeName(canonicalName);
-        StringTokenizer st = new StringTokenizer(dpeName, xMsgConstants.PRXHOSTPORT_SEP);
-        if(st.countTokens()!=2){
-            throw new ClaraException("Clara-Error: malformed name of a DPE");
+        if (!isCanonicalName(canonicalName)) {
+            throw new ClaraException("Clara-Error: not a canonical name");
         }
-        return st.nextToken();
+        int portSep = canonicalName.indexOf(xMsgConstants.PRXHOSTPORT_SEP);
+        if (portSep > 0) {
+            return canonicalName.substring(0, portSep);
+        } else {
+            int langSep = canonicalName.indexOf(xMsgConstants.LANG_SEP);
+            return canonicalName.substring(0, langSep);
+        }
     }
 
     public static int getDpePort(String canonicalName) throws ClaraException {
-      if(!isCanonicalName(canonicalName)) {
-          throw new ClaraException("Clara-Error: not a canonical name");
-      }
-        String dpeName = getDpeName(canonicalName);
-        StringTokenizer st = new StringTokenizer(dpeName, xMsgConstants.PRXHOSTPORT_SEP);
-        if(st.countTokens()!=2){
-            throw new ClaraException("Clara-Error: malformed name of a DPE");
+        if (!isCanonicalName(canonicalName)) {
+            throw new ClaraException("Clara-Error: not a canonical name");
         }
-        st.nextToken();
-        String dpl = st.nextToken();
-        String p = dpl.substring(0, dpl.indexOf(xMsgConstants.LANG_SEP));
-        return Integer.parseInt(p);
+        int portSep = canonicalName.indexOf(xMsgConstants.PRXHOSTPORT_SEP);
+        int langSep = canonicalName.indexOf(xMsgConstants.LANG_SEP);
+        if (portSep > 0) {
+            String port = canonicalName.substring(portSep + 1, langSep);
+            return Integer.parseInt(port);
+        } else {
+            return xMsgConstants.DEFAULT_PORT;
+        }
     }
 
     public static String getDpeLang(String canonicalName) throws ClaraException {
-      if(!isCanonicalName(canonicalName)) {
-          throw new ClaraException("Clara-Error: not a canonical name");
-      }
+        if (!isCanonicalName(canonicalName)) {
+            throw new ClaraException("Clara-Error: not a canonical name");
+        }
         String dpeName = getDpeName(canonicalName);
-        return dpeName.substring(dpeName.indexOf(xMsgConstants.LANG_SEP));
+        return dpeName.substring(dpeName.indexOf(xMsgConstants.LANG_SEP) + 1);
     }
 
     /**
