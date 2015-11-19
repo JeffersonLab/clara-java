@@ -228,26 +228,29 @@ public class ClaraUtilTest {
 
     @Test
     public void formDpeNameReturnsTheCanonicalName() throws Exception {
-        assertThat(ClaraUtil.formDpeName("10.2.58.17", ClaraLang.JAVA), is("10.2.58.17_java"));
+        assertThat(new DpeName("10.2.58.17", ClaraLang.JAVA).canonicalName(),
+                   is("10.2.58.17_java"));
     }
 
 
     @Test
     public void formContainerNameReturnsTheCanonicalName() throws Exception {
-        assertThat(ClaraUtil.formContainerName("10.2.58.17_java", "master"),
-                   is("10.2.58.17_java:master"));
+        DpeName dpe = new DpeName("10.2.58.17", ClaraLang.JAVA);
+        ContainerName container = new ContainerName(dpe, "master");
+        assertThat(container.canonicalName(), is("10.2.58.17_java:master"));
 
-        assertThat(ClaraUtil.formContainerName("10.2.58.17", ClaraLang.JAVA, "master"),
+        assertThat(new ContainerName("10.2.58.17", ClaraLang.JAVA, "master").canonicalName(),
                    is("10.2.58.17_java:master"));
     }
 
 
     @Test
     public void formServiceNameReturnsTheCanonicalName() throws Exception {
-        assertThat(ClaraUtil.formServiceName("10.2.58.17_java:cont", "Engine"),
+        ContainerName container = new ContainerName("10.2.58.17", ClaraLang.JAVA, "cont");
+        assertThat(new ServiceName(container, "Engine").canonicalName(),
                    is("10.2.58.17_java:cont:Engine"));
 
-        assertThat(ClaraUtil.formServiceName("10.2.58.17", ClaraLang.JAVA, "cont", "Engine"),
+        assertThat(new ServiceName("10.2.58.17", ClaraLang.JAVA, "cont", "Engine").canonicalName(),
                    is("10.2.58.17_java:cont:Engine"));
     }
 }
