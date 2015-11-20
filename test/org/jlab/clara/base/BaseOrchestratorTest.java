@@ -24,7 +24,6 @@ package org.jlab.clara.base;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.EngineStatus;
-import org.jlab.clara.sys.CBase;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgSubscription;
@@ -38,7 +37,8 @@ import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.net.SocketException;
+
+import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -50,7 +50,7 @@ public class BaseOrchestratorTest {
 
     @Rule
     public ExpectedException expectedEx = ExpectedException.none();
-    private CBase baseMock;
+    private ClaraBase baseMock;
     private BaseOrchestrator orchestrator;
     private String feHost = "10.2.9.1";
     private Composition composition =
@@ -58,10 +58,10 @@ public class BaseOrchestratorTest {
 
     @Before
     public void setUp() throws Exception {
-        baseMock = mock(CBase.class);
+        baseMock = mock(ClaraBase.class);
         orchestrator = new OrchestratorMock();
 
-        when(baseMock.getFrontEndAddress()).thenReturn(feHost);
+        when(baseMock.getFrontEnd()).thenReturn(ClaraComponent.dpe(feHost));
     }
 
 
@@ -1082,12 +1082,12 @@ public class BaseOrchestratorTest {
         public GenericCallback userGenericCallback;
         public xMsgCallBack userWrapperCallback;
 
-        public OrchestratorMock() throws ClaraException {
+        public OrchestratorMock() throws ClaraException, IOException {
             super();
         }
 
         @Override
-        CBase getClaraBase(String frontEndHost) throws SocketException, xMsgException {
+        ClaraBase getClaraBase(String name, DpeName frontEnd, int poolSize) {
             return baseMock;
         }
 

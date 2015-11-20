@@ -56,99 +56,98 @@ public class BaseOrchestrator {
 
 
     /**
-     * Constructor that uses all default parameters, for e.g. registration service
-     * and front-end/DPE considered to be running on a local host.
+     * Creates a new orchestrator.
+     * Uses a random name and the local node as front-end.
      *
-     * @throws ClaraException
-     * @throws IOException
+     * @throws IOException if localhost could not be obtained
+     * @throws ClaraException if the orchestrator could not be created
      */
     public BaseOrchestrator() throws ClaraException, IOException {
-        this(ClaraUtil.getUniqueName(),
-                xMsgUtil.localhost(),
-                xMsgConstants.REGISTRAR_PORT,
-
-                xMsgUtil.localhost(),
-                xMsgConstants.DEFAULT_PORT,
-                CConstants.JAVA_LANG,
-                xMsgConstants.DEFAULT_POOL_SIZE,
-                CConstants.UNDEFINED);
+        this(xMsgConstants.DEFAULT_POOL_SIZE);
     }
 
     /**
-     * Constructor that uses default parameters (except of the subscription pool size),
-     * for e.g. registration service and front-end/DPE considered to be running on a local host.
+     * Creates a new orchestrator.
+     * Uses a random name and receives the location of the front-end.
      *
-     * @param subPoolSize thread pool size for subscriptions
-     * @throws ClaraException
-     * @throws IOException
+     * @param subPoolSize set the size of the pool for processing subscriptions on background
+     * @throws IOException if localhost could not be obtained
+     * @throws ClaraException if the orchestrator could not be created
      */
     public BaseOrchestrator(int subPoolSize) throws ClaraException, IOException {
         this(ClaraUtil.getUniqueName(),
-                xMsgUtil.localhost(),
-                xMsgConstants.REGISTRAR_PORT,
-                xMsgUtil.localhost(),
-                xMsgConstants.DEFAULT_PORT,
-                CConstants.JAVA_LANG,
-                subPoolSize,
-                CConstants.UNDEFINED);
+             new DpeName(xMsgUtil.localhost(), ClaraLang.JAVA),
+             subPoolSize);
     }
 
     /**
-     * Constructor that defines front-end/DPE host, pool size and
-     * description while using default parameters for the rest.
+     * Creates a new orchestrator.
+     * Uses a random name and receives the location of the front-end.
      *
-     * @param dpeHost     front-end or DPE host
-     * @param subPoolSize thread pool size for subscriptions
-     * @param description description of this orchestrator
-     * @throws ClaraException
+     * @param frontEnd use this front-end for communication with the Clara cloud
+     * @throws IOException if localhost could not be obtained
+     * @throws ClaraException if the orchestrator could not be created
      */
-    public BaseOrchestrator(String dpeHost, int subPoolSize, String description) throws ClaraException {
+    public BaseOrchestrator(DpeName frontEnd) throws ClaraException {
         this(ClaraUtil.getUniqueName(),
-                dpeHost,
-                xMsgConstants.REGISTRAR_PORT,
-                dpeHost,
-                xMsgConstants.DEFAULT_PORT,
-                CConstants.JAVA_LANG,
-                subPoolSize, description);
+             frontEnd,
+             xMsgConstants.DEFAULT_POOL_SIZE);
     }
 
     /**
-     * Basic constructor
+     * Creates a new orchestrator.
+     * Uses a random name and receives the location of the front-end.
      *
-     * @param name        the name of this orchestrator
-     * @param regHost     registration service host
-     * @param regPort     registration service port
-     * @param dpeHost     front-end or DPE host
-     * @param dpePort     front-end or DPE port
-     * @param dpeLang     front-en d lang
-     * @param subPoolSize thread pool size for subscriptions
-     * @param description description of this orchestrator
-     * @throws ClaraException
+     * @param frontEnd use this front-end for communication with the Clara cloud
+     * @param subPoolSize set the size of the pool for processing subscriptions on background
+     * @throws ClaraException if the orchestrator could not be created
      */
-    public BaseOrchestrator(String name,
-                            String regHost,
-                            int regPort,
-                            String dpeHost,
-                            int dpePort,
-                            String dpeLang,
-                            int subPoolSize,
-                            String description)
+    public BaseOrchestrator(DpeName frontEnd, int subPoolSize) throws ClaraException {
+        this(ClaraUtil.getUniqueName(),
+             frontEnd,
+             subPoolSize);
+    }
+
+    /**
+     * Creates a new orchestrator.
+     *
+     * @param name the identification of this orchestrator
+     * @param frontEnd use this front-end for communication with the Clara cloud
+     * @param subPoolSize set the size of the pool for processing subscriptions on background
+     * @throws ClaraException if the orchestrator could not be created
+     */
+    public BaseOrchestrator(String name, DpeName frontEnd, int subPoolSize)
             throws ClaraException {
         try {
-            base = new ClaraBase(ClaraComponent.orchestrator(name, dpeHost, dpePort, dpeLang,
-                    subPoolSize, description), regHost, regPort) {
-                @Override
-                public void end() {
-                }
-
-                @Override
-                public void start(ClaraComponent component) {
-                }
-            };
-            base.setFrontEnd(ClaraComponent.dpe(dpeHost, dpePort, dpeLang, 1, "FrontEnd"));
+            base = getClaraBase(name, frontEnd, subPoolSize);
         } catch (IOException e) {
             throw new ClaraException("Clara-Error: Could not start orchestrator", e);
         }
+    }
+
+    /**
+     * Creates the internal base object.
+     * It can be overridden to return a mock for testing purposes.
+     *
+     * @throws ClaraException
+     * @throws IOException
+     */
+    ClaraBase getClaraBase(String name, DpeName frontEnd, int poolSize)
+            throws IOException, ClaraException {
+        ClaraComponent o = ClaraComponent.orchestrator(name, xMsgUtil.localhost(), poolSize, "");
+        ClaraBase b = new ClaraBase(o) {
+            @Override
+            public void start(ClaraComponent component) {
+                // Nothing
+            }
+
+            @Override
+            public void end() {
+                // Nothing
+            }
+        };
+        b.setFrontEnd(ClaraComponent.dpe(frontEnd.canonicalName()));
+        return b;
     }
 
     /**
