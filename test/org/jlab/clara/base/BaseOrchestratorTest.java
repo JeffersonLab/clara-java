@@ -392,7 +392,7 @@ public class BaseOrchestratorTest {
 
         assertSendCall("10.2.9.96",
                        "10.2.9.96_java:master:E1",
-                       "10.2.9.96_java:master:E1",
+                       "10.2.9.96_java:master:E1;",
                        xMsgMeta.ControlAction.EXECUTE);
     }
 
@@ -424,7 +424,7 @@ public class BaseOrchestratorTest {
 
         assertSyncSendCall("10.2.9.96",
                            "10.2.9.96_java:master:E1",
-                           "10.2.9.96_java:master:E1",
+                           "10.2.9.96_java:master:E1;",
                            xMsgMeta.ControlAction.EXECUTE,
                            20);
     }

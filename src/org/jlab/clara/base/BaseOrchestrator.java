@@ -544,7 +544,7 @@ public class BaseOrchestrator {
             xMsgTopic topic = xMsgTopic.wrap(serviceName);
             xMsgMessage msg = buildMessage(topic, data);
             xMsgMeta.Builder msgMeta = msg.getMetaData();
-            msgMeta.setComposition(serviceName);
+            msgMeta.setComposition(serviceName+";");
             msgMeta.setAction(xMsgMeta.ControlAction.EXECUTE);
             base.genericSend(host, msg);
         } catch (IOException | xMsgException e) {
@@ -579,7 +579,7 @@ public class BaseOrchestrator {
             xMsgTopic topic = xMsgTopic.wrap(serviceName);
             xMsgMessage msg = buildMessage(topic, data);
             xMsgMeta.Builder msgMeta = msg.getMetaData();
-            msgMeta.setComposition(serviceName);
+            msgMeta.setComposition(serviceName+";");
             msgMeta.setAction(xMsgMeta.ControlAction.EXECUTE);
             xMsgMessage response = base.genericSyncSend(host, msg, timeout);
             return base.parseFrom(response, dataTypes);

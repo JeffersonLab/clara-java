@@ -127,7 +127,7 @@ public class Condition {
             if(m.matches()) {
 
                 if (cs.contains("!=")) {
-                    t1 = new StringTokenizer(cs, "!=");
+                    t1 = new StringTokenizer(cs, "!=\"");
                     if (t1.countTokens() != 2) {
                         throw new CException("syntax error: malformed conditional statement");
                     }
@@ -135,7 +135,7 @@ public class Condition {
                     addOrNotState(sst);
 
                 } else if (cs.contains("==")) {
-                    t1 = new StringTokenizer(cs, "==");
+                    t1 = new StringTokenizer(cs, "==\"");
                     if (t1.countTokens() != 2) {
                         throw new CException("syntax error: malformed conditional statement");
                     }
@@ -161,7 +161,7 @@ public class Condition {
                     if (m.matches()) {
 
                         if (ac.contains("!=")) {
-                            t1 = new StringTokenizer(t0.nextToken(), "!=");
+                            t1 = new StringTokenizer(t0.nextToken(), "!=\"");
                             if (t1.countTokens() != 2) {
                                 throw new CException("syntax error: malformed conditional statement");
                             }
@@ -169,7 +169,7 @@ public class Condition {
                             addAndNotState(sst);
 
                         } else if (ac.contains("==")) {
-                            t1 = new StringTokenizer(t0.nextToken(), "==");
+                            t1 = new StringTokenizer(t0.nextToken(), "==\"");
                             if (t1.countTokens() != 2) {
                                 throw new CException("syntax error: malformed conditional statement");
                             }
@@ -193,7 +193,7 @@ public class Condition {
                     if (m.matches()) {
 
                         if (ac.contains("!=")) {
-                            t1 = new StringTokenizer(t0.nextToken(), "!=");
+                            t1 = new StringTokenizer(t0.nextToken(), "!=\"");
                             if (t1.countTokens() != 2) {
                                 throw new CException("syntax error: malformed conditional statement");
                             }
@@ -201,7 +201,7 @@ public class Condition {
                             addOrNotState(sst);
 
                         } else if (ac.contains("==")) {
-                            t1 = new StringTokenizer(t0.nextToken(), "==");
+                            t1 = new StringTokenizer(t0.nextToken(), "==\"");
                             if (t1.countTokens() != 2) {
                                 throw new CException("syntax error: malformed conditional statement");
                             }
@@ -229,36 +229,27 @@ public class Condition {
      */
     public boolean isTrue(ServiceState ownerSS, ServiceState inputSS){
 
-        boolean checkAnd = checkANDCondition(getAndStates(), ownerSS, inputSS);
-        boolean checkAndNot = checkANDCondition(getAndNotStates(), ownerSS, inputSS);
-        boolean checkOr = checkORCondition(getOrStates(), ownerSS, inputSS);
-        boolean checkOrNot = checkORCondition(getOrNotStates(), ownerSS, inputSS);
+        boolean checkAnd = getAndStates().isEmpty() || checkANDCondition(getAndStates(), ownerSS, inputSS);
+        boolean checkAndNot = getAndNotStates().isEmpty() || !checkANDCondition(getAndNotStates(), ownerSS, inputSS);
+        boolean checkOr = getOrStates().isEmpty() || checkORCondition(getOrStates(), ownerSS, inputSS);
+        boolean checkOrNot = getOrNotStates().isEmpty() || !checkORCondition(getOrNotStates(), ownerSS, inputSS);
 
         return checkAnd && checkAndNot && checkOr && checkOrNot;
     }
 
     private boolean checkANDCondition(Set<ServiceState> sc, ServiceState s1, ServiceState s2){
-        boolean b = false;
-        if(sc.isEmpty()){
-            b = true;
-        } else {
-            if (sc.contains(s1) && sc.contains(s2)) {
-                return true;
-            }
+        if (sc.contains(s1) && sc.contains(s2)) {
+            return true;
         }
-        return b;
+        return false;
     }
 
     private boolean checkORCondition(Set<ServiceState> sc, ServiceState s1, ServiceState s2){
         boolean b = false;
-        if(sc.isEmpty()){
-            b = true;
-        } else {
-            if (sc.contains(s1) || sc.contains(s2)) {
-                return true;
-            }
+        if (sc.contains(s1) || sc.contains(s2)) {
+            return true;
         }
-        return b;
+        return false;
     }
 
     @Override
