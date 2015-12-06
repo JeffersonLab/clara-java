@@ -144,6 +144,128 @@ public final class ClaraRequests {
     }
 
 
+    /**
+     * Base class to deploy a Clara component.
+     * Each subclass presents the optional fields specific to each component.
+     */
+    public abstract static class DeployRequest<D extends DeployRequest<D>>
+            extends DataRequest<D> {
+
+        protected int poolSize = 1;
+        protected String description = CConstants.UNDEFINED;
+
+        DeployRequest(ClaraBase base, ClaraComponent frontEnd, String topic) {
+            super(base, frontEnd, topic);
+        }
+
+        /**
+         * Defines a custom pool size for the started component.
+         * The pool size sets how many parallel requests can be processed
+         * by the component.
+         *
+         * @return this object, so methods can be chained
+         */
+        public D withPoolsize(int poolSize) {
+            this.poolSize = poolSize;
+            return self();
+        }
+
+        /**
+         * Defines a description for the started component.
+         * The description will be used when the component is registered.
+         *
+         * @return this object, so methods can be chained
+         */
+        public D withDescription(String description) {
+            this.description = description;
+            return self();
+        }
+    }
+
+
+    /**
+     * A request to start a container.
+     */
+    public static class DeployContainerRequest extends DeployRequest<DeployContainerRequest> {
+
+        private final ContainerName container;
+
+        DeployContainerRequest(ClaraBase base, ClaraComponent frontEnd, ContainerName container) {
+            super(base, frontEnd, getDpeTopic(container));
+            this.container = container;
+        }
+
+        @Override
+        protected String getData() {
+            return ClaraUtil.buildData(CConstants.START_CONTAINER,
+                                       container.name(),
+                                       poolSize,
+                                       description);
+        }
+    }
+
+
+    /**
+     * A request to start a service.
+     */
+    public static class DeployServiceRequest extends DeployRequest<DeployServiceRequest> {
+
+        private final ServiceName service;
+        private final String classPath;
+
+        private String initialState = CConstants.UNDEFINED;
+
+        DeployServiceRequest(ClaraBase base, ClaraComponent frontEnd,
+                             ServiceName service, String classPath) {
+            super(base, frontEnd, getDpeTopic(service));
+            this.service = service;
+            this.classPath = classPath;
+        }
+
+        /**
+         * Defines an initial state for the started service.
+         *
+         * @return this object, so methods can be chained
+         */
+        public DeployServiceRequest withInitialState(String initialState) {
+            this.initialState = initialState;
+            return self();
+        }
+
+        @Override
+        protected String getData() {
+            return ClaraUtil.buildData(CConstants.START_SERVICE,
+                                       getContainerName(service),
+                                       service.name(),
+                                       classPath,
+                                       poolSize,
+                                       description,
+                                       initialState);
+        }
+    }
+
+
+
+
+    private static ClaraComponent getDpeComponent(ClaraName claraName) {
+        try {
+            return ClaraComponent.dpe(ClaraUtil.getDpeName(claraName.canonicalName()));
+        } catch (ClaraException e) {
+            throw new IllegalArgumentException("Invalid Clara name: " + claraName);
+        }
+    }
+
+    private static String getDpeTopic(ClaraName claraName) {
+        return "dpe:" + getDpeComponent(claraName).getTopic();
+    }
+
+    private static String getContainerName(ServiceName service) {
+        try {
+            return ClaraUtil.getContainerName(service.canonicalName());
+        } catch (ClaraException e) {
+            throw new IllegalArgumentException("Invalid service name: " + service);
+        }
+    }
 
     private static xMsgMessage createMessage(xMsgTopic topic, String data) throws ClaraException {
         try {

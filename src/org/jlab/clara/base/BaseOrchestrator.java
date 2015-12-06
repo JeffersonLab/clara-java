@@ -21,6 +21,8 @@
 
 package org.jlab.clara.base;
 
+import org.jlab.clara.base.ClaraRequests.DeployContainerRequest;
+import org.jlab.clara.base.ClaraRequests.DeployServiceRequest;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.EngineDataType;
@@ -248,36 +250,18 @@ public class BaseOrchestrator {
         base.send(base.getFrontEnd(), new xMsgMessage(topic, data));
     }
 
-    /**
-     * Method to deploy a ClaraComponent. Accepts container and service components
-     *
-     * @param comp {@link org.jlab.clara.base.ClaraComponent} object
-     * @throws ClaraException
-     * @throws TimeoutException
-     * @throws xMsgException
-     * @throws IOException
-     */
-    public void deploy(ClaraComponent comp)
-            throws ClaraException, TimeoutException, xMsgException, IOException {
-        base.deploy(comp);
+    public DeployContainerRequest deploy(ContainerName container) throws ClaraException {
+        String dpeName = ClaraUtil.getDpeName(container.canonicalName());
+        ClaraComponent targetDpe = ClaraComponent.dpe(dpeName);
+        return new DeployContainerRequest(base, targetDpe, container);
     }
 
-    /**
-     * sync method to deploy a ClaraComponent. Accepts container and service components
-     *
-     * @param comp {@link org.jlab.clara.base.ClaraComponent} object
-     * @param timeout sync request timeout
-     * @return message {@link org.jlab.coda.xmsg.core.xMsgMessage}
-     *         indicating the status of the sync operation.
-     * @throws ClaraException
-     * @throws TimeoutException
-     * @throws xMsgException
-     * @throws IOException
-     */
-    public xMsgMessage syncDeploy(ClaraComponent comp, int timeout)
-            throws ClaraException, TimeoutException, xMsgException, IOException {
-        return base.syncDeploy(comp, timeout);
+    public DeployServiceRequest deploy(ServiceName service, String classPath) throws ClaraException {
+        String dpeName = ClaraUtil.getDpeName(service.canonicalName());
+        ClaraComponent targetDpe = ClaraComponent.dpe(dpeName);
+        return new DeployServiceRequest(base, targetDpe, service, classPath);
     }
+
 
     /**
      * Asks Clara component to gracefully exit. Understandable
