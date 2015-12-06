@@ -23,6 +23,7 @@ package org.jlab.clara.base;
 
 import org.jlab.clara.base.ClaraRequests.DeployContainerRequest;
 import org.jlab.clara.base.ClaraRequests.DeployServiceRequest;
+import org.jlab.clara.base.ClaraRequests.ExitRequest;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.EngineDataType;
@@ -263,38 +264,23 @@ public class BaseOrchestrator {
     }
 
 
-    /**
-     * Asks Clara component to gracefully exit. Understandable
-     * this method does not accept Clara DPE component as a parameter.
-     *
-     * @param comp {@link org.jlab.clara.base.ClaraComponent} object
-     * @throws ClaraException
-     * @throws TimeoutException
-     * @throws xMsgException
-     * @throws IOException
-     */
-    public void exit(ClaraComponent comp)
-            throws ClaraException, TimeoutException, xMsgException, IOException {
-        base.exit(comp);
+    public ExitRequest exit(DpeName dpe) throws ClaraException {
+        ClaraComponent targetDpe = ClaraComponent.dpe(dpe.canonicalName());
+        return new ExitRequest(base, targetDpe, dpe);
     }
 
-    /**
-     * Sync send Clara component an exit request.  Understandable
-     * this method does not accept Clara DPE component as a parameter.
-     *
-     * @param comp {@link org.jlab.clara.base.ClaraComponent} object
-     * @param timeout sync request timeout
-     * @return message {@link org.jlab.coda.xmsg.core.xMsgMessage}
-     *         indicating the status of the sync operation.
-     * @throws ClaraException
-     * @throws TimeoutException
-     * @throws xMsgException
-     * @throws IOException
-     */
-    public xMsgMessage syncExit(ClaraComponent comp, int timeout)
-            throws ClaraException, TimeoutException, xMsgException, IOException {
-        return base.syncExit(comp, timeout);
+    public ExitRequest exit(ContainerName container) throws ClaraException {
+        String dpeName = ClaraUtil.getDpeName(container.canonicalName());
+        ClaraComponent targetDpe = ClaraComponent.dpe(dpeName);
+        return new ExitRequest(base, targetDpe, container);
     }
+
+    public ExitRequest exit(ServiceName service) throws ClaraException {
+        String dpeName = ClaraUtil.getDpeName(service.canonicalName());
+        ClaraComponent targetDpe = ClaraComponent.dpe(dpeName);
+        return new ExitRequest(base, targetDpe, service);
+    }
+
 
     /**
      * Pings a DPE. This is a sync request.

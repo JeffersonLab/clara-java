@@ -65,23 +65,11 @@ public class BaseOrchestratorTest {
 
 
     @Test
-    public void exitDpeSendsRequest() throws Exception {
-        orchestrator.exitRemoteDpe("10.2.9.96_java");
-        assertSendCall("10.2.9.96", "dpe:10.2.9.96_java", "dpeExit");
-    }
+    public void exitDpe() throws Exception {
+        DpeName dpe = new DpeName("10.2.9.96_java");
+        request = orchestrator.exit(dpe);
 
-
-    @Test
-    public void exitDpeThrowsOnFailure() throws Exception {
-        expectClaraExceptionOnSend();
-        orchestrator.exitRemoteDpe("10.2.9.96_java");
-    }
-
-
-    @Test
-    public void exitDpeThrowsOnBadDpeName() throws Exception {
-        expectedEx.expect(IllegalArgumentException.class);
-        orchestrator.exitRemoteDpe("10.2.9.96_java:master");
+        assertRequest("10.2.9.96", "dpe:10.2.9.96_java", "stopDpe");
     }
 
 
@@ -95,56 +83,12 @@ public class BaseOrchestratorTest {
     }
 
 
-
     @Test
-    public void removeContainerSendsRequest() throws Exception {
-        orchestrator.removeContainer("10.2.9.96_java:master");
+    public void exitContainer() throws Exception {
+        ContainerName container = new ContainerName("10.2.9.96_java:master");
+        request = orchestrator.exit(container);
 
-        assertSendCall("10.2.9.96", "dpe:10.2.9.96_java", "removeContainer?master");
-    }
-
-
-    @Test
-    public void removeContainerThrowsOnFailure() throws Exception {
-        expectClaraExceptionOnSend();
-        orchestrator.removeContainer("10.2.9.96_java:master");
-    }
-
-
-    @Test
-    public void removeContainerThrowsOnBadContainerName() throws Exception {
-        expectedEx.expect(IllegalArgumentException.class);
-        orchestrator.removeContainer("10.2.9.96_java");
-    }
-
-
-
-    @Test
-    public void removeContainerSyncSendsRequest() throws Exception {
-        orchestrator.removeContainerSync("10.2.9.96_java:master", 10);
-
-        assertSyncSendCall("10.2.9.96", "dpe:10.2.9.96_java", "removeContainer?master", 10);
-    }
-
-
-    @Test
-    public void removeContainerSyncThrowsOnFailure() throws Exception {
-        expectClaraExceptionOnSyncSend();
-        orchestrator.removeContainerSync("10.2.9.96_java:master", 10);
-    }
-
-
-    @Test
-    public void removeContainerSyncThrowsOnTimeout() throws Exception {
-        expectTimeoutExceptionOnSyncSend();
-        orchestrator.removeContainerSync("10.2.9.96_java:master", 10);
-    }
-
-
-    @Test
-    public void removeContainerSyncThrowsOnBadContainerName() throws Exception {
-        expectedEx.expect(IllegalArgumentException.class);
-        orchestrator.removeContainer("10.2.9.96_java");
+        assertRequest("10.2.9.96", "dpe:10.2.9.96_java", "stopContainer?master");
     }
 
 
@@ -159,56 +103,12 @@ public class BaseOrchestratorTest {
     }
 
 
-
     @Test
-    public void removeServiceSendsRequest() throws Exception {
-        orchestrator.removeService("10.2.9.96_java:master:E1");
+    public void exitService() throws Exception {
+        ServiceName service = new ServiceName("10.2.9.96_java:master:E1");
+        request = orchestrator.exit(service);
 
-        assertSendCall("10.2.9.96", "container:10.2.9.96_java:master", "removeService?E1");
-    }
-
-
-    @Test
-    public void removeServiceThrowsOnFailure() throws Exception {
-        expectClaraExceptionOnSend();
-        orchestrator.removeService("10.2.9.96_java:master:E1");
-    }
-
-
-    @Test
-    public void removeServiceThrowsOnBadServiceName() throws Exception {
-        expectedEx.expect(IllegalArgumentException.class);
-        orchestrator.removeService("10.2.9.96_java::E1");
-    }
-
-
-
-    @Test
-    public void removeServiceSyncSendsRequest() throws Exception {
-        orchestrator.removeServiceSync("10.2.9.96_java:master:E1", 30);
-
-        assertSyncSendCall("10.2.9.96", "container:10.2.9.96_java:master", "removeService?E1", 30);
-    }
-
-
-    @Test
-    public void removeServiceSyncThrowsOnFailure() throws Exception {
-        expectClaraExceptionOnSyncSend();
-        orchestrator.removeServiceSync("10.2.9.96_java:master:E1", 30);
-    }
-
-
-    @Test
-    public void removeServiceSyncThrowsOnTimeout() throws Exception {
-        expectTimeoutExceptionOnSyncSend();
-        orchestrator.removeServiceSync("10.2.9.96_java:master:E1", 30);
-    }
-
-
-    @Test
-    public void removeServiceSyncThrowsOnBadServiceName() throws Exception {
-        expectedEx.expect(IllegalArgumentException.class);
-        orchestrator.removeServiceSync("10.2.9.96_java::E1", 30);
+        assertRequest("10.2.9.96", "dpe:10.2.9.96_java", "stopService?master?E1");
     }
 
 

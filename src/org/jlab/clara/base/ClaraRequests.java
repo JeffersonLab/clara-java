@@ -245,6 +245,44 @@ public final class ClaraRequests {
     }
 
 
+    /**
+     * A request to stop a running Clara component.
+     */
+    public static class ExitRequest extends DataRequest<ExitRequest> {
+
+        private final String data;
+
+        /**
+         * A request to stop a DPE.
+         */
+        ExitRequest(ClaraBase base, ClaraComponent frontEnd, DpeName dpe) {
+            super(base, frontEnd, getDpeTopic(dpe));
+            data = ClaraUtil.buildData(CConstants.STOP_DPE);
+        }
+
+        /**
+         * A request to stop a container.
+         */
+        ExitRequest(ClaraBase base, ClaraComponent frontEnd, ContainerName container) {
+            super(base, frontEnd, getDpeTopic(container));
+            data = ClaraUtil.buildData(CConstants.STOP_CONTAINER, container.name());
+        }
+
+        /**
+         * A request to stop a service.
+         */
+        ExitRequest(ClaraBase base, ClaraComponent frontEnd, ServiceName service) {
+            super(base, frontEnd, getDpeTopic(service));
+            String containerName = getContainerName(service);
+            data = ClaraUtil.buildData(CConstants.STOP_SERVICE, containerName, service.name());
+        }
+
+        @Override
+        protected String getData() {
+            return data;
+        }
+    }
+
 
 
     private static ClaraComponent getDpeComponent(ClaraName claraName) {
