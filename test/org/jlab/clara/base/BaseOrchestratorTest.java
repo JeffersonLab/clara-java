@@ -21,29 +21,25 @@
 
 package org.jlab.clara.base;
 
+import org.jlab.clara.base.ClaraRequests.BaseRequest;
+import org.jlab.clara.base.ClaraSubscriptions.BaseSubscription;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.EngineStatus;
-import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgMessage;
-import org.jlab.coda.xmsg.core.xMsgSubscription;
 import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
-import org.jlab.coda.xmsg.excp.xMsgException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mockito.ArgumentCaptor;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
 import java.io.IOException;
-import java.util.concurrent.TimeoutException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.*;
 
 public class BaseOrchestratorTest {
@@ -55,6 +51,9 @@ public class BaseOrchestratorTest {
     private String feHost = "10.2.9.1";
     private Composition composition =
             new Composition("10.2.9.96_java:master:E1+10.2.9.96_java:master:E2");
+
+    private BaseRequest<?, ?> request;
+    private BaseSubscription<?, ?> subscription;
 
     @Before
     public void setUp() throws Exception {
@@ -953,39 +952,17 @@ public class BaseOrchestratorTest {
 
 
 
-    private void assertSendCall(String host, String topic, String data) throws Exception {
-        ArgumentCaptor<xMsgMessage> msgArg = ArgumentCaptor.forClass(xMsgMessage.class);
-        verify(baseMock).genericSend(eq(host), msgArg.capture());
-        assertMessage(msgArg.getValue(), topic, data);
+    private void assertRequest(String host, String topic, String data) throws Exception {
+        assertThat(request.frontEnd.getDpeHost(), is(host));
+        assertMessage(request.msg(), topic, data);
     }
 
 
-    private void assertSendCall(String host, String topic,
+    private void assertRequest(String host, String topic,
                                 String composition, xMsgMeta.ControlAction action)
             throws Exception {
-        ArgumentCaptor<xMsgMessage> msgArg = ArgumentCaptor.forClass(xMsgMessage.class);
-        verify(baseMock).genericSend(eq(host), msgArg.capture());
-
-        assertMessage(msgArg.getValue(), topic, composition, action);
-    }
-
-
-    private void assertSyncSendCall(String host, String topic, String data, int timeout)
-            throws Exception {
-        ArgumentCaptor<xMsgMessage> msgArg = ArgumentCaptor.forClass(xMsgMessage.class);
-        verify(baseMock).genericSyncSend(eq(host), msgArg.capture(), eq(timeout));
-        assertMessage(msgArg.getValue(), topic, data);
-    }
-
-
-    private void assertSyncSendCall(String host, String topic,
-                                    String composition, xMsgMeta.ControlAction action,
-                                    int timeout)
-            throws Exception {
-        ArgumentCaptor<xMsgMessage> msgArg = ArgumentCaptor.forClass(xMsgMessage.class);
-        verify(baseMock).genericSyncSend(eq(host), msgArg.capture(), eq(timeout));
-
-        assertMessage(msgArg.getValue(), topic, composition, action);
+        assertThat(request.frontEnd.getDpeHost(), is(host));
+        assertMessage(request.msg(), topic, composition, action);
     }
 
 
@@ -1007,80 +984,15 @@ public class BaseOrchestratorTest {
     }
 
 
-    private void assertSubscriptionStarted(String topic,
-                                           EngineStatus status, EngineCallback callback)
-            throws Exception {
-        OrchestratorMock orchMock = (OrchestratorMock) orchestrator;
-        verify(baseMock).genericReceive(feHost,
-                                        xMsgTopic.wrap(topic),
-                                        orchMock.userWrapperCallback);
-        assertThat(orchMock.userEngineStatus, is(sameInstance(status)));
-        assertThat(orchMock.userEngineCallback, is(sameInstance(callback)));
+    private void assertSubscription(String topic) throws Exception {
+        assertThat(subscription.frontEnd.getDpeCanonicalName(), is(feHost));
+        assertThat(subscription.topic, is(xMsgTopic.wrap(topic)));
     }
 
-
-    private void assertSubscriptionStarted(String topic, GenericCallback callback)
-            throws Exception {
-        OrchestratorMock orchMock = (OrchestratorMock) orchestrator;
-        verify(baseMock).genericReceive(feHost,
-                                        xMsgTopic.wrap(topic),
-                                        orchMock.userWrapperCallback);
-        assertThat(orchMock.userGenericCallback, is(sameInstance(callback)));
-    }
-
-
-    private void assertSubscriptionRegistered(String key, xMsgSubscription handler) {
-        assertThat(orchestrator.getSubscriptions(), hasEntry(key, handler));
-    }
-
-
-    private void assertSubscriptionRemoved(String key) {
-        assertThat(orchestrator.getSubscriptions(), not(hasKey(key)));
-    }
-
-
-    private xMsgSubscription mockSubscriptionHandler() throws Exception {
-        xMsgSubscription handler = mock(xMsgSubscription.class);
-        when(baseMock.genericReceive(anyString(), any(xMsgTopic.class), any(xMsgCallBack.class)))
-                .thenReturn(handler);
-        return handler;
-    }
-
-
-    private void expectClaraExceptionOnSend() throws Exception {
-        doThrow(new xMsgException("")).when(baseMock)
-                .genericSend(anyString(), any(xMsgMessage.class));
-        expectedEx.expect(ClaraException.class);
-    }
-
-
-    private void expectClaraExceptionOnSyncSend() throws Exception {
-        doThrow(new xMsgException("")).when(baseMock)
-                .genericSyncSend(anyString(), any(xMsgMessage.class), anyInt());
-        expectedEx.expect(ClaraException.class);
-    }
-
-
-    private void expectTimeoutExceptionOnSyncSend() throws Exception {
-        doThrow(new TimeoutException()).when(baseMock)
-                .genericSyncSend(anyString(), any(xMsgMessage.class), anyInt());
-        expectedEx.expect(TimeoutException.class);
-    }
-
-
-    private void expectClaraExceptionOnReceive() throws Exception {
-        doThrow(new xMsgException("")).when(baseMock)
-                .genericReceive(anyString(), any(xMsgTopic.class), any(xMsgCallBack.class));
-        expectedEx.expect(ClaraException.class);
-    }
 
 
     @ParametersAreNonnullByDefault
     private class OrchestratorMock extends BaseOrchestrator {
-        public EngineStatus userEngineStatus;
-        public EngineCallback userEngineCallback;
-        public GenericCallback userGenericCallback;
-        public xMsgCallBack userWrapperCallback;
 
         public OrchestratorMock() throws ClaraException, IOException {
             super();
@@ -1089,22 +1001,6 @@ public class BaseOrchestratorTest {
         @Override
         ClaraBase getClaraBase(String name, DpeName frontEnd, int poolSize) {
             return baseMock;
-        }
-
-        @Override
-        xMsgCallBack wrapEngineCallback(final EngineCallback userCallback,
-                                        final EngineStatus userStatus) {
-            userEngineStatus = userStatus;
-            userEngineCallback = userCallback;
-            userWrapperCallback = super.wrapEngineCallback(userCallback, userStatus);
-            return userWrapperCallback;
-        }
-
-        @Override
-        xMsgCallBack wrapGenericCallback(final GenericCallback userCallback) {
-            userGenericCallback = userCallback;
-            userWrapperCallback = super.wrapGenericCallback(userCallback);
-            return userWrapperCallback;
         }
     }
 }
