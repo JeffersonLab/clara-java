@@ -21,11 +21,16 @@
 
 package org.jlab.clara.base;
 
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.jlab.clara.base.error.ClaraException;
+import org.jlab.clara.util.CConstants;
+import org.jlab.clara.util.ClaraUtil;
+import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
+import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 import org.jlab.coda.xmsg.excp.xMsgException;
 
@@ -106,5 +111,45 @@ public final class ClaraRequests {
          * @throws ClaraException if the data could not be parsed
          */
         protected abstract T parseData(xMsgMessage msg) throws ClaraException;
+    }
+
+
+    /**
+     * Base class for sending a string-encoded request
+     * and parsing the status of the operation.
+     */
+    public abstract static class DataRequest<D extends DataRequest<D>>
+            extends BaseRequest<D, Boolean> {
+
+        DataRequest(ClaraBase base, ClaraComponent frontEnd, String topic) {
+            super(base, frontEnd, topic);
+        }
+
+        /**
+         * Creates the data to be sent to the component.
+         */
+        protected abstract String getData();
+
+        @Override
+        protected xMsgMessage msg() throws ClaraException {
+            xMsgMessage msg = createMessage(topic, getData());
+            return msg;
+        }
+
+        @Override
+        protected Boolean parseData(xMsgMessage msg) {
+            // TODO Auto-generated method stub
+            return true;
+        }
+    }
+
+
+
+    private static xMsgMessage createMessage(xMsgTopic topic, String data) throws ClaraException {
+        try {
+            return new xMsgMessage(topic, xMsgConstants.STRING, data.getBytes());
+        } catch (xMsgException | IOException e) {
+            throw new ClaraException("Cannot create message", e);
+        }
     }
 }
