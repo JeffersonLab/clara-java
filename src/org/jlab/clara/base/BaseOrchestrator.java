@@ -342,69 +342,6 @@ public class BaseOrchestrator {
     }
 
 
-
-    /**
-     * Sends a request to start reporting "done" on service executions.
-     * Configures the service to repeatedly publish "done" messages after
-     * a number of <code>eventCount</code> executions have been completed.
-     * If the service does not exist, the message is lost.
-     *
-     * @param serviceCanonicalName the canonical name of the service
-     * @param eventCount the interval of executions to be completed to publish the report
-     * @throws ClaraException if the request could not be sent
-     */
-    public void startReportingDone(String serviceCanonicalName, int eventCount)
-            throws ClaraException, IOException, xMsgException {
-
-        base.startReporting(ClaraComponent.service(serviceCanonicalName), CReportTypes.DONE, eventCount);
-    }
-
-
-    /**
-     * Sends a request to stop reporting "done" on service executions.
-     * Configures the service to stop publishing "done" messages.
-     * If the service does not exist, the message is lost.
-     *
-     * @param serviceCanonicalName the canonical name of the service
-     * @throws ClaraException if the request could not be sent
-     */
-    public void stopReportingDone(String serviceCanonicalName)
-            throws ClaraException, IOException, xMsgException {
-        base.stopReporting(ClaraComponent.service(serviceCanonicalName), CReportTypes.DONE);
-    }
-
-
-    /**
-     * Sends a request to start reporting the output data on service executions.
-     * Configures the service to repeatedly publish the resulting output data after
-     * a number of <code>eventCount</code> executions have been completed.
-     * If the service does not exist, the message is lost.
-     *
-     * @param serviceCanonicalName the canonical name of the service
-     * @param eventCount the interval of executions to be completed to publish the report
-     * @throws ClaraException if the request could not be sent
-     */
-    public void startReportingData(String serviceCanonicalName, int eventCount)
-            throws ClaraException, IOException, xMsgException {
-
-        base.startReporting(ClaraComponent.service(serviceCanonicalName), CReportTypes.DATA, eventCount);
-
-    }
-
-    /**
-     * Sends a request to stop reporting the output data on service executions.
-     * Configures the service to stop publishing the resulting output data.
-     * If the service does not exist, the message is lost.
-     *
-     * @param serviceCanonicalName the canonical name of the service
-     * @throws ClaraException if the request could not be sent
-     */
-    public void stopReportingData(String serviceCanonicalName)
-            throws ClaraException, IOException, xMsgException {
-        base.stopReporting(ClaraComponent.service(serviceCanonicalName), CReportTypes.DATA);
-    }
-
-
     /**
      * Subscribes to the specified status reports of the selected service.
      * <p>

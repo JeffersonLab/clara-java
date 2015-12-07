@@ -151,89 +151,39 @@ public class BaseOrchestratorTest {
 
 
     @Test
-    public void startReportingDoneSendsRequest() throws Exception {
-        orchestrator.startReportingDone("10.2.9.96_java:master:E1", 1000);
-        assertSendCall("10.2.9.96", "10.2.9.96_java:master:E1", "serviceReportDone?1000");
+    public void startReportingDone() throws Exception {
+        ServiceName service = new ServiceName("10.2.9.96_java:master:E1");
+        request = orchestrator.configure(service).startDoneReporting(1000);
+
+        assertRequest("10.2.9.96", "10.2.9.96_java:master:E1", "serviceReportDone?1000");
     }
 
 
     @Test
-    public void startReportingDoneThrowsOnFailure() throws Exception {
-        expectClaraExceptionOnSend();
-        orchestrator.startReportingDone("10.2.9.96_java:master:E1", 1000);
-    }
+    public void stopReportingDone() throws Exception {
+        ServiceName service = new ServiceName("10.2.9.96_java:master:E1");
+        request = orchestrator.configure(service).stopDoneReporting();
 
-
-    @Test
-    public void startReportingDoneThrowsOnBadServiceName() throws Exception {
-        expectedEx.expect(IllegalArgumentException.class);
-        orchestrator.startReportingDone("10.2.9.96_java:master", 1000);
-    }
-
-
-
-    @Test
-    public void stopReportingDoneSendsRequest() throws Exception {
-        orchestrator.stopReportingDone("10.2.9.96_java:master:E1");
-        assertSendCall("10.2.9.96", "10.2.9.96_java:master:E1", "serviceReportDone?0");
-    }
-
-
-    @Test
-    public void stopReportingDoneThrowsOnFailure() throws Exception {
-        expectClaraExceptionOnSend();
-        orchestrator.stopReportingDone("10.2.9.96_java:master:E1");
-    }
-
-
-    @Test
-    public void stopReportingDoneThrowsOnBadServiceName() throws Exception {
-        expectedEx.expect(IllegalArgumentException.class);
-        orchestrator.stopReportingDone("10.2.9.96_java:master");
+        assertRequest("10.2.9.96", "10.2.9.96_java:master:E1", "serviceReportDone?0");
     }
 
 
 
     @Test
-    public void startReportingDataSendsRequest() throws Exception {
-        orchestrator.startReportingData("10.2.9.96_java:master:E1", 1000);
-        assertSendCall("10.2.9.96", "10.2.9.96_java:master:E1", "serviceReportData?1000");
+    public void startReportingData() throws Exception {
+        ServiceName service = new ServiceName("10.2.9.96_java:master:E1");
+        request = orchestrator.configure(service).startDataReporting(1000);
+
+        assertRequest("10.2.9.96", "10.2.9.96_java:master:E1", "serviceReportData?1000");
     }
 
 
     @Test
-    public void startReportingDataThrowsOnFailure() throws Exception {
-        expectClaraExceptionOnSend();
-        orchestrator.startReportingData("10.2.9.96_java:master:E1", 1000);
-    }
+    public void stopReportingData() throws Exception {
+        ServiceName service = new ServiceName("10.2.9.96_java:master:E1");
+        request = orchestrator.configure(service).stopDataReporting();
 
-
-    @Test
-    public void startReportingDataThrowsOnBadServiceName() throws Exception {
-        expectedEx.expect(IllegalArgumentException.class);
-        orchestrator.startReportingData("10.2.9.96_java:master", 1000);
-    }
-
-
-
-    @Test
-    public void stopReportingDataSendsRequest() throws Exception {
-        orchestrator.stopReportingData("10.2.9.96_java:master:E1");
-        assertSendCall("10.2.9.96", "10.2.9.96_java:master:E1", "serviceReportData?0");
-    }
-
-
-    @Test
-    public void stopReportingDataThrowsOnFailure() throws Exception {
-        expectClaraExceptionOnSend();
-        orchestrator.stopReportingData("10.2.9.96_java:master:E1");
-    }
-
-
-    @Test
-    public void stopReportingDataThrowsOnBadServiceName() throws Exception {
-        expectedEx.expect(IllegalArgumentException.class);
-        orchestrator.stopReportingData("10.2.9.96_java:master");
+        assertRequest("10.2.9.96", "10.2.9.96_java:master:E1", "serviceReportData?0");
     }
 
 

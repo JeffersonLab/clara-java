@@ -32,6 +32,7 @@ import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.util.CConstants;
 import org.jlab.clara.util.ClaraUtil;
+import org.jlab.clara.util.report.CReportTypes;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgTopic;
@@ -406,6 +407,26 @@ public final class ClaraRequests {
 
 
     /**
+     * A request to setup the reports of a service.
+     */
+    public static class ServiceReportRequest extends DataRequest<ServiceReportRequest> {
+
+        private final String data;
+
+        ServiceReportRequest(ClaraBase base, ClaraComponent frontEnd,
+                             ServiceName service, CReportTypes type, int eventCount) {
+            super(base, frontEnd, service.canonicalName());
+            data = ClaraUtil.buildData(type.getValue(), eventCount);
+        }
+
+        @Override
+        protected String getData() {
+            return data;
+        }
+    }
+
+
+    /**
      * Builds a request to configure a service.
      * A service can be configured with data,
      * or by setting the event count to publish data/done reports.
@@ -435,6 +456,58 @@ public final class ClaraRequests {
          */
         public ServiceConfigRequest withData(EngineData data) {
             return new ServiceConfigRequest(base, frontEnd, service, data, dataTypes);
+        }
+
+        /**
+         * Creates a request to start reporting "done" on executions of the
+         * specified service.
+         * Configures the service to repeatedly publish "done" messages after
+         * a number of <code>eventCount</code> executions have been completed.
+         * If the service does not exist, the message is lost.
+         *
+         * @param eventCount the interval of executions to be completed to publish the report
+         * @returns a service configuration request to be run
+         */
+        public ServiceReportRequest startDoneReporting(int eventCount) {
+            return new ServiceReportRequest(base, frontEnd, service, CReportTypes.DONE, eventCount);
+        }
+
+        /**
+         * Creates a request to stop reporting "done" on executions of the
+         * specified service.
+         * Configures the service to stop publishing "done" messages.
+         * If the service does not exist, the message is lost.
+         *
+         * @returns a service configuration request to be run
+         */
+        public ServiceReportRequest stopDoneReporting() {
+            return new ServiceReportRequest(base, frontEnd, service, CReportTypes.DONE, 0);
+        }
+
+        /**
+         * Creates a request to start reporting the output data on executions of the
+         * specified service.
+         * Configures the service to repeatedly publish the resulting output data after
+         * a number of <code>eventCount</code> executions have been completed.
+         * If the service does not exist, the message is lost.
+         *
+         * @param eventCount the interval of executions to be completed to publish the report
+         * @returns a service configuration request to be run
+         */
+        public ServiceReportRequest startDataReporting(int eventCount) {
+            return new ServiceReportRequest(base, frontEnd, service, CReportTypes.DATA, eventCount);
+        }
+
+        /**
+         * Creates a request to stop reporting the output data on executions of the
+         * specified service.
+         * Configures the service to stop publishing the resulting output data.
+         * If the service does not exist, the message is lost.
+         *
+         * @returns a service configuration request to be run
+         */
+        public ServiceReportRequest stopDataReporting() {
+            return new ServiceReportRequest(base, frontEnd, service, CReportTypes.DATA, 0);
         }
     }
 
