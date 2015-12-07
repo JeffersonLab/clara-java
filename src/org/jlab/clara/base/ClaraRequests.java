@@ -22,10 +22,14 @@
 package org.jlab.clara.base;
 
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.jlab.clara.base.error.ClaraException;
+import org.jlab.clara.engine.EngineData;
+import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.util.CConstants;
 import org.jlab.clara.util.ClaraUtil;
 import org.jlab.coda.xmsg.core.xMsgConstants;
@@ -284,6 +288,70 @@ public final class ClaraRequests {
     }
 
 
+    /**
+     * Base class to send a control request to a service, and return a response.
+     *
+     * @param <T> The type of data returned to the client by the request.
+     */
+    public abstract static class ServiceRequest<D extends ServiceRequest<D, T>, T>
+                extends BaseRequest<D, T> {
+
+        protected final EngineData userData;
+        protected Set<EngineDataType> dataTypes;
+        protected final xMsgMeta.ControlAction action;
+        protected final String composition;
+
+        ServiceRequest(ClaraBase base, ClaraComponent frontEnd, ServiceName service,
+                       xMsgMeta.ControlAction action,
+                       EngineData data, Set<EngineDataType> dataTypes) {
+            super(base, frontEnd, service.canonicalName());
+            this.userData = data;
+            this.dataTypes = dataTypes;
+            this.action = action;
+            this.composition = service.canonicalName();
+        }
+
+        /**
+         * Overwrites the data types used for serializing the data to the service,
+         * and deserializing its response if needed.
+         *
+         * @param dataType the custom data-type of the configuration data
+         * @return this object, so methods can be chained
+         */
+        public D withDataTypes(Set<EngineDataType> dataTypes) {
+            this.dataTypes = dataTypes;
+            return self();
+        }
+
+        /**
+         * Overwrites the data types used for serializing the data to the service,
+         * and deserializing its response if needed.
+         *
+         * @param dataType the custom data-type of the configuration data
+         * @return this object, so methods can be chained
+         */
+        public D withDataTypes(EngineDataType... dataTypes) {
+            Set<EngineDataType> newTypes = new HashSet<>();
+            for (EngineDataType dt : dataTypes) {
+                newTypes.add(dt);
+            }
+            this.dataTypes = newTypes;
+            return self();
+        }
+
+        @Override
+        protected xMsgMessage msg() throws ClaraException {
+            try {
+                xMsgMessage msg = new xMsgMessage(topic, null);
+                base.serialize(userData, msg, dataTypes);
+                msg.getMetaData().setAction(action);
+                msg.getMetaData().setComposition(composition);
+                return msg;
+            } catch (xMsgException | IOException e) {
+                throw new ClaraException("Cannot create message", e);
+            }
+        }
+    }
 
     private static ClaraComponent getDpeComponent(ClaraName claraName) {
         try {
