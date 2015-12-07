@@ -311,6 +311,16 @@ public final class ClaraRequests {
             this.composition = service.canonicalName();
         }
 
+        ServiceRequest(ClaraBase base, ClaraComponent frontEnd, Composition composition,
+                       xMsgMeta.ControlAction action,
+                       EngineData data, Set<EngineDataType> dataTypes) {
+            super(base, frontEnd, composition.firstService());
+            this.userData = data;
+            this.dataTypes = dataTypes;
+            this.action = action;
+            this.composition = composition.toString();
+        }
+
         /**
          * Overwrites the data types used for serializing the data to the service,
          * and deserializing its response if needed.
@@ -375,6 +385,27 @@ public final class ClaraRequests {
 
 
     /**
+     * A request to execute a service composition.
+     */
+    public static class ServiceExecuteRequest
+                extends ServiceRequest<ServiceExecuteRequest, EngineData> {
+
+        ServiceExecuteRequest(ClaraBase base, ClaraComponent frontEnd,
+                              Composition composition,
+                              EngineData data, Set<EngineDataType> dataTypes)
+                throws ClaraException {
+            super(base, frontEnd, composition,
+                  xMsgMeta.ControlAction.EXECUTE, data, dataTypes);
+        }
+
+        @Override
+        protected EngineData parseData(xMsgMessage msg) throws ClaraException {
+            return base.deSerialize(msg, dataTypes);
+        }
+    }
+
+
+    /**
      * Builds a request to configure a service.
      * A service can be configured with data,
      * or by setting the event count to publish data/done reports.
@@ -404,6 +435,45 @@ public final class ClaraRequests {
          */
         public ServiceConfigRequest withData(EngineData data) {
             return new ServiceConfigRequest(base, frontEnd, service, data, dataTypes);
+        }
+    }
+
+
+
+    /**
+     * Builds a request to execute a service or a composition.
+     */
+    public static class ServiceExecuteRequestBuilder {
+
+        private final ClaraBase base;
+        private final ClaraComponent frontEnd;
+        private final Composition composition;
+        private final Set<EngineDataType> dataTypes;
+
+        ServiceExecuteRequestBuilder(ClaraBase base, ClaraComponent frontEnd,
+                                     ServiceName service, Set<EngineDataType> dataTypes) {
+            this(base, frontEnd, new Composition(service.canonicalName()), dataTypes);
+        }
+
+        ServiceExecuteRequestBuilder(ClaraBase base, ClaraComponent frontEnd,
+                                     Composition composition, Set<EngineDataType> dataTypes) {
+            this.base = base;
+            this.frontEnd = frontEnd;
+            this.composition = composition;
+            this.dataTypes = dataTypes;
+        }
+
+
+        /**
+         * Creates a request to execute the specified service/composition with
+         * the given data.
+         * If any service does not exist, the message is lost.
+         *
+         * @param data the input data to execute the service/composition
+         * @returns a service execute request to be run
+         */
+        public ServiceExecuteRequest withData(EngineData data) throws ClaraException {
+            return new ServiceExecuteRequest(base, frontEnd, composition, data, dataTypes);
         }
     }
 

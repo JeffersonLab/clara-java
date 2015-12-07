@@ -127,10 +127,11 @@ public class BaseOrchestratorTest {
 
 
     @Test
-    public void executeServiceSendsRequest() throws Exception {
-        orchestrator.executeService("10.2.9.96_java:master:E1", mock(EngineData.class));
+    public void executeService() throws Exception {
+        ServiceName service = new ServiceName("10.2.9.96_java:master:E1");
+        request = orchestrator.execute(service).withData(mock(EngineData.class));
 
-        assertSendCall("10.2.9.96",
+        assertRequest("10.2.9.96",
                        "10.2.9.96_java:master:E1",
                        "10.2.9.96_java:master:E1",
                        xMsgMeta.ControlAction.EXECUTE);
@@ -138,132 +139,13 @@ public class BaseOrchestratorTest {
 
 
     @Test
-    public void executeServiceSendsData() throws Exception {
-        // TODO check that data is sent
-    }
+    public void executeComposition() throws Exception {
+        request = orchestrator.execute(composition).withData(mock(EngineData.class));
 
-
-    @Test
-    public void executeServiceThrowsOnFailure() throws Exception {
-        expectClaraExceptionOnSend();
-        orchestrator.executeService("10.2.9.96_java:master:E1", mock(EngineData.class));
-    }
-
-
-    @Test
-    public void executeServiceThrowsOnBadServiceName() throws Exception {
-        expectedEx.expect(IllegalArgumentException.class);
-        orchestrator.executeService("10.2.9.96_java::E1", mock(EngineData.class));
-    }
-
-
-
-    @Test
-    public void executeServiceSyncSendsRequest() throws Exception {
-        orchestrator.executeServiceSync("10.2.9.96_java:master:E1", mock(EngineData.class), 20);
-
-        assertSyncSendCall("10.2.9.96",
-                           "10.2.9.96_java:master:E1",
-                           "10.2.9.96_java:master:E1",
-                           xMsgMeta.ControlAction.EXECUTE,
-                           20);
-    }
-
-
-    @Test
-    public void executeServiceSyncSendsData() throws Exception {
-        // TODO check that data is sent
-    }
-
-
-    @Test
-    public void executeServiceSyncReturnsData() throws Exception {
-        // TODO check that data is received
-    }
-
-
-    @Test
-    public void executeServiceSyncThrowsOnFailure() throws Exception {
-        expectClaraExceptionOnSyncSend();
-        orchestrator.executeServiceSync("10.2.9.96_java:master:E1", mock(EngineData.class), 10);
-    }
-
-
-    @Test
-    public void executeServiceSyncThrowsOnTimeout() throws Exception {
-        expectTimeoutExceptionOnSyncSend();
-        orchestrator.executeServiceSync("10.2.9.96_java:master:E1", mock(EngineData.class), 10);
-    }
-
-
-    @Test
-    public void executeServiceSyncThrowsOnBadServiceName() throws Exception {
-        expectedEx.expect(IllegalArgumentException.class);
-        orchestrator.executeServiceSync("10.2.9.96_java::E1", mock(EngineData.class), 10);
-    }
-
-
-
-    @Test
-    public void executeCompositionSendsRequest() throws Exception {
-        orchestrator.executeComposition(composition, mock(EngineData.class));
-
-        assertSendCall("10.2.9.96",
+        assertRequest("10.2.9.96",
                        "10.2.9.96_java:master:E1",
                        "10.2.9.96_java:master:E1+10.2.9.96_java:master:E2",
                        xMsgMeta.ControlAction.EXECUTE);
-    }
-
-
-    @Test
-    public void executeCompositionSendsData() throws Exception {
-        // TODO check that data is sent
-    }
-
-
-    @Test
-    public void executeCompositionThrowsOnFailure() throws Exception {
-        expectClaraExceptionOnSend();
-        orchestrator.executeComposition(composition, mock(EngineData.class));
-    }
-
-
-
-    @Test
-    public void executeCompositionSyncSendsRequest() throws Exception {
-//        orchestrator.executeCompositionSync(composition, mock(EngineData.class), 20);
-//
-//        assertSyncSendCall("10.2.9.96",
-//                           "10.2.9.96_java:master:E1",
-//                           "10.2.9.96_java:master:E1+10.2.9.96_java:master:E2",
-//                           xMsgMeta.ControlAction.EXECUTE,
-//                           20);
-    }
-
-
-    @Test
-    public void executeCompositionSyncSendsData() throws Exception {
-        // TODO check that data is sent
-    }
-
-
-    @Test
-    public void executeCompositionSyncReturnsData() throws Exception {
-        // TODO check that data is received
-    }
-
-
-    @Test
-    public void executeCompositionSyncThrowsOnFailure() throws Exception {
-//        expectClaraExceptionOnSyncSend();
-//        orchestrator.executeCompositionSync(composition, mock(EngineData.class), 10);
-    }
-
-
-    @Test
-    public void executeCompositionSyncThrowsOnTimeout() throws Exception {
-//        expectTimeoutExceptionOnSyncSend();
-//        orchestrator.executeCompositionSync(composition, mock(EngineData.class), 10);
     }
 
 

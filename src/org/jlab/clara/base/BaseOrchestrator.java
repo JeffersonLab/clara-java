@@ -25,6 +25,7 @@ import org.jlab.clara.base.ClaraRequests.DeployContainerRequest;
 import org.jlab.clara.base.ClaraRequests.DeployServiceRequest;
 import org.jlab.clara.base.ClaraRequests.ExitRequest;
 import org.jlab.clara.base.ClaraRequests.ServiceConfigRequestBuilder;
+import org.jlab.clara.base.ClaraRequests.ServiceExecuteRequestBuilder;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.EngineDataType;
@@ -315,106 +316,31 @@ public class BaseOrchestrator {
 
 
     /**
-     * Sends execute request to a service
+     * Returns a request builder to execute the given service.
      *
-     * @param serviceCanonicalName canonical name of a service: String
-     * @param data input data as a {@link org.jlab.clara.engine.EngineData} object
-     * @throws ClaraException
-     * @throws xMsgException
-     * @throws TimeoutException
-     * @throws IOException
+     * @param service the Clara service to be executed
+     * @returns a builder to setup the execution request
+     *          (with data, data types, etc)
      */
-    public void executeService(String serviceCanonicalName, EngineData data)
-            throws ClaraException, xMsgException, TimeoutException, IOException {
-        base.executeService(ClaraComponent.service(serviceCanonicalName), data);
+    public ServiceExecuteRequestBuilder execute(ServiceName service) throws ClaraException {
+        String dpeName = ClaraUtil.getDpeName(service.canonicalName());
+        ClaraComponent targetDpe = ClaraComponent.dpe(dpeName);
+        return new ServiceExecuteRequestBuilder(base, targetDpe, service, dataTypes);
     }
 
     /**
-     * Sends execute request to a service
+     * Returns a request builder to execute the given composition.
      *
-     * @param comp {@link org.jlab.clara.base.ClaraComponent} object
-     * @param data input data as a {@link org.jlab.clara.engine.EngineData} object
-     * @throws ClaraException
-     * @throws xMsgException
-     * @throws TimeoutException
-     * @throws IOException
+     * @param service the Clara composition to be executed
+     * @returns a builder to to configure the execute request
+     *          (with data, data types, etc)
      */
-    public void executeService(ClaraComponent comp, EngineData data)
-            throws ClaraException, xMsgException, TimeoutException, IOException {
-        base.executeService(comp, data);
+    public ServiceExecuteRequestBuilder execute(Composition composition) throws ClaraException {
+        String dpeName = ClaraUtil.getDpeName(composition.firstService());
+        ClaraComponent targetDpe = ClaraComponent.dpe(dpeName);
+        return new ServiceExecuteRequestBuilder(base, targetDpe, composition, dataTypes);
     }
 
-    /**
-     * Sync sends execute request to a service
-     *
-     * @param serviceCanonicalName canonical name of a service: String
-     * @param data input data as a {@link org.jlab.clara.engine.EngineData} object
-     * @param timeout sync request timeout
-     * @return message {@link org.jlab.coda.xmsg.core.xMsgMessage}
-     *         indicating the status of the sync operation.
-     * @throws ClaraException
-     * @throws TimeoutException
-     * @throws IOException
-     * @throws xMsgException
-     */
-    public EngineData syncExecuteService(String serviceCanonicalName, EngineData data, int timeout)
-            throws ClaraException, TimeoutException, IOException, xMsgException {
-        xMsgMessage response = base.syncExecuteService(ClaraComponent.service(serviceCanonicalName), data, timeout);
-        return base.deSerialize(response, dataTypes);
-    }
-
-    /**
-     * Sync sends execute request to a service
-     *
-     * @param comp {@link org.jlab.clara.base.ClaraComponent} object
-     * @param data input data as a {@link org.jlab.clara.engine.EngineData} object
-     * @param timeout sync request timeout
-     * @return message {@link org.jlab.coda.xmsg.core.xMsgMessage}
-     *         indicating the status of the sync operation.
-     * @throws ClaraException
-     * @throws TimeoutException
-     * @throws IOException
-     * @throws xMsgException
-     */
-    public EngineData syncExecuteService(ClaraComponent comp, EngineData data, int timeout)
-            throws ClaraException, TimeoutException, IOException, xMsgException {
-        xMsgMessage response = base.syncExecuteService(comp, data, timeout);
-        return base.deSerialize(response, dataTypes);
-    }
-
-    /**
-     * Sends a request to execute a composition.
-     * If any service does not exist, the messages are lost.
-     *
-     * @param composition the composition of services
-     * @param data the input data for the composition
-     * @throws ClaraException if the request could not be sent
-     */
-    public void executeComposition(String composition, EngineData data)
-            throws ClaraException, xMsgException, TimeoutException, IOException {
-        base.executeComposition(composition, data);
-    }
-
-
-    /**
-     * Sync sends a request to execute a composition and receives the result.
-     * If any service does not exist, the messages are lost.
-     * A response is received with the output data of the entire execution.
-     *
-     * @param composition the composition of services
-     * @param data the input data for the composition
-     * @param timeout the time to wait for a response, in milliseconds
-     * @return the output data of the last service in the composition
-     * @throws ClaraException if the request could not be sent
-     * @throws TimeoutException if a response is not received
-     */
-    public EngineData syncExecuteComposition(String composition,
-                                             EngineData data,
-                                             int timeout)
-            throws ClaraException, TimeoutException, IOException, xMsgException {
-        xMsgMessage response = base.syncExecuteComposition(composition, data, timeout);
-        return base.deSerialize(response, dataTypes);
-    }
 
 
     /**
