@@ -24,6 +24,7 @@ package org.jlab.clara.base;
 import org.jlab.clara.base.ClaraRequests.DeployContainerRequest;
 import org.jlab.clara.base.ClaraRequests.DeployServiceRequest;
 import org.jlab.clara.base.ClaraRequests.ExitRequest;
+import org.jlab.clara.base.ClaraRequests.ServiceConfigRequestBuilder;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.EngineDataType;
@@ -300,69 +301,16 @@ public class BaseOrchestrator {
     }
 
     /**
-     * Sends a configuration request to a Clara component
+     * Returns a request builder to configure the given service.
      *
-     * @param serviceCanonicalName canonical name of a service: String
-     * @param data configuration data as a {@link org.jlab.clara.engine.EngineData} object
-     * @throws ClaraException
-     * @throws xMsgException
-     * @throws TimeoutException
-     * @throws IOException
+     * @param service the Clara service to be configured
+     * @returns a builder to choose how to configure the service
+     *          (with data, with report frequency, etc)
      */
-    public void configureService(String serviceCanonicalName, EngineData data)
-            throws ClaraException, xMsgException, TimeoutException, IOException {
-        base.configureService(ClaraComponent.service(serviceCanonicalName), data);
-    }
-
-    /**
-     * Sends a configuration request to a Clara component
-     *
-     * @param comp Clara actor as a {@link org.jlab.clara.base.ClaraComponent} object
-     * @param data      configuration data as a {@link org.jlab.clara.engine.EngineData} object
-     * @throws ClaraException
-     * @throws xMsgException
-     * @throws TimeoutException
-     * @throws IOException
-     */
-    public void configureService(ClaraComponent comp, EngineData data)
-            throws ClaraException, xMsgException, TimeoutException, IOException {
-        base.configureService(comp, data);
-    }
-
-    /**
-     * Sync sends a configuration request to a Clara component
-     *
-     * @param serviceCanonicalName canonical name of a service: String
-     * @param data configuration data as a {@link org.jlab.clara.engine.EngineData} object
-     * @param timeout sync request timeout
-     * @return message {@link org.jlab.coda.xmsg.core.xMsgMessage}
-     *         indicating the status of the sync operation.
-     * @throws ClaraException
-     * @throws xMsgException
-     * @throws TimeoutException
-     * @throws IOException
-     */
-    public xMsgMessage syncConfigureService(String serviceCanonicalName, EngineData data, int timeout)
-            throws ClaraException, xMsgException, TimeoutException, IOException {
-        return base.syncConfigureService(ClaraComponent.service(serviceCanonicalName), data, timeout);
-    }
-
-    /**
-     * Sync sends a configuration request to a Clara component
-     *
-     * @param comp Clara actor as a {@link org.jlab.clara.base.ClaraComponent} object
-     * @param data      configuration data as a {@link org.jlab.clara.engine.EngineData} object
-     * @param timeout sync request timeout
-     * @return message {@link org.jlab.coda.xmsg.core.xMsgMessage}
-     *         indicating the status of the sync operation.
-     * @throws ClaraException
-     * @throws xMsgException
-     * @throws TimeoutException
-     * @throws IOException
-     */
-    public xMsgMessage syncConfigureService(ClaraComponent comp, EngineData data, int timeout)
-            throws ClaraException, xMsgException, TimeoutException, IOException {
-        return base.syncConfigureService(comp, data, timeout);
+    public ServiceConfigRequestBuilder configure(ServiceName service) throws ClaraException {
+        String dpeName = ClaraUtil.getDpeName(service.canonicalName());
+        ClaraComponent targetDpe = ClaraComponent.dpe(dpeName);
+        return new ServiceConfigRequestBuilder(base, targetDpe, service, dataTypes);
     }
 
 

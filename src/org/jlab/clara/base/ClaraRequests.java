@@ -353,6 +353,62 @@ public final class ClaraRequests {
         }
     }
 
+
+    /**
+     * A request to configure a service.
+     */
+    public static class ServiceConfigRequest
+                extends ServiceRequest<ServiceConfigRequest, Boolean> {
+
+        ServiceConfigRequest(ClaraBase base, ClaraComponent frontEnd, ServiceName service,
+                             EngineData data, Set<EngineDataType> dataTypes) {
+            super(base, frontEnd, service,
+                  xMsgMeta.ControlAction.CONFIGURE, data, dataTypes);
+        }
+
+        @Override
+        protected Boolean parseData(xMsgMessage msg) {
+            // TODO Auto-generated catch block
+            return true;
+        }
+    }
+
+
+    /**
+     * Builds a request to configure a service.
+     * A service can be configured with data,
+     * or by setting the event count to publish data/done reports.
+     */
+    public static class ServiceConfigRequestBuilder {
+
+        private final ClaraBase base;
+        private final ClaraComponent frontEnd;
+        private final ServiceName service;
+        private final Set<EngineDataType> dataTypes;
+
+        ServiceConfigRequestBuilder(ClaraBase base, ClaraComponent frontEnd,
+                                    ServiceName service, Set<EngineDataType> dataTypes) {
+            this.base = base;
+            this.frontEnd = frontEnd;
+            this.service = service;
+            this.dataTypes = dataTypes;
+        }
+
+        /**
+         * Creates a request to configure the specified service
+         * with the given data.
+         * If the service does not exist, the message is lost.
+         *
+         * @param data the data for configuring the service
+         * @returns a service configuration request to be run
+         */
+        public ServiceConfigRequest withData(EngineData data) {
+            return new ServiceConfigRequest(base, frontEnd, service, data, dataTypes);
+        }
+    }
+
+
+
     private static ClaraComponent getDpeComponent(ClaraName claraName) {
         try {
             return ClaraComponent.dpe(ClaraUtil.getDpeName(claraName.canonicalName()));

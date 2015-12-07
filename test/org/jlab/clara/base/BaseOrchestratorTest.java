@@ -114,73 +114,14 @@ public class BaseOrchestratorTest {
 
 
     @Test
-    public void configureServiceSendsRequest() throws Exception {
-        orchestrator.configureService("10.2.9.96_java:master:E1", mock(EngineData.class));
+    public void configureService() throws Exception {
+        ServiceName service = new ServiceName("10.2.9.96_java:master:E1");
+        request = orchestrator.configure(service).withData(mock(EngineData.class));
 
-        assertSendCall("10.2.9.96",
+        assertRequest("10.2.9.96",
                        "10.2.9.96_java:master:E1",
                        "10.2.9.96_java:master:E1",
                        xMsgMeta.ControlAction.CONFIGURE);
-    }
-
-
-    @Test
-    public void configureServiceSendsData() throws Exception {
-        // TODO check that data is sent
-    }
-
-
-    @Test
-    public void configureServiceThrowsOnFailure() throws Exception {
-        expectClaraExceptionOnSend();
-        orchestrator.configureService("10.2.9.96_java:master:E1", mock(EngineData.class));
-    }
-
-
-    @Test
-    public void configureServiceThrowsOnBadServiceName() throws Exception {
-        expectedEx.expect(IllegalArgumentException.class);
-        orchestrator.configureService("10.2.9.96_java::E1", mock(EngineData.class));
-    }
-
-
-
-    @Test
-    public void configureServiceSyncSendsRequest() throws Exception {
-        orchestrator.configureServiceSync("10.2.9.96_java:master:E1", mock(EngineData.class), 20);
-
-        assertSyncSendCall("10.2.9.96",
-                           "10.2.9.96_java:master:E1",
-                           "10.2.9.96_java:master:E1",
-                           xMsgMeta.ControlAction.CONFIGURE,
-                           20);
-    }
-
-
-    @Test
-    public void configureServiceSyncSendsData() throws Exception {
-        // TODO check that data is sent
-    }
-
-
-    @Test
-    public void configureServiceSyncThrowsOnFailure() throws Exception {
-        expectClaraExceptionOnSyncSend();
-        orchestrator.configureServiceSync("10.2.9.96_java:master:E1", mock(EngineData.class), 10);
-    }
-
-
-    @Test
-    public void configureServiceSyncThrowsOnTimeout() throws Exception {
-        expectTimeoutExceptionOnSyncSend();
-        orchestrator.configureServiceSync("10.2.9.96_java:master:E1", mock(EngineData.class), 10);
-    }
-
-
-    @Test
-    public void configureServiceSyncThrowsOnBadServiceName() throws Exception {
-        expectedEx.expect(IllegalArgumentException.class);
-        orchestrator.configureServiceSync("10.2.9.96_java::E1", mock(EngineData.class), 10);
     }
 
 
