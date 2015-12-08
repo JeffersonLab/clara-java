@@ -27,8 +27,11 @@ import java.util.Set;
 
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineDataType;
+import org.jlab.clara.engine.EngineStatus;
 import org.jlab.clara.util.CConstants;
+import org.jlab.clara.util.ClaraUtil;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
+import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgSubscription;
 import org.jlab.coda.xmsg.core.xMsgTopic;
@@ -143,6 +146,65 @@ public class ClaraSubscriptions {
                         return null;
                     }
             };
+        }
+    }
+
+
+    public static class ServiceSubscriptionBuilder {
+        private final ClaraBase base;
+        private final Map<String, xMsgSubscription> subscriptions;
+        private final ClaraComponent frontEnd;
+        private final ServiceName service;
+
+        ServiceSubscriptionBuilder(ClaraBase base,
+                                   Map<String, xMsgSubscription> subscriptions,
+                                   ClaraComponent frontEnd,
+                                   ServiceName service) {
+            this.base = base;
+            this.subscriptions = subscriptions;
+            this.frontEnd = frontEnd;
+            this.service = service;
+        }
+
+        /**
+         * A subscription to the specified status reports of the selected service.
+         * <p>
+         * Services will publish status reports after every execution that results
+         * on error or warning.
+         *
+         * @param status the status to be listened
+         */
+        public ServiceSubscription status(EngineStatus status) {
+            return new ServiceSubscription(base, subscriptions, frontEnd,
+                                           getTopic(status.toString(), service));
+        }
+
+        /**
+         * A subscription to the "done" reports of the selected service.
+         * <p>
+         * Services will publish "done" reports if they are configured to do so
+         * with {@link #startReportingDone}. The messages will not contain the full
+         * output result of the service, but just a few stats about the execution.
+         */
+        public ServiceSubscription done() {
+            return new ServiceSubscription(base, subscriptions, frontEnd,
+                                           getTopic(xMsgConstants.DONE, service));
+        }
+
+        /**
+         * A subscription to the data reports of the selected service.
+         * <p>
+         * Services will publish "data" reports if they are configured to do so
+         * with {@link #startReportingData}. The messages will contain the full
+         * output result of the service.
+         */
+        public ServiceSubscription data() {
+            return new ServiceSubscription(base, subscriptions, frontEnd,
+                                           getTopic(xMsgConstants.DATA, service));
+        }
+
+        private xMsgTopic getTopic(String prefix, ServiceName service) {
+            return ClaraUtil.buildTopic(prefix, service.canonicalName());
         }
     }
 }

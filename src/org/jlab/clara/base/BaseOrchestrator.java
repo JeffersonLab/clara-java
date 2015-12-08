@@ -26,6 +26,7 @@ import org.jlab.clara.base.ClaraRequests.DeployServiceRequest;
 import org.jlab.clara.base.ClaraRequests.ExitRequest;
 import org.jlab.clara.base.ClaraRequests.ServiceConfigRequestBuilder;
 import org.jlab.clara.base.ClaraRequests.ServiceExecuteRequestBuilder;
+import org.jlab.clara.base.ClaraSubscriptions.ServiceSubscriptionBuilder;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.EngineDataType;
@@ -343,146 +344,16 @@ public class BaseOrchestrator {
 
 
     /**
-     * Subscribes to the specified status reports of the selected service.
-     * <p>
-     * A background thread is started to receive messages from the service.
-     * Every time a report is received, the provided callback will be executed.
-     * The messages are received sequentially, but the callback may run
-     * in extra background threads, so it must be thread-safe.
-     * <p>
-     * Services will publish status reports after every execution that results
-     * on error or warning.
+     * Returns a subscription builder to select what type of reports of the
+     * given service shall be listened, and what action should be called when a
+     * report is received.
      *
-     * @param serviceCanonicalName the service to be listened
-     * @param status the status to be listened
-     * @param callback the action to be run when a message is received
-     * @throws ClaraException if there was an error starting the subscription
+     * @param service the service to be listened
      */
-    public void listenServiceStatus(String serviceCanonicalName,
-                                    EngineStatus status,
-                                    EngineCallback callback) throws ClaraException, xMsgException {
-
-        xMsgTopic topic = ClaraUtil.buildTopic(ClaraUtil.getStatusText(status), serviceCanonicalName);
-        String key = ClaraUtil.getDpeHost(serviceCanonicalName) + CConstants.MAPKEY_SEP + topic;
-        if (subscriptions.containsKey(key)) {
-            throw new IllegalStateException("Clara-Error: Duplicated subscription to: " + serviceCanonicalName);
-        }
-        xMsgCallBack wrapperCallback = wrapEngineCallback(callback, status);
-        xMsgSubscription handler = base.listen(ClaraComponent.service(serviceCanonicalName), topic, wrapperCallback);
-        subscriptions.put(key, handler);
+    public ServiceSubscriptionBuilder listen(ServiceName service) {
+        return new ServiceSubscriptionBuilder(base, subscriptions, base.getFrontEnd(), service);
     }
 
-
-    /**
-     * Un-subscribes from the specified status reports of the selected service.
-     *
-     * @param serviceCanonicalName the service being listened
-     * @param status the status being listened
-     * @throws ClaraException if there was an error stopping the subscription
-     */
-    public void unListenServiceStatus(String serviceCanonicalName, EngineStatus status)
-            throws ClaraException, xMsgException {
-        xMsgTopic topic = ClaraUtil.buildTopic(ClaraUtil.getStatusText(status), serviceCanonicalName);
-        String key = ClaraUtil.getDpeHost(serviceCanonicalName) + CConstants.MAPKEY_SEP + topic;
-        xMsgSubscription handler = subscriptions.remove(key);
-        if (handler != null) {
-            base.unsubscribe(handler);
-        }
-    }
-
-
-    /**
-     * Subscribes to the data reports of the selected service.
-     * <p>
-     * A background thread is started to receive messages from the service.
-     * Every time a report is received, the provided callback will be executed.
-     * The messages are received sequentially, but the callback may run
-     * in extra background threads, so it must be thread-safe.
-     * <p>
-     * Services will publish "data" reports if they are configured to do so
-     * with {@link #startReportingData}. The messages will contain the full
-     * output result of the service.
-     *
-     * @param serviceCanonicalName the service to be listened
-     * @param callback the action to be run when a message is received
-     * @throws ClaraException if there was an error starting the subscription
-     */
-    public void listenServiceData(String serviceCanonicalName, EngineCallback callback)
-            throws ClaraException, xMsgException {
-
-        xMsgTopic topic = ClaraUtil.buildTopic(xMsgConstants.DATA, serviceCanonicalName);
-        String key = ClaraUtil.getDpeHost(serviceCanonicalName) + CConstants.MAPKEY_SEP + topic;
-        if (subscriptions.containsKey(key)) {
-            throw new IllegalStateException("Clara-Error: Duplicated subscription to: " + serviceCanonicalName);
-        }
-        xMsgCallBack wrapperCallback = wrapEngineCallback(callback, null);
-        xMsgSubscription handler = base.listen(ClaraComponent.service(serviceCanonicalName), topic, wrapperCallback);
-        subscriptions.put(key, handler);
-    }
-
-    /**
-     * Un-subscribes from the data reports of the selected service.
-     *
-     * @param serviceCanonicalName the service being listened
-     * @throws ClaraException if there was an error stopping the subscription
-     */
-    public void unListenServiceData(String serviceCanonicalName)
-            throws ClaraException, xMsgException {
-
-        xMsgTopic topic = ClaraUtil.buildTopic(xMsgConstants.DATA, serviceCanonicalName);
-        String key = ClaraUtil.getDpeHost(serviceCanonicalName) + CConstants.MAPKEY_SEP + topic;
-
-        xMsgSubscription handler = subscriptions.remove(key);
-        if (handler != null) {
-            base.unsubscribe(handler);
-        }
-    }
-
-    /**
-     * Subscribes to the "done" reports of the selected service.
-     * <p>
-     * A background thread is started to receive messages from the service.
-     * Every time a report is received, the provided callback will be executed.
-     * The messages are received sequentially, but the callback may run
-     * in extra background threads, so it must be thread-safe.
-     * <p>
-     * Services will publish "done" reports if they are configured to do so
-     * with {@link #startReportingDone}. The messages will not contain the full
-     * output result of the service, but just a few stats about the execution.
-     *
-     * @param serviceCanonicalName the service to be listened
-     * @param callback the action to be run when a message is received
-     * @throws ClaraException if there was an error starting the subscription
-     */
-    public void listenServiceDone(String serviceCanonicalName, EngineCallback callback)
-            throws ClaraException, xMsgException {
-        xMsgTopic topic = ClaraUtil.buildTopic(xMsgConstants.DONE, serviceCanonicalName);
-        String key = ClaraUtil.getDpeHost(serviceCanonicalName) + CConstants.MAPKEY_SEP + topic;
-        if (subscriptions.containsKey(key)) {
-            throw new IllegalStateException("Clara-Error: Duplicated subscription to: " + serviceCanonicalName);
-        }
-        xMsgCallBack wrapperCallback = wrapEngineCallback(callback, null);
-        xMsgSubscription handler = base.listen(ClaraComponent.service(serviceCanonicalName), topic, wrapperCallback);
-        subscriptions.put(key, handler);
-    }
-
-    /**
-     * Un-subscribes from the "done" reports of the selected service.
-     *
-     * @param serviceCanonicalName the service being listened
-     * @throws ClaraException if there was an error stopping the subscription
-     */
-    public void unListenServiceDone(String serviceCanonicalName)
-            throws ClaraException, xMsgException {
-
-        xMsgTopic topic = ClaraUtil.buildTopic(xMsgConstants.DONE, serviceCanonicalName);
-        String key = ClaraUtil.getDpeHost(serviceCanonicalName) + CConstants.MAPKEY_SEP + topic;
-
-        xMsgSubscription handler = subscriptions.remove(key);
-        if (handler != null) {
-            base.unsubscribe(handler);
-        }
-    }
 
     /**
      * Subscribes to the periodic alive message reported by the running DPEs.
