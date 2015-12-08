@@ -21,11 +21,15 @@
 
 package org.jlab.clara.base;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import org.jlab.clara.base.error.ClaraException;
+import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.util.CConstants;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
+import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgSubscription;
 import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.excp.xMsgException;
@@ -96,5 +100,49 @@ public class ClaraSubscriptions {
         }
 
         protected abstract xMsgCallBack wrap(C callback);
+    }
+
+
+    public static class ServiceSubscription
+            extends BaseSubscription<ServiceSubscription, EngineCallback> {
+
+        private Set<EngineDataType> dataTypes;
+
+        ServiceSubscription(ClaraBase base,
+                            Map<String, xMsgSubscription> subscriptions,
+                            ClaraComponent frontEnd,
+                            xMsgTopic topic) {
+            super(base, subscriptions, frontEnd, topic);
+        }
+
+        public ServiceSubscription withDataTypes(Set<EngineDataType> dataTypes) {
+            this.dataTypes = dataTypes;
+            return this;
+        }
+
+        public ServiceSubscription withDataTypes(EngineDataType... dataTypes) {
+            Set<EngineDataType> newTypes = new HashSet<>();
+            for (EngineDataType dt : dataTypes) {
+                newTypes.add(dt);
+            }
+            this.dataTypes = newTypes;
+            return this;
+        }
+
+        @Override
+        protected xMsgCallBack wrap(final EngineCallback userCallback) {
+            return new xMsgCallBack() {
+                    @Override
+                    public xMsgMessage callback(xMsgMessage msg) {
+                        try {
+                            userCallback.callback(base.deSerialize(msg, dataTypes));
+                        } catch (ClaraException e) {
+                            System.out.println("Error receiving data to " + msg.getTopic());
+                            e.printStackTrace();
+                        }
+                        return null;
+                    }
+            };
+        }
     }
 }
