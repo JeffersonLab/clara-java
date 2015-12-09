@@ -150,6 +150,39 @@ public class ClaraSubscriptions {
     }
 
 
+    public static class JsonReportSubscription
+            extends BaseSubscription<JsonReportSubscription, GenericCallback> {
+
+        JsonReportSubscription(ClaraBase base,
+                               Map<String, xMsgSubscription> subscriptions,
+                               ClaraComponent frontEnd,
+                               xMsgTopic topic) {
+            super(base, subscriptions, frontEnd, topic);
+        }
+
+        @Override
+        protected xMsgCallBack wrap(final GenericCallback userCallback) {
+            return new xMsgCallBack() {
+                @Override
+                public xMsgMessage callback(xMsgMessage msg) {
+                    try {
+                        String mimeType = msg.getMetaData().getDataType();
+                        if (mimeType.equals("text/string")) {
+                            userCallback.callback(new String(msg.getData()));
+                        } else {
+                            throw new ClaraException("Unexpected mime-type: " + mimeType);
+                        }
+                    } catch (ClaraException e) {
+                        System.out.println("Error receiving data to " + msg.getTopic());
+                        e.printStackTrace();
+                    }
+                    return null;
+                }
+            };
+        }
+    }
+
+
     public static class ServiceSubscriptionBuilder {
         private final ClaraBase base;
         private final Map<String, xMsgSubscription> subscriptions;
