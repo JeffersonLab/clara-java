@@ -23,6 +23,8 @@ package org.jlab.clara.examples.orchestrators;
 
 import org.jlab.clara.base.BaseOrchestrator;
 import org.jlab.clara.base.ClaraComponent;
+import org.jlab.clara.base.ContainerName;
+import org.jlab.clara.base.ServiceName;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.EngineDataType;
@@ -50,11 +52,6 @@ import java.util.concurrent.TimeoutException;
  * @since 10/9/15
  */
 public class OrInteractive extends BaseOrchestrator {
-
-    public OrInteractive(String dpeHost,
-                         String feHost) throws xMsgException, SocketException, ClaraException {
-        super(dpeHost, 1, feHost);
-    }
 
     public OrInteractive() throws xMsgException, IOException, ClaraException {
         super();
@@ -88,13 +85,19 @@ public class OrInteractive extends BaseOrchestrator {
 
                             // ask if container exists
                             // start a container
-                            ClaraComponent cont = ClaraComponent.container(container, pool, "test container");
-                            or.deploy(cont);
+                            ContainerName cont = new ContainerName(container);
+                            or.deploy(cont)
+                              .withPoolsize(pool)
+                              .withDescription("test container")
+                              .run();
+
                             ClaraUtil.sleep(1000);
 
                             // start a service
-                            ClaraComponent serv = ClaraComponent.service(container, engine, pool);
-                            or.deploy(serv);
+                            ServiceName serv = new ServiceName(cont, engine);
+                            or.deploy(serv, engine)
+                              .withPoolsize(pool)
+                              .run();
                             ClaraUtil.sleep(1000);
                         }
                     }
@@ -130,19 +133,20 @@ public class OrInteractive extends BaseOrchestrator {
                             ed.setData(inData, EngineDataType.STRING.mimeType());
 
                             // send the data to the service
-                            or.executeService(ClaraComponent.service(firstService), ed);
+                            ServiceName serv = new ServiceName(firstService);
+                            or.execute(serv).withData(ed).run();
 
                             // check to see if we need to perform bluster test
                             if (args.length == 3 && args[2].equals("-b")) {
                                 while (true) {
                                     // send the data to the service
-                                    or.executeService(ClaraComponent.service(firstService), ed);
+                                    or.execute(serv).withData(ed).run();
                                 }
                             }
                         }
                     }
 
-                } catch (ParserConfigurationException | IOException | SAXException | TimeoutException e) {
+                } catch (ParserConfigurationException | IOException | SAXException e) {
                     e.printStackTrace();
                 }
 
@@ -161,8 +165,8 @@ public class OrInteractive extends BaseOrchestrator {
                                 System.out.println("DPE host ip = ");
                                 System.out.println("Container name = ");
                                 String container = scanner.nextLine().trim();
-                                ClaraComponent cont = ClaraComponent.container(container, 3, "test container");
-                                or.deploy(cont);
+                                ContainerName cont = new ContainerName(container);
+                                or.deploy(cont).withPoolsize(3).withDescription("test container").run();
                                 break;
                             case "2":
                                 System.out.println("Container canonical name = ");
@@ -171,8 +175,8 @@ public class OrInteractive extends BaseOrchestrator {
                                 String engine = scanner.nextLine().trim();
                                 System.out.println("Service object pool size = ");
                                 int pSize = scanner.nextInt();
-                                ClaraComponent serv = ClaraComponent.service(canCon, engine, pSize);
-                                or.deploy(serv);
+                                ServiceName serv = new ServiceName(new ContainerName(canCon), engine);
+                                or.deploy(serv, engine).withPoolsize(pSize).run();
                                 break;
                             case "3":
                                 System.out.println("Composition (canonical) = ");
@@ -189,7 +193,7 @@ public class OrInteractive extends BaseOrchestrator {
                                 ed.setData(inData, EngineDataType.STRING.mimeType());
 
                                 // send the data to the service
-                                or.executeService(ClaraComponent.service(firstService), ed);
+                                or.execute(new ServiceName(firstService)).withData(ed).run();
 
                                 break;
                             case "4":
@@ -202,7 +206,7 @@ public class OrInteractive extends BaseOrchestrator {
                     }
                 }
             }
-        } catch (xMsgException | ClaraException | TimeoutException | IOException e) {
+        } catch (xMsgException | ClaraException | IOException e) {
             e.printStackTrace();
         }
     }
