@@ -240,4 +240,28 @@ public class ClaraSubscriptions {
             return ClaraUtil.buildTopic(prefix, service.canonicalName());
         }
     }
+
+
+    public static class GlobalSubscriptionBuilder {
+        private final ClaraBase base;
+        private final Map<String, xMsgSubscription> subscriptions;
+        private final ClaraComponent frontEnd;
+
+        GlobalSubscriptionBuilder(ClaraBase base,
+                               Map<String, xMsgSubscription> subscriptions,
+                               ClaraComponent frontEnd) {
+            this.base = base;
+            this.subscriptions = subscriptions;
+            this.frontEnd = frontEnd;
+        }
+
+        /**
+         * A subscription to the periodic alive message reported by
+         * the running DPEs.
+         */
+        public JsonReportSubscription aliveDpes() {
+            return new JsonReportSubscription(base, subscriptions, frontEnd,
+                                              ClaraUtil.buildTopic(CConstants.DPE_ALIVE));
+        }
+    }
 }

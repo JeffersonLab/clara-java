@@ -217,67 +217,10 @@ public class BaseOrchestratorTest {
 
 
     @Test
-    public void listenDpesSendsRequest() throws Exception {
-        GenericCallback callback = mock(GenericCallback.class);
+    public void listenDpesAlive() throws Exception {
+        subscription = orchestrator.listen().aliveDpes();
 
-        orchestrator.listenDpes(callback);
-
-        assertSubscriptionStarted("dpeAlive", callback);
-    }
-
-
-    @Test
-    public void listenDpesThrowsOnFailure() throws Exception {
-        GenericCallback callback = mock(GenericCallback.class);
-        expectClaraExceptionOnReceive();
-
-        orchestrator.listenDpes(callback);
-    }
-
-
-    @Test
-    public void listenDpesStoresSubscriptionHandler() throws Exception {
-        GenericCallback callback = mock(GenericCallback.class);
-        xMsgSubscription handler = mockSubscriptionHandler();
-        String key = "10.2.9.1#dpeAlive";
-
-        orchestrator.listenDpes(callback);
-
-        assertSubscriptionRegistered(key, handler);
-    }
-
-
-    @Test
-    public void listenDpesThrowsOnDuplicatedSubscription() throws Exception {
-        GenericCallback callback = mock(GenericCallback.class);
-        orchestrator.listenDpes(callback);
-
-        expectedEx.expect(IllegalStateException.class);
-        orchestrator.listenDpes(callback);
-    }
-
-
-
-    @Test
-    public void unlistenDpesStopsSubscription() throws Exception {
-        String key = "10.2.9.1#dpeAlive";
-        xMsgSubscription handler = mock(xMsgSubscription.class);
-        orchestrator.getSubscriptions().put(key, handler);
-
-        orchestrator.unListenDpes();
-
-        verify(baseMock).unsubscribe(handler);
-    }
-
-
-    @Test
-    public void unlistenDpesRemovesSubscriptionHandler() throws Exception {
-        String key = "10.2.9.1#dpeAlive";
-        orchestrator.getSubscriptions().put(key, mock(xMsgSubscription.class));
-
-        orchestrator.unListenDpes();
-
-        assertSubscriptionRemoved(key);
+        assertSubscription("dpeAlive");
     }
 
 

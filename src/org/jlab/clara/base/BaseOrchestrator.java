@@ -26,6 +26,7 @@ import org.jlab.clara.base.ClaraRequests.DeployServiceRequest;
 import org.jlab.clara.base.ClaraRequests.ExitRequest;
 import org.jlab.clara.base.ClaraRequests.ServiceConfigRequestBuilder;
 import org.jlab.clara.base.ClaraRequests.ServiceExecuteRequestBuilder;
+import org.jlab.clara.base.ClaraSubscriptions.GlobalSubscriptionBuilder;
 import org.jlab.clara.base.ClaraSubscriptions.ServiceSubscriptionBuilder;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineData;
@@ -356,42 +357,15 @@ public class BaseOrchestrator {
 
 
     /**
-     * Subscribes to the periodic alive message reported by the running DPEs.
-     *
-     * @param callback the action to be run when a report is received
-     * @throws ClaraException if there was an error starting the subscription
+     * Returns a subscription builder to select what type of global reports by
+     * the front-end shall be listened, and what action should be called when a
+     * report is received.
      */
-    public void listenDpe(String FrontEndDpeCanonicalName, GenericCallback callback)
-            throws ClaraException, xMsgException {
-        ClaraComponent dpe = ClaraComponent.dpe(FrontEndDpeCanonicalName);
-        xMsgTopic topic = ClaraUtil.buildTopic(CConstants.DPE_ALIVE);
-        String key = dpe.getDpeHost() + CConstants.MAPKEY_SEP + topic;
-        if (subscriptions.containsKey(key)) {
-            throw new IllegalStateException("Clara-Error: Duplicated subscription to: " + topic);
-        }
-        xMsgCallBack wrapperCallback = wrapGenericCallback(callback);
-        xMsgSubscription handler = base.listen(dpe, topic, wrapperCallback);
-        subscriptions.put(key, handler);
+    public GlobalSubscriptionBuilder listen() {
+        return new GlobalSubscriptionBuilder(base, subscriptions, base.getFrontEnd());
     }
 
 
-    /**
-     * Un-subscribes from the alive reports of the running DPEs.
-     *
-     * @throws ClaraException if there was an error stopping the subscription
-     */
-    public void unListenDpe(String FrontEndDpeCanonicalName)
-            throws ClaraException, xMsgException {
-
-        ClaraComponent dpe = ClaraComponent.dpe(FrontEndDpeCanonicalName);
-        xMsgTopic topic = ClaraUtil.buildTopic(CConstants.DPE_ALIVE);
-        String key = dpe.getDpeHost() + CConstants.MAPKEY_SEP + topic;
-
-            xMsgSubscription handler = subscriptions.remove(key);
-            if (handler != null) {
-                base.unsubscribe(handler);
-            }
-    }
 
     /**
      * Uses a default registrar service address (defined at the
