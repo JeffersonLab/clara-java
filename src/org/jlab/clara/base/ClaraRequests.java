@@ -300,7 +300,7 @@ public final class ClaraRequests {
         protected final EngineData userData;
         protected Set<EngineDataType> dataTypes;
         protected final xMsgMeta.ControlAction action;
-        protected final String composition;
+        protected final Composition composition;
 
         ServiceRequest(ClaraBase base, ClaraComponent frontEnd, ServiceName service,
                        xMsgMeta.ControlAction action,
@@ -309,7 +309,7 @@ public final class ClaraRequests {
             this.userData = data;
             this.dataTypes = dataTypes;
             this.action = action;
-            this.composition = service.canonicalName();
+            this.composition = getComposition(service);
         }
 
         ServiceRequest(ClaraBase base, ClaraComponent frontEnd, Composition composition,
@@ -319,7 +319,7 @@ public final class ClaraRequests {
             this.userData = data;
             this.dataTypes = dataTypes;
             this.action = action;
-            this.composition = composition.toString();
+            this.composition = composition;
         }
 
         /**
@@ -356,7 +356,7 @@ public final class ClaraRequests {
                 xMsgMessage msg = new xMsgMessage(topic, null);
                 base.serialize(userData, msg, dataTypes);
                 msg.getMetaData().setAction(action);
-                msg.getMetaData().setComposition(composition);
+                msg.getMetaData().setComposition(composition.toString());
                 return msg;
             } catch (xMsgException | IOException e) {
                 throw new ClaraException("Cannot create message", e);
@@ -525,7 +525,7 @@ public final class ClaraRequests {
 
         ServiceExecuteRequestBuilder(ClaraBase base, ClaraComponent frontEnd,
                                      ServiceName service, Set<EngineDataType> dataTypes) {
-            this(base, frontEnd, new Composition(service.canonicalName()), dataTypes);
+            this(base, frontEnd, getComposition(service), dataTypes);
         }
 
         ServiceExecuteRequestBuilder(ClaraBase base, ClaraComponent frontEnd,
@@ -570,6 +570,10 @@ public final class ClaraRequests {
         } catch (ClaraException e) {
             throw new IllegalArgumentException("Invalid service name: " + service);
         }
+    }
+
+    private static Composition getComposition(ServiceName service) {
+        return new Composition(service.canonicalName() + ";");
     }
 
     private static xMsgMessage createMessage(xMsgTopic topic, String data) throws ClaraException {

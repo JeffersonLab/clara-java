@@ -50,7 +50,7 @@ public class BaseOrchestratorTest {
     private BaseOrchestrator orchestrator;
     private String feHost = "10.2.9.1_java";
     private Composition composition =
-            new Composition("10.2.9.96_java:master:E1+10.2.9.96_java:master:E2");
+            new Composition("10.2.9.96_java:master:E1+10.2.9.96_java:master:E2;");
 
     private BaseRequest<?, ?> request;
     private BaseSubscription<?, ?> subscription;
@@ -120,7 +120,7 @@ public class BaseOrchestratorTest {
 
         assertRequest("10.2.9.96",
                        "10.2.9.96_java:master:E1",
-                       "10.2.9.96_java:master:E1",
+                       "10.2.9.96_java:master:E1;",
                        xMsgMeta.ControlAction.CONFIGURE);
     }
 
@@ -133,7 +133,7 @@ public class BaseOrchestratorTest {
 
         assertRequest("10.2.9.96",
                        "10.2.9.96_java:master:E1",
-                       "10.2.9.96_java:master:E1",
+                       "10.2.9.96_java:master:E1;",
                        xMsgMeta.ControlAction.EXECUTE);
     }
 
@@ -144,7 +144,7 @@ public class BaseOrchestratorTest {
 
         assertRequest("10.2.9.96",
                        "10.2.9.96_java:master:E1",
-                       "10.2.9.96_java:master:E1+10.2.9.96_java:master:E2",
+                       "10.2.9.96_java:master:E1+10.2.9.96_java:master:E2;",
                        xMsgMeta.ControlAction.EXECUTE);
     }
 

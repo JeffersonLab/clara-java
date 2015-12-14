@@ -71,6 +71,7 @@ public class CCompiler {
      * <p>
      */
     public static final String STR = "([A-Z|a-z]+[0-9]*)";
+
     /**
      *   Service canonical name:
      *   <li>
@@ -100,6 +101,7 @@ public class CCompiler {
      * <p>
      */
     public static final String RStmt = Sn + "(," + Sn + ")*" + "((\\+&?" + Sn + ")*|(\\+" + Sn + "(," + Sn + ")*)*)";
+
     /**
      *     CLARA simple Condition, such as:
      *     <li>
@@ -111,6 +113,7 @@ public class CCompiler {
      * <p>
      */
     public static final String sCond = Sn + "(==|!=)\"" + STR + "\"";
+
     /**
      *     CLARA complex Condition, such as:
      *     <li>
@@ -128,7 +131,9 @@ public class CCompiler {
      *
      */
     public static final String Cond = "((\\}?if|\\}elseif)\\(" + cCond + "\\)\\{" + RStmt + ")|(\\}else\\{" + RStmt + ")";
+
     public Set<Instruction> instructions = new LinkedHashSet<>();
+
     // The name of the service relative to which compilation will be done.
     private String myServiceName;
 
