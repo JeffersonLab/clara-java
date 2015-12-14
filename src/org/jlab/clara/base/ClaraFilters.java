@@ -41,7 +41,7 @@ public final class ClaraFilters {
         return new ClaraFilter() {
             @Override
             String filter() {
-                return "name";
+                return "name=*";
             }
 
             @Override
