@@ -86,7 +86,7 @@ public final class ClaraRequests {
          * @param unit the unit of time
          * @throws ClaraException if the request could not be sent or received
          * @throws TimeoutException if the response is not received
-         * @returns the data of the response
+         * @return the data of the response
          */
         public T syncRun(int wait, TimeUnit unit) throws ClaraException, TimeoutException {
             try {
@@ -326,7 +326,7 @@ public final class ClaraRequests {
          * Overwrites the data types used for serializing the data to the service,
          * and deserializing its response if needed.
          *
-         * @param dataType the custom data-type of the configuration data
+         * @param dataTypes the custom data-type of the configuration data
          * @return this object, so methods can be chained
          */
         public D withDataTypes(Set<EngineDataType> dataTypes) {
@@ -338,7 +338,7 @@ public final class ClaraRequests {
          * Overwrites the data types used for serializing the data to the service,
          * and deserializing its response if needed.
          *
-         * @param dataType the custom data-type of the configuration data
+         * @param dataTypes the custom data-type of the configuration data
          * @return this object, so methods can be chained
          */
         public D withDataTypes(EngineDataType... dataTypes) {
@@ -452,7 +452,7 @@ public final class ClaraRequests {
          * If the service does not exist, the message is lost.
          *
          * @param data the data for configuring the service
-         * @returns a service configuration request to be run
+         * @return a service configuration request to be run
          */
         public ServiceConfigRequest withData(EngineData data) {
             return new ServiceConfigRequest(base, frontEnd, service, data, dataTypes);
@@ -466,7 +466,7 @@ public final class ClaraRequests {
          * If the service does not exist, the message is lost.
          *
          * @param eventCount the interval of executions to be completed to publish the report
-         * @returns a service configuration request to be run
+         * @return a service configuration request to be run
          */
         public ServiceReportRequest startDoneReporting(int eventCount) {
             return new ServiceReportRequest(base, frontEnd, service, CReportTypes.DONE, eventCount);
@@ -478,7 +478,7 @@ public final class ClaraRequests {
          * Configures the service to stop publishing "done" messages.
          * If the service does not exist, the message is lost.
          *
-         * @returns a service configuration request to be run
+         * @return a service configuration request to be run
          */
         public ServiceReportRequest stopDoneReporting() {
             return new ServiceReportRequest(base, frontEnd, service, CReportTypes.DONE, 0);
@@ -492,7 +492,7 @@ public final class ClaraRequests {
          * If the service does not exist, the message is lost.
          *
          * @param eventCount the interval of executions to be completed to publish the report
-         * @returns a service configuration request to be run
+         * @return a service configuration request to be run
          */
         public ServiceReportRequest startDataReporting(int eventCount) {
             return new ServiceReportRequest(base, frontEnd, service, CReportTypes.DATA, eventCount);
@@ -504,7 +504,7 @@ public final class ClaraRequests {
          * Configures the service to stop publishing the resulting output data.
          * If the service does not exist, the message is lost.
          *
-         * @returns a service configuration request to be run
+         * @return a service configuration request to be run
          */
         public ServiceReportRequest stopDataReporting() {
             return new ServiceReportRequest(base, frontEnd, service, CReportTypes.DATA, 0);
@@ -543,7 +543,7 @@ public final class ClaraRequests {
          * If any service does not exist, the message is lost.
          *
          * @param data the input data to execute the service/composition
-         * @returns a service execute request to be run
+         * @return a service execute request to be run
          */
         public ServiceExecuteRequest withData(EngineData data) throws ClaraException {
             return new ServiceExecuteRequest(base, frontEnd, composition, data, dataTypes);

@@ -289,7 +289,7 @@ public class BaseOrchestrator {
     /**
      * Pings a DPE. This is a sync request.
      *
-     * @param dpe{@link org.jlab.clara.base.ClaraComponent} DPE
+     * @param dpe a DPE
      * @param timeout sync request timeout
      * @return message {@link org.jlab.coda.xmsg.core.xMsgMessage}
      *         indicating the status of the sync operation.
@@ -307,8 +307,8 @@ public class BaseOrchestrator {
      * Returns a request builder to configure the given service.
      *
      * @param service the Clara service to be configured
-     * @returns a builder to choose how to configure the service
-     *          (with data, with report frequency, etc)
+     * @return a builder to choose how to configure the service
+     *         (with data, with report frequency, etc)
      */
     public ServiceConfigRequestBuilder configure(ServiceName service) throws ClaraException {
         String dpeName = ClaraUtil.getDpeName(service.canonicalName());
@@ -321,8 +321,8 @@ public class BaseOrchestrator {
      * Returns a request builder to execute the given service.
      *
      * @param service the Clara service to be executed
-     * @returns a builder to setup the execution request
-     *          (with data, data types, etc)
+     * @return a builder to setup the execution request
+     *         (with data, data types, etc)
      */
     public ServiceExecuteRequestBuilder execute(ServiceName service) throws ClaraException {
         String dpeName = ClaraUtil.getDpeName(service.canonicalName());
@@ -333,9 +333,9 @@ public class BaseOrchestrator {
     /**
      * Returns a request builder to execute the given composition.
      *
-     * @param service the Clara composition to be executed
-     * @returns a builder to to configure the execute request
-     *          (with data, data types, etc)
+     * @param composition the Clara composition to be executed
+     * @return a builder to to configure the execute request
+     *         (with data, data types, etc)
      */
     public ServiceExecuteRequestBuilder execute(Composition composition) throws ClaraException {
         String dpeName = ClaraUtil.getDpeName(composition.firstService());

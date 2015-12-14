@@ -47,7 +47,7 @@ public class DpeName implements ClaraName {
      * Identify a DPE with host, port and language.
      *
      * @param host the host address where the DPE is running
-     * @param lang the port used by the DPE
+     * @param port the port used by the DPE
      * @param lang the language of the DPE
      */
     public DpeName(String host, int port, ClaraLang lang) {

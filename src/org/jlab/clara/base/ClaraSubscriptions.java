@@ -43,7 +43,7 @@ public class ClaraSubscriptions {
      * Starts and stops a Clara subscription.
      *
      * @param <D> The specific subclass
-     * @param <T> The type returned when a result is expected
+     * @param <C> The user callback
      */
     public abstract static class BaseSubscription<D extends BaseSubscription<D, C>, C> {
 
@@ -216,7 +216,7 @@ public class ClaraSubscriptions {
          * A subscription to the "done" reports of the selected service.
          * <p>
          * Services will publish "done" reports if they are configured to do so
-         * with {@link #startReportingDone}. The messages will not contain the full
+         * with a given event count. The messages will not contain the full
          * output result of the service, but just a few stats about the execution.
          */
         public ServiceSubscription done() {
@@ -228,7 +228,7 @@ public class ClaraSubscriptions {
          * A subscription to the data reports of the selected service.
          * <p>
          * Services will publish "data" reports if they are configured to do so
-         * with {@link #startReportingData}. The messages will contain the full
+         * with a given event count. The messages will contain the full
          * output result of the service.
          */
         public ServiceSubscription data() {
