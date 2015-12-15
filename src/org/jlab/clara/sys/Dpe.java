@@ -93,16 +93,14 @@ public class Dpe extends ClaraBase {
      */
     public Dpe(int dpePort,
                int subPoolSize,
-               String regHost,
-               int regPort,
                String description,
-               String cloudHost, int cloudPort)
+               String feHost, int fePort)
             throws xMsgException, IOException, ClaraException {
         super(ClaraComponent.dpe(xMsgUtil.localhost(),
                         dpePort,
                         CConstants.JAVA_LANG,
                         subPoolSize, description),
-                regHost, regPort);
+                feHost, xMsgConstants.REGISTRAR_PORT);
 
         proxy = new xMsgProxy();
         startProxy();
@@ -117,18 +115,15 @@ public class Dpe extends ClaraBase {
         xMsgTopic topic = xMsgTopic.wrap(CConstants.DPE + ":" + getMe().getCanonicalName());
 
         // Register this subscriber
-        register(regHost, regPort, description);
+        register(feHost, description);
         System.out.println(ClaraUtil.getCurrentTimeInH() + ": Registered DPE = " + getMe().getCanonicalName());
 
         // Subscribe by passing a callback to the subscription
         subscriptionHandler = listen(topic, new DpeCallBack());
         System.out.println(ClaraUtil.getCurrentTimeInH() + ": Started DPE = " + getMe().getCanonicalName());
 
-        if (cloudHost != null && cloudPort > 0) {
-            // create a frontEnd dpe component
-            ClaraComponent frontEnd = ClaraComponent.dpe(cloudHost, cloudPort, CConstants.JAVA_LANG, 1, "Front End");
-            setFrontEnd(frontEnd);
-        }
+        ClaraComponent frontEnd = ClaraComponent.dpe(feHost, fePort, CConstants.JAVA_LANG, 1, "Front End");
+        setFrontEnd(frontEnd);
 
         printLogo();
 
@@ -158,11 +153,9 @@ public class Dpe extends ClaraBase {
             int i = 0;
             int dpePort = xMsgConstants.DEFAULT_PORT;
             int poolSize = xMsgConstants.DEFAULT_POOL_SIZE;
-            String regHost = xMsgUtil.localhost();
-            int regPort = xMsgConstants.REGISTRAR_PORT;
+            String feHost = xMsgUtil.localhost();
+            int fePort = xMsgConstants.DEFAULT_PORT;
             String description = "Clara DPE";
-            String cloudProxyHost = xMsgUtil.localhost();
-            int cloudProxyPort = xMsgConstants.DEFAULT_PORT;
 
             while (i < args.length) {
                 switch (args[i++]) {
@@ -185,17 +178,17 @@ public class Dpe extends ClaraBase {
                         }
                         break;
 
-                    case "-RegHost":
+                    case "-feHost":
                         if (i < args.length) {
-                            regHost = args[i++];
+                            feHost = args[i++];
                         } else {
                             usage();
                             System.exit(1);
                         }
                         break;
-                    case "-RegPort":
+                    case "-fePort":
                         if (i < args.length) {
-                            regPort = Integer.parseInt(args[i++]);
+                            fePort = Integer.parseInt(args[i++]);
                         } else {
                             usage();
                             System.exit(1);
@@ -209,29 +202,13 @@ public class Dpe extends ClaraBase {
                             System.exit(1);
                         }
                         break;
-                    case "-CloudProxyHost":
-                        if (i < args.length) {
-                            cloudProxyHost = args[i++];
-                        } else {
-                            usage();
-                            System.exit(1);
-                        }
-                        break;
-                    case "-CloudProxyPort":
-                        if (i < args.length) {
-                            cloudProxyPort = Integer.parseInt(args[i++]);
-                        } else {
-                            usage();
-                            System.exit(1);
-                        }
-                        break;
                     default:
                         usage();
                         System.exit(1);
                 }
             }
             // start a dpe
-            new Dpe(dpePort, poolSize, regHost, regPort, description, cloudProxyHost, cloudProxyPort);
+            new Dpe(dpePort, poolSize, description, feHost, fePort);
         } catch (IOException | ClaraException | xMsgException e) {
             System.err.println(e.getMessage());
         }
