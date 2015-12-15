@@ -30,7 +30,6 @@ import org.jlab.clara.util.CConstants;
 import org.jlab.clara.util.ClaraUtil;
 import org.jlab.clara.util.report.DpeReport;
 import org.jlab.clara.util.report.JsonReportBuilder;
-import org.jlab.clara.util.shell.ClaraFork;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
@@ -40,7 +39,6 @@ import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 import org.jlab.coda.xmsg.excp.xMsgException;
 import org.jlab.coda.xmsg.net.xMsgProxyAddress;
-import org.jlab.coda.xmsg.net.xMsgRegAddress;
 import org.jlab.coda.xmsg.xsys.xMsgProxy;
 import org.jlab.coda.xmsg.xsys.xMsgRegistrar;
 import org.zeromq.ZContext;
@@ -364,69 +362,34 @@ public class Dpe extends ClaraBase {
      * DPE callback.
      * <p>
      * The topic of this subscription is:
-     * topic = CConstants.DPE + ":" + dpeCanonicalName
+     * <code>CConstants.DPE + ":" + dpeCanonicalName</code>
      * <p>
-     *     The following are accepted message data:
+     * The following are accepted message data:
      * <li>
-     *     Start dpe:
-     *     <p>
-     *     data = CConstants.START_DPE ? dpeHost ? dpePort ? dpeLang ? poolSize ? regHost ? regPort ? description
+     *     CConstants.STOP_DPE
      * </li>
      * <li>
-     *     Stop dpe:
-     *     <p>
-     *     Local:
-     *     data = CConstants.STOP_DPE
-     *     Remote:
-     *     data = CConstants.STOP_REMOTE_DPE ? dpeHost ? dpePort ? dpeLang
+     *     CConstants.SET_FRONT_END ?
+     *     frontEndHost ? frontEndPort ? frontEndLang
      * </li>
      * <li>
-     *     Set front end:
-     *     <p>
-     *     Local:
-     *     data = CConstants.SET_FRONT_END ? frontEndHost ? frontEndPort ? frontEndLang
-     *     Remote:
-     *     data = CConstants.SET_FRONT_END_REMOTE ? dpeHost ? dpePort ? dpeLang ? frontEndHost ? frontEndPort ? frontEndLang
+     *     CConstants.PING_DPE
      * </li>
      * <li>
-     *     Ping dpe:
-     *     <p>
-     *     Local:
-     *     data = CConstants.PING_DPE
-     *     Remote:
-     *     data = CConstants.PING_REMOTE_DPE ? dpeHost ? dpePort ? dpeLang
+     *     CConstants.START_CONTAINER
+     *     ? containerName ? poolSize ? description
      * </li>
      * <li>
-     *     Start container:
-     *     <p>
-     *     Local:
-     *     data = CConstants.START_CONTAINER ? containerName ? poolSize ? description
-     *     remote:
-     *     data = CConstants.START_REMOTE_CONTAINER ? dpeHost ? dpePort ? dpeLang ? containerName ? poolSize ? description
+     *     CConstants.STOP_CONTAINER ?
+     *     containerName
      * </li>
      * <li>
-     *     Stop container:
-     *     <p>
-     *     Local:
-     *     data = CConstants.STOP_CONTAINER ? containerName
-     *     Remote:
-     *     data = CConstants.STOP_REMOTE_CONTAINER ? dpeHost ? dpePort ? dpeLang ? containerName
+     *     CConstants.START_SERVICE ?
+     *     containerName ? engineName ? engineClass ? poolSize ? description ? initialState
      * </li>
      * <li>
-     *     Start service:
-     *     <p>
-     *     Local:
-     *     data = CConstants.START_SERVICE ? containerName ? engineName ? engineClass ? poolSize ? description ? initialState
-     *     remote:
-     *     data = CConstants.START_REMOTE_SERVICE ? dpeHost ? dpePort ? dpeLang ? containerName ? engineName ? engineClass ? poolSize ? description ? initialState
-     * </li>
-     * <li>
-     *     Stop service:
-     *     <p>
-     *     Local:
-     *     data = CConstants.STOP_SERVICE ? containerName ? engineName
-     *     remote:
-     *     data = CConstants.STOP_REMOTE_SERVICE ? dpeHost ? dpePort ? dpeLang ? containerName ? engineName
+     *     CConstants.STOP_SERVICE ?
+     *     containerName ? engineName
      * </li>
      */
     private class DpeCallBack implements xMsgCallBack {
@@ -441,77 +404,14 @@ public class Dpe extends ClaraBase {
                 RequestParser parser = RequestParser.build(msg);
                 String cmd = parser.nextString();
 
+                String containerName, engineName, engineClass, description, initialState;
+                String frontEndHost, frontEndLang;
+                int poolSize, frontEndPort;
+
                 switch (cmd) {
-                    // Sent from orchestrator.
-                    case CConstants.START_DPE:
-                        // This will start a remote DPE
-                        // the string of the message has the following constructor:
-                        // startDpe ? dpeHost ? dpePort ? dpeLang ? poolSize ? regHost ? regPort
-                        String dpeHost, dpeLang, regHost, containerName, engineName, engineClass,
-                                description, initialState;
-                        String frontEndHost, frontEndLang;
-                        int dpePort, poolSize, regPort, frontEndPort;
-                        ClaraComponent dpe;
-                        xMsgTopic topic;
-                        String data;
-
-                        try {
-                            dpeHost = parser.nextString();
-                            dpePort = parser.nextInteger();
-                            dpeLang = parser.nextString();
-                            poolSize = parser.nextInteger();
-                            regHost = parser.nextString();
-                            regPort = parser.nextInteger();
-                            description = parser.nextString();
-                        } catch (NoSuchElementException e) {
-                            System.out.println("Clara-Warning: malformed startDpe request.");
-                            break;
-                        }
-                        StringBuilder remCommand = new StringBuilder();
-                        if (dpeLang.equals(CConstants.JAVA_LANG)) {
-                            remCommand.append("ssh").append(" ").append(dpeHost).append(" ");
-                            remCommand.append("-DpePort").append(" ").append(dpePort).append(" ");
-                            remCommand.append("-PoolSize").append(" ").append(poolSize).append(" ");
-                            remCommand.append("-RegHost").append(" ").append(regHost).append(" ");
-                            remCommand.append("-RegPort").append(" ").append(regPort).append(" ");
-                            remCommand.append("-Description").append(" ").append(description).append(" ");
-                            remCommand.append("-CloudProxyHost").append(" ").append(getMe().getDpeHost()).append(" ");
-                            remCommand.append("-CloudProxyPort").append(" ").append(getMe().getDpePort()).append(" ");
-                        } else {
-                            System.out.println("Clara-Warning: unsupported DPE language.");
-                            break;
-                        }
-
-                        ClaraFork.fork(remCommand.toString(), false);
-                        // sync request handling below
-                        if (!returnTopic.equals(xMsgConstants.UNDEFINED)) {
-                            xMsgMessage returnMsg = new xMsgMessage(xMsgTopic.wrap(returnTopic), null);
-                            msg.getMetaData().setReplyTo(xMsgConstants.UNDEFINED);
-
-                            // sends back "Done" string
-                            returnMsg.updateData("Done");
-                            send(returnMsg);
-                        }
-                        break;
 
                     case CConstants.STOP_DPE:
                         end();
-                        break;
-
-                    case CConstants.STOP_REMOTE_DPE:
-                        try {
-                            dpeHost = parser.nextString();
-                            dpePort = parser.nextInteger();
-                            dpeLang = parser.nextString();
-                            dpe = ClaraComponent.dpe(dpeHost, dpePort, dpeLang, 1, CConstants.UNDEFINED);
-                            exit(dpe);
-                        } catch (NoSuchElementException e) {
-                            System.out.println("Clara-Warning: malformed stopRemoteDpe request.");
-                            break;
-                        } catch (ClaraException e1) {
-                            e1.printStackTrace();
-                        }
-
                         break;
 
                     case CConstants.SET_FRONT_END:
@@ -529,30 +429,8 @@ public class Dpe extends ClaraBase {
                         }
                         break;
 
-                    case CConstants.SET_FRONT_END_REMOTE:
-                        dpeHost = parser.nextString();
-                        dpePort = parser.nextInteger();
-                        dpeLang = parser.nextString();
-                        frontEndHost = parser.nextString();
-                        frontEndPort = parser.nextInteger();
-                        frontEndLang = parser.nextString();
-                        dpe = ClaraComponent.dpe(dpeHost, dpePort, dpeLang, 1, CConstants.UNDEFINED);
-                        topic = ClaraUtil.buildTopic(CConstants.DPE, dpe.getCanonicalName());
-                        data = ClaraUtil.buildData(CConstants.SET_FRONT_END, frontEndHost, frontEndPort, frontEndLang);
-                        send(dpe, new xMsgMessage(topic, data));
-                        break;
-
                     case CConstants.PING_DPE:
                         report();
-                        break;
-
-                    case CConstants.PING_REMOTE_DPE:
-                        dpeHost = parser.nextString();
-                        dpePort = parser.nextInteger();
-                        dpeLang = parser.nextString();
-                        dpe = ClaraComponent.dpe(dpeHost, dpePort, dpeLang, 1, CConstants.UNDEFINED);
-                        topic = ClaraUtil.buildTopic(CConstants.DPE, dpe.getCanonicalName());
-                        send(dpe, new xMsgMessage(topic, CConstants.PING_DPE));
                         break;
 
                     case CConstants.START_CONTAINER:
@@ -562,27 +440,9 @@ public class Dpe extends ClaraBase {
                         startContainer(containerName, poolSize, description);
                         break;
 
-                    case CConstants.START_REMOTE_CONTAINER:
-                        dpeHost = parser.nextString();
-                        dpePort = parser.nextInteger();
-                        dpeLang = parser.nextString();
-                        containerName = parser.nextString();
-                        poolSize = parser.nextInteger();
-                        description = parser.nextString();
-                        deploy(ClaraComponent.container(dpeHost, dpePort, dpeLang, containerName, poolSize, description));
-                        break;
-
                     case CConstants.STOP_CONTAINER:
                         containerName = parser.nextString();
                         stopContainer(containerName);
-                        break;
-
-                    case CConstants.STOP_REMOTE_CONTAINER:
-                        dpeHost = parser.nextString();
-                        dpePort = parser.nextInteger();
-                        dpeLang = parser.nextString();
-                        containerName = parser.nextString();
-                        exit(ClaraComponent.container(dpeHost, dpePort, dpeLang, containerName, 1, CConstants.UNDEFINED));
                         break;
 
                     case CConstants.START_SERVICE:
@@ -595,33 +455,10 @@ public class Dpe extends ClaraBase {
                         startService(containerName, engineName, engineClass, poolSize, description, initialState);
                         break;
 
-                    case CConstants.START_REMOTE_SERVICE:
-                        dpeHost = parser.nextString();
-                        dpePort = parser.nextInteger();
-                        dpeLang = parser.nextString();
-                        containerName = parser.nextString();
-                        engineName = parser.nextString();
-                        engineClass = parser.nextString();
-                        poolSize = parser.nextInteger();
-                        description = parser.nextString();
-                        initialState = parser.nextString();
-                        deploy(ClaraComponent.service(dpeHost, dpePort, dpeLang,
-                                containerName, engineName, engineClass, poolSize, description, initialState));
-                        break;
-
                     case CConstants.STOP_SERVICE:
                         containerName = parser.nextString();
                         engineName = parser.nextString();
                         stopService(containerName, engineName);
-                        break;
-
-                    case CConstants.STOP_REMOTE_SERVICE:
-                        dpeHost = parser.nextString();
-                        dpePort = parser.nextInteger();
-                        dpeLang = parser.nextString();
-                        containerName = parser.nextString();
-                        engineName = parser.nextString();
-                        exit(ClaraComponent.service(dpeHost, dpePort, dpeLang, containerName, engineName));
                         break;
 
                     default:
