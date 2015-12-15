@@ -33,6 +33,8 @@ import org.jlab.clara.util.xml.RequestParser;
 import org.jlab.coda.xmsg.core.*;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 import org.jlab.coda.xmsg.excp.xMsgException;
+import org.jlab.coda.xmsg.xsys.xMsgProxy;
+import org.zeromq.ZContext;
 
 import javax.management.InstanceNotFoundException;
 import javax.management.MalformedObjectNameException;
@@ -65,6 +67,7 @@ public class Dpe extends ClaraBase {
     private Map<String, Container> myContainers = new HashMap<>();
 
     private xMsgSubscription subscriptionHandler;
+    private xMsgProxy proxy;
 
     private DpeReport myReport;
     private JsonReportBuilder myReportBuilder = new JsonReportBuilder();
@@ -98,6 +101,9 @@ public class Dpe extends ClaraBase {
                         CConstants.JAVA_LANG,
                         subPoolSize, description),
                 regHost, regPort);
+
+        proxy = new xMsgProxy();
+        startProxy();
 
         // Create a socket connections to the local dpe proxy
         connect();
@@ -276,6 +282,21 @@ public class Dpe extends ClaraBase {
             System.out.println(" FrontEnd Lang    = " + getFrontEnd().getDpeLang());
         }
         System.out.println("=========================================");
+    }
+
+
+    private void startProxy() {
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    proxy.startProxy(new ZContext());
+                } catch (xMsgException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        t.start();
     }
 
     /**
