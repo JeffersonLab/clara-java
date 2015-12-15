@@ -50,7 +50,7 @@ import java.util.concurrent.ExecutorService;
  * Number of threads in the pool is equal to the size of the object pool.
  * Thread pool is fixed size, however object pool is capable of expanding.
  */
-public class Service extends ClaraBase {
+class Service extends ClaraBase {
 
     private final String name;
 

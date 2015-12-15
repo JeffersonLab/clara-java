@@ -26,7 +26,7 @@ import org.jlab.clara.sys.ccc.ServiceState;
 /**
  *  Service system configuration.
  */
-public class ServiceSysConfig {
+class ServiceSysConfig {
 
     private final ServiceState state;
 

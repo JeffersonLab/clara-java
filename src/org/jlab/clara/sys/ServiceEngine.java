@@ -49,7 +49,7 @@ import java.util.concurrent.Semaphore;
  * @author gurjyan
  * @version 4.x
  */
-public class ServiceEngine extends ClaraBase {
+class ServiceEngine extends ClaraBase {
 
     // Engine instantiated object
     private final Engine engineObject;

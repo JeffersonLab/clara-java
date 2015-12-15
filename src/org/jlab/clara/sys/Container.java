@@ -39,7 +39,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author gurjyan
  * @version 4.x
  */
-public class Container extends ClaraBase {
+class Container extends ClaraBase {
 
 
     private ConcurrentHashMap<String, Service> myServices = new ConcurrentHashMap<>();

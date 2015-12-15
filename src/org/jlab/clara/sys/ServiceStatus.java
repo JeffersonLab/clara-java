@@ -38,7 +38,7 @@ import org.jlab.coda.xmsg.core.xMsgConstants;
  * @version 1.x
  * @since 2/2/15
  */
-public class ServiceStatus {
+class ServiceStatus {
     private String name =
             xMsgConstants.UNDEFINED;
 
