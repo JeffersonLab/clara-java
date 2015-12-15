@@ -24,6 +24,7 @@ package org.jlab.clara.sys;
 import org.jlab.clara.base.ClaraBase;
 import org.jlab.clara.base.ClaraComponent;
 import org.jlab.clara.base.error.ClaraException;
+import org.jlab.clara.sys.DpeOptionsParser.DpeOptionsException;
 import org.jlab.clara.util.CConstants;
 import org.jlab.clara.util.ClaraUtil;
 import org.jlab.clara.util.report.DpeReport;
@@ -33,6 +34,8 @@ import org.jlab.clara.util.xml.RequestParser;
 import org.jlab.coda.xmsg.core.*;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 import org.jlab.coda.xmsg.excp.xMsgException;
+import org.jlab.coda.xmsg.net.xMsgProxyAddress;
+import org.jlab.coda.xmsg.net.xMsgRegAddress;
 import org.jlab.coda.xmsg.xsys.xMsgProxy;
 import org.jlab.coda.xmsg.xsys.xMsgRegistrar;
 import org.zeromq.ZContext;
@@ -80,33 +83,37 @@ public class Dpe extends ClaraBase {
      * Constructor starts a DPE component, that connects to the local xMsg proxy server.
      * Does proper subscriptions nad starts heart beat reporting thread.
      *
-     * @param dpePort xMsg local proxy server port
-     * @param subPoolSize subscription pool size
-     * @param regHost registrar service host
-     * @param regPort registrar service port
+     * @param proxyAddress address of local proxy
+     * @param frontEndAddress address of front-end proxy
+     * @param poolSize subscription pool size
      * @param description textual description of the DPE
-     * @param cloudHost front-end DPE host
-     * @param cloudPort front-end DPE port
      * @throws xMsgException
      * @throws IOException
      * @throws ClaraException
      */
-    public Dpe(int dpePort,
-               int subPoolSize,
-               String description,
-               String feHost, int fePort)
+    public Dpe(xMsgProxyAddress proxyAddress,
+               xMsgProxyAddress frontEndAddress,
+               int poolSize,
+               String description)
             throws xMsgException, IOException, ClaraException {
-        super(ClaraComponent.dpe(xMsgUtil.localhost(),
-                        dpePort,
-                        CConstants.JAVA_LANG,
-                        subPoolSize, description),
-                feHost, xMsgConstants.REGISTRAR_PORT);
+        super(ClaraComponent.dpe(proxyAddress.host(),
+                                 proxyAddress.port(),
+                                 CConstants.JAVA_LANG,
+                                 poolSize,
+                                 description),
+              frontEndAddress.host(), xMsgConstants.REGISTRAR_PORT);
 
         proxy = new xMsgProxy();
         startProxy();
 
         registrar = new xMsgRegistrar(new ZContext());
         registrar.start();
+
+        ClaraComponent frontEnd = ClaraComponent.dpe(frontEndAddress.host(),
+                                                     frontEndAddress.port(),
+                                                     CConstants.JAVA_LANG,
+                                                     1, "Front End");
+        setFrontEnd(frontEnd);
 
         // Create a socket connections to the local dpe proxy
         connect();
@@ -115,15 +122,12 @@ public class Dpe extends ClaraBase {
         xMsgTopic topic = xMsgTopic.wrap(CConstants.DPE + ":" + getMe().getCanonicalName());
 
         // Register this subscriber
-        register(feHost, description);
+        register(frontEndAddress.host(), description);
         System.out.println(ClaraUtil.getCurrentTimeInH() + ": Registered DPE = " + getMe().getCanonicalName());
 
         // Subscribe by passing a callback to the subscription
         subscriptionHandler = listen(topic, new DpeCallBack());
         System.out.println(ClaraUtil.getCurrentTimeInH() + ": Started DPE = " + getMe().getCanonicalName());
-
-        ClaraComponent frontEnd = ClaraComponent.dpe(feHost, fePort, CConstants.JAVA_LANG, 1, "Front End");
-        setFrontEnd(frontEnd);
 
         printLogo();
 
@@ -141,76 +145,21 @@ public class Dpe extends ClaraBase {
         startHeartBeatReport();
     }
 
-    /**
-     *
-     */
-    public static void usage() {
-        System.err.println("Usage: j_dpe [ -cc | -fh <front_end> ]");
-    }
-
     public static void main(String[] args) {
         try {
-            int i = 0;
-            int dpePort = xMsgConstants.DEFAULT_PORT;
-            int poolSize = xMsgConstants.DEFAULT_POOL_SIZE;
-            String feHost = xMsgUtil.localhost();
-            int fePort = xMsgConstants.DEFAULT_PORT;
-            String description = "Clara DPE";
+            DpeOptionsParser options = new DpeOptionsParser();
+            options.parse(args);
 
-            while (i < args.length) {
-                switch (args[i++]) {
-
-                    case "-DpePort":
-                        if (i < args.length) {
-                            dpePort = Integer.parseInt(args[i++]);
-                        } else {
-                            usage();
-                            System.exit(1);
-                        }
-                        break;
-
-                    case "-PoolSize":
-                        if (i < args.length) {
-                            poolSize = Integer.parseInt(args[i++]);
-                        } else {
-                            usage();
-                            System.exit(1);
-                        }
-                        break;
-
-                    case "-feHost":
-                        if (i < args.length) {
-                            feHost = args[i++];
-                        } else {
-                            usage();
-                            System.exit(1);
-                        }
-                        break;
-                    case "-fePort":
-                        if (i < args.length) {
-                            fePort = Integer.parseInt(args[i++]);
-                        } else {
-                            usage();
-                            System.exit(1);
-                        }
-                        break;
-                    case "-Description":
-                        if (i < args.length) {
-                            description = args[i++];
-                        } else {
-                            usage();
-                            System.exit(1);
-                        }
-                        break;
-                    default:
-                        usage();
-                        System.exit(1);
-                }
-            }
             // start a dpe
-            new Dpe(dpePort, poolSize, description, feHost, fePort);
-        } catch (IOException | ClaraException | xMsgException e) {
+            new Dpe(options.localAddress(), options.frontEnd(),
+                    options.poolSize(), options.description());
+
+        } catch (DpeOptionsException e) {
             System.err.println(e.getMessage());
+            System.exit(1);
+        } catch (xMsgException | IOException | ClaraException e) {
+            e.printStackTrace();
+            System.exit(1);
         }
     }
 
