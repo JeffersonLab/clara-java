@@ -19,7 +19,7 @@
  * SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-package org.jlab.clara.util.xml;
+package org.jlab.clara.sys;
 
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.coda.xmsg.core.xMsgConstants;
@@ -27,21 +27,12 @@ import org.jlab.coda.xmsg.core.xMsgMessage;
 
 import java.util.StringTokenizer;
 
-/**
- * @author gurjyan
- * @version 4.x
- */
-public class RequestParser {
+final class RequestParser {
 
     private final String cmdData;
-    private StringTokenizer tokenizer;
+    private final StringTokenizer tokenizer;
 
-    public RequestParser(String data) {
-        cmdData = data;
-        tokenizer = new StringTokenizer(cmdData, xMsgConstants.DATA_SEP);
-    }
-
-    public static RequestParser build(xMsgMessage msg) throws ClaraException {
+    static RequestParser build(xMsgMessage msg) throws ClaraException {
         String mimeType = msg.getMetaData().getDataType();
         if (mimeType.equals("text/string")) {
             return new RequestParser(new String(msg.getData()));
@@ -49,15 +40,18 @@ public class RequestParser {
         throw new ClaraException("Clara-Error: Invalid mime-type = " + mimeType);
     }
 
+    private RequestParser(String data) {
+        cmdData = data;
+        tokenizer = new StringTokenizer(cmdData, xMsgConstants.DATA_SEP);
+    }
+
     public String nextString() throws ClaraException {
             return tokenizer.nextToken();
     }
 
-
     public String nextString(String defaultValue) {
         return tokenizer.hasMoreElements() ? tokenizer.nextToken() : defaultValue;
     }
-
 
     public int nextInteger() throws ClaraException {
             return Integer.parseInt(tokenizer.nextToken());

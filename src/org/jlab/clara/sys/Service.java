@@ -29,7 +29,6 @@ import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.util.CClassLoader;
 import org.jlab.clara.util.CConstants;
 import org.jlab.clara.util.ClaraUtil;
-import org.jlab.clara.util.xml.RequestParser;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgSubscription;

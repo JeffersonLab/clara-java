@@ -30,7 +30,6 @@ import org.jlab.clara.util.ClaraUtil;
 import org.jlab.clara.util.report.DpeReport;
 import org.jlab.clara.util.report.JsonReportBuilder;
 import org.jlab.clara.util.shell.ClaraFork;
-import org.jlab.clara.util.xml.RequestParser;
 import org.jlab.coda.xmsg.core.*;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 import org.jlab.coda.xmsg.excp.xMsgException;
