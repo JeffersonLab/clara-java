@@ -39,7 +39,6 @@ import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.excp.xMsgException;
 import org.jlab.coda.xmsg.net.xMsgProxyAddress;
 import org.jlab.coda.xmsg.xsys.xMsgProxy;
-import org.jlab.coda.xmsg.xsys.xMsgRegistrar;
 import org.zeromq.ZContext;
 
 import javax.management.InstanceNotFoundException;
@@ -71,7 +70,6 @@ public class Dpe extends ClaraBase {
     private Map<String, Container> myContainers = new HashMap<>();
 
     private xMsgSubscription subscriptionHandler;
-    private xMsgRegistrar registrar;
 
     private DpeReport myReport;
     private JsonReportBuilder myReportBuilder = new JsonReportBuilder();
@@ -101,10 +99,6 @@ public class Dpe extends ClaraBase {
                                  poolSize,
                                  description),
               frontEndAddress.host(), xMsgConstants.REGISTRAR_PORT);
-
-        registrar = new xMsgRegistrar(new ZContext());
-        registrar.start();
-
         ClaraComponent frontEnd = ClaraComponent.dpe(frontEndAddress.host(),
                                                      frontEndAddress.port(),
                                                      CConstants.JAVA_LANG,
@@ -152,6 +146,11 @@ public class Dpe extends ClaraBase {
 
             // start the proxy
             startProxy();
+
+            // start the front-end
+            if (options.isFrontEnd()) {
+                new FrontEnd(options.frontEnd(), options.poolSize(), options.description());
+            }
 
             // start a dpe
             new Dpe(options.localAddress(), options.frontEnd(),

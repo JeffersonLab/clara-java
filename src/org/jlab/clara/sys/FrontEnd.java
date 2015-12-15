@@ -50,12 +50,17 @@ class FrontEnd {
 
     private ClaraBase base;
 
+    private xMsgRegistrar registrar;
     private xMsgSubscription fwdSubscription;
 
 
     public FrontEnd(xMsgProxyAddress frontEndAddress, int poolSize, String description)
             throws ClaraException {
         try {
+            // create the xMsg registrar
+            registrar = new xMsgRegistrar(new ZContext());
+            registrar.start();
+
             // create the xMsg actor
             ClaraComponent frontEnd = dpe(frontEndAddress.host(),
                                           frontEndAddress.port(),
