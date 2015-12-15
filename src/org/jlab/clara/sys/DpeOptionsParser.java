@@ -74,6 +74,8 @@ class DpeOptionsParser {
 
         poolSize = parser.accepts("poolsize").withRequiredArg().ofType(Integer.class);
         description = parser.accepts("description").withRequiredArg();
+
+        parser.acceptsAll(asList("h", "help")).forHelp();
     }
 
     public void parse(String[] args) {
@@ -150,6 +152,39 @@ class DpeOptionsParser {
         return fe;
     }
 
+    public boolean hasHelp() {
+        return options.has("help");
+    }
+
+    public String usage() {
+        return String.format("usage: j_dpe [options]%n%n  Options:%n")
+             + optionHelp(dpeHost, "hostname", "use given host for this DPE")
+             + optionHelp(dpePort, "port", "use given port for this DPE")
+             + optionHelp(isFrontEnd, null, "use this DPE as front-end")
+             + optionHelp(feHost, "hostname", "the host used by the front-end")
+             + optionHelp(fePort, "port", "the port used by the front-end")
+             + optionHelp(poolSize, "size", "the subscriptions poolsize for this DPE")
+             + optionHelp(description, "string", "a short description of this DPE");
+    }
+
+    private static <V> String optionHelp(OptionSpec<V> spec, String arg, String... help) {
+        StringBuilder sb = new StringBuilder();
+        String[] lhs = new String[help.length];
+        lhs[0] = optionName(spec, arg);
+        for (int i = 0; i < help.length; i++) {
+            sb.append(String.format("  %-22s  %s%n", lhs[i] == null ? "" : lhs[i], help[i]));
+        }
+        return sb.toString();
+    }
+
+    private static <V> String optionName(OptionSpec<V> spec, String arg) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("-").append(spec.options().get(0));
+        if (arg != null) {
+            sb.append(" <").append(arg).append(">");
+        }
+        return sb.toString();
+    }
 
     static class DpeOptionsException extends RuntimeException {
 

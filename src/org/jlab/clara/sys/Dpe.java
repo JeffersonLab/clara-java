@@ -146,9 +146,13 @@ public class Dpe extends ClaraBase {
     }
 
     public static void main(String[] args) {
+        DpeOptionsParser options = new DpeOptionsParser();
         try {
-            DpeOptionsParser options = new DpeOptionsParser();
             options.parse(args);
+            if (options.hasHelp()) {
+                System.out.println(options.usage());
+                System.exit(0);
+            }
 
             // start a dpe
             new Dpe(options.localAddress(), options.frontEnd(),
@@ -156,6 +160,8 @@ public class Dpe extends ClaraBase {
 
         } catch (DpeOptionsException e) {
             System.err.println(e.getMessage());
+            System.err.println();
+            System.err.println(options.usage());
             System.exit(1);
         } catch (xMsgException | IOException | ClaraException e) {
             e.printStackTrace();
