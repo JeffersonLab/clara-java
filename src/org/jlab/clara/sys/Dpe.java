@@ -25,6 +25,7 @@ import org.jlab.clara.base.ClaraBase;
 import org.jlab.clara.base.ClaraComponent;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.sys.DpeOptionsParser.DpeOptionsException;
+import org.jlab.clara.sys.RequestParser.RequestException;
 import org.jlab.clara.util.CConstants;
 import org.jlab.clara.util.ClaraUtil;
 import org.jlab.clara.util.report.DpeReport;
@@ -45,7 +46,6 @@ import javax.management.ReflectionException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -531,7 +531,6 @@ public class Dpe extends ClaraBase {
                         frontEndHost = parser.nextString();
                         frontEndPort = parser.nextInteger();
                         frontEndLang = parser.nextString();
-
                         dpe = ClaraComponent.dpe(dpeHost, dpePort, dpeLang, 1, CConstants.UNDEFINED);
                         topic = ClaraUtil.buildTopic(CConstants.DPE, dpe.getCanonicalName());
                         data = ClaraUtil.buildData(CConstants.SET_FRONT_END, frontEndHost, frontEndPort, frontEndLang);
@@ -543,136 +542,88 @@ public class Dpe extends ClaraBase {
                         break;
 
                     case CConstants.PING_REMOTE_DPE:
-                        try {
-                            dpeHost = parser.nextString();
-                            dpePort = parser.nextInteger();
-                            dpeLang = parser.nextString();
-                            dpe = ClaraComponent.dpe(dpeHost, dpePort, dpeLang, 1, CConstants.UNDEFINED);
-                            topic = ClaraUtil.buildTopic(CConstants.DPE, dpe.getCanonicalName());
-                            send(dpe, new xMsgMessage(topic, CConstants.PING_DPE));
-                        } catch (NoSuchElementException e) {
-                            System.out.println("Clara-Warning: malformed stopRemoteDpe request.");
-                            break;
-                        } catch (ClaraException e1) {
-                            e1.printStackTrace();
-                        }
+                        dpeHost = parser.nextString();
+                        dpePort = parser.nextInteger();
+                        dpeLang = parser.nextString();
+                        dpe = ClaraComponent.dpe(dpeHost, dpePort, dpeLang, 1, CConstants.UNDEFINED);
+                        topic = ClaraUtil.buildTopic(CConstants.DPE, dpe.getCanonicalName());
+                        send(dpe, new xMsgMessage(topic, CConstants.PING_DPE));
                         break;
 
                     case CConstants.START_CONTAINER:
-                        try {
-                            containerName = parser.nextString();
-                            poolSize = parser.nextInteger();
-                            description = parser.nextString();
-                            startContainer(containerName, poolSize, description);
-
-                        } catch (NoSuchElementException e) {
-                            System.out.println("Clara-Error: malformed startContainer request.");
-                            break;
-                        }
+                        containerName = parser.nextString();
+                        poolSize = parser.nextInteger();
+                        description = parser.nextString();
+                        startContainer(containerName, poolSize, description);
                         break;
 
                     case CConstants.START_REMOTE_CONTAINER:
-                        try {
-                            dpeHost = parser.nextString();
-                            dpePort = parser.nextInteger();
-                            dpeLang = parser.nextString();
-                            containerName = parser.nextString();
-                            poolSize = parser.nextInteger();
-                            description = parser.nextString();
-                            deploy(ClaraComponent.container(dpeHost, dpePort, dpeLang, containerName, poolSize, description));
-
-                        } catch (NoSuchElementException e) {
-                            System.out.println("Clara-Error: malformed startRemoteContainer request.");
-                            break;
-                        }
+                        dpeHost = parser.nextString();
+                        dpePort = parser.nextInteger();
+                        dpeLang = parser.nextString();
+                        containerName = parser.nextString();
+                        poolSize = parser.nextInteger();
+                        description = parser.nextString();
+                        deploy(ClaraComponent.container(dpeHost, dpePort, dpeLang, containerName, poolSize, description));
                         break;
 
                     case CConstants.STOP_CONTAINER:
-                        try {
-                            containerName = parser.nextString();
-                        } catch (NoSuchElementException e) {
-                            System.out.println("Clara-Error: malformed stopContainer request.");
-                            break;
-                        }
+                        containerName = parser.nextString();
                         stopContainer(containerName);
                         break;
 
                     case CConstants.STOP_REMOTE_CONTAINER:
-                        try {
-                            dpeHost = parser.nextString();
-                            dpePort = parser.nextInteger();
-                            dpeLang = parser.nextString();
-                            containerName = parser.nextString();
-                            exit(ClaraComponent.container(dpeHost, dpePort, dpeLang, containerName, 1, CConstants.UNDEFINED));
-
-                        } catch (NoSuchElementException e) {
-                            System.out.println("Clara-Error: malformed stopRemoteContainer request.");
-                            break;
-                        }
+                        dpeHost = parser.nextString();
+                        dpePort = parser.nextInteger();
+                        dpeLang = parser.nextString();
+                        containerName = parser.nextString();
+                        exit(ClaraComponent.container(dpeHost, dpePort, dpeLang, containerName, 1, CConstants.UNDEFINED));
                         break;
 
                     case CConstants.START_SERVICE:
-                        try {
-                            containerName = parser.nextString();
-                            engineName = parser.nextString();
-                            engineClass = parser.nextString();
-                            poolSize = parser.nextInteger();
-                            description = parser.nextString();
-                            initialState = parser.nextString();
-                        } catch (NoSuchElementException e) {
-                            System.out.println("Clara-Warning: malformed startService request.");
-                            break;
-                        }
+                        containerName = parser.nextString();
+                        engineName = parser.nextString();
+                        engineClass = parser.nextString();
+                        poolSize = parser.nextInteger();
+                        description = parser.nextString();
+                        initialState = parser.nextString();
                         startService(containerName, engineName, engineClass, poolSize, description, initialState);
                         break;
 
                     case CConstants.START_REMOTE_SERVICE:
-                        try {
-                            dpeHost = parser.nextString();
-                            dpePort = parser.nextInteger();
-                            dpeLang = parser.nextString();
-                            containerName = parser.nextString();
-                            engineName = parser.nextString();
-                            engineClass = parser.nextString();
-                            poolSize = parser.nextInteger();
-                            description = parser.nextString();
-                            initialState = parser.nextString();
-                        } catch (NoSuchElementException e) {
-                            System.out.println("Clara-Warning: malformed startRemoteService request.");
-                            break;
-                        }
+                        dpeHost = parser.nextString();
+                        dpePort = parser.nextInteger();
+                        dpeLang = parser.nextString();
+                        containerName = parser.nextString();
+                        engineName = parser.nextString();
+                        engineClass = parser.nextString();
+                        poolSize = parser.nextInteger();
+                        description = parser.nextString();
+                        initialState = parser.nextString();
                         deploy(ClaraComponent.service(dpeHost, dpePort, dpeLang,
                                 containerName, engineName, engineClass, poolSize, description, initialState));
                         break;
 
                     case CConstants.STOP_SERVICE:
-                        try {
-                            containerName = parser.nextString();
-                            engineName = parser.nextString();
-                        } catch (NoSuchElementException e) {
-                            System.out.println("Clara-Warning: malformed stopService request.");
-                            break;
-                        }
+                        containerName = parser.nextString();
+                        engineName = parser.nextString();
                         stopService(containerName, engineName);
                         break;
 
                     case CConstants.STOP_REMOTE_SERVICE:
-                        try {
-                            dpeHost = parser.nextString();
-                            dpePort = parser.nextInteger();
-                            dpeLang = parser.nextString();
-                            containerName = parser.nextString();
-                            engineName = parser.nextString();
-                        } catch (NoSuchElementException e) {
-                            System.out.println("Clara-Warning: malformed stopRemoteService request.");
-                            break;
-                        }
+                        dpeHost = parser.nextString();
+                        dpePort = parser.nextInteger();
+                        dpeLang = parser.nextString();
+                        containerName = parser.nextString();
+                        engineName = parser.nextString();
                         exit(ClaraComponent.service(dpeHost, dpePort, dpeLang, containerName, engineName));
                         break;
 
                     default:
                         break;
                 }
+            } catch (RequestException e) {
+                e.printStackTrace();
             } catch (ClaraException | IOException | xMsgException | TimeoutException e) {
                 e.printStackTrace();
             }

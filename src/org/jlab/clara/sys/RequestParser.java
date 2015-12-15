@@ -21,10 +21,10 @@
 
 package org.jlab.clara.sys;
 
-import org.jlab.clara.base.error.ClaraException;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 
+import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
 final class RequestParser {
@@ -32,12 +32,13 @@ final class RequestParser {
     private final String cmdData;
     private final StringTokenizer tokenizer;
 
-    static RequestParser build(xMsgMessage msg) throws ClaraException {
+
+    static RequestParser build(xMsgMessage msg) throws RequestException {
         String mimeType = msg.getMetaData().getDataType();
         if (mimeType.equals("text/string")) {
             return new RequestParser(new String(msg.getData()));
         }
-        throw new ClaraException("Clara-Error: Invalid mime-type = " + mimeType);
+        throw new RequestException("Invalid mime-type = " + mimeType);
     }
 
     private RequestParser(String data) {
@@ -45,15 +46,30 @@ final class RequestParser {
         tokenizer = new StringTokenizer(cmdData, xMsgConstants.DATA_SEP);
     }
 
-    public String nextString() throws ClaraException {
+    public String nextString() throws RequestException {
+        try {
             return tokenizer.nextToken();
+        } catch (NoSuchElementException e) {
+            throw new RequestException("Invalid request: " + cmdData);
+        }
     }
 
     public String nextString(String defaultValue) {
         return tokenizer.hasMoreElements() ? tokenizer.nextToken() : defaultValue;
     }
 
-    public int nextInteger() throws ClaraException {
+    public int nextInteger() throws RequestException {
+        try {
             return Integer.parseInt(tokenizer.nextToken());
+        } catch (NoSuchElementException | NumberFormatException e) {
+            throw new RequestException("Invalid request: " + cmdData);
+        }
+    }
+
+
+    public static class RequestException extends Exception {
+        public RequestException(String msg) {
+            super(msg);
+        }
     }
 }

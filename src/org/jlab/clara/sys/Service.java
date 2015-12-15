@@ -26,6 +26,7 @@ import org.jlab.clara.base.ClaraComponent;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.Engine;
 import org.jlab.clara.engine.EngineDataType;
+import org.jlab.clara.sys.RequestParser.RequestException;
 import org.jlab.clara.util.CClassLoader;
 import org.jlab.clara.util.CConstants;
 import org.jlab.clara.util.ClaraUtil;
@@ -218,7 +219,7 @@ class Service extends ClaraBase {
     }
 
 
-    private void setup(xMsgMessage msg) throws ClaraException {
+    private void setup(xMsgMessage msg) throws RequestException {
         RequestParser setup = RequestParser.build(msg);
         String report = setup.nextString();
         int value = setup.nextInteger();
@@ -234,7 +235,7 @@ class Service extends ClaraBase {
                 sysConfig.resetDataRequestCount();
                 break;
             default:
-                throw new ClaraException("Invalid report request: " + report);
+                throw new RequestException("Invalid report request: " + report);
         }
     }
 
