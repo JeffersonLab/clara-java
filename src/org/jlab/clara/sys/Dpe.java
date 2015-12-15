@@ -72,7 +72,6 @@ public class Dpe extends ClaraBase {
 
     private xMsgSubscription subscriptionHandler;
     private xMsgRegistrar registrar;
-    private xMsgProxy proxy;
 
     private DpeReport myReport;
     private JsonReportBuilder myReportBuilder = new JsonReportBuilder();
@@ -102,9 +101,6 @@ public class Dpe extends ClaraBase {
                                  poolSize,
                                  description),
               frontEndAddress.host(), xMsgConstants.REGISTRAR_PORT);
-
-        proxy = new xMsgProxy();
-        startProxy();
 
         registrar = new xMsgRegistrar(new ZContext());
         registrar.start();
@@ -154,6 +150,9 @@ public class Dpe extends ClaraBase {
                 System.exit(0);
             }
 
+            // start the proxy
+            startProxy();
+
             // start a dpe
             new Dpe(options.localAddress(), options.frontEnd(),
                     options.poolSize(), options.description());
@@ -167,6 +166,21 @@ public class Dpe extends ClaraBase {
             e.printStackTrace();
             System.exit(1);
         }
+    }
+
+    private static void startProxy() {
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    xMsgProxy proxy = new xMsgProxy();
+                    proxy.startProxy(new ZContext());
+                } catch (xMsgException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+        t.start();
     }
 
     @Override
@@ -206,21 +220,6 @@ public class Dpe extends ClaraBase {
             System.out.println(" FrontEnd Lang    = " + getFrontEnd().getDpeLang());
         }
         System.out.println("=========================================");
-    }
-
-
-    private void startProxy() {
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    proxy.startProxy(new ZContext());
-                } catch (xMsgException e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-        t.start();
     }
 
     /**
