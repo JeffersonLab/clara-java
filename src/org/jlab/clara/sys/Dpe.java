@@ -34,6 +34,7 @@ import org.jlab.coda.xmsg.core.*;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 import org.jlab.coda.xmsg.excp.xMsgException;
 import org.jlab.coda.xmsg.xsys.xMsgProxy;
+import org.jlab.coda.xmsg.xsys.xMsgRegistrar;
 import org.zeromq.ZContext;
 
 import javax.management.InstanceNotFoundException;
@@ -67,6 +68,7 @@ public class Dpe extends ClaraBase {
     private Map<String, Container> myContainers = new HashMap<>();
 
     private xMsgSubscription subscriptionHandler;
+    private xMsgRegistrar registrar;
     private xMsgProxy proxy;
 
     private DpeReport myReport;
@@ -104,6 +106,9 @@ public class Dpe extends ClaraBase {
 
         proxy = new xMsgProxy();
         startProxy();
+
+        registrar = new xMsgRegistrar(new ZContext());
+        registrar.start();
 
         // Create a socket connections to the local dpe proxy
         connect();
