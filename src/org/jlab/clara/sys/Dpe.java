@@ -36,7 +36,6 @@ import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgSubscription;
 import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.core.xMsgUtil;
-import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 import org.jlab.coda.xmsg.excp.xMsgException;
 import org.jlab.coda.xmsg.net.xMsgProxyAddress;
 import org.jlab.coda.xmsg.xsys.xMsgProxy;
@@ -52,7 +51,6 @@ import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -173,7 +171,6 @@ public class Dpe extends ClaraBase {
 
     @Override
     public void end() {
-
         try {
             for (Container cont : myContainers.values()) {
                 cont.end();
@@ -185,23 +182,11 @@ public class Dpe extends ClaraBase {
         } catch (IOException | xMsgException e) {
             e.printStackTrace();
         }
-
     }
 
     @Override
     public void start(ClaraComponent component) {
-        try {
-            if (component.isContainer()) {
-                startContainer(component.getContainerName(), component.getSubscriptionPoolSize(), component.getDescription());
-            } else if (component.isService()) {
-                startService(component.getContainerName(), component.getEngineName(),
-                        component.getEngineClass(), component.getSubscriptionPoolSize(),
-                        component.getDescription(), component.getInitialState());
-            }
-        } catch (ClaraException | xMsgException | IOException e) {
-            e.printStackTrace();
-        }
-
+        // nothing
     }
 
     /**
@@ -252,12 +237,11 @@ public class Dpe extends ClaraBase {
     }
 
     /**
-     * Builds a report for the heart beat reporting thread
+     * Builds a report for the heart beat reporting thread.
      */
     private void report() {
         try {
-
-            xMsgTopic dpeReportTopic = xMsgTopic.wrap(CConstants.DPE_ALIVE + ":" + getDefaultProxyAddress().host());
+            xMsgTopic dpeReportTopic = ClaraUtil.buildTopic(CConstants.DPE_ALIVE, getDefaultProxyAddress().host());
             if (getFrontEnd() != null) {
                 dpeReportTopic = ClaraUtil.buildTopic(CConstants.DPE_ALIVE, getFrontEnd().getDpeCanonicalName());
             }
@@ -284,19 +268,12 @@ public class Dpe extends ClaraBase {
 
     }
 
-    /**
-     * Deploys a container. Note that container name is NOT a canonical name
-     *
-     * @param containerName the name of the container (not canonical)
-     * @param poolSize size of the subscription pool
-     * @param description textual description of the container
-     * @throws ClaraException
-     * @throws xMsgException
-     * @throws IOException
-     */
-    private void startContainer(String containerName, int poolSize, String description)
-            throws ClaraException, xMsgException, IOException {
+    private void startContainer(RequestParser parser)
+            throws RequestException, ClaraException {
 
+        String containerName = parser.nextString();
+        int poolSize = parser.nextInteger();
+        String description = parser.nextString();
         if (poolSize <= 0) {
             poolSize = getMe().getSubscriptionPoolSize();
         }
@@ -307,49 +284,77 @@ public class Dpe extends ClaraBase {
         if (myContainers.containsKey(contComp.getCanonicalName())) {
             String msg = "%s Warning: container %s already exists. No new container is created%n";
             System.err.printf(msg, ClaraUtil.getCurrentTimeInH(), contComp.getCanonicalName());
-        } else {
-            // start a container
-            System.out.println("Starting container " + contComp.getCanonicalName());
+            return;
+        }
+
+        System.out.println("Starting container " + contComp.getCanonicalName());
+        try {
             Container container = new Container(contComp,
                     getDefaultRegistrarAddress().host(),
                     getDefaultRegistrarAddress().port());
             myContainers.put(containerName, container);
             myReport.addContainerReport(container.getReport());
+        } catch (xMsgException | IOException e) {
+            throw new ClaraException("Could not start container " + contComp, e);
         }
     }
 
-    private void startService(String containerName, String engineName, String engineClass,
-                              int poolSize, String description, String initialState)
-            throws xMsgException, ClaraException, IOException {
+
+    private void startService(RequestParser parser)
+            throws RequestException, ClaraException {
+        String containerName = parser.nextString();
+        String engineName = parser.nextString();
+        String engineClass = parser.nextString();
+        int poolSize = parser.nextInteger();
+        String description = parser.nextString();
+        String initialState = parser.nextString();
+        if (poolSize <= 0) {
+            poolSize = getMe().getSubscriptionPoolSize();
+        }
+        ClaraComponent serComp = ClaraComponent.service(getMe().getDpeHost(),
+                                                        getMe().getDpePort(),
+                                                        getMe().getDpeLang(),
+                                                        containerName,
+                                                        engineName,
+                                                        engineClass,
+                                                        poolSize,
+                                                        description,
+                                                        initialState);
         if (myContainers.containsKey(containerName)) {
-            if (poolSize <= 0) {
-                poolSize = getMe().getSubscriptionPoolSize();
+            try {
+                myContainers.get(containerName).addService(serComp,
+                                                           getDefaultRegistrarAddress().host(),
+                                                           getDefaultProxyAddress().port());
+            } catch (xMsgException | IOException e) {
+                throw new ClaraException("Could not start service " + serComp, e);
             }
-            ClaraComponent serComp = ClaraComponent.service(getMe().getDpeHost(),
-                    getMe().getDpePort(), getMe().getDpeLang(), containerName, engineName, engineClass, poolSize, description, initialState);
-            myContainers.get(containerName).addService(serComp,
-                    getDefaultRegistrarAddress().host(),
-                    getDefaultProxyAddress().port());
         } else {
-            System.out.println("Clara-Error: container does not exists");
+            throw new ClaraException("Could not start service " + serComp + " (missing container)");
         }
-
     }
 
-    private void stopService(String containerName, String engineName)
-            throws ClaraException, IOException, xMsgException {
+    private void stopService(RequestParser parser)
+            throws RequestException, ClaraException {
+        String containerName = parser.nextString();
+        String engineName = parser.nextString();
+        String serviceName = ClaraUtil.buildTopic(getMe().getCanonicalName(),
+                                                           containerName,
+                                                           engineName).toString();
         if (myContainers.containsKey(containerName)) {
-            String serviceCanonicalName =
-                    ClaraUtil.buildTopic(getMe().getCanonicalName(), containerName, engineName).toString();
-            myContainers.get(containerName).removeService(serviceCanonicalName);
+            try {
+                myContainers.get(containerName).removeService(serviceName);
+            } catch (xMsgException | IOException e) {
+                throw new ClaraException("Could not start service " + serviceName, e);
+            }
         } else {
-            System.out.println("Clara-Error: container does not exists");
+            throw new ClaraException("Could not stop service " + serviceName + " (missing container)");
         }
 
     }
 
-    private void stopContainer(String containerName)
-            throws ClaraException, xMsgException, IOException, TimeoutException {
+    private void stopContainer(RequestParser parser)
+            throws RequestException, ClaraException {
+        String containerName = parser.nextString();
         if (myContainers.containsKey(containerName)) {
             System.out.println("Removing container " + containerName);
             myContainers.get(containerName).end();
@@ -357,6 +362,23 @@ public class Dpe extends ClaraBase {
             System.out.println("Clara-Warning: wrong address. Container = " + containerName);
         }
     }
+
+    private void setFrontEnd(RequestParser parser) throws RequestException {
+        String frontEndHost = parser.nextString();
+        int frontEndPort = parser.nextInteger();
+        String frontEndLang = parser.nextString();
+
+        ClaraComponent frontEnd = ClaraComponent.dpe(frontEndHost, frontEndPort, frontEndLang,
+                                                     1, CConstants.UNDEFINED);
+        setFrontEnd(frontEnd);
+        for (Container cont : myContainers.values()) {
+            cont.setFrontEnd(frontEnd);
+            for (Service ser : cont.geServices().values()) {
+                ser.setFrontEnd(frontEnd);
+            }
+        }
+    }
+
 
     /**
      * DPE callback.
@@ -396,18 +418,9 @@ public class Dpe extends ClaraBase {
 
         @Override
         public xMsgMessage callback(xMsgMessage msg) {
-            xMsgMeta.Builder metadata = msg.getMetaData();
             try {
-                String sender = metadata.getSender();
-                String returnTopic = metadata.getReplyTo();
-
                 RequestParser parser = RequestParser.build(msg);
                 String cmd = parser.nextString();
-
-                String containerName, engineName, engineClass, description, initialState;
-                String frontEndHost, frontEndLang;
-                int poolSize, frontEndPort;
-
                 switch (cmd) {
 
                     case CConstants.STOP_DPE:
@@ -415,18 +428,7 @@ public class Dpe extends ClaraBase {
                         break;
 
                     case CConstants.SET_FRONT_END:
-                        frontEndHost = parser.nextString();
-                        frontEndPort = parser.nextInteger();
-                        frontEndLang = parser.nextString();
-
-                        ClaraComponent frontEnd = ClaraComponent.dpe(frontEndHost, frontEndPort, frontEndLang, 1, CConstants.UNDEFINED);
-                        setFrontEnd(frontEnd);
-                        for (Container cont : myContainers.values()) {
-                            cont.setFrontEnd(frontEnd);
-                            for (Service ser : cont.geServices().values()) {
-                                ser.setFrontEnd(frontEnd);
-                            }
-                        }
+                        setFrontEnd(parser);
                         break;
 
                     case CConstants.PING_DPE:
@@ -434,31 +436,19 @@ public class Dpe extends ClaraBase {
                         break;
 
                     case CConstants.START_CONTAINER:
-                        containerName = parser.nextString();
-                        poolSize = parser.nextInteger();
-                        description = parser.nextString();
-                        startContainer(containerName, poolSize, description);
+                        startContainer(parser);
                         break;
 
                     case CConstants.STOP_CONTAINER:
-                        containerName = parser.nextString();
-                        stopContainer(containerName);
+                        stopContainer(parser);
                         break;
 
                     case CConstants.START_SERVICE:
-                        containerName = parser.nextString();
-                        engineName = parser.nextString();
-                        engineClass = parser.nextString();
-                        poolSize = parser.nextInteger();
-                        description = parser.nextString();
-                        initialState = parser.nextString();
-                        startService(containerName, engineName, engineClass, poolSize, description, initialState);
+                        startService(parser);
                         break;
 
                     case CConstants.STOP_SERVICE:
-                        containerName = parser.nextString();
-                        engineName = parser.nextString();
-                        stopService(containerName, engineName);
+                        stopService(parser);
                         break;
 
                     default:
@@ -466,11 +456,10 @@ public class Dpe extends ClaraBase {
                 }
             } catch (RequestException e) {
                 e.printStackTrace();
-            } catch (ClaraException | IOException | xMsgException | TimeoutException e) {
+            } catch (ClaraException e) {
                 e.printStackTrace();
             }
             return msg;
         }
     }
-
 }
