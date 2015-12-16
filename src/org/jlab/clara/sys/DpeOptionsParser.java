@@ -76,7 +76,7 @@ class DpeOptionsParser {
 
         poolSize = parser.accepts("poolsize").withRequiredArg().ofType(Integer.class);
         description = parser.accepts("description").withRequiredArg();
-        reportInterval = parser.accepts("report_interval").withRequiredArg().ofType(Integer.class);
+        reportInterval = parser.accepts("report").withRequiredArg().ofType(Integer.class);
 
         parser.acceptsAll(asList("h", "help")).forHelp();
     }
@@ -172,7 +172,7 @@ class DpeOptionsParser {
              + optionHelp(fePort, "port", "the port used by the front-end")
              + optionHelp(poolSize, "size", "the subscriptions poolsize for this DPE")
              + optionHelp(description, "string", "a short description of this DPE")
-             + optionHelp(reportInterval, "interval", "the interval to send reports");
+             + optionHelp(reportInterval, "seconds", "the interval to send reports");
     }
 
     private static <V> String optionHelp(OptionSpec<V> spec, String arg, String... help) {

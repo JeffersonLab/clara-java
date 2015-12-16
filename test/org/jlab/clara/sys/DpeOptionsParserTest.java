@@ -25,7 +25,7 @@ public class DpeOptionsParserTest {
 
     private static final String poolOpt = "-poolsize";
     private static final String descOpt = "-description";
-    private static final String reportOpt = "-report_interval";
+    private static final String reportOpt = "-report";
 
     private DpeOptionsParser parser;
 
