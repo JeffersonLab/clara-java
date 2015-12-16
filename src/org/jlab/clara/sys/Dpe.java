@@ -176,8 +176,8 @@ public class Dpe extends ClaraBase {
             @Override
             public void run() {
                 try {
-                    xMsgProxy proxy = new xMsgProxy();
-                    proxy.startProxy(new ZContext());
+                    xMsgProxy proxy = new xMsgProxy(new ZContext());
+                    proxy.start();
                 } catch (xMsgException e) {
                     e.printStackTrace();
                 }
