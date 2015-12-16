@@ -234,7 +234,7 @@ public class Dpe extends ClaraBase {
             public void run() {
                 report();
             }
-        }, 10, TimeUnit.SECONDS);
+        }, 5, TimeUnit.SECONDS);
     }
 
     /**
