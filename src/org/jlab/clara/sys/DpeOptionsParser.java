@@ -56,6 +56,8 @@ class DpeOptionsParser {
     private final OptionSpec<Integer> poolSize;
     private final OptionSpec<String> description;
 
+    private final OptionSpec<Integer> reportInterval;
+
     private boolean fe;
     private xMsgProxyAddress localAddress;
     private xMsgProxyAddress frontEndAddress;
@@ -74,6 +76,7 @@ class DpeOptionsParser {
 
         poolSize = parser.accepts("poolsize").withRequiredArg().ofType(Integer.class);
         description = parser.accepts("description").withRequiredArg();
+        reportInterval = parser.accepts("report_interval").withRequiredArg().ofType(Integer.class);
 
         parser.acceptsAll(asList("h", "help")).forHelp();
     }
@@ -148,6 +151,10 @@ class DpeOptionsParser {
         return valueOf(description, "");
     }
 
+    public int reportInterval() {
+        return valueOf(reportInterval, 10);
+    }
+
     public boolean isFrontEnd() {
         return fe;
     }
@@ -164,7 +171,8 @@ class DpeOptionsParser {
              + optionHelp(feHost, "hostname", "the host used by the front-end")
              + optionHelp(fePort, "port", "the port used by the front-end")
              + optionHelp(poolSize, "size", "the subscriptions poolsize for this DPE")
-             + optionHelp(description, "string", "a short description of this DPE");
+             + optionHelp(description, "string", "a short description of this DPE")
+             + optionHelp(reportInterval, "interval", "the interval to send reports");
     }
 
     private static <V> String optionHelp(OptionSpec<V> spec, String arg, String... help) {

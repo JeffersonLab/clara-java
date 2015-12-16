@@ -75,6 +75,7 @@ public class Dpe extends ClaraBase {
     private JsonReportBuilder myReportBuilder = new JsonReportBuilder();
 
     private AtomicBoolean isReporting = new AtomicBoolean();
+    private int reportWait;
 
     /**
      * Constructor starts a DPE component, that connects to the local xMsg proxy server.
@@ -91,7 +92,8 @@ public class Dpe extends ClaraBase {
     public Dpe(xMsgProxyAddress proxyAddress,
                xMsgProxyAddress frontEndAddress,
                int poolSize,
-               String description)
+               String description,
+               int reportInterval)
             throws xMsgException, IOException, ClaraException {
         super(ClaraComponent.dpe(proxyAddress.host(),
                                  proxyAddress.port(),
@@ -131,6 +133,7 @@ public class Dpe extends ClaraBase {
         myReport.setCoreCount(Runtime.getRuntime().availableProcessors());
 
         isReporting.set(true);
+        reportWait = reportInterval * 1000;
 
         startHeartBeatReport();
     }
@@ -154,7 +157,7 @@ public class Dpe extends ClaraBase {
 
             // start a dpe
             new Dpe(options.localAddress(), options.frontEnd(),
-                    options.poolSize(), options.description());
+                    options.poolSize(), options.description(), options.reportInterval());
 
         } catch (DpeOptionsException e) {
             System.err.println(e.getMessage());

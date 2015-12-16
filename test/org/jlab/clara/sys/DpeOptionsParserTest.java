@@ -25,6 +25,7 @@ public class DpeOptionsParserTest {
 
     private static final String poolOpt = "-poolsize";
     private static final String descOpt = "-description";
+    private static final String reportOpt = "-report_interval";
 
     private DpeOptionsParser parser;
 
@@ -152,6 +153,20 @@ public class DpeOptionsParserTest {
         parse(descOpt, "A processing DPE");
 
         assertThat(parser.description(), is("A processing DPE"));
+    }
+
+    @Test
+    public void dpeUsesDefaultReportInterval() throws Exception {
+        parse();
+
+        assertThat(parser.reportInterval(), is(10));
+    }
+
+    @Test
+    public void dpeReceivesOptionalReportInterval() throws Exception {
+        parse(reportOpt, "20");
+
+        assertThat(parser.reportInterval(), is(20));
     }
 
 
