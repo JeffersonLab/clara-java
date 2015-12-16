@@ -128,7 +128,7 @@ public class Dpe extends ClaraBase {
         myReport.setLang(getMe().getDpeLang());
         myReport.setDescription(description);
         myReport.setAuthor(System.getenv("USER"));
-        myReport.setStartTime(ClaraUtil.getCurrentTimeInH());
+        myReport.setStartTime(ClaraUtil.getCurrentTime());
         myReport.setMemorySize(Runtime.getRuntime().maxMemory());
         myReport.setCoreCount(Runtime.getRuntime().availableProcessors());
 

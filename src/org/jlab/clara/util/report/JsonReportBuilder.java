@@ -31,9 +31,9 @@ public class JsonReportBuilder implements ExternalReport {
 
 
         sb.append(" {");
-        sb.append(" \"DPERuntime\": {    ");
-        sb.append(" \"host\": \"" + dpeData.getHost() + "\",");
-        sb.append(" \"snapshot_time\": " + dpeData.getSnapshotTime() + ",");
+        sb.append(" \"DPERuntime\": {");
+        sb.append(" \"hostname\": \"" + dpeData.getHost() + "\",");
+        sb.append(" \"snapshot_time\": \"" + dpeData.getSnapshotTime() + "\",");
         sb.append(" \"cpu_usage\": " + dpeData.getCpuUsage() + ",");
         sb.append(" \"memory_usage\": " + dpeData.getMemoryUsage() + ",");
         sb.append(" \"load\": " + dpeData.getLoad() + ",");
@@ -43,14 +43,14 @@ public class JsonReportBuilder implements ExternalReport {
             sb.append(" {");
             sb.append(" \"ContainerRuntime\": {");
             sb.append(" \"name\": \"" + cr.getName() + "\",");
-            sb.append(" \"snapshot_time\": " + cr.getSnapshotTime() + ",");
+            sb.append(" \"snapshot_time\": \"" + cr.getSnapshotTime() + "\",");
             sb.append(" \"n_requests\": " + cr.getRequestCount() + ",");
             sb.append(" \"services\": [");
             for (ServiceReport sr : cr.getServices().values()) {
                 sb.append(" {");
                 sb.append(" \"ServiceRuntime\": {");
                 sb.append(" \"name\": \"" + sr.getName() + "\",");
-                sb.append(" \"snapshot_time\": " + sr.getSnapshotTime() + ",");
+                sb.append(" \"snapshot_time\": \"" + sr.getSnapshotTime() + "\",");
                 sb.append(" \"n_requests\": " + sr.getRequestCount() + ",");
                 sb.append(" \"n_failures\": " + sr.getFailureCount() + ",");
                 sb.append(" \"shm_reads\": " + sr.getShrmReads() + ",");
@@ -59,25 +59,19 @@ public class JsonReportBuilder implements ExternalReport {
                 sb.append(" \"bytes_sent\": " + sr.getBytesSent() + ",");
                 sb.append(" \"exec_time\": " + sr.getExecutionTime() + "");
                 sb.append(" }");
+                sb.append(" },");
             }
-            sb.append("  },");
+            sb.append("  ],");
         }
         sb.append(" ]");
-        sb.append(" }");
-        sb.append(" }");
-        sb.append(" ]");
-        sb.append(" }");
-        sb.append(" }");
+        sb.append(" },");
 
-
-        sb.append(" {");
         sb.append(" \"DPERegistration\": {");
         sb.append(" \"language\": \"" + dpeData.getLang() + "\",");
         sb.append(" \"start_time\": \"" + dpeData.getStartTime() + "\",");
         sb.append(" \"n_cores\": " + dpeData.getCoreCount() + ",");
-        sb.append(" \"host\": \"" + dpeData.getHost() + "\",");
-        sb.append(" \"memory_size\": \"" + dpeData.getMemorySize() + "\",");
-        sb.append(" \"n_containers\": " + dpeData.getContainers().size() + ",");
+        sb.append(" \"hostname\": \"" + dpeData.getHost() + "\",");
+        sb.append(" \"memory_size\": " + dpeData.getMemorySize() + ",");
         sb.append(" \"containers\": [");
 
         for (ContainerReport cr : dpeData.getContainers().values()) {
@@ -86,26 +80,22 @@ public class JsonReportBuilder implements ExternalReport {
             sb.append(" \"name\": \"" + cr.getName() + "\",");
             sb.append(" \"language\": \"" + cr.getLang() + "\",");
             sb.append(" \"author\": \"" + cr.getAuthor() + "\",");
-            sb.append(" \"startTime\": \"" + cr.getStartTime() + "\",");
-            sb.append(" \"nServices\": " + cr.getServiceCount() + ",");
+            sb.append(" \"start_time\": \"" + cr.getStartTime() + "\",");
             sb.append(" \"services\": [");
             for (ServiceReport sr : cr.getServices().values()) {
                 sb.append(" {");
                 sb.append(" \"ServiceRegistration\": {");
-                sb.append(" \"className\": \"" + sr.getClassName() + "\",");
-                sb.append(" \"engineName\": \"" + sr.getEngineName() + "\",");
+                sb.append(" \"class_name\": \"" + sr.getClassName() + "\",");
+                sb.append(" \"engine_name\": \"" + sr.getEngineName() + "\",");
                 sb.append(" \"author\": \"" + sr.getAuthor() + "\",");
                 sb.append(" \"version\": \"" + sr.getVersion() + "\",");
                 sb.append(" \"description\": \"" + sr.getDescription() + "\",");
                 sb.append(" \"language\": \"" + sr.getLang() + "\",");
-                sb.append(" \"startTime\": \"" + sr.getStartTime() + "\"");
-                sb.append(" }");
+                sb.append(" \"start_time\": \"" + sr.getStartTime() + "\"");
+                sb.append(" },");
             }
             sb.append(" },");
         }
-        sb.append(" ]");
-        sb.append(" }");
-        sb.append(" }");
         sb.append(" ]");
         sb.append(" }");
         sb.append(" }");
