@@ -37,6 +37,7 @@ import org.jlab.coda.xmsg.core.xMsgSubscription;
 import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.excp.xMsgException;
+import org.jlab.coda.xmsg.net.xMsgConnection;
 import org.jlab.coda.xmsg.net.xMsgProxyAddress;
 import org.jlab.coda.xmsg.xsys.xMsgProxy;
 import org.zeromq.ZContext;
@@ -245,6 +246,9 @@ public class Dpe extends ClaraBase {
             xMsgTopic dpeReportTopic = ClaraUtil.buildTopic(CConstants.DPE_ALIVE,
                                                             getMe().getCanonicalName());
 
+            xMsgConnection con = connect(getFrontEnd().getProxyAddress());
+            xMsgUtil.sleep(100);
+
             while (isReporting.get()) {
 
                 myReport.setMemoryUsage(ClaraUtil.getMemoryUsage());
@@ -254,9 +258,10 @@ public class Dpe extends ClaraBase {
                 String jsonData = myReportBuilder.generateReport(myReport);
 
                 xMsgMessage msg = new xMsgMessage(dpeReportTopic, jsonData);
-                send(getFrontEnd(), msg);
+                send(con, msg);
                 xMsgUtil.sleep(reportWait);
             }
+            release(con);
         } catch (IOException | xMsgException | MalformedObjectNameException |
                 ReflectionException | InstanceNotFoundException e) {
             e.printStackTrace();
