@@ -261,6 +261,7 @@ public class Dpe extends ClaraBase {
                 } else {
                     send(getFrontEnd(), msg);
                 }
+                xMsgUtil.sleep(reportWait);
             }
         } catch (IOException | xMsgException | MalformedObjectNameException |
                 ReflectionException | InstanceNotFoundException e) {
