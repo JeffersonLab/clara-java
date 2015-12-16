@@ -254,11 +254,7 @@ public class Dpe extends ClaraBase {
                 String jsonData = myReportBuilder.generateReport(myReport);
 
                 xMsgMessage msg = new xMsgMessage(dpeReportTopic, jsonData);
-                if (getFrontEnd() == null || getFrontEnd().getDpeHost().equals(xMsgUtil.localhost())) {
-                    send(msg);
-                } else {
-                    send(getFrontEnd(), msg);
-                }
+                send(getFrontEnd(), msg);
                 xMsgUtil.sleep(reportWait);
             }
         } catch (IOException | xMsgException | MalformedObjectNameException |
