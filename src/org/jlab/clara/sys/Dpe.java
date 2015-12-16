@@ -242,10 +242,8 @@ public class Dpe extends ClaraBase {
      */
     private void report() {
         try {
-            xMsgTopic dpeReportTopic = ClaraUtil.buildTopic(CConstants.DPE_ALIVE, getDefaultProxyAddress().host());
-            if (getFrontEnd() != null) {
-                dpeReportTopic = ClaraUtil.buildTopic(CConstants.DPE_ALIVE, getFrontEnd().getDpeCanonicalName());
-            }
+            xMsgTopic dpeReportTopic = ClaraUtil.buildTopic(CConstants.DPE_ALIVE,
+                                                            getMe().getCanonicalName());
 
             while (isReporting.get()) {
 
