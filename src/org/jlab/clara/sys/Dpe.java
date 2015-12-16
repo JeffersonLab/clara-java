@@ -149,7 +149,7 @@ public class Dpe extends ClaraBase {
             }
 
             // start the proxy
-            startProxy();
+            startProxy(options.localAddress());
 
             // start the front-end
             if (options.isFrontEnd()) {
@@ -171,12 +171,12 @@ public class Dpe extends ClaraBase {
         }
     }
 
-    private static void startProxy() {
+    private static void startProxy(final xMsgProxyAddress address) {
         Thread t = new Thread(new Runnable() {
             @Override
             public void run() {
                 try {
-                    xMsgProxy proxy = new xMsgProxy(new ZContext());
+                    xMsgProxy proxy = new xMsgProxy(new ZContext(), address);
                     proxy.start();
                 } catch (xMsgException e) {
                     e.printStackTrace();
