@@ -22,7 +22,6 @@
 package org.jlab.clara.examples.orchestrators;
 
 import org.jlab.clara.base.BaseOrchestrator;
-import org.jlab.clara.base.ClaraComponent;
 import org.jlab.clara.base.ContainerName;
 import org.jlab.clara.base.ServiceName;
 import org.jlab.clara.base.error.ClaraException;
@@ -33,19 +32,13 @@ import org.jlab.clara.util.xml.XMLContainer;
 import org.jlab.clara.util.xml.XMLTagValue;
 import org.jlab.coda.xmsg.excp.xMsgException;
 import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.IOException;
-import java.net.SocketException;
 import java.util.List;
 import java.util.Scanner;
-import java.util.concurrent.TimeoutException;
 
 /**
- *     Interactive orchestrator.
- *     Runs with the local DPE.
- * <p>
+ * Interactive orchestrator.
+ * Runs with the local DPE.
  *
  * @author gurjyan
  * @version 4.x
@@ -53,163 +46,164 @@ import java.util.concurrent.TimeoutException;
  */
 public class OrInteractive extends BaseOrchestrator {
 
-    public OrInteractive() throws xMsgException, IOException, ClaraException {
+    public static void main(String[] args) {
+        try {
+            OrInteractive or = new OrInteractive();
+            if (args.length > 0 && args[0].equalsIgnoreCase("-f")) {
+                or.read(args);
+            } else {
+                or.interactive();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+    }
+
+    public OrInteractive() throws Exception {
         super();
     }
 
-    public static void main(String[] args) {
+    public void read(String[] args) throws Exception {
+        // read xml file and get deployment details
+        Document doc = ClaraUtil.getXMLDocument(args[1]);
 
-        try {
-            OrInteractive or = new OrInteractive();
+        String[] serviceTags = { "dpe", "container", "engine", "pool" };
+        List<XMLContainer> services = ClaraUtil.parseXML(doc, "service", serviceTags);
 
-            if (args.length > 0 && args[0].equalsIgnoreCase("-f")) {
-                // read xml file and get deployment details
-                try {
-                    Document doc = ClaraUtil.getXMLDocument(args[1]);
+        for (XMLContainer s : services) {
+            String dpe = null, container = null, engine = null;
+            int pool = 1;
 
-                    String[] serviceTags = {"dpe", "container", "engine", "pool"};
-                    List<XMLContainer> services = ClaraUtil.parseXML(doc, "service", serviceTags);
+            for (XMLTagValue t : s.getContainer()) {
+                if (t.getTag().equals("dpe"))
+                    dpe = t.getValue();
+                if (t.getTag().equals("container"))
+                    container = t.getValue();
+                if (t.getTag().equals("engine"))
+                    engine = t.getValue();
+                if (t.getTag().equals("pool"))
+                    pool = Integer.parseInt(t.getValue());
+            }
+            if (dpe != null && container != null && engine != null) {
 
+                // ask if container exists
+                // start a container
+                ContainerName cont = new ContainerName(container);
+                deploy(cont).withPoolsize(pool).withDescription("test container").run();
 
-                    for (XMLContainer s : services) {
-                        String dpe = null, container = null, engine = null;
-                        int pool = 1;
+                ClaraUtil.sleep(1000);
 
-                        for (XMLTagValue t : s.getContainer()) {
-                            if (t.getTag().equals("dpe")) dpe = t.getValue();
-                            if (t.getTag().equals("container")) container = t.getValue();
-                            if (t.getTag().equals("engine")) engine = t.getValue();
-                            if (t.getTag().equals("pool")) pool = Integer.parseInt(t.getValue());
-                        }
-                        if (dpe != null && container != null && engine != null) {
+                // start a service
+                ServiceName serv = new ServiceName(cont, engine);
+                deploy(serv, engine).withPoolsize(pool).run();
+                ClaraUtil.sleep(1000);
+            }
+        }
 
-                            // ask if container exists
-                            // start a container
-                            ContainerName cont = new ContainerName(container);
-                            or.deploy(cont)
-                              .withPoolsize(pool)
-                              .withDescription("test container")
-                              .run();
+        String[] applicationTags = { "composition", "data" };
+        List<XMLContainer> application = ClaraUtil.parseXML(doc, "application",
+                applicationTags);
 
-                            ClaraUtil.sleep(1000);
+        for (XMLContainer a : application) {
+            String comp = null, inData = null;
+            int bytes;
 
-                            // start a service
-                            ServiceName serv = new ServiceName(cont, engine);
-                            or.deploy(serv, engine)
-                              .withPoolsize(pool)
-                              .run();
-                            ClaraUtil.sleep(1000);
-                        }
+            for (XMLTagValue t : a.getContainer()) {
+
+                if (t.getTag().equals("composition"))
+                    comp = t.getValue();
+                if (t.getTag().equals("data")) {
+                    bytes = Integer.parseInt(t.getValue());
+                    StringBuilder sb = new StringBuilder();
+                    for (int i = 0; i < bytes; i++) {
+                        sb.append('x');
                     }
-
-                    String[] applicationTags = {"composition", "data"};
-                    List<XMLContainer> application = ClaraUtil.parseXML(doc, "application", applicationTags);
-
-                    for (XMLContainer a : application) {
-                        String comp = null, inData = null;
-                        int bytes;
-
-                        for (XMLTagValue t : a.getContainer()) {
-
-                            if (t.getTag().equals("composition")) comp = t.getValue();
-                            if (t.getTag().equals("data")) {
-                                bytes = Integer.parseInt(t.getValue());
-                                StringBuilder sb = new StringBuilder();
-                                for (int i = 0; i < bytes; i++) {
-                                    sb.append('x');
-                                }
-                                inData = sb.toString();
-                            }
-                        }
-                        if (comp != null && inData != null) {
-                            // get canonical composition
-
-                            // find the first service in the composition
-                            String firstService = ClaraUtil.getFirstService(comp);
-
-
-                            // create a transient data
-                            EngineData ed = new EngineData();
-                            ed.setData(inData, EngineDataType.STRING.mimeType());
-
-                            // send the data to the service
-                            ServiceName serv = new ServiceName(firstService);
-                            or.execute(serv).withData(ed).run();
-
-                            // check to see if we need to perform bluster test
-                            if (args.length == 3 && args[2].equals("-b")) {
-                                while (true) {
-                                    // send the data to the service
-                                    or.execute(serv).withData(ed).run();
-                                }
-                            }
-                        }
-                    }
-
-                } catch (ParserConfigurationException | IOException | SAXException e) {
-                    e.printStackTrace();
+                    inData = sb.toString();
                 }
+            }
+            if (comp != null && inData != null) {
+                // get canonical composition
 
-            } else {
-                Scanner scanner = new Scanner(System.in);
-                while (true) {
-                    System.out.printf("command: ");
-                    String cmd = scanner.nextLine().trim();
-                    if (cmd.equalsIgnoreCase("help")) {
-                        or.printHelp();
-                    } else if (cmd.equalsIgnoreCase("exit")) {
-                        System.exit(0);
-                    } else {
-                        switch (cmd) {
-                            case "1":
-                                System.out.println("DPE host ip = ");
-                                System.out.println("Container name = ");
-                                String container = scanner.nextLine().trim();
-                                ContainerName cont = new ContainerName(container);
-                                or.deploy(cont).withPoolsize(3).withDescription("test container").run();
-                                break;
-                            case "2":
-                                System.out.println("Container canonical name = ");
-                                String canCon = scanner.nextLine().trim();
-                                System.out.println("Engine class name = ");
-                                String engine = scanner.nextLine().trim();
-                                System.out.println("Service object pool size = ");
-                                int pSize = scanner.nextInt();
-                                ServiceName serv = new ServiceName(new ContainerName(canCon), engine);
-                                or.deploy(serv, engine).withPoolsize(pSize).run();
-                                break;
-                            case "3":
-                                System.out.println("Composition (canonical) = ");
-                                String composition = scanner.nextLine().trim();
-                                System.out.println("Input data = ");
-                                String inData = scanner.nextLine().trim();
+                // find the first service in the composition
+                String firstService = ClaraUtil.getFirstService(comp);
 
-                                // get canonical composition
+                // create a transient data
+                EngineData ed = new EngineData();
+                ed.setData(inData, EngineDataType.STRING.mimeType());
 
-                                // find the first service in the composition
-                                String firstService = ClaraUtil.getFirstService(composition);
-                                // create a transient data
-                                EngineData ed = new EngineData();
-                                ed.setData(inData, EngineDataType.STRING.mimeType());
+                // send the data to the service
+                ServiceName serv = new ServiceName(firstService);
+                execute(serv).withData(ed).run();
 
-                                // send the data to the service
-                                or.execute(new ServiceName(firstService)).withData(ed).run();
-
-                                break;
-                            case "4":
-                                System.out.println("DPE name");
-                                String dpe_name = scanner.nextLine().trim();
-                                for (String name : or.getContainerNames(dpe_name)) {
-                                    System.out.println(name);
-                                }
-                        }
+                // check to see if we need to perform bluster test
+                if (args.length == 3 && args[2].equals("-b")) {
+                    while (true) {
+                        // send the data to the service
+                        execute(serv).withData(ed).run();
                     }
                 }
             }
-        } catch (xMsgException | ClaraException | IOException e) {
-            e.printStackTrace();
         }
     }
+
+    public void interactive() throws ClaraException, xMsgException {
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            System.out.printf("command: ");
+            String cmd = scanner.nextLine().trim();
+            if (cmd.equalsIgnoreCase("help")) {
+                printHelp();
+            } else if (cmd.equalsIgnoreCase("exit")) {
+                System.exit(0);
+            } else {
+                switch (cmd) {
+                    case "1":
+                        System.out.println("DPE host ip = ");
+                        System.out.println("Container name = ");
+                        String container = scanner.nextLine().trim();
+                        ContainerName cont = new ContainerName(container);
+                        deploy(cont).withPoolsize(3).withDescription("test container").run();
+                        break;
+                    case "2":
+                        System.out.println("Container canonical name = ");
+                        String canCon = scanner.nextLine().trim();
+                        System.out.println("Engine class name = ");
+                        String engine = scanner.nextLine().trim();
+                        System.out.println("Service object pool size = ");
+                        int pSize = scanner.nextInt();
+                        ServiceName serv = new ServiceName(new ContainerName(canCon), engine);
+                        deploy(serv, engine).withPoolsize(pSize).run();
+                        break;
+                    case "3":
+                        System.out.println("Composition (canonical) = ");
+                        String composition = scanner.nextLine().trim();
+                        System.out.println("Input data = ");
+                        String inData = scanner.nextLine().trim();
+
+                        // get canonical composition
+
+                        // find the first service in the composition
+                        String firstService = ClaraUtil.getFirstService(composition);
+                        // create a transient data
+                        EngineData ed = new EngineData();
+                        ed.setData(inData, EngineDataType.STRING.mimeType());
+
+                        // send the data to the service
+                        execute(new ServiceName(firstService)).withData(ed).run();
+
+                        break;
+                    case "4":
+                        System.out.println("DPE name");
+                        String dpe_name = scanner.nextLine().trim();
+                        for (String name : getContainerNames(dpe_name)) {
+                            System.out.println(name);
+                        }
+                }
+            }
+        }
+    }
+
 
     private void printHelp() {
         System.out.println("|----------|------------------------------|----------------------|");
@@ -230,6 +224,5 @@ public class OrInteractive extends BaseOrchestrator {
         System.out.println("|          |                              | of all containers    |");
         System.out.println("|          |                              | in the DPE.          |");
         System.out.println("|----------|------------------------------|----------------------|");
-
     }
 }
