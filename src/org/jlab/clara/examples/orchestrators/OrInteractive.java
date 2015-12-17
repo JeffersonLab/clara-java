@@ -35,7 +35,6 @@ import org.jlab.clara.util.ClaraUtil;
 import org.jlab.clara.util.xml.XMLContainer;
 import org.jlab.clara.util.xml.XMLTagValue;
 import org.jlab.coda.xmsg.core.xMsgUtil;
-import org.jlab.coda.xmsg.excp.xMsgException;
 import org.w3c.dom.Document;
 
 import joptsimple.OptionException;
@@ -46,6 +45,7 @@ import joptsimple.OptionSpec;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 /**
@@ -114,16 +114,13 @@ public class OrInteractive extends BaseOrchestrator {
         }
     }
 
-    public void interactive() throws ClaraException, xMsgException {
+    public void interactive() throws Exception {
         Scanner scanner = new Scanner(System.in);
         while (true) {
-            System.out.printf("command: ");
-            String cmd = scanner.nextLine().trim();
-            if (cmd.equalsIgnoreCase("help")) {
-                printHelp();
-            } else if (cmd.equalsIgnoreCase("exit")) {
-                System.exit(0);
-            } else {
+            try {
+                System.out.printf("> Command: ");
+                String cmd = scanner.nextLine().trim().toLowerCase();
+
                 switch (cmd) {
                     case "1":
                         System.out.println("DPE host ip = ");
@@ -132,6 +129,7 @@ public class OrInteractive extends BaseOrchestrator {
                         ContainerName cont = new ContainerName(container);
                         deploy(cont).withPoolsize(3).withDescription("test container").run();
                         break;
+
                     case "2":
                         System.out.println("Container canonical name = ");
                         String canCon = scanner.nextLine().trim();
@@ -142,6 +140,7 @@ public class OrInteractive extends BaseOrchestrator {
                         ServiceName serv = new ServiceName(new ContainerName(canCon), engine);
                         deploy(serv, engine).withPoolsize(pSize).run();
                         break;
+
                     case "3":
                         System.out.println("Composition (canonical) = ");
                         String composition = scanner.nextLine().trim();
@@ -160,13 +159,33 @@ public class OrInteractive extends BaseOrchestrator {
                         execute(new ServiceName(firstService)).withData(ed).run();
 
                         break;
+
                     case "4":
                         System.out.println("DPE name");
                         String dpe_name = scanner.nextLine().trim();
                         for (String name : getContainerNames(dpe_name)) {
                             System.out.println(name);
                         }
+                        break;
+
+                    case "h":
+                    case "help":
+                        printHelp();
+                        break;
+
+                    case "0":
+                    case "e":
+                    case "exit":
+                        System.out.println("Exiting...");
+                        return;
+
+                    default:
+                        System.out.println("Invalid command.");
                 }
+            } catch (NoSuchElementException e) {
+                System.out.println();
+                System.out.println("Exiting...");
+                return;
             }
         }
     }
