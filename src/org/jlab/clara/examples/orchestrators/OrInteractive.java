@@ -24,6 +24,7 @@ package org.jlab.clara.examples.orchestrators;
 import static java.util.Arrays.asList;
 
 import org.jlab.clara.base.BaseOrchestrator;
+import org.jlab.clara.base.ClaraLang;
 import org.jlab.clara.base.ContainerName;
 import org.jlab.clara.base.ServiceName;
 import org.jlab.clara.base.error.ClaraException;
@@ -32,6 +33,7 @@ import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.util.ClaraUtil;
 import org.jlab.clara.util.xml.XMLContainer;
 import org.jlab.clara.util.xml.XMLTagValue;
+import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.excp.xMsgException;
 import org.w3c.dom.Document;
 
@@ -41,6 +43,7 @@ import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 
 import java.io.PrintStream;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
@@ -53,6 +56,9 @@ import java.util.Scanner;
  * @since 10/9/15
  */
 public class OrInteractive extends BaseOrchestrator {
+
+    private final String defaultHost;
+    private final String defaultContainer;
 
     public static void main(String[] args) {
         try {
@@ -84,43 +90,17 @@ public class OrInteractive extends BaseOrchestrator {
 
     public OrInteractive() throws Exception {
         super();
+        defaultHost = xMsgUtil.localhost();
+        defaultContainer = System.getenv("USER");
     }
 
     public void read(String appFile, boolean bluster) throws Exception {
         // read xml file and get deployment details
         Document doc = ClaraUtil.getXMLDocument(appFile);
 
-        String[] serviceTags = { "dpe", "container", "engine", "pool" };
-        List<XMLContainer> services = ClaraUtil.parseXML(doc, "service", serviceTags);
-
-        for (XMLContainer s : services) {
-            String dpe = null, container = null, engine = null;
-            int pool = 1;
-
-            for (XMLTagValue t : s.getContainer()) {
-                if (t.getTag().equals("dpe"))
-                    dpe = t.getValue();
-                if (t.getTag().equals("container"))
-                    container = t.getValue();
-                if (t.getTag().equals("engine"))
-                    engine = t.getValue();
-                if (t.getTag().equals("pool"))
-                    pool = Integer.parseInt(t.getValue());
-            }
-            if (dpe != null && container != null && engine != null) {
-
-                // ask if container exists
-                // start a container
-                ContainerName cont = new ContainerName(container);
-                deploy(cont).withPoolsize(pool).withDescription("test container").run();
-
-                ClaraUtil.sleep(1000);
-
-                // start a service
-                ServiceName serv = new ServiceName(cont, engine);
-                deploy(serv, engine).withPoolsize(pool).run();
-                ClaraUtil.sleep(1000);
-            }
+        for (ServiceInfo s : parseServices(doc)) {
+            deployContainer(s.container);
+            deployService(s);
         }
 
         String[] applicationTags = { "composition", "data" };
@@ -226,6 +206,48 @@ public class OrInteractive extends BaseOrchestrator {
         }
     }
 
+    private List<ServiceInfo> parseServices(Document doc) {
+        List<ServiceInfo> services = new ArrayList<>();
+        String[] serviceTags = { "dpe", "container", "engine", "pool" };
+        List<XMLContainer> nodes = ClaraUtil.parseXML(doc, "service", serviceTags);
+
+        for (XMLContainer s : nodes) {
+
+            String dpe = defaultHost;
+            String container = defaultContainer;
+            String engine = null;
+            int pool = 1;
+
+            for (XMLTagValue t : s.getContainer()) {
+                if (t.getTag().equals("dpe")) {
+                    dpe = t.getValue();
+                } else if (t.getTag().equals("container")) {
+                    container = t.getValue();
+                } else if (t.getTag().equals("engine")) {
+                    engine = t.getValue();
+                } else if (t.getTag().equals("pool")) {
+                    pool = Integer.parseInt(t.getValue());
+                }
+            }
+
+            services.add(new ServiceInfo(dpe, container, engine, pool));
+        }
+
+        return services;
+    }
+
+    private void deployContainer(ContainerName container) throws ClaraException {
+        System.out.println("Deploying " + container.canonicalName() + "...");
+        deploy(container).run();
+        ClaraUtil.sleep(1000);
+    }
+
+    private void deployService(ServiceInfo service) throws ClaraException {
+        System.out.println("Deploying " + service.name.canonicalName() + "...");
+        deploy(service.name, service.classPath).withPoolsize(service.poolSize).run();
+        ClaraUtil.sleep(1000);
+    }
+
     private static void usage(PrintStream out) {
         out.printf("usage: jx_orchestrator [options]%n%n  Options:%n");
         out.printf("  %-22s  %s%n", "-f <file>", "the application description file");
@@ -251,5 +273,22 @@ public class OrInteractive extends BaseOrchestrator {
         System.out.println("|          |                              | of all containers    |");
         System.out.println("|          |                              | in the DPE.          |");
         System.out.println("|----------|------------------------------|----------------------|");
+    }
+
+
+    private static final class ServiceInfo {
+
+        private final ContainerName container;
+        private final ServiceName name;
+        private final String classPath;
+        private final int poolSize;
+
+        public ServiceInfo(String dpe, String container, String engine, int poolSize) {
+            String engineName = engine.substring(engine.lastIndexOf(".") + 1);
+            this.container = new ContainerName(dpe, ClaraLang.JAVA, container);
+            this.name = new ServiceName(this.container, engineName);
+            this.classPath = engine;
+            this.poolSize = poolSize;
+        }
     }
 }
