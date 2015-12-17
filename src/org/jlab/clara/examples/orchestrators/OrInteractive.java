@@ -21,6 +21,8 @@
 
 package org.jlab.clara.examples.orchestrators;
 
+import static java.util.Arrays.asList;
+
 import org.jlab.clara.base.BaseOrchestrator;
 import org.jlab.clara.base.ContainerName;
 import org.jlab.clara.base.ServiceName;
@@ -33,6 +35,12 @@ import org.jlab.clara.util.xml.XMLTagValue;
 import org.jlab.coda.xmsg.excp.xMsgException;
 import org.w3c.dom.Document;
 
+import joptsimple.OptionException;
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
+import joptsimple.OptionSpec;
+
+import java.io.PrintStream;
 import java.util.List;
 import java.util.Scanner;
 
@@ -48,12 +56,26 @@ public class OrInteractive extends BaseOrchestrator {
 
     public static void main(String[] args) {
         try {
+            OptionParser parser = new OptionParser();
+            OptionSpec<String> fileSpec = parser.accepts("f").withRequiredArg();
+            parser.accepts("b");
+            parser.acceptsAll(asList("h", "help")).forHelp();
+            OptionSet options = parser.parse(args);
+
+            if (options.has("help")) {
+                usage(System.out);
+                System.exit(0);
+            }
+
             OrInteractive or = new OrInteractive();
-            if (args.length > 0 && args[0].equalsIgnoreCase("-f")) {
-                or.read(args);
+            if (options.has(fileSpec)) {
+                or.read(options.valueOf(fileSpec), options.has("b"));
             } else {
                 or.interactive();
             }
+        } catch (OptionException e) {
+            System.err.println(e.getMessage());
+            System.exit(1);
         } catch (Exception e) {
             e.printStackTrace();
             System.exit(1);
@@ -64,9 +86,9 @@ public class OrInteractive extends BaseOrchestrator {
         super();
     }
 
-    public void read(String[] args) throws Exception {
+    public void read(String appFile, boolean bluster) throws Exception {
         // read xml file and get deployment details
-        Document doc = ClaraUtil.getXMLDocument(args[1]);
+        Document doc = ClaraUtil.getXMLDocument(appFile);
 
         String[] serviceTags = { "dpe", "container", "engine", "pool" };
         List<XMLContainer> services = ClaraUtil.parseXML(doc, "service", serviceTags);
@@ -137,7 +159,7 @@ public class OrInteractive extends BaseOrchestrator {
                 execute(serv).withData(ed).run();
 
                 // check to see if we need to perform bluster test
-                if (args.length == 3 && args[2].equals("-b")) {
+                if (bluster) {
                     while (true) {
                         // send the data to the service
                         execute(serv).withData(ed).run();
@@ -204,6 +226,11 @@ public class OrInteractive extends BaseOrchestrator {
         }
     }
 
+    private static void usage(PrintStream out) {
+        out.printf("usage: jx_orchestrator [options]%n%n  Options:%n");
+        out.printf("  %-22s  %s%n", "-f <file>", "the application description file");
+        out.printf("  %-22s  %s%n", "-b", "run a bluster test");
+    }
 
     private void printHelp() {
         System.out.println("|----------|------------------------------|----------------------|");
