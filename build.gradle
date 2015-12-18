@@ -75,12 +75,6 @@ artifacts {
 
 
 
-task(startProxy, dependsOn: 'classes', type: JavaExec) {
-    main = 'org.jlab.coda.xmsg.xsys.xMsgProxy'
-    classpath = sourceSets.main.runtimeClasspath
-}
-
-
 task(startDpe, dependsOn: 'classes', type: JavaExec) {
     main = 'org.jlab.clara.sys.Dpe'
     classpath = sourceSets.main.runtimeClasspath
