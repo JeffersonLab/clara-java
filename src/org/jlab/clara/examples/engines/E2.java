@@ -24,6 +24,7 @@ package org.jlab.clara.examples.engines;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.Engine;
 import org.jlab.clara.engine.EngineDataType;
+import org.jlab.clara.util.ClaraUtil;
 
 import java.util.Set;
 
@@ -61,27 +62,27 @@ public class E2 implements Engine {
 
     @Override
     public Set<EngineDataType> getInputDataTypes() {
-        return null;
+        return ClaraUtil.buildDataTypes(EngineDataType.STRING);
     }
 
     @Override
     public Set<EngineDataType> getOutputDataTypes() {
-        return null;
+        return ClaraUtil.buildDataTypes(EngineDataType.STRING);
     }
 
     @Override
     public String getDescription() {
-        return null;
+        return "Sample service E2";
     }
 
     @Override
     public String getVersion() {
-        return null;
+        return "1.0";
     }
 
     @Override
     public String getAuthor() {
-        return null;
+        return "Vardan Gyurgyan";
     }
 
     @Override
