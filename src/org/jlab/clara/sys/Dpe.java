@@ -120,8 +120,6 @@ public class Dpe extends ClaraBase {
         // Subscribe by passing a callback to the subscription
         subscriptionHandler = listen(topic, new DpeCallBack());
 
-        printLogo();
-
         myReport = new DpeReport(getMe().getCanonicalName());
         myReport.setHost(getMe().getDpeHost());
         myReport.setLang(getMe().getDpeLang());
@@ -135,6 +133,8 @@ public class Dpe extends ClaraBase {
         reportWait = reportInterval * 1000;
 
         startHeartBeatReport();
+
+        printLogo();
     }
 
     public static void main(String[] args) {
@@ -213,13 +213,19 @@ public class Dpe extends ClaraBase {
         System.out.println("=========================================");
         System.out.println(" Name             = " + getMe().getCanonicalName());
         System.out.println(" Date             = " + ClaraUtil.getCurrentTimeInH());
-        System.out.println(" Version          = 4.x");
-        System.out.println(" Description      = " + getMe().getDescription());
-        if (getFrontEnd() != null) {
-            System.out.println(" FrontEnd Host    = " + getFrontEnd().getDpeHost());
-            System.out.println(" FrontEnd Port    = " + getFrontEnd().getDpePort());
-            System.out.println(" FrontEnd Lang    = " + getFrontEnd().getDpeLang());
+        System.out.println(" Version          = 4.3");
+        System.out.println(" Lang             = Java");
+        System.out.println(" Pool size        = " + getPoolSize());
+        if (!getMe().getDescription().isEmpty()) {
+            System.out.println(" Description      = " + getMe().getDescription());
         }
+        System.out.println();
+        System.out.println(" Proxy Host       = " + getDefaultProxyAddress().host());
+        System.out.println(" Proxy Port       = " + getDefaultProxyAddress().port());
+        System.out.println();
+        System.out.println(" FrontEnd Host    = " + getFrontEnd().getDpeHost());
+        System.out.println(" FrontEnd Port    = " + getFrontEnd().getDpePort());
+        System.out.println(" FrontEnd Lang    = " + getFrontEnd().getDpeLang());
         System.out.println("=========================================");
     }
 
