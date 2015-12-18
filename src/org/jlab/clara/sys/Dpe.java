@@ -286,7 +286,7 @@ public class Dpe extends ClaraBase {
         ClaraComponent contComp = ClaraComponent.container(getMe().getDpeHost(),
                 getMe().getDpePort(), CConstants.JAVA_LANG, containerName, poolSize, description);
 
-        if (myContainers.containsKey(contComp.getCanonicalName())) {
+        if (myContainers.containsKey(containerName)) {
             String msg = "%s Warning: container %s already exists. No new container is created%n";
             System.err.printf(msg, ClaraUtil.getCurrentTimeInH(), contComp.getCanonicalName());
             return;
