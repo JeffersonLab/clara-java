@@ -83,20 +83,20 @@ task(startProxy, dependsOn: 'classes', type: JavaExec) {
 
 task(startDpe, dependsOn: 'classes', type: JavaExec) {
     main = 'org.jlab.clara.sys.Dpe'
+    classpath = sourceSets.main.runtimeClasspath
     if ( project.hasProperty("dpeArgs") ) {
         args Eval.me(dpeArgs)
     }
-    classpath = sourceSets.main.runtimeClasspath
 }
 
 
 task(orInteractive, dependsOn: 'classes', type: JavaExec) {
     main = 'org.jlab.clara.examples.orchestrators.OrInteractive'
-    standardInput = System.in
+    classpath = sourceSets.main.runtimeClasspath
     if ( project.hasProperty("orArgs") ) {
         args Eval.me(orArgs)
     }
-    classpath = sourceSets.main.runtimeClasspath
+    standardInput = System.in
 }
 
 
