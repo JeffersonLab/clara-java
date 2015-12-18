@@ -42,6 +42,7 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -80,7 +81,7 @@ public class OrInteractive extends BaseOrchestrator {
             } else {
                 or.interactive();
             }
-        } catch (OptionException e) {
+        } catch (OptionException | UserInputException e) {
             System.err.println(e.getMessage());
             System.exit(1);
         } catch (Exception e) {
@@ -152,6 +153,8 @@ public class OrInteractive extends BaseOrchestrator {
                     default:
                         System.out.println("Invalid command.");
                 }
+            } catch (UserInputException e) {
+                System.out.println(e.getMessage());
             } catch (NoSuchElementException e) {
                 System.out.println();
                 System.out.println("Exiting...");
@@ -170,7 +173,7 @@ public class OrInteractive extends BaseOrchestrator {
             String dpe = defaultHost;
             String container = defaultContainer;
             String engine = null;
-            int pool = 1;
+            String pool = "1";
 
             for (XMLTagValue t : s.getContainer()) {
                 if (t.getTag().equals("dpe")) {
@@ -180,11 +183,24 @@ public class OrInteractive extends BaseOrchestrator {
                 } else if (t.getTag().equals("engine")) {
                     engine = t.getValue();
                 } else if (t.getTag().equals("pool")) {
-                    pool = Integer.parseInt(t.getValue());
+                    pool = t.getValue();
                 }
             }
 
-            services.add(new ServiceInfo(dpe, container, engine, pool));
+            if (dpe.isEmpty()) {
+                throw new UserInputException("Empty service tag 'dpe'");
+            }
+            if (container.isEmpty()) {
+                throw new UserInputException("Empty service tag 'container'");
+            }
+            if (engine == null) {
+                throw new UserInputException("Missing service tag 'engine'");
+            }
+            if (pool.isEmpty()) {
+                throw new UserInputException("Empty service tag 'pool'");
+            }
+
+            services.add(new ServiceInfo(dpe, container, engine, parsePoolSize(pool)));
         }
 
         return services;
@@ -197,23 +213,27 @@ public class OrInteractive extends BaseOrchestrator {
 
         for (XMLContainer a : application) {
             String comp = null;
-            String data = null;
+            String dataSize = null;
 
             for (XMLTagValue t : a.getContainer()) {
-
                 if (t.getTag().equals("composition")) {
                     comp = t.getValue();
                 } else if (t.getTag().equals("data")) {
-                    int bytes = Integer.parseInt(t.getValue());
-                    StringBuilder sb = new StringBuilder();
-                    for (int i = 0; i < bytes; i++) {
-                        sb.append('x');
-                    }
-                    data = sb.toString();
+                    dataSize = t.getValue();
                 }
             }
 
-            apps.add(new AppInfo(comp, data));
+            if (comp == null) {
+                throw new UserInputException("Missing application tag 'composition'");
+            }
+            if (dataSize == null) {
+                throw new UserInputException("Missing application tag 'data'");
+            }
+            if (dataSize.isEmpty()) {
+                throw new UserInputException("Empty application tag 'data'");
+            }
+
+            apps.add(new AppInfo(comp, buildData(dataSize)));
         }
 
         return apps;
@@ -222,29 +242,50 @@ public class OrInteractive extends BaseOrchestrator {
     private ContainerName askContainer(Scanner scanner) {
         System.out.printf(">> DPE host = ");
         String dpeHost = scanner.nextLine().trim();
+        if (dpeHost.isEmpty()) {
+            dpeHost = defaultHost;
+        }
         System.out.printf(">> Container name = ");
         String container = scanner.nextLine().trim();
-        return new ContainerName(dpeHost, ClaraLang.JAVA, container);
+        if (container.isEmpty()) {
+            container = defaultContainer;
+        }
+        return buildContainerName(dpeHost, container);
     }
 
     private ServiceInfo askService(Scanner scanner) {
         System.out.printf(">> DPE host = ");
         String dpeHost = scanner.nextLine().trim();
+        if (dpeHost.isEmpty()) {
+            dpeHost = defaultHost;
+        }
         System.out.printf(">> Container name = ");
         String container = scanner.nextLine().trim();
+        if (container.isEmpty()) {
+            container = defaultContainer;
+        }
         System.out.printf(">> Engine class name = ");
         String engine = scanner.nextLine().trim();
+        if (engine.isEmpty()) {
+            throw new UserInputException("Empty engine class path");
+        }
         System.out.printf(">> Service object pool size = ");
         String pSizeArg = scanner.nextLine().trim();
-        int pSize = Integer.parseInt(pSizeArg);
+        int pSize = pSizeArg.isEmpty() ? 1 : parsePoolSize(pSizeArg);
         return new ServiceInfo(dpeHost, container, engine, pSize);
     }
 
     private AppInfo askApp(Scanner scanner) {
         System.out.println(">> Composition (canonical) = ");
         String composition = scanner.nextLine().trim();
+        if (composition.isEmpty()) {
+            throw new UserInputException("Empty composition");
+        }
         System.out.println(">> Input data = ");
         String data = scanner.nextLine().trim();
+        if (data.isEmpty()) {
+            throw new UserInputException("Empty input data");
+        }
         return new AppInfo(composition, data);
     }
 
@@ -267,6 +308,9 @@ public class OrInteractive extends BaseOrchestrator {
     private void listContainers(Scanner scanner) throws Exception {
         System.out.println(">> DPE host");
         String dpeHost = scanner.nextLine().trim();
+        if (dpeHost.isEmpty()) {
+            dpeHost = defaultHost;
+        }
         for (String name : getContainerNames(dpeHost)) {
             System.out.println(name);
         }
@@ -300,6 +344,47 @@ public class OrInteractive extends BaseOrchestrator {
         System.out.println("|----------|------------------------------|----------------------|");
     }
 
+    private int parsePoolSize(String size) {
+        try {
+            return Integer.parseInt(size);
+        } catch (NumberFormatException e) {
+            throw new UserInputException("Cannot parse pool size from: " + size);
+        }
+    }
+
+    private static ContainerName buildContainerName(String dpeHost, String container) {
+        try {
+            return new ContainerName(xMsgUtil.toHostAddress(dpeHost), ClaraLang.JAVA, container);
+        } catch (IOException e) {
+            throw new UserInputException(e);
+        }
+    }
+
+    private static String buildData(String dataSize) {
+        try {
+            int bytes = Integer.parseInt(dataSize);
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < bytes; i++) {
+                sb.append('x');
+            }
+            return sb.toString();
+        } catch (NumberFormatException e) {
+            throw new UserInputException("Cannot parse data size from: " + dataSize);
+        }
+    }
+
+
+    private static class UserInputException extends RuntimeException {
+
+        public UserInputException(String msg) {
+            super(msg);
+        }
+
+        public UserInputException(Throwable cause) {
+            super(cause);
+        }
+    }
+
 
     private static final class ServiceInfo {
 
@@ -309,10 +394,19 @@ public class OrInteractive extends BaseOrchestrator {
         private final int poolSize;
 
         public ServiceInfo(String dpe, String container, String engine, int poolSize) {
-            String engineName = engine.substring(engine.lastIndexOf(".") + 1);
-            this.container = new ContainerName(dpe, ClaraLang.JAVA, container);
+            this.container = buildContainerName(dpe, container);
+
+            int idx = engine.lastIndexOf(".");
+            if (idx < 0) {
+                throw new UserInputException("Invalid class path: " + engine);
+            }
+            String engineName = engine.substring(idx + 1);
             this.name = new ServiceName(this.container, engineName);
             this.classPath = engine;
+
+            if (poolSize < 0) {
+                throw new UserInputException("Invalid poolsize: " + poolSize);
+            }
             this.poolSize = poolSize;
         }
     }
