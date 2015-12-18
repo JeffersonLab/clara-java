@@ -123,49 +123,19 @@ public class OrInteractive extends BaseOrchestrator {
 
                 switch (cmd) {
                     case "1":
-                        System.out.println("DPE host ip = ");
-                        System.out.println("Container name = ");
-                        String container = scanner.nextLine().trim();
-                        ContainerName cont = new ContainerName(container);
-                        deploy(cont).withPoolsize(3).withDescription("test container").run();
+                        deployContainer(askContainer(scanner));
                         break;
 
                     case "2":
-                        System.out.println("Container canonical name = ");
-                        String canCon = scanner.nextLine().trim();
-                        System.out.println("Engine class name = ");
-                        String engine = scanner.nextLine().trim();
-                        System.out.println("Service object pool size = ");
-                        int pSize = scanner.nextInt();
-                        ServiceName serv = new ServiceName(new ContainerName(canCon), engine);
-                        deploy(serv, engine).withPoolsize(pSize).run();
+                        deployService(askService(scanner));
                         break;
 
                     case "3":
-                        System.out.println("Composition (canonical) = ");
-                        String composition = scanner.nextLine().trim();
-                        System.out.println("Input data = ");
-                        String inData = scanner.nextLine().trim();
-
-                        // get canonical composition
-
-                        // find the first service in the composition
-                        String firstService = ClaraUtil.getFirstService(composition);
-                        // create a transient data
-                        EngineData ed = new EngineData();
-                        ed.setData(inData, EngineDataType.STRING.mimeType());
-
-                        // send the data to the service
-                        execute(new ServiceName(firstService)).withData(ed).run();
-
+                        runApp(askApp(scanner));
                         break;
 
                     case "4":
-                        System.out.println("DPE name");
-                        String dpe_name = scanner.nextLine().trim();
-                        for (String name : getContainerNames(dpe_name)) {
-                            System.out.println(name);
-                        }
+                        listContainers(scanner);
                         break;
 
                     case "h":
@@ -249,6 +219,35 @@ public class OrInteractive extends BaseOrchestrator {
         return apps;
     }
 
+    private ContainerName askContainer(Scanner scanner) {
+        System.out.printf(">> DPE host = ");
+        String dpeHost = scanner.nextLine().trim();
+        System.out.printf(">> Container name = ");
+        String container = scanner.nextLine().trim();
+        return new ContainerName(dpeHost, ClaraLang.JAVA, container);
+    }
+
+    private ServiceInfo askService(Scanner scanner) {
+        System.out.printf(">> DPE host = ");
+        String dpeHost = scanner.nextLine().trim();
+        System.out.printf(">> Container name = ");
+        String container = scanner.nextLine().trim();
+        System.out.printf(">> Engine class name = ");
+        String engine = scanner.nextLine().trim();
+        System.out.printf(">> Service object pool size = ");
+        String pSizeArg = scanner.nextLine().trim();
+        int pSize = Integer.parseInt(pSizeArg);
+        return new ServiceInfo(dpeHost, container, engine, pSize);
+    }
+
+    private AppInfo askApp(Scanner scanner) {
+        System.out.println(">> Composition (canonical) = ");
+        String composition = scanner.nextLine().trim();
+        System.out.println(">> Input data = ");
+        String data = scanner.nextLine().trim();
+        return new AppInfo(composition, data);
+    }
+
     private void deployContainer(ContainerName container) throws ClaraException {
         System.out.println("Deploying " + container.canonicalName() + "...");
         deploy(container).run();
@@ -265,6 +264,14 @@ public class OrInteractive extends BaseOrchestrator {
         execute(app.composition).withData(app.data).run();
     }
 
+    private void listContainers(Scanner scanner) throws Exception {
+        System.out.println(">> DPE host");
+        String dpeHost = scanner.nextLine().trim();
+        for (String name : getContainerNames(dpeHost)) {
+            System.out.println(name);
+        }
+    }
+
     private static void usage(PrintStream out) {
         out.printf("usage: jx_orchestrator [options]%n%n  Options:%n");
         out.printf("  %-22s  %s%n", "-f <file>", "the application description file");
@@ -273,20 +280,21 @@ public class OrInteractive extends BaseOrchestrator {
 
     private void printHelp() {
         System.out.println("|----------|------------------------------|----------------------|");
-        System.out.println("| ShortCut |          Parameters          |   Description        |");
+        System.out.println("| ShortCut |          Parameters          |     Description      |");
         System.out.println("|----------|------------------------------|----------------------|");
-        System.out.println("|    1     |  . DPE canonical name        |   Start a container  |");
-        System.out.println("|          |  . Container given name      |   on a DPE           |");
+        System.out.println("|    1     |  * DPE canonical name        | Start a container    |");
+        System.out.println("|          |  * Container given name      |                      |");
         System.out.println("|----------|------------------------------|----------------------|");
-        System.out.println("|    2     |  . Container canonical name  |   Start a service    |");
-        System.out.println("|          |  . Engine class name         |   on a container     |");
-        System.out.println("|          |  . Service object pool size  |                      |");
+        System.out.println("|    2     |  * DPE canonical name        | Start a service      |");
+        System.out.println("|          |  * Container name            |                      |");
+        System.out.println("|          |  * Engine class name         |                      |");
+        System.out.println("|          |  * Service object pool size  |                      |");
         System.out.println("|----------|------------------------------|----------------------|");
-        System.out.println("|    3     |  . Application composition   | Start application    |");
-        System.out.println("|          |  . Input data = String       | (with engine names)  |");
-        System.out.println("|          |                              | on a local DPE       |");
+        System.out.println("|    3     |  * Application composition   | Start application    |");
+        System.out.println("|          |  * Input data = String       |                      |");
+        System.out.println("|          |                              |                      |");
         System.out.println("|----------|------------------------------|----------------------|");
-        System.out.println("|    4     |  . DPE name                  | Prints the names     |");
+        System.out.println("|    4     |  * DPE name                  | Prints the names     |");
         System.out.println("|          |                              | of all containers    |");
         System.out.println("|          |                              | in the DPE.          |");
         System.out.println("|----------|------------------------------|----------------------|");
