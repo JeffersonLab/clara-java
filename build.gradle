@@ -81,6 +81,7 @@ task(startDpe, dependsOn: 'classes', type: JavaExec) {
     if ( project.hasProperty("dpeArgs") ) {
         args Eval.me(dpeArgs)
     }
+    errorOutput = System.out
 }
 
 
@@ -91,6 +92,7 @@ task(orInteractive, dependsOn: 'classes', type: JavaExec) {
         args Eval.me(orArgs)
     }
     standardInput = System.in
+    errorOutput = System.out
 }
 
 
