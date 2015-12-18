@@ -33,8 +33,10 @@ import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 import org.jlab.coda.xmsg.data.xMsgR.xMsgRegistration;
 import org.jlab.coda.xmsg.excp.xMsgException;
 import org.jlab.coda.xmsg.net.xMsgConnection;
+import org.jlab.coda.xmsg.net.xMsgConnectionSetup;
 import org.jlab.coda.xmsg.net.xMsgProxyAddress;
 import org.jlab.coda.xmsg.net.xMsgRegAddress;
+import org.zeromq.ZMQ.Socket;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -77,6 +79,19 @@ public abstract class ClaraBase extends xMsg {
         super(me.getCanonicalName(), new xMsgProxyAddress(me.getDpeHost(), me.getDpePort()),
                 new xMsgRegAddress(defaultRegistrarHost, defaultRegistrarPort),
                 me.getSubscriptionPoolSize());
+        setConnectionSetup(new xMsgConnectionSetup() {
+
+            @Override
+            public void preConnection(Socket socket) {
+                socket.setRcvHWM(0);
+                socket.setSndHWM(0);
+            }
+
+            @Override
+            public void postConnection() {
+                xMsgUtil.sleep(100);
+            }
+        });
         dataAccessor = EngineDataAccessor.getDefault();
         this.me = me;
         claraHome = System.getenv("CLARA_HOME");
