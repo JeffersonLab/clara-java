@@ -292,7 +292,6 @@ public class Dpe extends ClaraBase {
             return;
         }
 
-        System.out.println("Starting container " + contComp.getCanonicalName());
         try {
             Container container = new Container(contComp,
                     getDefaultRegistrarAddress().host(),
