@@ -325,7 +325,7 @@ public class Dpe extends ClaraBase {
             try {
                 myContainers.get(containerName).addService(serComp,
                                                            getDefaultRegistrarAddress().host(),
-                                                           getDefaultProxyAddress().port());
+                                                           getDefaultRegistrarAddress().port());
             } catch (xMsgException | IOException e) {
                 throw new ClaraException("Could not start service " + serComp, e);
             }
