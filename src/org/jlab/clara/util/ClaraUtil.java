@@ -394,9 +394,12 @@ public final class ClaraUtil {
                 XMLContainer container = new XMLContainer();
                 Element eElement = (Element) nNode;
                 for (String tag : tags) {
-                    String value = eElement.getElementsByTagName(tag).item(0).getTextContent();
-                    XMLTagValue tv = new XMLTagValue(tag, value);
-                    container.addTagValue(tv);
+                    NodeList tElements = eElement.getElementsByTagName(tag);
+                    if (tElements.getLength() > 0) {
+                        String value = eElement.getElementsByTagName(tag).item(0).getTextContent();
+                        XMLTagValue tv = new XMLTagValue(tag, value);
+                        container.addTagValue(tv);
+                    }
                 }
                 result.add(container);
             }
