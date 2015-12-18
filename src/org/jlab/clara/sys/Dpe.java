@@ -116,11 +116,9 @@ public class Dpe extends ClaraBase {
 
         // Register this subscriber
         register(frontEndAddress.host(), description);
-        System.out.println(ClaraUtil.getCurrentTimeInH() + ": Registered DPE = " + getMe().getCanonicalName());
 
         // Subscribe by passing a callback to the subscription
         subscriptionHandler = listen(topic, new DpeCallBack());
-        System.out.println(ClaraUtil.getCurrentTimeInH() + ": Started DPE = " + getMe().getCanonicalName());
 
         printLogo();
 
