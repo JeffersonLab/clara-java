@@ -25,6 +25,7 @@ import static java.util.Arrays.asList;
 
 import org.jlab.clara.base.BaseOrchestrator;
 import org.jlab.clara.base.ClaraLang;
+import org.jlab.clara.base.Composition;
 import org.jlab.clara.base.ContainerName;
 import org.jlab.clara.base.ServiceName;
 import org.jlab.clara.base.error.ClaraException;
@@ -103,47 +104,11 @@ public class OrInteractive extends BaseOrchestrator {
             deployService(s);
         }
 
-        String[] applicationTags = { "composition", "data" };
-        List<XMLContainer> application = ClaraUtil.parseXML(doc, "application",
-                applicationTags);
-
-        for (XMLContainer a : application) {
-            String comp = null, inData = null;
-            int bytes;
-
-            for (XMLTagValue t : a.getContainer()) {
-
-                if (t.getTag().equals("composition"))
-                    comp = t.getValue();
-                if (t.getTag().equals("data")) {
-                    bytes = Integer.parseInt(t.getValue());
-                    StringBuilder sb = new StringBuilder();
-                    for (int i = 0; i < bytes; i++) {
-                        sb.append('x');
-                    }
-                    inData = sb.toString();
-                }
-            }
-            if (comp != null && inData != null) {
-                // get canonical composition
-
-                // find the first service in the composition
-                String firstService = ClaraUtil.getFirstService(comp);
-
-                // create a transient data
-                EngineData ed = new EngineData();
-                ed.setData(inData, EngineDataType.STRING.mimeType());
-
-                // send the data to the service
-                ServiceName serv = new ServiceName(firstService);
-                execute(serv).withData(ed).run();
-
-                // check to see if we need to perform bluster test
-                if (bluster) {
-                    while (true) {
-                        // send the data to the service
-                        execute(serv).withData(ed).run();
-                    }
+        for (AppInfo a : parseApplications(doc)) {
+            runApp(a);
+            if (bluster) {
+                while (true) {
+                    runApp(a);
                 }
             }
         }
@@ -236,6 +201,35 @@ public class OrInteractive extends BaseOrchestrator {
         return services;
     }
 
+    private List<AppInfo> parseApplications(Document doc) {
+        List<AppInfo> apps = new ArrayList<>();
+        String[] applicationTags = { "composition", "data" };
+        List<XMLContainer> application = ClaraUtil.parseXML(doc, "application", applicationTags);
+
+        for (XMLContainer a : application) {
+            String comp = null;
+            String data = null;
+
+            for (XMLTagValue t : a.getContainer()) {
+
+                if (t.getTag().equals("composition")) {
+                    comp = t.getValue();
+                } else if (t.getTag().equals("data")) {
+                    int bytes = Integer.parseInt(t.getValue());
+                    StringBuilder sb = new StringBuilder();
+                    for (int i = 0; i < bytes; i++) {
+                        sb.append('x');
+                    }
+                    data = sb.toString();
+                }
+            }
+
+            apps.add(new AppInfo(comp, data));
+        }
+
+        return apps;
+    }
+
     private void deployContainer(ContainerName container) throws ClaraException {
         System.out.println("Deploying " + container.canonicalName() + "...");
         deploy(container).run();
@@ -246,6 +240,10 @@ public class OrInteractive extends BaseOrchestrator {
         System.out.println("Deploying " + service.name.canonicalName() + "...");
         deploy(service.name, service.classPath).withPoolsize(service.poolSize).run();
         ClaraUtil.sleep(1000);
+    }
+
+    private void runApp(AppInfo app) throws ClaraException {
+        execute(app.composition).withData(app.data).run();
     }
 
     private static void usage(PrintStream out) {
@@ -289,6 +287,19 @@ public class OrInteractive extends BaseOrchestrator {
             this.name = new ServiceName(this.container, engineName);
             this.classPath = engine;
             this.poolSize = poolSize;
+        }
+    }
+
+
+    private static final class AppInfo {
+
+        private final Composition composition;
+        private final EngineData data;
+
+        public AppInfo(String composition, String data) {
+            this.composition = new Composition(composition);
+            this.data = new EngineData();
+            this.data.setData(data, EngineDataType.STRING.mimeType());
         }
     }
 }
