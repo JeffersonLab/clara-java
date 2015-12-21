@@ -27,6 +27,7 @@ import org.jlab.coda.xmsg.core.xMsgConstants;
 
 public class ContainerName implements ClaraName {
 
+    private final DpeName dpe;
     private final String canonicalName;
     private final String name;
 
@@ -48,6 +49,7 @@ public class ContainerName implements ClaraName {
      * @param name the name of the container
      */
     public ContainerName(DpeName dpe, String name) {
+        this.dpe = dpe;
         this.canonicalName = new StringBuilder().append(dpe.canonicalName())
                                                 .append(xMsgConstants.TOPIC_SEP)
                                                 .append(name).toString();
@@ -64,6 +66,7 @@ public class ContainerName implements ClaraName {
             throw new IllegalArgumentException("Invalid container name: " + canonicalName);
         }
         try {
+            this.dpe = new DpeName(ClaraUtil.getDpeName(canonicalName));
             this.name = ClaraUtil.getContainerName(canonicalName);
             this.canonicalName = canonicalName;
         } catch (ClaraException e) {
@@ -80,5 +83,50 @@ public class ContainerName implements ClaraName {
     @Override
     public String name() {
         return name;
+    }
+
+    @Override
+    public ClaraAddress address() {
+        return dpe.address();
+    }
+
+    @Override
+    public ClaraLang language() {
+        return dpe.language();
+    }
+
+    public DpeName dpe() {
+        return dpe;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + canonicalName.hashCode();
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        ContainerName other = (ContainerName) obj;
+        if (!canonicalName.equals(other.canonicalName)) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return canonicalName;
     }
 }

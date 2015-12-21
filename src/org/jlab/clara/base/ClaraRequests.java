@@ -240,7 +240,7 @@ public final class ClaraRequests {
         @Override
         protected String getData() {
             return ClaraUtil.buildData(CConstants.START_SERVICE,
-                                       getContainerName(service),
+                                       service.container().name(),
                                        service.name(),
                                        classPath,
                                        poolSize,
@@ -278,8 +278,8 @@ public final class ClaraRequests {
          */
         ExitRequest(ClaraBase base, ClaraComponent frontEnd, ServiceName service) {
             super(base, frontEnd, getDpeTopic(service));
-            String containerName = getContainerName(service);
-            data = ClaraUtil.buildData(CConstants.STOP_SERVICE, containerName, service.name());
+            data = ClaraUtil.buildData(CConstants.STOP_SERVICE,
+                                       service.container().name(), service.name());
         }
 
         @Override
@@ -562,14 +562,6 @@ public final class ClaraRequests {
 
     private static String getDpeTopic(ClaraName claraName) {
         return "dpe:" + getDpeComponent(claraName).getTopic();
-    }
-
-    private static String getContainerName(ServiceName service) {
-        try {
-            return ClaraUtil.getContainerName(service.canonicalName());
-        } catch (ClaraException e) {
-            throw new IllegalArgumentException("Invalid service name: " + service);
-        }
     }
 
     private static Composition getComposition(ServiceName service) {

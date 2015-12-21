@@ -21,29 +21,18 @@
 
 package org.jlab.clara.base;
 
+import org.jlab.coda.xmsg.net.xMsgProxyAddress;
+
 /**
- * Identifier of a Clara component.
+ * The address where a Clara component is listening messages.
  */
-public interface ClaraName {
+public class ClaraAddress extends xMsgProxyAddress {
 
-    /**
-     * Returns the canonical name of this Clara component.
-     */
-    String canonicalName();
+    ClaraAddress(String host) {
+        super(host);
+    }
 
-    /**
-     * Returns the specific name of this Clara component.
-     * This is the last part of the canonical name.
-     */
-    String name();
-
-    /**
-     * Returns the language of this Clara component.
-     */
-    ClaraLang language();
-
-    /**
-     * Returns the address of the proxy used by this Clara component.
-     */
-    ClaraAddress address();
+    ClaraAddress(String host, int port) {
+        super(host, port);
+    }
 }

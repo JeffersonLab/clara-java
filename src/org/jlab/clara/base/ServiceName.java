@@ -27,8 +27,9 @@ import org.jlab.coda.xmsg.core.xMsgConstants;
 
 public class ServiceName implements ClaraName {
 
-    private final String name;
+    private final ContainerName container;
     private final String engine;
+    private final String canonicalName;
 
     /**
      * Identify a service with its container and engine name.
@@ -37,8 +38,9 @@ public class ServiceName implements ClaraName {
      * @param engine the name of the service engine
      */
     public ServiceName(ContainerName container, String engine) {
+        this.container = container;
         this.engine = engine;
-        this.name = container.canonicalName() + xMsgConstants.TOPIC_SEP + engine;
+        this.canonicalName = container.canonicalName() + xMsgConstants.TOPIC_SEP + engine;
     }
 
     /**
@@ -74,21 +76,70 @@ public class ServiceName implements ClaraName {
             throw new IllegalArgumentException("Invalid service name: " + canonicalName);
         }
         try {
-            this.name = canonicalName;
+            this.container = new ContainerName(ClaraUtil.getContainerCanonicalName(canonicalName));
+            this.canonicalName = canonicalName;
             this.engine = ClaraUtil.getEngineName(canonicalName);
         } catch (ClaraException e) {
-            // TODO Auto-generated catch block
             throw new IllegalArgumentException("Invalid service name: " + canonicalName);
         }
     }
 
     @Override
     public String canonicalName() {
-        return name;
+        return canonicalName;
     }
 
     @Override
     public String name() {
         return engine;
+    }
+
+    @Override
+    public ClaraAddress address() {
+        return container.address();
+    }
+
+    @Override
+    public ClaraLang language() {
+        return container.language();
+    }
+
+    public DpeName dpe() {
+        return container.dpe();
+    }
+
+    public ContainerName container() {
+        return container;
+    }
+
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + canonicalName.hashCode();
+        return result;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (obj == null) {
+            return false;
+        }
+        if (getClass() != obj.getClass()) {
+            return false;
+        }
+        ServiceName other = (ServiceName) obj;
+        if (!canonicalName.equals(other.canonicalName)) {
+            return false;
+        }
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return canonicalName;
     }
 }
