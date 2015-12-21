@@ -20,86 +20,94 @@
  */
 package org.jlab.clara.util.report;
 
+import org.json.simple.JSONObject;
+import org.json.simple.JSONArray;
 /**
  * @author gurjyan
  * @version 4.x
  */
 public class JsonReportBuilder implements ExternalReport {
-    @Override
-    public String generateReport(DpeReport dpeData) {
-        StringBuilder sb = new StringBuilder();
 
+	@SuppressWarnings("unchecked")
+	@Override
+	public String generateReport(DpeReport dpeData) {
+		JSONObject dpeRuntime = new JSONObject();
+		dpeRuntime.put("hostname", dpeData.getHost());
+		dpeRuntime.put("snapshot_time", dpeData.getSnapshotTime());
+		dpeRuntime.put("cpu_usage", dpeData.getCpuUsage());
+		dpeRuntime.put("memory_usage", dpeData.getMemoryUsage());
+		dpeRuntime.put("load", dpeData.getLoad());
 
-        sb.append(" {");
-        sb.append(" \"DPERuntime\": {");
-        sb.append(" \"hostname\": \"" + dpeData.getHost() + "\",");
-        sb.append(" \"snapshot_time\": \"" + dpeData.getSnapshotTime() + "\",");
-        sb.append(" \"cpu_usage\": " + dpeData.getCpuUsage() + ",");
-        sb.append(" \"memory_usage\": " + dpeData.getMemoryUsage() + ",");
-        sb.append(" \"load\": " + dpeData.getLoad() + ",");
-        sb.append(" \"containers\": [");
+		JSONArray containersRuntimeArray = new JSONArray();
+		for (ContainerReport cr : dpeData.getContainers().values()) {
+			JSONObject containerRuntime = new JSONObject();
+			containerRuntime.put("name", cr.getName());
+			containerRuntime.put("snapshot_time", cr.getSnapshotTime());
+			containerRuntime.put("n_requests", cr.getRequestCount());
 
-        for (ContainerReport cr : dpeData.getContainers().values()) {
-            sb.append(" {");
-            sb.append(" \"ContainerRuntime\": {");
-            sb.append(" \"name\": \"" + cr.getName() + "\",");
-            sb.append(" \"snapshot_time\": \"" + cr.getSnapshotTime() + "\",");
-            sb.append(" \"n_requests\": " + cr.getRequestCount() + ",");
-            sb.append(" \"services\": [");
-            for (ServiceReport sr : cr.getServices().values()) {
-                sb.append(" {");
-                sb.append(" \"ServiceRuntime\": {");
-                sb.append(" \"name\": \"" + sr.getName() + "\",");
-                sb.append(" \"snapshot_time\": \"" + sr.getSnapshotTime() + "\",");
-                sb.append(" \"n_requests\": " + sr.getRequestCount() + ",");
-                sb.append(" \"n_failures\": " + sr.getFailureCount() + ",");
-                sb.append(" \"shm_reads\": " + sr.getShrmReads() + ",");
-                sb.append(" \"shm_writes\": " + sr.getShrmWrites() + ",");
-                sb.append(" \"bytes_recv\": " + sr.getBytesReceived() + ",");
-                sb.append(" \"bytes_sent\": " + sr.getBytesSent() + ",");
-                sb.append(" \"exec_time\": " + sr.getExecutionTime() + "");
-                sb.append(" }");
-                sb.append(" },");
-            }
-            sb.append("  ],");
+			JSONArray servicesRuntimeArray = new JSONArray();
+			for (ServiceReport sr : cr.getServices().values()) {
+				JSONObject serviceRuntime = new JSONObject();
+				serviceRuntime.put("name", sr.getName());
+				serviceRuntime.put("snapshot_time", sr.getSnapshotTime());
+				serviceRuntime.put("n_requests", sr.getRequestCount());
+				serviceRuntime.put("n_failures", sr.getFailureCount());
+				serviceRuntime.put("shm_reads", sr.getShrmReads());
+				serviceRuntime.put("shm_writes", sr.getShrmWrites());
+				serviceRuntime.put("bytes_recv", sr.getBytesReceived());
+				serviceRuntime.put("bytes_sent", sr.getBytesSent());
+				serviceRuntime.put("exec_time", sr.getExecutionTime());
+
+				servicesRuntimeArray.add(serviceRuntime);
+			}
+
+			containerRuntime.put("services", servicesRuntimeArray);
+			containersRuntimeArray.add(containerRuntime);
+
         }
-        sb.append(" ]");
-        sb.append(" },");
 
-        sb.append(" \"DPERegistration\": {");
-        sb.append(" \"language\": \"" + dpeData.getLang() + "\",");
-        sb.append(" \"start_time\": \"" + dpeData.getStartTime() + "\",");
-        sb.append(" \"n_cores\": " + dpeData.getCoreCount() + ",");
-        sb.append(" \"hostname\": \"" + dpeData.getHost() + "\",");
-        sb.append(" \"memory_size\": " + dpeData.getMemorySize() + ",");
-        sb.append(" \"containers\": [");
+		dpeRuntime.put("containers", containersRuntimeArray);
 
-        for (ContainerReport cr : dpeData.getContainers().values()) {
-            sb.append(" {");
-            sb.append(" \"ContainerRegistration\": {");
-            sb.append(" \"name\": \"" + cr.getName() + "\",");
-            sb.append(" \"language\": \"" + cr.getLang() + "\",");
-            sb.append(" \"author\": \"" + cr.getAuthor() + "\",");
-            sb.append(" \"start_time\": \"" + cr.getStartTime() + "\",");
-            sb.append(" \"services\": [");
-            for (ServiceReport sr : cr.getServices().values()) {
-                sb.append(" {");
-                sb.append(" \"ServiceRegistration\": {");
-                sb.append(" \"class_name\": \"" + sr.getClassName() + "\",");
-                sb.append(" \"engine_name\": \"" + sr.getEngineName() + "\",");
-                sb.append(" \"author\": \"" + sr.getAuthor() + "\",");
-                sb.append(" \"version\": \"" + sr.getVersion() + "\",");
-                sb.append(" \"description\": \"" + sr.getDescription() + "\",");
-                sb.append(" \"language\": \"" + sr.getLang() + "\",");
-                sb.append(" \"start_time\": \"" + sr.getStartTime() + "\"");
-                sb.append(" },");
-            }
-            sb.append(" },");
-        }
-        sb.append(" ]");
-        sb.append(" }");
-        sb.append(" }");
+		JSONObject dpeRegistration = new JSONObject();
+		dpeRegistration.put("language", dpeData.getLang());
+		dpeRegistration.put("start_time", dpeData.getStartTime());
+		dpeRegistration.put("n_cores", dpeData.getCoreCount());
+		dpeRegistration.put("hostname", dpeData.getHost());
+		dpeRegistration.put("memory_size", dpeData.getMemorySize());
 
-        return sb.toString();
-    }
+		JSONArray containersRegistrationArray = new JSONArray();
+		for (ContainerReport cr : dpeData.getContainers().values()) {
+			JSONObject containerRegistration = new JSONObject();
+			containerRegistration.put("name", cr.getName());
+			containerRegistration.put("language", cr.getLang());
+			containerRegistration.put("author", cr.getAuthor());
+			containerRegistration.put("start_time", cr.getStartTime());
+
+			JSONArray servicesRegistrationArray = new JSONArray();
+			for (ServiceReport sr : cr.getServices().values()) {
+				JSONObject serviceRegistration = new JSONObject();
+				serviceRegistration.put("class_name", sr.getClassName());
+				serviceRegistration.put("engine_name", sr.getEngineName());
+				serviceRegistration.put("author", sr.getAuthor());
+				serviceRegistration.put("version", sr.getVersion());
+				serviceRegistration.put("description", sr.getDescription());
+				serviceRegistration.put("language", sr.getLang());
+				serviceRegistration.put("start_time", sr.getStartTime());
+
+				servicesRegistrationArray.add(serviceRegistration);
+			}
+
+			containerRegistration.put("services", servicesRegistrationArray);
+			containersRegistrationArray.add(containerRegistration);
+
+		}
+
+		dpeRegistration.put("containers", containersRegistrationArray);
+
+		JSONObject dpeJsonData = new JSONObject();
+		dpeJsonData.put("DPERuntime", dpeRuntime);
+		dpeJsonData.put("DPERegistration", dpeRegistration);
+
+		return dpeJsonData.toJSONString();
+	}
 }

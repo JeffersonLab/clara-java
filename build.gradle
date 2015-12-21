@@ -40,6 +40,7 @@ repositories {
 dependencies {
     compile 'org.jlab.coda:xmsg:2.3-SNAPSHOT'
     compile 'net.sf.jopt-simple:jopt-simple:4.9'
+    compile 'com.googlecode.json-simple:json-simple:1.1.1'
     compile 'com.google.code.findbugs:jsr305:3.0.0'
     testCompile 'junit:junit:4.+'
     testCompile 'org.hamcrest:hamcrest-library:1.3'
