@@ -29,12 +29,16 @@ public enum ClaraLang {
 
     private final String name;
 
-    private ClaraLang(String name) {
+    ClaraLang(String name) {
         this.name = name;
     }
 
     @Override
     public String toString() {
         return name;
+    }
+
+    public static ClaraLang fromString(String lang) {
+        return ClaraLang.valueOf(lang.toUpperCase());
     }
 }
