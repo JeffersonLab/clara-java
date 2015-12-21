@@ -71,7 +71,7 @@ class Container extends ClaraBase {
         myReport.setLang(getMe().getDpeLang());
         myReport.setDescription(comp.getDescription());
         myReport.setAuthor(System.getenv("USER"));
-        myReport.setStartTime(ClaraUtil.getCurrentTimeInH());
+        myReport.setStartTime(ClaraUtil.getCurrentTime());
     }
 
     @Override
