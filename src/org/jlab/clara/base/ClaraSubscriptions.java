@@ -186,16 +186,16 @@ public class ClaraSubscriptions {
         private final ClaraBase base;
         private final Map<String, xMsgSubscription> subscriptions;
         private final ClaraComponent frontEnd;
-        private final ServiceName service;
+        private final ClaraName component;
 
         ServiceSubscriptionBuilder(ClaraBase base,
                                    Map<String, xMsgSubscription> subscriptions,
                                    ClaraComponent frontEnd,
-                                   ServiceName service) {
+                                   ClaraName service) {
             this.base = base;
             this.subscriptions = subscriptions;
             this.frontEnd = frontEnd;
-            this.service = service;
+            this.component = service;
         }
 
         /**
@@ -208,7 +208,7 @@ public class ClaraSubscriptions {
          */
         public ServiceSubscription status(EngineStatus status) {
             return new ServiceSubscription(base, subscriptions, frontEnd,
-                                           getTopic(status.toString(), service));
+                                           getTopic(status.toString(), component));
         }
 
         /**
@@ -220,7 +220,7 @@ public class ClaraSubscriptions {
          */
         public ServiceSubscription done() {
             return new ServiceSubscription(base, subscriptions, frontEnd,
-                                           getTopic(xMsgConstants.DONE, service));
+                                           getTopic(xMsgConstants.DONE, component));
         }
 
         /**
@@ -232,10 +232,10 @@ public class ClaraSubscriptions {
          */
         public ServiceSubscription data() {
             return new ServiceSubscription(base, subscriptions, frontEnd,
-                                           getTopic(xMsgConstants.DATA, service));
+                                           getTopic(xMsgConstants.DATA, component));
         }
 
-        private xMsgTopic getTopic(String prefix, ServiceName service) {
+        private xMsgTopic getTopic(String prefix, ClaraName service) {
             return ClaraUtil.buildTopic(prefix, service.canonicalName());
         }
     }
