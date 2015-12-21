@@ -20,9 +20,9 @@
  */
 package org.jlab.clara.sys.ccc;
 
+import org.jlab.clara.base.ClaraUtil;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineData;
-import org.jlab.clara.util.ClaraUtil;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 
 import java.util.*;

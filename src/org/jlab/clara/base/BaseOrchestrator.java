@@ -33,7 +33,6 @@ import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.engine.EngineStatus;
 import org.jlab.clara.util.CConstants;
-import org.jlab.clara.util.ClaraUtil;
 import org.jlab.clara.util.report.CReportTypes;
 import org.jlab.coda.xmsg.core.*;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;

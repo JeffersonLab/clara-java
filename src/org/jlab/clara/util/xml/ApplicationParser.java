@@ -1,6 +1,6 @@
 package org.jlab.clara.util.xml;
 
-import org.jlab.clara.util.ClaraUtil;
+import org.jlab.clara.base.ClaraUtil;
 import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 

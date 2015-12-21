@@ -21,8 +21,8 @@
 package org.jlab.clara.sys.ccc;
 
 
+import org.jlab.clara.base.ClaraUtil;
 import org.jlab.clara.base.error.ClaraException;
-import org.jlab.clara.util.ClaraUtil;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

@@ -21,8 +21,8 @@
 
 package org.jlab.clara.util.shell;
 
+import org.jlab.clara.base.ClaraUtil;
 import org.jlab.clara.base.error.ClaraException;
-import org.jlab.clara.util.ClaraUtil;
 import org.jlab.clara.util.log.ClaraLogger;
 
 import java.io.BufferedReader;

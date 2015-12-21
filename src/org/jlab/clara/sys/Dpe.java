@@ -23,11 +23,11 @@ package org.jlab.clara.sys;
 
 import org.jlab.clara.base.ClaraBase;
 import org.jlab.clara.base.ClaraComponent;
+import org.jlab.clara.base.ClaraUtil;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.sys.DpeOptionsParser.DpeOptionsException;
 import org.jlab.clara.sys.RequestParser.RequestException;
 import org.jlab.clara.util.CConstants;
-import org.jlab.clara.util.ClaraUtil;
 import org.jlab.clara.util.report.DpeReport;
 import org.jlab.clara.util.report.JsonReportBuilder;
 import org.jlab.coda.xmsg.core.xMsgCallBack;

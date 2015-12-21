@@ -19,7 +19,7 @@
  * SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-package org.jlab.clara.util;
+package org.jlab.clara.base;
 
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineDataType;

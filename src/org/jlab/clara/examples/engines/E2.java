@@ -22,9 +22,9 @@
 package org.jlab.clara.examples.engines;
 
 import org.jlab.clara.engine.EngineData;
+import org.jlab.clara.base.ClaraUtil;
 import org.jlab.clara.engine.Engine;
 import org.jlab.clara.engine.EngineDataType;
-import org.jlab.clara.util.ClaraUtil;
 
 import java.util.Set;
 

@@ -23,6 +23,7 @@ package org.jlab.clara.sys;
 
 import org.jlab.clara.base.ClaraBase;
 import org.jlab.clara.base.ClaraComponent;
+import org.jlab.clara.base.ClaraUtil;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.Engine;
 import org.jlab.clara.engine.EngineData;
@@ -31,7 +32,6 @@ import org.jlab.clara.engine.EngineStatus;
 import org.jlab.clara.sys.ccc.CCompiler;
 import org.jlab.clara.sys.ccc.ServiceState;
 import org.jlab.clara.util.CConstants;
-import org.jlab.clara.util.ClaraUtil;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgTopic;

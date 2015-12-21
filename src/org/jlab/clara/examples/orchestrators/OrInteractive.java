@@ -25,13 +25,13 @@ import static java.util.Arrays.asList;
 
 import org.jlab.clara.base.BaseOrchestrator;
 import org.jlab.clara.base.ClaraLang;
+import org.jlab.clara.base.ClaraUtil;
 import org.jlab.clara.base.Composition;
 import org.jlab.clara.base.ContainerName;
 import org.jlab.clara.base.ServiceName;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.EngineDataType;
-import org.jlab.clara.util.ClaraUtil;
 import org.jlab.clara.util.xml.XMLContainer;
 import org.jlab.clara.util.xml.XMLTagValue;
 import org.jlab.coda.xmsg.core.xMsgUtil;

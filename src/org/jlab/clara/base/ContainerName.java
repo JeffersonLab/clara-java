@@ -22,7 +22,6 @@
 package org.jlab.clara.base;
 
 import org.jlab.clara.base.error.ClaraException;
-import org.jlab.clara.util.ClaraUtil;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 
 public class ContainerName implements ClaraName {
