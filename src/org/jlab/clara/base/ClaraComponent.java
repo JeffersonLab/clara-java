@@ -78,8 +78,16 @@ public final class ClaraComponent {
         this.containerName = container;
         this.engineName = engine;
         this.engineClass = engineClass;
-        topic = xMsgTopic.build(dpeCanonicalName, containerName, engineName);
-        canonicalName = topic.toString();
+        if (engine != null && !engine.equalsIgnoreCase(xMsgConstants.ANY)) {
+            topic = xMsgTopic.build(dpeCanonicalName, containerName, engineName);
+            canonicalName = topic.toString();
+        } else if (container != null && !container.equalsIgnoreCase(xMsgConstants.ANY)) {
+            topic = xMsgTopic.build(CConstants.CONTAINER, dpeCanonicalName, containerName);
+            canonicalName = xMsgTopic.build(dpeCanonicalName, containerName).toString();
+        } else {
+            topic = xMsgTopic.build(CConstants.DPE, dpeCanonicalName);
+            canonicalName = xMsgTopic.build(dpeCanonicalName).toString();
+        }
         this.description = description;
         this.initialState = initialState;
     }

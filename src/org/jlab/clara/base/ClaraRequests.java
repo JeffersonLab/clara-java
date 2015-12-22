@@ -560,7 +560,7 @@ public final class ClaraRequests {
     }
 
     private static String getDpeTopic(ClaraName claraName) {
-        return "dpe:" + getDpeComponent(claraName).getTopic();
+        return getDpeComponent(claraName).getTopic().toString();
     }
 
     private static Composition getComposition(ServiceName service) {
