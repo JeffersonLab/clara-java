@@ -388,6 +388,18 @@ public final class ClaraComponent {
     }
 
     /**
+     * Creates and returns Clara Container component, using the container canonical name.
+     * Default subscriptions pool-size = 1 is used.
+     *
+     * @param containerCanonicalName the canonical name of the container
+     * @return the container component
+     */
+    public static ClaraComponent container(String containerCanonicalName)
+            throws ClaraException {
+        return container(containerCanonicalName, CConstants.UNDEFINED);
+    }
+
+    /**
      * Creates and returns Clara Service component.
      *
      * @param dpeHost host of the DPE where service is/(will be) deployed
