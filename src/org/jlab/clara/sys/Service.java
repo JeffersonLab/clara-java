@@ -73,9 +73,7 @@ class Service extends ClaraBase {
      * @throws ClaraException if the engine could not be loaded
      * @throws IOException
      */
-    public Service(ClaraComponent comp,
-                   String regHost,
-                   int regPort)
+    Service(ClaraComponent comp, String regHost, int regPort)
             throws ClaraException, xMsgException, IOException {
 
         super(comp, regHost, regPort);
@@ -104,9 +102,7 @@ class Service extends ClaraBase {
 
         // Fill the object pool
         for (int i = 0; i < comp.getSubscriptionPoolSize(); i++) {
-            ServiceEngine engine = new ServiceEngine(getMe(),
-                                                     userEngine,
-                    sysConfig);
+            ServiceEngine engine = new ServiceEngine(getMe(), userEngine, sysConfig);
             enginePool[i] = engine;
         }
 
@@ -143,6 +139,7 @@ class Service extends ClaraBase {
 
     @Override
     public void start(ClaraComponent component) {
+        // nothing
     }
 
     private void validateEngine(Engine engine) throws ClaraException {

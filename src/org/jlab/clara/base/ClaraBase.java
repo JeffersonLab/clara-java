@@ -27,7 +27,12 @@ import org.jlab.clara.engine.EngineDataAccessor;
 import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.util.CConstants;
 import org.jlab.clara.util.report.CReportTypes;
-import org.jlab.coda.xmsg.core.*;
+import org.jlab.coda.xmsg.core.xMsg;
+import org.jlab.coda.xmsg.core.xMsgCallBack;
+import org.jlab.coda.xmsg.core.xMsgMessage;
+import org.jlab.coda.xmsg.core.xMsgSubscription;
+import org.jlab.coda.xmsg.core.xMsgTopic;
+import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 import org.jlab.coda.xmsg.data.xMsgR.xMsgRegistration;
 import org.jlab.coda.xmsg.excp.xMsgException;
@@ -52,20 +57,20 @@ import java.util.concurrent.TimeoutException;
  */
 public abstract class ClaraBase extends xMsg {
 
-    private String claraHome;
+    private final String claraHome;
 
-    private EngineDataAccessor dataAccessor;
+    private final EngineDataAccessor dataAccessor;
 
     // reference to this component description
-    private ClaraComponent me;
+    private final ClaraComponent me;
 
     // reference to the front end DPE
     private ClaraComponent frontEnd = null;
 
     /**
-     * Constructor of this Clara component
+     * A Clara component that can send and receives messages.
      *
-     * @param me                   Definition of the component: {@link org.jlab.clara.base.ClaraComponent} object
+     * @param me                   Definition of the component
      * @param defaultRegistrarHost host name of the xMsg registrar
      * @param defaultRegistrarPort port number of the xMsg registrar
      * @throws IOException
@@ -75,9 +80,11 @@ public abstract class ClaraBase extends xMsg {
                      String defaultRegistrarHost,
                      int defaultRegistrarPort)
             throws IOException, ClaraException {
-        super(me.getCanonicalName(), new xMsgProxyAddress(me.getDpeHost(), me.getDpePort()),
-                new xMsgRegAddress(defaultRegistrarHost, defaultRegistrarPort),
-                me.getSubscriptionPoolSize());
+        super(me.getCanonicalName(),
+              new xMsgProxyAddress(me.getDpeHost(), me.getDpePort()),
+              new xMsgRegAddress(defaultRegistrarHost, defaultRegistrarPort),
+              me.getSubscriptionPoolSize());
+
         setConnectionSetup(new xMsgConnectionSetup() {
 
             @Override
@@ -91,18 +98,18 @@ public abstract class ClaraBase extends xMsg {
                 xMsgUtil.sleep(100);
             }
         });
-        dataAccessor = EngineDataAccessor.getDefault();
         this.me = me;
-        claraHome = System.getenv("CLARA_HOME");
-        if(claraHome ==null) {
-            throw new ClaraException("Clara-Error: CLARA_HOME environmental variable is not defined.");
+        this.dataAccessor = EngineDataAccessor.getDefault();
+        this.claraHome = System.getenv("CLARA_HOME");
+        if (claraHome == null) {
+            throw new ClaraException("CLARA_HOME environmental variable is not defined.");
         }
     }
 
     /**
-     * Constructor
+     * Constructor.
      *
-     * @param me Definition of the component: {@link org.jlab.clara.base.ClaraComponent} object
+     * @param me Definition of the component
      * @throws IOException
      * @throws ClaraException
      */
@@ -114,8 +121,8 @@ public abstract class ClaraBase extends xMsg {
 
     // abstract methods to start and gracefully end Clara components
     public abstract void end();
-    public abstract void start(ClaraComponent component);
 
+    public abstract void start(ClaraComponent component);
 
     /**
      * @return the path to the Clara_home defined
@@ -124,7 +131,6 @@ public abstract class ClaraBase extends xMsg {
     public String getClaraHome() {
         return claraHome;
     }
-
 
     /**
      * @return the description of this component:
@@ -144,12 +150,12 @@ public abstract class ClaraBase extends xMsg {
     public void send(ClaraComponent component, xMsgMessage msg)
             throws xMsgException {
         xMsgConnection con = connect(component.getProxyAddress());
-        publish(con,msg);
+        publish(con, msg);
         release(con);
     }
 
     /**
-     * Sends a string to a component
+     * Sends a string to a component.
      *
      * @param component {@link org.jlab.clara.base.ClaraComponent} object
      * @param requestText string of the message
@@ -165,7 +171,43 @@ public abstract class ClaraBase extends xMsg {
     }
 
     /**
-     * Synchronous xMsgMessage send to a component
+     * Sending a message using the defined connection.
+     *
+     * @param con connection: {@link org.jlab.coda.xmsg.net.xMsgConnection} object
+     * @param msg message: {@link org.jlab.coda.xmsg.core.xMsgMessage} object
+     * @throws xMsgException
+     */
+    public void send(xMsgConnection con, xMsgMessage msg)
+            throws xMsgException {
+        publish(con, msg);
+    }
+
+    /**
+     * Sending a message using the dpe host and port of this component.
+     *
+     * @param msg message: {@link org.jlab.coda.xmsg.core.xMsgMessage} object
+     * @throws IOException
+     * @throws xMsgException
+     */
+    public void send(xMsgMessage msg)
+            throws IOException, xMsgException {
+        send(me, msg);
+    }
+
+    /**
+     * Sending a text message using the dpe host and port of this component.
+     *
+     * @param msgText String of the message
+     * @throws IOException
+     * @throws xMsgException
+     */
+    public void send(String msgText)
+            throws IOException, xMsgException {
+        send(me, msgText);
+    }
+
+    /**
+     * Synchronous xMsgMessage send to a component.
      *
      * @param component {@link org.jlab.clara.base.ClaraComponent} object
      * @param msg message: {@link org.jlab.coda.xmsg.core.xMsgMessage} object
@@ -183,7 +225,7 @@ public abstract class ClaraBase extends xMsg {
     }
 
     /**
-     * Synchronous string send to a component
+     * Synchronous string send to a component.
      *
      * @param component {@link org.jlab.clara.base.ClaraComponent} object
      * @param requestText String of the message
@@ -202,41 +244,6 @@ public abstract class ClaraBase extends xMsg {
         return m;
     }
 
-    /**
-     * Sending a message using the defined connection
-     *
-     * @param con connection: {@link org.jlab.coda.xmsg.net.xMsgConnection} object
-     * @param msg message: {@link org.jlab.coda.xmsg.core.xMsgMessage} object
-     * @throws xMsgException
-     */
-    public void send(xMsgConnection con, xMsgMessage msg)
-            throws xMsgException {
-        publish(con, msg);
-    }
-
-    /**
-     * Sending a message using the dpe host and port of this component
-     *
-     * @param msg message: {@link org.jlab.coda.xmsg.core.xMsgMessage} object
-     * @throws IOException
-     * @throws xMsgException
-     */
-    public void send(xMsgMessage msg)
-            throws IOException, xMsgException {
-        send(me, msg);
-    }
-
-    /**
-     * Sending a text message using the dpe host and port of this component
-     *
-     * @param msgText String of the message
-     * @throws IOException
-     * @throws xMsgException
-     */
-    public void send(String msgText)
-            throws IOException, xMsgException {
-        send(me, msgText);
-    }
 
     /**
      * Listens messages from the defined component.
@@ -286,7 +293,7 @@ public abstract class ClaraBase extends xMsg {
     }
 
     /**
-     * Stops listening to a subscription defined by the handler
+     * Stops listening to a subscription defined by the handler.
      *
      * @param handle subscription handler {@link org.jlab.coda.xmsg.core.xMsgMessage} object
      * @throws xMsgException
@@ -341,7 +348,7 @@ public abstract class ClaraBase extends xMsg {
     }
 
     /**
-     * Removes actor registration
+     * Removes actor registration.
      *
      * @param regHost registrar server host
      * @param regPort registrar server port
@@ -389,7 +396,7 @@ public abstract class ClaraBase extends xMsg {
      * @throws IOException
      * @throws xMsgException
      */
-    public Set<xMsgRegistration> discover(String regHost, int regPort, xMsgTopic topic )
+    public Set<xMsgRegistration> discover(String regHost, int regPort, xMsgTopic topic)
             throws IOException, xMsgException {
         xMsgRegAddress regAddress = new xMsgRegAddress(regHost, regPort);
         return findSubscribers(regAddress, topic);
@@ -420,7 +427,7 @@ public abstract class ClaraBase extends xMsg {
      * @throws IOException
      * @throws xMsgException
      */
-    public Set<xMsgRegistration> discover(xMsgTopic topic )
+    public Set<xMsgRegistration> discover(xMsgTopic topic)
             throws IOException, xMsgException {
         return findSubscribers(topic);
     }
@@ -460,7 +467,7 @@ public abstract class ClaraBase extends xMsg {
 
 
     /**
-     * Sends a message to a Clara component/actor telling to exit/destruct
+     * Sends a message to a Clara component/actor telling to exit/destruct.
      *
      * @param component Clara actor as a {@link org.jlab.clara.base.ClaraComponent} object
      * @throws ClaraException
@@ -474,7 +481,7 @@ public abstract class ClaraBase extends xMsg {
     }
 
     /**
-     * Sync sends a message to a Clara component/actor telling to exit/destruct
+     * Sync sends a message to a Clara component/actor telling to exit/destruct.
      *
      * @param component Clara actor as a {@link org.jlab.clara.base.ClaraComponent} object
      * @param timeout timeout of the sync communication
@@ -491,7 +498,7 @@ public abstract class ClaraBase extends xMsg {
     }
 
     /**
-     * Sends a configuration request to a Clara component
+     * Sends a configuration request to a Clara component.
      *
      * @param component Clara actor as a {@link org.jlab.clara.base.ClaraComponent} object
      * @param data      configuration data as a {@link org.jlab.clara.engine.EngineData} object
@@ -524,7 +531,7 @@ public abstract class ClaraBase extends xMsg {
     }
 
     /**
-     * Execute service method
+     * Execute service method.
      *
      * @param component Clara actor as a {@link org.jlab.clara.base.ClaraComponent} object
      * @param data      service input data as a {@link org.jlab.clara.engine.EngineData} object
@@ -539,7 +546,7 @@ public abstract class ClaraBase extends xMsg {
     }
 
     /**
-     * Sync execute service
+     * Sync execute service.
      *
      * @param component component Clara actor as a {@link org.jlab.clara.base.ClaraComponent} object
      * @param data service input data as a {@link org.jlab.clara.engine.EngineData} object
@@ -596,7 +603,8 @@ public abstract class ClaraBase extends xMsg {
      *
      * @param component component Clara actor as a {@link org.jlab.clara.base.ClaraComponent} object
      * @param report report type define as a {@link org.jlab.clara.util.report.CReportTypes} object
-     * @param eventCount number of events after which component reports/broadcasts required type of a report
+     * @param eventCount number of events after which component
+     *                   reports/broadcasts required type of a report
      * @throws IOException
      * @throws xMsgException
      */
@@ -609,7 +617,7 @@ public abstract class ClaraBase extends xMsg {
         String data = ClaraUtil.buildData(report.getValue(), eventCount);
         xMsgTopic topic = component.getTopic();
         xMsgMessage msg = new xMsgMessage(topic, data);
-        send(component,msg);
+        send(component, msg);
     }
 
     /**
@@ -626,7 +634,7 @@ public abstract class ClaraBase extends xMsg {
     }
 
     /**
-     * Sync asks DPE to report
+     * Sync asks DPE to report.
      *
      * @param component dpe as a {@link ClaraComponent#dpe()} object
      * @param timeout sync request timeout
@@ -652,8 +660,8 @@ public abstract class ClaraBase extends xMsg {
      * De-serializes data of the message {@link org.jlab.coda.xmsg.core.xMsgMessage},
      * represented as a byte[] into an object of az type defined using the mimeType/dataType
      * of the meta-data (also as a part of the xMsgMessage). Second argument is used to
-     * pass the serialization routine as a method of the {@link org.jlab.clara.engine.EngineDataType}
-     * object.
+     * pass the serialization routine as a method of the
+     * {@link org.jlab.clara.engine.EngineDataType} object.
      *
      * @param msg {@link org.jlab.coda.xmsg.core.xMsgMessage} object
      * @param dataTypes set of {@link org.jlab.clara.engine.EngineDataType} objects
@@ -686,8 +694,8 @@ public abstract class ClaraBase extends xMsg {
      * routine defined in one of the {@link org.jlab.clara.engine.EngineDataType} object.
      *
      * @param data {@link org.jlab.clara.engine.EngineData} object
-     * @param msg {@link org.jlab.coda.xmsg.core.xMsgMessage} object that is going to be furnished with the
-     *            serialized data and the metadata.
+     * @param msg {@link org.jlab.coda.xmsg.core.xMsgMessage} object that is
+     *            going to be furnished with the serialized data and the metadata.
      * @param dataTypes set of {@link org.jlab.clara.engine.EngineDataType} objects
      * @throws ClaraException
      */
@@ -736,7 +744,7 @@ public abstract class ClaraBase extends xMsg {
     }
 
     /**
-     * Creates system exception data (EngineData object)
+     * Creates system exception data (EngineData object).
      *
      * @param msg         the exception message
      * @param severity    severity ID of the exception
@@ -755,9 +763,6 @@ public abstract class ClaraBase extends xMsg {
         return outData;
     }
 
-    /*
- */
-
     /**
      * Convoluted way to access the internal EngineData metadata,
      * which is hidden to users.
@@ -770,7 +775,7 @@ public abstract class ClaraBase extends xMsg {
     }
 
     /**
-     * Returns the reference to the front-end DPE
+     * Returns the reference to the front-end DPE.
      *
      * @return {@link org.jlab.clara.base.ClaraComponent} object
      */
@@ -779,7 +784,7 @@ public abstract class ClaraBase extends xMsg {
     }
 
     /**
-     * Sets a DPE Clara component as a front-end
+     * Sets a DPE Clara component as a front-end.
      *
      * @param frontEnd {@link org.jlab.clara.base.ClaraComponent} object
      */
@@ -792,7 +797,7 @@ public abstract class ClaraBase extends xMsg {
      */
 
     /**
-     * xMsg send wrapper
+     * xMsg send wrapper.
      *
      * @param component Clara component
      * @param msg xMsgMessage object
@@ -801,7 +806,7 @@ public abstract class ClaraBase extends xMsg {
      * @throws TimeoutException
      * @throws xMsgException
      */
-    private xMsgMessage __send(ClaraComponent component, xMsgMessage msg, int timeout)
+    private xMsgMessage _send(ClaraComponent component, xMsgMessage msg, int timeout)
             throws TimeoutException, xMsgException {
         if (timeout > 0) {
             return syncSend(component, msg, timeout);
@@ -827,38 +832,38 @@ public abstract class ClaraBase extends xMsg {
         if (component.isOrchestrator() || component.isDpe()) {
             throw new IllegalArgumentException("Clara-Error: illegal component to deploy");
         }
-            String data;
+        String data;
         xMsgTopic topic = ClaraUtil.buildTopic(CConstants.DPE, component.getDpeCanonicalName());
         if (component.isContainer()) {
-                data = ClaraUtil.buildData(CConstants.START_CONTAINER,
+            data = ClaraUtil.buildData(CConstants.START_CONTAINER,
                         component.getDpeHost(),
                         component.getDpePort(),
                         component.getDpeLang(),
                         component.getContainerName(),
                         component.getSubscriptionPoolSize(),
                         component.getDescription());
-            } else if (component.isService()) {
-                data = ClaraUtil.buildData(CConstants.START_SERVICE,
-                        component.getDpeHost(),
-                        component.getDpePort(),
-                        component.getDpeLang(),
-                        component.getContainerName(),
-                        component.getEngineName(),
-                        component.getEngineClass(),
-                        component.getSubscriptionPoolSize(),
-                        component.getDescription());
+        } else if (component.isService()) {
+            data = ClaraUtil.buildData(CConstants.START_SERVICE,
+                    component.getDpeHost(),
+                    component.getDpePort(),
+                    component.getDpeLang(),
+                    component.getContainerName(),
+                    component.getEngineName(),
+                    component.getEngineClass(),
+                    component.getSubscriptionPoolSize(),
+                    component.getDescription());
 
-            } else {
-                throw new ClaraException("Clara-Error: unknown or undefined component type. ");
-            }
-            xMsgMessage msg = new xMsgMessage(topic, data);
-            return __send(component, msg, timeout);
+        } else {
+            throw new ClaraException("Clara-Error: unknown or undefined component type. ");
+        }
+        xMsgMessage msg = new xMsgMessage(topic, data);
+        return _send(component, msg, timeout);
     }
 
     /**
-     * Request to stop dpe, container or service component
+     * Request to stop dpe, container or service component.
      *
-     * @param component {@link org.jlab.clara.base.ClaraComponent} of the type dpe, container or service
+     * @param component the type dpe, container or service
      * @param timeout timeout in case of sync operation. Note timeout <=0 indicates async exit
      * @return xMsgMessage in case sync request, null otherwise
      * @throws IOException
@@ -868,28 +873,26 @@ public abstract class ClaraBase extends xMsg {
      */
     private xMsgMessage _exit(ClaraComponent component, int timeout)
             throws IOException, xMsgException, TimeoutException, ClaraException {
-        if(component.isOrchestrator()) {
-            throw new IllegalArgumentException("Clara-Error: can not deploy nor exit an orchestrator.");
+        if (component.isOrchestrator()) {
+            throw new IllegalArgumentException("Cannot deploy nor exit an orchestrator.");
         }
-            String data;
-
+        String data;
         xMsgTopic topic = ClaraUtil.buildTopic(CConstants.DPE, component.getDpeCanonicalName());
-            if (component.isDpe()) {
-                data = CConstants.STOP_DPE;
+        if (component.isDpe()) {
+            data = CConstants.STOP_DPE;
 
-            } else if (component.isContainer()) {
-                data = ClaraUtil.buildData(CConstants.STOP_CONTAINER,
-                        component.getContainerName());
-            } else if (component.isService()) {
-                data = ClaraUtil.buildData(CConstants.STOP_SERVICE,
-                        component.getContainerName(),
-                        component.getEngineName());
-
-            } else {
-                throw new ClaraException("Clara-Error: unknown or undefined component type. ");
-            }
-            xMsgMessage msg = new xMsgMessage(topic, data);
-            return __send(component, msg, timeout);
+        } else if (component.isContainer()) {
+            data = ClaraUtil.buildData(CConstants.STOP_CONTAINER,
+                    component.getContainerName());
+        } else if (component.isService()) {
+            data = ClaraUtil.buildData(CConstants.STOP_SERVICE,
+                    component.getContainerName(),
+                    component.getEngineName());
+        } else {
+            throw new ClaraException("Clara-Error: unknown or undefined component type. ");
+        }
+        xMsgMessage msg = new xMsgMessage(topic, data);
+        return _send(component, msg, timeout);
     }
 
     /**
@@ -906,14 +909,13 @@ public abstract class ClaraBase extends xMsg {
      */
     private xMsgMessage _configure(ClaraComponent component, EngineData data, int timeout)
             throws ClaraException, IOException, xMsgException, TimeoutException {
-        if(component.isService()){
-
+        if (component.isService()) {
             xMsgTopic topic = component.getTopic();
             xMsgMessage msg = new xMsgMessage(topic, data);
             xMsgMeta.Builder msgMeta = msg.getMetaData();
-            msgMeta.setComposition(topic.toString() +";");
+            msgMeta.setComposition(topic.toString() + ";");
             msgMeta.setAction(xMsgMeta.ControlAction.CONFIGURE);
-            if(timeout>0){
+            if (timeout > 0) {
                 return syncSend(component, msg, timeout);
             } else {
                 send(component, msg);
@@ -938,17 +940,17 @@ public abstract class ClaraBase extends xMsg {
      */
     private xMsgMessage _execute(ClaraComponent component, EngineData data, int timeout)
             throws ClaraException, IOException, xMsgException, TimeoutException {
-        if(component.isOrchestrator() || component.isDpe() || component.isContainer() ) {
-            throw new ClaraException("Clara-Error: orchestrator, dpe and container configurations are not supported");
+        if (component.isOrchestrator() || component.isDpe() || component.isContainer()) {
+            throw new ClaraException("Only service is supported to be executed");
         }
-        if(component.isService()){
+        if (component.isService()) {
 
             xMsgTopic topic = component.getTopic();
             xMsgMessage msg = new xMsgMessage(topic, data);
             xMsgMeta.Builder msgMeta = msg.getMetaData();
-            msgMeta.setComposition(topic.toString() +";");
+            msgMeta.setComposition(topic.toString() + ";");
             msgMeta.setAction(xMsgMeta.ControlAction.EXECUTE);
-            if(timeout>0){
+            if (timeout > 0) {
                 return syncSend(component, msg, timeout);
             } else {
                 send(component, msg);

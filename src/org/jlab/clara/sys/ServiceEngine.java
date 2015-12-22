@@ -70,10 +70,9 @@ class ServiceEngine extends ClaraBase {
     /**
      * Constructor.
      */
-    public ServiceEngine(ClaraComponent comp,
-                         Engine userEngine,
-                         ServiceSysConfig config
-    )
+    ServiceEngine(ClaraComponent comp,
+                  Engine userEngine,
+                  ServiceSysConfig config)
             throws ClaraException, IOException {
         super(comp);
 
@@ -90,10 +89,12 @@ class ServiceEngine extends ClaraBase {
 
     @Override
     public void end() {
+        // nothing
     }
 
     @Override
     public void start(ClaraComponent component) {
+        // nothing
     }
 
     public void configure(xMsgMessage message)

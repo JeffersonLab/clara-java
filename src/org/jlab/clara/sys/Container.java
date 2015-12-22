@@ -34,7 +34,7 @@ import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * Service container
+ * Service container.
  *
  * @author gurjyan
  * @version 4.x
@@ -45,9 +45,9 @@ class Container extends ClaraBase {
     private ConcurrentHashMap<String, Service> myServices = new ConcurrentHashMap<>();
     private ContainerReport myReport;
 
-    public Container(ClaraComponent comp,
-                     String regHost,
-                     int regPort)
+    Container(ClaraComponent comp,
+              String regHost,
+              int regPort)
             throws xMsgException, IOException, ClaraException {
         super(comp, regHost, regPort);
 
@@ -90,14 +90,7 @@ class Container extends ClaraBase {
 
     @Override
     public void start(ClaraComponent component) {
-
-        try {
-            if (component.isService()) {
-                addService(component, getDefaultRegistrarAddress().host(), getDefaultProxyAddress().port());
-            }
-        } catch (xMsgException | ClaraException | IOException e) {
-            e.printStackTrace();
-        }
+        // nothing
     }
 
     public ContainerReport getReport() {
