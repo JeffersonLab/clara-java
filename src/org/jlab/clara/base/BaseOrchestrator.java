@@ -141,7 +141,8 @@ public class BaseOrchestrator {
     ClaraBase getClaraBase(String name, DpeName frontEnd, int poolSize)
             throws IOException, ClaraException {
         ClaraComponent o = ClaraComponent.orchestrator(name, xMsgUtil.localhost(), poolSize, "");
-        ClaraBase b = new ClaraBase(o) {
+        ClaraComponent fe = ClaraComponent.dpe(frontEnd.canonicalName());
+        ClaraBase b = new ClaraBase(o, fe) {
             @Override
             public void start(ClaraComponent component) {
                 // Nothing
@@ -152,7 +153,6 @@ public class BaseOrchestrator {
                 // Nothing
             }
         };
-        b.setFrontEnd(ClaraComponent.dpe(frontEnd.canonicalName()));
         return b;
     }
 

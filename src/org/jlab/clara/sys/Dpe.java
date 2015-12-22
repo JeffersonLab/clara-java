@@ -31,7 +31,6 @@ import org.jlab.clara.util.CConstants;
 import org.jlab.clara.util.report.DpeReport;
 import org.jlab.clara.util.report.JsonReportBuilder;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
-import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgSubscription;
 import org.jlab.coda.xmsg.core.xMsgTopic;
@@ -87,7 +86,6 @@ public class Dpe extends ClaraBase {
      * @param poolSize subscription pool size
      * @param description textual description of the DPE
      * @throws xMsgException
-     * @throws IOException
      * @throws ClaraException
      */
     public Dpe(xMsgProxyAddress proxyAddress,
@@ -101,13 +99,10 @@ public class Dpe extends ClaraBase {
                                  CConstants.JAVA_LANG,
                                  poolSize,
                                  description),
-              frontEndAddress.host(), xMsgConstants.REGISTRAR_PORT);
-        ClaraComponent frontEnd = ClaraComponent.dpe(frontEndAddress.host(),
-                                                     frontEndAddress.port(),
-                                                     CConstants.JAVA_LANG,
-                                                     1, "Front End");
-        setFrontEnd(frontEnd);
-
+              ClaraComponent.dpe(frontEndAddress.host(),
+                                 frontEndAddress.port(),
+                                 CConstants.JAVA_LANG,
+                                 1, "Front End"));
         // Create a socket connections to the local dpe proxy
         connect();
 
@@ -293,12 +288,10 @@ public class Dpe extends ClaraBase {
         }
 
         try {
-            Container container = new Container(contComp,
-                    getDefaultRegistrarAddress().host(),
-                    getDefaultRegistrarAddress().port());
+            Container container = new Container(contComp, getFrontEnd());
             myContainers.put(containerName, container);
             myReport.addContainerReport(container.getReport());
-        } catch (xMsgException | IOException e) {
+        } catch (xMsgException e) {
             throw new ClaraException("Could not start container " + contComp, e);
         }
     }
@@ -326,9 +319,7 @@ public class Dpe extends ClaraBase {
                                                         initialState);
         if (myContainers.containsKey(containerName)) {
             try {
-                myContainers.get(containerName).addService(serComp,
-                                                           getDefaultRegistrarAddress().host(),
-                                                           getDefaultRegistrarAddress().port());
+                myContainers.get(containerName).addService(serComp, getFrontEnd());
             } catch (xMsgException | IOException e) {
                 throw new ClaraException("Could not start service " + serComp, e);
             }

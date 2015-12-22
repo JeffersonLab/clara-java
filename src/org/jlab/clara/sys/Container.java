@@ -45,11 +45,9 @@ class Container extends ClaraBase {
     private ConcurrentHashMap<String, Service> myServices = new ConcurrentHashMap<>();
     private ContainerReport myReport;
 
-    Container(ClaraComponent comp,
-              String regHost,
-              int regPort)
-            throws xMsgException, IOException, ClaraException {
-        super(comp, regHost, regPort);
+    Container(ClaraComponent comp, ClaraComponent frontEnd)
+            throws xMsgException, ClaraException {
+        super(comp, frontEnd);
 
         if (!comp.isContainer()) {
             throw new ClaraException("Clara-Error: incompatible component.");
@@ -97,9 +95,8 @@ class Container extends ClaraBase {
         return myReport;
     }
 
-    public void addService(ClaraComponent comp,
-                           String regHost,
-                           int regPort) throws xMsgException, ClaraException, IOException {
+    public void addService(ClaraComponent comp, ClaraComponent frontEnd)
+                           throws xMsgException, ClaraException, IOException {
 
         // in this case serviceName is a canonical nam
         String serviceName = comp.getCanonicalName();
@@ -111,7 +108,7 @@ class Container extends ClaraBase {
             return;
         }
 
-        Service service = new Service(comp, regHost, regPort);
+        Service service = new Service(comp, frontEnd);
         myServices.put(serviceName, service);
     }
 

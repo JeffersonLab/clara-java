@@ -67,7 +67,7 @@ class FrontEnd {
                                           CConstants.JAVA_LANG,
                                           poolSize,
                                           description);
-            base = new ClaraBase(frontEnd) {
+            base = new ClaraBase(frontEnd, frontEnd) {
                 @Override
                 public void start(ClaraComponent component) { }
 

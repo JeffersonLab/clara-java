@@ -71,12 +71,11 @@ class Service extends ClaraBase {
      * to be 0 or negative number.
      *
      * @throws ClaraException if the engine could not be loaded
-     * @throws IOException
      */
-    Service(ClaraComponent comp, String regHost, int regPort)
-            throws ClaraException, xMsgException, IOException {
+    Service(ClaraComponent comp, ClaraComponent frontEnd)
+            throws xMsgException, ClaraException {
 
-        super(comp, regHost, regPort);
+        super(comp, frontEnd);
 
         // Create a socket connections to the dpe proxy
         connect();
@@ -102,7 +101,7 @@ class Service extends ClaraBase {
 
         // Fill the object pool
         for (int i = 0; i < comp.getSubscriptionPoolSize(); i++) {
-            ServiceEngine engine = new ServiceEngine(getMe(), userEngine, sysConfig);
+            ServiceEngine engine = new ServiceEngine(getMe(), getFrontEnd(), userEngine, sysConfig);
             enginePool[i] = engine;
         }
 

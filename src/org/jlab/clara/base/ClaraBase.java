@@ -65,24 +65,21 @@ public abstract class ClaraBase extends xMsg {
     private final ClaraComponent me;
 
     // reference to the front end DPE
-    private ClaraComponent frontEnd = null;
+    private ClaraComponent frontEnd;
 
     /**
      * A Clara component that can send and receives messages.
      *
-     * @param me                   Definition of the component
-     * @param defaultRegistrarHost host name of the xMsg registrar
-     * @param defaultRegistrarPort port number of the xMsg registrar
-     * @throws IOException
+     * @param me        definition of the component
+     * @param frontEnd  definition of the front-end
      * @throws ClaraException
      */
     public ClaraBase(ClaraComponent me,
-                     String defaultRegistrarHost,
-                     int defaultRegistrarPort)
-            throws IOException, ClaraException {
+                     ClaraComponent frontEnd)
+            throws ClaraException {
         super(me.getCanonicalName(),
               new xMsgProxyAddress(me.getDpeHost(), me.getDpePort()),
-              new xMsgRegAddress(defaultRegistrarHost, defaultRegistrarPort),
+              new xMsgRegAddress(),
               me.getSubscriptionPoolSize());
 
         setConnectionSetup(new xMsgConnectionSetup() {
@@ -100,23 +97,11 @@ public abstract class ClaraBase extends xMsg {
         });
         this.me = me;
         this.dataAccessor = EngineDataAccessor.getDefault();
+        this.frontEnd = frontEnd;
         this.claraHome = System.getenv("CLARA_HOME");
         if (claraHome == null) {
             throw new ClaraException("CLARA_HOME environmental variable is not defined.");
         }
-    }
-
-    /**
-     * Constructor.
-     *
-     * @param me Definition of the component
-     * @throws IOException
-     * @throws ClaraException
-     */
-    public ClaraBase(ClaraComponent me)
-            throws IOException, ClaraException {
-        this(me, xMsgUtil.localhost(),
-                xMsgConstants.REGISTRAR_PORT);
     }
 
     // abstract methods to start and gracefully end Clara components
