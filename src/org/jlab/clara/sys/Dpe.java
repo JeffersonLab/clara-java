@@ -106,14 +106,10 @@ public class Dpe extends ClaraBase {
         // Create a socket connections to the local dpe proxy
         connect();
 
-        // Subscribe messages published to this dpe
+        // Subscribe and register
         xMsgTopic topic = xMsgTopic.wrap(CConstants.DPE + ":" + getMe().getCanonicalName());
-
-        // Register this subscriber
-        register(frontEndAddress.host(), description);
-
-        // Subscribe by passing a callback to the subscription
         subscriptionHandler = listen(topic, new DpeCallBack());
+        register(topic, description);
 
         myReport = new DpeReport(getMe().getCanonicalName());
         myReport.setHost(getMe().getDpeHost());
@@ -188,8 +184,8 @@ public class Dpe extends ClaraBase {
             stopListening(subscriptionHandler);
 
             isReporting.set(false);
-            removeRegistration();
-        } catch (IOException | xMsgException e) {
+            removeRegistration(getMe().getTopic());
+        } catch (xMsgException | ClaraException e) {
             e.printStackTrace();
         }
     }
@@ -291,7 +287,7 @@ public class Dpe extends ClaraBase {
             Container container = new Container(contComp, getFrontEnd());
             myContainers.put(containerName, container);
             myReport.addContainerReport(container.getReport());
-        } catch (xMsgException e) {
+        } catch (ClaraException e) {
             throw new ClaraException("Could not start container " + contComp, e);
         }
     }

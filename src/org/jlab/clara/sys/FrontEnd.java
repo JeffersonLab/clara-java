@@ -74,13 +74,14 @@ class FrontEnd {
                 @Override
                 public void end() { }
             };
+            base.setFrontEnd(frontEnd);
 
             // subscribe to forwarding requests
             xMsgTopic topic = xMsgTopic.wrap(CConstants.DPE + ":" + frontEnd.getCanonicalName());
             fwdSubscription = base.listen(topic, new GatewayCallback());
-            base.register(frontEnd.getDpeHost(), frontEnd.getDescription());
+            base.register(topic, description);
 
-        } catch (IOException | xMsgException e) {
+        } catch (xMsgException e) {
             throw new ClaraException("Cannot create front-end", e);
         }
     }

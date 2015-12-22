@@ -70,10 +70,11 @@ class Service extends ClaraBase {
      * Object pool size is set to be 2 in case it was requested
      * to be 0 or negative number.
      *
-     * @throws ClaraException if the engine could not be loaded
+     * @throws ClaraException
+     * @throws xMsgException
      */
     Service(ClaraComponent comp, ClaraComponent frontEnd)
-            throws xMsgException, ClaraException {
+                throws ClaraException, xMsgException {
 
         super(comp, frontEnd);
 
@@ -115,9 +116,8 @@ class Service extends ClaraBase {
                 ClaraUtil.getCurrentTimeInH(), name, comp.getSubscriptionPoolSize());
 
         // Register this subscriber
-        registerAsSubscriber(comp.getTopic(), comp.getDescription());
-        System.out.printf("%s: Registered service = %s%n",
-                ClaraUtil.getCurrentTimeInH(), name);
+        register(comp.getTopic(), comp.getDescription());
+        System.out.printf("%s: Registered service = %s%n", ClaraUtil.getCurrentTimeInH(), name);
     }
 
 
@@ -127,10 +127,10 @@ class Service extends ClaraBase {
             executionPool.shutdown();
             userEngine.destroy();
 
-            removeRegistration();
+            removeRegistration(getMe().getTopic());
             stopListening(subscription);
             System.out.println(ClaraUtil.getCurrentTimeInH() + ": Removed service = " + name + "\n");
-        } catch (IOException | xMsgException e) {
+        } catch (xMsgException | ClaraException e) {
             e.printStackTrace();
         }
 

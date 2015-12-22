@@ -289,86 +289,35 @@ public abstract class ClaraBase extends xMsg {
     }
 
     /**
-     * Method registers a Clara actor with the xMsg in-memory registration service.
-     * Note that Clara service registers as an xMsg subscriber.
+     * Registers this component with the front-end as subscriber to the given topic.
      *
-     * @param regHost registrar server host
-     * @param regPort registrar server port
-     * @param description service description
-     * @throws IOException
-     * @throws xMsgException
+     * @param topic the subscribed topic
+     * @param description a description of the component
+     * @throws ClaraException if registration failed
      */
-    public void register(String regHost, int regPort, String description )
-            throws IOException, xMsgException {
-        xMsgRegAddress regAddress = new xMsgRegAddress(regHost, regPort);
-        registerAsSubscriber(regAddress, me.getTopic(), description);
+    public void register(xMsgTopic topic, String description) throws ClaraException {
+        try {
+            xMsgRegAddress regAddress = new xMsgRegAddress(frontEnd.getDpeHost());
+            registerAsSubscriber(regAddress, topic, description);
+        } catch (xMsgException e) {
+            throw new ClaraException("Could not register with front-end registrar", e);
+        }
     }
 
     /**
-     * Registers a Clara actor with the xMsg in-memory registration service.
-     * This will assume that registration service is running on a default port.
+     * Remove the registration of this component from the front-end as
+     * subscriber to the given topic.
      *
-     * @param regHost registrar server host
-     * @param description service description
-     * @throws IOException
-     * @throws xMsgException
+     * @param topic the subscribed topic
+     * @throws ClaraException if removing the registration failed
      */
-    public void register(String regHost, String description )
-            throws IOException, xMsgException {
-        xMsgRegAddress regAddress = new xMsgRegAddress(regHost);
-        registerAsSubscriber(regAddress, me.getTopic(), description);
-    }
-
-    /**
-     * Registers a Clara actor with the xMsg in-memory registration service.
-     * This assumes registration service is running on a same node with a default port number.
-     *
-     * @param description service description
-     * @throws IOException
-     * @throws xMsgException
-     */
-    public void register(String description )
-            throws IOException, xMsgException {
-        registerAsSubscriber(me.getTopic(), description);
-    }
-
-    /**
-     * Removes actor registration.
-     *
-     * @param regHost registrar server host
-     * @param regPort registrar server port
-     * @throws IOException
-     * @throws xMsgException
-     */
-    public void removeRegistration(String regHost, int regPort)
-            throws IOException, xMsgException {
-        xMsgRegAddress regAddress = new xMsgRegAddress(regHost, regPort);
-        removeSubscriberRegistration(regAddress, me.getTopic());
-    }
-
-    /**
-     * Removes actor registration, assuming registrar is running on a default port.
-     *
-     * @param regHost registrar server host
-     * @throws IOException
-     * @throws xMsgException
-     */
-    public void removeRegistration(String regHost)
-            throws IOException, xMsgException {
-        xMsgRegAddress regAddress = new xMsgRegAddress(regHost);
-        removeSubscriberRegistration(regAddress, me.getTopic());
-    }
-
-    /**
-     * Removes actor registration, assuming registrar is running
-     * on a local host and with a default port.
-     *
-     * @throws IOException
-     * @throws xMsgException
-     */
-    public void removeRegistration()
-            throws IOException, xMsgException {
-        removeSubscriberRegistration(me.getTopic());
+    public void removeRegistration(xMsgTopic topic) throws ClaraException {
+        try {
+            xMsgRegAddress regAddress = new xMsgRegAddress(frontEnd.getDpeHost());
+            removeSubscriberRegistration(regAddress, topic);
+        } catch (xMsgException e) {
+            throw new ClaraException("Could not register with front-end registrar", e);
+        }
     }
 
     /**

@@ -45,8 +45,7 @@ class Container extends ClaraBase {
     private ConcurrentHashMap<String, Service> myServices = new ConcurrentHashMap<>();
     private ContainerReport myReport;
 
-    Container(ClaraComponent comp, ClaraComponent frontEnd)
-            throws xMsgException, ClaraException {
+    Container(ClaraComponent comp, ClaraComponent frontEnd) throws ClaraException {
         super(comp, frontEnd);
 
         if (!comp.isContainer()) {
@@ -60,7 +59,7 @@ class Container extends ClaraBase {
         xMsgTopic topic = ClaraUtil.buildTopic(CConstants.CONTAINER, comp.getCanonicalName());
 
         // Register this subscriber
-        registerAsSubscriber(topic, comp.getDescription());
+        register(topic, comp.getDescription());
         System.out.println(ClaraUtil.getCurrentTimeInH() + ": Registered container = " + comp.getCanonicalName());
 
         System.out.println(ClaraUtil.getCurrentTimeInH() + ": Started container = " + comp.getCanonicalName());
@@ -79,7 +78,7 @@ class Container extends ClaraBase {
             String data = ClaraUtil.buildData(CConstants.CONTAINER_DOWN, getMe().getContainerName());
             send(getFrontEnd(), data);
 
-            removeRegistration();
+            removeRegistration(getMe().getTopic());
             removeAllServices();
         } catch (ClaraException | xMsgException | IOException e) {
             e.printStackTrace();
