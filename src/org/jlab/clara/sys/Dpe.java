@@ -4,7 +4,7 @@
  * documentation for educational, research, and not-for-profit purposes,
  * without fee and without a signed licensing agreement.
  *
- * Author Vardan Gyurjyan
+ * Contact Vardan Gyurjyan
  * Department of Experimental Nuclear Physics, Jefferson Lab.
  *
  * IN NO EVENT SHALL JLAB BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL,
@@ -100,9 +100,9 @@ public class Dpe extends ClaraBase {
                                  poolSize,
                                  description),
               ClaraComponent.dpe(frontEndAddress.host(),
-                                 frontEndAddress.port(),
-                                 CConstants.JAVA_LANG,
-                                 1, "Front End"));
+                      frontEndAddress.port(),
+                      CConstants.JAVA_LANG,
+                      1, "Front End"));
         // Create a socket connections to the local dpe proxy
         connect();
 

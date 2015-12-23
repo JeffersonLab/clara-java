@@ -4,7 +4,7 @@
  * documentation for educational, research, and not-for-profit purposes,
  * without fee and without a signed licensing agreement.
  *
- * Author Vardan Gyurjyan
+ * Contact Vardan Gyurjyan
  * Department of Experimental Nuclear Physics, Jefferson Lab.
  *
  * IN NO EVENT SHALL JLAB BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL,
