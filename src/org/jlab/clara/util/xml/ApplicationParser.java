@@ -17,7 +17,9 @@
  * PURPOSE. THE CLARA SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED
  * HEREUNDER IS PROVIDED "AS IS". JLAB HAS NO OBLIGATION TO PROVIDE MAINTENANCE,
  * SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
- */age org.jlab.clara.util.xml;
+ */
+
+package org.jlab.clara.util.xml;
 
 import org.jlab.clara.base.ClaraUtil;
 import org.w3c.dom.Document;

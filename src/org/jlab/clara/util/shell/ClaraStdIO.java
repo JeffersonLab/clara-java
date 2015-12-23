@@ -19,7 +19,7 @@
  * SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-ackage org.jlab.clara.util.shell;
+package org.jlab.clara.util.shell;
 
 /**
  * @author gurjyan
