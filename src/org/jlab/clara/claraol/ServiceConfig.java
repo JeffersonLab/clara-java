@@ -43,7 +43,7 @@ public interface ServiceConfig extends Config {
     /**
      * Gets all property values for the hasData property.<p>
      * 
-     * @returns a collection of values for the hasData property.
+     * @return a collection of values for the hasData property.
      */
     Collection<? extends DataSource> getHasData();
 
@@ -76,7 +76,7 @@ public interface ServiceConfig extends Config {
     /**
      * Gets all property values for the broadcastDone property.<p>
      * 
-     * @returns a collection of values for the broadcastDone property.
+     * @return a collection of values for the broadcastDone property.
      */
     Collection<? extends Boolean> getBroadcastDone();
 
@@ -110,7 +110,7 @@ public interface ServiceConfig extends Config {
     /**
      * Gets all property values for the broadcastError property.<p>
      * 
-     * @returns a collection of values for the broadcastError property.
+     * @return a collection of values for the broadcastError property.
      */
     Collection<? extends Boolean> getBroadcastError();
 
@@ -144,7 +144,7 @@ public interface ServiceConfig extends Config {
     /**
      * Gets all property values for the broadcastWarning property.<p>
      * 
-     * @returns a collection of values for the broadcastWarning property.
+     * @return a collection of values for the broadcastWarning property.
      */
     Collection<? extends Boolean> getBroadcastWarning();
 

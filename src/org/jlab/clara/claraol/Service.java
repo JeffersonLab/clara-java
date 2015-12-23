@@ -45,7 +45,7 @@ public interface Service extends WrappedIndividual {
     /**
      * Gets all property values for the hasEngine property.<p>
      * 
-     * @returns a collection of values for the hasEngine property.
+     * @return a collection of values for the hasEngine property.
      */
     Collection<? extends Engine> getHasEngine();
 
@@ -78,7 +78,7 @@ public interface Service extends WrappedIndividual {
     /**
      * Gets all property values for the hasIdentity property.<p>
      * 
-     * @returns a collection of values for the hasIdentity property.
+     * @return a collection of values for the hasIdentity property.
      */
     Collection<? extends Identity> getHasIdentity();
 
@@ -111,7 +111,7 @@ public interface Service extends WrappedIndividual {
     /**
      * Gets all property values for the hasLink property.<p>
      * 
-     * @returns a collection of values for the hasLink property.
+     * @return a collection of values for the hasLink property.
      */
     Collection<? extends ConditionalRouting> getHasLink();
 
@@ -144,7 +144,7 @@ public interface Service extends WrappedIndividual {
     /**
      * Gets all property values for the hasState property.<p>
      * 
-     * @returns a collection of values for the hasState property.
+     * @return a collection of values for the hasState property.
      */
     Collection<? extends State> getHasState();
 
@@ -177,7 +177,7 @@ public interface Service extends WrappedIndividual {
     /**
      * Gets all property values for the requiresConfig property.<p>
      * 
-     * @returns a collection of values for the requiresConfig property.
+     * @return a collection of values for the requiresConfig property.
      */
     Collection<? extends ServiceConfig> getRequiresConfig();
 

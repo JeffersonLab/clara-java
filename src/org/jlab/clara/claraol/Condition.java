@@ -46,7 +46,7 @@ public interface Condition extends WrappedIndividual {
     /**
      * Gets all property values for the executionState property.<p>
      * 
-     * @returns a collection of values for the executionState property.
+     * @return a collection of values for the executionState property.
      */
     Collection<? extends State> getExecutionState();
 
@@ -79,7 +79,7 @@ public interface Condition extends WrappedIndividual {
     /**
      * Gets all property values for the receivedState property.<p>
      * 
-     * @returns a collection of values for the receivedState property.
+     * @return a collection of values for the receivedState property.
      */
     Collection<? extends State> getReceivedState();
 
@@ -112,7 +112,7 @@ public interface Condition extends WrappedIndividual {
     /**
      * Gets all property values for the logicalRelationship property.<p>
      * 
-     * @returns a collection of values for the logicalRelationship property.
+     * @return a collection of values for the logicalRelationship property.
      */
     Collection<? extends Object> getLogicalRelationship();
 

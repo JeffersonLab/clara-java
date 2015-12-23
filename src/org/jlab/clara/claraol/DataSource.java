@@ -45,7 +45,7 @@ public interface DataSource extends WrappedIndividual {
     /**
      * Gets all property values for the hasIdentity property.<p>
      * 
-     * @returns a collection of values for the hasIdentity property.
+     * @return a collection of values for the hasIdentity property.
      */
     Collection<? extends Identity> getHasIdentity();
 
@@ -78,7 +78,7 @@ public interface DataSource extends WrappedIndividual {
     /**
      * Gets all property values for the hasType property.<p>
      * 
-     * @returns a collection of values for the hasType property.
+     * @return a collection of values for the hasType property.
      */
     Collection<? extends Object> getHasType();
 
@@ -112,7 +112,7 @@ public interface DataSource extends WrappedIndividual {
     /**
      * Gets all property values for the hasValue property.<p>
      * 
-     * @returns a collection of values for the hasValue property.
+     * @return a collection of values for the hasValue property.
      */
     Collection<? extends String> getHasValue();
 
@@ -146,7 +146,7 @@ public interface DataSource extends WrappedIndividual {
     /**
      * Gets all property values for the isDirectory property.<p>
      * 
-     * @returns a collection of values for the isDirectory property.
+     * @return a collection of values for the isDirectory property.
      */
     Collection<? extends Boolean> getIsDirectory();
 
@@ -180,7 +180,7 @@ public interface DataSource extends WrappedIndividual {
     /**
      * Gets all property values for the isFile property.<p>
      * 
-     * @returns a collection of values for the isFile property.
+     * @return a collection of values for the isFile property.
      */
     Collection<? extends Boolean> getIsFile();
 

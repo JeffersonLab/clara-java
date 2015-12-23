@@ -43,7 +43,7 @@ public interface EngineConfig extends Config {
     /**
      * Gets all property values for the hasData property.<p>
      * 
-     * @returns a collection of values for the hasData property.
+     * @return a collection of values for the hasData property.
      */
     Collection<? extends DataSource> getHasData();
 
@@ -76,7 +76,7 @@ public interface EngineConfig extends Config {
     /**
      * Gets all property values for the hasInputData property.<p>
      * 
-     * @returns a collection of values for the hasInputData property.
+     * @return a collection of values for the hasInputData property.
      */
     Collection<? extends DataSource> getHasInputData();
 
@@ -109,7 +109,7 @@ public interface EngineConfig extends Config {
     /**
      * Gets all property values for the hasOutputData property.<p>
      * 
-     * @returns a collection of values for the hasOutputData property.
+     * @return a collection of values for the hasOutputData property.
      */
     Collection<? extends DataSource> getHasOutputData();
 

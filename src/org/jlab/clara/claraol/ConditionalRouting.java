@@ -45,7 +45,7 @@ public interface ConditionalRouting extends WrappedIndividual {
     /**
      * Gets all property values for the hasCondition property.<p>
      * 
-     * @returns a collection of values for the hasCondition property.
+     * @return a collection of values for the hasCondition property.
      */
     Collection<? extends Condition> getHasCondition();
 
@@ -78,7 +78,7 @@ public interface ConditionalRouting extends WrappedIndividual {
     /**
      * Gets all property values for the ifFalseSend property.<p>
      * 
-     * @returns a collection of values for the ifFalseSend property.
+     * @return a collection of values for the ifFalseSend property.
      */
     Collection<? extends Service> getIfFalseSend();
 
@@ -111,7 +111,7 @@ public interface ConditionalRouting extends WrappedIndividual {
     /**
      * Gets all property values for the ifTrueSend property.<p>
      * 
-     * @returns a collection of values for the ifTrueSend property.
+     * @return a collection of values for the ifTrueSend property.
      */
     Collection<? extends Service> getIfTrueSend();
 

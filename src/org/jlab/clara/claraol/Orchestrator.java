@@ -45,7 +45,7 @@ public interface Orchestrator extends WrappedIndividual {
     /**
      * Gets all property values for the actsOnError property.<p>
      * 
-     * @returns a collection of values for the actsOnError property.
+     * @return a collection of values for the actsOnError property.
      */
     Collection<? extends Action> getActsOnError();
 
@@ -78,7 +78,7 @@ public interface Orchestrator extends WrappedIndividual {
     /**
      * Gets all property values for the actsOnWarning property.<p>
      * 
-     * @returns a collection of values for the actsOnWarning property.
+     * @return a collection of values for the actsOnWarning property.
      */
     Collection<? extends Action> getActsOnWarning();
 
@@ -111,7 +111,7 @@ public interface Orchestrator extends WrappedIndividual {
     /**
      * Gets all property values for the processes property.<p>
      * 
-     * @returns a collection of values for the processes property.
+     * @return a collection of values for the processes property.
      */
     Collection<? extends DataSet> getProcesses();
 
@@ -144,7 +144,7 @@ public interface Orchestrator extends WrappedIndividual {
     /**
      * Gets all property values for the runs property.<p>
      * 
-     * @returns a collection of values for the runs property.
+     * @return a collection of values for the runs property.
      */
     Collection<? extends Application> getRuns();
 
@@ -177,7 +177,7 @@ public interface Orchestrator extends WrappedIndividual {
     /**
      * Gets all property values for the monitorsError property.<p>
      * 
-     * @returns a collection of values for the monitorsError property.
+     * @return a collection of values for the monitorsError property.
      */
     Collection<? extends Boolean> getMonitorsError();
 
@@ -211,7 +211,7 @@ public interface Orchestrator extends WrappedIndividual {
     /**
      * Gets all property values for the monitorsInfo property.<p>
      * 
-     * @returns a collection of values for the monitorsInfo property.
+     * @return a collection of values for the monitorsInfo property.
      */
     Collection<? extends Boolean> getMonitorsInfo();
 
@@ -245,7 +245,7 @@ public interface Orchestrator extends WrappedIndividual {
     /**
      * Gets all property values for the monitorsWarning property.<p>
      * 
-     * @returns a collection of values for the monitorsWarning property.
+     * @return a collection of values for the monitorsWarning property.
      */
     Collection<? extends Boolean> getMonitorsWarning();
 

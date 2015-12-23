@@ -45,7 +45,7 @@ public interface Application extends WrappedIndividual {
     /**
      * Gets all property values for the hasEventSink property.<p>
      * 
-     * @returns a collection of values for the hasEventSink property.
+     * @return a collection of values for the hasEventSink property.
      */
     Collection<? extends Service> getHasEventSink();
 
@@ -78,7 +78,7 @@ public interface Application extends WrappedIndividual {
     /**
      * Gets all property values for the hasEventSource property.<p>
      * 
-     * @returns a collection of values for the hasEventSource property.
+     * @return a collection of values for the hasEventSource property.
      */
     Collection<? extends Service> getHasEventSource();
 
@@ -111,7 +111,7 @@ public interface Application extends WrappedIndividual {
     /**
      * Gets all property values for the hasIdentity property.<p>
      * 
-     * @returns a collection of values for the hasIdentity property.
+     * @return a collection of values for the hasIdentity property.
      */
     Collection<? extends Identity> getHasIdentity();
 
@@ -144,7 +144,7 @@ public interface Application extends WrappedIndividual {
     /**
      * Gets all property values for the hasService property.<p>
      * 
-     * @returns a collection of values for the hasService property.
+     * @return a collection of values for the hasService property.
      */
     Collection<? extends State> getHasService();
 
@@ -177,7 +177,7 @@ public interface Application extends WrappedIndividual {
     /**
      * Gets all property values for the hasSkipAction property.<p>
      * 
-     * @returns a collection of values for the hasSkipAction property.
+     * @return a collection of values for the hasSkipAction property.
      */
     Collection<? extends Action> getHasSkipAction();
 
@@ -210,7 +210,7 @@ public interface Application extends WrappedIndividual {
     /**
      * Gets all property values for the hasStartAction property.<p>
      * 
-     * @returns a collection of values for the hasStartAction property.
+     * @return a collection of values for the hasStartAction property.
      */
     Collection<? extends Action> getHasStartAction();
 
@@ -243,7 +243,7 @@ public interface Application extends WrappedIndividual {
     /**
      * Gets all property values for the hasStopAction property.<p>
      * 
-     * @returns a collection of values for the hasStopAction property.
+     * @return a collection of values for the hasStopAction property.
      */
     Collection<? extends Action> getHasStopAction();
 
@@ -276,7 +276,7 @@ public interface Application extends WrappedIndividual {
     /**
      * Gets all property values for the hasComposition property.<p>
      * 
-     * @returns a collection of values for the hasComposition property.
+     * @return a collection of values for the hasComposition property.
      */
     Collection<? extends String> getHasComposition();
 

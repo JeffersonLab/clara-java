@@ -45,7 +45,7 @@ public interface Identity extends WrappedIndividual {
     /**
      * Gets all property values for the author property.<p>
      * 
-     * @returns a collection of values for the author property.
+     * @return a collection of values for the author property.
      */
     Collection<? extends Object> getAuthor();
 
@@ -79,7 +79,7 @@ public interface Identity extends WrappedIndividual {
     /**
      * Gets all property values for the description property.<p>
      * 
-     * @returns a collection of values for the description property.
+     * @return a collection of values for the description property.
      */
     Collection<? extends String> getDescription();
 
@@ -113,7 +113,7 @@ public interface Identity extends WrappedIndividual {
     /**
      * Gets all property values for the name property.<p>
      * 
-     * @returns a collection of values for the name property.
+     * @return a collection of values for the name property.
      */
     Collection<? extends String> getName();
 
@@ -147,7 +147,7 @@ public interface Identity extends WrappedIndividual {
     /**
      * Gets all property values for the version property.<p>
      * 
-     * @returns a collection of values for the version property.
+     * @return a collection of values for the version property.
      */
     Collection<? extends String> getVersion();
 

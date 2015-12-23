@@ -45,7 +45,7 @@ public interface Config extends WrappedIndividual {
     /**
      * Gets all property values for the hasData property.<p>
      * 
-     * @returns a collection of values for the hasData property.
+     * @return a collection of values for the hasData property.
      */
     Collection<? extends DataSource> getHasData();
 
