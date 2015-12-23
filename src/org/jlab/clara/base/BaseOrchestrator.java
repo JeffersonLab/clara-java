@@ -68,7 +68,7 @@ public class BaseOrchestrator {
      * @throws IOException if localhost could not be obtained
      * @throws ClaraException if the orchestrator could not be created
      */
-    public BaseOrchestrator() throws ClaraException {
+    public BaseOrchestrator() {
         this(xMsgConstants.DEFAULT_POOL_SIZE);
     }
 
@@ -80,7 +80,7 @@ public class BaseOrchestrator {
      * @throws IOException if localhost could not be obtained
      * @throws ClaraException if the orchestrator could not be created
      */
-    public BaseOrchestrator(int subPoolSize) throws ClaraException {
+    public BaseOrchestrator(int subPoolSize) {
         this(ClaraUtil.getUniqueName(),
              new DpeName(ClaraUtil.localhost(), ClaraLang.JAVA),
              subPoolSize);
@@ -94,7 +94,7 @@ public class BaseOrchestrator {
      * @throws IOException if localhost could not be obtained
      * @throws ClaraException if the orchestrator could not be created
      */
-    public BaseOrchestrator(DpeName frontEnd) throws ClaraException {
+    public BaseOrchestrator(DpeName frontEnd) {
         this(ClaraUtil.getUniqueName(),
              frontEnd,
              xMsgConstants.DEFAULT_POOL_SIZE);
@@ -108,7 +108,7 @@ public class BaseOrchestrator {
      * @param subPoolSize set the size of the pool for processing subscriptions on background
      * @throws ClaraException if the orchestrator could not be created
      */
-    public BaseOrchestrator(DpeName frontEnd, int subPoolSize) throws ClaraException {
+    public BaseOrchestrator(DpeName frontEnd, int subPoolSize) {
         this(ClaraUtil.getUniqueName(),
              frontEnd,
              subPoolSize);
@@ -122,8 +122,7 @@ public class BaseOrchestrator {
      * @param subPoolSize set the size of the pool for processing subscriptions on background
      * @throws ClaraException if the orchestrator could not be created
      */
-    public BaseOrchestrator(String name, DpeName frontEnd, int subPoolSize)
-            throws ClaraException {
+    public BaseOrchestrator(String name, DpeName frontEnd, int subPoolSize) {
         base = getClaraBase(name, frontEnd, subPoolSize);
     }
 
@@ -134,23 +133,26 @@ public class BaseOrchestrator {
      * @throws ClaraException
      * @throws IOException
      */
-    ClaraBase getClaraBase(String name, DpeName frontEnd, int poolSize)
-            throws ClaraException {
-        String localhost = ClaraUtil.localhost();
-        ClaraComponent o = ClaraComponent.orchestrator(name, localhost, poolSize, "");
-        ClaraComponent fe = ClaraComponent.dpe(frontEnd.canonicalName());
-        ClaraBase b = new ClaraBase(o, fe) {
-            @Override
-            public void start(ClaraComponent component) {
-                // Nothing
-            }
+    ClaraBase getClaraBase(String name, DpeName frontEnd, int poolSize) {
+        try {
+            String localhost = ClaraUtil.localhost();
+            ClaraComponent o = ClaraComponent.orchestrator(name, localhost, poolSize, "");
+            ClaraComponent fe = ClaraComponent.dpe(frontEnd.canonicalName());
+            ClaraBase b = new ClaraBase(o, fe) {
+                @Override
+                public void start(ClaraComponent component) {
+                    // Nothing
+                }
 
-            @Override
-            public void end() {
-                // Nothing
-            }
-        };
-        return b;
+                @Override
+                public void end() {
+                    // Nothing
+                }
+            };
+            return b;
+        } catch (ClaraException e) {
+            throw new IllegalArgumentException("Invalid front-end: " + frontEnd);
+        }
     }
 
     /**

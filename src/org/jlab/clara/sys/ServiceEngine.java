@@ -73,7 +73,7 @@ class ServiceEngine extends ClaraBase {
     ServiceEngine(ClaraComponent comp,
                   ClaraComponent frontEnd,
                   Engine userEngine,
-                  ServiceSysConfig config) throws ClaraException {
+                  ServiceSysConfig config) {
         super(comp, frontEnd);
 
         this.engineObject = userEngine;
