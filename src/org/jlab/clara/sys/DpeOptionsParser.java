@@ -23,10 +23,8 @@ package org.jlab.clara.sys;
 
 import static java.util.Arrays.asList;
 
-import java.io.IOException;
-
+import org.jlab.clara.base.ClaraUtil;
 import org.jlab.coda.xmsg.core.xMsgConstants;
-import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.net.xMsgProxyAddress;
 
 import joptsimple.OptionException;
@@ -86,7 +84,7 @@ class DpeOptionsParser {
             options = parser.parse(args);
 
             // Get local DPE address
-            String localHost = valueOf(dpeHost, xMsgUtil.localhost());
+            String localHost = valueOf(dpeHost, ClaraUtil.localhost());
             int localPort = valueOf(dpePort, PROXY_PORT);
             localAddress = new xMsgProxyAddress(localHost, localPort);
 
@@ -115,8 +113,6 @@ class DpeOptionsParser {
 
         } catch (OptionException e) {
             throw new DpeOptionsException(e);
-        } catch (IOException e) {
-            throw new RuntimeException(e);
         }
     }
 

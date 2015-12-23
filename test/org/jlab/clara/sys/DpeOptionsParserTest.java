@@ -26,8 +26,8 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import org.jlab.clara.base.ClaraUtil;
 import org.jlab.clara.sys.DpeOptionsParser.DpeOptionsException;
-import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.net.xMsgProxyAddress;
 import org.junit.Before;
 import org.junit.Rule;
@@ -53,7 +53,7 @@ public class DpeOptionsParserTest {
     private final String defaultHost;
 
     public DpeOptionsParserTest() throws Exception {
-        defaultHost = xMsgUtil.localhost();
+        defaultHost = ClaraUtil.localhost();
     }
 
 

@@ -93,7 +93,7 @@ public class Dpe extends ClaraBase {
                int poolSize,
                String description,
                int reportInterval)
-            throws xMsgException, IOException, ClaraException {
+            throws xMsgException, ClaraException {
         super(ClaraComponent.dpe(proxyAddress.host(),
                                  proxyAddress.port(),
                                  CConstants.JAVA_LANG,
@@ -154,7 +154,7 @@ public class Dpe extends ClaraBase {
             System.err.println();
             System.err.println(options.usage());
             System.exit(1);
-        } catch (xMsgException | IOException | ClaraException e) {
+        } catch (xMsgException | ClaraException e) {
             e.printStackTrace();
             System.exit(1);
         }

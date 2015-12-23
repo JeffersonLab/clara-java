@@ -68,7 +68,7 @@ public class BaseOrchestrator {
      * @throws IOException if localhost could not be obtained
      * @throws ClaraException if the orchestrator could not be created
      */
-    public BaseOrchestrator() throws ClaraException, IOException {
+    public BaseOrchestrator() throws ClaraException {
         this(xMsgConstants.DEFAULT_POOL_SIZE);
     }
 
@@ -80,9 +80,9 @@ public class BaseOrchestrator {
      * @throws IOException if localhost could not be obtained
      * @throws ClaraException if the orchestrator could not be created
      */
-    public BaseOrchestrator(int subPoolSize) throws ClaraException, IOException {
+    public BaseOrchestrator(int subPoolSize) throws ClaraException {
         this(ClaraUtil.getUniqueName(),
-             new DpeName(xMsgUtil.localhost(), ClaraLang.JAVA),
+             new DpeName(ClaraUtil.localhost(), ClaraLang.JAVA),
              subPoolSize);
     }
 
@@ -124,11 +124,7 @@ public class BaseOrchestrator {
      */
     public BaseOrchestrator(String name, DpeName frontEnd, int subPoolSize)
             throws ClaraException {
-        try {
-            base = getClaraBase(name, frontEnd, subPoolSize);
-        } catch (IOException e) {
-            throw new ClaraException("Clara-Error: Could not start orchestrator", e);
-        }
+        base = getClaraBase(name, frontEnd, subPoolSize);
     }
 
     /**
@@ -139,8 +135,9 @@ public class BaseOrchestrator {
      * @throws IOException
      */
     ClaraBase getClaraBase(String name, DpeName frontEnd, int poolSize)
-            throws IOException, ClaraException {
-        ClaraComponent o = ClaraComponent.orchestrator(name, xMsgUtil.localhost(), poolSize, "");
+            throws ClaraException {
+        String localhost = ClaraUtil.localhost();
+        ClaraComponent o = ClaraComponent.orchestrator(name, localhost, poolSize, "");
         ClaraComponent fe = ClaraComponent.dpe(frontEnd.canonicalName());
         ClaraBase b = new ClaraBase(o, fe) {
             @Override

@@ -92,7 +92,7 @@ public class OrInteractive extends BaseOrchestrator {
 
     public OrInteractive() throws Exception {
         super();
-        defaultHost = xMsgUtil.localhost();
+        defaultHost = ClaraUtil.localhost();
         defaultContainer = System.getenv("USER");
     }
 

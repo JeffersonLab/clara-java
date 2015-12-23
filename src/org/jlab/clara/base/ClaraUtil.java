@@ -29,6 +29,7 @@ import org.jlab.clara.util.xml.XMLTagValue;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.core.xMsgUtil;
+import org.jlab.coda.xmsg.excp.xMsgAddressException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
@@ -291,6 +292,16 @@ public final class ClaraUtil {
         }
 
         return true;
+    }
+
+    public static String localhost() {
+        try {
+            // Workaround to convert IOException into a runtime exception,
+            // until Java 8 is used
+            return xMsgUtil.localhost();
+        } catch (IOException e) {
+            throw new xMsgAddressException(e);
+        }
     }
 
     public static String remove_first(String s) {

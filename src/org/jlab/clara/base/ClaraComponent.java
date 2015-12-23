@@ -25,10 +25,7 @@ import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.util.CConstants;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgTopic;
-import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.net.xMsgProxyAddress;
-
-import java.io.IOException;
 
 /**
  *  Clara component. This is used to define
@@ -172,10 +169,9 @@ public final class ClaraComponent {
      */
     public static ClaraComponent orchestrator(String name,
                                               int subscriptionPoolSize,
-                                              String description)
-            throws IOException {
+                                              String description) {
         return orchestrator(name,
-                            xMsgUtil.localhost(), xMsgConstants.DEFAULT_PORT, CConstants.JAVA_LANG,
+                            ClaraUtil.localhost(), xMsgConstants.DEFAULT_PORT, CConstants.JAVA_LANG,
                             subscriptionPoolSize, description);
     }
 
@@ -245,9 +241,8 @@ public final class ClaraComponent {
      * @param description textual description of the DPE
      * @return the DPE component
      */
-    public static ClaraComponent dpe(int subscriptionPoolSize, String description)
-            throws IOException {
-        return dpe(xMsgUtil.localhost(), xMsgConstants.DEFAULT_PORT, CConstants.JAVA_LANG,
+    public static ClaraComponent dpe(int subscriptionPoolSize, String description) {
+        return dpe(ClaraUtil.localhost(), xMsgConstants.DEFAULT_PORT, CConstants.JAVA_LANG,
                    subscriptionPoolSize, description);
     }
 
@@ -258,8 +253,8 @@ public final class ClaraComponent {
      * @return the DPE component
      * @throws IOException
      */
-    public static ClaraComponent dpe() throws IOException {
-        return dpe(xMsgUtil.localhost(), xMsgConstants.DEFAULT_PORT, CConstants.JAVA_LANG,
+    public static ClaraComponent dpe() {
+        return dpe(ClaraUtil.localhost(), xMsgConstants.DEFAULT_PORT, CConstants.JAVA_LANG,
                    1, CConstants.UNDEFINED);
     }
 
@@ -367,10 +362,10 @@ public final class ClaraComponent {
      * @param description textual description of the container
      * @return the container component
      */
-    public static ClaraComponent container(String container, int subscriptionPoolSize,
-                                           String description)
-            throws IOException {
-        return container(xMsgUtil.localhost(), xMsgConstants.DEFAULT_PORT, CConstants.JAVA_LANG,
+    public static ClaraComponent container(String container,
+                                           int subscriptionPoolSize,
+                                           String description) {
+        return container(ClaraUtil.localhost(), xMsgConstants.DEFAULT_PORT, CConstants.JAVA_LANG,
                          container, subscriptionPoolSize, description);
     }
 
@@ -485,9 +480,8 @@ public final class ClaraComponent {
      * @param engine the name of the service engine
      * @return the service component
      */
-    public static ClaraComponent service(String container, String engine)
-            throws IOException {
-        return service(xMsgUtil.localhost(), xMsgConstants.DEFAULT_PORT, CConstants.JAVA_LANG,
+    public static ClaraComponent service(String container, String engine) {
+        return service(ClaraUtil.localhost(), xMsgConstants.DEFAULT_PORT, CConstants.JAVA_LANG,
                        container, engine, CConstants.UNDEFINED,
                        1, CConstants.UNDEFINED,
                        CConstants.UNDEFINED);
@@ -502,9 +496,8 @@ public final class ClaraComponent {
      * @param poolSize pool size for the service subscriptions
      * @return the service component
      */
-    public static ClaraComponent service(String container, String engine, int poolSize)
-            throws IOException {
-        return service(xMsgUtil.localhost(), xMsgConstants.DEFAULT_PORT, CConstants.JAVA_LANG,
+    public static ClaraComponent service(String container, String engine, int poolSize) {
+        return service(ClaraUtil.localhost(), xMsgConstants.DEFAULT_PORT, CConstants.JAVA_LANG,
                        container, engine, CConstants.UNDEFINED,
                        poolSize, CConstants.UNDEFINED,
                        CConstants.UNDEFINED);

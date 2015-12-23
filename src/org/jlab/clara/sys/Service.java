@@ -37,7 +37,6 @@ import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 import org.jlab.coda.xmsg.excp.xMsgException;
 
-import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
