@@ -13,6 +13,11 @@ version = '4.3-SNAPSHOT'
 
 defaultTasks 'build'
 
+compileJava {
+    sourceCompatibility = 1.8
+    targetCompatibility = 1.8
+}
+
 
 configurations {
     provided {
