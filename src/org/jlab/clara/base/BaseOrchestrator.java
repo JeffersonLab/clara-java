@@ -205,7 +205,7 @@ public class BaseOrchestrator {
         String data = ClaraUtil.buildData(CConstants.SET_FRONT_END_REMOTE, dpe.getDpeHost(),
                 dpe.getDpePort(), dpe.getDpeLang(), frontEnd.getDpeHost(),
                 frontEnd.getDpePort(), frontEnd.getDpeLang());
-        base.send(base.getFrontEnd(), new xMsgMessage(topic, data));
+        base.send(base.getFrontEnd(), ClaraBase.createRequest(topic, data));
     }
 
     /**
@@ -235,7 +235,7 @@ public class BaseOrchestrator {
                     comp.getSubscriptionPoolSize(),
                     regHost, regPort,
                     comp.getDescription());
-            base.send(base.getFrontEnd(), new xMsgMessage(topic, data));
+            base.send(base.getFrontEnd(), ClaraBase.createRequest(topic, data));
         }
     }
 
@@ -251,7 +251,7 @@ public class BaseOrchestrator {
         xMsgTopic topic = ClaraUtil.buildTopic(CConstants.DPE, base.getFrontEnd().getCanonicalName());
 
         String data = CConstants.STOP_DPE;
-        base.send(base.getFrontEnd(), new xMsgMessage(topic, data));
+        base.send(base.getFrontEnd(), ClaraBase.createRequest(topic, data));
     }
 
     public DeployContainerRequest deploy(ContainerName container) throws ClaraException {
@@ -375,12 +375,11 @@ public class BaseOrchestrator {
      * @throws xMsgException
      */
     public Set<String> getDpeNames() throws ClaraException, xMsgException {
-        xMsgTopic topic = xMsgTopic.build("xyz)");
-        String rs = base.findSubscriberDomainNames(topic);
-        StringTokenizer st = new StringTokenizer(rs);
+        xMsgTopic topic = xMsgTopic.build(CConstants.DPE);
+        Set<xMsgRegistration> rs = base.findSubscribers(topic);
         HashSet<String> result = new HashSet<>();
-        while (st.hasMoreTokens()) {
-            result.add(st.nextToken());
+        for (xMsgRegistration r : rs) {
+            result.add(r.getName());
         }
         return result;
     }
@@ -395,12 +394,11 @@ public class BaseOrchestrator {
      * @throws xMsgException
      */
     public Set<String> getContainerNames(String dpeName) throws ClaraException, xMsgException {
-        xMsgTopic topic = xMsgTopic.build(dpeName);
-        String rs = base.findSubscriberSubjectNames(topic);
-        StringTokenizer st = new StringTokenizer(rs);
+        xMsgTopic topic = xMsgTopic.build(CConstants.CONTAINER, dpeName);
+        Set<xMsgRegistration> rs = base.findSubscribers(topic);
         HashSet<String> result = new HashSet<>();
-        while (st.hasMoreTokens()) {
-            result.add(st.nextToken());
+        for (xMsgRegistration r : rs) {
+            result.add(r.getName());
         }
         return result;
     }
@@ -417,11 +415,10 @@ public class BaseOrchestrator {
      */
     public Set<String> getEngineNames(String dpeName, String containerName) throws ClaraException, xMsgException {
         xMsgTopic topic = xMsgTopic.build(dpeName, containerName);
-        String rs = base.findSubscriberTypeNames(topic);
-        StringTokenizer st = new StringTokenizer(rs);
+        Set<xMsgRegistration> rs = base.findSubscribers(topic);
         HashSet<String> result = new HashSet<>();
-        while (st.hasMoreTokens()) {
-            result.add(st.nextToken());
+        for (xMsgRegistration r : rs) {
+            result.add(r.getName());
         }
         return result;
     }

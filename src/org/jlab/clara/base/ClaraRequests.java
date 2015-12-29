@@ -21,7 +21,6 @@
 
 package org.jlab.clara.base;
 
-import java.io.IOException;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -32,7 +31,6 @@ import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.util.CConstants;
 import org.jlab.clara.util.report.CReportTypes;
-import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
@@ -136,7 +134,7 @@ public final class ClaraRequests {
 
         @Override
         protected xMsgMessage msg() throws ClaraException {
-            xMsgMessage msg = createMessage(topic, getData());
+            xMsgMessage msg = ClaraBase.createRequest(topic, getData());
             return msg;
         }
 
@@ -351,15 +349,11 @@ public final class ClaraRequests {
 
         @Override
         protected xMsgMessage msg() throws ClaraException {
-            try {
-                xMsgMessage msg = new xMsgMessage(topic, null);
-                base.serialize(userData, msg, dataTypes);
-                msg.getMetaData().setAction(action);
-                msg.getMetaData().setComposition(composition.toString());
-                return msg;
-            } catch (xMsgException | IOException e) {
-                throw new ClaraException("Cannot create message", e);
-            }
+            xMsgMessage msg = new xMsgMessage(topic, "", null);
+            base.serialize(userData, msg, dataTypes);
+            msg.getMetaData().setAction(action);
+            msg.getMetaData().setComposition(composition.toString());
+            return msg;
         }
     }
 
@@ -565,13 +559,5 @@ public final class ClaraRequests {
 
     private static Composition getComposition(ServiceName service) {
         return new Composition(service.canonicalName() + ";");
-    }
-
-    private static xMsgMessage createMessage(xMsgTopic topic, String data) throws ClaraException {
-        try {
-            return new xMsgMessage(topic, xMsgConstants.STRING, data.getBytes());
-        } catch (xMsgException | IOException e) {
-            throw new ClaraException("Cannot create message", e);
-        }
     }
 }

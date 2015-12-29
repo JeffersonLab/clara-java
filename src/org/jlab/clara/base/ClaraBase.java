@@ -29,6 +29,7 @@ import org.jlab.clara.util.CConstants;
 import org.jlab.clara.util.report.CReportTypes;
 import org.jlab.coda.xmsg.core.xMsg;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
+import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgSubscription;
 import org.jlab.coda.xmsg.core.xMsgTopic;
@@ -148,7 +149,7 @@ public abstract class ClaraBase extends xMsg {
      */
     public void send(ClaraComponent component, String requestText)
             throws IOException, xMsgException {
-        xMsgMessage msg = new xMsgMessage(component.getTopic(), requestText);
+        xMsgMessage msg = createRequest(component.getTopic(), requestText);
         xMsgConnection con = connect(component.getProxyAddress());
         publish(con, msg);
         release(con);
@@ -221,7 +222,7 @@ public abstract class ClaraBase extends xMsg {
      */
     public xMsgMessage syncSend(ClaraComponent component, String requestText, int timeout)
             throws IOException, xMsgException, TimeoutException {
-        xMsgMessage msg = new xMsgMessage(component.getTopic(), requestText);
+        xMsgMessage msg = createRequest(component.getTopic(), requestText);
         xMsgConnection con = connect(component.getProxyAddress());
         xMsgMessage m = syncPublish(con, msg, timeout);
         release(con);
@@ -313,7 +314,7 @@ public abstract class ClaraBase extends xMsg {
     public void removeRegistration(xMsgTopic topic) throws ClaraException {
         try {
             xMsgRegAddress regAddress = new xMsgRegAddress(frontEnd.getDpeHost());
-            removeSubscriberRegistration(regAddress, topic);
+            deregisterAsSubscriber(regAddress, topic);
         } catch (xMsgException e) {
             throw new ClaraException("Could not register with front-end registrar", e);
         }
@@ -448,7 +449,7 @@ public abstract class ClaraBase extends xMsg {
         }
         String data = ClaraUtil.buildData(report.getValue(), eventCount);
         xMsgTopic topic = component.getTopic();
-        xMsgMessage msg = new xMsgMessage(topic, data);
+        xMsgMessage msg = createRequest(topic, data);
         send(component, msg);
     }
 
@@ -482,7 +483,7 @@ public abstract class ClaraBase extends xMsg {
         if (component.isDpe()) {
             String data = ClaraUtil.buildData(CReportTypes.INFO.getValue());
             xMsgTopic topic = component.getTopic();
-            xMsgMessage msg = new xMsgMessage(topic, data);
+            xMsgMessage msg = createRequest(topic, data);
             return syncSend(component, msg, timeout);
         }
         return null;
@@ -550,6 +551,10 @@ public abstract class ClaraBase extends xMsg {
         throw new ClaraException("Unsupported mime-type = " + mimeType);
     }
 
+    public static xMsgMessage createRequest(xMsgTopic topic, String data) {
+        return new xMsgMessage(topic, xMsgConstants.MimeType.STRING, data.getBytes());
+    }
+
     /**
      * Builds and returns a message that is furnished with a data (serialized) and a metadata.
      * This method calls {@link #serialize(org.jlab.clara.engine.EngineData,
@@ -567,7 +572,7 @@ public abstract class ClaraBase extends xMsg {
     public xMsgMessage buildMessage(xMsgTopic topic, EngineData data, Set<EngineDataType> dataTypes)
             throws ClaraException, xMsgException, IOException {
         try {
-            xMsgMessage msg = new xMsgMessage(topic, data);
+            xMsgMessage msg = new xMsgMessage(topic, "", null);
             serialize(data, msg, dataTypes);
             return msg;
         } catch (ClaraException e) {
@@ -688,7 +693,7 @@ public abstract class ClaraBase extends xMsg {
         } else {
             throw new ClaraException("Clara-Error: unknown or undefined component type. ");
         }
-        xMsgMessage msg = new xMsgMessage(topic, data);
+        xMsgMessage msg = createRequest(topic, data);
         return _send(component, msg, timeout);
     }
 
@@ -723,7 +728,7 @@ public abstract class ClaraBase extends xMsg {
         } else {
             throw new ClaraException("Clara-Error: unknown or undefined component type. ");
         }
-        xMsgMessage msg = new xMsgMessage(topic, data);
+        xMsgMessage msg = createRequest(topic, data);
         return _send(component, msg, timeout);
     }
 }

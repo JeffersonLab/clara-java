@@ -119,7 +119,7 @@ class ServiceEngine extends ClaraBase {
         String replyTo = getReplyTo(message);
         if (replyTo != null) {
             ClaraComponent comp = ClaraComponent.dpe(replyTo);
-            xMsgMessage msOut = message.response();
+            xMsgMessage msOut = xMsgMessage.createResponse(message);
             putEngineData(outData, replyTo, msOut);
             send(comp, msOut);
         } else {
@@ -168,7 +168,7 @@ class ServiceEngine extends ClaraBase {
 
         String replyTo = getReplyTo(message);
         if (replyTo != null) {
-            xMsgMessage msgReply = message.response(outData);
+            xMsgMessage msgReply = xMsgMessage.createResponse(message, outData);
             ClaraComponent comp = ClaraComponent.service(replyTo);
             send(comp, msgReply);
             return;
@@ -260,7 +260,7 @@ class ServiceEngine extends ClaraBase {
             throws xMsgException, IOException, ClaraException {
         for (String ss : outLinks) {
             ClaraComponent comp = ClaraComponent.dpe(ss);
-            xMsgMessage msOut = new xMsgMessage(xMsgTopic.wrap(ss), null);
+            xMsgMessage msOut = new xMsgMessage(xMsgTopic.wrap(ss), "", null);
             putEngineData(outData, ss, msOut);
             send(comp, msOut);
         }
@@ -296,7 +296,7 @@ class ServiceEngine extends ClaraBase {
     private void report(String topicPrefix, EngineData data)
             throws ClaraException, xMsgException, IOException {
         xMsgTopic topic = xMsgTopic.wrap(topicPrefix + xMsgConstants.TOPIC_SEP + getName());
-        xMsgMessage transit = new xMsgMessage(topic, null);
+        xMsgMessage transit = new xMsgMessage(topic, "", null);
         serialize(data, transit, engineObject.getOutputDataTypes());
         send(getFrontEnd(), transit);
     }

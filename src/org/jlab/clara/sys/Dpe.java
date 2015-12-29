@@ -252,12 +252,12 @@ public class Dpe extends ClaraBase {
 
                 String jsonData = myReportBuilder.generateReport(myReport);
 
-                xMsgMessage msg = new xMsgMessage(dpeReportTopic, jsonData);
+                xMsgMessage msg = createRequest(dpeReportTopic, jsonData);
                 send(con, msg);
                 xMsgUtil.sleep(reportWait);
             }
             release(con);
-        } catch (IOException | xMsgException | MalformedObjectNameException |
+        } catch (xMsgException | MalformedObjectNameException |
                 ReflectionException | InstanceNotFoundException e) {
             e.printStackTrace();
         }
