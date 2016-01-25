@@ -41,6 +41,7 @@ public class CConstants {
     public static final String DPE_EXIT = "dpeExit";
     public static final String DPE_PING = "dpePing";
     public static final String DPE_ALIVE = "dpeAlive";
+    public static final String DPE_REPORT = "dpeReport";
     public static final String LIST_DPES = "listDpes";
 
     public static final String CONTAINER = "container";

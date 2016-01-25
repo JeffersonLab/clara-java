@@ -27,6 +27,8 @@ import org.jlab.clara.base.ClaraUtil;
 import org.jlab.clara.util.CConstants;
 import org.jlab.clara.util.CUtility;
 import org.jlab.clara.util.RequestParser;
+import org.jlab.clara.util.report.DpeReport;
+import org.jlab.clara.util.report.JsonReportBuilder;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
@@ -46,6 +48,10 @@ import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+
+import javax.management.InstanceNotFoundException;
+import javax.management.MalformedObjectNameException;
+import javax.management.ReflectionException;
 
 /**
  * Clara data processing environment. It can play the role of the Front-End
@@ -86,6 +92,8 @@ public class Dpe extends CBase {
 
     private xMsgRegistrar registrar;
 
+    private DpeReport myReport;
+    private JsonReportBuilder myReportBuilder;
     private HeartBeatReport heartBeat;
 
 
@@ -361,6 +369,8 @@ public class Dpe extends CBase {
                 int availableProcessors = Runtime.getRuntime().availableProcessors();
                 String claraHome = System.getenv("CLARA_HOME");
 
+                xMsgTopic reportTopic = xMsgTopic.wrap(CConstants.DPE_REPORT + ":" + feHostIp);
+
                 xMsgTopic topic = xMsgTopic.wrap(CConstants.DPE_ALIVE + ":" + feHostIp);
                 String data = dpeName + "?" + availableProcessors + "?" + claraHome;
 
@@ -368,11 +378,24 @@ public class Dpe extends CBase {
                 xMsgConnection socket = connect(address);
 
                 while (true) {
+
+                    myReport.setMemoryUsage(CUtility.getMemoryUsage());
+                    myReport.setCpuUsage(CUtility.getCpuUsage());
+                    myReport.setSnapshotTime(CUtility.getCurrentTime());
+
+                    String jsonData = myReportBuilder.generateReport(myReport);
+
+                    xMsgMessage reportMsg = new xMsgMessage(reportTopic, jsonData);
+                    genericSend(socket, reportMsg);
+
                     xMsgMessage msg = new xMsgMessage(topic, data);
                     genericSend(socket, msg);
+
                     Thread.sleep(5000);
                 }
             } catch (IOException | xMsgException e) {
+                e.printStackTrace();
+            } catch (MalformedObjectNameException | InstanceNotFoundException | ReflectionException e) {
                 e.printStackTrace();
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
@@ -396,6 +419,16 @@ public class Dpe extends CBase {
     }
 
     private void startHeartBeatReport() {
+        myReport = new DpeReport(dpeName);
+        myReportBuilder = new JsonReportBuilder();
+        myReport.setHost(ClaraUtil.getHostName(dpeName));
+        myReport.setLang(ClaraLang.JAVA.toString());
+        myReport.setDescription("Java DPE");
+        myReport.setAuthor(System.getenv("USER"));
+        myReport.setStartTime(CUtility.getCurrentTime());
+        myReport.setMemorySize(Runtime.getRuntime().maxMemory());
+        myReport.setCoreCount(Runtime.getRuntime().availableProcessors());
+
         heartBeat = new HeartBeatReport();
         heartBeat.start();
     }
