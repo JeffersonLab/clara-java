@@ -21,6 +21,39 @@
 
 package org.jlab.clara.util;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.ObjectInput;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutput;
+import java.io.ObjectOutputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.lang.management.ManagementFactory;
+import java.net.SocketException;
+import java.text.Format;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.List;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.regex.Matcher;
+
+import javax.management.Attribute;
+import javax.management.AttributeList;
+import javax.management.InstanceNotFoundException;
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
+import javax.management.ObjectName;
+import javax.management.ReflectionException;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
 import org.jlab.clara.base.CException;
 import org.jlab.clara.base.ClaraUtil;
 import org.jlab.coda.xmsg.core.xMsgTopic;
@@ -30,19 +63,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
-import java.io.*;
-import java.net.InetAddress;
-import java.net.SocketException;
-import java.net.UnknownHostException;
-import java.text.Format;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.regex.Matcher;
 
 /**
  * Utility class containing useful methods.
@@ -216,6 +236,33 @@ public class CUtility {
     public static long getCurrentTimeInMs(){
         return new GregorianCalendar().getTimeInMillis();
     }
+
+    public static double getCpuUsage()
+            throws MalformedObjectNameException, ReflectionException, InstanceNotFoundException {
+
+        MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
+        ObjectName name = ObjectName.getInstance("java.lang:type=OperatingSystem");
+        AttributeList list = mbs.getAttributes(name, new String[]{"ProcessCpuLoad"});
+
+        if (list.isEmpty()) {
+            return Double.NaN;
+        }
+
+        Attribute att = (Attribute) list.get(0);
+        Double value = (Double) att.getValue();
+
+        if (value == -1.0) {
+            return Double.NaN;
+        }
+
+        return ((int) (value * 1000) / 10.0);        // returns a percentage value with 1 decimal point precision
+    }
+
+
+    public static long getMemoryUsage() {
+        return Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+    }
+
 
     /**
      * Returns the stack trace of a exception as a string
