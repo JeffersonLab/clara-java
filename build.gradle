@@ -39,6 +39,9 @@ repositories {
 
 dependencies {
     compile 'org.jlab.coda:xmsg:2.1.1-SNAPSHOT'
+    compile ('com.googlecode.json-simple:json-simple:1.1.1') {
+        exclude group: "junit", module: "*"
+    }
     compile 'com.google.code.findbugs:jsr305:3.0.0'
     testCompile 'junit:junit:4.+'
     testCompile 'org.hamcrest:hamcrest-library:1.3'
