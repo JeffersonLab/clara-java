@@ -501,7 +501,7 @@ public class BaseOrchestrator {
      * @throws ClaraException if the request could not be sent
      * @throws TimeoutException if a response is not received
      */
-    public void configureServiceSync(String serviceName, EngineData data, int timeout)
+    public EngineData configureServiceSync(String serviceName, EngineData data, int timeout)
             throws ClaraException, TimeoutException {
         try {
             Objects.requireNonNull(serviceName, "Null service name");
@@ -517,8 +517,9 @@ public class BaseOrchestrator {
             xMsgMeta.Builder msgMeta = msg.getMetaData();
             msgMeta.setComposition(serviceName);
             msgMeta.setAction(xMsgMeta.ControlAction.CONFIGURE);
-            base.genericSyncSend(host, msg, timeout);
-        } catch (IOException | xMsgException e) {
+            xMsgMessage response = base.genericSyncSend(host, msg, timeout);
+            return base.parseFrom(response, dataTypes);
+        } catch (IOException | xMsgException | CException e) {
             throw new ClaraException("Could not send request", e);
         }
     }
