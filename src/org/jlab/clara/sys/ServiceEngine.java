@@ -334,11 +334,11 @@ class ServiceEngine extends ClaraBase {
 
 
     private String getReplyTo(xMsgMessage message) {
-        String replyTo = message.getMetaData().getReplyTo();
-        if (replyTo.equals(xMsgConstants.UNDEFINED)) {
-            return null;
+        xMsgMeta.Builder meta = message.getMetaData();
+        if (meta.hasReplyTo()) {
+            return meta.getReplyTo();
         }
-        return replyTo;
+        return null;
     }
 
 
