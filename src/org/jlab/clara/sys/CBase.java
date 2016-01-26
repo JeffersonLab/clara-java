@@ -35,7 +35,6 @@ import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.util.CConstants;
-import org.jlab.clara.util.CUtility;
 import org.jlab.coda.xmsg.core.xMsg;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgConstants;
@@ -60,7 +59,6 @@ import org.zeromq.ZMQ.Socket;
  */
 public class CBase extends xMsg {
 
-    private xMsgConnection nodeConnection = null;
     private EngineDataAccessor dataAccessor;
 
     private static xMsgConnectionSetup setup = new xMsgConnectionSetup() {
@@ -85,7 +83,6 @@ public class CBase extends xMsg {
      */
     public CBase(String name, String localAddress, String frontEndAddress) {
         super(name, localAddress, frontEndAddress);
-        nodeConnection = connect();
         dataAccessor = EngineDataAccessor.getDefault();
     }
 
@@ -244,17 +241,12 @@ public class CBase extends xMsg {
     public void genericSend(String dpeHost, xMsgMessage msg)
             throws xMsgException, IOException {
 
-        if (CUtility.isHostLocal(dpeHost)) {
-            publish(nodeConnection, msg);
-        } else {
-            // Create a socket connections to the remote dpe.
-            xMsgAddress address = new xMsgAddress(dpeHost);
-            xMsgConnection con = connect(address, setup);
-            try {
-                publish(con, msg);
-            } finally {
-                destroyConnection(con);
-            }
+        xMsgAddress address = new xMsgAddress(dpeHost);
+        xMsgConnection con = connect(address, setup);
+        try {
+            publish(con, msg);
+        } finally {
+            destroyConnection(con);
         }
     }
 
@@ -295,14 +287,8 @@ public class CBase extends xMsg {
                                        int timeOut)
             throws xMsgException, TimeoutException, IOException {
 
-        xMsgConnection connection;
-        if (CUtility.isHostLocal(dpeHost)) {
-            connection = nodeConnection;
-        } else {
-            // Create a socket connections to the remote dpe.
-            xMsgAddress address = new xMsgAddress(dpeHost);
-            connection = connect(address, setup);
-        }
+        xMsgAddress address = new xMsgAddress(dpeHost);
+        xMsgConnection connection = connect(address, setup);
 
         return syncPublish(connection, msg, timeOut);
     }
@@ -343,21 +329,13 @@ public class CBase extends xMsg {
         if (!ClaraUtil.isCanonicalName(msg.getTopic().toString())) {
             throw new CException("service name is not canonical");
         }
-
-        if (CUtility.isRemoteService(msg.getTopic().toString())) {
-            String dpeHost = ClaraUtil.getHostName(msg.getTopic().toString());
-
-            // Create a socket connections to the remote dpe.
-            xMsgAddress address = new xMsgAddress(dpeHost);
-            xMsgConnection con = connect(address, setup);
-            try {
-                genericSend(con, msg);
-            } finally {
-                destroyConnection(con);
-            }
-
-        } else {
-            genericSend(nodeConnection, msg);
+        String dpeHost = ClaraUtil.getHostName(msg.getTopic().toString());
+        xMsgAddress address = new xMsgAddress(dpeHost);
+        xMsgConnection con = connect(address, setup);
+        try {
+            genericSend(con, msg);
+        } finally {
+            destroyConnection(con);
         }
     }
 
@@ -404,22 +382,14 @@ public class CBase extends xMsg {
         if (!ClaraUtil.isCanonicalName(msg.getTopic().toString())) {
             throw new CException("service name is not canonical");
         }
-        if (CUtility.isRemoteService(msg.getTopic().toString())) {
-            String dpeHost = msg.getTopic().domain();
-
-            // Create a socket connections to the remote dpe.
-            xMsgAddress address = new xMsgAddress(dpeHost);
-            xMsgConnection con = connect(address, setup);
-            try {
-                return genericSyncSend(con, msg, timeOut);
-            } finally {
-                destroyConnection(con);
-            }
-
-        } else {
-            return genericSyncSend(nodeConnection, msg, timeOut);
+        String dpeHost = msg.getTopic().domain();
+        xMsgAddress address = new xMsgAddress(dpeHost);
+        xMsgConnection con = connect(address, setup);
+        try {
+            return genericSyncSend(con, msg, timeOut);
+        } finally {
+            destroyConnection(con);
         }
-
     }
 
     /**
@@ -458,7 +428,7 @@ public class CBase extends xMsg {
     public xMsgSubscription genericReceive(xMsgTopic topic,
                                            xMsgCallBack callback)
             throws xMsgException {
-        return genericReceive(nodeConnection, topic, callback);
+        return genericReceive(connect(), topic, callback);
     }
 
 
@@ -510,7 +480,7 @@ public class CBase extends xMsg {
             throw new CException("service name is not canonical");
         }
 
-        return genericReceive(nodeConnection, xMsgTopic.wrap(serviceName), callback);
+        return genericReceive(connect(), xMsgTopic.wrap(serviceName), callback);
     }
 
 
