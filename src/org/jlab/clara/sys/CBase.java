@@ -250,7 +250,11 @@ public class CBase extends xMsg {
             // Create a socket connections to the remote dpe.
             xMsgAddress address = new xMsgAddress(dpeHost);
             xMsgConnection con = connect(address, setup);
-            publish(con, msg);
+            try {
+                publish(con, msg);
+            } finally {
+                destroyConnection(con);
+            }
         }
     }
 
@@ -346,7 +350,11 @@ public class CBase extends xMsg {
             // Create a socket connections to the remote dpe.
             xMsgAddress address = new xMsgAddress(dpeHost);
             xMsgConnection con = connect(address, setup);
-            genericSend(con, msg);
+            try {
+                genericSend(con, msg);
+            } finally {
+                destroyConnection(con);
+            }
 
         } else {
             genericSend(nodeConnection, msg);
@@ -402,7 +410,11 @@ public class CBase extends xMsg {
             // Create a socket connections to the remote dpe.
             xMsgAddress address = new xMsgAddress(dpeHost);
             xMsgConnection con = connect(address, setup);
-            return genericSyncSend(con, msg, timeOut);
+            try {
+                return genericSyncSend(con, msg, timeOut);
+            } finally {
+                destroyConnection(con);
+            }
 
         } else {
             return genericSyncSend(nodeConnection, msg, timeOut);
@@ -467,7 +479,7 @@ public class CBase extends xMsg {
             throws xMsgException, SocketException {
 
         xMsgAddress address = new xMsgAddress(dpeHost);
-        xMsgConnection con = getNewConnection(address);
+        xMsgConnection con = connect(address);
         return genericReceive(con, topic, callback);
     }
 

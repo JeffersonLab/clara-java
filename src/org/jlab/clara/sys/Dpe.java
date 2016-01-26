@@ -365,7 +365,7 @@ public class Dpe extends CBase {
                 String data = dpeName + "?" + availableProcessors + "?" + claraHome;
 
                 xMsgAddress address = new xMsgAddress(feHostIp);
-                xMsgConnection socket = getNewConnection(address);
+                xMsgConnection socket = connect(address);
 
                 while (true) {
                     xMsgMessage msg = new xMsgMessage(topic, data);
