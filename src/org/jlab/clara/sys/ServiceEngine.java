@@ -118,10 +118,8 @@ class ServiceEngine extends ClaraBase {
 
         String replyTo = getReplyTo(message);
         if (replyTo != null) {
-            ClaraComponent comp = ClaraComponent.dpe(replyTo);
-            xMsgMessage msOut = xMsgMessage.createResponse(message);
-            putEngineData(outData, replyTo, msOut);
-            send(comp, msOut);
+            xMsgMessage msgOut = putEngineData(outData, replyTo);
+            send(msgOut);
         } else {
             reportProblem(outData);
         }
@@ -168,9 +166,9 @@ class ServiceEngine extends ClaraBase {
 
         String replyTo = getReplyTo(message);
         if (replyTo != null) {
-            xMsgMessage msgReply = xMsgMessage.createResponse(message, outData);
-            ClaraComponent comp = ClaraComponent.service(replyTo);
-            send(comp, msgReply);
+            xMsgTopic topic = xMsgTopic.wrap(replyTo);
+            xMsgMessage msgReply = serialize(topic, outData, engineObject.getOutputDataTypes());
+            send(msgReply);
             return;
         }
 
@@ -260,9 +258,8 @@ class ServiceEngine extends ClaraBase {
             throws xMsgException, IOException, ClaraException {
         for (String ss : outLinks) {
             ClaraComponent comp = ClaraComponent.dpe(ss);
-            xMsgMessage msOut = new xMsgMessage(xMsgTopic.wrap(ss), "", null);
-            putEngineData(outData, ss, msOut);
-            send(comp, msOut);
+            xMsgMessage msg = putEngineData(outData, ss);
+            send(comp, msg);
         }
     }
 
@@ -296,8 +293,7 @@ class ServiceEngine extends ClaraBase {
     private void report(String topicPrefix, EngineData data)
             throws ClaraException, xMsgException, IOException {
         xMsgTopic topic = xMsgTopic.wrap(topicPrefix + xMsgConstants.TOPIC_SEP + getName());
-        xMsgMessage transit = new xMsgMessage(topic, "", null);
-        serialize(data, transit, engineObject.getOutputDataTypes());
+        xMsgMessage transit = serialize(topic, data, engineObject.getOutputDataTypes());
         send(getFrontEnd(), transit);
     }
 
@@ -314,21 +310,22 @@ class ServiceEngine extends ClaraBase {
         }
     }
 
-    private void putEngineData(EngineData data, String receiver, xMsgMessage message)
+    private xMsgMessage putEngineData(EngineData data, String receiver)
             throws ClaraException {
+        xMsgTopic topic = xMsgTopic.wrap(receiver);
         if (SharedMemory.containsReceiver(receiver)) {
             int id = data.getCommunicationId();
             SharedMemory.putEngineData(receiver, getName(), id, data);
 
-            xMsgMeta.Builder metadata = message.getMetaData();
+            xMsgMeta.Builder metadata = xMsgMeta.newBuilder();
             metadata.setSender(getName());
             metadata.setComposition(data.getComposition());
             metadata.setCommunicationId(id);
             metadata.setAction(xMsgMeta.ControlAction.EXECUTE);
 
-            message.setData(CConstants.SHARED_MEMORY_KEY.getBytes());
+            return new xMsgMessage(topic, metadata, CConstants.SHARED_MEMORY_KEY.getBytes());
         } else {
-            serialize(data, message, engineObject.getOutputDataTypes());
+            return serialize(topic, data, engineObject.getOutputDataTypes());
         }
     }
 

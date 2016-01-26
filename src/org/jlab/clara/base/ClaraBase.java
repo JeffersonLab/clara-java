@@ -59,7 +59,7 @@ public abstract class ClaraBase extends xMsg {
 
     private final String claraHome;
 
-    private final EngineDataAccessor dataAccessor;
+    private static final EngineDataAccessor dataAccessor = EngineDataAccessor.getDefault();
 
     // reference to this component description
     private final ClaraComponent me;
@@ -95,7 +95,6 @@ public abstract class ClaraBase extends xMsg {
             }
         });
         this.me = me;
-        this.dataAccessor = EngineDataAccessor.getDefault();
         this.frontEnd = frontEnd;
         this.claraHome = System.getenv("CLARA_HOME");
         if (claraHome == null) {
@@ -521,27 +520,26 @@ public abstract class ClaraBase extends xMsg {
 
 
     /**
-     * Builds a message: {@link org.jlab.coda.xmsg.core.xMsgMessage} by serializing
-     * passed data: {@link org.jlab.clara.engine.EngineData} object using serialization
-     * routine defined in one of the {@link org.jlab.clara.engine.EngineDataType} object.
+     * Builds a message by serializing passed data object using serialization
+     * routine defined in one of the data types objects.
      *
-     * @param data {@link org.jlab.clara.engine.EngineData} object
-     * @param msg {@link org.jlab.coda.xmsg.core.xMsgMessage} object that is
-     *            going to be furnished with the serialized data and the metadata.
-     * @param dataTypes set of {@link org.jlab.clara.engine.EngineDataType} objects
-     * @throws ClaraException
+     * @param topic the topic where the data will be published
+     * @param data the data to be serialized
+     * @param dataTypes the set of registered data types
+     * @throws ClaraException if the data could not be serialized
      */
-    public void serialize(EngineData data, xMsgMessage msg, Set<EngineDataType> dataTypes)
+    public static xMsgMessage serialize(xMsgTopic topic,
+                                        EngineData data,
+                                        Set<EngineDataType> dataTypes)
             throws ClaraException {
+
         xMsgMeta.Builder metadata = dataAccessor.getMetadata(data);
         String mimeType = metadata.getDataType();
         for (EngineDataType dt : dataTypes) {
             if (dt.mimeType().equals(mimeType)) {
                 try {
                     ByteBuffer bb = dt.serializer().write(data.getData());
-                    msg.setMetaData(metadata);
-                    msg.setData(bb.array());
-                    return;
+                    return new xMsgMessage(topic, metadata, bb.array());
                 } catch (ClaraException e) {
                     throw new ClaraException("Could not serialize " + mimeType, e);
                 }
@@ -552,31 +550,6 @@ public abstract class ClaraBase extends xMsg {
 
     public static xMsgMessage createRequest(xMsgTopic topic, String data) {
         return new xMsgMessage(topic, xMsgConstants.MimeType.STRING, data.getBytes());
-    }
-
-    /**
-     * Builds and returns a message that is furnished with a data (serialized) and a metadata.
-     * This method calls {@link #serialize(org.jlab.clara.engine.EngineData,
-     * org.jlab.coda.xmsg.core.xMsgMessage, java.util.Set)} method of ClaraBase class.
-     *
-     * @param topic {@link org.jlab.coda.xmsg.core.xMsgTopic} object, representing Clara actors
-     *              canonical name.
-     * @param data {@link org.jlab.clara.engine.EngineData} object
-     * @param dataTypes set of {@link org.jlab.clara.engine.EngineDataType} objects
-     * @return {@link org.jlab.coda.xmsg.core.xMsgMessage} object
-     * @throws ClaraException
-     * @throws xMsgException
-     * @throws IOException
-     */
-    public xMsgMessage buildMessage(xMsgTopic topic, EngineData data, Set<EngineDataType> dataTypes)
-            throws ClaraException, xMsgException, IOException {
-        try {
-            xMsgMessage msg = new xMsgMessage(topic, "", null);
-            serialize(data, msg, dataTypes);
-            return msg;
-        } catch (ClaraException e) {
-            throw new ClaraException("Clara-Error: Could not serialize data", e);
-        }
     }
 
     /**

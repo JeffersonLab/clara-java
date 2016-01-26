@@ -349,10 +349,10 @@ public final class ClaraRequests {
 
         @Override
         protected xMsgMessage msg() throws ClaraException {
-            xMsgMessage msg = new xMsgMessage(topic, "", null);
-            base.serialize(userData, msg, dataTypes);
-            msg.getMetaData().setAction(action);
-            msg.getMetaData().setComposition(composition.toString());
+            xMsgMessage msg = ClaraBase.serialize(topic, userData, dataTypes);
+            xMsgMeta.Builder meta = msg.getMetaData();
+            meta.setAction(action);
+            meta.setComposition(composition.toString());
             return msg;
         }
     }

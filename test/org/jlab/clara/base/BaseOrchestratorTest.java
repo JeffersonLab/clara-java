@@ -25,6 +25,7 @@ import org.jlab.clara.base.ClaraRequests.BaseRequest;
 import org.jlab.clara.base.ClaraSubscriptions.BaseSubscription;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineData;
+import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.engine.EngineStatus;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgTopic;
@@ -116,7 +117,12 @@ public class BaseOrchestratorTest {
     @Test
     public void configureService() throws Exception {
         ServiceName service = new ServiceName("10.2.9.96_java:master:E1");
-        request = orchestrator.configure(service).withData(mock(EngineData.class));
+        EngineData data = new EngineData();
+        data.setData(EngineDataType.STRING.mimeType(), "example");
+
+        request = orchestrator.configure(service)
+                              .withData(data)
+                              .withDataTypes(EngineDataType.STRING);
 
         assertRequest("10.2.9.96",
                        "10.2.9.96_java:master:E1",
@@ -129,7 +135,12 @@ public class BaseOrchestratorTest {
     @Test
     public void executeService() throws Exception {
         ServiceName service = new ServiceName("10.2.9.96_java:master:E1");
-        request = orchestrator.execute(service).withData(mock(EngineData.class));
+        EngineData data = new EngineData();
+        data.setData(EngineDataType.STRING.mimeType(), "example");
+
+        request = orchestrator.execute(service)
+                              .withData(data)
+                              .withDataTypes(EngineDataType.STRING);
 
         assertRequest("10.2.9.96",
                        "10.2.9.96_java:master:E1",
@@ -140,7 +151,12 @@ public class BaseOrchestratorTest {
 
     @Test
     public void executeComposition() throws Exception {
-        request = orchestrator.execute(composition).withData(mock(EngineData.class));
+        EngineData data = new EngineData();
+        data.setData(EngineDataType.STRING.mimeType(), "example");
+
+        request = orchestrator.execute(composition)
+                              .withData(data)
+                              .withDataTypes(EngineDataType.STRING);
 
         assertRequest("10.2.9.96",
                        "10.2.9.96_java:master:E1",
