@@ -21,6 +21,7 @@
 
 package org.jlab.clara.engine;
 
+import org.jlab.clara.base.ClaraBase.EngineDataAccessor;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 
 /**
@@ -147,12 +148,12 @@ public class EngineData {
     private static class Accessor extends EngineDataAccessor {
 
         @Override
-        public xMsgMeta.Builder getMetadata(EngineData data) {
+        protected xMsgMeta.Builder getMetadata(EngineData data) {
             return data.getMetadata();
         }
 
         @Override
-        public EngineData build(Object data, xMsgMeta.Builder metadata) {
+        protected EngineData build(Object data, xMsgMeta.Builder metadata) {
             return new EngineData(data, metadata);
         }
     }

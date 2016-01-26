@@ -23,7 +23,6 @@ package org.jlab.clara.base;
 
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineData;
-import org.jlab.clara.engine.EngineDataAccessor;
 import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.util.CConstants;
 import org.jlab.clara.util.report.CReportTypes;
@@ -34,6 +33,7 @@ import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgSubscription;
 import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.core.xMsgUtil;
+import org.jlab.coda.xmsg.data.xMsgM;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 import org.jlab.coda.xmsg.data.xMsgR.xMsgRegistration;
 import org.jlab.coda.xmsg.excp.xMsgException;
@@ -729,5 +729,33 @@ public abstract class ClaraBase extends xMsg {
         }
         xMsgMessage msg = createRequest(topic, data);
         return _send(component, msg, timeout);
+    }
+
+
+    public abstract static class EngineDataAccessor {
+
+        // CHECKSTYLE.OFF: StaticVariableName
+        private static volatile EngineDataAccessor DEFAULT;
+        // CHECKSTYLE.ON: StaticVariableName
+
+        public static EngineDataAccessor getDefault() {
+            new EngineData(); // Load the accessor
+            EngineDataAccessor a = DEFAULT;
+            if (a == null) {
+                throw new IllegalStateException("EngineDataAccessor should not be null");
+            }
+            return a;
+        }
+
+        public static void setDefault(EngineDataAccessor accessor) {
+            if (DEFAULT != null) {
+                throw new IllegalStateException("EngineDataAccessor should be null");
+            }
+            DEFAULT = accessor;
+        }
+
+        protected abstract xMsgM.xMsgMeta.Builder getMetadata(EngineData data);
+
+        protected abstract EngineData build(Object data, xMsgM.xMsgMeta.Builder metadata);
     }
 }
