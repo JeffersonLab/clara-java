@@ -93,6 +93,18 @@ public class CCompilerTest {
     }
 
     @Test
+    public void testLastServiceOnALoop() throws Exception {
+        CCompiler cc = new CCompiler("10.10.10.1_java:C:S3");
+        String composition = "10.10.10.1_java:C:S1+"
+                           + "10.10.10.1_java:C:S3+"
+                           + "10.10.10.1_java:C:S1;";
+        cc.compile(composition);
+
+        Set<String> expected = new HashSet<String>(Arrays.asList("10.10.10.1_java:C:S1"));
+        assertThat(getUnconditionalLinks(cc), is(expected));
+    }
+
+    @Test
     public void testMultipleCalls() throws Exception {
         CCompiler cc = new CCompiler("10.10.10.1_java:C:S3");
         cc.compile(composition);
@@ -187,5 +199,21 @@ public class CCompilerTest {
         
         Set<String> expected = new HashSet<String>(Arrays.asList("10.10.10.1_java:C:S2","10.10.10.1_java:C:S7"));
         assertThat(cc.getLinks(owner, input), is(expected));
+    }
+
+    @Test
+    public void testConditionalLastServiceOnALoop() throws Exception {
+        CCompiler cc = new CCompiler("10.10.10.1_java:C:S3");
+        String composition = "10.10.10.1_java:C:S1+"
+                           + "10.10.10.1_java:C:S3+"
+                           + "10.10.10.1_java:C:S1;";
+        cc.compile(composition);
+
+        // service-states for conditional routing
+        ServiceState ownerSS = new ServiceState("10.10.10.1_java:C:S3", "udf");
+        ServiceState inputSS = new ServiceState("10.10.10.1_java:C:S3", "udf");
+
+        Set<String> expected = new HashSet<String>(Arrays.asList("10.10.10.1_java:C:S1"));
+        assertThat(cc.getLinks(ownerSS, inputSS), is(expected));
     }
 }
