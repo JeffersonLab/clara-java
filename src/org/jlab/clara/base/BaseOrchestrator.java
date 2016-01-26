@@ -157,6 +157,17 @@ public class BaseOrchestrator {
 
 
     /**
+     * Gives a new size to the internal thread pool that processes
+     * subscriptions callbacks.
+     *
+     * @param the new size of the thread pool
+     */
+    public void setSubscriptionsPoolSize(int size) {
+        base.setPoolSize(size);
+    }
+
+
+    /**
      * Registers the necessary data-types to communicate with to services.
      *
      * @param dataTypes the data-types used by the services
