@@ -316,6 +316,7 @@ class ServiceEngine extends ClaraBase {
             metadata.setComposition(data.getComposition());
             metadata.setCommunicationId(id);
             metadata.setAction(xMsgMeta.ControlAction.EXECUTE);
+            metadata.setDataType(CConstants.SHARED_MEMORY_KEY);
 
             return new xMsgMessage(topic, metadata, CConstants.SHARED_MEMORY_KEY.getBytes());
         } else {
