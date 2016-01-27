@@ -558,6 +558,6 @@ public final class ClaraRequests {
     }
 
     private static Composition getComposition(ServiceName service) {
-        return new Composition(service.canonicalName() + ";");
+        return new Composition(service.canonicalName());
     }
 }
