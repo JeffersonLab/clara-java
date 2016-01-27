@@ -117,7 +117,7 @@ public class EngineData {
     }
 
     public String getEngineName() {
-        return metadata.getSender();
+        return metadata.getAuthor();
     }
 
     public String getEngineVersion() {
