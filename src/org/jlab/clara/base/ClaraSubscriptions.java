@@ -112,9 +112,11 @@ public class ClaraSubscriptions {
 
         ServiceSubscription(ClaraBase base,
                             Map<String, xMsgSubscription> subscriptions,
+                            Set<EngineDataType> dataTypes,
                             ClaraComponent frontEnd,
                             xMsgTopic topic) {
             super(base, subscriptions, frontEnd, topic);
+            this.dataTypes = dataTypes;
         }
 
         public ServiceSubscription withDataTypes(Set<EngineDataType> dataTypes) {
@@ -185,15 +187,18 @@ public class ClaraSubscriptions {
     public static class ServiceSubscriptionBuilder {
         private final ClaraBase base;
         private final Map<String, xMsgSubscription> subscriptions;
+        private final Set<EngineDataType> dataTypes;
         private final ClaraComponent frontEnd;
         private final ClaraName component;
 
         ServiceSubscriptionBuilder(ClaraBase base,
                                    Map<String, xMsgSubscription> subscriptions,
+                                   Set<EngineDataType> dataTypes,
                                    ClaraComponent frontEnd,
                                    ClaraName service) {
             this.base = base;
             this.subscriptions = subscriptions;
+            this.dataTypes = dataTypes;
             this.frontEnd = frontEnd;
             this.component = service;
         }
@@ -207,7 +212,7 @@ public class ClaraSubscriptions {
          * @param status the status to be listened
          */
         public ServiceSubscription status(EngineStatus status) {
-            return new ServiceSubscription(base, subscriptions, frontEnd,
+            return new ServiceSubscription(base, subscriptions, dataTypes, frontEnd,
                                            getTopic(status.toString(), component));
         }
 
@@ -219,7 +224,7 @@ public class ClaraSubscriptions {
          * output result of the service, but just a few stats about the execution.
          */
         public ServiceSubscription done() {
-            return new ServiceSubscription(base, subscriptions, frontEnd,
+            return new ServiceSubscription(base, subscriptions, dataTypes, frontEnd,
                                            getTopic(xMsgConstants.DONE, component));
         }
 
@@ -231,7 +236,7 @@ public class ClaraSubscriptions {
          * output result of the service.
          */
         public ServiceSubscription data() {
-            return new ServiceSubscription(base, subscriptions, frontEnd,
+            return new ServiceSubscription(base, subscriptions, dataTypes, frontEnd,
                                            getTopic(xMsgConstants.DATA, component));
         }
 

@@ -350,7 +350,8 @@ public class BaseOrchestrator {
      * @param service the service to be listened
      */
     public ServiceSubscriptionBuilder listen(ClaraName service) {
-        return new ServiceSubscriptionBuilder(base, subscriptions, base.getFrontEnd(), service);
+        return new ServiceSubscriptionBuilder(base, subscriptions, dataTypes,
+                                              base.getFrontEnd(), service);
     }
 
 
