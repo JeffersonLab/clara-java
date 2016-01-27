@@ -80,12 +80,12 @@ public class EngineData {
         }
     }
 
-    public void setStatus(EngineStatus status) {
-        setStatus(status, 1);
-    }
-
     public int getStatusSeverity() {
         return metadata.getSeverityId();
+    }
+
+    public void setStatus(EngineStatus status) {
+        setStatus(status, 1);
     }
 
     public void setStatus(EngineStatus status, int severity) {
