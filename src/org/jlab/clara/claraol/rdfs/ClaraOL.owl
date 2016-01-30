@@ -528,6 +528,24 @@
     
 
 
+    <!-- http://claraweb.jlab.org/ontology/2015/11/ClaraOL#hasContainer -->
+
+    <owl:DatatypeProperty rdf:about="&ClaraOL;hasContainer">
+        <rdfs:domain rdf:resource="&ClaraOL;Service"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://claraweb.jlab.org/ontology/2015/11/ClaraOL#hasDpe -->
+
+    <owl:DatatypeProperty rdf:about="&ClaraOL;hasDpe">
+        <rdfs:domain rdf:resource="&ClaraOL;Service"/>
+        <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
     <!-- http://claraweb.jlab.org/ontology/2015/11/ClaraOL#hasLibrary -->
 
     <owl:DatatypeProperty rdf:about="&ClaraOL;hasLibrary">
@@ -542,6 +560,15 @@
     <owl:DatatypeProperty rdf:about="&ClaraOL;hasLibraryPath">
         <rdfs:domain rdf:resource="&ClaraOL;Engine"/>
         <rdfs:range rdf:resource="&xsd;string"/>
+    </owl:DatatypeProperty>
+    
+
+
+    <!-- http://claraweb.jlab.org/ontology/2015/11/ClaraOL#hasPoolSize -->
+
+    <owl:DatatypeProperty rdf:about="&ClaraOL;hasPoolSize">
+        <rdfs:domain rdf:resource="&ClaraOL;Service"/>
+        <rdfs:range rdf:resource="&xsd;integer"/>
     </owl:DatatypeProperty>
     
 

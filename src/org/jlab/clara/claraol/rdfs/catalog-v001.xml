@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <catalog prefer="public" xmlns="urn:oasis:names:tc:entity:xmlns:xml:catalog">
     <group id="Folder Repository, directory=, recursive=true, Auto-Update=true, version=2" prefer="public" xml:base="">
-        <uri id="Automatically generated entry, Timestamp=1454175526071" name="http://claraweb.jlab.org/ontology/2015/11/ClaraOL" uri="ClaraOL.owl"/>
+        <uri id="Automatically generated entry, Timestamp=1454193775074" name="http://claraweb.jlab.org/ontology/2015/11/ClaraOL" uri="ClaraOL.owl"/>
     </group>
 </catalog>
