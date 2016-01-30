@@ -248,16 +248,16 @@
 
     <owl:ObjectProperty rdf:about="&ClaraOL;hasCondition">
         <rdfs:range rdf:resource="&ClaraOL;Condition"/>
-        <rdfs:domain rdf:resource="&ClaraOL;ConditionalRouting"/>
+        <rdfs:domain rdf:resource="&ClaraOL;Service"/>
     </owl:ObjectProperty>
     
 
 
-    <!-- http://claraweb.jlab.org/ontology/2015/11/ClaraOL#hasData -->
+    <!-- http://claraweb.jlab.org/ontology/2015/11/ClaraOL#hasConfig -->
 
-    <owl:ObjectProperty rdf:about="&ClaraOL;hasData">
-        <rdfs:domain rdf:resource="&ClaraOL;Config"/>
-        <rdfs:range rdf:resource="&ClaraOL;DataSource"/>
+    <owl:ObjectProperty rdf:about="&ClaraOL;hasConfig">
+        <rdfs:domain rdf:resource="&ClaraOL;Service"/>
+        <rdfs:range rdf:resource="&ClaraOL;ServiceConfig"/>
     </owl:ObjectProperty>
     
 
@@ -322,7 +322,7 @@
     <!-- http://claraweb.jlab.org/ontology/2015/11/ClaraOL#hasLink -->
 
     <owl:ObjectProperty rdf:about="&ClaraOL;hasLink">
-        <rdfs:range rdf:resource="&ClaraOL;ConditionalRouting"/>
+        <rdfs:range rdf:resource="&ClaraOL;Service"/>
         <rdfs:domain rdf:resource="&ClaraOL;Service"/>
     </owl:ObjectProperty>
     
@@ -350,7 +350,7 @@
 
     <owl:ObjectProperty rdf:about="&ClaraOL;hasService">
         <rdfs:domain rdf:resource="&ClaraOL;Application"/>
-        <rdfs:range rdf:resource="&ClaraOL;State"/>
+        <rdfs:range rdf:resource="&ClaraOL;Service"/>
     </owl:ObjectProperty>
     
 
@@ -394,7 +394,7 @@
     <!-- http://claraweb.jlab.org/ontology/2015/11/ClaraOL#ifFalseSend -->
 
     <owl:ObjectProperty rdf:about="&ClaraOL;ifFalseSend">
-        <rdfs:domain rdf:resource="&ClaraOL;ConditionalRouting"/>
+        <rdfs:domain rdf:resource="&ClaraOL;Condition"/>
         <rdfs:range rdf:resource="&ClaraOL;Service"/>
     </owl:ObjectProperty>
     
@@ -403,7 +403,7 @@
     <!-- http://claraweb.jlab.org/ontology/2015/11/ClaraOL#ifTrueSend -->
 
     <owl:ObjectProperty rdf:about="&ClaraOL;ifTrueSend">
-        <rdfs:domain rdf:resource="&ClaraOL;ConditionalRouting"/>
+        <rdfs:domain rdf:resource="&ClaraOL;Condition"/>
         <rdfs:range rdf:resource="&ClaraOL;Service"/>
     </owl:ObjectProperty>
     
@@ -432,15 +432,6 @@
     <owl:ObjectProperty rdf:about="&ClaraOL;receivedState">
         <rdfs:domain rdf:resource="&ClaraOL;Condition"/>
         <rdfs:range rdf:resource="&ClaraOL;State"/>
-    </owl:ObjectProperty>
-    
-
-
-    <!-- http://claraweb.jlab.org/ontology/2015/11/ClaraOL#requiresConfig -->
-
-    <owl:ObjectProperty rdf:about="&ClaraOL;requiresConfig">
-        <rdfs:domain rdf:resource="&ClaraOL;Service"/>
-        <rdfs:range rdf:resource="&ClaraOL;ServiceConfig"/>
     </owl:ObjectProperty>
     
 
@@ -719,18 +710,6 @@
     
 
 
-    <!-- http://claraweb.jlab.org/ontology/2015/11/ClaraOL#ConditionalRouting -->
-
-    <owl:Class rdf:about="&ClaraOL;ConditionalRouting"/>
-    
-
-
-    <!-- http://claraweb.jlab.org/ontology/2015/11/ClaraOL#Config -->
-
-    <owl:Class rdf:about="&ClaraOL;Config"/>
-    
-
-
     <!-- http://claraweb.jlab.org/ontology/2015/11/ClaraOL#DataSet -->
 
     <owl:Class rdf:about="&ClaraOL;DataSet"/>
@@ -751,9 +730,7 @@
 
     <!-- http://claraweb.jlab.org/ontology/2015/11/ClaraOL#EngineConfig -->
 
-    <owl:Class rdf:about="&ClaraOL;EngineConfig">
-        <rdfs:subClassOf rdf:resource="&ClaraOL;Config"/>
-    </owl:Class>
+    <owl:Class rdf:about="&ClaraOL;EngineConfig"/>
     
 
 
@@ -777,9 +754,7 @@
 
     <!-- http://claraweb.jlab.org/ontology/2015/11/ClaraOL#ServiceConfig -->
 
-    <owl:Class rdf:about="&ClaraOL;ServiceConfig">
-        <rdfs:subClassOf rdf:resource="&ClaraOL;Config"/>
-    </owl:Class>
+    <owl:Class rdf:about="&ClaraOL;ServiceConfig"/>
     
 
 

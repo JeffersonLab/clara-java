@@ -445,9 +445,7 @@ public class Dpe extends ClaraBase {
                     default:
                         break;
                 }
-            } catch (RequestException e) {
-                e.printStackTrace();
-            } catch (ClaraException e) {
+            } catch (RequestException | ClaraException e) {
                 e.printStackTrace();
             }
             return msg;

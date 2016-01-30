@@ -32,7 +32,7 @@ import java.util.Set;
 /**
  * <p>
  *     User engine class example
- * </p>
+ *
  *
  * @author gurjyan
  * @version 1.x
