@@ -31,17 +31,20 @@
 
     <ClaraOL:Application rdf:ID="Example1_app">
 
-        <ClaraOL:include rdf:resource="http://CLARAOLHOME/Example1/Service/Service1.rdf"/>
-        <ClaraOL:hasService rdf:resource="http://CLARAOLHOME/Example1/Service/Service1#Service1"/>
+        <ClaraOL:include rdf:resource="http://CLARAOLHOME/App1/Service/Service1.rdf"/>
+        <ClaraOL:hasService rdf:resource="http://CLARAOLHOME/App1/Service/Service1#Service1"/>
 
-        <ClaraOL:include rdf:resource="http://CLARAOLHOME/Example1/Service/Service2.rdf"/>
-        <ClaraOL:hasService rdf:resource="http://CLARAOLHOME/Example1/Service/Service2#Service2"/>
+        <ClaraOL:include rdf:resource="http://CLARAOLHOME/App1/Service/Service2.rdf"/>
+        <ClaraOL:hasService rdf:resource="http://CLARAOLHOME/App1/Service/Service2#Service2"/>
 
-        <ClaraOL:include rdf:resource="http://CLARAOLHOME/Example1/Service/Service3.rdf"/>
-        <ClaraOL:hasService rdf:resource="http://CLARAOLHOME/Example1/Service/Service3#Service3"/>
+        <ClaraOL:include rdf:resource="http://CLARAOLHOME/App1/Service/Service3.rdf"/>
+        <ClaraOL:hasService rdf:resource="http://CLARAOLHOME/App1/Service/Service3#Service3"/>
 
-        <ClaraOL:include rdf:resource="http://CLARAOLHOME/Example1/Action/Action1.rdf"/>
-        <ClaraOL:hasStartAction rdf:resource="http://CLARAOLHOME/Example1/Action/Action1#Action1"/>
+        <ClaraOL:include rdf:resource="http://CLARAOLHOME/App1/Action/Action1.rdf"/>
+        <ClaraOL:hasStartAction rdf:resource="http://CLARAOLHOME/App1/Action/Action1#Action1"/>
+
+        <ClaraOL:include rdf:resource="http://CLARAOLHOME/App1/Identity/AppIdentity1.rdf"/>
+        <ClaraOL:hasIdentity rdf:resource="http://CLARAOLHOME/App1/Identity/AppIdentity1#AppIdentity1"/>
 
     </ClaraOL:Application>
 

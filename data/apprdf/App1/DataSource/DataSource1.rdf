@@ -23,7 +23,7 @@
         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
         xmlns:ClaraOL="http://claraweb.jlab.org/ontology/2015/11/ClaraOL#">
 
-    <rdf:Description rdf:about="http://CLARAOLHOME/Example1/DataSource/DataSource1#DataSource1">
+    <rdf:Description rdf:about="http://CLARAOLHOME/App1/DataSource/DataSource1#DataSource1">
 
         <ClaraOL:hasValue>next</ClaraOL:hasValue>
         <ClaraOL:hasType>String</ClaraOL:hasType>

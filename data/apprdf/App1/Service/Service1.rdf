@@ -23,13 +23,17 @@
         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
         xmlns:ClaraOL="http://claraweb.jlab.org/ontology/2015/11/ClaraOL#">
 
-    <rdf:Description rdf:about="http://CLARAOLHOME/Example1/Service/Service1#Service1">
+    <rdf:Description rdf:about="http://CLARAOLHOME/App1/Service/Service1#Service1">
 
-        <ClaraOL:include rdf:resource="http://CLARAOLHOME/Example1/Engine/Engine1.rdf"/>
-        <ClaraOL:hasEngine rdf:resource="http://CLARAOLHOME/Example1/Engine/Engine1#Engine1"/>
+        <ClaraOL:include rdf:resource="http://CLARAOLHOME/App1/Engine/Engine1.rdf"/>
+        <ClaraOL:hasEngine rdf:resource="http://CLARAOLHOME/App1/Engine/Engine1#Engine1"/>
 
-        <ClaraOL:include rdf:resource="http://CLARAOLHOME/Example1/Service/Service2.rdf"/>
-        <ClaraOL:hasLink rdf:resource="http://CLARAOLHOME/Example1/Service/Service2#Service2"/>
+        <ClaraOL:include rdf:resource="http://CLARAOLHOME/App1/Service/Service2.rdf"/>
+        <ClaraOL:hasLink rdf:resource="http://CLARAOLHOME/App1/Service/Service2#Service2"/>
+
+        <ClaraOL:hasDpe>192.168.1.132</ClaraOL:hasDpe>
+        <ClaraOL:hasContainer>X</ClaraOL:hasContainer>
+        <ClaraOL:hasPoolSize>20</ClaraOL:hasPoolSize>
 
     </rdf:Description>
 

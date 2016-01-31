@@ -23,12 +23,11 @@
         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
         xmlns:ClaraOL="http://claraweb.jlab.org/ontology/2015/11/ClaraOL#">
 
-    <rdf:Description rdf:about="http://CLARAOLHOME/App1/Engine/Engine3#Engine3">
+    <rdf:Description rdf:about="http://CLARAOLHOME/App1/Identity/EngineIdentity1#EngineIdentity1">
 
-        <ClaraOL:include rdf:resource="http://CLARAOLHOME/App1/Identity/EngineIdentity1.rdf"/>
-        <ClaraOL:hasIdentity rdf:resource="http://CLARAOLHOME/App1/Identity/EngineIdentity1#EngineIdentity1"/>
-
-        <ClaraOL:hasLibrary>org.jlab.clara.examples.engines.E3</ClaraOL:hasLibrary>
+        <ClaraOL:author>gurjyan</ClaraOL:author>
+        <ClaraOL:version>1.1</ClaraOL:version>
+        <ClaraOL:description>Engine example</ClaraOL:description>
 
     </rdf:Description>
 
