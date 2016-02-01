@@ -289,8 +289,11 @@ public class CBase extends xMsg {
 
         xMsgAddress address = new xMsgAddress(dpeHost);
         xMsgConnection connection = connect(address, setup);
-
-        return syncPublish(connection, msg, timeOut);
+        try {
+            return syncPublish(connection, msg, timeOut);
+        } finally {
+            destroyConnection(connection);
+        }
     }
 
     /**
