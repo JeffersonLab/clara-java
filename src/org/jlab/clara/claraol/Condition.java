@@ -1,4 +1,4 @@
-package claraol;
+package org.jlab.clara.claraol;
 
 import java.util.Collection;
 
@@ -24,7 +24,7 @@ public interface Condition extends WrappedIndividual {
     /**
      * Gets all property values for the executionState property.<p>
      * 
-     * @returns a collection of values for the executionState property.
+     * @return a collection of values for the executionState property.
      */
     Collection<? extends State> getExecutionState();
 
@@ -57,7 +57,7 @@ public interface Condition extends WrappedIndividual {
     /**
      * Gets all property values for the ifFalseSend property.<p>
      * 
-     * @returns a collection of values for the ifFalseSend property.
+     * @return a collection of values for the ifFalseSend property.
      */
     Collection<? extends Service> getIfFalseSend();
 
@@ -90,7 +90,7 @@ public interface Condition extends WrappedIndividual {
     /**
      * Gets all property values for the ifTrueSend property.<p>
      * 
-     * @returns a collection of values for the ifTrueSend property.
+     * @return a collection of values for the ifTrueSend property.
      */
     Collection<? extends Service> getIfTrueSend();
 
@@ -123,7 +123,7 @@ public interface Condition extends WrappedIndividual {
     /**
      * Gets all property values for the receivedState property.<p>
      * 
-     * @returns a collection of values for the receivedState property.
+     * @return a collection of values for the receivedState property.
      */
     Collection<? extends State> getReceivedState();
 
@@ -156,7 +156,7 @@ public interface Condition extends WrappedIndividual {
     /**
      * Gets all property values for the logicalRelationship property.<p>
      * 
-     * @returns a collection of values for the logicalRelationship property.
+     * @return a collection of values for the logicalRelationship property.
      */
     Collection<? extends String> getLogicalRelationship();
 

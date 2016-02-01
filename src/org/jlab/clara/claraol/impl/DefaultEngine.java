@@ -1,9 +1,12 @@
-package claraol.impl;
+package org.jlab.clara.claraol.impl;
 
-import claraol.*;
 
 import java.util.Collection;
 
+import org.jlab.clara.claraol.Engine;
+import org.jlab.clara.claraol.EngineConfig;
+import org.jlab.clara.claraol.Identity;
+import org.jlab.clara.claraol.Vocabulary;
 import org.protege.owl.codegeneration.WrappedIndividual;
 import org.protege.owl.codegeneration.impl.WrappedIndividualImpl;
 

@@ -1,4 +1,4 @@
-package claraol;
+package org.jlab.clara.claraol;
 
 import java.util.Collection;
 
@@ -24,7 +24,7 @@ public interface Action extends WrappedIndividual {
     /**
      * Gets all property values for the sendsData property.<p>
      * 
-     * @returns a collection of values for the sendsData property.
+     * @return a collection of values for the sendsData property.
      */
     Collection<? extends DataSource> getSendsData();
 
@@ -57,7 +57,7 @@ public interface Action extends WrappedIndividual {
     /**
      * Gets all property values for the sendsTo property.<p>
      * 
-     * @returns a collection of values for the sendsTo property.
+     * @return a collection of values for the sendsTo property.
      */
     Collection<? extends Service> getSendsTo();
 

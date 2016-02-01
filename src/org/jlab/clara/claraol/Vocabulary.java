@@ -1,4 +1,4 @@
-package claraol;
+package org.jlab.clara.claraol;
 
 import org.semanticweb.owlapi.apibinding.OWLManager;
 import org.semanticweb.owlapi.model.IRI;

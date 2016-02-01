@@ -1,4 +1,4 @@
-package claraol;
+package org.jlab.clara.claraol;
 
 import java.util.Collection;
 
@@ -24,7 +24,7 @@ public interface State extends WrappedIndividual {
     /**
      * Gets all property values for the hasSeverity property.<p>
      * 
-     * @returns a collection of values for the hasSeverity property.
+     * @return a collection of values for the hasSeverity property.
      */
     Collection<? extends String> getHasSeverity();
 
@@ -58,7 +58,7 @@ public interface State extends WrappedIndividual {
     /**
      * Gets all property values for the hasSeverityID property.<p>
      * 
-     * @returns a collection of values for the hasSeverityID property.
+     * @return a collection of values for the hasSeverityID property.
      */
     Collection<? extends Integer> getHasSeverityID();
 
@@ -92,7 +92,7 @@ public interface State extends WrappedIndividual {
     /**
      * Gets all property values for the hasStateName property.<p>
      * 
-     * @returns a collection of values for the hasStateName property.
+     * @return a collection of values for the hasStateName property.
      */
     Collection<? extends String> getHasStateName();
 

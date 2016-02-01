@@ -1,4 +1,4 @@
-package claraol;
+package org.jlab.clara.claraol;
 
 import java.util.Collection;
 
@@ -24,7 +24,7 @@ public interface Engine extends WrappedIndividual {
     /**
      * Gets all property values for the hasIdentity property.<p>
      * 
-     * @returns a collection of values for the hasIdentity property.
+     * @return a collection of values for the hasIdentity property.
      */
     Collection<? extends Identity> getHasIdentity();
 
@@ -57,7 +57,7 @@ public interface Engine extends WrappedIndividual {
     /**
      * Gets all property values for the needsConfiguation property.<p>
      * 
-     * @returns a collection of values for the needsConfiguation property.
+     * @return a collection of values for the needsConfiguation property.
      */
     Collection<? extends EngineConfig> getNeedsConfiguation();
 
@@ -90,7 +90,7 @@ public interface Engine extends WrappedIndividual {
     /**
      * Gets all property values for the hasLibrary property.<p>
      * 
-     * @returns a collection of values for the hasLibrary property.
+     * @return a collection of values for the hasLibrary property.
      */
     Collection<? extends String> getHasLibrary();
 
@@ -124,7 +124,7 @@ public interface Engine extends WrappedIndividual {
     /**
      * Gets all property values for the hasLibraryPath property.<p>
      * 
-     * @returns a collection of values for the hasLibraryPath property.
+     * @return a collection of values for the hasLibraryPath property.
      */
     Collection<? extends String> getHasLibraryPath();
 

@@ -1,16 +1,15 @@
-package claraol.impl;
+package org.jlab.clara.claraol.impl;
 
-import claraol.*;
 
 import java.util.Collection;
 
-import org.protege.owl.codegeneration.WrappedIndividual;
+import org.jlab.clara.claraol.State;
+import org.jlab.clara.claraol.Vocabulary;
 import org.protege.owl.codegeneration.impl.WrappedIndividualImpl;
 
 import org.protege.owl.codegeneration.inference.CodeGenerationInference;
 
 import org.semanticweb.owlapi.model.IRI;
-import org.semanticweb.owlapi.model.OWLOntology;
 
 
 /**

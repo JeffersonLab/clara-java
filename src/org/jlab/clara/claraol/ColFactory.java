@@ -1,9 +1,9 @@
-package claraol;
+package org.jlab.clara.claraol;
 
-import claraol.impl.*;
 
 import java.util.Collection;
 
+import org.jlab.clara.claraol.impl.*;
 import org.protege.owl.codegeneration.CodeGenerationFactory;
 import org.protege.owl.codegeneration.WrappedIndividual;
 import org.protege.owl.codegeneration.impl.FactoryHelper;

@@ -1,4 +1,4 @@
-package claraol;
+package org.jlab.clara.claraol;
 
 import java.util.Collection;
 
@@ -24,7 +24,7 @@ public interface EngineConfig extends WrappedIndividual {
     /**
      * Gets all property values for the hasInputData property.<p>
      * 
-     * @returns a collection of values for the hasInputData property.
+     * @return a collection of values for the hasInputData property.
      */
     Collection<? extends DataSource> getHasInputData();
 
@@ -57,7 +57,7 @@ public interface EngineConfig extends WrappedIndividual {
     /**
      * Gets all property values for the hasOutputData property.<p>
      * 
-     * @returns a collection of values for the hasOutputData property.
+     * @return a collection of values for the hasOutputData property.
      */
     Collection<? extends DataSource> getHasOutputData();
 

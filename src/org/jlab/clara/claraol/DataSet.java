@@ -1,4 +1,4 @@
-package claraol;
+package org.jlab.clara.claraol;
 
 import java.util.Collection;
 
@@ -24,7 +24,7 @@ public interface DataSet extends WrappedIndividual {
     /**
      * Gets all property values for the hasInputSource property.<p>
      * 
-     * @returns a collection of values for the hasInputSource property.
+     * @return a collection of values for the hasInputSource property.
      */
     Collection<? extends DataSource> getHasInputSource();
 
@@ -57,7 +57,7 @@ public interface DataSet extends WrappedIndividual {
     /**
      * Gets all property values for the hasOutputSource property.<p>
      * 
-     * @returns a collection of values for the hasOutputSource property.
+     * @return a collection of values for the hasOutputSource property.
      */
     Collection<? extends DataSource> getHasOutputSource();
 
@@ -90,7 +90,7 @@ public interface DataSet extends WrappedIndividual {
     /**
      * Gets all property values for the outputFilePrefix property.<p>
      * 
-     * @returns a collection of values for the outputFilePrefix property.
+     * @return a collection of values for the outputFilePrefix property.
      */
     Collection<? extends String> getOutputFilePrefix();
 
@@ -124,7 +124,7 @@ public interface DataSet extends WrappedIndividual {
     /**
      * Gets all property values for the outputFileSuffix property.<p>
      * 
-     * @returns a collection of values for the outputFileSuffix property.
+     * @return a collection of values for the outputFileSuffix property.
      */
     Collection<? extends String> getOutputFileSuffix();
 

@@ -1,4 +1,4 @@
-package claraol;
+package org.jlab.clara.claraol;
 
 import java.util.Collection;
 
@@ -24,7 +24,7 @@ public interface Service extends WrappedIndividual {
     /**
      * Gets all property values for the hasCondition property.<p>
      * 
-     * @returns a collection of values for the hasCondition property.
+     * @return a collection of values for the hasCondition property.
      */
     Collection<? extends Condition> getHasCondition();
 
@@ -57,7 +57,7 @@ public interface Service extends WrappedIndividual {
     /**
      * Gets all property values for the hasConfig property.<p>
      * 
-     * @returns a collection of values for the hasConfig property.
+     * @return a collection of values for the hasConfig property.
      */
     Collection<? extends ServiceConfig> getHasConfig();
 
@@ -90,7 +90,7 @@ public interface Service extends WrappedIndividual {
     /**
      * Gets all property values for the hasEngine property.<p>
      * 
-     * @returns a collection of values for the hasEngine property.
+     * @return a collection of values for the hasEngine property.
      */
     Collection<? extends Engine> getHasEngine();
 
@@ -123,7 +123,7 @@ public interface Service extends WrappedIndividual {
     /**
      * Gets all property values for the hasIdentity property.<p>
      * 
-     * @returns a collection of values for the hasIdentity property.
+     * @return a collection of values for the hasIdentity property.
      */
     Collection<? extends Identity> getHasIdentity();
 
@@ -156,7 +156,7 @@ public interface Service extends WrappedIndividual {
     /**
      * Gets all property values for the hasLink property.<p>
      * 
-     * @returns a collection of values for the hasLink property.
+     * @return a collection of values for the hasLink property.
      */
     Collection<? extends Service> getHasLink();
 
@@ -189,7 +189,7 @@ public interface Service extends WrappedIndividual {
     /**
      * Gets all property values for the hasState property.<p>
      * 
-     * @returns a collection of values for the hasState property.
+     * @return a collection of values for the hasState property.
      */
     Collection<? extends State> getHasState();
 
@@ -222,7 +222,7 @@ public interface Service extends WrappedIndividual {
     /**
      * Gets all property values for the hasContainer property.<p>
      * 
-     * @returns a collection of values for the hasContainer property.
+     * @return a collection of values for the hasContainer property.
      */
     Collection<? extends String> getHasContainer();
 
@@ -256,7 +256,7 @@ public interface Service extends WrappedIndividual {
     /**
      * Gets all property values for the hasDpe property.<p>
      * 
-     * @returns a collection of values for the hasDpe property.
+     * @return a collection of values for the hasDpe property.
      */
     Collection<? extends String> getHasDpe();
 
@@ -290,7 +290,7 @@ public interface Service extends WrappedIndividual {
     /**
      * Gets all property values for the hasPoolSize property.<p>
      * 
-     * @returns a collection of values for the hasPoolSize property.
+     * @return a collection of values for the hasPoolSize property.
      */
     Collection<? extends Integer> getHasPoolSize();
 
