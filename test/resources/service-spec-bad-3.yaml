@@ -1,0 +1,12 @@
+---
+name: SomeService
+engine:
+  - std.services.SomeService
+type: java
+
+author: Sebastián Mancilla
+email: smancill@jlab.org
+
+version: 14
+description:
+  Some service

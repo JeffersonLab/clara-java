@@ -53,6 +53,7 @@ repositories {
 dependencies {
     compile 'org.jlab.coda:xmsg:2.3-SNAPSHOT'
     compile 'net.sf.jopt-simple:jopt-simple:4.9'
+    compile 'org.yaml:snakeyaml:1.16'
     compile ('com.googlecode.json-simple:json-simple:1.1.1') {
         exclude group: "junit", module: "*"
     }
