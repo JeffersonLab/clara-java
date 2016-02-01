@@ -87,9 +87,11 @@ public class ServiceEngine extends CBase {
         this.engineObject = userEngine;
         this.sysConfig = config;
 
-        // Create a socket connections
-        // to the local dpe proxy
-        connect();
+        // Cache a connection to the local dpe proxy
+        destroyConnection(connect());
+
+        // Cache a connection to the front-end proxy
+        destroyConnection(connect(getFrontEndAddress()));
 
         // create an object of the composition parser
         compiler = new CCompiler(getName());
