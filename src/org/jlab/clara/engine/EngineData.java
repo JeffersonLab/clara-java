@@ -141,6 +141,12 @@ public class EngineData {
     }
 
 
+    @Override
+    public String toString() {
+        return "EngineData: " + metadata.getDataType() + " " + data;
+    }
+
+
     static {
         EngineDataAccessor.setDefault(new Accessor());
     }
