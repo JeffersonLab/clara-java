@@ -35,6 +35,7 @@ import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.data.xMsgM;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
+import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta.Endian;
 import org.jlab.coda.xmsg.data.xMsgR.xMsgRegistration;
 import org.jlab.coda.xmsg.excp.xMsgException;
 import org.jlab.coda.xmsg.net.xMsgConnection;
@@ -45,6 +46,7 @@ import org.zeromq.ZMQ.Socket;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
@@ -508,6 +510,9 @@ public abstract class ClaraBase extends xMsg {
             if (dt.mimeType().equals(mimeType)) {
                 try {
                     ByteBuffer bb = ByteBuffer.wrap(msg.getData());
+                    if (metadata.getByteOrder() == Endian.Little) {
+                        bb.order(ByteOrder.LITTLE_ENDIAN);
+                    }
                     Object userData = dt.serializer().read(bb);
                     return dataAccessor.build(userData, metadata);
                 } catch (ClaraException e) {
@@ -539,6 +544,11 @@ public abstract class ClaraBase extends xMsg {
             if (dt.mimeType().equals(mimeType)) {
                 try {
                     ByteBuffer bb = dt.serializer().write(data.getData());
+                    if (bb.order() == ByteOrder.BIG_ENDIAN) {
+                        metadata.setByteOrder(Endian.Big);
+                    } else {
+                        metadata.setByteOrder(Endian.Little);
+                    }
                     return new xMsgMessage(topic, metadata, bb.array());
                 } catch (ClaraException e) {
                     throw new ClaraException("Could not serialize " + mimeType, e);
