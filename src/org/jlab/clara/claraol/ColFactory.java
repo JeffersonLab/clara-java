@@ -1,7 +1,27 @@
+/*
+ *   Copyright (c) 2016.  Jefferson Lab (JLab). All rights reserved. Permission
+ *   to use, copy, modify, and distribute  this software and its documentation for
+ *   educational, research, and not-for-profit purposes, without fee and without a
+ *   signed licensing agreement.
+ *
+ *   IN NO EVENT SHALL JLAB BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL
+ *   INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING LOST PROFITS, ARISING
+ *   OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN IF JLAB HAS
+ *   BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+ *
+ *   JLAB SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ *   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ *   PURPOSE. THE CLARA SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY,
+ *   PROVIDED HEREUNDER IS PROVIDED "AS IS". JLAB HAS NO OBLIGATION TO PROVIDE
+ *   MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+ *
+ *   This software was developed under the United States Government license.
+ *   For more information contact author at gurjyan@jlab.org
+ *   Department of Experimental Nuclear Physics, Jefferson Lab.
+ */
+
 package org.jlab.clara.claraol;
 
-
-import java.util.Collection;
 
 import org.jlab.clara.claraol.impl.*;
 import org.protege.owl.codegeneration.CodeGenerationFactory;
@@ -10,10 +30,11 @@ import org.protege.owl.codegeneration.impl.FactoryHelper;
 import org.protege.owl.codegeneration.impl.ProtegeJavaMapping;
 import org.protege.owl.codegeneration.inference.CodeGenerationInference;
 import org.protege.owl.codegeneration.inference.SimpleInference;
-
 import org.semanticweb.owlapi.model.OWLClass;
 import org.semanticweb.owlapi.model.OWLOntology;
 import org.semanticweb.owlapi.model.OWLOntologyStorageException;
+
+import java.util.Collection;
 
 /**
  * A class that serves as the entry point to the generated code providing access
@@ -29,47 +50,44 @@ public class ColFactory implements CodeGenerationFactory {
     private FactoryHelper delegate;
     private CodeGenerationInference inference;
 
-    public ColFactory(OWLOntology ontology) {
-	    this(ontology, new SimpleInference(ontology));
-    }
-    
-    public ColFactory(OWLOntology ontology, CodeGenerationInference inference) {
-        this.ontology = ontology;
-        this.inference = inference;
-        javaMapping.initialize(ontology, inference);
-        delegate = new FactoryHelper(ontology, inference);
+    {
+        javaMapping.add("http://claraweb.jlab.org/ontology/2015/11/ClaraOL#Action", Action.class, DefaultAction.class);
     }
 
-    public OWLOntology getOwlOntology() {
-        return ontology;
+    {
+        javaMapping.add("http://claraweb.jlab.org/ontology/2015/11/ClaraOL#Application", Application.class, DefaultApplication.class);
     }
-    
-    public void saveOwlOntology() throws OWLOntologyStorageException {
-        ontology.getOWLOntologyManager().saveOntology(ontology);
+
+    {
+        javaMapping.add("http://claraweb.jlab.org/ontology/2015/11/ClaraOL#Condition", Condition.class, DefaultCondition.class);
     }
-    
-    public void flushOwlReasoner() {
-        delegate.flushOwlReasoner();
+
+    {
+        javaMapping.add("http://claraweb.jlab.org/ontology/2015/11/ClaraOL#DataSet", DataSet.class, DefaultDataSet.class);
     }
-    
-    public boolean canAs(WrappedIndividual resource, Class<? extends WrappedIndividual> javaInterface) {
-    	return javaMapping.canAs(resource, javaInterface);
+
+    {
+        javaMapping.add("http://claraweb.jlab.org/ontology/2015/11/ClaraOL#DataSource", DataSource.class, DefaultDataSource.class);
     }
-    
-    public  <X extends WrappedIndividual> X as(WrappedIndividual resource, Class<? extends X> javaInterface) {
-    	return javaMapping.as(resource, javaInterface);
+
+    {
+        javaMapping.add("http://claraweb.jlab.org/ontology/2015/11/ClaraOL#Engine", Engine.class, DefaultEngine.class);
     }
-    
-    public Class<?> getJavaInterfaceFromOwlClass(OWLClass cls) {
-        return javaMapping.getJavaInterfaceFromOwlClass(cls);
+
+    {
+        javaMapping.add("http://claraweb.jlab.org/ontology/2015/11/ClaraOL#EngineConfig", EngineConfig.class, DefaultEngineConfig.class);
     }
-    
-    public OWLClass getOwlClassFromJavaInterface(Class<?> javaInterface) {
-	    return javaMapping.getOwlClassFromJavaInterface(javaInterface);
+
+    {
+        javaMapping.add("http://claraweb.jlab.org/ontology/2015/11/ClaraOL#Identity", Identity.class, DefaultIdentity.class);
     }
-    
-    public CodeGenerationInference getInference() {
-        return inference;
+
+    {
+        javaMapping.add("http://claraweb.jlab.org/ontology/2015/11/ClaraOL#Orchestrator", Orchestrator.class, DefaultOrchestrator.class);
+    }
+
+    {
+        javaMapping.add("http://claraweb.jlab.org/ontology/2015/11/ClaraOL#Service", Service.class, DefaultService.class);
     }
 
     /* ***************************************************
@@ -77,8 +95,70 @@ public class ColFactory implements CodeGenerationFactory {
      */
 
     {
-        javaMapping.add("http://claraweb.jlab.org/ontology/2015/11/ClaraOL#Action", Action.class, DefaultAction.class);
+        javaMapping.add("http://claraweb.jlab.org/ontology/2015/11/ClaraOL#ServiceConfig", ServiceConfig.class, DefaultServiceConfig.class);
     }
+
+    {
+        javaMapping.add("http://claraweb.jlab.org/ontology/2015/11/ClaraOL#State", State.class, DefaultState.class);
+    }
+
+    public ColFactory(OWLOntology ontology) {
+	    this(ontology, new SimpleInference(ontology));
+    }
+
+    public ColFactory(OWLOntology ontology, CodeGenerationInference inference) {
+        this.ontology = ontology;
+        this.inference = inference;
+        javaMapping.initialize(ontology, inference);
+        delegate = new FactoryHelper(ontology, inference);
+    }
+
+
+    /* ***************************************************
+     * Class http://claraweb.jlab.org/ontology/2015/11/ClaraOL#Application
+     */
+
+    public OWLOntology getOwlOntology() {
+        return ontology;
+    }
+
+    public void saveOwlOntology() throws OWLOntologyStorageException {
+        ontology.getOWLOntologyManager().saveOntology(ontology);
+    }
+
+    public void flushOwlReasoner() {
+        delegate.flushOwlReasoner();
+    }
+
+    public boolean canAs(WrappedIndividual resource, Class<? extends WrappedIndividual> javaInterface) {
+    	return javaMapping.canAs(resource, javaInterface);
+    }
+
+
+    /* ***************************************************
+     * Class http://claraweb.jlab.org/ontology/2015/11/ClaraOL#Condition
+     */
+
+    public  <X extends WrappedIndividual> X as(WrappedIndividual resource, Class<? extends X> javaInterface) {
+    	return javaMapping.as(resource, javaInterface);
+    }
+
+    public Class<?> getJavaInterfaceFromOwlClass(OWLClass cls) {
+        return javaMapping.getJavaInterfaceFromOwlClass(cls);
+    }
+
+    public OWLClass getOwlClassFromJavaInterface(Class<?> javaInterface) {
+	    return javaMapping.getOwlClassFromJavaInterface(javaInterface);
+    }
+
+    public CodeGenerationInference getInference() {
+        return inference;
+    }
+
+
+    /* ***************************************************
+     * Class http://claraweb.jlab.org/ontology/2015/11/ClaraOL#DataSet
+     */
 
     /**
      * Creates an instance of type Action.  Modifies the underlying ontology.
@@ -102,21 +182,17 @@ public class ColFactory implements CodeGenerationFactory {
 		return delegate.getWrappedIndividuals(Vocabulary.CLASS_ACTION, DefaultAction.class);
     }
 
-
-    /* ***************************************************
-     * Class http://claraweb.jlab.org/ontology/2015/11/ClaraOL#Application
-     */
-
-    {
-        javaMapping.add("http://claraweb.jlab.org/ontology/2015/11/ClaraOL#Application", Application.class, DefaultApplication.class);
-    }
-
     /**
      * Creates an instance of type Application.  Modifies the underlying ontology.
      */
     public Application createApplication(String name) {
 		return delegate.createWrappedIndividual(name, Vocabulary.CLASS_APPLICATION, DefaultApplication.class);
     }
+
+
+    /* ***************************************************
+     * Class http://claraweb.jlab.org/ontology/2015/11/ClaraOL#DataSource
+     */
 
     /**
      * Gets an instance of type Application with the given name.  Does not modify the underlying ontology.
@@ -131,15 +207,6 @@ public class ColFactory implements CodeGenerationFactory {
      */
     public Collection<? extends Application> getAllApplicationInstances() {
 		return delegate.getWrappedIndividuals(Vocabulary.CLASS_APPLICATION, DefaultApplication.class);
-    }
-
-
-    /* ***************************************************
-     * Class http://claraweb.jlab.org/ontology/2015/11/ClaraOL#Condition
-     */
-
-    {
-        javaMapping.add("http://claraweb.jlab.org/ontology/2015/11/ClaraOL#Condition", Condition.class, DefaultCondition.class);
     }
 
     /**
@@ -157,20 +224,16 @@ public class ColFactory implements CodeGenerationFactory {
 		return delegate.getWrappedIndividual(name, Vocabulary.CLASS_CONDITION, DefaultCondition.class);
     }
 
+
+    /* ***************************************************
+     * Class http://claraweb.jlab.org/ontology/2015/11/ClaraOL#Engine
+     */
+
     /**
      * Gets all instances of Condition from the ontology.
      */
     public Collection<? extends Condition> getAllConditionInstances() {
 		return delegate.getWrappedIndividuals(Vocabulary.CLASS_CONDITION, DefaultCondition.class);
-    }
-
-
-    /* ***************************************************
-     * Class http://claraweb.jlab.org/ontology/2015/11/ClaraOL#DataSet
-     */
-
-    {
-        javaMapping.add("http://claraweb.jlab.org/ontology/2015/11/ClaraOL#DataSet", DataSet.class, DefaultDataSet.class);
     }
 
     /**
@@ -197,12 +260,8 @@ public class ColFactory implements CodeGenerationFactory {
 
 
     /* ***************************************************
-     * Class http://claraweb.jlab.org/ontology/2015/11/ClaraOL#DataSource
+     * Class http://claraweb.jlab.org/ontology/2015/11/ClaraOL#EngineConfig
      */
-
-    {
-        javaMapping.add("http://claraweb.jlab.org/ontology/2015/11/ClaraOL#DataSource", DataSource.class, DefaultDataSource.class);
-    }
 
     /**
      * Creates an instance of type DataSource.  Modifies the underlying ontology.
@@ -226,21 +285,17 @@ public class ColFactory implements CodeGenerationFactory {
 		return delegate.getWrappedIndividuals(Vocabulary.CLASS_DATASOURCE, DefaultDataSource.class);
     }
 
-
-    /* ***************************************************
-     * Class http://claraweb.jlab.org/ontology/2015/11/ClaraOL#Engine
-     */
-
-    {
-        javaMapping.add("http://claraweb.jlab.org/ontology/2015/11/ClaraOL#Engine", Engine.class, DefaultEngine.class);
-    }
-
     /**
      * Creates an instance of type Engine.  Modifies the underlying ontology.
      */
     public Engine createEngine(String name) {
 		return delegate.createWrappedIndividual(name, Vocabulary.CLASS_ENGINE, DefaultEngine.class);
     }
+
+
+    /* ***************************************************
+     * Class http://claraweb.jlab.org/ontology/2015/11/ClaraOL#Identity
+     */
 
     /**
      * Gets an instance of type Engine with the given name.  Does not modify the underlying ontology.
@@ -255,15 +310,6 @@ public class ColFactory implements CodeGenerationFactory {
      */
     public Collection<? extends Engine> getAllEngineInstances() {
 		return delegate.getWrappedIndividuals(Vocabulary.CLASS_ENGINE, DefaultEngine.class);
-    }
-
-
-    /* ***************************************************
-     * Class http://claraweb.jlab.org/ontology/2015/11/ClaraOL#EngineConfig
-     */
-
-    {
-        javaMapping.add("http://claraweb.jlab.org/ontology/2015/11/ClaraOL#EngineConfig", EngineConfig.class, DefaultEngineConfig.class);
     }
 
     /**
@@ -281,20 +327,16 @@ public class ColFactory implements CodeGenerationFactory {
 		return delegate.getWrappedIndividual(name, Vocabulary.CLASS_ENGINECONFIG, DefaultEngineConfig.class);
     }
 
+
+    /* ***************************************************
+     * Class http://claraweb.jlab.org/ontology/2015/11/ClaraOL#Orchestrator
+     */
+
     /**
      * Gets all instances of EngineConfig from the ontology.
      */
     public Collection<? extends EngineConfig> getAllEngineConfigInstances() {
 		return delegate.getWrappedIndividuals(Vocabulary.CLASS_ENGINECONFIG, DefaultEngineConfig.class);
-    }
-
-
-    /* ***************************************************
-     * Class http://claraweb.jlab.org/ontology/2015/11/ClaraOL#Identity
-     */
-
-    {
-        javaMapping.add("http://claraweb.jlab.org/ontology/2015/11/ClaraOL#Identity", Identity.class, DefaultIdentity.class);
     }
 
     /**
@@ -321,12 +363,8 @@ public class ColFactory implements CodeGenerationFactory {
 
 
     /* ***************************************************
-     * Class http://claraweb.jlab.org/ontology/2015/11/ClaraOL#Orchestrator
+     * Class http://claraweb.jlab.org/ontology/2015/11/ClaraOL#Service
      */
-
-    {
-        javaMapping.add("http://claraweb.jlab.org/ontology/2015/11/ClaraOL#Orchestrator", Orchestrator.class, DefaultOrchestrator.class);
-    }
 
     /**
      * Creates an instance of type Orchestrator.  Modifies the underlying ontology.
@@ -350,21 +388,17 @@ public class ColFactory implements CodeGenerationFactory {
 		return delegate.getWrappedIndividuals(Vocabulary.CLASS_ORCHESTRATOR, DefaultOrchestrator.class);
     }
 
-
-    /* ***************************************************
-     * Class http://claraweb.jlab.org/ontology/2015/11/ClaraOL#Service
-     */
-
-    {
-        javaMapping.add("http://claraweb.jlab.org/ontology/2015/11/ClaraOL#Service", Service.class, DefaultService.class);
-    }
-
     /**
      * Creates an instance of type Service.  Modifies the underlying ontology.
      */
     public Service createService(String name) {
 		return delegate.createWrappedIndividual(name, Vocabulary.CLASS_SERVICE, DefaultService.class);
     }
+
+
+    /* ***************************************************
+     * Class http://claraweb.jlab.org/ontology/2015/11/ClaraOL#ServiceConfig
+     */
 
     /**
      * Gets an instance of type Service with the given name.  Does not modify the underlying ontology.
@@ -379,15 +413,6 @@ public class ColFactory implements CodeGenerationFactory {
      */
     public Collection<? extends Service> getAllServiceInstances() {
 		return delegate.getWrappedIndividuals(Vocabulary.CLASS_SERVICE, DefaultService.class);
-    }
-
-
-    /* ***************************************************
-     * Class http://claraweb.jlab.org/ontology/2015/11/ClaraOL#ServiceConfig
-     */
-
-    {
-        javaMapping.add("http://claraweb.jlab.org/ontology/2015/11/ClaraOL#ServiceConfig", ServiceConfig.class, DefaultServiceConfig.class);
     }
 
     /**
@@ -405,20 +430,16 @@ public class ColFactory implements CodeGenerationFactory {
 		return delegate.getWrappedIndividual(name, Vocabulary.CLASS_SERVICECONFIG, DefaultServiceConfig.class);
     }
 
-    /**
-     * Gets all instances of ServiceConfig from the ontology.
-     */
-    public Collection<? extends ServiceConfig> getAllServiceConfigInstances() {
-		return delegate.getWrappedIndividuals(Vocabulary.CLASS_SERVICECONFIG, DefaultServiceConfig.class);
-    }
-
 
     /* ***************************************************
      * Class http://claraweb.jlab.org/ontology/2015/11/ClaraOL#State
      */
 
-    {
-        javaMapping.add("http://claraweb.jlab.org/ontology/2015/11/ClaraOL#State", State.class, DefaultState.class);
+    /**
+     * Gets all instances of ServiceConfig from the ontology.
+     */
+    public Collection<? extends ServiceConfig> getAllServiceConfigInstances() {
+        return delegate.getWrappedIndividuals(Vocabulary.CLASS_SERVICECONFIG, DefaultServiceConfig.class);
     }
 
     /**

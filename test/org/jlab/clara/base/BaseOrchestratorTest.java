@@ -1,22 +1,23 @@
 /*
- * Copyright (C) 2015. Jefferson Lab, CLARA framework (JLAB). All Rights Reserved.
- * Permission to use, copy, modify, and distribute this software and its
- * documentation for educational, research, and not-for-profit purposes,
- * without fee and without a signed licensing agreement.
+ *   Copyright (c) 2016.  Jefferson Lab (JLab). All rights reserved. Permission
+ *   to use, copy, modify, and distribute  this software and its documentation for
+ *   educational, research, and not-for-profit purposes, without fee and without a
+ *   signed licensing agreement.
  *
- * Contact Vardan Gyurjyan
- * Department of Experimental Nuclear Physics, Jefferson Lab.
+ *   IN NO EVENT SHALL JLAB BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL
+ *   INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING LOST PROFITS, ARISING
+ *   OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN IF JLAB HAS
+ *   BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * IN NO EVENT SHALL JLAB BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL,
- * INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING LOST PROFITS, ARISING OUT OF
- * THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN IF JLAB HAS BEEN ADVISED
- * OF THE POSSIBILITY OF SUCH DAMAGE.
+ *   JLAB SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ *   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ *   PURPOSE. THE CLARA SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY,
+ *   PROVIDED HEREUNDER IS PROVIDED "AS IS". JLAB HAS NO OBLIGATION TO PROVIDE
+ *   MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  *
- * JLAB SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
- * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
- * PURPOSE. THE CLARA SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED
- * HEREUNDER IS PROVIDED "AS IS". JLAB HAS NO OBLIGATION TO PROVIDE MAINTENANCE,
- * SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+ *   This software was developed under the United States Government license.
+ *   For more information contact author at gurjyan@jlab.org
+ *   Department of Experimental Nuclear Physics, Jefferson Lab.
  */
 
 package org.jlab.clara.base;
@@ -36,12 +37,12 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-
 import java.io.IOException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-import static org.mockito.Mockito.*;
+import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class BaseOrchestratorTest {
 

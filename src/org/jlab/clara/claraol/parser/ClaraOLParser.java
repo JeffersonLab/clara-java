@@ -20,19 +20,31 @@
  *   Department of Experimental Nuclear Physics, Jefferson Lab.
  */
 
-package org.jlab.clara.base;
+package org.jlab.clara.claraol.parser;
+
+import java.io.FileInputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
 
 /**
- * An interface to handle the JSON reports published by Clara.
+ * ClaraOL parser.
+ * Creates in-memory representation of a data processing application
+ * ClaraOL description.
+ * <p/>
+ *
+ * @author gurjyan
+ *         Created on 2/3/16
+ * @version Clara-java-v4.3
  */
-public interface GenericCallback {
+public class ClaraOLParser {
 
-    /**
-     * Receives and process the data that Clara has published.
-     * The data is in JSON format and contain registration and runtime
-     * information related to the current status of the Clara cloud.
-     *
-     * @param json the published data
-     */
-    void callback(String json);
+    // Jena model
+    private Model GModel;
+
+    // List of the included cool configuration file jena models
+    private HashMap<String, Model> includeModels = new HashMap<>();
+
+    private ArrayList<FileInputStream> fStreams = new ArrayList<>();
+
+
 }

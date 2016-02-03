@@ -1,34 +1,32 @@
 /*
- * Copyright (C) 2015. Jefferson Lab, CLARA framework (JLAB). All Rights Reserved.
- * Permission to use, copy, modify, and distribute this software and its
- * documentation for educational, research, and not-for-profit purposes,
- * without fee and without a signed licensing agreement.
+ *   Copyright (c) 2016.  Jefferson Lab (JLab). All rights reserved. Permission
+ *   to use, copy, modify, and distribute  this software and its documentation for
+ *   educational, research, and not-for-profit purposes, without fee and without a
+ *   signed licensing agreement.
  *
- * Contact Vardan Gyurjyan
- * Department of Experimental Nuclear Physics, Jefferson Lab.
+ *   IN NO EVENT SHALL JLAB BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL
+ *   INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING LOST PROFITS, ARISING
+ *   OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN IF JLAB HAS
+ *   BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * IN NO EVENT SHALL JLAB BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL,
- * INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING LOST PROFITS, ARISING OUT OF
- * THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN IF JLAB HAS BEEN ADVISED
- * OF THE POSSIBILITY OF SUCH DAMAGE.
+ *   JLAB SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ *   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ *   PURPOSE. THE CLARA SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY,
+ *   PROVIDED HEREUNDER IS PROVIDED "AS IS". JLAB HAS NO OBLIGATION TO PROVIDE
+ *   MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  *
- * JLAB SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
- * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
- * PURPOSE. THE CLARA SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED
- * HEREUNDER IS PROVIDED "AS IS". JLAB HAS NO OBLIGATION TO PROVIDE MAINTENANCE,
- * SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+ *   This software was developed under the United States Government license.
+ *   For more information contact author at gurjyan@jlab.org
+ *   Department of Experimental Nuclear Physics, Jefferson Lab.
  */
 
 package org.jlab.clara.examples.orchestrators;
 
-import static java.util.Arrays.asList;
-
-import org.jlab.clara.base.BaseOrchestrator;
-import org.jlab.clara.base.ClaraLang;
-import org.jlab.clara.base.ClaraUtil;
-import org.jlab.clara.base.Composition;
-import org.jlab.clara.base.ContainerName;
-import org.jlab.clara.base.ServiceName;
+import joptsimple.OptionException;
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
+import joptsimple.OptionSpec;
+import org.jlab.clara.base.*;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.EngineDataType;
@@ -37,17 +35,14 @@ import org.jlab.clara.util.xml.XMLTagValue;
 import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.w3c.dom.Document;
 
-import joptsimple.OptionException;
-import joptsimple.OptionParser;
-import joptsimple.OptionSet;
-import joptsimple.OptionSpec;
-
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
+
+import static java.util.Arrays.asList;
 
 /**
  * Interactive orchestrator.
@@ -61,6 +56,12 @@ public class OrInteractive extends BaseOrchestrator {
 
     private final String defaultHost;
     private final String defaultContainer;
+
+    public OrInteractive() throws Exception {
+        super();
+        defaultHost = ClaraUtil.localhost();
+        defaultContainer = System.getenv("USER");
+    }
 
     public static void main(String[] args) {
         try {
@@ -90,10 +91,31 @@ public class OrInteractive extends BaseOrchestrator {
         }
     }
 
-    public OrInteractive() throws Exception {
-        super();
-        defaultHost = ClaraUtil.localhost();
-        defaultContainer = System.getenv("USER");
+    private static void usage(PrintStream out) {
+        out.printf("usage: jx_orchestrator [options]%n%n  Options:%n");
+        out.printf("  %-22s  %s%n", "-f <file>", "the application description file");
+        out.printf("  %-22s  %s%n", "-b", "run a bluster test");
+    }
+
+    private static ContainerName buildContainerName(String dpeHost, String container) {
+        try {
+            return new ContainerName(xMsgUtil.toHostAddress(dpeHost), ClaraLang.JAVA, container);
+        } catch (IOException e) {
+            throw new UserInputException(e);
+        }
+    }
+
+    private static String buildData(String dataSize) {
+        try {
+            int bytes = Integer.parseInt(dataSize);
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < bytes; i++) {
+                sb.append('x');
+            }
+            return sb.toString();
+        } catch (NumberFormatException e) {
+            throw new UserInputException("Cannot parse data size from: " + dataSize);
+        }
     }
 
     public void read(String appFile, boolean bluster) throws Exception {
@@ -316,12 +338,6 @@ public class OrInteractive extends BaseOrchestrator {
         }
     }
 
-    private static void usage(PrintStream out) {
-        out.printf("usage: jx_orchestrator [options]%n%n  Options:%n");
-        out.printf("  %-22s  %s%n", "-f <file>", "the application description file");
-        out.printf("  %-22s  %s%n", "-b", "run a bluster test");
-    }
-
     private void printHelp() {
         System.out.println("|----------|------------------------------|----------------------|");
         System.out.println("| ShortCut |          Parameters          |     Description      |");
@@ -351,28 +367,6 @@ public class OrInteractive extends BaseOrchestrator {
             throw new UserInputException("Cannot parse pool size from: " + size);
         }
     }
-
-    private static ContainerName buildContainerName(String dpeHost, String container) {
-        try {
-            return new ContainerName(xMsgUtil.toHostAddress(dpeHost), ClaraLang.JAVA, container);
-        } catch (IOException e) {
-            throw new UserInputException(e);
-        }
-    }
-
-    private static String buildData(String dataSize) {
-        try {
-            int bytes = Integer.parseInt(dataSize);
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < bytes; i++) {
-                sb.append('x');
-            }
-            return sb.toString();
-        } catch (NumberFormatException e) {
-            throw new UserInputException("Cannot parse data size from: " + dataSize);
-        }
-    }
-
 
     private static class UserInputException extends RuntimeException {
 

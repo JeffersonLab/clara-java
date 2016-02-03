@@ -1,30 +1,26 @@
 /*
- * Copyright (C) 2015. Jefferson Lab, CLARA framework (JLAB). All Rights Reserved.
- * Permission to use, copy, modify, and distribute this software and its
- * documentation for educational, research, and not-for-profit purposes,
- * without fee and without a signed licensing agreement.
+ *   Copyright (c) 2016.  Jefferson Lab (JLab). All rights reserved. Permission
+ *   to use, copy, modify, and distribute  this software and its documentation for
+ *   educational, research, and not-for-profit purposes, without fee and without a
+ *   signed licensing agreement.
  *
- * Contact Vardan Gyurjyan
- * Department of Experimental Nuclear Physics, Jefferson Lab.
+ *   IN NO EVENT SHALL JLAB BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL
+ *   INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING LOST PROFITS, ARISING
+ *   OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN IF JLAB HAS
+ *   BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * IN NO EVENT SHALL JLAB BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL,
- * INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING LOST PROFITS, ARISING OUT OF
- * THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN IF JLAB HAS BEEN ADVISED
- * OF THE POSSIBILITY OF SUCH DAMAGE.
+ *   JLAB SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ *   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ *   PURPOSE. THE CLARA SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY,
+ *   PROVIDED HEREUNDER IS PROVIDED "AS IS". JLAB HAS NO OBLIGATION TO PROVIDE
+ *   MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  *
- * JLAB SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
- * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
- * PURPOSE. THE CLARA SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED
- * HEREUNDER IS PROVIDED "AS IS". JLAB HAS NO OBLIGATION TO PROVIDE MAINTENANCE,
- * SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+ *   This software was developed under the United States Government license.
+ *   For more information contact author at gurjyan@jlab.org
+ *   Department of Experimental Nuclear Physics, Jefferson Lab.
  */
 
 package org.jlab.clara.base;
-
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineData;
@@ -36,9 +32,30 @@ import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 import org.jlab.coda.xmsg.excp.xMsgException;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
+
 public final class ClaraRequests {
 
     private ClaraRequests() { }
+
+    private static ClaraComponent getDpeComponent(ClaraName claraName) {
+        try {
+            return ClaraComponent.dpe(ClaraUtil.getDpeName(claraName.canonicalName()));
+        } catch (ClaraException e) {
+            throw new IllegalArgumentException("Invalid Clara name: " + claraName);
+        }
+    }
+
+    private static String getDpeTopic(ClaraName claraName) {
+        return getDpeComponent(claraName).getTopic().toString();
+    }
+
+    private static Composition getComposition(ServiceName service) {
+        return new Composition(service.canonicalName());
+    }
 
     /**
      * A request to a Clara component.
@@ -115,7 +132,6 @@ public final class ClaraRequests {
         protected abstract T parseData(xMsgMessage msg) throws ClaraException;
     }
 
-
     /**
      * Base class for sending a string-encoded request
      * and parsing the status of the operation.
@@ -144,7 +160,6 @@ public final class ClaraRequests {
             return true;
         }
     }
-
 
     /**
      * Base class to deploy a Clara component.
@@ -184,7 +199,6 @@ public final class ClaraRequests {
         }
     }
 
-
     /**
      * A request to start a container.
      */
@@ -205,7 +219,6 @@ public final class ClaraRequests {
                                        description);
         }
     }
-
 
     /**
      * A request to start a service.
@@ -246,7 +259,6 @@ public final class ClaraRequests {
         }
     }
 
-
     /**
      * A request to stop a running Clara component.
      */
@@ -285,7 +297,6 @@ public final class ClaraRequests {
         }
     }
 
-
     /**
      * Base class to send a control request to a service, and return a response.
      *
@@ -295,9 +306,9 @@ public final class ClaraRequests {
                 extends BaseRequest<D, T> {
 
         protected final EngineData userData;
-        protected Set<EngineDataType> dataTypes;
         protected final xMsgMeta.ControlAction action;
         protected final Composition composition;
+        protected Set<EngineDataType> dataTypes;
 
         ServiceRequest(ClaraBase base, ClaraComponent frontEnd, ServiceName service,
                        xMsgMeta.ControlAction action,
@@ -357,7 +368,6 @@ public final class ClaraRequests {
         }
     }
 
-
     /**
      * A request to configure a service.
      */
@@ -376,7 +386,6 @@ public final class ClaraRequests {
             return true;
         }
     }
-
 
     /**
      * A request to execute a service composition.
@@ -398,7 +407,6 @@ public final class ClaraRequests {
         }
     }
 
-
     /**
      * A request to setup the reports of a service.
      */
@@ -417,7 +425,6 @@ public final class ClaraRequests {
             return data;
         }
     }
-
 
     /**
      * Builds a request to configure a service.
@@ -504,8 +511,6 @@ public final class ClaraRequests {
         }
     }
 
-
-
     /**
      * Builds a request to execute a service or a composition.
      */
@@ -541,23 +546,5 @@ public final class ClaraRequests {
         public ServiceExecuteRequest withData(EngineData data) throws ClaraException {
             return new ServiceExecuteRequest(base, frontEnd, composition, data, dataTypes);
         }
-    }
-
-
-
-    private static ClaraComponent getDpeComponent(ClaraName claraName) {
-        try {
-            return ClaraComponent.dpe(ClaraUtil.getDpeName(claraName.canonicalName()));
-        } catch (ClaraException e) {
-            throw new IllegalArgumentException("Invalid Clara name: " + claraName);
-        }
-    }
-
-    private static String getDpeTopic(ClaraName claraName) {
-        return getDpeComponent(claraName).getTopic().toString();
-    }
-
-    private static Composition getComposition(ServiceName service) {
-        return new Composition(service.canonicalName());
     }
 }

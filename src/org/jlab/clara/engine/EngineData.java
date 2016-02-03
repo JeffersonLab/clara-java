@@ -1,22 +1,23 @@
 /*
- * Copyright (C) 2015. Jefferson Lab, CLARA framework (JLAB). All Rights Reserved.
- * Permission to use, copy, modify, and distribute this software and its
- * documentation for educational, research, and not-for-profit purposes,
- * without fee and without a signed licensing agreement.
+ *   Copyright (c) 2016.  Jefferson Lab (JLab). All rights reserved. Permission
+ *   to use, copy, modify, and distribute  this software and its documentation for
+ *   educational, research, and not-for-profit purposes, without fee and without a
+ *   signed licensing agreement.
  *
- * Contact Vardan Gyurjyan
- * Department of Experimental Nuclear Physics, Jefferson Lab.
+ *   IN NO EVENT SHALL JLAB BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL
+ *   INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING LOST PROFITS, ARISING
+ *   OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN IF JLAB HAS
+ *   BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * IN NO EVENT SHALL JLAB BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL,
- * INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING LOST PROFITS, ARISING OUT OF
- * THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN IF JLAB HAS BEEN ADVISED
- * OF THE POSSIBILITY OF SUCH DAMAGE.
+ *   JLAB SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ *   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ *   PURPOSE. THE CLARA SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY,
+ *   PROVIDED HEREUNDER IS PROVIDED "AS IS". JLAB HAS NO OBLIGATION TO PROVIDE
+ *   MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  *
- * JLAB SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
- * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
- * PURPOSE. THE CLARA SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED
- * HEREUNDER IS PROVIDED "AS IS". JLAB HAS NO OBLIGATION TO PROVIDE MAINTENANCE,
- * SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+ *   This software was developed under the United States Government license.
+ *   For more information contact author at gurjyan@jlab.org
+ *   Department of Experimental Nuclear Physics, Jefferson Lab.
  */
 
 package org.jlab.clara.engine;
@@ -28,6 +29,10 @@ import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
  * Engine data passed in/out to the service engine.
  */
 public class EngineData {
+
+    static {
+        EngineDataAccessor.setDefault(new Accessor());
+    }
 
     private Object data;
     private xMsgMeta.Builder metadata = xMsgMeta.newBuilder();
@@ -80,12 +85,12 @@ public class EngineData {
         }
     }
 
-    public int getStatusSeverity() {
-        return metadata.getSeverityId();
-    }
-
     public void setStatus(EngineStatus status) {
         setStatus(status, 1);
+    }
+
+    public int getStatusSeverity() {
+        return metadata.getSeverityId();
     }
 
     public void setStatus(EngineStatus status, int severity) {
@@ -138,11 +143,6 @@ public class EngineData {
 
     public long getExecutionTime() {
         return metadata.getExecutionTime();
-    }
-
-
-    static {
-        EngineDataAccessor.setDefault(new Accessor());
     }
 
     private static class Accessor extends EngineDataAccessor {

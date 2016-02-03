@@ -20,19 +20,13 @@
  *   Department of Experimental Nuclear Physics, Jefferson Lab.
  */
 
-package org.jlab.clara.base;
-
 /**
- * An interface to handle the JSON reports published by Clara.
+ * Package contains classes to parse a data
+ * processing application ClaraOL description files.
+ * <p/>
+ *
+ * @author gurjyan
+ * Created on 2/3/16
+ * @version Clara-java-v4.3
  */
-public interface GenericCallback {
-
-    /**
-     * Receives and process the data that Clara has published.
-     * The data is in JSON format and contain registration and runtime
-     * information related to the current status of the Clara cloud.
-     *
-     * @param json the published data
-     */
-    void callback(String json);
-}
+package org.jlab.clara.claraol.parser;

@@ -1,36 +1,36 @@
 /*
- * Copyright (C) 2015. Jefferson Lab, CLARA framework (JLAB). All Rights Reserved.
- * Permission to use, copy, modify, and distribute this software and its
- * documentation for educational, research, and not-for-profit purposes,
- * without fee and without a signed licensing agreement.
+ *   Copyright (c) 2016.  Jefferson Lab (JLab). All rights reserved. Permission
+ *   to use, copy, modify, and distribute  this software and its documentation for
+ *   educational, research, and not-for-profit purposes, without fee and without a
+ *   signed licensing agreement.
  *
- * Contact Vardan Gyurjyan
- * Department of Experimental Nuclear Physics, Jefferson Lab.
+ *   IN NO EVENT SHALL JLAB BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL
+ *   INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING LOST PROFITS, ARISING
+ *   OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN IF JLAB HAS
+ *   BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  *
- * IN NO EVENT SHALL JLAB BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL,
- * INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING LOST PROFITS, ARISING OUT OF
- * THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN IF JLAB HAS BEEN ADVISED
- * OF THE POSSIBILITY OF SUCH DAMAGE.
+ *   JLAB SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+ *   THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+ *   PURPOSE. THE CLARA SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY,
+ *   PROVIDED HEREUNDER IS PROVIDED "AS IS". JLAB HAS NO OBLIGATION TO PROVIDE
+ *   MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  *
- * JLAB SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
- * THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
- * PURPOSE. THE CLARA SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY, PROVIDED
- * HEREUNDER IS PROVIDED "AS IS". JLAB HAS NO OBLIGATION TO PROVIDE MAINTENANCE,
- * SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+ *   This software was developed under the United States Government license.
+ *   For more information contact author at gurjyan@jlab.org
+ *   Department of Experimental Nuclear Physics, Jefferson Lab.
  */
 
 package org.jlab.clara.sys;
-
-import static java.util.Arrays.asList;
-
-import org.jlab.clara.base.ClaraUtil;
-import org.jlab.coda.xmsg.core.xMsgConstants;
-import org.jlab.coda.xmsg.net.xMsgProxyAddress;
 
 import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
+import org.jlab.clara.base.ClaraUtil;
+import org.jlab.coda.xmsg.core.xMsgConstants;
+import org.jlab.coda.xmsg.net.xMsgProxyAddress;
+
+import static java.util.Arrays.asList;
 
 /**
  * Parses the DPE settings from the command line.
@@ -39,23 +39,16 @@ class DpeOptionsParser {
 
     public static final int PROXY_PORT = xMsgConstants.DEFAULT_PORT;
     public static final int REG_PORT = xMsgConstants.REGISTRAR_PORT;
-
-    private OptionParser parser;
-    private OptionSet options;
-
     private final OptionSpec<String> dpeHost;
     private final OptionSpec<Integer> dpePort;
-
     private final OptionSpec<Void> isFrontEnd;
-
     private final OptionSpec<String> feHost;
     private final OptionSpec<Integer> fePort;
-
     private final OptionSpec<Integer> poolSize;
     private final OptionSpec<String> description;
-
     private final OptionSpec<Integer> reportInterval;
-
+    private OptionParser parser;
+    private OptionSet options;
     private boolean fe;
     private xMsgProxyAddress localAddress;
     private xMsgProxyAddress frontEndAddress;
@@ -77,6 +70,25 @@ class DpeOptionsParser {
         reportInterval = parser.accepts("report").withRequiredArg().ofType(Integer.class);
 
         parser.acceptsAll(asList("h", "help")).forHelp();
+    }
+
+    private static <V> String optionHelp(OptionSpec<V> spec, String arg, String... help) {
+        StringBuilder sb = new StringBuilder();
+        String[] lhs = new String[help.length];
+        lhs[0] = optionName(spec, arg);
+        for (int i = 0; i < help.length; i++) {
+            sb.append(String.format("  %-22s  %s%n", lhs[i] == null ? "" : lhs[i], help[i]));
+        }
+        return sb.toString();
+    }
+
+    private static <V> String optionName(OptionSpec<V> spec, String arg) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("-").append(spec.options().get(0));
+        if (arg != null) {
+            sb.append(" <").append(arg).append(">");
+        }
+        return sb.toString();
     }
 
     public void parse(String[] args) {
@@ -169,25 +181,6 @@ class DpeOptionsParser {
              + optionHelp(poolSize, "size", "the subscriptions poolsize for this DPE")
              + optionHelp(description, "string", "a short description of this DPE")
              + optionHelp(reportInterval, "seconds", "the interval to send reports");
-    }
-
-    private static <V> String optionHelp(OptionSpec<V> spec, String arg, String... help) {
-        StringBuilder sb = new StringBuilder();
-        String[] lhs = new String[help.length];
-        lhs[0] = optionName(spec, arg);
-        for (int i = 0; i < help.length; i++) {
-            sb.append(String.format("  %-22s  %s%n", lhs[i] == null ? "" : lhs[i], help[i]));
-        }
-        return sb.toString();
-    }
-
-    private static <V> String optionName(OptionSpec<V> spec, String arg) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("-").append(spec.options().get(0));
-        if (arg != null) {
-            sb.append(" <").append(arg).append(">");
-        }
-        return sb.toString();
     }
 
     static class DpeOptionsException extends RuntimeException {
