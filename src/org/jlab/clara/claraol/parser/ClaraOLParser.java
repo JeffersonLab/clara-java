@@ -22,6 +22,8 @@
 
 package org.jlab.clara.claraol.parser;
 
+import org.apache.jena.rdf.model.Model;
+
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
