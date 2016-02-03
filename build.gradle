@@ -58,7 +58,7 @@ dependencies {
         exclude group: "junit", module: "*"
     }
     compile 'com.google.code.findbugs:jsr305:3.0.0'
-    compile 'org.apache.jena:apache-jena-libs:3.0.1'
+    provided 'org.apache.jena:jena-core:3.0.1'
     provided 'edu.stanford.protege:org.protege.editor.owl.codegeneration:1.0.2'
     provided 'net.sourceforge.owlapi:owlapi-distribution:3.4.10'
     testCompile 'junit:junit:4.+'
