@@ -36,6 +36,10 @@ sourceSets {
         java {
             srcDir 'test'
         }
+        resources {
+            srcDir 'test'
+            include 'resources/**'
+        }
         compileClasspath += configurations.provided
     }
 }
