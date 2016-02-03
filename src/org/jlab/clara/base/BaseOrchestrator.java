@@ -765,13 +765,8 @@ public class BaseOrchestrator {
             }
             String host = base.getFrontEndAddress();
             xMsgTopic topic = buildTopic(getStatusText(status), serviceName);
-            String key = host + "#" + topic;
-            if (subscriptions.containsKey(key)) {
-                throw new IllegalStateException("Duplicated subscription to: " + serviceName);
-            }
             xMsgCallBack wrapperCallback = wrapEngineCallback(callback, status);
-            xMsgSubscription handler = base.genericReceive(host, topic, wrapperCallback);
-            subscriptions.put(key, handler);
+            listen(serviceName, host, topic, wrapperCallback);
         } catch (IOException | xMsgException e) {
             throw new ClaraException("Could not subscribe to service status", e);
         }
@@ -795,11 +790,7 @@ public class BaseOrchestrator {
             }
             String host = base.getFrontEndAddress();
             xMsgTopic topic = buildTopic(getStatusText(status), serviceName);
-            String key = host + "#" + topic;
-            xMsgSubscription handler = subscriptions.remove(key);
-            if (handler != null) {
-                base.unsubscribe(handler);
-            }
+            unlisten(host, topic);
         } catch (xMsgException e) {
             throw new ClaraException("Could not unsubscribe to service status", e);
         }
@@ -832,13 +823,8 @@ public class BaseOrchestrator {
             }
             String host = base.getFrontEndAddress();
             xMsgTopic topic = buildTopic(xMsgConstants.DATA.toString(), serviceName);
-            String key = host + "#" + topic;
-            if (subscriptions.containsKey(key)) {
-                throw new IllegalStateException("Duplicated subscription to: " + serviceName);
-            }
             xMsgCallBack wrapperCallback = wrapEngineCallback(callback, null);
-            xMsgSubscription handler = base.genericReceive(host, topic, wrapperCallback);
-            subscriptions.put(key, handler);
+            listen(serviceName, host, topic, wrapperCallback);
         } catch (IOException | xMsgException e) {
             throw new ClaraException("Could not subscribe to service data", e);
         }
@@ -860,11 +846,7 @@ public class BaseOrchestrator {
             }
             String host = base.getFrontEndAddress();
             xMsgTopic topic = buildTopic(xMsgConstants.DATA.toString(), serviceName);
-            String key = host + "#" + topic;
-            xMsgSubscription handler = subscriptions.remove(key);
-            if (handler != null) {
-                base.unsubscribe(handler);
-            }
+            unlisten(host, topic);
         } catch (xMsgException e) {
             throw new ClaraException("Could not unsubscribe to service data", e);
         }
@@ -897,13 +879,8 @@ public class BaseOrchestrator {
             }
             String host = base.getFrontEndAddress();
             xMsgTopic topic = buildTopic(xMsgConstants.DONE.toString(), serviceName);
-            String key = host + "#" + topic;
-            if (subscriptions.containsKey(key)) {
-                throw new IllegalStateException("Duplicated subscription to: " + serviceName);
-            }
             xMsgCallBack wrapperCallback = wrapEngineCallback(callback, null);
-            xMsgSubscription handler = base.genericReceive(host, topic, wrapperCallback);
-            subscriptions.put(key, handler);
+            listen(serviceName, host, topic, wrapperCallback);
         } catch (IOException | xMsgException e) {
             throw new ClaraException("Could not subscribe to service done", e);
         }
@@ -925,11 +902,7 @@ public class BaseOrchestrator {
             }
             String host = base.getFrontEndAddress();
             xMsgTopic topic = buildTopic(xMsgConstants.DONE.toString(), serviceName);
-            String key = host + "#" + topic;
-            xMsgSubscription handler = subscriptions.remove(key);
-            if (handler != null) {
-                base.unsubscribe(handler);
-            }
+            unlisten(host, topic);
         } catch (xMsgException e) {
             throw new ClaraException("Could not unsubscribe to service done", e);
         }
@@ -947,13 +920,8 @@ public class BaseOrchestrator {
             Objects.requireNonNull(callback, "Null callback");
             String host = base.getFrontEndAddress();
             xMsgTopic topic = buildTopic(CConstants.DPE_ALIVE);
-            String key = host + "#" + topic;
-            if (subscriptions.containsKey(key)) {
-                throw new IllegalStateException("Duplicated subscription to: " + topic);
-            }
             xMsgCallBack wrapperCallback = wrapGenericCallback(callback);
-            xMsgSubscription handler = base.genericReceive(host, topic, wrapperCallback);
-            subscriptions.put(key, handler);
+            listen(topic.toString(), host, topic, wrapperCallback);
         } catch (IOException | xMsgException e) {
             throw new ClaraException("Could not subscribe to DPEs", e);
         }
@@ -969,13 +937,29 @@ public class BaseOrchestrator {
         try {
             xMsgTopic topic = buildTopic(CConstants.DPE_ALIVE);
             String host = base.getFrontEndAddress();
-            String key = host + "#" + topic;
-            xMsgSubscription handler = subscriptions.remove(key);
-            if (handler != null) {
-                base.unsubscribe(handler);
-            }
+            unlisten(host, topic);
         } catch (xMsgException e) {
             throw new ClaraException("Could not unsubscribe to DPEs", e);
+        }
+    }
+
+
+    private void listen(String actor, String host, xMsgTopic topic, xMsgCallBack callback)
+            throws IOException, xMsgException {
+        String key = host + "#" + topic;
+        if (subscriptions.containsKey(key)) {
+            throw new IllegalStateException("Duplicated subscription to: " + actor);
+        }
+        xMsgSubscription handler = base.genericReceive(host, topic, callback);
+        subscriptions.put(key, handler);
+    }
+
+
+    private void unlisten(String host, xMsgTopic topic) throws xMsgException {
+        String key = host + "#" + topic;
+        xMsgSubscription handler = subscriptions.remove(key);
+        if (handler != null) {
+            base.unsubscribe(handler);
         }
     }
 
