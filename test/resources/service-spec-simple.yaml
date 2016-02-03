@@ -1,0 +1,13 @@
+---
+name: SomeService
+engine: std.services.SomeService
+type: java
+
+author: Sebastian Mancilla
+email: smancill@jlab.org
+
+version: 2
+description: |
+  Reads EVIO events from a file.
+
+  Returns a new event on each request or an error if there was some problem.
