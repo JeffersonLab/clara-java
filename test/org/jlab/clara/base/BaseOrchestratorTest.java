@@ -680,10 +680,10 @@ public class BaseOrchestratorTest {
     @Test
     public void unlistenServiceStatusStopsSubscription() throws Exception {
         EngineStatus status = EngineStatus.ERROR;
-        String key = "10.2.9.1#ERROR:10.2.9.96_java:master:SimpleEngine";
-        xMsgSubscription handler = mock(xMsgSubscription.class);
-        orchestrator.getSubscriptions().put(key, handler);
+        EngineCallback callback = mock(EngineCallback.class);
+        xMsgSubscription handler = mockSubscriptionHandler();
 
+        orchestrator.listenServiceStatus("10.2.9.96_java:master:SimpleEngine", status, callback);
         orchestrator.unlistenServiceStatus("10.2.9.96_java:master:SimpleEngine", status);
 
         verify(baseMock).unsubscribe(handler);
@@ -707,9 +707,10 @@ public class BaseOrchestratorTest {
     @Test
     public void unlistenServiceStatusRemovesSubscriptionHandler() throws Exception {
         EngineStatus status = EngineStatus.ERROR;
+        EngineCallback callback = mock(EngineCallback.class);
         String key = "10.2.9.1#ERROR:10.2.9.96_java:master:SimpleEngine";
-        orchestrator.getSubscriptions().put(key, mock(xMsgSubscription.class));
 
+        orchestrator.listenServiceStatus("10.2.9.96_java:master:SimpleEngine", status, callback);
         orchestrator.unlistenServiceStatus("10.2.9.96_java:master:SimpleEngine", status);
 
         assertSubscriptionRemoved(key);
@@ -775,10 +776,10 @@ public class BaseOrchestratorTest {
 
     @Test
     public void unlistenServiceDataStopsSubscription() throws Exception {
-        String key = "10.2.9.1#data:10.2.9.96_java:master:SimpleEngine";
-        xMsgSubscription handler = mock(xMsgSubscription.class);
-        orchestrator.getSubscriptions().put(key, handler);
+        EngineCallback callback = mock(EngineCallback.class);
+        xMsgSubscription handler = mockSubscriptionHandler();
 
+        orchestrator.listenServiceData("10.2.9.96_java:master:SimpleEngine", callback);
         orchestrator.unlistenServiceData("10.2.9.96_java:master:SimpleEngine");
 
         verify(baseMock).unsubscribe(handler);
@@ -799,9 +800,10 @@ public class BaseOrchestratorTest {
 
     @Test
     public void unlistenServiceDataRemovesSubscriptionHandler() throws Exception {
+        EngineCallback callback = mock(EngineCallback.class);
         String key = "10.2.9.1#data:10.2.9.96_java:master:SimpleEngine";
-        orchestrator.getSubscriptions().put(key, mock(xMsgSubscription.class));
 
+        orchestrator.listenServiceData("10.2.9.96_java:master:SimpleEngine", callback);
         orchestrator.unlistenServiceData("10.2.9.96_java:master:SimpleEngine");
 
         assertSubscriptionRemoved(key);
@@ -867,10 +869,10 @@ public class BaseOrchestratorTest {
 
     @Test
     public void unlistenServiceDoneStopsSubscription() throws Exception {
-        String key = "10.2.9.1#done:10.2.9.96_java:master:SimpleEngine";
-        xMsgSubscription handler = mock(xMsgSubscription.class);
-        orchestrator.getSubscriptions().put(key, handler);
+        EngineCallback callback = mock(EngineCallback.class);
+        xMsgSubscription handler = mockSubscriptionHandler();
 
+        orchestrator.listenServiceDone("10.2.9.96_java:master:SimpleEngine", callback);
         orchestrator.unlistenServiceDone("10.2.9.96_java:master:SimpleEngine");
 
         verify(baseMock).unsubscribe(handler);
@@ -891,9 +893,10 @@ public class BaseOrchestratorTest {
 
     @Test
     public void unlistenServiceDoneRemovesSubscriptionHandler() throws Exception {
+        EngineCallback callback = mock(EngineCallback.class);
         String key = "10.2.9.1#done:10.2.9.96_java:master:SimpleEngine";
-        orchestrator.getSubscriptions().put(key, mock(xMsgSubscription.class));
 
+        orchestrator.listenServiceDone("10.2.9.96_java:master:SimpleEngine", callback);
         orchestrator.unlistenServiceDone("10.2.9.96_java:master:SimpleEngine");
 
         assertSubscriptionRemoved(key);
@@ -944,10 +947,9 @@ public class BaseOrchestratorTest {
 
     @Test
     public void unlistenDpesStopsSubscription() throws Exception {
-        String key = "10.2.9.1#dpeAlive";
-        xMsgSubscription handler = mock(xMsgSubscription.class);
-        orchestrator.getSubscriptions().put(key, handler);
+        xMsgSubscription handler = mockSubscriptionHandler();
 
+        orchestrator.listenDpes(mock(GenericCallback.class));
         orchestrator.unlistenDpes();
 
         verify(baseMock).unsubscribe(handler);
@@ -957,8 +959,8 @@ public class BaseOrchestratorTest {
     @Test
     public void unlistenDpesRemovesSubscriptionHandler() throws Exception {
         String key = "10.2.9.1#dpeAlive";
-        orchestrator.getSubscriptions().put(key, mock(xMsgSubscription.class));
 
+        orchestrator.listenDpes(mock(GenericCallback.class));
         orchestrator.unlistenDpes();
 
         assertSubscriptionRemoved(key);
