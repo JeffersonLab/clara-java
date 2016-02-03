@@ -22,10 +22,17 @@
 package org.jlab.clara.base;
 
 import java.net.SocketException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.BrokenBarrierException;
+import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
+import org.jlab.clara.base.BaseOrchestrator.LazySubscription;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.EngineStatus;
@@ -43,10 +50,10 @@ import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.Matchers.sameInstance;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
@@ -54,6 +61,7 @@ import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.verify;
 
@@ -708,6 +716,7 @@ public class BaseOrchestratorTest {
     public void unlistenServiceStatusRemovesSubscriptionHandler() throws Exception {
         EngineStatus status = EngineStatus.ERROR;
         EngineCallback callback = mock(EngineCallback.class);
+        mockSubscriptionHandler();
         String key = "10.2.9.1#ERROR:10.2.9.96_java:master:SimpleEngine";
 
         orchestrator.listenServiceStatus("10.2.9.96_java:master:SimpleEngine", status, callback);
@@ -801,6 +810,7 @@ public class BaseOrchestratorTest {
     @Test
     public void unlistenServiceDataRemovesSubscriptionHandler() throws Exception {
         EngineCallback callback = mock(EngineCallback.class);
+        mockSubscriptionHandler();
         String key = "10.2.9.1#data:10.2.9.96_java:master:SimpleEngine";
 
         orchestrator.listenServiceData("10.2.9.96_java:master:SimpleEngine", callback);
@@ -894,6 +904,7 @@ public class BaseOrchestratorTest {
     @Test
     public void unlistenServiceDoneRemovesSubscriptionHandler() throws Exception {
         EngineCallback callback = mock(EngineCallback.class);
+        mockSubscriptionHandler();
         String key = "10.2.9.1#done:10.2.9.96_java:master:SimpleEngine";
 
         orchestrator.listenServiceDone("10.2.9.96_java:master:SimpleEngine", callback);
@@ -944,7 +955,6 @@ public class BaseOrchestratorTest {
     }
 
 
-
     @Test
     public void unlistenDpesStopsSubscription() throws Exception {
         xMsgSubscription handler = mockSubscriptionHandler();
@@ -959,11 +969,209 @@ public class BaseOrchestratorTest {
     @Test
     public void unlistenDpesRemovesSubscriptionHandler() throws Exception {
         String key = "10.2.9.1#dpeAlive";
+        mockSubscriptionHandler();
 
         orchestrator.listenDpes(mock(GenericCallback.class));
         orchestrator.unlistenDpes();
 
         assertSubscriptionRemoved(key);
+    }
+
+
+    @Test
+    public void multiThreadListenCreateASingleSubscription() throws Exception {
+        final AtomicInteger failuresCounter = new AtomicInteger();
+        final xMsgSubscription handler = mockSubscriptionHandler();
+        final int numThreads = 10;
+
+        final List<Thread> requesters = new ArrayList<>();
+        final CyclicBarrier gate = new CyclicBarrier(numThreads + 1);
+
+        for (int i = 0; i < numThreads; i++) {
+            Thread t = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        gate.await();
+                        orchestrator.listenDpes(mock(GenericCallback.class));
+                    } catch (ClaraException | InterruptedException | BrokenBarrierException e) {
+                        throw new RuntimeException(e);
+                    } catch (IllegalStateException e) {
+                        failuresCounter.getAndIncrement();
+                    }
+                }
+            });
+            t.start();
+            requesters.add(t);
+        }
+        gate.await();
+        for (Thread t : requesters) {
+            t.join();
+        }
+
+        verify(baseMock, times(1)).genericReceive(anyString(), any(), any());
+        assertThat(failuresCounter.get(), is(numThreads - 1));
+        assertSubscriptionRegistered("10.2.9.1#dpeAlive", handler);
+    }
+
+
+    @Test
+    public void multiThreadListenCreateAllDifferentSubscriptions() throws Exception {
+        final int numThreads = 10;
+        final List<Thread> requesters = new ArrayList<>();
+        final CyclicBarrier gate = new CyclicBarrier(numThreads + 1);
+
+        for (int i = 0; i < numThreads; i++) {
+            String service = String.format("10.2.9.%d_java:master:ServiceEngine", i);
+            EngineStatus status = EngineStatus.ERROR;
+            EngineCallback callback = mock(EngineCallback.class);
+
+            Thread t = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        gate.await();
+                        orchestrator.listenServiceStatus(service, status, callback);
+                    } catch (ClaraException | InterruptedException | BrokenBarrierException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            });
+            t.start();
+            requesters.add(t);
+        }
+        gate.await();
+        for (Thread t : requesters) {
+            t.join();
+        }
+
+        verify(baseMock, times(numThreads)).genericReceive(anyString(), any(), any());
+        for (int i = 0; i < numThreads; i++) {
+            String key = String.format("10.2.9.1#ERROR:10.2.9.%d_java:master:ServiceEngine", i);
+            assertThat(orchestrator.getSubscriptions(), hasKey(key));
+        }
+    }
+
+
+    @Test
+    public void multiThreadFailedSubscriptionIsNotAddedToMap() throws Exception {
+        doThrow(new xMsgException("")).when(baseMock).genericReceive(anyString(), any(), any());
+        final int numThreads = 10;
+        final List<Thread> requesters = new ArrayList<>();
+        final AtomicInteger failuresCounter = new AtomicInteger();
+
+        for (int i = 0; i < numThreads; i++) {
+            Thread t = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        orchestrator.listenDpes(mock(GenericCallback.class));
+                    } catch (IllegalStateException | ClaraException e) {
+                        failuresCounter.getAndIncrement();
+                    }
+                }
+            });
+            t.start();
+            requesters.add(t);
+        }
+        for (Thread t : requesters) {
+            t.join();
+        }
+
+        assertThat(orchestrator.getSubscriptions(), is(Collections.EMPTY_MAP));
+        assertThat(failuresCounter.get(), is(numThreads));
+    }
+
+
+    @Test
+    public void multiThreadListenRemovesUniqueSubscription() throws Exception {
+        final int numThreads = 10;
+        mockSubscriptionHandler();
+        orchestrator.listenDpes(mock(GenericCallback.class));
+
+        final List<Thread> requesters = new ArrayList<>();
+        final CyclicBarrier gate = new CyclicBarrier(numThreads + 1);
+
+        requesters.clear();
+        for (int i = 0; i < numThreads; i++) {
+            Thread t = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        gate.await();
+                        orchestrator.unlistenDpes();
+                    } catch (ClaraException | InterruptedException | BrokenBarrierException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            });
+            t.start();
+            requesters.add(t);
+        }
+        gate.await();
+        for (Thread t : requesters) {
+            t.join();
+        }
+
+        verify(baseMock, times(1)).unsubscribe(any());
+        assertThat(orchestrator.getSubscriptions(), is(Collections.EMPTY_MAP));
+    }
+
+
+    @Test
+    public void multiThreadListenRemovesAllDifferentSubscriptions() throws Exception {
+        final int numThreads = 10;
+        final List<Thread> requesters = new ArrayList<>();
+        mockSubscriptionHandler();
+
+        // Start subscriptions
+        for (int i = 0; i < numThreads; i++) {
+            String service = String.format("10.2.9.%d_java:master:ServiceEngine", i);
+            EngineStatus status = EngineStatus.ERROR;
+            EngineCallback callback = mock(EngineCallback.class);
+
+            Thread t = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        orchestrator.listenServiceStatus(service, status, callback);
+                    } catch (ClaraException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            });
+            t.start();
+            requesters.add(t);
+        }
+        for (Thread t : requesters) {
+            t.join();
+        }
+
+        // Stop subscriptions
+        requesters.clear();
+        for (int i = 0; i < numThreads; i++) {
+            String service = String.format("10.2.9.%d_java:master:ServiceEngine", i);
+            EngineStatus status = EngineStatus.ERROR;
+            Thread t = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        orchestrator.unlistenServiceStatus(service, status);
+                    } catch (ClaraException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            });
+            t.start();
+            requesters.add(t);
+        }
+        for (Thread t : requesters) {
+            t.join();
+        }
+
+        // Check
+        verify(baseMock, times(numThreads)).unsubscribe(any());
+        assertThat(orchestrator.getSubscriptions(), is(Collections.EMPTY_MAP));
     }
 
 
@@ -1045,7 +1253,9 @@ public class BaseOrchestratorTest {
 
 
     private void assertSubscriptionRegistered(String key, xMsgSubscription handler) {
-        assertThat(orchestrator.getSubscriptions(), hasEntry(key, handler));
+        LazySubscription subscription = orchestrator.getSubscriptions().get(key);
+        assertThat(subscription, is(notNullValue()));
+        assertThat(subscription.handler, is(handler));
     }
 
 

@@ -22,12 +22,13 @@
 package org.jlab.clara.base;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.TimeoutException;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -56,7 +57,7 @@ public class BaseOrchestrator {
 
     private final CBase base;
     private final Set<EngineDataType> dataTypes = new HashSet<>();
-    private final Map<String, xMsgSubscription> subscriptions = new HashMap<>();
+    private final ConcurrentMap<String, LazySubscription> subscriptions = new ConcurrentHashMap<>();
 
     /**
      * Creates a new orchestrator. Uses localhost as front-end node.
@@ -100,7 +101,7 @@ public class BaseOrchestrator {
     /**
      * Returns the map of subscriptions for testing purposes.
      */
-    Map<String, xMsgSubscription> getSubscriptions() {
+    Map<String, LazySubscription> getSubscriptions() {
         return subscriptions;
     }
 
@@ -947,20 +948,45 @@ public class BaseOrchestrator {
     private void listen(String actor, String host, xMsgTopic topic, xMsgCallBack callback)
             throws IOException, xMsgException {
         String key = host + "#" + topic;
-        if (subscriptions.containsKey(key)) {
-            throw new IllegalStateException("Duplicated subscription to: " + actor);
+        if (subscriptions.get(key) == null) {
+            LazySubscription newSubscription = new LazySubscription();
+            LazySubscription result = subscriptions.putIfAbsent(key, newSubscription);
+            if (result == null) {
+                synchronized (newSubscription) {
+                    try {
+                        newSubscription.handler = base.genericReceive(host, topic, callback);
+                    } catch (IOException | xMsgException e) {
+                        subscriptions.remove(key, newSubscription);
+                        throw e;
+                    }
+                }
+                return;
+            }
         }
-        xMsgSubscription handler = base.genericReceive(host, topic, callback);
-        subscriptions.put(key, handler);
+        throw new IllegalStateException("Duplicated subscription to: " + actor);
     }
 
 
     private void unlisten(String host, xMsgTopic topic) throws xMsgException {
         String key = host + "#" + topic;
-        xMsgSubscription handler = subscriptions.remove(key);
-        if (handler != null) {
-            base.unsubscribe(handler);
+        LazySubscription subscription = subscriptions.get(key);
+        if (subscription != null) {
+            synchronized (subscription) {
+                if (subscription.handler != null) {
+                    try {
+                        base.unsubscribe(subscription.handler);
+                    } finally {
+                        subscription.handler = null;
+                        subscriptions.remove(key);
+                    }
+                }
+            }
         }
+    }
+
+
+    static class LazySubscription {
+        xMsgSubscription handler;
     }
 
 
