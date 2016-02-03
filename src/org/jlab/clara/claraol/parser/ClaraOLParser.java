@@ -27,6 +27,8 @@ import org.apache.jena.rdf.model.Model;
 import java.io.FileInputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * ClaraOL parser.
@@ -44,8 +46,8 @@ public class ClaraOLParser {
     private Model GModel;
 
     // List of the included cool configuration file jena models
-    private HashMap<String, Model> includeModels = new HashMap<>();
+    private Map<String, Model> Models = new HashMap<>();
 
-    private ArrayList<FileInputStream> fStreams = new ArrayList<>();
+    private List<FileInputStream> fStreams = new ArrayList<>();
 
 }
