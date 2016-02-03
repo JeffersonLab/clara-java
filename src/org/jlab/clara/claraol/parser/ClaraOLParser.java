@@ -46,5 +46,4 @@ public class ClaraOLParser {
 
     private ArrayList<FileInputStream> fStreams = new ArrayList<>();
 
-
 }
