@@ -160,7 +160,7 @@ public class BaseOrchestrator {
      * Gives a new size to the internal thread pool that processes
      * subscriptions callbacks.
      *
-     * @param the new size of the thread pool
+     * @param size the new size of the thread pool
      */
     public void setSubscriptionsPoolSize(int size) {
         base.setPoolSize(size);
