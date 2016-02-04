@@ -225,6 +225,6 @@ eclipse {
 
 idea {
     module {
-        scopes.PROVIDED.plus += [configurations.provided]
+        scopes.COMPILE.plus += [configurations.provided]
     }
 }
