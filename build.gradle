@@ -201,8 +201,8 @@ tasks.withType(FindBugs) {
 
 // Marker task to enable findbugs.
 task findbugs(
-        group: "Verification",
-        description: "Marker task to enabled findbugs."
+    group: "Verification",
+    description: "Marker task to enabled findbugs."
 )
 
 gradle.taskGraph.whenReady { taskGraph ->
