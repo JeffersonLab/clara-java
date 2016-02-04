@@ -24,7 +24,7 @@
         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
         xmlns:ClaraOL="http://claraweb.jlab.org/ontology/2015/11/ClaraOL#">
 
-    <rdf:Description rdf:about="http://CLARAOLHOME/App1/Identity/EngineIdentity1#EngineIdentity1">
+    <rdf:Description rdf:about="file://CLARA_OL_HOME/App1/Identity/EngineIdentity1#EngineIdentity1">
 
         <ClaraOL:author>gurjyan</ClaraOL:author>
         <ClaraOL:version>1.1</ClaraOL:version>

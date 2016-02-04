@@ -21,7 +21,7 @@ compileJava {
 
 configurations {
     provided {
-        transitive = false
+        transitive = true
     }
 }
 
@@ -31,12 +31,18 @@ sourceSets {
             srcDir 'src'
         }
         compileClasspath += configurations.provided
+        runtimeClasspath += configurations.provided
     }
     test {
         java {
             srcDir 'test'
         }
+        resources {
+            srcDir 'test'
+            include 'resources/**'
+        }
         compileClasspath += configurations.provided
+        runtimeClasspath += configurations.provided
     }
 }
 
@@ -124,6 +130,7 @@ task(orInteractive, dependsOn: 'classes', type: JavaExec) {
 def deploySpec = copySpec {
     into ('lib') {
         from configurations.runtime
+        from configurations.provided
         from "${jar.archivePath}"
     }
 
@@ -194,8 +201,8 @@ tasks.withType(FindBugs) {
 
 // Marker task to enable findbugs.
 task findbugs(
-    group: "Verification",
-    description: "Marker task to enabled findbugs."
+        group: "Verification",
+        description: "Marker task to enabled findbugs."
 )
 
 gradle.taskGraph.whenReady { taskGraph ->
@@ -217,7 +224,7 @@ eclipse {
 }
 
 idea {
-  module{
-    scopes.PROVIDED.plus += [ configurations.provided ]
-  }
+    module {
+        scopes.PROVIDED.plus += [configurations.provided]
+    }
 }

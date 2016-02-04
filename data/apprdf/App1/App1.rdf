@@ -24,7 +24,7 @@
         xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
         xmlns:ClaraOL="http://claraweb.jlab.org/ontology/2015/11/ClaraOL#">
 
-    <rdf:Description rdf:about="http://CLARAOLHOME/App1/Test1#App1">
+    <rdf:Description rdf:about="file://CLARA_OL_HOME/App1/App1#App1">
 
         <ClaraOL:runs rdf:resource="#Example1_app"/>
 
@@ -32,20 +32,20 @@
 
     <ClaraOL:Application rdf:ID="Example1_app">
 
-        <ClaraOL:include rdf:resource="http://CLARAOLHOME/App1/Service/Service1.rdf"/>
-        <ClaraOL:hasService rdf:resource="http://CLARAOLHOME/App1/Service/Service1#Service1"/>
+        <ClaraOL:include rdf:resource="file://CLARA_OL_HOME/App1/Service/Service1.rdf"/>
+        <ClaraOL:hasService rdf:resource="file://CLARA_OL_HOME/App1/Service/Service1#Service1"/>
 
-        <ClaraOL:include rdf:resource="http://CLARAOLHOME/App1/Service/Service2.rdf"/>
-        <ClaraOL:hasService rdf:resource="http://CLARAOLHOME/App1/Service/Service2#Service2"/>
+        <ClaraOL:include rdf:resource="file://CLARA_OL_HOME/App1/Service/Service2.rdf"/>
+        <ClaraOL:hasService rdf:resource="file://CLARA_OL_HOME/App1/Service/Service2#Service2"/>
 
-        <ClaraOL:include rdf:resource="http://CLARAOLHOME/App1/Service/Service3.rdf"/>
-        <ClaraOL:hasService rdf:resource="http://CLARAOLHOME/App1/Service/Service3#Service3"/>
+        <ClaraOL:include rdf:resource="file://CLARA_OL_HOME/App1/Service/Service3.rdf"/>
+        <ClaraOL:hasService rdf:resource="file://CLARA_OL_HOME/App1/Service/Service3#Service3"/>
 
-        <ClaraOL:include rdf:resource="http://CLARAOLHOME/App1/Action/Action1.rdf"/>
-        <ClaraOL:hasStartAction rdf:resource="http://CLARAOLHOME/App1/Action/Action1#Action1"/>
+        <ClaraOL:include rdf:resource="file://CLARA_OL_HOME/App1/Action/Action1.rdf"/>
+        <ClaraOL:hasStartAction rdf:resource="file://CLARA_OL_HOME/App1/Action/Action1#Action1"/>
 
-        <ClaraOL:include rdf:resource="http://CLARAOLHOME/App1/Identity/AppIdentity1.rdf"/>
-        <ClaraOL:hasIdentity rdf:resource="http://CLARAOLHOME/App1/Identity/AppIdentity1#AppIdentity1"/>
+        <ClaraOL:include rdf:resource="file://CLARA_OL_HOME/App1/Identity/AppIdentity1.rdf"/>
+        <ClaraOL:hasIdentity rdf:resource="file://CLARA_OL_HOME/App1/Identity/AppIdentity1#AppIdentity1"/>
 
     </ClaraOL:Application>
 

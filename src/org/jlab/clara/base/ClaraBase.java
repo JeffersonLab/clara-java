@@ -26,13 +26,7 @@ import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.util.CConstants;
 import org.jlab.clara.util.report.CReportTypes;
-import org.jlab.coda.xmsg.core.xMsg;
-import org.jlab.coda.xmsg.core.xMsgCallBack;
-import org.jlab.coda.xmsg.core.xMsgConstants;
-import org.jlab.coda.xmsg.core.xMsgMessage;
-import org.jlab.coda.xmsg.core.xMsgSubscription;
-import org.jlab.coda.xmsg.core.xMsgTopic;
-import org.jlab.coda.xmsg.core.xMsgUtil;
+import org.jlab.coda.xmsg.core.*;
 import org.jlab.coda.xmsg.data.xMsgM;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta.Endian;
@@ -59,10 +53,8 @@ import java.util.concurrent.TimeoutException;
  */
 public abstract class ClaraBase extends xMsg {
 
-    private final String claraHome;
-
     private static final EngineDataAccessor dataAccessor = EngineDataAccessor.getDefault();
-
+    private final String claraHome;
     // reference to this component description
     private final ClaraComponent me;
 
@@ -77,7 +69,7 @@ public abstract class ClaraBase extends xMsg {
      * @throws ClaraException
      */
     public ClaraBase(ClaraComponent me,
-                     ClaraComponent frontEnd) {
+                     ClaraComponent frontEnd) throws ClaraException {
         super(me.getCanonicalName(),
               new xMsgProxyAddress(me.getDpeHost(), me.getDpePort()),
               new xMsgRegAddress(),
@@ -100,8 +92,46 @@ public abstract class ClaraBase extends xMsg {
         this.frontEnd = frontEnd;
         this.claraHome = System.getenv("CLARA_HOME");
         if (claraHome == null) {
-            throw new IllegalStateException("CLARA_HOME environmental variable is not defined.");
+            throw new ClaraException("CLARA_HOME environmental variable is not defined.");
         }
+    }
+
+    /**
+     * Builds a message by serializing passed data object using serialization
+     * routine defined in one of the data types objects.
+     *
+     * @param topic     the topic where the data will be published
+     * @param data      the data to be serialized
+     * @param dataTypes the set of registered data types
+     * @throws ClaraException if the data could not be serialized
+     */
+    public static xMsgMessage serialize(xMsgTopic topic,
+                                        EngineData data,
+                                        Set<EngineDataType> dataTypes)
+            throws ClaraException {
+
+        xMsgMeta.Builder metadata = dataAccessor.getMetadata(data);
+        String mimeType = metadata.getDataType();
+        for (EngineDataType dt : dataTypes) {
+            if (dt.mimeType().equals(mimeType)) {
+                try {
+                    ByteBuffer bb = dt.serializer().write(data.getData());
+                    if (bb.order() == ByteOrder.BIG_ENDIAN) {
+                        metadata.setByteOrder(Endian.Big);
+                    } else {
+                        metadata.setByteOrder(Endian.Little);
+                    }
+                    return new xMsgMessage(topic, metadata, bb.array());
+                } catch (ClaraException e) {
+                    throw new ClaraException("Could not serialize " + mimeType, e);
+                }
+            }
+        }
+        throw new ClaraException("Unsupported mime-type = " + mimeType);
+    }
+
+    public static xMsgMessage createRequest(xMsgTopic topic, String data) {
+        return new xMsgMessage(topic, xMsgConstants.MimeType.STRING, data.getBytes());
     }
 
     // abstract methods to start and gracefully end Clara components
@@ -228,7 +258,6 @@ public abstract class ClaraBase extends xMsg {
         release(con);
         return m;
     }
-
 
     /**
      * Listens messages from the defined component.
@@ -399,7 +428,6 @@ public abstract class ClaraBase extends xMsg {
         return _deploy(component, timeout);
     }
 
-
     /**
      * Sends a message to a Clara component/actor telling to exit/destruct.
      *
@@ -521,45 +549,6 @@ public abstract class ClaraBase extends xMsg {
             }
         }
         throw new ClaraException("Clara-Error: Unsupported mime-type = " + mimeType);
-    }
-
-
-    /**
-     * Builds a message by serializing passed data object using serialization
-     * routine defined in one of the data types objects.
-     *
-     * @param topic the topic where the data will be published
-     * @param data the data to be serialized
-     * @param dataTypes the set of registered data types
-     * @throws ClaraException if the data could not be serialized
-     */
-    public static xMsgMessage serialize(xMsgTopic topic,
-                                        EngineData data,
-                                        Set<EngineDataType> dataTypes)
-            throws ClaraException {
-
-        xMsgMeta.Builder metadata = dataAccessor.getMetadata(data);
-        String mimeType = metadata.getDataType();
-        for (EngineDataType dt : dataTypes) {
-            if (dt.mimeType().equals(mimeType)) {
-                try {
-                    ByteBuffer bb = dt.serializer().write(data.getData());
-                    if (bb.order() == ByteOrder.BIG_ENDIAN) {
-                        metadata.setByteOrder(Endian.Big);
-                    } else {
-                        metadata.setByteOrder(Endian.Little);
-                    }
-                    return new xMsgMessage(topic, metadata, bb.array());
-                } catch (ClaraException e) {
-                    throw new ClaraException("Could not serialize " + mimeType, e);
-                }
-            }
-        }
-        throw new ClaraException("Unsupported mime-type = " + mimeType);
-    }
-
-    public static xMsgMessage createRequest(xMsgTopic topic, String data) {
-        return new xMsgMessage(topic, xMsgConstants.MimeType.STRING, data.getBytes());
     }
 
     /**

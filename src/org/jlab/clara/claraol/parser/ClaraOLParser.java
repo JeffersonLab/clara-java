@@ -22,12 +22,14 @@
 
 package org.jlab.clara.claraol.parser;
 
-import org.apache.jena.rdf.model.Model;
+import org.apache.jena.rdf.model.*;
+import org.jlab.clara.base.error.ClaraException;
 
+import java.io.File;
 import java.io.FileInputStream;
-import java.util.ArrayList;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -46,8 +48,139 @@ public class ClaraOLParser {
     private Model GModel;
 
     // List of the included cool configuration file jena models
-    private Map<String, Model> Models = new HashMap<>();
+    private Map<String, Model> _models = new HashMap<>();
 
-    private List<FileInputStream> fStreams = new ArrayList<>();
+    public static void main(String[] args) {
+        ClaraOLParser parser = new ClaraOLParser();
+        try {
+            System.out.println(args[0]);
+            parser.parseApplication(args[0]);
+        } catch (IOException | ClaraException e) {
+            e.printStackTrace();
+        }
 
+        System.out.println(parser);
+    }
+
+    public void parseApplication(String appName) throws IOException, ClaraException {
+
+        // reset previous parsing results
+        reset();
+
+        String appColFile = ColPUtil.getClaraOlHome() + File.separator +
+                appName + File.separator +
+                appName + ".rdf";
+        System.out.println(appColFile);
+
+        extractModels(appColFile);
+        uniteModels();
+    }
+
+    /**
+     * Resets models map and global, unified
+     * model of the previous app configuration.
+     */
+    private void reset() {
+        // reset the model
+        _models.clear();
+        if (GModel != null) {
+            GModel.removeAll();
+            GModel.close();
+        }
+    }
+
+    /**
+     * Create the final model as a union of all models
+     */
+    private void uniteModels() {
+        if (!_models.isEmpty()) {
+            // create union of the jena models
+            GModel = ModelFactory.createDefaultModel();
+            for (String s : _models.keySet()) {
+                GModel = GModel.union(_models.get(s));
+            }
+        }
+    }
+
+    /**
+     * Creates Jena model from the ClaraOLRDF description file
+     *
+     * @param fileName direct path to the ClaraOL RDF file
+     */
+    private void extractModels(String fileName) throws ClaraException, IOException {
+        FileInputStream fis;
+        try {
+            fis = new FileInputStream(fileName);
+        } catch (FileNotFoundException e) {
+            throw new ClaraException("No Ontology definition file found.");
+        }
+
+        // create the jena model
+        Model model = ModelFactory.createDefaultModel();
+        model.read(fis, ColConstants.URI, "RDF/XML");
+
+        fis.close();
+
+        // add this model to the model list
+        if (!_models.containsKey(fileName)) {
+            _models.put(fileName, model);
+
+            System.out.println("include: " + fileName);
+
+            // get iterator over statements in the Model
+            StmtIterator iterator = model.listStatements();
+
+            // print out the predicate, subject and object of each statement
+            while (iterator.hasNext()) {
+                Statement stmt = iterator.nextStatement();
+                RDFNode node = stmt.getObject();
+
+                if (node instanceof Resource) {
+                    if ((node.toString().endsWith(".rdf"))) {
+                        String includeNodeName = node.toString();
+                        if (includeNodeName.contains(ColConstants.URI)) {
+
+                            // replace URI, which is the location of the ClaraOL home
+                            includeNodeName = ColPUtil.replace(includeNodeName,
+                                    ColConstants.URI,
+                                    ColPUtil.getClaraOlHome());
+
+                            // get model for the included rdf file
+                            extractModels(includeNodeName);
+
+                        } else {
+                            return;
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        if (GModel != null) {
+
+            // list the statements in the Model
+            StmtIterator iterator = GModel.listStatements();
+
+            // print out the predicate, subject and object of each statement
+            while (iterator.hasNext()) {
+                Statement stmt = iterator.nextStatement();
+                Resource subject = stmt.getSubject();
+                Property predicate = stmt.getPredicate();
+                RDFNode node = stmt.getObject();
+                sb.append("subject   = " + subject.toString() + "\n");
+                sb.append("predicate = " + predicate.toString() + "\n");
+                if (node instanceof Resource) {
+                    sb.append("resource = " + node.toString() + "\n");
+                } else {
+                    sb.append("literal = " + node.toString() + "\n");
+                }
+                sb.append("\n");
+            }
+        }
+        return sb.toString();
+    }
 }
