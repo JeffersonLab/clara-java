@@ -37,6 +37,7 @@ import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta.Builder;
 import org.jlab.coda.xmsg.excp.xMsgException;
 import org.jlab.coda.xmsg.net.xMsgProxyAddress;
+import org.jlab.coda.xmsg.net.xMsgRegAddress;
 import org.jlab.coda.xmsg.xsys.xMsgRegistrar;
 import org.zeromq.ZContext;
 
@@ -57,7 +58,8 @@ class FrontEnd {
             throws ClaraException {
         try {
             // create the xMsg registrar
-            registrar = new xMsgRegistrar(new ZContext());
+            xMsgRegAddress regAddress = new xMsgRegAddress(frontEndAddress.host());
+            registrar = new xMsgRegistrar(new ZContext(), regAddress);
             registrar.start();
 
             // create the xMsg actor
