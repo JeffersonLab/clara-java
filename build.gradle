@@ -130,7 +130,6 @@ task(orInteractive, dependsOn: 'classes', type: JavaExec) {
 def deploySpec = copySpec {
     into ('lib') {
         from configurations.runtime
-        from configurations.provided
         from "${jar.archivePath}"
     }
 
