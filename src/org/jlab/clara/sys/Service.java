@@ -173,16 +173,13 @@ class Service extends ClaraBase {
         while (true) {
             for (final ServiceEngine engine : enginePool) {
                 if (engine.tryAcquire()) {
-                    executionPool.submit(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                engine.configure(msg);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            } finally {
-                                engine.release();
-                            }
+                    executionPool.submit(() -> {
+                        try {
+                            engine.configure(msg);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        } finally {
+                            engine.release();
                         }
                     });
                     return;
@@ -196,16 +193,13 @@ class Service extends ClaraBase {
         while (true) {
             for (final ServiceEngine engine : enginePool) {
                 if (engine.tryAcquire()) {
-                    executionPool.submit(new Runnable() {
-                        @Override
-                        public void run() {
-                            try {
-                                engine.execute(msg);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            } finally {
-                                engine.release();
-                            }
+                    executionPool.submit(() -> {
+                        try {
+                            engine.execute(msg);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        } finally {
+                            engine.release();
                         }
                     });
                     return;

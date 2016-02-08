@@ -132,17 +132,14 @@ public class ClaraSubscriptions {
 
         @Override
         protected xMsgCallBack wrap(final EngineCallback userCallback) {
-            return new xMsgCallBack() {
-                    @Override
-                    public xMsgMessage callback(xMsgMessage msg) {
-                        try {
-                            userCallback.callback(base.deSerialize(msg, dataTypes));
-                        } catch (ClaraException e) {
-                            System.out.println("Error receiving data to " + msg.getTopic());
-                            e.printStackTrace();
-                        }
-                        return null;
-                    }
+            return msg -> {
+                try {
+                    userCallback.callback(base.deSerialize(msg, dataTypes));
+                } catch (ClaraException e) {
+                    System.out.println("Error receiving data to " + msg.getTopic());
+                    e.printStackTrace();
+                }
+                return null;
             };
         }
     }
@@ -160,22 +157,19 @@ public class ClaraSubscriptions {
 
         @Override
         protected xMsgCallBack wrap(final GenericCallback userCallback) {
-            return new xMsgCallBack() {
-                @Override
-                public xMsgMessage callback(xMsgMessage msg) {
-                    try {
-                        String mimeType = msg.getMetaData().getDataType();
-                        if (mimeType.equals("text/string")) {
-                            userCallback.callback(new String(msg.getData()));
-                        } else {
-                            throw new ClaraException("Unexpected mime-type: " + mimeType);
-                        }
-                    } catch (ClaraException e) {
-                        System.out.println("Error receiving data to " + msg.getTopic());
-                        e.printStackTrace();
+            return msg -> {
+                try {
+                    String mimeType = msg.getMetaData().getDataType();
+                    if (mimeType.equals("text/string")) {
+                        userCallback.callback(new String(msg.getData()));
+                    } else {
+                        throw new ClaraException("Unexpected mime-type: " + mimeType);
                     }
-                    return null;
+                } catch (ClaraException e) {
+                    System.out.println("Error receiving data to " + msg.getTopic());
+                    e.printStackTrace();
                 }
+                return null;
             };
         }
     }

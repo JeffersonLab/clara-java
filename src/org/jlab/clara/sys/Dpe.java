@@ -158,15 +158,12 @@ public class Dpe extends ClaraBase {
     }
 
     private static void startProxy(final xMsgProxyAddress address) {
-        Thread t = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    xMsgProxy proxy = new xMsgProxy(new ZContext(), address);
-                    proxy.start();
-                } catch (xMsgException e) {
-                    e.printStackTrace();
-                }
+        Thread t = new Thread(() -> {
+            try {
+                xMsgProxy proxy = new xMsgProxy(new ZContext(), address);
+                proxy.start();
+            } catch (xMsgException e) {
+                e.printStackTrace();
             }
         });
         t.start();
@@ -222,12 +219,7 @@ public class Dpe extends ClaraBase {
      */
     private void startHeartBeatReport() {
         ScheduledExecutorService scheduledPingService = Executors.newScheduledThreadPool(3);
-        scheduledPingService.schedule(new Runnable() {
-            @Override
-            public void run() {
-                report();
-            }
-        }, 5, TimeUnit.SECONDS);
+        scheduledPingService.schedule(() -> report(), 5, TimeUnit.SECONDS);
     }
 
     /**
