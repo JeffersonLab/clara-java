@@ -325,11 +325,11 @@ public abstract class ClaraBase extends xMsg {
      * @throws ClaraException if registration failed
      */
     public void register(xMsgTopic topic, String description) throws ClaraException {
+        xMsgRegAddress regAddress = new xMsgRegAddress(frontEnd.getDpeHost());
         try {
-            xMsgRegAddress regAddress = new xMsgRegAddress(frontEnd.getDpeHost());
             registerAsSubscriber(regAddress, topic, description);
         } catch (xMsgException e) {
-            throw new ClaraException("Could not register with front-end registrar", e);
+            throw new ClaraException("Could not register with front-end " + regAddress, e);
         }
     }
 
