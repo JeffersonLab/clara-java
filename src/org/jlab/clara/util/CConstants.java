@@ -38,6 +38,7 @@ public class CConstants {
     public static final String PING_DPE = "pingDpe";
     public static final String PING_REMOTE_DPE = "pingRemoteDpe";
     public static final String DPE_ALIVE = "dpeAlive";
+    public static final String DPE_REPORT = "dpeReport";
 
     public static final String CONTAINER = "container";
     public static final String STATE_CONTAINER = "getContainerState";

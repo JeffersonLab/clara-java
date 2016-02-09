@@ -230,13 +230,23 @@ public class Dpe extends ClaraBase {
      */
     private void report() {
         try {
-            xMsgTopic dpeReportTopic = ClaraUtil.buildTopic(CConstants.DPE_ALIVE,
-                                                            getMe().getCanonicalName());
+            xMsgProxyAddress feHost = getFrontEnd().getProxyAddress();
 
-            xMsgConnection con = connect(getFrontEnd().getProxyAddress());
+            xMsgTopic reportTopic = ClaraUtil.buildTopic(CConstants.DPE_REPORT, feHost.host());
+            xMsgTopic aliveTopic = ClaraUtil.buildTopic(CConstants.DPE_ALIVE, feHost.host());
+
+            xMsgConnection con = connect(feHost);
             xMsgUtil.sleep(100);
 
+            int availableProcessors = Runtime.getRuntime().availableProcessors();
+            String claraHome = System.getenv("CLARA_HOME");
+            String dpeName = getMe().getCanonicalName();
+            String data = dpeName + "?" + availableProcessors + "?" + claraHome;
+
             while (isReporting.get()) {
+
+                xMsgMessage msg = createRequest(aliveTopic, data);
+                send(con, msg);
 
                 myReport.setMemoryUsage(ClaraUtil.getMemoryUsage());
                 myReport.setCpuUsage(ClaraUtil.getCpuUsage());
@@ -244,10 +254,12 @@ public class Dpe extends ClaraBase {
 
                 String jsonData = myReportBuilder.generateReport(myReport);
 
-                xMsgMessage msg = createRequest(dpeReportTopic, jsonData);
-                send(con, msg);
+                xMsgMessage reportMsg = createRequest(reportTopic, jsonData);
+                send(con, reportMsg);
+
                 xMsgUtil.sleep(reportWait);
             }
+
             release(con);
         } catch (xMsgException | MalformedObjectNameException |
                 ReflectionException | InstanceNotFoundException e) {
