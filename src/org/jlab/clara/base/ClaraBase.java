@@ -127,6 +127,10 @@ public abstract class ClaraBase extends xMsg {
                 }
             }
         }
+        if (mimeType.equals(EngineDataType.STRING.mimeType())) {
+            ByteBuffer bb = EngineDataType.STRING.serializer().write(data.getData());
+            return new xMsgMessage(topic, metadata, bb.array());
+        }
         throw new ClaraException("Unsupported mime-type = " + mimeType);
     }
 
