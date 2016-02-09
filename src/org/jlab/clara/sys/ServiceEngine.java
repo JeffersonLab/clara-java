@@ -110,6 +110,7 @@ class ServiceEngine extends ClaraBase {
             inputData = getEngineData(message);
             outData = configureEngine(inputData);
         } catch (Exception e) {
+            e.printStackTrace();
             outData = buildSystemErrorData("unhandled exception", -4, ClaraUtil.reportException(e));
         } finally {
             updateMetadata(message.getMetaData(), getMetadata(outData));
@@ -158,6 +159,7 @@ class ServiceEngine extends ClaraBase {
             parseComposition(inData);
             outData = executeEngine(inData);
         } catch (Exception e) {
+            e.printStackTrace();
             outData = buildSystemErrorData("unhandled exception", -4, ClaraUtil.reportException(e));
         } finally {
             updateMetadata(message.getMetaData(), getMetadata(outData));
