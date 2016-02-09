@@ -161,6 +161,9 @@ public class Dpe extends ClaraBase {
         Thread t = new Thread(() -> {
             try {
                 xMsgProxy proxy = new xMsgProxy(new ZContext(), address);
+                if (System.getenv("XMSG_PROXY_DEBUG") != null) {
+                    proxy.verbose();
+                }
                 proxy.start();
             } catch (xMsgException e) {
                 e.printStackTrace();
