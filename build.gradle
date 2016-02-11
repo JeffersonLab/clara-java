@@ -104,6 +104,19 @@ artifacts {
 }
 
 
+if (!project.hasProperty("localPublicationRepo")) {
+    ext.localPublicationRepo = "file://localhost/tmp/repo"
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: localPublicationRepo)
+        }
+    }
+}
+
+
 
 task(startDpe, dependsOn: 'classes', type: JavaExec) {
     main = 'org.jlab.clara.sys.Dpe'
