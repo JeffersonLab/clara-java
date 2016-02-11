@@ -76,6 +76,19 @@ artifacts {
 }
 
 
+if (!project.hasProperty("localPublicationRepo")) {
+    ext.localPublicationRepo = "file://localhost/tmp/repo"
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            repository(url: localPublicationRepo)
+        }
+    }
+}
+
+
 
 task(startProxy, dependsOn: 'classes', type: JavaExec) {
     main = 'org.jlab.coda.xmsg.xsys.xMsgProxy'
