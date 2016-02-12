@@ -38,6 +38,8 @@ import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 import org.jlab.coda.xmsg.excp.xMsgException;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
@@ -177,7 +179,7 @@ class Service extends ClaraBase {
                         try {
                             engine.configure(msg);
                         } catch (Exception e) {
-                            e.printStackTrace();
+                            printUnhandledException(e);
                         } finally {
                             engine.release();
                         }
@@ -197,7 +199,7 @@ class Service extends ClaraBase {
                         try {
                             engine.execute(msg);
                         } catch (Exception e) {
-                            e.printStackTrace();
+                            printUnhandledException(e);
                         } finally {
                             engine.release();
                         }
@@ -227,6 +229,14 @@ class Service extends ClaraBase {
             default:
                 throw new RequestException("Invalid report request: " + report);
         }
+    }
+
+
+    private void printUnhandledException(Exception e) {
+        StringWriter errors = new StringWriter();
+        errors.write(name + ": Clara error: ");
+        e.printStackTrace(new PrintWriter(errors));
+        System.err.println(errors.toString());
     }
 
 
