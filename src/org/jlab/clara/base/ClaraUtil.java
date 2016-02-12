@@ -427,7 +427,7 @@ public final class ClaraUtil {
         }
     }
 
-    public static String getJSetElementAt(Set<String> set, int index){
+    public static String getJSetElementAt(List<String> set, int index) {
         int ind = -1;
         for(String s:set){
             ind++;

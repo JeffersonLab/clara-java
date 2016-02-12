@@ -60,28 +60,19 @@ public class CCompilerTest {
         CCompiler cc = new CCompiler("10.10.10.1_java:C:S1");
         cc.compile(composition);
 
-        Set<String> expected = new HashSet<String>(Arrays.asList("10.10.10.1_java:C:S2"));
+        Set<String> expected = new HashSet<>(Arrays.asList("10.10.10.1_java:C:S2"));
 
-        assertThat(getUnconditionalLinks(cc), is(expected));
+        assertThat(cc.getUnconditionalLinks(), is(expected));
     }
 
-    private Set<String> getUnconditionalLinks(CCompiler cc) {
-        Set<String> uncond = new HashSet<String>();
-        for (Instruction inst : cc.getInstructions()) {
-            for (Statement stmt : inst.getUnCondStatements()) {
-                uncond.addAll(stmt.getOutputLinks());
-            }
-        }
-        return uncond;
-    }
 
     @Test
     public void testServiceAtTheMiddle() throws Exception {
         CCompiler cc = new CCompiler("10.10.10.1_java:C:S2");
         cc.compile(composition);
 
-        Set<String> expected = new HashSet<String>(Arrays.asList("10.10.10.1_java:C:S3"));
-        assertThat(getUnconditionalLinks(cc), is(expected));
+        Set<String> expected = new HashSet<>(Arrays.asList("10.10.10.1_java:C:S3"));
+        assertThat(cc.getUnconditionalLinks(), is(expected));
     }
 
     @Test
@@ -89,8 +80,8 @@ public class CCompilerTest {
         CCompiler cc = new CCompiler("10.10.10.1_java:C:S4");
         cc.compile(composition);
 
-        Set<String> expected = new HashSet<String>();
-        assertThat(getUnconditionalLinks(cc), is(expected));
+        Set<String> expected = new HashSet<>();
+        assertThat(cc.getUnconditionalLinks(), is(expected));
     }
 
     @Test
@@ -101,8 +92,9 @@ public class CCompilerTest {
                            + "10.10.10.1_java:C:S1;";
         cc.compile(composition);
 
-        Set<String> expected = new HashSet<String>(Arrays.asList("10.10.10.1_java:C:S1"));
-        assertThat(getUnconditionalLinks(cc), is(expected));
+
+        Set<String> expected = new HashSet<>(Arrays.asList("10.10.10.1_java:C:S1"));
+        assertThat(cc.getUnconditionalLinks(), is(expected));
     }
 
     @Test
@@ -115,8 +107,8 @@ public class CCompilerTest {
                               "10.10.10.1_java:C:S5;";
         cc.compile(composition2);
 
-        Set<String> expected = new HashSet<String>(Arrays.asList("10.10.10.1_java:C:S5"));
-        assertThat(getUnconditionalLinks(cc), is(expected));
+        Set<String> expected = new HashSet<>(Arrays.asList("10.10.10.1_java:C:S5"));
+        assertThat(cc.getUnconditionalLinks(), is(expected));
     }
 
     @Test
@@ -133,7 +125,7 @@ public class CCompilerTest {
         ServiceState owner = new ServiceState("10.10.10.1_java:C:S1", "FOO");
         ServiceState input = new ServiceState("WHATEVER", "DON'T CARE");
 
-        Set<String> expected = new HashSet<String>(Arrays.asList("10.10.10.1_java:C:S2"));
+        Set<String> expected = new HashSet<>(Arrays.asList("10.10.10.1_java:C:S2"));
         assertThat(cc.getLinks(owner, input), is(expected));
     }
 
@@ -155,7 +147,7 @@ public class CCompilerTest {
         ServiceState owner = new ServiceState("10.10.10.1_java:C:S1", "FROZ");
         ServiceState input = new ServiceState("WHATEVER", "DON'T CARE");
 
-        Set<String> expected = new HashSet<String>(Arrays.asList("10.10.10.1_java:C:S4"));
+        Set<String> expected = new HashSet<>(Arrays.asList("10.10.10.1_java:C:S4"));
         assertThat(cc.getLinks(owner, input), is(expected));
     }
 
@@ -179,7 +171,7 @@ public class CCompilerTest {
         ServiceState owner = new ServiceState("10.10.10.1_java:C:S1", "FRAPP");
         ServiceState input = new ServiceState("WHATEVER", "DON'T CARE");
 
-        Set<String> expected = new HashSet<String>(Arrays.asList("10.10.10.1_java:C:S5"));
+        Set<String> expected = new HashSet<>(Arrays.asList("10.10.10.1_java:C:S5"));
         assertThat(cc.getLinks(owner, input), is(expected));
     }
 
@@ -198,7 +190,7 @@ public class CCompilerTest {
         ServiceState owner = new ServiceState("10.10.10.1_java:C:S1", "FOO");
         ServiceState input = new ServiceState("WHATEVER", "DON'T CARE");
 
-        Set<String> expected = new HashSet<String>(Arrays.asList("10.10.10.1_java:C:S2",
+        Set<String> expected = new HashSet<>(Arrays.asList("10.10.10.1_java:C:S2",
                                                                  "10.10.10.1_java:C:S7"));
         assertThat(cc.getLinks(owner, input), is(expected));
     }
@@ -211,11 +203,12 @@ public class CCompilerTest {
                            + "10.10.10.1_java:C:S1;";
         cc.compile(composition);
 
+
         // service-states for conditional routing
         ServiceState ownerSS = new ServiceState("10.10.10.1_java:C:S3", CConstants.UNDEFINED);
         ServiceState inputSS = new ServiceState("10.10.10.1_java:C:S3", CConstants.UNDEFINED);
 
-        Set<String> expected = new HashSet<String>(Arrays.asList("10.10.10.1_java:C:S1"));
+        Set<String> expected = new HashSet<>(Arrays.asList("10.10.10.1_java:C:S1"));
         assertThat(cc.getLinks(ownerSS, inputSS), is(expected));
     }
 }

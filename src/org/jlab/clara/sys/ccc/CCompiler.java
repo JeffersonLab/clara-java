@@ -62,7 +62,7 @@ import java.util.regex.PatternSyntaxException;
 public class CCompiler {
 
     /**
-     * <p>
+     *
      * IP address regex
      * </p>
      */
@@ -149,19 +149,41 @@ public class CCompiler {
     }
 
     public static void main(String[] args) {
-//        // composition description file
-        String df = "/Users/gurjyan/Devel/Clara/java/clara-java/src/test/example1.cmp";
+        // composition description file
+        String df = "/Users/gurjyan/Devel/Clara/java/Clara-java-v4.3/src/org/jlab/clara/examples/scratch/example1.cmp";
 
-        CCompiler compiler = new CCompiler("10.2.9.96_java:container1:engine2");
+        CCompiler compiler = new CCompiler("10.10.10.1_java:C:S3");
 
         try {
             String t = new String(Files.readAllBytes(Paths.get(df)), StandardCharsets.UTF_8);
             compiler.compile(t);
 
+            for (Instruction instruction : compiler.getInstructions()) {
+                System.out.println(instruction);
+            }
+
+            for (String s : compiler.getUnconditionalLinks()) {
+                System.out.println(s);
+            }
+
         } catch (IOException | ClaraException e) {
             e.printStackTrace();
         }
+//        CCompiler cc = new CCompiler("10.10.10.1_java:C:S3");
+//        String composition = "10.10.10.1_java:C:S1+"
+//                + "10.10.10.1_java:C:S3+"
+//                + "10.10.10.1_java:C:S1;";
+//        try {
+//            cc.compile(composition);
+//        } catch (ClaraException e) {
+//            e.printStackTrace();
+//        }
+//
+//        for(String s:cc.getUnconditionalLinks()){
+//            System.err.println("DDD "+s);
+//        }
     }
+
 
     public void compile(String iCode) throws ClaraException {
 
@@ -174,7 +196,7 @@ public class CCompiler {
         // split single string program using
         // Clara ; end of statement operator
         // in case of the conditional statements the }
-        // scope operator can be the first after tokenizing with ;,
+        // scope operator can be the first after tokenize with,
         // so preProcess will take of that too.
         Set<String> pp = preProcess(pCode);
 
@@ -392,9 +414,28 @@ public class CCompiler {
         return instructions;
     }
 
+    public Set<String> getUnconditionalLinks() {
+        Set<String> outputs = new HashSet<>();
+        for (Instruction inst : instructions) {
+
+            // NOTE: instruction routing statements are exclusive: will be either unconditional, if, elseif, or else.
+
+            if (inst.getUnCondStatements() != null && !inst.getUnCondStatements().isEmpty()) {
+
+                for (Statement stmt : inst.getUnCondStatements()) {
+
+                    outputs.addAll(stmt.getOutputLinks());
+                }
+
+                continue;
+            }
+        }
+        return outputs;
+    }
+
     public Set<String> getLinks(ServiceState ownerSS, ServiceState inputSS) {
 
-        Set<String> outputs = new HashSet<String>();
+        Set<String> outputs = new HashSet<>();
 
         // The list of routing instructions supply the output links
         //
@@ -417,7 +458,7 @@ public class CCompiler {
 
             // NOTE: instruction routing statements are exclusive: will be either unconditional, if, elseif, or else.
 
-            if (!inst.getUnCondStatements().isEmpty()) {
+            if (inst.getUnCondStatements() != null && !inst.getUnCondStatements().isEmpty()) {
 
                 // no longer in a conditional now
                 inCondition = false;

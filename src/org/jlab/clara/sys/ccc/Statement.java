@@ -30,14 +30,14 @@ import java.util.*;
 
 /**
  * <p>
- *     This class presents routing schema for a service, result of the Clara composition
- *     compiler, parsing routing statements of a composition.
- *
- *     Contains Map that has keys = input service names, data from which are required
- *     logically to be ANDed. I.e. data from all services in the AND must be present
- *     in order for the receiving service to execute its service engine.
- *     Also contains a Set of names of all services that are linked to the service
- *     of interest, i.e. names of all services that this services will send it's output data.
+ * This class presents routing schema for a service, result of the Clara composition
+ * compiler, parsing routing statements of a composition.
+ * <p>
+ * Contains Map that has keys = input service names, data from which are required
+ * logically to be ANDed. I.e. data from all services in the AND must be present
+ * in order for the receiving service to execute its service engine.
+ * Also contains a Set of names of all services that are linked to the service
+ * of interest, i.e. names of all services that this services will send it's output data.
  * </p>
  *
  * @author gurjyan
@@ -67,7 +67,7 @@ public class Statement {
 
 
     public Statement(String statementString, String serviceName) throws ClaraException {
-        if(statementString.contains(serviceName)) {
+        if (statementString.contains(serviceName)) {
             this.statementString = statementString;
             this.serviceName = serviceName;
             process(statementString);
@@ -117,7 +117,7 @@ public class Statement {
         if (statement.contains(serviceName)) {
             parse_linked(serviceName, statement);
             if (is_log_and(serviceName, statement)) {
-                for(String sn: inputLinks){
+                for (String sn : inputLinks) {
                     logAndInputs.put(sn, null);
                 }
             }
@@ -134,8 +134,8 @@ public class Statement {
      * in the composition.
      * </p>
      *
-     * @param service_name   the name of the service
-     *                       for which we find input/output links
+     * @param service_name the name of the service
+     *                     for which we find input/output links
      * @param statement    the string of the composition
      * @return the list containing names of linked services
      */
@@ -143,13 +143,13 @@ public class Statement {
                               String statement) throws ClaraException {
 
         // List that contains composition elements
-        Set<String> elm_set = new LinkedHashSet<>();
+        List<String> elm_set = new ArrayList<>();
 
         StringTokenizer st = new StringTokenizer(statement, "+");
         while (st.hasMoreTokens()) {
             String el = st.nextToken();
-            el =  ClaraUtil.removeFirst(el, "&");
-            el =  ClaraUtil.removeFirst(el, "{");
+            el = ClaraUtil.removeFirst(el, "&");
+            el = ClaraUtil.removeFirst(el, "{");
             elm_set.add(el);
         }
 
@@ -168,34 +168,31 @@ public class Statement {
             throw new ClaraException("Routing statement parsing exception. " +
                     "Service name can not be found in the statement.");
         } else {
-            int pIndex = index -1;
-            if(pIndex >= 0) {
+            int pIndex = index - 1;
+            if (pIndex >= 0) {
                 String element = ClaraUtil.getJSetElementAt(elm_set, pIndex);
                 // the case to fan out the output of this service
-                if (element.contains(",")) {
-                    StringTokenizer st1 = new StringTokenizer(element, ",");
-                    while (st1.hasMoreTokens()) {
-                        inputLinks.add(st1.nextToken());
-                    }
-                } else {
-                    inputLinks.add(element);
-                }
+                elementTokenizer(element, inputLinks);
             }
 
             // define output links
-            int nIndex = index +1;
+            int nIndex = index + 1;
             if (elm_set.size() > nIndex) {
                 String element = ClaraUtil.getJSetElementAt(elm_set, nIndex);
                 // the case to fan out the output of this service
-                if (element.contains(",")) {
-                    StringTokenizer st1 = new StringTokenizer(element, ",");
-                    while (st1.hasMoreTokens()) {
-                        outputLinks.add(st1.nextToken());
-                    }
-                } else {
-                    outputLinks.add(element);
-                }
+                elementTokenizer(element, outputLinks);
             }
+        }
+    }
+
+    private void elementTokenizer(String element, Set<String> container) {
+        if (element.contains(",")) {
+            StringTokenizer st1 = new StringTokenizer(element, ",");
+            while (st1.hasMoreTokens()) {
+                container.add(st1.nextToken());
+            }
+        } else {
+            container.add(element);
         }
     }
 

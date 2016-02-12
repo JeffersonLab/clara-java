@@ -25,12 +25,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- * <p>
  *     Correlates CLARA condition with the set of routing statements.
  * </p>
  *
  * @author gurjyan
- * @version 1.x
+ * @version 4.x
  * @since 5/21/15
  */
 public class Instruction {

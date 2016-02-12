@@ -43,7 +43,7 @@ import java.util.concurrent.TimeUnit;
  * </p>
  *
  * @author gurjyan
- * @version 1.x
+ * @version 4.x
  * @since 2/2/15
  */
 
