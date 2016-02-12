@@ -142,7 +142,7 @@ public class Statement {
                               String statement) throws CException {
 
         // List that contains composition elements
-        Set<String> elm_set = new LinkedHashSet<>();
+        List<String> elm_set = new ArrayList<>();
 
         StringTokenizer st = new StringTokenizer(statement, "+");
         while (st.hasMoreTokens()) {
@@ -171,14 +171,7 @@ public class Statement {
             if(pIndex >= 0) {
                 String element = CUtility.getJSetElementAt(elm_set, pIndex);
                 // the case to fan out the output of this service
-                if (element.contains(",")) {
-                    StringTokenizer st1 = new StringTokenizer(element, ",");
-                    while (st1.hasMoreTokens()) {
-                        inputLinks.add(st1.nextToken());
-                    }
-                } else {
-                    inputLinks.add(element);
-                }
+                elementTokenizer(element, inputLinks);
             }
 
             // define output links
@@ -186,15 +179,19 @@ public class Statement {
             if (elm_set.size() > nIndex) {
                 String element = CUtility.getJSetElementAt(elm_set, nIndex);
                 // the case to fan out the output of this service
-                if (element.contains(",")) {
-                    StringTokenizer st1 = new StringTokenizer(element, ",");
-                    while (st1.hasMoreTokens()) {
-                        outputLinks.add(st1.nextToken());
-                    }
-                } else {
-                    outputLinks.add(element);
-                }
+                elementTokenizer(element, outputLinks);
             }
+        }
+    }
+
+    private void elementTokenizer(String element, Set<String> container) {
+        if (element.contains(",")) {
+            StringTokenizer st1 = new StringTokenizer(element, ",");
+            while (st1.hasMoreTokens()) {
+                container.add(st1.nextToken());
+            }
+        } else {
+            container.add(element);
         }
     }
 

@@ -413,6 +413,14 @@ public class CCompiler {
             String t = new String(Files.readAllBytes(Paths.get(df)), StandardCharsets.UTF_8);
             compiler.compile(t);
 
+            for (Instruction instruction : compiler.getInstructions()) {
+                System.out.println(instruction);
+            }
+
+            for (String s : compiler.getUnconditionalLinks()) {
+                System.out.println(s);
+            }
+
         } catch (IOException | CException e) {
             e.printStackTrace();
         }
@@ -424,6 +432,25 @@ public class CCompiler {
 //        Matcher m = p.matcher(z);
 //        CUtility.testRegexMatch(m);
 
+    }
+
+    public Set<String> getUnconditionalLinks() {
+        Set<String> outputs = new HashSet<>();
+        for (Instruction inst : instructions) {
+
+            // NOTE: instruction routing statements are exclusive: will be
+            //       either unconditional, if, elseif, or else.
+            if (inst.getUnCondStatements() != null && !inst.getUnCondStatements().isEmpty()) {
+
+                for (Statement stmt : inst.getUnCondStatements()) {
+
+                    outputs.addAll(stmt.getOutputLinks());
+                }
+
+                continue;
+            }
+        }
+        return outputs;
     }
 
     public Set<String> getLinks(ServiceState ownerSS, ServiceState inputSS) {
@@ -450,9 +477,9 @@ public class CCompiler {
         for (Instruction inst : instructions) {        
                 
             // NOTE: instruction routing statements are exclusive: will be either unconditional, if, elseif, or else.
-            
-            if (!inst.getUnCondStatements().isEmpty()) {
-                
+
+            if (inst.getUnCondStatements() != null && !inst.getUnCondStatements().isEmpty()) {
+
                 // no longer in a conditional now
                 inCondition = false;
                 

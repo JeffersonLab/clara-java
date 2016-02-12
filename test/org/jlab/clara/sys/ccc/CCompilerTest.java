@@ -60,18 +60,8 @@ public class CCompilerTest {
         cc.compile(composition);
 
         Set<String> expected = new HashSet<String>(Arrays.asList("10.10.10.1_java:C:S2"));
-        
-        assertThat(getUnconditionalLinks(cc), is(expected));
-    }
 
-    private Set<String> getUnconditionalLinks(CCompiler cc) {
-        Set<String> uncond = new HashSet<String>();
-        for (Instruction inst : cc.getInstructions()) {
-            for (Statement stmt : inst.getUnCondStatements()) {
-                uncond.addAll(stmt.getOutputLinks());
-            }
-        }
-        return uncond;
+        assertThat(cc.getUnconditionalLinks(), is(expected));
     }
     
     @Test
@@ -80,7 +70,7 @@ public class CCompilerTest {
         cc.compile(composition);
 
         Set<String> expected = new HashSet<String>(Arrays.asList("10.10.10.1_java:C:S3"));
-        assertThat(getUnconditionalLinks(cc), is(expected));
+        assertThat(cc.getUnconditionalLinks(), is(expected));
     }
 
     @Test
@@ -89,7 +79,7 @@ public class CCompilerTest {
         cc.compile(composition);
 
         Set<String> expected = new HashSet<String>();
-        assertThat(getUnconditionalLinks(cc), is(expected));
+        assertThat(cc.getUnconditionalLinks(), is(expected));
     }
 
     @Test
@@ -101,7 +91,7 @@ public class CCompilerTest {
         cc.compile(composition);
 
         Set<String> expected = new HashSet<String>(Arrays.asList("10.10.10.1_java:C:S1"));
-        assertThat(getUnconditionalLinks(cc), is(expected));
+        assertThat(cc.getUnconditionalLinks(), is(expected));
     }
 
     @Test
@@ -115,7 +105,7 @@ public class CCompilerTest {
         cc.compile(composition2);
 
         Set<String> expected = new HashSet<String>(Arrays.asList("10.10.10.1_java:C:S5"));
-        assertThat(getUnconditionalLinks(cc), is(expected));
+        assertThat(cc.getUnconditionalLinks(), is(expected));
     }
     
     @Test
