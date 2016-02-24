@@ -109,7 +109,7 @@ public class Dpe extends ClaraBase {
         register(topic, description);
 
         myReport = new DpeReport(getMe().getCanonicalName());
-        myReport.setHost(getMe().getDpeHost());
+        myReport.setHost(getMe().getCanonicalName());
         myReport.setLang(getMe().getDpeLang());
         myReport.setDescription(description);
         myReport.setAuthor(System.getenv("USER"));
@@ -250,7 +250,6 @@ public class Dpe extends ClaraBase {
 
                 myReport.setMemoryUsage(ClaraUtil.getMemoryUsage());
                 myReport.setCpuUsage(ClaraUtil.getCpuUsage());
-                myReport.setSnapshotTime(ClaraUtil.getCurrentTime());
 
                 String jsonData = myReportBuilder.generateReport(myReport);
 
