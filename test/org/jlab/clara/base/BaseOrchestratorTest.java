@@ -127,7 +127,7 @@ public class BaseOrchestratorTest {
 
         assertRequest("10.2.9.96",
                        "10.2.9.96_java:master:E1",
-                       "10.2.9.96_java:master:E1",
+                       "10.2.9.96_java:master:E1;",
                        xMsgMeta.ControlAction.CONFIGURE);
     }
 
@@ -145,7 +145,7 @@ public class BaseOrchestratorTest {
 
         assertRequest("10.2.9.96",
                        "10.2.9.96_java:master:E1",
-                       "10.2.9.96_java:master:E1",
+                       "10.2.9.96_java:master:E1;",
                        xMsgMeta.ControlAction.EXECUTE);
     }
 

@@ -30,7 +30,8 @@ import org.jlab.clara.engine.Engine;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.engine.EngineStatus;
-import org.jlab.clara.sys.ccc.SimpleCompiler;
+import org.jlab.clara.sys.ccc.CCompiler;
+import org.jlab.clara.sys.ccc.ServiceState;
 import org.jlab.clara.util.CConstants;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
@@ -61,7 +62,7 @@ class ServiceEngine extends ClaraBase {
     // Already recorded (previous) composition
     private String prevComposition = xMsgConstants.UNDEFINED;
 
-    private SimpleCompiler compiler;
+    private CCompiler compiler;
 
     // The last execution time
     private long executionTime;
@@ -84,7 +85,7 @@ class ServiceEngine extends ClaraBase {
         connect();
 
         // create an object of the composition parser
-        compiler = new SimpleCompiler(comp.getCanonicalName());
+        compiler = new CCompiler(comp.getCanonicalName());
     }
 
     @Override
@@ -193,7 +194,11 @@ class ServiceEngine extends ClaraBase {
     }
 
     private Set<String> getLinks(EngineData inData, EngineData outData) {
-        return compiler.getOutputs();
+        // service-states for conditional routing
+        ServiceState ownerSS = new ServiceState(outData.getEngineName(), outData.getEngineState());
+        ServiceState inputSS = new ServiceState(inData.getEngineName(), inData.getEngineState());
+
+        return compiler.getLinks(ownerSS, inputSS);
     }
 
     private EngineData executeEngine(EngineData inData)
