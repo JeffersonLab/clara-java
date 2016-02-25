@@ -19,6 +19,7 @@
  *   For more information contact author at gurjyan@jlab.org
  *   Department of Experimental Nuclear Physics, Jefferson Lab.
  */
+
 package org.jlab.clara.sys.ccc;
 
 import org.jlab.clara.base.ClaraUtil;
@@ -26,7 +27,13 @@ import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.StringTokenizer;
 
 /**
  * <p>
@@ -115,8 +122,8 @@ public class Statement {
         // parse the new statement to find input and output
         // linked service names
         if (statement.contains(serviceName)) {
-            parse_linked(serviceName, statement);
-            if (is_log_and(serviceName, statement)) {
+            parseLinked(serviceName, statement);
+            if (isLogAnd(serviceName, statement)) {
                 for (String sn : inputLinks) {
                     logAndInputs.put(sn, null);
                 }
@@ -134,23 +141,23 @@ public class Statement {
      * in the composition.
      * </p>
      *
-     * @param service_name the name of the service
+     * @param serviceName the name of the service
      *                     for which we find input/output links
      * @param statement    the string of the composition
      * @return the list containing names of linked services
      */
-    private void parse_linked(String service_name,
-                              String statement) throws ClaraException {
+    private void parseLinked(String serviceName,
+                             String statement) throws ClaraException {
 
         // List that contains composition elements
-        List<String> elm_set = new ArrayList<>();
+        List<String> elementSet = new ArrayList<>();
 
         StringTokenizer st = new StringTokenizer(statement, "+");
         while (st.hasMoreTokens()) {
             String el = st.nextToken();
             el = ClaraUtil.removeFirst(el, "&");
             el = ClaraUtil.removeFirst(el, "{");
-            elm_set.add(el);
+            elementSet.add(el);
         }
 
         // See if the string contains this service name, and record the index,
@@ -158,9 +165,9 @@ public class Statement {
         // Note: multiple services can send to a single service, like: s1,s2+s3.
         // (this is the reason we use in:contains)
         int index = -1;
-        for (String s : elm_set) {
+        for (String s : elementSet) {
             index++;
-            if (s.contains(service_name)) {
+            if (s.contains(serviceName)) {
                 break;
             }
         }
@@ -170,15 +177,15 @@ public class Statement {
         } else {
             int pIndex = index - 1;
             if (pIndex >= 0) {
-                String element = ClaraUtil.getJSetElementAt(elm_set, pIndex);
+                String element = ClaraUtil.getJSetElementAt(elementSet, pIndex);
                 // the case to fan out the output of this service
                 elementTokenizer(element, inputLinks);
             }
 
             // define output links
             int nIndex = index + 1;
-            if (elm_set.size() > nIndex) {
-                String element = ClaraUtil.getJSetElementAt(elm_set, nIndex);
+            if (elementSet.size() > nIndex) {
+                String element = ClaraUtil.getJSetElementAt(elementSet, nIndex);
                 // the case to fan out the output of this service
                 elementTokenizer(element, outputLinks);
             }
@@ -197,30 +204,28 @@ public class Statement {
     }
 
     /**
-     * <p>
      * Check to see in the composition this service
      * is required to logically AND inputs before
-     * executing its service
-     * </p>
+     * executing its service.
      *
-     * @param service_name in the composition
+     * @param serviceNname in the composition
      * @param composition  the string of the composition
      * @return true if component name is programmed
      * as "&<service_name>"
      */
-    private boolean is_log_and(String service_name,
-                               String composition) {
-        String ac = "&" + service_name;
+    private boolean isLogAnd(String serviceNname,
+                             String composition) {
+        String ac = "&" + serviceNname;
 
         // List that contains composition elements
-        Set<String> elm_set = new LinkedHashSet<>();
+        Set<String> elementSet = new LinkedHashSet<>();
 
         StringTokenizer st = new StringTokenizer(composition, "+");
         while (st.hasMoreTokens()) {
-            elm_set.add(st.nextToken());
+            elementSet.add(st.nextToken());
         }
 
-        for (String s : elm_set) {
+        for (String s : elementSet) {
             if (s.equals(ac)) {
                 return true;
             }
@@ -241,19 +246,30 @@ public class Statement {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Statement)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Statement)) {
+            return false;
+        }
 
         Statement statement = (Statement) o;
 
-        if (inputLinks != null ? !inputLinks.equals(statement.inputLinks) : statement.inputLinks != null) return false;
-        if (logAndInputs != null ? !logAndInputs.equals(statement.logAndInputs) : statement.logAndInputs != null)
+        if (inputLinks != null ? !inputLinks.equals(statement.inputLinks) : statement.inputLinks != null) {
             return false;
-        if (outputLinks != null ? !outputLinks.equals(statement.outputLinks) : statement.outputLinks != null)
+        }
+        if (logAndInputs != null ? !logAndInputs.equals(statement.logAndInputs) : statement.logAndInputs != null) {
             return false;
-        if (!serviceName.equals(statement.serviceName)) return false;
-        if (statementString != null ? !statementString.equals(statement.statementString) : statement.statementString != null)
+        }
+        if (outputLinks != null ? !outputLinks.equals(statement.outputLinks) : statement.outputLinks != null) {
             return false;
+        }
+        if (!serviceName.equals(statement.serviceName)) {
+            return false;
+        }
+        if (statementString != null ? !statementString.equals(statement.statementString) : statement.statementString != null) {
+            return false;
+        }
 
         return true;
     }

@@ -19,14 +19,14 @@
  *   For more information contact author at gurjyan@jlab.org
  *   Department of Experimental Nuclear Physics, Jefferson Lab.
  */
+
 package org.jlab.clara.sys.ccc;
 
 import java.util.HashSet;
 import java.util.Set;
 
 /**
- *     Correlates CLARA condition with the set of routing statements.
- * </p>
+ *  Correlates CLARA condition with the set of routing statements.
  *
  * @author gurjyan
  * @version 4.x
@@ -48,7 +48,7 @@ public class Instruction {
     // The name of the service that this instruction is relevant to.
     private String serviceName;
 
-    public Instruction(String serviceName){
+    public Instruction(String serviceName) {
         this.serviceName = serviceName;
     }
 
@@ -135,23 +135,36 @@ public class Instruction {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Instruction)) return false;
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Instruction)) {
+            return false;
+        }
 
         Instruction that = (Instruction) o;
 
-        if (elseCondStatements != null ? !elseCondStatements.equals(that.elseCondStatements) : that.elseCondStatements != null)
+        if (elseCondStatements != null ? !elseCondStatements.equals(that.elseCondStatements) : that.elseCondStatements != null) {
             return false;
-        if (elseifCondStatements != null ? !elseifCondStatements.equals(that.elseifCondStatements) : that.elseifCondStatements != null)
+        }
+        if (elseifCondStatements != null ? !elseifCondStatements.equals(that.elseifCondStatements) : that.elseifCondStatements != null) {
             return false;
-        if (elseifCondition != null ? !elseifCondition.equals(that.elseifCondition) : that.elseifCondition != null)
+        }
+        if (elseifCondition != null ? !elseifCondition.equals(that.elseifCondition) : that.elseifCondition != null) {
             return false;
-        if (ifCondStatements != null ? !ifCondStatements.equals(that.ifCondStatements) : that.ifCondStatements != null)
+        }
+        if (ifCondStatements != null ? !ifCondStatements.equals(that.ifCondStatements) : that.ifCondStatements != null) {
             return false;
-        if (ifCondition != null ? !ifCondition.equals(that.ifCondition) : that.ifCondition != null) return false;
-        if (!serviceName.equals(that.serviceName)) return false;
-        if (unCondStatements != null ? !unCondStatements.equals(that.unCondStatements) : that.unCondStatements != null)
+        }
+        if (ifCondition != null ? !ifCondition.equals(that.ifCondition) : that.ifCondition != null) {
             return false;
+        }
+        if (!serviceName.equals(that.serviceName)) {
+            return false;
+        }
+        if (unCondStatements != null ? !unCondStatements.equals(that.unCondStatements) : that.unCondStatements != null) {
+            return false;
+        }
 
         return true;
     }

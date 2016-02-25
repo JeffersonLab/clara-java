@@ -26,10 +26,14 @@ import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.util.CConstants;
 import org.jlab.clara.util.report.CReportTypes;
-import org.jlab.coda.xmsg.core.*;
-import org.jlab.coda.xmsg.data.xMsgM;
+import org.jlab.coda.xmsg.core.xMsg;
+import org.jlab.coda.xmsg.core.xMsgCallBack;
+import org.jlab.coda.xmsg.core.xMsgConstants;
+import org.jlab.coda.xmsg.core.xMsgMessage;
+import org.jlab.coda.xmsg.core.xMsgSubscription;
+import org.jlab.coda.xmsg.core.xMsgTopic;
+import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
-import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta.Endian;
 import org.jlab.coda.xmsg.data.xMsgR.xMsgRegistration;
 import org.jlab.coda.xmsg.excp.xMsgException;
 import org.jlab.coda.xmsg.net.xMsgConnection;
@@ -117,9 +121,9 @@ public abstract class ClaraBase extends xMsg {
                 try {
                     ByteBuffer bb = dt.serializer().write(data.getData());
                     if (bb.order() == ByteOrder.BIG_ENDIAN) {
-                        metadata.setByteOrder(Endian.Big);
+                        metadata.setByteOrder(xMsgMeta.Endian.Big);
                     } else {
-                        metadata.setByteOrder(Endian.Little);
+                        metadata.setByteOrder(xMsgMeta.Endian.Little);
                     }
                     return new xMsgMessage(topic, metadata, bb.array());
                 } catch (ClaraException e) {
@@ -542,7 +546,7 @@ public abstract class ClaraBase extends xMsg {
             if (dt.mimeType().equals(mimeType)) {
                 try {
                     ByteBuffer bb = ByteBuffer.wrap(msg.getData());
-                    if (metadata.getByteOrder() == Endian.Little) {
+                    if (metadata.getByteOrder() == xMsgMeta.Endian.Little) {
                         bb.order(ByteOrder.LITTLE_ENDIAN);
                     }
                     Object userData = dt.serializer().read(bb);
@@ -730,8 +734,8 @@ public abstract class ClaraBase extends xMsg {
             DEFAULT = accessor;
         }
 
-        protected abstract xMsgM.xMsgMeta.Builder getMetadata(EngineData data);
+        protected abstract xMsgMeta.Builder getMetadata(EngineData data);
 
-        protected abstract EngineData build(Object data, xMsgM.xMsgMeta.Builder metadata);
+        protected abstract EngineData build(Object data, xMsgMeta.Builder metadata);
     }
 }

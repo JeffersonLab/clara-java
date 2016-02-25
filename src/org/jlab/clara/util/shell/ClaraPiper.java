@@ -19,6 +19,7 @@
  *   For more information contact author at gurjyan@jlab.org
  *   Department of Experimental Nuclear Physics, Jefferson Lab.
  */
+
 package org.jlab.clara.util.shell;
 
 import org.jlab.clara.base.ClaraUtil;
@@ -43,6 +44,7 @@ public class ClaraPiper implements java.lang.Runnable {
         this.output = output;
     }
 
+    @Override
     public void run() {
         try {
             // Create 512 bytes buffer

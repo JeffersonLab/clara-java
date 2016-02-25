@@ -19,6 +19,7 @@
  *   For more information contact author at gurjyan@jlab.org
  *   Department of Experimental Nuclear Physics, Jefferson Lab.
  */
+
 package org.jlab.clara.util.report;
 
 /**
@@ -26,6 +27,5 @@ package org.jlab.clara.util.report;
  * @version 4.x
  */
 public interface ExternalReport {
-
-    public String generateReport(DpeReport dpeData);
+    String generateReport(DpeReport dpeData);
 }

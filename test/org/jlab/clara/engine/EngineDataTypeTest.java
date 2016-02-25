@@ -30,8 +30,10 @@ import java.nio.ByteOrder;
 import java.util.Random;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
-
+import static org.hamcrest.Matchers.array;
+import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.closeTo;
+import static org.hamcrest.Matchers.sameInstance;
 
 public class EngineDataTypeTest {
 

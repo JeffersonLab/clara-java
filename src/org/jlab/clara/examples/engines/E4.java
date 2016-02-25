@@ -31,9 +31,7 @@ import org.jlab.clara.util.CConstants;
 import java.util.Set;
 
 /**
- * <p>
- *     User engine class example
- * </p>
+ * User engine class example.
  *
  * @author gurjyan
  * @version 1.x

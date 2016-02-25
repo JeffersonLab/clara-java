@@ -38,7 +38,13 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-import javax.management.*;
+import javax.management.Attribute;
+import javax.management.AttributeList;
+import javax.management.InstanceNotFoundException;
+import javax.management.ObjectName;
+import javax.management.ReflectionException;
+import javax.management.MBeanServer;
+import javax.management.MalformedObjectNameException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -50,7 +56,14 @@ import java.lang.management.ManagementFactory;
 import java.net.SocketException;
 import java.text.Format;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.StringTokenizer;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -245,8 +258,8 @@ public final class ClaraUtil {
     }
 
     /**
-     *     Converts exception stack trace to a string
-     * <p>
+     * Converts exception stack trace to a string.
+     *
      * @param e exception
      * @return String of the stack trace
      */
@@ -256,8 +269,7 @@ public final class ClaraUtil {
             PrintWriter pw = new PrintWriter(sw);
             e.printStackTrace(pw);
             return sw.toString();
-        }
-        catch(Exception e2) {
+        } catch (Exception e2) {
             return "bad stack";
         }
     }
@@ -265,16 +277,18 @@ public final class ClaraUtil {
 
     public static Boolean isHostLocal(String hostName)
             throws IOException {
-        for(String s: xMsgUtil.getLocalHostIps()){
-            if(s.equals(hostName)) return true;
+        for (String s : xMsgUtil.getLocalHostIps()) {
+            if (s.equals(hostName)) {
+                return true;
+            }
         }
         return false;
     }
 
     /**
-     * Checks to see if the service is locally deployed
-     * @param serviceName service canonical name (dpe-ip:container:engine)
+     * Checks to see if the service is locally deployed.
      *
+     * @param serviceName service canonical name (dpe-ip:container:engine)
      * @return true/false
      * @throws org.jlab.clara.base.error.ClaraException
      */
@@ -305,14 +319,19 @@ public final class ClaraUtil {
         }
     }
 
-    public static String remove_first(String s) {
+    public static String removeFirst(String s) {
         if (s == null || s.length() == 0) {
             return s;
         }
         return s.substring(1, s.length());
     }
 
-    public static String remove_last(String s) {
+    public static String removeFirst(String input, String firstCharacter) {
+        input = input.startsWith(firstCharacter) ? input.substring(1) : input;
+        return input;
+    }
+
+    public static String removeLast(String s) {
         if (s == null || s.length() == 0) {
             return s;
         }
@@ -323,7 +342,7 @@ public final class ClaraUtil {
      * Gets the current time and returns string representation of it.
      * @return string representing the current time.
      */
-    public static String getCurrentTimeInH(){
+    public static String getCurrentTimeInH() {
         Format formatter = new SimpleDateFormat("HH:mm:ss MM/dd");
         return formatter.format(new Date());
     }
@@ -332,7 +351,7 @@ public final class ClaraUtil {
      * Gets the current time and returns string representation of it.
      * @return string representing the current time.
      */
-    public static String getCurrentTime(){
+    public static String getCurrentTime() {
         Format formatter = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
         return formatter.format(new Date());
     }
@@ -341,7 +360,7 @@ public final class ClaraUtil {
      * Gets the current time and returns string representation of it.
      * @return string representing the current time.
      */
-    public static String getCurrentTime(String format){
+    public static String getCurrentTime(String format) {
         Format formatter = new SimpleDateFormat(format);
         return formatter.format(new Date());
     }
@@ -350,7 +369,7 @@ public final class ClaraUtil {
      * Current time in milli-seconds.
      * @return current time in ms.
      */
-    public static long getCurrentTimeInMs(){
+    public static long getCurrentTimeInMs() {
         return new GregorianCalendar().getTimeInMillis();
     }
 
@@ -373,7 +392,7 @@ public final class ClaraUtil {
     }
 
     /**
-     * parser for the XML having a structure:
+     * Parser for the XML having a structure:
      * <p/>
      * <containerTag2>
      * <tag>value</tag>
@@ -429,16 +448,13 @@ public final class ClaraUtil {
 
     public static String getJSetElementAt(List<String> set, int index) {
         int ind = -1;
-        for(String s:set){
+        for (String s : set) {
             ind++;
-            if(index==ind)return s;
+            if (index == ind) {
+                return s;
+            }
         }
         return null;
-    }
-
-    public static String removeFirst(String input, String firstCharacter){
-        input = input.startsWith(firstCharacter) ? input.substring(1) : input;
-        return input;
     }
 
     public static  xMsgTopic buildTopic(Object... args) {
@@ -503,7 +519,8 @@ public final class ClaraUtil {
             return Double.NaN;
         }
 
-        return ((int) (value * 1000) / 10.0);        // returns a percentage value with 1 decimal point precision
+        // returns a percentage value with 1 decimal point precision
+        return ((int) (value * 1000) / 10.0);
     }
 
     public static long getMemoryUsage() {

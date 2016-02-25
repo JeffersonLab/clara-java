@@ -31,15 +31,15 @@ import java.io.IOException;
 import java.util.List;
 
 /**
- * XML parser test
+ * XML parser test.
  *
  * @author gurjyan
  * @version 4.x
  * @since 4/9/15
  */
 public class ApplicationParser {
-    public static void main(String[] args) {
 
+    public static void main(String[] args) {
         try {
             Document doc = ClaraUtil.getXMLDocument(args[0]);
 
@@ -56,12 +56,8 @@ public class ApplicationParser {
             for (XMLContainer a : application) {
                 System.out.println(a);
             }
-
-
         } catch (ParserConfigurationException | IOException | SAXException e) {
             e.printStackTrace();
         }
-
-
     }
 }

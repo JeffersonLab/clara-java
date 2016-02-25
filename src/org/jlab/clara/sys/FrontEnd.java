@@ -44,7 +44,10 @@ import org.zeromq.ZContext;
 import java.io.IOException;
 import java.util.concurrent.TimeoutException;
 
-import static org.jlab.clara.base.ClaraComponent.*;
+import static org.jlab.clara.base.ClaraComponent.container;
+import static org.jlab.clara.base.ClaraComponent.dpe;
+import static org.jlab.clara.base.ClaraComponent.service;
+
 
 class FrontEnd {
 
@@ -53,8 +56,7 @@ class FrontEnd {
     private xMsgRegistrar registrar;
     private xMsgSubscription fwdSubscription;
 
-
-    public FrontEnd(xMsgProxyAddress frontEndAddress, int poolSize, String description)
+    FrontEnd(xMsgProxyAddress frontEndAddress, int poolSize, String description)
             throws ClaraException {
         try {
             // create the xMsg registrar

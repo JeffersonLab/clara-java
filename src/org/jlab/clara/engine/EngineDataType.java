@@ -191,7 +191,7 @@ public class EngineDataType {
 
         private final String name;
 
-        private MimeType(String name) {
+        MimeType(String name) {
             this.name = name;
         }
 
@@ -240,7 +240,7 @@ public class EngineDataType {
         private final MimeType mimeType;
         private final NativeSerializer nativeSerializer = new NativeSerializer();
 
-        public PrimitiveSerializer(MimeType mimeType) {
+        PrimitiveSerializer(MimeType mimeType) {
             this.mimeType = mimeType;
         }
 

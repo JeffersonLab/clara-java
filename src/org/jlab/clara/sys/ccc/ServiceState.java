@@ -19,21 +19,20 @@
  *   For more information contact author at gurjyan@jlab.org
  *   Department of Experimental Nuclear Physics, Jefferson Lab.
  */
+
 package org.jlab.clara.sys.ccc;
 
 
 import org.jlab.clara.util.CConstants;
 
 /**
- * <p>
- *     Defines service-name and state pair.
- * </p>
+ * Defines service-name and state pair.
  *
  * @author gurjyan
  * @version 1.x
  * @since 5/21/15
  */
-public class ServiceState implements Comparable{
+public class ServiceState implements Comparable {
 
     private String name = CConstants.UNDEFINED;
     private String state = CConstants.UNDEFINED;
@@ -57,13 +56,21 @@ public class ServiceState implements Comparable{
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         ServiceState that = (ServiceState) o;
 
-        if (!name.equals(that.name)) return false;
-        if (!state.equals(that.state)) return false;
+        if (!name.equals(that.name)) {
+            return false;
+        }
+        if (!state.equals(that.state)) {
+            return false;
+        }
 
         return true;
     }

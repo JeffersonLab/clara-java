@@ -39,7 +39,7 @@ class ServiceSysConfig {
     private int dataRequestCount;
     private int doneRequestCount;
 
-    public ServiceSysConfig(String name, String initialState) {
+    ServiceSysConfig(String name, String initialState) {
         state = new ServiceState(name, initialState);
     }
 

@@ -19,6 +19,7 @@
  *   For more information contact author at gurjyan@jlab.org
  *   Department of Experimental Nuclear Physics, Jefferson Lab.
  */
+
 package org.jlab.clara.sys.ccc;
 
 import org.jlab.clara.base.error.ClaraException;
@@ -101,29 +102,30 @@ public class Condition {
 
 
     private void process(String cs) throws ClaraException {
-
-        if(cs.contains("(")) cs = cs.replaceAll("\\(","");
-        if(cs.contains(")")) cs = cs.replaceAll("\\)","");
-
-        if(cs.contains("&&")){
-            parseCondition(cs,"&&");
-        } else if(cs.contains("!!")){
-            parseCondition(cs,"!!");
-        } else {
-            parseCondition(cs,null);
+        if (cs.contains("(")) {
+            cs = cs.replaceAll("\\(", "");
+        }
+        if (cs.contains(")")) {
+            cs = cs.replaceAll("\\)", "");
         }
 
+        if (cs.contains("&&")) {
+            parseCondition(cs, "&&");
+        } else if (cs.contains("!!")) {
+            parseCondition(cs, "!!");
+        } else {
+            parseCondition(cs, null);
+        }
     }
 
     private void parseCondition(String cs, String logicOperator) throws ClaraException {
 
 
         StringTokenizer t0, t1;
-        if(logicOperator==null){
+        if (logicOperator == null) {
             Pattern p = Pattern.compile(CCompiler.sCond);
             Matcher m = p.matcher(cs);
-            if(m.matches()) {
-
+            if (m.matches()) {
                 if (cs.contains("!=")) {
                     t1 = new StringTokenizer(cs, "!=\"");
                     if (t1.countTokens() != 2) {
@@ -220,9 +222,8 @@ public class Condition {
     }
 
     /**
-     * <p>
-     *     Returns true if passed states make this condition true
-     * </p>
+     * Returns true if passed states make this condition true.
+     *
      * @return true/false
      */
     public boolean isTrue(ServiceState ownerSS, ServiceState inputSS){
@@ -243,7 +244,6 @@ public class Condition {
     }
 
     private boolean checkORCondition(Set<ServiceState> sc, ServiceState s1, ServiceState s2){
-        boolean b = false;
         if (sc.contains(s1) || sc.contains(s2)) {
             return true;
         }

@@ -19,6 +19,7 @@
  *   For more information contact author at gurjyan@jlab.org
  *   Department of Experimental Nuclear Physics, Jefferson Lab.
  */
+
 package org.jlab.clara.util.report;
 
 /**
@@ -26,8 +27,8 @@ package org.jlab.clara.util.report;
  */
 public enum CReportTypes {
     INFO("serviceReportInfo"),
-    DONE ("serviceReportDone"),
-    DATA ("serviceReportData");
+    DONE("serviceReportDone"),
+    DATA("serviceReportData");
 
     private final String stringValue;
 

@@ -26,7 +26,13 @@ import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
-import org.jlab.clara.base.*;
+
+import org.jlab.clara.base.BaseOrchestrator;
+import org.jlab.clara.base.ClaraLang;
+import org.jlab.clara.base.ClaraUtil;
+import org.jlab.clara.base.Composition;
+import org.jlab.clara.base.ContainerName;
+import org.jlab.clara.base.ServiceName;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.EngineDataType;
@@ -370,11 +376,11 @@ public class OrInteractive extends BaseOrchestrator {
 
     private static class UserInputException extends RuntimeException {
 
-        public UserInputException(String msg) {
+        UserInputException(String msg) {
             super(msg);
         }
 
-        public UserInputException(Throwable cause) {
+        UserInputException(Throwable cause) {
             super(cause);
         }
     }
@@ -387,7 +393,7 @@ public class OrInteractive extends BaseOrchestrator {
         private final String classPath;
         private final int poolSize;
 
-        public ServiceInfo(String dpe, String container, String engine, int poolSize) {
+        ServiceInfo(String dpe, String container, String engine, int poolSize) {
             this.container = buildContainerName(dpe, container);
 
             int idx = engine.lastIndexOf(".");
@@ -411,7 +417,7 @@ public class OrInteractive extends BaseOrchestrator {
         private final Composition composition;
         private final EngineData data;
 
-        public AppInfo(String composition, String data) {
+        AppInfo(String composition, String data) {
             this.composition = new Composition(composition);
             this.data = new EngineData();
             this.data.setData(data, EngineDataType.STRING.mimeType());

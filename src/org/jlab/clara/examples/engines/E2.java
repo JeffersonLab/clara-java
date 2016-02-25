@@ -30,9 +30,7 @@ import org.jlab.clara.engine.EngineDataType;
 import java.util.Set;
 
 /**
- * <p>
- *     User engine class example
- * </p>
+ * User engine class example.
  *
  * @author gurjyan
  * @version 1.x

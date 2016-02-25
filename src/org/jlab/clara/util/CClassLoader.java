@@ -26,7 +26,7 @@ import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.Engine;
 
 /**
- *     Clara dynamic class loader
+ * Clara dynamic class loader.
  *
  * @author gurjyan
  * @version 4.x
@@ -36,21 +36,21 @@ public class CClassLoader {
 
     private ClassLoader classLoader;
 
-    public CClassLoader(ClassLoader cl){
+    public CClassLoader(ClassLoader cl) {
         classLoader = cl;
     }
 
-    public Engine load(String className)
-            throws ClaraException, ClassNotFoundException, IllegalAccessException, InstantiationException {
-            Class aClass = classLoader.loadClass(className);
-
-            Object aInstance = aClass.newInstance();
-
+    public Engine load(String className) throws ClaraException,
+                                                ClassNotFoundException,
+                                                IllegalAccessException,
+                                                InstantiationException {
+        Class<?> aClass = classLoader.loadClass(className);
+        Object aInstance = aClass.newInstance();
         if (aInstance instanceof Engine) {
             return (Engine) aInstance;
-            } else {
-                throw new ClaraException("not a Clara service engine");
-            }
+        } else {
+            throw new ClaraException("not a Clara service engine");
+        }
     }
 
 }

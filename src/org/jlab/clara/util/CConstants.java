@@ -23,12 +23,14 @@
 package org.jlab.clara.util;
 
 /**
- *     Clara internal constants
+ * Clara internal constants.
  *
  * @author gurjyan
  * @version 4.x
  */
-public class CConstants {
+public final class CConstants {
+
+    private CConstants() { }
 
     public static final String DPE = "dpe";
     public static final String START_DPE = "startDpe";
@@ -74,5 +76,4 @@ public class CConstants {
     public static final String CPP_LANG = "cpp";
 
     public static final String UNDEFINED = "undefined";
-
 }

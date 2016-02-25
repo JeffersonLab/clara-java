@@ -27,7 +27,7 @@ import java.util.List;
 
 /**
  * Class that plays the role of a container for
- * {@link XMLTagValue} objects
+ * {@link XMLTagValue} objects.
  *
  * @author gurjyan
  * @version 4.x

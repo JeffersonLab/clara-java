@@ -68,8 +68,8 @@ final class RequestParser {
     }
 
 
-    public static class RequestException extends Exception {
-        public RequestException(String msg) {
+    static class RequestException extends Exception {
+        RequestException(String msg) {
             super(msg);
         }
     }

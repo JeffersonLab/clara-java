@@ -19,6 +19,7 @@
  *   For more information contact author at gurjyan@jlab.org
  *   Department of Experimental Nuclear Physics, Jefferson Lab.
  */
+
 package org.jlab.clara.util.log;
 
 import java.io.File;
@@ -39,26 +40,27 @@ public class ClaraLogger {
             System.getenv("CLARA_LOG");
     public final Logger logger = Logger.getLogger("Clara");
 
-    public static ClaraLogger getInstance(){
-        if(instance == null) {
-
+    public static ClaraLogger getInstance() {
+        if (instance == null) {
             instance = new ClaraLogger();
             instance.initLogger();
         }
         return instance;
     }
 
-    private void initLogger(){
+    private void initLogger() {
 
         FileHandler myFileHandler;
         File f = new File(logFileDir);
 
-        if(!f.exists()){
-            if (f.mkdirs()) System.out.println("Clara-Error: Can not create the log file.");
+        if (!f.exists()) {
+            if (f.mkdirs()) {
+                System.out.println("Clara-Error: Can not create the log file.");
+            }
         }
 
         try {
-            myFileHandler = new FileHandler(logFileDir+ File.separator+"clara.log");
+            myFileHandler = new FileHandler(logFileDir + File.separator + "clara.log");
             myFileHandler.setFormatter(new SimpleFormatter());
             logger.addHandler(myFileHandler);
             logger.setUseParentHandlers(false);

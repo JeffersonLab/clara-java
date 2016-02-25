@@ -48,16 +48,13 @@ import java.util.concurrent.TimeUnit;
  */
 
 @Deprecated
-public abstract class CObjectPool<T>
-{
+public abstract class CObjectPool<T> {
+
     private ConcurrentLinkedQueue<T> pool;
     private ScheduledExecutorService executorService;
-    
 
     /**
-     * <p>
-     *     Constructor
-     * </p>
+     * Constructor.
      *
      * @param mino minimum number of objects in the pool
      */
@@ -65,10 +62,9 @@ public abstract class CObjectPool<T>
         // initialize pool
         initialize(mino);
     }
+
     /**
-     * <p>
-     *     Constructor
-     * </p>
+     * Constructor.
      *
      * @param mino   minimum number of objects in the pool
      * @param maxo   maximum number of objects in the pool
@@ -88,25 +84,21 @@ public abstract class CObjectPool<T>
 
         // check pool conditions in a separate thread
         executorService = Executors.newSingleThreadScheduledExecutor();
-        executorService.scheduleWithFixedDelay(new Runnable()
-        {
-            @Override
-            public void run() {
-                int size = pool.size();
-                if (size < mino) {
-                    int sizeToBeAdded = mino - size;
-                    for (int i = 0; i < sizeToBeAdded; i++) {
-                        try {
-                            pool.add(createObject());
-                        } catch (xMsgException e) {
-                            e.printStackTrace();
-                        }
+        executorService.scheduleWithFixedDelay(() -> {
+            int size = pool.size();
+            if (size < mino) {
+                int sizeToBeAdded = mino - size;
+                for (int i1 = 0; i1 < sizeToBeAdded; i1++) {
+                    try {
+                        pool.add(createObject());
+                    } catch (xMsgException e) {
+                        e.printStackTrace();
                     }
-                } else if (size > maxo) {
-                    int sizeToBeRemoved = size - maxo;
-                    for (int i = 0; i < sizeToBeRemoved; i++) {
-                        pool.poll();
-                    }
+                }
+            } else if (size > maxo) {
+                int sizeToBeRemoved = size - maxo;
+                for (int i2 = 0; i2 < sizeToBeRemoved; i2++) {
+                    pool.poll();
                 }
             }
         }, period, period, TimeUnit.SECONDS);
@@ -123,8 +115,8 @@ public abstract class CObjectPool<T>
      * @return T object from the pool
      */
     public T getObject() throws xMsgException {
-        T object;
-        if ((object = pool.poll()) == null) {
+        T object = pool.poll();
+        if (object == null) {
             object = createObject();
         }
 
@@ -145,9 +137,7 @@ public abstract class CObjectPool<T>
     }
 
     /**
-     *  <p>
-     *      Dispose the pool
-     *  </p>
+     * Dispose the pool.
      */
     public void dispose() {
         if (executorService != null) {
@@ -166,10 +156,7 @@ public abstract class CObjectPool<T>
     protected abstract T createObject() throws xMsgException;
 
     /**
-     * <p>
-     *     Initialize the pool with
-     *     the min number of objects
-     * </p>
+     * Initialize the pool with the min number of objects.
      *
      * @param mino minimum number of objects
      */

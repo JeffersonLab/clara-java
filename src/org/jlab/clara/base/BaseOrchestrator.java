@@ -22,7 +22,11 @@
 
 package org.jlab.clara.base;
 
-import org.jlab.clara.base.ClaraRequests.*;
+import org.jlab.clara.base.ClaraRequests.DeployContainerRequest;
+import org.jlab.clara.base.ClaraRequests.DeployServiceRequest;
+import org.jlab.clara.base.ClaraRequests.ExitRequest;
+import org.jlab.clara.base.ClaraRequests.ServiceConfigRequestBuilder;
+import org.jlab.clara.base.ClaraRequests.ServiceExecuteRequestBuilder;
 import org.jlab.clara.base.ClaraSubscriptions.GlobalSubscriptionBuilder;
 import org.jlab.clara.base.ClaraSubscriptions.ServiceSubscriptionBuilder;
 import org.jlab.clara.base.error.ClaraException;
@@ -38,7 +42,11 @@ import org.jlab.coda.xmsg.excp.xMsgException;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
 

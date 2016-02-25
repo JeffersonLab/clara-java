@@ -62,28 +62,23 @@ import java.util.regex.PatternSyntaxException;
 public class CCompiler {
 
     /**
-     *
-     * IP address regex
-     * </p>
+     * IP address regex.
      */
     public static final String IP = "([0-9]{1,3})\\.([0-9]{1,3})\\.([0-9]{1,3})\\.([0-9]{1,3})";
+
     /**
-     *     String that starts with a character
-     *     and can have preceding number
-     * <p>
+     * String that starts with a character and can have preceding number.
      */
     public static final String STR = "([A-Z|a-z]+[0-9]*)";
 
     /**
-     *   Service canonical name:
-     *   <li>
-     *       dpe_ip : container_name : service_engine_name
-     *   </li>
-     * <p>
+     * Service canonical name.
+     * Format: <code>dpe_ip:container_name:service_engine_name</code>.
      */
     public static final String Sn = IP + "_(java|python|cpp):" + STR + ":" + STR;
+
     /**
-     *    Routing statement, such as:
+     *    Routing statement. Example:
      *    <li>
      *       S1 + S2 + S3;
      *    </li>
@@ -105,32 +100,29 @@ public class CCompiler {
     public static final String RStmt = Sn + "(," + Sn + ")*" + "((\\+&?" + Sn + ")*|(\\+" + Sn + "(," + Sn + ")*)*)";
 
     /**
-     *     CLARA simple Condition, such as:
-     *     <li>
-     *         Service == "state_name"
-     *     </li>
-     *     <li>
-     *         Service != "state_name"
-     *     </li>
-     * <p>
+     * CLARA simple Condition. Example:
+     * <li>
+     *     Service == "state_name"
+     * </li>
+     * <li>
+     *     Service != "state_name"
+     * </li>
      */
     public static final String sCond = Sn + "(==|!=)\"" + STR + "\"";
 
     /**
-     *     CLARA complex Condition, such as:
-     *     <li>
-     *         (Service1 == "state_name1" && Service2 == "state_name2) {
-     *     </li>
-     *     <li>
-     *         Service1 == "state_name1" !! Service2 == "state_name2" !! Service2 != "state_name3") {
-     *     </li>
-     * <p>
+     * CLARA complex Condition. Example:
+     * <li>
+     *     (Service1 == "state_name1" && Service2 == "state_name2) {
+     * </li>
+     * <li>
+     *     Service1 == "state_name1" !! Service2 == "state_name2" !! Service2 != "state_name3") {
+     * </li>
      */
     public static final String cCond = sCond + "((&&|!!)" + sCond + ")*";
+
     /**
-     *    Clara conditional statement
-     * <p>
-     *
+     * Clara conditional statement.
      */
     public static final String Cond = "((\\}?if|\\}elseif)\\(" + cCond + "\\)\\{" + RStmt + ")|(\\}else\\{" + RStmt + ")";
 
@@ -141,7 +133,8 @@ public class CCompiler {
 
 
     /**
-     * Constructor
+     * Constructor.
+     *
      * @param service the name of the service relative to which to compile.
      */
     public CCompiler(String service){
@@ -204,7 +197,7 @@ public class CCompiler {
         String[] ppi = pp.toArray(new String[pp.size()]);
 
         int i = -1;
-        while(++i < ppi.length){
+        while (++i < ppi.length) {
 
             String scs1 = ppi[i];
 
@@ -216,8 +209,9 @@ public class CCompiler {
 
                 Instruction instruction = parseCondition(scs1);
 
-                // ADB: assuming the intention here was to allow multiple statements under one conditional -- otherwise why make it nested?
-                //
+                // ADB: assuming the intention here was to allow multiple
+                // statements under one conditional -- otherwise why make it
+                // nested?
                 while (++i < ppi.length) {
 
                     String scs2 = ppi[i];
@@ -249,39 +243,42 @@ public class CCompiler {
         }
 
 
-        if (instructions.isEmpty()) throw new ClaraException("Composition is irrelevant for a service.");
+        if (instructions.isEmpty()) {
+            throw new ClaraException("Composition is irrelevant for a service.");
+        }
 
     }
 
     /**
-     * <p>
-     *     Tokenize code by Clara end of statement operator ";"
-     * </p>
+     * Tokenize code by Clara end of statement operator ";".
+     *
      * @param pCode code string
-     * @return set of tokens, including simple
-     * routing statements as well as conditionals
+     * @return set of tokens, including simple routing statements as well as conditionals
      * @throws ClaraException
      */
     private Set<String> preProcess(String pCode) throws ClaraException {
-        if (!pCode.contains(";") && !pCode.endsWith(";")){
+        if (!pCode.contains(";") && !pCode.endsWith(";")) {
             throw new ClaraException("Syntax error in the Clara routing program. " +
                     "Missing end of statement operator = \";\"");
         }
         Set<String> r = new LinkedHashSet<>();
         // tokenize by ;
-        StringTokenizer st = new StringTokenizer(pCode,";");
+        StringTokenizer st = new StringTokenizer(pCode, ";");
 
-        while (st.hasMoreTokens()){
+        while (st.hasMoreTokens()) {
 
             String text = st.nextToken();
 
-            // ADB: by stripping out the closing brace here you lose the ability to correctly parse multiple statements in a block
+            // ADB: by stripping out the closing brace here you lose the ability
+            //      to correctly parse multiple statements in a block
             //
             // this will get read of very last }
             //text = CUtility.removeFirst(text, "}");
 
             // ignore
-            if (!text.equals("") && !text.equals("}")) r.add(text);
+            if (!text.equals("") && !text.equals("}")) {
+                r.add(text);
+            }
         }
         return r;
     }
@@ -301,7 +298,9 @@ public class CCompiler {
             if (m.matches()) {
 
                 // ignore conditional statements not concerning me
-                if (!iStmt.contains(myServiceName)) return false;
+                if (!iStmt.contains(myServiceName)) {
+                    return false;
+                }
 
                 Statement ts = new Statement(iStmt, myServiceName);
                 ti.addUnCondStatement(ts);
@@ -326,7 +325,9 @@ public class CCompiler {
         if (m.matches()) {
 
             // ignore conditional statements not concerning me
-            if (!iStmt.contains(myServiceName)) return false;
+            if (!iStmt.contains(myServiceName)) {
+                return false;
+            }
 
             Statement ts = new Statement(iStmt, myServiceName);
 
@@ -353,13 +354,15 @@ public class CCompiler {
         Pattern p = Pattern.compile(Cond);
         Matcher m = p.matcher(iCnd);
 
-        if(m.matches()) {
+        if (m.matches()) {
             try {
                 // get first statement  and analyze it
                 String statementStr = iCnd.substring(iCnd.indexOf("{"));
 
                 // ignore conditions not concerning me
-                if (!statementStr.contains(myServiceName)) return null;
+                if (!statementStr.contains(myServiceName)) {
+                    return null;
+                }
 
                 Statement ts = new Statement(statementStr, myServiceName);
 
@@ -395,16 +398,15 @@ public class CCompiler {
     }
 
     /**
-     * <p>
-     *     returns an entire program one consequent string
-     * </p>
+     * Returns an entire program one consequent string.
+     *
      * @param x input program text
      * @return single string representation of the program
      */
-    private String noBlanks(String x){
+    private String noBlanks(String x) {
         StringTokenizer st = new StringTokenizer(x);
         StringBuilder sb = new StringBuilder();
-        while(st.hasMoreTokens()){
+        while (st.hasMoreTokens()) {
             sb.append(st.nextToken().trim());
         }
         return sb.toString();
@@ -418,8 +420,8 @@ public class CCompiler {
         Set<String> outputs = new HashSet<>();
         for (Instruction inst : instructions) {
 
-            // NOTE: instruction routing statements are exclusive: will be either unconditional, if, elseif, or else.
-
+            // NOTE: instruction routing statements are exclusive: will be
+            //       either unconditional, if, elseif, or else.
             if (inst.getUnCondStatements() != null && !inst.getUnCondStatements().isEmpty()) {
 
                 for (Statement stmt : inst.getUnCondStatements()) {
@@ -456,8 +458,8 @@ public class CCompiler {
 
         for (Instruction inst : instructions) {
 
-            // NOTE: instruction routing statements are exclusive: will be either unconditional, if, elseif, or else.
-
+            // NOTE: instruction routing statements are exclusive: will be
+            //       either unconditional, if, elseif, or else.
             if (inst.getUnCondStatements() != null && !inst.getUnCondStatements().isEmpty()) {
 
                 // no longer in a conditional now
