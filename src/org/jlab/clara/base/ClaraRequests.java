@@ -41,22 +41,6 @@ public final class ClaraRequests {
 
     private ClaraRequests() { }
 
-    private static ClaraComponent getDpeComponent(ClaraName claraName) {
-        try {
-            return ClaraComponent.dpe(ClaraUtil.getDpeName(claraName.canonicalName()));
-        } catch (ClaraException e) {
-            throw new IllegalArgumentException("Invalid Clara name: " + claraName);
-        }
-    }
-
-    private static String getDpeTopic(ClaraName claraName) {
-        return getDpeComponent(claraName).getTopic().toString();
-    }
-
-    private static Composition getComposition(ServiceName service) {
-        return new Composition(service.canonicalName());
-    }
-
     /**
      * A request to a Clara component.
      *
@@ -546,5 +530,23 @@ public final class ClaraRequests {
         public ServiceExecuteRequest withData(EngineData data) throws ClaraException {
             return new ServiceExecuteRequest(base, frontEnd, composition, data, dataTypes);
         }
+    }
+
+
+
+    private static ClaraComponent getDpeComponent(ClaraName claraName) {
+        try {
+            return ClaraComponent.dpe(ClaraUtil.getDpeName(claraName.canonicalName()));
+        } catch (ClaraException e) {
+            throw new IllegalArgumentException("Invalid Clara name: " + claraName);
+        }
+    }
+
+    private static String getDpeTopic(ClaraName claraName) {
+        return getDpeComponent(claraName).getTopic().toString();
+    }
+
+    private static Composition getComposition(ServiceName service) {
+        return new Composition(service.canonicalName());
     }
 }

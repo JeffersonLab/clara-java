@@ -34,12 +34,12 @@ public enum ClaraLang {
         this.name = name;
     }
 
-    public static ClaraLang fromString(String lang) {
-        return ClaraLang.valueOf(lang.toUpperCase());
-    }
-
     @Override
     public String toString() {
         return name;
+    }
+
+    public static ClaraLang fromString(String lang) {
+        return ClaraLang.valueOf(lang.toUpperCase());
     }
 }
