@@ -67,6 +67,10 @@ final class RequestParser {
         }
     }
 
+    public String request() {
+        return cmdData;
+    }
+
 
     static class RequestException extends Exception {
         RequestException(String msg) {
