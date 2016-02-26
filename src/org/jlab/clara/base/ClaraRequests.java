@@ -139,8 +139,12 @@ public final class ClaraRequests {
         }
 
         @Override
-        protected Boolean parseData(xMsgMessage msg) {
-            // TODO Auto-generated method stub
+        protected Boolean parseData(xMsgMessage msg) throws ClaraException {
+            xMsgMeta.Status status = msg.getMetaData().getStatus();
+            if (status == xMsgMeta.Status.ERROR) {
+                // TODO: use specific "request" exception
+                throw new ClaraException(new String(msg.getData()));
+            }
             return true;
         }
     }
