@@ -47,6 +47,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import static java.util.Arrays.asList;
 
@@ -317,16 +319,15 @@ public class OrInteractive extends BaseOrchestrator {
         return new AppInfo(composition, data);
     }
 
-    private void deployContainer(ContainerName container) throws ClaraException {
+    private void deployContainer(ContainerName container) throws ClaraException, TimeoutException {
         System.out.println("Deploying " + container.canonicalName() + "...");
-        deploy(container).run();
-        ClaraUtil.sleep(1000);
+        deploy(container).syncRun(10, TimeUnit.SECONDS);
     }
 
-    private void deployService(ServiceInfo service) throws ClaraException {
+    private void deployService(ServiceInfo service) throws ClaraException, TimeoutException {
         System.out.println("Deploying " + service.name.canonicalName() + "...");
-        deploy(service.name, service.classPath).withPoolsize(service.poolSize).run();
-        ClaraUtil.sleep(1000);
+        deploy(service.name, service.classPath).withPoolsize(service.poolSize)
+                                               .syncRun(30, TimeUnit.SECONDS);
     }
 
     private void runApp(AppInfo app) throws ClaraException {
