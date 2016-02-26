@@ -36,6 +36,7 @@ import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgSubscription;
 import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.core.xMsgUtil;
+import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 import org.jlab.coda.xmsg.excp.xMsgException;
 import org.jlab.coda.xmsg.net.xMsgConnection;
 import org.jlab.coda.xmsg.net.xMsgProxyAddress;
@@ -452,10 +453,30 @@ public class Dpe extends ClaraBase {
                     default:
                         break;
                 }
+
+                if (msg.getMetaData().hasReplyTo()) {
+                    sendResponse(msg, xMsgMeta.Status.INFO, parser.request());
+                }
+
             } catch (RequestException | ClaraException e) {
                 e.printStackTrace();
+                if (msg.getMetaData().hasReplyTo()) {
+                    sendResponse(msg, xMsgMeta.Status.ERROR, e.getMessage());
+                }
             }
+
             return msg;
+        }
+
+        private void sendResponse(xMsgMessage msg, xMsgMeta.Status status, String data) {
+            try {
+                xMsgTopic topic = xMsgTopic.wrap(msg.getMetaData().getReplyTo());
+                xMsgMessage repMsg = createRequest(topic, data);
+                repMsg.getMetaData().setStatus(status);
+                send(repMsg);
+            } catch (IOException | xMsgException e) {
+                e.printStackTrace();
+            }
         }
     }
 }
