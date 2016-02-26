@@ -34,10 +34,12 @@ import org.jlab.clara.util.CConstants;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgSubscription;
+import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 import org.jlab.coda.xmsg.excp.xMsgException;
 
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Set;
@@ -229,6 +231,9 @@ class Service extends ClaraBase {
             default:
                 throw new RequestException("Invalid report request: " + report);
         }
+        if (msg.getMetaData().hasReplyTo()) {
+            sendResponse(msg, xMsgMeta.Status.INFO, setup.request());
+        }
     }
 
 
@@ -237,6 +242,18 @@ class Service extends ClaraBase {
         errors.write(name + ": Clara error: ");
         e.printStackTrace(new PrintWriter(errors));
         System.err.println(errors.toString());
+    }
+
+
+    private void sendResponse(xMsgMessage msg, xMsgMeta.Status status, String data) {
+        try {
+            xMsgTopic topic = xMsgTopic.wrap(msg.getMetaData().getReplyTo());
+            xMsgMessage repMsg = createRequest(topic, data);
+            repMsg.getMetaData().setStatus(status);
+            send(repMsg);
+        } catch (IOException | xMsgException e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -255,6 +272,9 @@ class Service extends ClaraBase {
                 }
             } catch (Exception e) {
                 e.printStackTrace();
+                if (msg.getMetaData().hasReplyTo()) {
+                    sendResponse(msg, xMsgMeta.Status.ERROR, e.getMessage());
+                }
             }
             return null;
         }
