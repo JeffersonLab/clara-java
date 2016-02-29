@@ -38,7 +38,7 @@ public class Composition {
         // TODO: doesn't handle conditionals
         StringTokenizer st = new StringTokenizer(composition, "+;&,");
         while (st.hasMoreTokens()) {
-            allServices.add(st.nextToken());
+            allServices.add(st.nextToken().trim());
         }
     }
 
