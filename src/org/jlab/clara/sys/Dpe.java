@@ -29,6 +29,7 @@ import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.sys.DpeOptionsParser.DpeOptionsException;
 import org.jlab.clara.sys.RequestParser.RequestException;
 import org.jlab.clara.util.CConstants;
+import org.jlab.clara.util.MessageUtils;
 import org.jlab.clara.util.report.DpeReport;
 import org.jlab.clara.util.report.JsonReportBuilder;
 import org.jlab.clara.util.report.SystemStats;
@@ -235,8 +236,8 @@ public class Dpe extends ClaraBase {
         try {
             xMsgProxyAddress feHost = getFrontEnd().getProxyAddress();
 
-            xMsgTopic reportTopic = ClaraUtil.buildTopic(CConstants.DPE_REPORT, feHost.host());
-            xMsgTopic aliveTopic = ClaraUtil.buildTopic(CConstants.DPE_ALIVE, feHost.host());
+            xMsgTopic reportTopic = MessageUtils.buildTopic(CConstants.DPE_REPORT, feHost.host());
+            xMsgTopic aliveTopic = MessageUtils.buildTopic(CConstants.DPE_ALIVE, feHost.host());
 
             xMsgConnection con = createConnection(feHost);
             xMsgUtil.sleep(100);
@@ -333,9 +334,9 @@ public class Dpe extends ClaraBase {
             throws RequestException, ClaraException {
         String containerName = parser.nextString();
         String engineName = parser.nextString();
-        String serviceName = ClaraUtil.buildTopic(getMe().getCanonicalName(),
-                                                           containerName,
-                                                           engineName).toString();
+        String serviceName = MessageUtils.buildTopic(getMe().getCanonicalName(),
+                                                     containerName,
+                                                     engineName).toString();
         if (myContainers.containsKey(containerName)) {
             try {
                 myContainers.get(containerName).removeService(serviceName);

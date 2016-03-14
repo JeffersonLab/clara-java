@@ -339,27 +339,6 @@ public final class ClaraUtil {
         }
     }
 
-    public static  xMsgTopic buildTopic(Object... args) {
-        StringBuilder topic  = new StringBuilder();
-        topic.append(args[0]);
-        for (int i = 1; i < args.length; i++) {
-            topic.append(xMsgConstants.TOPIC_SEP);
-            topic.append(args[i]);
-        }
-        return xMsgTopic.wrap(topic.toString());
-    }
-
-
-    public static String buildData(Object... args) {
-        StringBuilder topic  = new StringBuilder();
-        topic.append(args[0]);
-        for (int i = 1; i < args.length; i++) {
-            topic.append(xMsgConstants.DATA_SEP);
-            topic.append(args[i]);
-        }
-        return topic.toString();
-    }
-
     public static String getStatusText(EngineStatus status) {
         switch (status) {
             case INFO:

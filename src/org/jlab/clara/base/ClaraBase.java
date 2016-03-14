@@ -25,6 +25,7 @@ import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.util.CConstants;
+import org.jlab.clara.util.MessageUtils;
 import org.jlab.clara.util.report.CReportTypes;
 import org.jlab.coda.xmsg.core.xMsg;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
@@ -483,7 +484,7 @@ public abstract class ClaraBase extends xMsg {
         if (eventCount < 0) {
             throw new IllegalArgumentException("Clara-Error: Invalid event count: " + eventCount);
         }
-        String data = ClaraUtil.buildData(report.getValue(), eventCount);
+        String data = MessageUtils.buildData(report.getValue(), eventCount);
         xMsgTopic topic = component.getTopic();
         xMsgMessage msg = createRequest(topic, data);
         send(component, msg);
@@ -517,7 +518,7 @@ public abstract class ClaraBase extends xMsg {
             throws IOException, xMsgException, TimeoutException {
 
         if (component.isDpe()) {
-            String data = ClaraUtil.buildData(CReportTypes.INFO.getValue());
+            String data = MessageUtils.buildData(CReportTypes.INFO.getValue());
             xMsgTopic topic = component.getTopic();
             xMsgMessage msg = createRequest(topic, data);
             return syncSend(component, msg, timeout);
@@ -649,9 +650,9 @@ public abstract class ClaraBase extends xMsg {
             throw new IllegalArgumentException("Clara-Error: illegal component to deploy");
         }
         String data;
-        xMsgTopic topic = ClaraUtil.buildTopic(CConstants.DPE, component.getDpeCanonicalName());
+        xMsgTopic topic = MessageUtils.buildTopic(CConstants.DPE, component.getDpeCanonicalName());
         if (component.isContainer()) {
-            data = ClaraUtil.buildData(CConstants.START_CONTAINER,
+            data = MessageUtils.buildData(CConstants.START_CONTAINER,
                         component.getDpeHost(),
                         component.getDpePort(),
                         component.getDpeLang(),
@@ -659,7 +660,7 @@ public abstract class ClaraBase extends xMsg {
                         component.getSubscriptionPoolSize(),
                         component.getDescription());
         } else if (component.isService()) {
-            data = ClaraUtil.buildData(CConstants.START_SERVICE,
+            data = MessageUtils.buildData(CConstants.START_SERVICE,
                     component.getDpeHost(),
                     component.getDpePort(),
                     component.getDpeLang(),
@@ -693,15 +694,15 @@ public abstract class ClaraBase extends xMsg {
             throw new IllegalArgumentException("Cannot deploy nor exit an orchestrator.");
         }
         String data;
-        xMsgTopic topic = ClaraUtil.buildTopic(CConstants.DPE, component.getDpeCanonicalName());
+        xMsgTopic topic = MessageUtils.buildTopic(CConstants.DPE, component.getDpeCanonicalName());
         if (component.isDpe()) {
             data = CConstants.STOP_DPE;
 
         } else if (component.isContainer()) {
-            data = ClaraUtil.buildData(CConstants.STOP_CONTAINER,
+            data = MessageUtils.buildData(CConstants.STOP_CONTAINER,
                     component.getContainerName());
         } else if (component.isService()) {
-            data = ClaraUtil.buildData(CConstants.STOP_SERVICE,
+            data = MessageUtils.buildData(CConstants.STOP_SERVICE,
                     component.getContainerName(),
                     component.getEngineName());
         } else {

@@ -26,6 +26,7 @@ import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.util.CConstants;
+import org.jlab.clara.util.MessageUtils;
 import org.jlab.clara.util.report.CReportTypes;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgTopic;
@@ -204,10 +205,10 @@ public final class ClaraRequests {
 
         @Override
         protected String getData() {
-            return ClaraUtil.buildData(CConstants.START_CONTAINER,
-                                       container.name(),
-                                       poolSize,
-                                       description);
+            return MessageUtils.buildData(CConstants.START_CONTAINER,
+                                          container.name(),
+                                          poolSize,
+                                          description);
         }
     }
 
@@ -240,13 +241,13 @@ public final class ClaraRequests {
 
         @Override
         protected String getData() {
-            return ClaraUtil.buildData(CConstants.START_SERVICE,
-                                       service.container().name(),
-                                       service.name(),
-                                       classPath,
-                                       poolSize,
-                                       description,
-                                       initialState);
+            return MessageUtils.buildData(CConstants.START_SERVICE,
+                                          service.container().name(),
+                                          service.name(),
+                                          classPath,
+                                          poolSize,
+                                          description,
+                                          initialState);
         }
     }
 
@@ -262,7 +263,7 @@ public final class ClaraRequests {
          */
         ExitRequest(ClaraBase base, ClaraComponent frontEnd, DpeName dpe) {
             super(base, frontEnd, getDpeTopic(dpe));
-            data = ClaraUtil.buildData(CConstants.STOP_DPE);
+            data = MessageUtils.buildData(CConstants.STOP_DPE);
         }
 
         /**
@@ -270,7 +271,7 @@ public final class ClaraRequests {
          */
         ExitRequest(ClaraBase base, ClaraComponent frontEnd, ContainerName container) {
             super(base, frontEnd, getDpeTopic(container));
-            data = ClaraUtil.buildData(CConstants.STOP_CONTAINER, container.name());
+            data = MessageUtils.buildData(CConstants.STOP_CONTAINER, container.name());
         }
 
         /**
@@ -278,8 +279,8 @@ public final class ClaraRequests {
          */
         ExitRequest(ClaraBase base, ClaraComponent frontEnd, ServiceName service) {
             super(base, frontEnd, getDpeTopic(service));
-            data = ClaraUtil.buildData(CConstants.STOP_SERVICE,
-                                       service.container().name(), service.name());
+            data = MessageUtils.buildData(CConstants.STOP_SERVICE,
+                                          service.container().name(), service.name());
         }
 
         @Override
@@ -408,7 +409,7 @@ public final class ClaraRequests {
         ServiceReportRequest(ClaraBase base, ClaraComponent frontEnd,
                              ServiceName service, CReportTypes type, int eventCount) {
             super(base, frontEnd, service.canonicalName());
-            data = ClaraUtil.buildData(type.getValue(), eventCount);
+            data = MessageUtils.buildData(type.getValue(), eventCount);
         }
 
         @Override

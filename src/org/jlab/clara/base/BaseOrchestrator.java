@@ -32,6 +32,7 @@ import org.jlab.clara.base.ClaraSubscriptions.ServiceSubscriptionBuilder;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.util.CConstants;
+import org.jlab.clara.util.MessageUtils;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgSubscription;
@@ -201,11 +202,16 @@ public class BaseOrchestrator {
     public void setFrontEnd(ClaraComponent dpe, ClaraComponent frontEnd)
             throws IOException, xMsgException {
 
-        xMsgTopic topic = ClaraUtil.buildTopic(CConstants.DPE, base.getFrontEnd().getCanonicalName());
+        xMsgTopic topic = MessageUtils.buildTopic(CConstants.DPE,
+                                                  base.getFrontEnd().getCanonicalName());
 
-        String data = ClaraUtil.buildData(CConstants.SET_FRONT_END_REMOTE, dpe.getDpeHost(),
-                dpe.getDpePort(), dpe.getDpeLang(), frontEnd.getDpeHost(),
-                frontEnd.getDpePort(), frontEnd.getDpeLang());
+        String data = MessageUtils.buildData(CConstants.SET_FRONT_END_REMOTE,
+                                             dpe.getDpeHost(),
+                                             dpe.getDpePort(),
+                                             dpe.getDpeLang(),
+                                             frontEnd.getDpeHost(),
+                                             frontEnd.getDpePort(),
+                                             frontEnd.getDpeLang());
         base.send(base.getFrontEnd(), ClaraBase.createRequest(topic, data));
     }
 
@@ -226,10 +232,10 @@ public class BaseOrchestrator {
     public void deployDpe(ClaraComponent comp, String regHost, int regPort)
             throws ClaraException, xMsgException, IOException, TimeoutException {
         if (comp.isDpe()) {
-            xMsgTopic topic = ClaraUtil.buildTopic(CConstants.DPE, base.getFrontEnd().getCanonicalName());
+            xMsgTopic topic = MessageUtils.buildTopic(CConstants.DPE,
+                                                      base.getFrontEnd().getCanonicalName());
 
-
-            String data = ClaraUtil.buildData(CConstants.START_DPE,
+            String data = MessageUtils.buildData(CConstants.START_DPE,
                     comp.getDpeHost(),
                     comp.getDpePort(),
                     comp.getDpeLang(),
@@ -249,7 +255,8 @@ public class BaseOrchestrator {
      */
     public void exitFrontEnd()
             throws ClaraException, xMsgException, IOException, TimeoutException {
-        xMsgTopic topic = ClaraUtil.buildTopic(CConstants.DPE, base.getFrontEnd().getCanonicalName());
+        xMsgTopic topic = MessageUtils.buildTopic(CConstants.DPE,
+                                                  base.getFrontEnd().getCanonicalName());
 
         String data = CConstants.STOP_DPE;
         base.send(base.getFrontEnd(), ClaraBase.createRequest(topic, data));
