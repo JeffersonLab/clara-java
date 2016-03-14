@@ -70,11 +70,12 @@ class ServiceEngine extends ClaraBase {
 
     /**
      * Constructor.
+     * @throws xMsgException
      */
     ServiceEngine(ClaraComponent comp,
                   ClaraComponent frontEnd,
                   Engine userEngine,
-                  ServiceSysConfig config) throws ClaraException {
+                  ServiceSysConfig config) throws ClaraException, xMsgException {
         super(comp, frontEnd);
 
         this.engineObject = userEngine;
@@ -82,7 +83,7 @@ class ServiceEngine extends ClaraBase {
 
         // Create a socket connections
         // to the local dpe proxy
-        connect();
+        releaseConnection(getConnection());
 
         // create an object of the composition parser
         compiler = new CCompiler(comp.getCanonicalName());

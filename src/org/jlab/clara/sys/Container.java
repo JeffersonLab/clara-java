@@ -46,7 +46,7 @@ class Container extends ClaraBase {
     private ConcurrentHashMap<String, Service> myServices = new ConcurrentHashMap<>();
     private ContainerReport myReport;
 
-    Container(ClaraComponent comp, ClaraComponent frontEnd) throws ClaraException {
+    Container(ClaraComponent comp, ClaraComponent frontEnd) throws ClaraException, xMsgException {
         super(comp, frontEnd);
 
         if (!comp.isContainer()) {
@@ -54,7 +54,7 @@ class Container extends ClaraBase {
         }
 
         // Create a socket connections to the dpe proxy
-        connect();
+        releaseConnection(getConnection());
 
         // Subscribe messages published to this container
         xMsgTopic topic = ClaraUtil.buildTopic(CConstants.CONTAINER, comp.getCanonicalName());

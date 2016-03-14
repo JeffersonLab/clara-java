@@ -83,7 +83,7 @@ class Service extends ClaraBase {
         super(comp, frontEnd);
 
         // Create a socket connections to the dpe proxy
-        connect();
+        releaseConnection(getConnection());
 
         this.name = comp.getCanonicalName();
         this.sysConfig = new ServiceSysConfig(name, comp.getInitialState());

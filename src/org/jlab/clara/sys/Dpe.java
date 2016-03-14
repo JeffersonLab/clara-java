@@ -106,7 +106,7 @@ public class Dpe extends ClaraBase {
                       CConstants.JAVA_LANG,
                       1, "Front End"));
         // Create a socket connections to the local dpe proxy
-        connect();
+        releaseConnection(getConnection());
 
         // Subscribe and register
         xMsgTopic topic = xMsgTopic.wrap(CConstants.DPE + ":" + getMe().getCanonicalName());
@@ -240,7 +240,7 @@ public class Dpe extends ClaraBase {
             xMsgTopic reportTopic = ClaraUtil.buildTopic(CConstants.DPE_REPORT, feHost.host());
             xMsgTopic aliveTopic = ClaraUtil.buildTopic(CConstants.DPE_ALIVE, feHost.host());
 
-            xMsgConnection con = connect(feHost);
+            xMsgConnection con = createConnection(feHost);
             xMsgUtil.sleep(100);
 
             int availableProcessors = Runtime.getRuntime().availableProcessors();
@@ -264,7 +264,7 @@ public class Dpe extends ClaraBase {
                 xMsgUtil.sleep(reportWait);
             }
 
-            release(con);
+            destroyConnection(con);
         } catch (xMsgException | MalformedObjectNameException |
                 ReflectionException | InstanceNotFoundException e) {
             e.printStackTrace();
@@ -295,7 +295,7 @@ public class Dpe extends ClaraBase {
             Container container = new Container(contComp, getFrontEnd());
             myContainers.put(containerName, container);
             myReport.addContainerReport(container.getReport());
-        } catch (ClaraException e) {
+        } catch (xMsgException | ClaraException e) {
             throw new ClaraException("Could not start container " + contComp, e);
         }
     }

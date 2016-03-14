@@ -172,9 +172,9 @@ public abstract class ClaraBase extends xMsg {
      */
     public void send(ClaraComponent component, xMsgMessage msg)
             throws xMsgException {
-        xMsgConnection con = connect(component.getProxyAddress());
+        xMsgConnection con = getConnection(component.getProxyAddress());
         publish(con, msg);
-        release(con);
+        releaseConnection(con);
     }
 
     /**
@@ -188,9 +188,9 @@ public abstract class ClaraBase extends xMsg {
     public void send(ClaraComponent component, String requestText)
             throws IOException, xMsgException {
         xMsgMessage msg = createRequest(component.getTopic(), requestText);
-        xMsgConnection con = connect(component.getProxyAddress());
+        xMsgConnection con = getConnection(component.getProxyAddress());
         publish(con, msg);
-        release(con);
+        releaseConnection(con);
     }
 
     /**
@@ -241,9 +241,9 @@ public abstract class ClaraBase extends xMsg {
      */
     public xMsgMessage syncSend(ClaraComponent component, xMsgMessage msg, int timeout)
             throws xMsgException, TimeoutException {
-        xMsgConnection con = connect(component.getProxyAddress());
+        xMsgConnection con = getConnection(component.getProxyAddress());
         xMsgMessage m = syncPublish(con, msg, timeout);
-        release(con);
+        releaseConnection(con);
         return m;
     }
 
@@ -261,9 +261,9 @@ public abstract class ClaraBase extends xMsg {
     public xMsgMessage syncSend(ClaraComponent component, String requestText, int timeout)
             throws IOException, xMsgException, TimeoutException {
         xMsgMessage msg = createRequest(component.getTopic(), requestText);
-        xMsgConnection con = connect(component.getProxyAddress());
+        xMsgConnection con = getConnection(component.getProxyAddress());
         xMsgMessage m = syncPublish(con, msg, timeout);
-        release(con);
+        releaseConnection(con);
         return m;
     }
 
@@ -279,7 +279,7 @@ public abstract class ClaraBase extends xMsg {
      */
     public xMsgSubscription listen(ClaraComponent component, xMsgCallBack callback)
             throws xMsgException {
-        xMsgConnection con = connect(component.getProxyAddress());
+        xMsgConnection con = getConnection(component.getProxyAddress());
         return subscribe(con, component.getTopic(), callback);
     }
 
@@ -295,7 +295,7 @@ public abstract class ClaraBase extends xMsg {
      */
     public xMsgSubscription listen(ClaraComponent component, xMsgTopic topic, xMsgCallBack callback)
             throws xMsgException {
-        xMsgConnection con = connect(component.getProxyAddress());
+        xMsgConnection con = getConnection(component.getProxyAddress());
         return subscribe(con, topic, callback);
     }
 
@@ -310,7 +310,7 @@ public abstract class ClaraBase extends xMsg {
      */
     public xMsgSubscription listen(xMsgTopic topic, xMsgCallBack callback)
             throws xMsgException {
-        xMsgConnection con = connect(me.getProxyAddress());
+        xMsgConnection con = getConnection(me.getProxyAddress());
         return subscribe(con, topic, callback);
     }
 
