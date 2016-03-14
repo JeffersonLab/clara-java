@@ -32,7 +32,7 @@ import org.jlab.clara.util.CConstants;
  * @version 1.x
  * @since 5/21/15
  */
-public class ServiceState implements Comparable {
+public class ServiceState {
 
     private String name = CConstants.UNDEFINED;
     private String state = CConstants.UNDEFINED;
@@ -80,11 +80,6 @@ public class ServiceState implements Comparable {
         int result = name.hashCode();
         result = 31 * result + state.hashCode();
         return result;
-    }
-
-    @Override
-    public int compareTo(Object o) {
-        return 0;
     }
 
     @Override
