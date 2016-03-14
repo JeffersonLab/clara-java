@@ -360,12 +360,6 @@ public final class ClaraUtil {
         return topic.toString();
     }
 
-    public static void validateTimeout(int timeout) {
-        if (timeout <= 0) {
-            throw new IllegalArgumentException("Invalid timeout: " + timeout);
-        }
-    }
-
     public static String getStatusText(EngineStatus status) {
         switch (status) {
             case INFO:

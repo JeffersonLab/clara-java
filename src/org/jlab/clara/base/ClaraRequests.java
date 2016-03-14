@@ -88,6 +88,9 @@ public final class ClaraRequests {
          */
         public T syncRun(int wait, TimeUnit unit) throws ClaraException, TimeoutException {
             try {
+                if (wait <= 0) {
+                    throw new IllegalArgumentException("Invalid timeout: " + wait);
+                }
                 int timeout = (int) unit.toMillis(wait);
                 xMsgMessage response = base.syncSend(frontEnd, msg(), timeout);
                 return parseData(response);
