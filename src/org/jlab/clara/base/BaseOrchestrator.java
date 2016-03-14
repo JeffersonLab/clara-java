@@ -47,6 +47,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 
 
@@ -86,7 +87,7 @@ public class BaseOrchestrator {
      * @throws ClaraException if the orchestrator could not be created
      */
     public BaseOrchestrator(int subPoolSize) {
-        this(ClaraUtil.getUniqueName(),
+        this(getUniqueName(),
              new DpeName(ClaraUtil.localhost(), ClaraLang.JAVA),
              subPoolSize);
     }
@@ -100,9 +101,7 @@ public class BaseOrchestrator {
      * @throws ClaraException if the orchestrator could not be created
      */
     public BaseOrchestrator(DpeName frontEnd) {
-        this(ClaraUtil.getUniqueName(),
-             frontEnd,
-             xMsgConstants.DEFAULT_POOL_SIZE);
+        this(getUniqueName(), frontEnd, xMsgConstants.DEFAULT_POOL_SIZE);
     }
 
     /**
@@ -114,9 +113,7 @@ public class BaseOrchestrator {
      * @throws ClaraException if the orchestrator could not be created
      */
     public BaseOrchestrator(DpeName frontEnd, int subPoolSize) {
-        this(ClaraUtil.getUniqueName(),
-             frontEnd,
-             subPoolSize);
+        this(getUniqueName(), frontEnd, subPoolSize);
     }
 
     /**
@@ -458,5 +455,10 @@ public class BaseOrchestrator {
      */
     public String getName() {
         return base.getName();
+    }
+
+
+    private static String getUniqueName() {
+        return UUID.randomUUID().toString();
     }
 }

@@ -41,7 +41,6 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -359,10 +358,6 @@ public final class ClaraUtil {
             topic.append(args[i]);
         }
         return topic.toString();
-    }
-
-    public static String getUniqueName() {
-        return UUID.randomUUID().toString();
     }
 
     public static void validateTimeout(int timeout) {
