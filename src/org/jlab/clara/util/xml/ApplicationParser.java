@@ -22,13 +22,20 @@
 
 package org.jlab.clara.util.xml;
 
-import org.jlab.clara.base.ClaraUtil;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
-
-import javax.xml.parsers.ParserConfigurationException;
+import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 /**
  * XML parser test.
@@ -43,17 +50,17 @@ public final class ApplicationParser {
 
     public static void main(String[] args) {
         try {
-            Document doc = ClaraUtil.getXMLDocument(args[0]);
+            Document doc = getXMLDocument(args[0]);
 
             String[] serviceTags = {"dpe", "container", "engine", "pool"};
-            List<XMLContainer> services = ClaraUtil.parseXML(doc, "service", serviceTags);
+            List<XMLContainer> services = parseXML(doc, "service", serviceTags);
 
             for (XMLContainer s : services) {
                 System.out.println(s);
             }
 
             String[] appTags = {"composition", "data"};
-            List<XMLContainer> app = ClaraUtil.parseXML(doc, "application", appTags);
+            List<XMLContainer> app = parseXML(doc, "application", appTags);
 
             for (XMLContainer a : app) {
                 System.out.println(a);
@@ -61,5 +68,65 @@ public final class ApplicationParser {
         } catch (ParserConfigurationException | IOException | SAXException e) {
             e.printStackTrace();
         }
+    }
+
+    public static Document getXMLDocument(String fileName)
+            throws ParserConfigurationException, IOException, SAXException {
+        File fXmlFile = new File(fileName);
+        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+        Document doc = dBuilder.parse(fXmlFile);
+        doc.getDocumentElement().normalize();
+        return doc;
+    }
+
+    // CHECKSTYLE.OFF: JavadocStyle
+    /**
+     * Parser for the XML having a structure:
+     * <pre>
+     * {@code
+     * <containerTag>
+     *   <tag>value</tag>
+     *   .....
+     *   <tag>value</tag>
+     * </containerTag>
+     * ....
+     * <containerTag>
+     *   <tag>value</tag>
+     *   .....
+     *   <tag>value</tag>
+     * </containerTag>
+     * }
+     * </pre>.
+     *
+     * @param doc          XML document object
+     * @param containerTag first container tag
+     * @param tags         tag names
+     * @return list of list of tag value pairs
+     */
+    // CHECKSTYLE.ON: JavadocStyle
+    public static List<XMLContainer> parseXML(Document doc,
+                                              String containerTag,
+                                              String[] tags) {
+        List<XMLContainer> result = new ArrayList<>();
+        NodeList nList = doc.getElementsByTagName(containerTag);
+        for (int temp = 0; temp < nList.getLength(); temp++) {
+            Node nNode = nList.item(temp);
+
+            if (nNode.getNodeType() == Node.ELEMENT_NODE) {
+                XMLContainer container = new XMLContainer();
+                Element eElement = (Element) nNode;
+                for (String tag : tags) {
+                    NodeList tElements = eElement.getElementsByTagName(tag);
+                    if (tElements.getLength() > 0) {
+                        String value = eElement.getElementsByTagName(tag).item(0).getTextContent();
+                        XMLTagValue tv = new XMLTagValue(tag, value);
+                        container.addTagValue(tv);
+                    }
+                }
+                result.add(container);
+            }
+        }
+        return result;
     }
 }

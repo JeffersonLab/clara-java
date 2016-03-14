@@ -25,34 +25,21 @@ package org.jlab.clara.base;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.engine.EngineStatus;
-import org.jlab.clara.util.xml.XMLContainer;
-import org.jlab.clara.util.xml.XMLTagValue;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.excp.xMsgAddressException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.net.SocketException;
 import java.text.Format;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.StringTokenizer;
 import java.util.UUID;
@@ -363,76 +350,6 @@ public final class ClaraUtil {
      */
     public static long getCurrentTimeInMs() {
         return new GregorianCalendar().getTimeInMillis();
-    }
-
-    public static Document getXMLDocument(String fileName) throws ParserConfigurationException,
-            IOException,
-            SAXException {
-
-        Document doc;
-
-        File fXmlFile = new File(fileName);
-        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-
-        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-        doc = dBuilder.parse(fXmlFile);
-
-        doc.getDocumentElement().normalize();
-
-        return doc;
-
-    }
-
-    // CHECKSTYLE.OFF: JavadocStyle
-    /**
-     * Parser for the XML having a structure:
-     * <pre>
-     * {@code
-     * <containerTag>
-     *   <tag>value</tag>
-     *   .....
-     *   <tag>value</tag>
-     * </containerTag>
-     * ....
-     * <containerTag>
-     *   <tag>value</tag>
-     *   .....
-     *   <tag>value</tag>
-     * </containerTag>
-     * }
-     * </pre>.
-     *
-     * @param doc          XML document object
-     * @param containerTag first container tag
-     * @param tags         tag names
-     * @return list of list of tag value pairs
-     */
-    // CHECKSTYLE.ON: JavadocStyle
-    public static List<XMLContainer> parseXML(Document doc,
-                                              String containerTag,
-                                              String[] tags) {
-        List<XMLContainer> result = new ArrayList<>();
-
-        NodeList nList = doc.getElementsByTagName(containerTag);
-
-        for (int temp = 0; temp < nList.getLength(); temp++) {
-            Node nNode = nList.item(temp);
-
-            if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-                XMLContainer container = new XMLContainer();
-                Element eElement = (Element) nNode;
-                for (String tag : tags) {
-                    NodeList tElements = eElement.getElementsByTagName(tag);
-                    if (tElements.getLength() > 0) {
-                        String value = eElement.getElementsByTagName(tag).item(0).getTextContent();
-                        XMLTagValue tv = new XMLTagValue(tag, value);
-                        container.addTagValue(tv);
-                    }
-                }
-                result.add(container);
-            }
-        }
-        return result;
     }
 
     public static void sleep(int s) {
