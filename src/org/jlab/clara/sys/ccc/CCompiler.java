@@ -23,7 +23,6 @@
 package org.jlab.clara.sys.ccc;
 
 
-import org.jlab.clara.base.ClaraUtil;
 import org.jlab.clara.base.error.ClaraException;
 
 import java.io.IOException;
@@ -288,7 +287,7 @@ public class CCompiler {
         Instruction ti = new Instruction(myServiceName);
 
         // ignore a leading }
-        iStmt = ClaraUtil.removeFirst(iStmt, "}");
+        iStmt = CompositionParser.removeFirst(iStmt, "}");
 
         //unconditional routing statement
         try {

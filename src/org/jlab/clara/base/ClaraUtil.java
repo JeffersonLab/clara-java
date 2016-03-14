@@ -41,7 +41,6 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.StringTokenizer;
 import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -298,25 +297,6 @@ public final class ClaraUtil {
         }
     }
 
-    public static String removeFirst(String s) {
-        if (s == null || s.length() == 0) {
-            return s;
-        }
-        return s.substring(1, s.length());
-    }
-
-    public static String removeFirst(String input, String firstCharacter) {
-        input = input.startsWith(firstCharacter) ? input.substring(1) : input;
-        return input;
-    }
-
-    public static String removeLast(String s) {
-        if (s == null || s.length() == 0) {
-            return s;
-        }
-        return s.substring(0, s.length() - 1);
-    }
-
     /**
      * Gets the current time and returns string representation of it.
      * @return string representing the current time.
@@ -360,17 +340,6 @@ public final class ClaraUtil {
         }
     }
 
-    public static String getJSetElementAt(List<String> set, int index) {
-        int ind = -1;
-        for (String s : set) {
-            ind++;
-            if (index == ind) {
-                return s;
-            }
-        }
-        return null;
-    }
-
     public static  xMsgTopic buildTopic(Object... args) {
         StringBuilder topic  = new StringBuilder();
         topic.append(args[0]);
@@ -412,18 +381,6 @@ public final class ClaraUtil {
                 return xMsgConstants.ERROR;
             default:
                 throw new IllegalStateException("Clara-Error: Unknown status " + status);
-        }
-    }
-
-    public static String getFirstService(String composition) {
-        StringTokenizer st = new StringTokenizer(composition, ";");
-        String a = st.nextToken();
-
-        if (a.contains(",")) {
-            StringTokenizer stk = new StringTokenizer(a, ",");
-            return stk.nextToken();
-        } else {
-            return a;
         }
     }
 }
