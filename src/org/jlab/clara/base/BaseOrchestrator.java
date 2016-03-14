@@ -218,7 +218,7 @@ public class BaseOrchestrator {
      * in ClaraComponent object. Note that front end is set/defined by the user from one
      * of the cloud DPEs.
      *
-     * @param comp    DPE that must be started as a {@link org.jlab.clara.base.ClaraComponent} object
+     * @param comp    DPE that must be started
      * @param regHost registration service host that future DPE will use to register it's components
      * @param regPort registration service port number
      * @throws ClaraException
@@ -258,13 +258,15 @@ public class BaseOrchestrator {
         base.send(base.getFrontEnd(), ClaraBase.createRequest(topic, data));
     }
 
-    public DeployContainerRequest deploy(ContainerName container) throws ClaraException {
+    public DeployContainerRequest deploy(ContainerName container)
+            throws ClaraException {
         String dpeName = ClaraUtil.getDpeName(container.canonicalName());
         ClaraComponent targetDpe = ClaraComponent.dpe(dpeName);
         return new DeployContainerRequest(base, targetDpe, container);
     }
 
-    public DeployServiceRequest deploy(ServiceName service, String classPath) throws ClaraException {
+    public DeployServiceRequest deploy(ServiceName service, String classPath)
+            throws ClaraException {
         String dpeName = ClaraUtil.getDpeName(service.canonicalName());
         ClaraComponent targetDpe = ClaraComponent.dpe(dpeName);
         return new DeployServiceRequest(base, targetDpe, service, classPath);
@@ -418,7 +420,8 @@ public class BaseOrchestrator {
      * @throws ClaraException
      * @throws xMsgException
      */
-    public Set<String> getEngineNames(String dpeName, String containerName) throws ClaraException, xMsgException {
+    public Set<String> getEngineNames(String dpeName, String containerName)
+            throws ClaraException, xMsgException {
         xMsgTopic topic = xMsgTopic.build(dpeName, containerName);
         Set<xMsgRegistration> rs = base.findSubscribers(topic);
         HashSet<String> result = new HashSet<>();
