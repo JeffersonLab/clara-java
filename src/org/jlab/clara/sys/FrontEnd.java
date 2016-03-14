@@ -282,7 +282,7 @@ class FrontEnd {
     private class GatewayCallback implements xMsgCallBack {
 
         @Override
-        public xMsgMessage callback(xMsgMessage msg) {
+        public void callback(xMsgMessage msg) {
             xMsgMeta.Builder metadata = msg.getMetaData();
             try {
                 RequestParser parser = RequestParser.build(msg);
@@ -329,7 +329,6 @@ class FrontEnd {
             } catch (ClaraException e) {
                 e.printStackTrace();
             }
-            return msg;
         }
     }
 }

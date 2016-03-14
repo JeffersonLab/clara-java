@@ -260,7 +260,7 @@ class Service extends ClaraBase {
     private class ServiceCallBack implements xMsgCallBack {
 
         @Override
-        public xMsgMessage callback(xMsgMessage msg) {
+        public void callback(xMsgMessage msg) {
             try {
                 xMsgMeta.Builder metadata = msg.getMetaData();
                 if (!metadata.hasAction()) {
@@ -276,7 +276,6 @@ class Service extends ClaraBase {
                     sendResponse(msg, xMsgMeta.Status.ERROR, e.getMessage());
                 }
             }
-            return null;
         }
     }
 }

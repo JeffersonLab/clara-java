@@ -142,7 +142,6 @@ public class ClaraSubscriptions {
                     System.out.println("Error receiving data to " + msg.getTopic());
                     e.printStackTrace();
                 }
-                return null;
             };
         }
     }
@@ -172,7 +171,6 @@ public class ClaraSubscriptions {
                     System.out.println("Error receiving data to " + msg.getTopic());
                     e.printStackTrace();
                 }
-                return null;
             };
         }
     }

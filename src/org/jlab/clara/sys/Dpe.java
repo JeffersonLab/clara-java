@@ -416,7 +416,7 @@ public class Dpe extends ClaraBase {
     private class DpeCallBack implements xMsgCallBack {
 
         @Override
-        public xMsgMessage callback(xMsgMessage msg) {
+        public void callback(xMsgMessage msg) {
             try {
                 RequestParser parser = RequestParser.build(msg);
                 String cmd = parser.nextString();
@@ -464,8 +464,6 @@ public class Dpe extends ClaraBase {
                     sendResponse(msg, xMsgMeta.Status.ERROR, e.getMessage());
                 }
             }
-
-            return msg;
         }
 
         private void sendResponse(xMsgMessage msg, xMsgMeta.Status status, String data) {
