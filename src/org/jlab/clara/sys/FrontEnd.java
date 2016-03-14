@@ -143,7 +143,7 @@ class FrontEnd {
             xMsgTopic topic = MessageUtils.buildTopic(CConstants.DPE, dpe.getCanonicalName());
             String data = MessageUtils.buildData(CConstants.SET_FRONT_END,
                                               frontEndHost, frontEndPort, frontEndLang);
-            base.send(dpe, ClaraBase.createRequest(topic, data));
+            base.send(dpe, MessageUtils.buildRequest(topic, data));
         } catch (xMsgException e) {
             throw new ClaraException("Could not set front-end of " + dpe, e);
         }
@@ -158,7 +158,7 @@ class FrontEnd {
         ClaraComponent dpe = dpe(dpeHost, dpePort, dpeLang, 1, "");
         try {
             xMsgTopic topic = MessageUtils.buildTopic(CConstants.DPE, dpe.getCanonicalName());
-            base.send(dpe, ClaraBase.createRequest(topic, CConstants.PING_DPE));
+            base.send(dpe, MessageUtils.buildRequest(topic, CConstants.PING_DPE));
         } catch (xMsgException e) {
             throw new ClaraException("Could not ping DPE " + dpe, e);
         }

@@ -212,7 +212,7 @@ public class BaseOrchestrator {
                                              frontEnd.getDpeHost(),
                                              frontEnd.getDpePort(),
                                              frontEnd.getDpeLang());
-        base.send(base.getFrontEnd(), ClaraBase.createRequest(topic, data));
+        base.send(base.getFrontEnd(), MessageUtils.buildRequest(topic, data));
     }
 
     /**
@@ -242,7 +242,7 @@ public class BaseOrchestrator {
                     comp.getSubscriptionPoolSize(),
                     regHost, regPort,
                     comp.getDescription());
-            base.send(base.getFrontEnd(), ClaraBase.createRequest(topic, data));
+            base.send(base.getFrontEnd(), MessageUtils.buildRequest(topic, data));
         }
     }
 
@@ -259,7 +259,7 @@ public class BaseOrchestrator {
                                                   base.getFrontEnd().getCanonicalName());
 
         String data = CConstants.STOP_DPE;
-        base.send(base.getFrontEnd(), ClaraBase.createRequest(topic, data));
+        base.send(base.getFrontEnd(), MessageUtils.buildRequest(topic, data));
     }
 
     public DeployContainerRequest deploy(ContainerName container)

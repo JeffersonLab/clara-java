@@ -138,7 +138,7 @@ public final class ClaraRequests {
 
         @Override
         protected xMsgMessage msg() throws ClaraException {
-            xMsgMessage msg = ClaraBase.createRequest(topic, getData());
+            xMsgMessage msg = MessageUtils.buildRequest(topic, getData());
             return msg;
         }
 

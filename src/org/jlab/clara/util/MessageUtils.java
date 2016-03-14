@@ -23,6 +23,7 @@
 package org.jlab.clara.util;
 
 import org.jlab.coda.xmsg.core.xMsgConstants;
+import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgTopic;
 
 public final class MessageUtils {
@@ -47,5 +48,9 @@ public final class MessageUtils {
             topic.append(args[i]);
         }
         return topic.toString();
+    }
+
+    public static xMsgMessage buildRequest(xMsgTopic topic, String data) {
+        return new xMsgMessage(topic, xMsgConstants.MimeType.STRING, data.getBytes());
     }
 }

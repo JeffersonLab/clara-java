@@ -31,6 +31,7 @@ import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.sys.RequestParser.RequestException;
 import org.jlab.clara.util.CClassLoader;
 import org.jlab.clara.util.CConstants;
+import org.jlab.clara.util.MessageUtils;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgSubscription;
@@ -248,7 +249,7 @@ class Service extends ClaraBase {
     private void sendResponse(xMsgMessage msg, xMsgMeta.Status status, String data) {
         try {
             xMsgTopic topic = xMsgTopic.wrap(msg.getMetaData().getReplyTo());
-            xMsgMessage repMsg = createRequest(topic, data);
+            xMsgMessage repMsg = MessageUtils.buildRequest(topic, data);
             repMsg.getMetaData().setStatus(status);
             send(repMsg);
         } catch (IOException | xMsgException e) {

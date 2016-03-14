@@ -249,7 +249,7 @@ public class Dpe extends ClaraBase {
 
             while (isReporting.get()) {
 
-                xMsgMessage msg = createRequest(aliveTopic, data);
+                xMsgMessage msg = MessageUtils.buildRequest(aliveTopic, data);
                 send(con, msg);
 
                 myReport.setMemoryUsage(SystemStats.getMemoryUsage());
@@ -257,7 +257,7 @@ public class Dpe extends ClaraBase {
 
                 String jsonData = myReportBuilder.generateReport(myReport);
 
-                xMsgMessage reportMsg = createRequest(reportTopic, jsonData);
+                xMsgMessage reportMsg = MessageUtils.buildRequest(reportTopic, jsonData);
                 send(con, reportMsg);
 
                 xMsgUtil.sleep(reportWait);
@@ -467,7 +467,7 @@ public class Dpe extends ClaraBase {
         private void sendResponse(xMsgMessage msg, xMsgMeta.Status status, String data) {
             try {
                 xMsgTopic topic = xMsgTopic.wrap(msg.getMetaData().getReplyTo());
-                xMsgMessage repMsg = createRequest(topic, data);
+                xMsgMessage repMsg = MessageUtils.buildRequest(topic, data);
                 repMsg.getMetaData().setStatus(status);
                 send(repMsg);
             } catch (IOException | xMsgException e) {
