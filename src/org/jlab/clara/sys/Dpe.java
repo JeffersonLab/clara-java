@@ -31,6 +31,7 @@ import org.jlab.clara.sys.RequestParser.RequestException;
 import org.jlab.clara.util.CConstants;
 import org.jlab.clara.util.report.DpeReport;
 import org.jlab.clara.util.report.JsonReportBuilder;
+import org.jlab.clara.util.report.SystemStats;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgSubscription;
@@ -43,9 +44,6 @@ import org.jlab.coda.xmsg.net.xMsgProxyAddress;
 import org.jlab.coda.xmsg.xsys.xMsgProxy;
 import org.zeromq.ZContext;
 
-import javax.management.InstanceNotFoundException;
-import javax.management.MalformedObjectNameException;
-import javax.management.ReflectionException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -253,8 +251,8 @@ public class Dpe extends ClaraBase {
                 xMsgMessage msg = createRequest(aliveTopic, data);
                 send(con, msg);
 
-                myReport.setMemoryUsage(ClaraUtil.getMemoryUsage());
-                myReport.setCpuUsage(ClaraUtil.getCpuUsage());
+                myReport.setMemoryUsage(SystemStats.getMemoryUsage());
+                myReport.setCpuUsage(SystemStats.getCpuUsage());
 
                 String jsonData = myReportBuilder.generateReport(myReport);
 
@@ -265,8 +263,7 @@ public class Dpe extends ClaraBase {
             }
 
             destroyConnection(con);
-        } catch (xMsgException | MalformedObjectNameException |
-                ReflectionException | InstanceNotFoundException e) {
+        } catch (xMsgException | ClaraException e) {
             e.printStackTrace();
         }
 

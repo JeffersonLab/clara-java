@@ -38,13 +38,6 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-import javax.management.Attribute;
-import javax.management.AttributeList;
-import javax.management.InstanceNotFoundException;
-import javax.management.ObjectName;
-import javax.management.ReflectionException;
-import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -52,7 +45,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.lang.management.ManagementFactory;
 import java.net.SocketException;
 import java.text.Format;
 import java.text.SimpleDateFormat;
@@ -504,32 +496,6 @@ public final class ClaraUtil {
             default:
                 throw new IllegalStateException("Clara-Error: Unknown status " + status);
         }
-    }
-
-    public static double getCpuUsage()
-            throws MalformedObjectNameException, ReflectionException, InstanceNotFoundException {
-
-        MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-        ObjectName name = ObjectName.getInstance("java.lang:type=OperatingSystem");
-        AttributeList list = mbs.getAttributes(name, new String[]{"ProcessCpuLoad"});
-
-        if (list.isEmpty()) {
-            return Double.NaN;
-        }
-
-        Attribute att = (Attribute) list.get(0);
-        Double value = (Double) att.getValue();
-
-        if (value == -1.0) {
-            return Double.NaN;
-        }
-
-        // returns a percentage value with 1 decimal point precision
-        return ((int) (value * 1000) / 10.0);
-    }
-
-    public static long getMemoryUsage() {
-        return Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
     }
 
     public static String getFirstService(String composition) {
