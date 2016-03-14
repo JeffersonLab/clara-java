@@ -391,26 +391,31 @@ public final class ClaraUtil {
 
     }
 
+    // CHECKSTYLE.OFF: JavadocStyle
     /**
      * Parser for the XML having a structure:
-     * <p/>
-     * <containerTag2>
-     * <tag>value</tag>
-     * .....
-     * <tag>value</tag>
-     * </containerTag2>
+     * <pre>
+     * {@code
+     * <containerTag>
+     *   <tag>value</tag>
+     *   .....
+     *   <tag>value</tag>
+     * </containerTag>
      * ....
-     * <containerTag2>
-     * <tag>value</tag>
-     * .....
-     * <tag>value</tag>
-     * </containerTag2>
+     * <containerTag>
+     *   <tag>value</tag>
+     *   .....
+     *   <tag>value</tag>
+     * </containerTag>
+     * }
+     * </pre>.
      *
      * @param doc          XML document object
      * @param containerTag first container tag
      * @param tags         tag names
      * @return list of list of tag value pairs
      */
+    // CHECKSTYLE.ON: JavadocStyle
     public static List<XMLContainer> parseXML(Document doc,
                                               String containerTag,
                                               String[] tags) {

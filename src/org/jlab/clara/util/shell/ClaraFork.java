@@ -37,10 +37,12 @@ import java.util.StringTokenizer;
  * @author gurjyan
  * @version 4.x
  */
-public class ClaraFork {
+public final class ClaraFork {
 
     // local instance of the logger object
     private static ClaraLogger lg = ClaraLogger.getInstance();
+
+    private ClaraFork() { }
 
     /**
      * Gets stdInput, stdOutput and stdError from the shell process object.

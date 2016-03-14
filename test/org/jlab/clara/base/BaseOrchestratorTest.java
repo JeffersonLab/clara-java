@@ -284,7 +284,7 @@ public class BaseOrchestratorTest {
     @ParametersAreNonnullByDefault
     private class OrchestratorMock extends BaseOrchestrator {
 
-        public OrchestratorMock() throws ClaraException, IOException {
+        OrchestratorMock() throws ClaraException, IOException {
             super();
         }
 

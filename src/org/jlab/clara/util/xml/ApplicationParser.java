@@ -37,7 +37,9 @@ import java.util.List;
  * @version 4.x
  * @since 4/9/15
  */
-public class ApplicationParser {
+public final class ApplicationParser {
+
+    private ApplicationParser() { }
 
     public static void main(String[] args) {
         try {
@@ -50,10 +52,10 @@ public class ApplicationParser {
                 System.out.println(s);
             }
 
-            String[] applicationTags = {"composition", "data"};
-            List<XMLContainer> application = ClaraUtil.parseXML(doc, "application", applicationTags);
+            String[] appTags = {"composition", "data"};
+            List<XMLContainer> app = ClaraUtil.parseXML(doc, "application", appTags);
 
-            for (XMLContainer a : application) {
+            for (XMLContainer a : app) {
                 System.out.println(a);
             }
         } catch (ParserConfigurationException | IOException | SAXException e) {

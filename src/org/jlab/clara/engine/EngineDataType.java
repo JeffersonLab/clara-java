@@ -168,6 +168,7 @@ public class EngineDataType {
     }
 
 
+    // CHECKSTYLE.OFF: MethodParamPad
     private enum MimeType {
         SINT32          ("binary/sint32"),
         SINT64          ("binary/sint64"),
@@ -200,6 +201,7 @@ public class EngineDataType {
             return name;
         }
     }
+    // CHECKSTYLE.ON: MethodParamPad
 
 
     private static class NativeSerializer implements ClaraSerializer {

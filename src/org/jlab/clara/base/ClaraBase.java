@@ -57,7 +57,7 @@ import java.util.concurrent.TimeoutException;
  */
 public abstract class ClaraBase extends xMsg {
 
-    private static final EngineDataAccessor dataAccessor = EngineDataAccessor.getDefault();
+    private static final EngineDataAccessor DATA_ACCESSOR = EngineDataAccessor.getDefault();
     private final String claraHome;
     // reference to this component description
     private final ClaraComponent me;
@@ -114,7 +114,7 @@ public abstract class ClaraBase extends xMsg {
                                         Set<EngineDataType> dataTypes)
             throws ClaraException {
 
-        xMsgMeta.Builder metadata = dataAccessor.getMetadata(data);
+        xMsgMeta.Builder metadata = DATA_ACCESSOR.getMetadata(data);
         String mimeType = metadata.getDataType();
         for (EngineDataType dt : dataTypes) {
             if (dt.mimeType().equals(mimeType)) {
@@ -550,7 +550,7 @@ public abstract class ClaraBase extends xMsg {
                         bb.order(ByteOrder.LITTLE_ENDIAN);
                     }
                     Object userData = dt.serializer().read(bb);
-                    return dataAccessor.build(userData, metadata);
+                    return DATA_ACCESSOR.build(userData, metadata);
                 } catch (ClaraException e) {
                     throw new ClaraException("Clara-Error: Could not deserialize " + mimeType, e);
                 }
@@ -587,7 +587,7 @@ public abstract class ClaraBase extends xMsg {
      * @return {@link org.jlab.coda.xmsg.data.xMsgM.xMsgMeta.Builder} object
      */
     public xMsgMeta.Builder getMetadata(EngineData data) {
-        return dataAccessor.getMetadata(data);
+        return DATA_ACCESSOR.getMetadata(data);
     }
 
     /**
