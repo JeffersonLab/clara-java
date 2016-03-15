@@ -26,7 +26,7 @@ import static org.jlab.clara.base.core.ClaraComponent.container;
 import static org.jlab.clara.base.core.ClaraComponent.dpe;
 import static org.jlab.clara.base.core.ClaraComponent.service;
 
-import org.jlab.clara.base.core.CConstants;
+import org.jlab.clara.base.core.ClaraConstants;
 import org.jlab.clara.base.core.ClaraBase;
 import org.jlab.clara.base.core.ClaraComponent;
 import org.jlab.clara.base.core.MessageUtils;
@@ -67,7 +67,7 @@ class FrontEnd {
             // create the xMsg actor
             ClaraComponent frontEnd = dpe(frontEndAddress.host(),
                                           frontEndAddress.port(),
-                                          CConstants.JAVA_LANG,
+                                          ClaraConstants.JAVA_LANG,
                                           poolSize,
                                           description);
             base = new ClaraBase(frontEnd, frontEnd) {
@@ -80,7 +80,7 @@ class FrontEnd {
             base.setFrontEnd(frontEnd);
 
             // subscribe to forwarding requests
-            xMsgTopic topic = xMsgTopic.wrap(CConstants.DPE + ":" + frontEnd.getCanonicalName());
+            xMsgTopic topic = xMsgTopic.wrap(ClaraConstants.DPE + ":" + frontEnd.getCanonicalName());
             fwdSubscription = base.listen(topic, new GatewayCallback());
             base.register(topic, description);
 
@@ -100,7 +100,7 @@ class FrontEnd {
         int regPort = parser.nextInteger();
         String description = parser.nextString();
 
-        if (dpeLang.equals(CConstants.JAVA_LANG)) {
+        if (dpeLang.equals(ClaraConstants.JAVA_LANG)) {
             StringBuilder cmd = new StringBuilder();
             cmd.append("ssh").append(" ").append(dpeHost).append(" ");
             cmd.append("-DpePort").append(" ").append(dpePort).append(" ");
@@ -140,8 +140,8 @@ class FrontEnd {
 
         ClaraComponent dpe = dpe(dpeHost, dpePort, dpeLang, 1, "");
         try {
-            xMsgTopic topic = MessageUtils.buildTopic(CConstants.DPE, dpe.getCanonicalName());
-            String data = MessageUtils.buildData(CConstants.SET_FRONT_END,
+            xMsgTopic topic = MessageUtils.buildTopic(ClaraConstants.DPE, dpe.getCanonicalName());
+            String data = MessageUtils.buildData(ClaraConstants.SET_FRONT_END,
                                               frontEndHost, frontEndPort, frontEndLang);
             base.send(dpe, MessageUtils.buildRequest(topic, data));
         } catch (xMsgException e) {
@@ -157,8 +157,8 @@ class FrontEnd {
         String dpeLang = parser.nextString();
         ClaraComponent dpe = dpe(dpeHost, dpePort, dpeLang, 1, "");
         try {
-            xMsgTopic topic = MessageUtils.buildTopic(CConstants.DPE, dpe.getCanonicalName());
-            base.send(dpe, MessageUtils.buildRequest(topic, CConstants.PING_DPE));
+            xMsgTopic topic = MessageUtils.buildTopic(ClaraConstants.DPE, dpe.getCanonicalName());
+            base.send(dpe, MessageUtils.buildRequest(topic, ClaraConstants.PING_DPE));
         } catch (xMsgException e) {
             throw new ClaraException("Could not ping DPE " + dpe, e);
         }
@@ -289,35 +289,35 @@ class FrontEnd {
                 String cmd = parser.nextString();
 
                 switch (cmd) {
-                    case CConstants.START_DPE:
+                    case ClaraConstants.START_DPE:
                         startDpe(parser, metadata);
                         break;
 
-                    case CConstants.STOP_REMOTE_DPE:
+                    case ClaraConstants.STOP_REMOTE_DPE:
                         stopDpe(parser, metadata);
                         break;
 
-                    case CConstants.SET_FRONT_END_REMOTE:
+                    case ClaraConstants.SET_FRONT_END_REMOTE:
                         setFrontEnd(parser, metadata);
                         break;
 
-                    case CConstants.PING_REMOTE_DPE:
+                    case ClaraConstants.PING_REMOTE_DPE:
                         pingDpe(parser, metadata);
                         break;
 
-                    case CConstants.START_REMOTE_CONTAINER:
+                    case ClaraConstants.START_REMOTE_CONTAINER:
                         startContainer(parser, metadata);
                         break;
 
-                    case CConstants.STOP_REMOTE_CONTAINER:
+                    case ClaraConstants.STOP_REMOTE_CONTAINER:
                         stopContainer(parser, metadata);
                         break;
 
-                    case CConstants.START_REMOTE_SERVICE:
+                    case ClaraConstants.START_REMOTE_SERVICE:
                         startService(parser, metadata);
                         break;
 
-                    case CConstants.STOP_REMOTE_SERVICE:
+                    case ClaraConstants.STOP_REMOTE_SERVICE:
                         stopService(parser, metadata);
                         break;
 

@@ -23,7 +23,7 @@
 package org.jlab.clara.sys.ccc;
 
 
-import org.jlab.clara.base.core.CConstants;
+import org.jlab.clara.base.core.ClaraConstants;
 
 /**
  * Defines service-name and state pair.
@@ -34,8 +34,8 @@ import org.jlab.clara.base.core.CConstants;
  */
 public class ServiceState {
 
-    private String name = CConstants.UNDEFINED;
-    private String state = CConstants.UNDEFINED;
+    private String name = ClaraConstants.UNDEFINED;
+    private String state = ClaraConstants.UNDEFINED;
 
     public ServiceState(String name, String state) {
         this.name = name;

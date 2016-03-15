@@ -22,7 +22,7 @@
 
 package org.jlab.clara.sys.ccc;
 
-import org.jlab.clara.base.core.CConstants;
+import org.jlab.clara.base.core.ClaraConstants;
 import org.jlab.clara.base.error.ClaraException;
 import org.junit.Test;
 
@@ -205,8 +205,8 @@ public class CCompilerTest {
 
 
         // service-states for conditional routing
-        ServiceState ownerSS = new ServiceState("10.10.10.1_java:C:S3", CConstants.UNDEFINED);
-        ServiceState inputSS = new ServiceState("10.10.10.1_java:C:S3", CConstants.UNDEFINED);
+        ServiceState ownerSS = new ServiceState("10.10.10.1_java:C:S3", ClaraConstants.UNDEFINED);
+        ServiceState inputSS = new ServiceState("10.10.10.1_java:C:S3", ClaraConstants.UNDEFINED);
 
         Set<String> expected = new HashSet<>(Arrays.asList("10.10.10.1_java:C:S1"));
         assertThat(cc.getLinks(ownerSS, inputSS), is(expected));

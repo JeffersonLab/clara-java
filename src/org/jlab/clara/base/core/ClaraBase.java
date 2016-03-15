@@ -643,9 +643,9 @@ public abstract class ClaraBase extends xMsg {
             throw new IllegalArgumentException("Clara-Error: illegal component to deploy");
         }
         String data;
-        xMsgTopic topic = MessageUtils.buildTopic(CConstants.DPE, component.getDpeCanonicalName());
+        xMsgTopic topic = MessageUtils.buildTopic(ClaraConstants.DPE, component.getDpeCanonicalName());
         if (component.isContainer()) {
-            data = MessageUtils.buildData(CConstants.START_CONTAINER,
+            data = MessageUtils.buildData(ClaraConstants.START_CONTAINER,
                         component.getDpeHost(),
                         component.getDpePort(),
                         component.getDpeLang(),
@@ -653,7 +653,7 @@ public abstract class ClaraBase extends xMsg {
                         component.getSubscriptionPoolSize(),
                         component.getDescription());
         } else if (component.isService()) {
-            data = MessageUtils.buildData(CConstants.START_SERVICE,
+            data = MessageUtils.buildData(ClaraConstants.START_SERVICE,
                     component.getDpeHost(),
                     component.getDpePort(),
                     component.getDpeLang(),
@@ -687,15 +687,15 @@ public abstract class ClaraBase extends xMsg {
             throw new IllegalArgumentException("Cannot deploy nor exit an orchestrator.");
         }
         String data;
-        xMsgTopic topic = MessageUtils.buildTopic(CConstants.DPE, component.getDpeCanonicalName());
+        xMsgTopic topic = MessageUtils.buildTopic(ClaraConstants.DPE, component.getDpeCanonicalName());
         if (component.isDpe()) {
-            data = CConstants.STOP_DPE;
+            data = ClaraConstants.STOP_DPE;
 
         } else if (component.isContainer()) {
-            data = MessageUtils.buildData(CConstants.STOP_CONTAINER,
+            data = MessageUtils.buildData(ClaraConstants.STOP_CONTAINER,
                     component.getContainerName());
         } else if (component.isService()) {
-            data = MessageUtils.buildData(CConstants.STOP_SERVICE,
+            data = MessageUtils.buildData(ClaraConstants.STOP_SERVICE,
                     component.getContainerName(),
                     component.getEngineName());
         } else {

@@ -22,7 +22,7 @@
 
 package org.jlab.clara.base;
 
-import org.jlab.clara.base.core.CConstants;
+import org.jlab.clara.base.core.ClaraConstants;
 import org.jlab.clara.base.core.ClaraBase;
 import org.jlab.clara.base.core.ClaraComponent;
 import org.jlab.clara.base.core.MessageUtils;
@@ -163,7 +163,7 @@ public final class ClaraRequests {
             extends DataRequest<D> {
 
         protected int poolSize = 1;
-        protected String description = CConstants.UNDEFINED;
+        protected String description = ClaraConstants.UNDEFINED;
 
         DeployRequest(ClaraBase base, ClaraComponent frontEnd, String topic) {
             super(base, frontEnd, topic);
@@ -207,7 +207,7 @@ public final class ClaraRequests {
 
         @Override
         protected String getData() {
-            return MessageUtils.buildData(CConstants.START_CONTAINER,
+            return MessageUtils.buildData(ClaraConstants.START_CONTAINER,
                                           container.name(),
                                           poolSize,
                                           description);
@@ -222,7 +222,7 @@ public final class ClaraRequests {
         private final ServiceName service;
         private final String classPath;
 
-        private String initialState = CConstants.UNDEFINED;
+        private String initialState = ClaraConstants.UNDEFINED;
 
         DeployServiceRequest(ClaraBase base, ClaraComponent frontEnd,
                              ServiceName service, String classPath) {
@@ -243,7 +243,7 @@ public final class ClaraRequests {
 
         @Override
         protected String getData() {
-            return MessageUtils.buildData(CConstants.START_SERVICE,
+            return MessageUtils.buildData(ClaraConstants.START_SERVICE,
                                           service.container().name(),
                                           service.name(),
                                           classPath,
@@ -265,7 +265,7 @@ public final class ClaraRequests {
          */
         ExitRequest(ClaraBase base, ClaraComponent frontEnd, DpeName dpe) {
             super(base, frontEnd, getDpeTopic(dpe));
-            data = MessageUtils.buildData(CConstants.STOP_DPE);
+            data = MessageUtils.buildData(ClaraConstants.STOP_DPE);
         }
 
         /**
@@ -273,7 +273,7 @@ public final class ClaraRequests {
          */
         ExitRequest(ClaraBase base, ClaraComponent frontEnd, ContainerName container) {
             super(base, frontEnd, getDpeTopic(container));
-            data = MessageUtils.buildData(CConstants.STOP_CONTAINER, container.name());
+            data = MessageUtils.buildData(ClaraConstants.STOP_CONTAINER, container.name());
         }
 
         /**
@@ -281,7 +281,7 @@ public final class ClaraRequests {
          */
         ExitRequest(ClaraBase base, ClaraComponent frontEnd, ServiceName service) {
             super(base, frontEnd, getDpeTopic(service));
-            data = MessageUtils.buildData(CConstants.STOP_SERVICE,
+            data = MessageUtils.buildData(ClaraConstants.STOP_SERVICE,
                                           service.container().name(), service.name());
         }
 

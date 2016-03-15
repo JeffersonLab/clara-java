@@ -28,9 +28,9 @@ package org.jlab.clara.base.core;
  * @author gurjyan
  * @version 4.x
  */
-public final class CConstants {
+public final class ClaraConstants {
 
-    private CConstants() { }
+    private ClaraConstants() { }
 
     public static final String DPE = "dpe";
     public static final String START_DPE = "startDpe";

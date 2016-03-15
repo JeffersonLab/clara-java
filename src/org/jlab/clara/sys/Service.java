@@ -23,7 +23,7 @@
 package org.jlab.clara.sys;
 
 import org.jlab.clara.base.ClaraUtil;
-import org.jlab.clara.base.core.CConstants;
+import org.jlab.clara.base.core.ClaraConstants;
 import org.jlab.clara.base.core.ClaraBase;
 import org.jlab.clara.base.core.ClaraComponent;
 import org.jlab.clara.base.core.MessageUtils;
@@ -218,12 +218,12 @@ class Service extends ClaraBase {
         String report = setup.nextString();
         int value = setup.nextInteger();
         switch (report) {
-            case CConstants.SERVICE_REPORT_DONE:
+            case ClaraConstants.SERVICE_REPORT_DONE:
                 sysConfig.setDoneRequest(true);
                 sysConfig.setDoneReportThreshold(value);
                 sysConfig.resetDoneRequestCount();
                 break;
-            case CConstants.SERVICE_REPORT_DATA:
+            case ClaraConstants.SERVICE_REPORT_DATA:
                 sysConfig.setDataRequest(true);
                 sysConfig.setDataReportThreshold(value);
                 sysConfig.resetDataRequestCount();
