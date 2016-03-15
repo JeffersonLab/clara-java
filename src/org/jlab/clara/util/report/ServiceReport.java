@@ -26,7 +26,7 @@ package org.jlab.clara.util.report;
  * @author gurjyan
  * @version 4.x
  */
-public class ServiceReport extends CReportBase {
+public class ServiceReport extends BaseReport {
     private String engineName;
     private String className;
     private int failureCount;

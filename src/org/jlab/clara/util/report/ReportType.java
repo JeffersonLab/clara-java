@@ -25,14 +25,14 @@ package org.jlab.clara.util.report;
 /**
  * Created by gurjyan on 10/12/15.
  */
-public enum CReportTypes {
+public enum ReportType {
     INFO("serviceReportInfo"),
     DONE("serviceReportDone"),
     DATA("serviceReportData");
 
     private final String stringValue;
 
-    CReportTypes(String stringValue) {
+    ReportType(String stringValue) {
         this.stringValue = stringValue;
     }
 
