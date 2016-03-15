@@ -23,7 +23,7 @@
 package org.jlab.clara.sys.ccc;
 
 
-import org.jlab.clara.util.CConstants;
+import org.jlab.clara.base.core.CConstants;
 
 /**
  * Defines service-name and state pair.

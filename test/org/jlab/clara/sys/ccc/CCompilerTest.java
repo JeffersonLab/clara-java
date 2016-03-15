@@ -22,8 +22,8 @@
 
 package org.jlab.clara.sys.ccc;
 
+import org.jlab.clara.base.core.CConstants;
 import org.jlab.clara.base.error.ClaraException;
-import org.jlab.clara.util.CConstants;
 import org.junit.Test;
 
 import java.util.Arrays;

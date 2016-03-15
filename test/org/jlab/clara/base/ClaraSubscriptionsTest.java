@@ -23,6 +23,8 @@
 package org.jlab.clara.base;
 
 import org.jlab.clara.base.ClaraSubscriptions.BaseSubscription;
+import org.jlab.clara.base.core.ClaraBase;
+import org.jlab.clara.base.core.ClaraComponent;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgSubscription;

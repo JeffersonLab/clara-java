@@ -22,7 +22,7 @@
 
 package org.jlab.clara.claraol.parser;
 
-import org.jlab.clara.util.CConstants;
+import org.jlab.clara.base.core.CConstants;
 
 /**
  * Utility methods used in ClaraOL parser

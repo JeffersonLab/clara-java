@@ -23,6 +23,8 @@
 package org.jlab.clara.base;
 
 import org.jlab.clara.base.ClaraRequests.BaseRequest;
+import org.jlab.clara.base.core.ClaraBase;
+import org.jlab.clara.base.core.ClaraComponent;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.excp.xMsgException;

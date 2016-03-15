@@ -20,7 +20,7 @@
  *   Department of Experimental Nuclear Physics, Jefferson Lab.
  */
 
-package org.jlab.clara.base;
+package org.jlab.clara.base.core;
 
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.junit.Test;

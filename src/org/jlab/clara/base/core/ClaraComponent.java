@@ -20,10 +20,10 @@
  *   Department of Experimental Nuclear Physics, Jefferson Lab.
  */
 
-package org.jlab.clara.base;
+package org.jlab.clara.base.core;
 
+import org.jlab.clara.base.ClaraUtil;
 import org.jlab.clara.base.error.ClaraException;
-import org.jlab.clara.util.CConstants;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.net.xMsgProxyAddress;
@@ -101,7 +101,7 @@ public final class ClaraComponent {
      * @param subscriptionPoolSize pool size for the
      *                             orchestrator to be used for subscriptions
      * @param description          textual description of this orchestrator
-     * @return orchestrator {@link org.jlab.clara.base.ClaraComponent} object
+     * @return orchestrator {@link org.jlab.clara.base.core.ClaraComponent} object
      */
     public static ClaraComponent orchestrator(String name,
                                               String dpeHost,

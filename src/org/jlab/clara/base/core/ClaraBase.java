@@ -19,13 +19,11 @@
  * SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
  */
 
-package org.jlab.clara.base;
+package org.jlab.clara.base.core;
 
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.EngineDataType;
-import org.jlab.clara.util.CConstants;
-import org.jlab.clara.util.MessageUtils;
 import org.jlab.clara.util.report.CReportTypes;
 import org.jlab.coda.xmsg.core.xMsg;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
@@ -153,7 +151,7 @@ public abstract class ClaraBase extends xMsg {
 
     /**
      * @return the description of this component:
-     * {@link org.jlab.clara.base.ClaraComponent} object
+     * {@link org.jlab.clara.base.core.ClaraComponent} object
      */
     public ClaraComponent getMe() {
         return me;
@@ -162,7 +160,7 @@ public abstract class ClaraBase extends xMsg {
     /**
      * Sends xMsgMessage message to a component.
      *
-     * @param component {@link org.jlab.clara.base.ClaraComponent} object
+     * @param component {@link org.jlab.clara.base.core.ClaraComponent} object
      * @param msg message: {@link org.jlab.coda.xmsg.core.xMsgMessage} object
      * @throws xMsgException
      */
@@ -176,7 +174,7 @@ public abstract class ClaraBase extends xMsg {
     /**
      * Sends a string to a component.
      *
-     * @param component {@link org.jlab.clara.base.ClaraComponent} object
+     * @param component {@link org.jlab.clara.base.core.ClaraComponent} object
      * @param requestText string of the message
      * @throws IOException
      * @throws xMsgException
@@ -228,7 +226,7 @@ public abstract class ClaraBase extends xMsg {
     /**
      * Synchronous xMsgMessage send to a component.
      *
-     * @param component {@link org.jlab.clara.base.ClaraComponent} object
+     * @param component {@link org.jlab.clara.base.core.ClaraComponent} object
      * @param msg message: {@link org.jlab.coda.xmsg.core.xMsgMessage} object
      * @param timeout in milli seconds
      * @return message: {@link org.jlab.coda.xmsg.core.xMsgMessage} object
@@ -246,7 +244,7 @@ public abstract class ClaraBase extends xMsg {
     /**
      * Synchronous string send to a component.
      *
-     * @param component {@link org.jlab.clara.base.ClaraComponent} object
+     * @param component {@link org.jlab.clara.base.core.ClaraComponent} object
      * @param requestText String of the message
      * @param timeout in milli seconds
      * @return message: {@link org.jlab.coda.xmsg.core.xMsgMessage} object
@@ -268,7 +266,7 @@ public abstract class ClaraBase extends xMsg {
      * Connection is done to the dpe of the passed component.
      * The topic is the name of the define component.
      *
-     * @param component {@link org.jlab.clara.base.ClaraComponent} object
+     * @param component {@link org.jlab.clara.base.core.ClaraComponent} object
      * @param callback {@link org.jlab.coda.xmsg.core.xMsgCallBack} object
      * @return subscription handler {@link org.jlab.coda.xmsg.core.xMsgMessage} object
      * @throws xMsgException
@@ -283,7 +281,7 @@ public abstract class ClaraBase extends xMsg {
      * Listens messages from a defined component to a specified topic.
      * Connection is done to the dpe of the passed component.
      *
-     * @param component {@link org.jlab.clara.base.ClaraComponent} object
+     * @param component {@link org.jlab.clara.base.core.ClaraComponent} object
      * @param topic topic of the subscription
      * @param callback {@link org.jlab.coda.xmsg.core.xMsgCallBack} object
      * @return subscription handler {@link org.jlab.coda.xmsg.core.xMsgMessage} object
@@ -403,7 +401,7 @@ public abstract class ClaraBase extends xMsg {
      * Deploys a Clara actor. Clara component object is used to
      * extract xMsg proxy host and port for a proper connection.
      *
-     * @param component Clara actor as a {@link org.jlab.clara.base.ClaraComponent} object
+     * @param component Clara actor as a {@link org.jlab.clara.base.core.ClaraComponent} object
      * @throws ClaraException
      * @throws IOException
      * @throws xMsgException
@@ -418,7 +416,7 @@ public abstract class ClaraBase extends xMsg {
      * Synchronously deploys a Clara actor. Clara component object is used to
      * extract xMsg proxy host and port for a proper connection.
      *
-     * @param component Clara actor as a {@link org.jlab.clara.base.ClaraComponent} object
+     * @param component Clara actor as a {@link org.jlab.clara.base.core.ClaraComponent} object
      * @param timeout timeout of the sync communication
      * @return message {@link org.jlab.coda.xmsg.core.xMsgMessage}
      *         indicating the status of the sync operation.
@@ -435,7 +433,7 @@ public abstract class ClaraBase extends xMsg {
     /**
      * Sends a message to a Clara component/actor telling to exit/destruct.
      *
-     * @param component Clara actor as a {@link org.jlab.clara.base.ClaraComponent} object
+     * @param component Clara actor as a {@link org.jlab.clara.base.core.ClaraComponent} object
      * @throws ClaraException
      * @throws IOException
      * @throws xMsgException
@@ -449,7 +447,7 @@ public abstract class ClaraBase extends xMsg {
     /**
      * Sync sends a message to a Clara component/actor telling to exit/destruct.
      *
-     * @param component Clara actor as a {@link org.jlab.clara.base.ClaraComponent} object
+     * @param component Clara actor as a {@link org.jlab.clara.base.core.ClaraComponent} object
      * @param timeout timeout of the sync communication
      * @return message {@link org.jlab.coda.xmsg.core.xMsgMessage}
      *         indicating the status of the sync operation.
@@ -466,7 +464,7 @@ public abstract class ClaraBase extends xMsg {
     /**
      * Sends a message to a Clara component asking to report after processing events = eventCount.
      *
-     * @param component component Clara actor as a {@link org.jlab.clara.base.ClaraComponent} object
+     * @param component component Clara actor as a {@link org.jlab.clara.base.core.ClaraComponent} object
      * @param report report type define as a {@link org.jlab.clara.util.report.CReportTypes} object
      * @param eventCount number of events after which component
      *                   reports/broadcasts required type of a report
@@ -488,7 +486,7 @@ public abstract class ClaraBase extends xMsg {
     /**
      * Sends a message to a Clara component to stop reporting a specific type of report type.
      *
-     * @param component component Clara actor as a {@link org.jlab.clara.base.ClaraComponent} object
+     * @param component component Clara actor as a {@link org.jlab.clara.base.core.ClaraComponent} object
      * @param report report type define as a {@link org.jlab.clara.util.report.CReportTypes} object
      * @throws IOException
      * @throws xMsgException
@@ -589,7 +587,7 @@ public abstract class ClaraBase extends xMsg {
     /**
      * Returns the reference to the front-end DPE.
      *
-     * @return {@link org.jlab.clara.base.ClaraComponent} object
+     * @return {@link org.jlab.clara.base.core.ClaraComponent} object
      */
     public ClaraComponent getFrontEnd() {
         return frontEnd;
@@ -598,7 +596,7 @@ public abstract class ClaraBase extends xMsg {
     /**
      * Sets a DPE Clara component as a front-end.
      *
-     * @param frontEnd {@link org.jlab.clara.base.ClaraComponent} object
+     * @param frontEnd {@link org.jlab.clara.base.core.ClaraComponent} object
      */
     public void setFrontEnd(ClaraComponent frontEnd) {
         this.frontEnd = frontEnd;
@@ -631,7 +629,7 @@ public abstract class ClaraBase extends xMsg {
     /**
      * Deploys container or service Clara component on a DPE.
      *
-     * @param component {@link org.jlab.clara.base.ClaraComponent} of the type container or service
+     * @param component {@link org.jlab.clara.base.core.ClaraComponent} of the type container or service
      * @param timeout timeout in case of sync operation. Note timeout <=0 indicates async deploy
      * @return xMsgMessage in case sync request, null otherwise
      * @throws ClaraException
