@@ -22,17 +22,13 @@
 
 package org.jlab.clara.sys;
 
-import static org.jlab.clara.base.core.ClaraComponent.container;
 import static org.jlab.clara.base.core.ClaraComponent.dpe;
-import static org.jlab.clara.base.core.ClaraComponent.service;
 
 import org.jlab.clara.base.core.ClaraConstants;
 import org.jlab.clara.base.core.ClaraBase;
 import org.jlab.clara.base.core.ClaraComponent;
-import org.jlab.clara.base.core.MessageUtils;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.sys.RequestParser.RequestException;
-import org.jlab.clara.util.shell.ClaraFork;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgTopic;
@@ -44,10 +40,6 @@ import org.jlab.coda.xmsg.net.xMsgProxyAddress;
 import org.jlab.coda.xmsg.net.xMsgRegAddress;
 import org.jlab.coda.xmsg.sys.xMsgRegistrar;
 import org.zeromq.ZContext;
-
-import java.io.IOException;
-import java.util.concurrent.TimeoutException;
-
 
 class FrontEnd {
 
@@ -106,149 +98,49 @@ class FrontEnd {
 
     private void startDpe(RequestParser parser, xMsgMeta.Builder meta)
             throws RequestException, ClaraException {
-        String dpeHost = parser.nextString();
-        int dpePort = parser.nextInteger();
-        String dpeLang = parser.nextString();
-        int poolSize = parser.nextInteger();
-        String regHost = parser.nextString();
-        int regPort = parser.nextInteger();
-        String description = parser.nextString();
-
-        if (dpeLang.equals(ClaraConstants.JAVA_LANG)) {
-            StringBuilder cmd = new StringBuilder();
-            cmd.append("ssh").append(" ").append(dpeHost).append(" ");
-            cmd.append("-DpePort").append(" ").append(dpePort).append(" ");
-            cmd.append("-PoolSize").append(" ").append(poolSize).append(" ");
-            cmd.append("-RegHost").append(" ").append(regHost).append(" ");
-            cmd.append("-RegPort").append(" ").append(regPort).append(" ");
-            cmd.append("-Description").append(" ").append(description).append(" ");
-            ClaraFork.fork(cmd.toString(), false);
-        } else {
-            throw new RequestException("Unsupported DPE language: " + dpeLang);
-        }
+        // TODO implement this
     }
 
 
     private void stopDpe(RequestParser parser, Builder metadata)
             throws RequestException, ClaraException {
-        String dpeHost = parser.nextString();
-        int dpePort = parser.nextInteger();
-        String dpeLang = parser.nextString();
-        ClaraComponent dpe = dpe(dpeHost, dpePort, dpeLang, 1, "");
-        try {
-            base.exit(dpe);
-        } catch (xMsgException | IOException | TimeoutException e) {
-            throw new ClaraException("Could not stop DPE " + dpe, e);
-        }
+        // TODO implement this
     }
 
 
     private void setFrontEnd(RequestParser parser, Builder metadata)
             throws RequestException, ClaraException {
-        String dpeHost = parser.nextString();
-        int dpePort = parser.nextInteger();
-        String dpeLang = parser.nextString();
-        String frontEndHost = parser.nextString();
-        int frontEndPort = parser.nextInteger();
-        String frontEndLang = parser.nextString();
-
-        ClaraComponent dpe = dpe(dpeHost, dpePort, dpeLang, 1, "");
-        try {
-            xMsgTopic topic = MessageUtils.buildTopic(ClaraConstants.DPE, dpe.getCanonicalName());
-            String data = MessageUtils.buildData(ClaraConstants.SET_FRONT_END,
-                                              frontEndHost, frontEndPort, frontEndLang);
-            base.send(dpe, MessageUtils.buildRequest(topic, data));
-        } catch (xMsgException e) {
-            throw new ClaraException("Could not set front-end of " + dpe, e);
-        }
+        // TODO implement this
     }
 
 
     private void pingDpe(RequestParser parser, Builder metadata)
             throws RequestException, ClaraException {
-        String dpeHost = parser.nextString();
-        int dpePort = parser.nextInteger();
-        String dpeLang = parser.nextString();
-        ClaraComponent dpe = dpe(dpeHost, dpePort, dpeLang, 1, "");
-        try {
-            xMsgTopic topic = MessageUtils.buildTopic(ClaraConstants.DPE, dpe.getCanonicalName());
-            base.send(dpe, MessageUtils.buildRequest(topic, ClaraConstants.PING_DPE));
-        } catch (xMsgException e) {
-            throw new ClaraException("Could not ping DPE " + dpe, e);
-        }
+        // TODO implement this
     }
 
 
     private void startContainer(RequestParser parser, Builder metadata)
             throws RequestException, ClaraException {
-        String dpeHost = parser.nextString();
-        int dpePort = parser.nextInteger();
-        String dpeLang = parser.nextString();
-        String containerName = parser.nextString();
-        int poolSize = parser.nextInteger();
-        String description = parser.nextString();
-
-        ClaraComponent cont = container(dpeHost, dpePort, dpeLang, containerName,
-                                        poolSize, description);
-        try {
-            base.deploy(cont);
-        } catch (TimeoutException | xMsgException | IOException e) {
-            throw new ClaraException("Could not start container " + cont, e);
-        }
+        // TODO implement this
     }
 
 
     private void stopContainer(RequestParser parser, Builder metadata)
             throws RequestException, ClaraException {
-        String dpeHost = parser.nextString();
-        int dpePort = parser.nextInteger();
-        String dpeLang = parser.nextString();
-        String containerName = parser.nextString();
-        ClaraComponent cont = container(dpeHost, dpePort, dpeLang, containerName, 1, "");
-        try {
-            base.exit(cont);
-        } catch (TimeoutException | xMsgException | IOException e) {
-            throw new ClaraException("Could not stop container " + cont, e);
-        }
+        // TODO implement this
     }
 
 
     private void startService(RequestParser parser, Builder metadata)
             throws RequestException, ClaraException {
-        String dpeHost = parser.nextString();
-        int dpePort = parser.nextInteger();
-        String dpeLang = parser.nextString();
-        String containerName = parser.nextString();
-        String engineName = parser.nextString();
-        String engineClass = parser.nextString();
-        int poolSize = parser.nextInteger();
-        String description = parser.nextString();
-        String initialState = parser.nextString();
-
-        ClaraComponent service = service(dpeHost, dpePort, dpeLang,
-                                         containerName, engineName, engineClass,
-                                         poolSize, description, initialState);
-        try {
-            base.deploy(service);
-        } catch (TimeoutException | xMsgException | IOException e) {
-            throw new ClaraException("Could not start service " + service, e);
-        }
+        // TODO implement this
     }
 
 
     private void stopService(RequestParser parser, Builder metadata)
             throws RequestException, ClaraException {
-        String dpeHost = parser.nextString();
-        int dpePort = parser.nextInteger();
-        String dpeLang = parser.nextString();
-        String containerName = parser.nextString();
-        String engineName = parser.nextString();
-        ClaraComponent service = service(dpeHost, dpePort, dpeLang, containerName, engineName);
-        try {
-            base.exit(service);
-        } catch (TimeoutException | xMsgException | IOException e) {
-            throw new ClaraException("Could not stop service " + service, e);
-        }
+        // TODO implement this
     }
 
 
