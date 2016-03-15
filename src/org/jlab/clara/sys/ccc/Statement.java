@@ -22,7 +22,6 @@
 
 package org.jlab.clara.sys.ccc;
 
-import org.jlab.clara.base.ClaraUtil;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.coda.xmsg.core.xMsgConstants;
@@ -155,8 +154,8 @@ public class Statement {
         StringTokenizer st = new StringTokenizer(statement, "+");
         while (st.hasMoreTokens()) {
             String el = st.nextToken();
-            el = ClaraUtil.removeFirst(el, "&");
-            el = ClaraUtil.removeFirst(el, "{");
+            el = CompositionParser.removeFirst(el, "&");
+            el = CompositionParser.removeFirst(el, "{");
             elementSet.add(el);
         }
 
@@ -177,7 +176,7 @@ public class Statement {
         } else {
             int pIndex = index - 1;
             if (pIndex >= 0) {
-                String element = ClaraUtil.getJSetElementAt(elementSet, pIndex);
+                String element = CompositionParser.getJSetElementAt(elementSet, pIndex);
                 // the case to fan out the output of this service
                 elementTokenizer(element, inputLinks);
             }
@@ -185,7 +184,7 @@ public class Statement {
             // define output links
             int nIndex = index + 1;
             if (elementSet.size() > nIndex) {
-                String element = ClaraUtil.getJSetElementAt(elementSet, nIndex);
+                String element = CompositionParser.getJSetElementAt(elementSet, nIndex);
                 // the case to fan out the output of this service
                 elementTokenizer(element, outputLinks);
             }

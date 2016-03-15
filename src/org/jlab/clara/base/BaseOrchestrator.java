@@ -32,6 +32,7 @@ import org.jlab.clara.base.ClaraSubscriptions.ServiceSubscriptionBuilder;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.util.CConstants;
+import org.jlab.clara.util.MessageUtils;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgSubscription;
@@ -47,6 +48,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.TimeoutException;
 
 
@@ -86,7 +88,7 @@ public class BaseOrchestrator {
      * @throws ClaraException if the orchestrator could not be created
      */
     public BaseOrchestrator(int subPoolSize) {
-        this(ClaraUtil.getUniqueName(),
+        this(getUniqueName(),
              new DpeName(ClaraUtil.localhost(), ClaraLang.JAVA),
              subPoolSize);
     }
@@ -100,9 +102,7 @@ public class BaseOrchestrator {
      * @throws ClaraException if the orchestrator could not be created
      */
     public BaseOrchestrator(DpeName frontEnd) {
-        this(ClaraUtil.getUniqueName(),
-             frontEnd,
-             xMsgConstants.DEFAULT_POOL_SIZE);
+        this(getUniqueName(), frontEnd, xMsgConstants.DEFAULT_POOL_SIZE);
     }
 
     /**
@@ -114,9 +114,7 @@ public class BaseOrchestrator {
      * @throws ClaraException if the orchestrator could not be created
      */
     public BaseOrchestrator(DpeName frontEnd, int subPoolSize) {
-        this(ClaraUtil.getUniqueName(),
-             frontEnd,
-             subPoolSize);
+        this(getUniqueName(), frontEnd, subPoolSize);
     }
 
     /**
@@ -204,12 +202,17 @@ public class BaseOrchestrator {
     public void setFrontEnd(ClaraComponent dpe, ClaraComponent frontEnd)
             throws IOException, xMsgException {
 
-        xMsgTopic topic = ClaraUtil.buildTopic(CConstants.DPE, base.getFrontEnd().getCanonicalName());
+        xMsgTopic topic = MessageUtils.buildTopic(CConstants.DPE,
+                                                  base.getFrontEnd().getCanonicalName());
 
-        String data = ClaraUtil.buildData(CConstants.SET_FRONT_END_REMOTE, dpe.getDpeHost(),
-                dpe.getDpePort(), dpe.getDpeLang(), frontEnd.getDpeHost(),
-                frontEnd.getDpePort(), frontEnd.getDpeLang());
-        base.send(base.getFrontEnd(), ClaraBase.createRequest(topic, data));
+        String data = MessageUtils.buildData(CConstants.SET_FRONT_END_REMOTE,
+                                             dpe.getDpeHost(),
+                                             dpe.getDpePort(),
+                                             dpe.getDpeLang(),
+                                             frontEnd.getDpeHost(),
+                                             frontEnd.getDpePort(),
+                                             frontEnd.getDpeLang());
+        base.send(base.getFrontEnd(), MessageUtils.buildRequest(topic, data));
     }
 
     /**
@@ -229,17 +232,17 @@ public class BaseOrchestrator {
     public void deployDpe(ClaraComponent comp, String regHost, int regPort)
             throws ClaraException, xMsgException, IOException, TimeoutException {
         if (comp.isDpe()) {
-            xMsgTopic topic = ClaraUtil.buildTopic(CConstants.DPE, base.getFrontEnd().getCanonicalName());
+            xMsgTopic topic = MessageUtils.buildTopic(CConstants.DPE,
+                                                      base.getFrontEnd().getCanonicalName());
 
-
-            String data = ClaraUtil.buildData(CConstants.START_DPE,
+            String data = MessageUtils.buildData(CConstants.START_DPE,
                     comp.getDpeHost(),
                     comp.getDpePort(),
                     comp.getDpeLang(),
                     comp.getSubscriptionPoolSize(),
                     regHost, regPort,
                     comp.getDescription());
-            base.send(base.getFrontEnd(), ClaraBase.createRequest(topic, data));
+            base.send(base.getFrontEnd(), MessageUtils.buildRequest(topic, data));
         }
     }
 
@@ -252,10 +255,11 @@ public class BaseOrchestrator {
      */
     public void exitFrontEnd()
             throws ClaraException, xMsgException, IOException, TimeoutException {
-        xMsgTopic topic = ClaraUtil.buildTopic(CConstants.DPE, base.getFrontEnd().getCanonicalName());
+        xMsgTopic topic = MessageUtils.buildTopic(CConstants.DPE,
+                                                  base.getFrontEnd().getCanonicalName());
 
         String data = CConstants.STOP_DPE;
-        base.send(base.getFrontEnd(), ClaraBase.createRequest(topic, data));
+        base.send(base.getFrontEnd(), MessageUtils.buildRequest(topic, data));
     }
 
     public DeployContainerRequest deploy(ContainerName container)
@@ -458,5 +462,10 @@ public class BaseOrchestrator {
      */
     public String getName() {
         return base.getName();
+    }
+
+
+    private static String getUniqueName() {
+        return UUID.randomUUID().toString();
     }
 }

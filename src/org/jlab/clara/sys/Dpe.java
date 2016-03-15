@@ -29,8 +29,10 @@ import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.sys.DpeOptionsParser.DpeOptionsException;
 import org.jlab.clara.sys.RequestParser.RequestException;
 import org.jlab.clara.util.CConstants;
+import org.jlab.clara.util.MessageUtils;
 import org.jlab.clara.util.report.DpeReport;
 import org.jlab.clara.util.report.JsonReportBuilder;
+import org.jlab.clara.util.report.SystemStats;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgSubscription;
@@ -43,9 +45,6 @@ import org.jlab.coda.xmsg.net.xMsgProxyAddress;
 import org.jlab.coda.xmsg.xsys.xMsgProxy;
 import org.zeromq.ZContext;
 
-import javax.management.InstanceNotFoundException;
-import javax.management.MalformedObjectNameException;
-import javax.management.ReflectionException;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -237,8 +236,8 @@ public class Dpe extends ClaraBase {
         try {
             xMsgProxyAddress feHost = getFrontEnd().getProxyAddress();
 
-            xMsgTopic reportTopic = ClaraUtil.buildTopic(CConstants.DPE_REPORT, feHost.host());
-            xMsgTopic aliveTopic = ClaraUtil.buildTopic(CConstants.DPE_ALIVE, feHost.host());
+            xMsgTopic reportTopic = MessageUtils.buildTopic(CConstants.DPE_REPORT, feHost.host());
+            xMsgTopic aliveTopic = MessageUtils.buildTopic(CConstants.DPE_ALIVE, feHost.host());
 
             xMsgConnection con = createConnection(feHost);
             xMsgUtil.sleep(100);
@@ -250,23 +249,22 @@ public class Dpe extends ClaraBase {
 
             while (isReporting.get()) {
 
-                xMsgMessage msg = createRequest(aliveTopic, data);
+                xMsgMessage msg = MessageUtils.buildRequest(aliveTopic, data);
                 send(con, msg);
 
-                myReport.setMemoryUsage(ClaraUtil.getMemoryUsage());
-                myReport.setCpuUsage(ClaraUtil.getCpuUsage());
+                myReport.setMemoryUsage(SystemStats.getMemoryUsage());
+                myReport.setCpuUsage(SystemStats.getCpuUsage());
 
                 String jsonData = myReportBuilder.generateReport(myReport);
 
-                xMsgMessage reportMsg = createRequest(reportTopic, jsonData);
+                xMsgMessage reportMsg = MessageUtils.buildRequest(reportTopic, jsonData);
                 send(con, reportMsg);
 
                 xMsgUtil.sleep(reportWait);
             }
 
             destroyConnection(con);
-        } catch (xMsgException | MalformedObjectNameException |
-                ReflectionException | InstanceNotFoundException e) {
+        } catch (xMsgException | ClaraException e) {
             e.printStackTrace();
         }
 
@@ -336,9 +334,9 @@ public class Dpe extends ClaraBase {
             throws RequestException, ClaraException {
         String containerName = parser.nextString();
         String engineName = parser.nextString();
-        String serviceName = ClaraUtil.buildTopic(getMe().getCanonicalName(),
-                                                           containerName,
-                                                           engineName).toString();
+        String serviceName = MessageUtils.buildTopic(getMe().getCanonicalName(),
+                                                     containerName,
+                                                     engineName).toString();
         if (myContainers.containsKey(containerName)) {
             try {
                 myContainers.get(containerName).removeService(serviceName);
@@ -469,7 +467,7 @@ public class Dpe extends ClaraBase {
         private void sendResponse(xMsgMessage msg, xMsgMeta.Status status, String data) {
             try {
                 xMsgTopic topic = xMsgTopic.wrap(msg.getMetaData().getReplyTo());
-                xMsgMessage repMsg = createRequest(topic, data);
+                xMsgMessage repMsg = MessageUtils.buildRequest(topic, data);
                 repMsg.getMetaData().setStatus(status);
                 send(repMsg);
             } catch (IOException | xMsgException e) {

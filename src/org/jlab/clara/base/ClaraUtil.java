@@ -25,45 +25,22 @@ package org.jlab.clara.base;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.engine.EngineStatus;
-import org.jlab.clara.util.xml.XMLContainer;
-import org.jlab.clara.util.xml.XMLTagValue;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.excp.xMsgAddressException;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-import javax.management.Attribute;
-import javax.management.AttributeList;
-import javax.management.InstanceNotFoundException;
-import javax.management.ObjectName;
-import javax.management.ReflectionException;
-import javax.management.MBeanServer;
-import javax.management.MalformedObjectNameException;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.lang.management.ManagementFactory;
 import java.net.SocketException;
 import java.text.Format;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
-import java.util.StringTokenizer;
-import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -319,25 +296,6 @@ public final class ClaraUtil {
         }
     }
 
-    public static String removeFirst(String s) {
-        if (s == null || s.length() == 0) {
-            return s;
-        }
-        return s.substring(1, s.length());
-    }
-
-    public static String removeFirst(String input, String firstCharacter) {
-        input = input.startsWith(firstCharacter) ? input.substring(1) : input;
-        return input;
-    }
-
-    public static String removeLast(String s) {
-        if (s == null || s.length() == 0) {
-            return s;
-        }
-        return s.substring(0, s.length() - 1);
-    }
-
     /**
      * Gets the current time and returns string representation of it.
      * @return string representing the current time.
@@ -373,123 +331,11 @@ public final class ClaraUtil {
         return new GregorianCalendar().getTimeInMillis();
     }
 
-    public static Document getXMLDocument(String fileName) throws ParserConfigurationException,
-            IOException,
-            SAXException {
-
-        Document doc;
-
-        File fXmlFile = new File(fileName);
-        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-
-        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-        doc = dBuilder.parse(fXmlFile);
-
-        doc.getDocumentElement().normalize();
-
-        return doc;
-
-    }
-
-    // CHECKSTYLE.OFF: JavadocStyle
-    /**
-     * Parser for the XML having a structure:
-     * <pre>
-     * {@code
-     * <containerTag>
-     *   <tag>value</tag>
-     *   .....
-     *   <tag>value</tag>
-     * </containerTag>
-     * ....
-     * <containerTag>
-     *   <tag>value</tag>
-     *   .....
-     *   <tag>value</tag>
-     * </containerTag>
-     * }
-     * </pre>.
-     *
-     * @param doc          XML document object
-     * @param containerTag first container tag
-     * @param tags         tag names
-     * @return list of list of tag value pairs
-     */
-    // CHECKSTYLE.ON: JavadocStyle
-    public static List<XMLContainer> parseXML(Document doc,
-                                              String containerTag,
-                                              String[] tags) {
-        List<XMLContainer> result = new ArrayList<>();
-
-        NodeList nList = doc.getElementsByTagName(containerTag);
-
-        for (int temp = 0; temp < nList.getLength(); temp++) {
-            Node nNode = nList.item(temp);
-
-            if (nNode.getNodeType() == Node.ELEMENT_NODE) {
-                XMLContainer container = new XMLContainer();
-                Element eElement = (Element) nNode;
-                for (String tag : tags) {
-                    NodeList tElements = eElement.getElementsByTagName(tag);
-                    if (tElements.getLength() > 0) {
-                        String value = eElement.getElementsByTagName(tag).item(0).getTextContent();
-                        XMLTagValue tv = new XMLTagValue(tag, value);
-                        container.addTagValue(tv);
-                    }
-                }
-                result.add(container);
-            }
-        }
-        return result;
-    }
-
     public static void sleep(int s) {
         try {
             Thread.sleep(s);
         } catch (InterruptedException e) {
             e.printStackTrace();
-        }
-    }
-
-    public static String getJSetElementAt(List<String> set, int index) {
-        int ind = -1;
-        for (String s : set) {
-            ind++;
-            if (index == ind) {
-                return s;
-            }
-        }
-        return null;
-    }
-
-    public static  xMsgTopic buildTopic(Object... args) {
-        StringBuilder topic  = new StringBuilder();
-        topic.append(args[0]);
-        for (int i = 1; i < args.length; i++) {
-            topic.append(xMsgConstants.TOPIC_SEP);
-            topic.append(args[i]);
-        }
-        return xMsgTopic.wrap(topic.toString());
-    }
-
-
-    public static String buildData(Object... args) {
-        StringBuilder topic  = new StringBuilder();
-        topic.append(args[0]);
-        for (int i = 1; i < args.length; i++) {
-            topic.append(xMsgConstants.DATA_SEP);
-            topic.append(args[i]);
-        }
-        return topic.toString();
-    }
-
-    public static String getUniqueName() {
-        return UUID.randomUUID().toString();
-    }
-
-    public static void validateTimeout(int timeout) {
-        if (timeout <= 0) {
-            throw new IllegalArgumentException("Invalid timeout: " + timeout);
         }
     }
 
@@ -503,44 +349,6 @@ public final class ClaraUtil {
                 return xMsgConstants.ERROR;
             default:
                 throw new IllegalStateException("Clara-Error: Unknown status " + status);
-        }
-    }
-
-    public static double getCpuUsage()
-            throws MalformedObjectNameException, ReflectionException, InstanceNotFoundException {
-
-        MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
-        ObjectName name = ObjectName.getInstance("java.lang:type=OperatingSystem");
-        AttributeList list = mbs.getAttributes(name, new String[]{"ProcessCpuLoad"});
-
-        if (list.isEmpty()) {
-            return Double.NaN;
-        }
-
-        Attribute att = (Attribute) list.get(0);
-        Double value = (Double) att.getValue();
-
-        if (value == -1.0) {
-            return Double.NaN;
-        }
-
-        // returns a percentage value with 1 decimal point precision
-        return ((int) (value * 1000) / 10.0);
-    }
-
-    public static long getMemoryUsage() {
-        return Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
-    }
-
-    public static String getFirstService(String composition) {
-        StringTokenizer st = new StringTokenizer(composition, ";");
-        String a = st.nextToken();
-
-        if (a.contains(",")) {
-            StringTokenizer stk = new StringTokenizer(a, ",");
-            return stk.nextToken();
-        } else {
-            return a;
         }
     }
 }

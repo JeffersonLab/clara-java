@@ -26,6 +26,7 @@ import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.engine.EngineStatus;
 import org.jlab.clara.util.CConstants;
+import org.jlab.clara.util.MessageUtils;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgSubscription;
@@ -233,7 +234,7 @@ public class ClaraSubscriptions {
         }
 
         private xMsgTopic getTopic(String prefix, ClaraName service) {
-            return ClaraUtil.buildTopic(prefix, service.canonicalName());
+            return MessageUtils.buildTopic(prefix, service.canonicalName());
         }
     }
 
@@ -257,7 +258,7 @@ public class ClaraSubscriptions {
          */
         public JsonReportSubscription aliveDpes() {
             return new JsonReportSubscription(base, subscriptions, frontEnd,
-                                              ClaraUtil.buildTopic(CConstants.DPE_ALIVE));
+                                              MessageUtils.buildTopic(CConstants.DPE_ALIVE));
         }
     }
 }

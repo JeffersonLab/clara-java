@@ -36,6 +36,7 @@ import org.jlab.clara.base.ServiceName;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.EngineDataType;
+import org.jlab.clara.util.xml.ApplicationParser;
 import org.jlab.clara.util.xml.XMLContainer;
 import org.jlab.clara.util.xml.XMLTagValue;
 import org.jlab.coda.xmsg.core.xMsgUtil;
@@ -128,7 +129,7 @@ public class OrInteractive extends BaseOrchestrator {
 
     public void read(String appFile, boolean bluster) throws Exception {
         // read xml file and get deployment details
-        Document doc = ClaraUtil.getXMLDocument(appFile);
+        Document doc = ApplicationParser.getXMLDocument(appFile);
 
         for (ServiceInfo s : parseServices(doc)) {
             deployContainer(s.container);
@@ -196,7 +197,7 @@ public class OrInteractive extends BaseOrchestrator {
     private List<ServiceInfo> parseServices(Document doc) {
         List<ServiceInfo> services = new ArrayList<>();
         String[] serviceTags = { "dpe", "container", "engine", "pool" };
-        List<XMLContainer> nodes = ClaraUtil.parseXML(doc, "service", serviceTags);
+        List<XMLContainer> nodes = ApplicationParser.parseXML(doc, "service", serviceTags);
 
         for (XMLContainer s : nodes) {
 
@@ -238,8 +239,8 @@ public class OrInteractive extends BaseOrchestrator {
 
     private List<AppInfo> parseApplications(Document doc) {
         List<AppInfo> apps = new ArrayList<>();
-        String[] applicationTags = { "composition", "data" };
-        List<XMLContainer> application = ClaraUtil.parseXML(doc, "application", applicationTags);
+        String[] appTags = { "composition", "data" };
+        List<XMLContainer> application = ApplicationParser.parseXML(doc, "application", appTags);
 
         for (XMLContainer a : application) {
             String comp = null;

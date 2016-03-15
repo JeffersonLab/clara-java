@@ -24,10 +24,10 @@ package org.jlab.clara.sys;
 
 import org.jlab.clara.base.ClaraBase;
 import org.jlab.clara.base.ClaraComponent;
-import org.jlab.clara.base.ClaraUtil;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.sys.RequestParser.RequestException;
 import org.jlab.clara.util.CConstants;
+import org.jlab.clara.util.MessageUtils;
 import org.jlab.clara.util.shell.ClaraFork;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgMessage;
@@ -140,10 +140,10 @@ class FrontEnd {
 
         ClaraComponent dpe = dpe(dpeHost, dpePort, dpeLang, 1, "");
         try {
-            xMsgTopic topic = ClaraUtil.buildTopic(CConstants.DPE, dpe.getCanonicalName());
-            String data = ClaraUtil.buildData(CConstants.SET_FRONT_END,
+            xMsgTopic topic = MessageUtils.buildTopic(CConstants.DPE, dpe.getCanonicalName());
+            String data = MessageUtils.buildData(CConstants.SET_FRONT_END,
                                               frontEndHost, frontEndPort, frontEndLang);
-            base.send(dpe, ClaraBase.createRequest(topic, data));
+            base.send(dpe, MessageUtils.buildRequest(topic, data));
         } catch (xMsgException e) {
             throw new ClaraException("Could not set front-end of " + dpe, e);
         }
@@ -157,8 +157,8 @@ class FrontEnd {
         String dpeLang = parser.nextString();
         ClaraComponent dpe = dpe(dpeHost, dpePort, dpeLang, 1, "");
         try {
-            xMsgTopic topic = ClaraUtil.buildTopic(CConstants.DPE, dpe.getCanonicalName());
-            base.send(dpe, ClaraBase.createRequest(topic, CConstants.PING_DPE));
+            xMsgTopic topic = MessageUtils.buildTopic(CConstants.DPE, dpe.getCanonicalName());
+            base.send(dpe, MessageUtils.buildRequest(topic, CConstants.PING_DPE));
         } catch (xMsgException e) {
             throw new ClaraException("Could not ping DPE " + dpe, e);
         }
