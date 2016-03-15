@@ -91,7 +91,7 @@ class Service extends ClaraBase {
         // Dynamic loading of the Clara engine class
         // Note: using system class loader
         try {
-            CClassLoader cl = new CClassLoader(ClassLoader.getSystemClassLoader());
+            EngineLoader cl = new EngineLoader(ClassLoader.getSystemClassLoader());
             userEngine = cl.load(comp.getEngineClass());
             validateEngine(userEngine);
         } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
