@@ -31,7 +31,6 @@ import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.Engine;
 import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.sys.RequestParser.RequestException;
-import org.jlab.clara.util.CClassLoader;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgSubscription;

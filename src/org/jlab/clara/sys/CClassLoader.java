@@ -20,7 +20,7 @@
  *   Department of Experimental Nuclear Physics, Jefferson Lab.
  */
 
-package org.jlab.clara.util;
+package org.jlab.clara.sys;
 
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.Engine;
@@ -32,11 +32,11 @@ import org.jlab.clara.engine.Engine;
  * @version 4.x
  * @since 2/9/15
  */
-public class CClassLoader {
+class CClassLoader {
 
     private ClassLoader classLoader;
 
-    public CClassLoader(ClassLoader cl) {
+    CClassLoader(ClassLoader cl) {
         classLoader = cl;
     }
 
@@ -52,5 +52,4 @@ public class CClassLoader {
             throw new ClaraException("not a Clara service engine");
         }
     }
-
 }
