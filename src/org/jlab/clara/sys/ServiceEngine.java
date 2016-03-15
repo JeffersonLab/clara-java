@@ -31,7 +31,7 @@ import org.jlab.clara.engine.Engine;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.engine.EngineStatus;
-import org.jlab.clara.sys.ccc.CCompiler;
+import org.jlab.clara.sys.ccc.CompositionCompiler;
 import org.jlab.clara.sys.ccc.ServiceState;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
@@ -62,7 +62,7 @@ class ServiceEngine extends ClaraBase {
     // Already recorded (previous) composition
     private String prevComposition = xMsgConstants.UNDEFINED;
 
-    private CCompiler compiler;
+    private CompositionCompiler compiler;
 
     // The last execution time
     private long executionTime;
@@ -86,7 +86,7 @@ class ServiceEngine extends ClaraBase {
         releaseConnection(getConnection());
 
         // create an object of the composition parser
-        compiler = new CCompiler(comp.getCanonicalName());
+        compiler = new CompositionCompiler(comp.getCanonicalName());
     }
 
     @Override

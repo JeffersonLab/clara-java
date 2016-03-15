@@ -58,7 +58,7 @@ import java.util.regex.PatternSyntaxException;
  * @version 4.x
  * @since 5/29/15
  */
-public class CCompiler {
+public class CompositionCompiler {
 
     /**
      * IP address regex.
@@ -136,7 +136,7 @@ public class CCompiler {
      *
      * @param service the name of the service relative to which to compile.
      */
-    public CCompiler(String service){
+    public CompositionCompiler(String service){
         myServiceName = service;
     }
 
@@ -144,7 +144,7 @@ public class CCompiler {
         // composition description file
         String df = "/Users/gurjyan/Devel/Clara/java/Clara-java-v4.3/src/org/jlab/clara/examples/scratch/example1.cmp";
 
-        CCompiler compiler = new CCompiler("10.10.10.1_java:C:S3");
+        CompositionCompiler compiler = new CompositionCompiler("10.10.10.1_java:C:S3");
 
         try {
             String t = new String(Files.readAllBytes(Paths.get(df)), StandardCharsets.UTF_8);

@@ -123,7 +123,7 @@ public class Condition {
 
         StringTokenizer t0, t1;
         if (logicOperator == null) {
-            Pattern p = Pattern.compile(CCompiler.sCond);
+            Pattern p = Pattern.compile(CompositionCompiler.sCond);
             Matcher m = p.matcher(cs);
             if (m.matches()) {
                 if (cs.contains("!=")) {
@@ -156,7 +156,7 @@ public class Condition {
                 while (t0.hasMoreTokens()) {
                     String ac = t0.nextToken();
 
-                    Pattern p = Pattern.compile(CCompiler.sCond);
+                    Pattern p = Pattern.compile(CompositionCompiler.sCond);
                     Matcher m = p.matcher(ac);
                     if (m.matches()) {
 
@@ -188,7 +188,7 @@ public class Condition {
                 while (t0.hasMoreTokens()) {
                     String ac = t0.nextToken();
 
-                    Pattern p = Pattern.compile(CCompiler.sCond);
+                    Pattern p = Pattern.compile(CompositionCompiler.sCond);
                     Matcher m = p.matcher(ac);
                     if (m.matches()) {
 
