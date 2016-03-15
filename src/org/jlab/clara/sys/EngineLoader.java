@@ -32,11 +32,11 @@ import org.jlab.clara.engine.Engine;
  * @version 4.x
  * @since 2/9/15
  */
-class CClassLoader {
+class EngineLoader {
 
     private ClassLoader classLoader;
 
-    CClassLoader(ClassLoader cl) {
+    EngineLoader(ClassLoader cl) {
         classLoader = cl;
     }
 

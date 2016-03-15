@@ -24,7 +24,7 @@ package org.jlab.clara.base.core;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.EngineDataType;
-import org.jlab.clara.util.report.CReportTypes;
+import org.jlab.clara.util.report.ReportType;
 import org.jlab.coda.xmsg.core.xMsg;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgMessage;
@@ -465,13 +465,13 @@ public abstract class ClaraBase extends xMsg {
      * Sends a message to a Clara component asking to report after processing events = eventCount.
      *
      * @param component component Clara actor as a {@link org.jlab.clara.base.core.ClaraComponent} object
-     * @param report report type define as a {@link org.jlab.clara.util.report.CReportTypes} object
+     * @param report report type define as a {@link org.jlab.clara.util.report.ReportType} object
      * @param eventCount number of events after which component
      *                   reports/broadcasts required type of a report
      * @throws IOException
      * @throws xMsgException
      */
-    public void startReporting(ClaraComponent component, CReportTypes report, int eventCount)
+    public void startReporting(ClaraComponent component, ReportType report, int eventCount)
             throws IOException, xMsgException {
 
         if (eventCount < 0) {
@@ -487,11 +487,11 @@ public abstract class ClaraBase extends xMsg {
      * Sends a message to a Clara component to stop reporting a specific type of report type.
      *
      * @param component component Clara actor as a {@link org.jlab.clara.base.core.ClaraComponent} object
-     * @param report report type define as a {@link org.jlab.clara.util.report.CReportTypes} object
+     * @param report report type define as a {@link org.jlab.clara.util.report.ReportType} object
      * @throws IOException
      * @throws xMsgException
      */
-    public void stopReporting(ClaraComponent component, CReportTypes report)
+    public void stopReporting(ClaraComponent component, ReportType report)
             throws IOException, xMsgException {
         startReporting(component, report, 0);
     }
@@ -511,7 +511,7 @@ public abstract class ClaraBase extends xMsg {
             throws IOException, xMsgException, TimeoutException {
 
         if (component.isDpe()) {
-            String data = MessageUtils.buildData(CReportTypes.INFO.getValue());
+            String data = MessageUtils.buildData(ReportType.INFO.getValue());
             xMsgTopic topic = component.getTopic();
             xMsgMessage msg = MessageUtils.buildRequest(topic, data);
             return syncSend(component, msg, timeout);
@@ -643,9 +643,9 @@ public abstract class ClaraBase extends xMsg {
             throw new IllegalArgumentException("Clara-Error: illegal component to deploy");
         }
         String data;
-        xMsgTopic topic = MessageUtils.buildTopic(CConstants.DPE, component.getDpeCanonicalName());
+        xMsgTopic topic = MessageUtils.buildTopic(ClaraConstants.DPE, component.getDpeCanonicalName());
         if (component.isContainer()) {
-            data = MessageUtils.buildData(CConstants.START_CONTAINER,
+            data = MessageUtils.buildData(ClaraConstants.START_CONTAINER,
                         component.getDpeHost(),
                         component.getDpePort(),
                         component.getDpeLang(),
@@ -653,7 +653,7 @@ public abstract class ClaraBase extends xMsg {
                         component.getSubscriptionPoolSize(),
                         component.getDescription());
         } else if (component.isService()) {
-            data = MessageUtils.buildData(CConstants.START_SERVICE,
+            data = MessageUtils.buildData(ClaraConstants.START_SERVICE,
                     component.getDpeHost(),
                     component.getDpePort(),
                     component.getDpeLang(),
@@ -687,15 +687,15 @@ public abstract class ClaraBase extends xMsg {
             throw new IllegalArgumentException("Cannot deploy nor exit an orchestrator.");
         }
         String data;
-        xMsgTopic topic = MessageUtils.buildTopic(CConstants.DPE, component.getDpeCanonicalName());
+        xMsgTopic topic = MessageUtils.buildTopic(ClaraConstants.DPE, component.getDpeCanonicalName());
         if (component.isDpe()) {
-            data = CConstants.STOP_DPE;
+            data = ClaraConstants.STOP_DPE;
 
         } else if (component.isContainer()) {
-            data = MessageUtils.buildData(CConstants.STOP_CONTAINER,
+            data = MessageUtils.buildData(ClaraConstants.STOP_CONTAINER,
                     component.getContainerName());
         } else if (component.isService()) {
-            data = MessageUtils.buildData(CConstants.STOP_SERVICE,
+            data = MessageUtils.buildData(ClaraConstants.STOP_SERVICE,
                     component.getContainerName(),
                     component.getEngineName());
         } else {

@@ -23,7 +23,7 @@
 package org.jlab.clara.sys;
 
 import org.jlab.clara.base.ClaraUtil;
-import org.jlab.clara.base.core.CConstants;
+import org.jlab.clara.base.core.ClaraConstants;
 import org.jlab.clara.base.core.ClaraBase;
 import org.jlab.clara.base.core.ClaraComponent;
 import org.jlab.clara.base.core.MessageUtils;
@@ -58,7 +58,7 @@ class Container extends ClaraBase {
         releaseConnection(getConnection());
 
         // Subscribe messages published to this container
-        xMsgTopic topic = MessageUtils.buildTopic(CConstants.CONTAINER, comp.getCanonicalName());
+        xMsgTopic topic = MessageUtils.buildTopic(ClaraConstants.CONTAINER, comp.getCanonicalName());
 
         // Register this subscriber
         register(topic, comp.getDescription());
@@ -77,7 +77,7 @@ class Container extends ClaraBase {
     public void end() {
         try {
             // broadcast to the local proxy
-            String data = MessageUtils.buildData(CConstants.CONTAINER_DOWN, getMe().getContainerName());
+            String data = MessageUtils.buildData(ClaraConstants.CONTAINER_DOWN, getMe().getContainerName());
             send(getFrontEnd(), data);
 
             removeRegistration(getMe().getTopic());

@@ -27,7 +27,7 @@ import org.junit.Test;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-import org.jlab.clara.base.core.CConstants;
+import org.jlab.clara.base.core.ClaraConstants;
 
 public class ClaraFiltersTest {
 
@@ -60,7 +60,7 @@ public class ClaraFiltersTest {
 
     @Test
     public void dpesByLanguage() throws Exception {
-        ClaraFilter f = ClaraFilters.dpesByLanguage(CConstants.JAVA_LANG);
+        ClaraFilter f = ClaraFilters.dpesByLanguage(ClaraConstants.JAVA_LANG);
 
         assertThat(f.filter(), is("lang=java"));
         assertThat(f.type(),   is("dpe"));
@@ -87,7 +87,7 @@ public class ClaraFiltersTest {
 
     @Test
     public void containersByLanguage() throws Exception {
-        ClaraFilter f = ClaraFilters.containersByLanguage(CConstants.JAVA_LANG);
+        ClaraFilter f = ClaraFilters.containersByLanguage(ClaraConstants.JAVA_LANG);
 
         assertThat(f.filter(), is("lang=java"));
         assertThat(f.type(),   is("container"));
@@ -132,7 +132,7 @@ public class ClaraFiltersTest {
 
     @Test
     public void servicesByLanguage() throws Exception {
-        ClaraFilter f = ClaraFilters.servicesByLanguage(CConstants.CPP_LANG);
+        ClaraFilter f = ClaraFilters.servicesByLanguage(ClaraConstants.CPP_LANG);
 
         assertThat(f.filter(), is("lang=cpp"));
         assertThat(f.type(),   is("service"));

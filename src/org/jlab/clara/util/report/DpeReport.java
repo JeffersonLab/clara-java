@@ -29,7 +29,7 @@ import java.util.Map;
  * @author gurjyan
  * @version 4.x
  */
-public class DpeReport extends CReportBase {
+public class DpeReport extends BaseReport {
     private String host;
     private int coreCount;
     private long memorySize;

@@ -22,7 +22,7 @@
 
 package org.jlab.clara.claraol.parser;
 
-import org.jlab.clara.base.core.CConstants;
+import org.jlab.clara.base.core.ClaraConstants;
 
 /**
  * Utility methods used in ClaraOL parser
@@ -34,7 +34,7 @@ import org.jlab.clara.base.core.CConstants;
  */
 public class ColPUtil {
 
-    private static String claraOlDb = CConstants.UNDEFINED;
+    private static String claraOlDb = ClaraConstants.UNDEFINED;
 
     /**
      * Replaces the substring of a given string with a new string
@@ -60,7 +60,7 @@ public class ColPUtil {
 
 
     public static String getClaraOlHome() {
-        if (claraOlDb.equals(CConstants.UNDEFINED)) {
+        if (claraOlDb.equals(ClaraConstants.UNDEFINED)) {
             claraOlDb = System.getenv("CLARA_OL_HOME");
         }
         return claraOlDb;

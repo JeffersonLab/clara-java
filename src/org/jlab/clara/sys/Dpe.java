@@ -23,7 +23,7 @@
 package org.jlab.clara.sys;
 
 import org.jlab.clara.base.ClaraUtil;
-import org.jlab.clara.base.core.CConstants;
+import org.jlab.clara.base.core.ClaraConstants;
 import org.jlab.clara.base.core.ClaraBase;
 import org.jlab.clara.base.core.ClaraComponent;
 import org.jlab.clara.base.core.MessageUtils;
@@ -97,18 +97,18 @@ public class Dpe extends ClaraBase {
             throws xMsgException, ClaraException {
         super(ClaraComponent.dpe(proxyAddress.host(),
                                  proxyAddress.port(),
-                                 CConstants.JAVA_LANG,
+                                 ClaraConstants.JAVA_LANG,
                                  poolSize,
                                  description),
               ClaraComponent.dpe(frontEndAddress.host(),
                       frontEndAddress.port(),
-                      CConstants.JAVA_LANG,
+                      ClaraConstants.JAVA_LANG,
                       1, "Front End"));
         // Create a socket connections to the local dpe proxy
         releaseConnection(getConnection());
 
         // Subscribe and register
-        xMsgTopic topic = xMsgTopic.wrap(CConstants.DPE + ":" + getMe().getCanonicalName());
+        xMsgTopic topic = xMsgTopic.wrap(ClaraConstants.DPE + ":" + getMe().getCanonicalName());
         subscriptionHandler = listen(topic, new DpeCallBack());
         register(topic, description);
 
@@ -236,8 +236,8 @@ public class Dpe extends ClaraBase {
         try {
             xMsgProxyAddress feHost = getFrontEnd().getProxyAddress();
 
-            xMsgTopic reportTopic = MessageUtils.buildTopic(CConstants.DPE_REPORT, feHost.host());
-            xMsgTopic aliveTopic = MessageUtils.buildTopic(CConstants.DPE_ALIVE, feHost.host());
+            xMsgTopic reportTopic = MessageUtils.buildTopic(ClaraConstants.DPE_REPORT, feHost.host());
+            xMsgTopic aliveTopic = MessageUtils.buildTopic(ClaraConstants.DPE_ALIVE, feHost.host());
 
             xMsgConnection con = createConnection(feHost);
             xMsgUtil.sleep(100);
@@ -281,7 +281,7 @@ public class Dpe extends ClaraBase {
         }
 
         ClaraComponent contComp = ClaraComponent.container(getMe().getDpeHost(),
-                getMe().getDpePort(), CConstants.JAVA_LANG, containerName, poolSize, description);
+                getMe().getDpePort(), ClaraConstants.JAVA_LANG, containerName, poolSize, description);
 
         if (myContainers.containsKey(containerName)) {
             String msg = "%s: Container %s already exists. No new container is created%n";
@@ -366,7 +366,7 @@ public class Dpe extends ClaraBase {
         String frontEndLang = parser.nextString();
 
         ClaraComponent frontEnd = ClaraComponent.dpe(frontEndHost, frontEndPort, frontEndLang,
-                                                     1, CConstants.UNDEFINED);
+                                                     1, ClaraConstants.UNDEFINED);
         setFrontEnd(frontEnd);
         for (Container cont : myContainers.values()) {
             cont.setFrontEnd(frontEnd);
@@ -420,31 +420,31 @@ public class Dpe extends ClaraBase {
                 String cmd = parser.nextString();
                 switch (cmd) {
 
-                    case CConstants.STOP_DPE:
+                    case ClaraConstants.STOP_DPE:
                         end();
                         break;
 
-                    case CConstants.SET_FRONT_END:
+                    case ClaraConstants.SET_FRONT_END:
                         setFrontEnd(parser);
                         break;
 
-                    case CConstants.PING_DPE:
+                    case ClaraConstants.PING_DPE:
                         report();
                         break;
 
-                    case CConstants.START_CONTAINER:
+                    case ClaraConstants.START_CONTAINER:
                         startContainer(parser);
                         break;
 
-                    case CConstants.STOP_CONTAINER:
+                    case ClaraConstants.STOP_CONTAINER:
                         stopContainer(parser);
                         break;
 
-                    case CConstants.START_SERVICE:
+                    case ClaraConstants.START_SERVICE:
                         startService(parser);
                         break;
 
-                    case CConstants.STOP_SERVICE:
+                    case ClaraConstants.STOP_SERVICE:
                         stopService(parser);
                         break;
 

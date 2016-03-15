@@ -23,7 +23,7 @@
 package org.jlab.clara.examples.engines;
 
 import org.jlab.clara.base.ClaraUtil;
-import org.jlab.clara.base.core.CConstants;
+import org.jlab.clara.base.core.ClaraConstants;
 import org.jlab.clara.engine.Engine;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.EngineDataType;
@@ -49,7 +49,7 @@ public class E3 implements Engine {
             t1 = System.currentTimeMillis();
         }
         nr = nr + 1;
-        if (nr >= CConstants.BENCHMARK) {
+        if (nr >= ClaraConstants.BENCHMARK) {
             t2 = System.currentTimeMillis();
             long dt = t2 - t1;
             double pt = (double) dt / (double) nr;

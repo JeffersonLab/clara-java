@@ -26,7 +26,7 @@ package org.jlab.clara.util.report;
  * @author gurjyan
  * @version 4.x
  */
-public class CReportBase {
+public class BaseReport {
     private String name;
     private String lang;
     private String author;
@@ -35,7 +35,7 @@ public class CReportBase {
     private String snapshotTime;
     private int requestCount;
 
-    public CReportBase(String name) {
+    public BaseReport(String name) {
         this.name = name;
     }
 

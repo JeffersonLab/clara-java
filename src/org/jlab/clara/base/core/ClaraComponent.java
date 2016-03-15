@@ -46,7 +46,7 @@ public final class ClaraComponent {
     private String dpeCanonicalName;
     private String containerName;
     private String engineName;
-    private String engineClass = CConstants.UNDEFINED;
+    private String engineClass = ClaraConstants.UNDEFINED;
 
     private String canonicalName;
     private String description;
@@ -80,10 +80,10 @@ public final class ClaraComponent {
             topic = xMsgTopic.build(dpeCanonicalName, containerName, engineName);
             canonicalName = topic.toString();
         } else if (container != null && !container.equalsIgnoreCase(xMsgConstants.ANY)) {
-            topic = xMsgTopic.build(CConstants.CONTAINER, dpeCanonicalName, containerName);
+            topic = xMsgTopic.build(ClaraConstants.CONTAINER, dpeCanonicalName, containerName);
             canonicalName = xMsgTopic.build(dpeCanonicalName, containerName).toString();
         } else {
-            topic = xMsgTopic.build(CConstants.DPE, dpeCanonicalName);
+            topic = xMsgTopic.build(ClaraConstants.DPE, dpeCanonicalName);
             canonicalName = xMsgTopic.build(dpeCanonicalName).toString();
         }
         this.description = description;
@@ -114,10 +114,10 @@ public final class ClaraComponent {
                 dpePort,
                 xMsgTopic.ANY,
                 xMsgTopic.ANY,
-                CConstants.UNDEFINED,
+                ClaraConstants.UNDEFINED,
                 subscriptionPoolSize,
                 description,
-                CConstants.UNDEFINED);
+                ClaraConstants.UNDEFINED);
         a.setCanonicalName(name);
         a.isOrchestrator = true;
         return a;
@@ -154,7 +154,7 @@ public final class ClaraComponent {
     public static ClaraComponent orchestrator(String name, String dpeHost,
                                               int subscriptionPoolSize, String description) {
         return orchestrator(name,
-                            dpeHost, xMsgConstants.DEFAULT_PORT, CConstants.JAVA_LANG,
+                            dpeHost, xMsgConstants.DEFAULT_PORT, ClaraConstants.JAVA_LANG,
                             subscriptionPoolSize, description);
     }
 
@@ -172,7 +172,7 @@ public final class ClaraComponent {
                                               int subscriptionPoolSize,
                                               String description) {
         return orchestrator(name,
-                            ClaraUtil.localhost(), xMsgConstants.DEFAULT_PORT, CConstants.JAVA_LANG,
+                            ClaraUtil.localhost(), xMsgConstants.DEFAULT_PORT, ClaraConstants.JAVA_LANG,
                             subscriptionPoolSize, description);
     }
 
@@ -194,9 +194,9 @@ public final class ClaraComponent {
                 dpePort,
                 xMsgTopic.ANY,
                 xMsgTopic.ANY,
-                CConstants.UNDEFINED,
+                ClaraConstants.UNDEFINED,
                 subscriptionPoolSize, description,
-                CConstants.UNDEFINED);
+                ClaraConstants.UNDEFINED);
         a.isDpe = true;
         return a;
     }
@@ -229,7 +229,7 @@ public final class ClaraComponent {
     public static ClaraComponent dpe(String dpeHost,
                                      int subscriptionPoolSize,
                                      String description) {
-        return dpe(dpeHost, xMsgConstants.DEFAULT_PORT, CConstants.JAVA_LANG,
+        return dpe(dpeHost, xMsgConstants.DEFAULT_PORT, ClaraConstants.JAVA_LANG,
                    subscriptionPoolSize, description);
     }
 
@@ -243,7 +243,7 @@ public final class ClaraComponent {
      * @return the DPE component
      */
     public static ClaraComponent dpe(int subscriptionPoolSize, String description) {
-        return dpe(ClaraUtil.localhost(), xMsgConstants.DEFAULT_PORT, CConstants.JAVA_LANG,
+        return dpe(ClaraUtil.localhost(), xMsgConstants.DEFAULT_PORT, ClaraConstants.JAVA_LANG,
                    subscriptionPoolSize, description);
     }
 
@@ -255,8 +255,8 @@ public final class ClaraComponent {
      * @throws IOException
      */
     public static ClaraComponent dpe() {
-        return dpe(ClaraUtil.localhost(), xMsgConstants.DEFAULT_PORT, CConstants.JAVA_LANG,
-                   1, CConstants.UNDEFINED);
+        return dpe(ClaraUtil.localhost(), xMsgConstants.DEFAULT_PORT, ClaraConstants.JAVA_LANG,
+                   1, ClaraConstants.UNDEFINED);
     }
 
     /**
@@ -289,7 +289,7 @@ public final class ClaraComponent {
      * @throws ClaraException
      */
     public static ClaraComponent dpe(String canonicalName) throws ClaraException {
-        return dpe(canonicalName, CConstants.UNDEFINED);
+        return dpe(canonicalName, ClaraConstants.UNDEFINED);
     }
 
     /**
@@ -312,9 +312,9 @@ public final class ClaraComponent {
                 dpePort,
                 container,
                 xMsgTopic.ANY,
-                CConstants.UNDEFINED,
+                ClaraConstants.UNDEFINED,
                 subscriptionPoolSize, description,
-                CConstants.UNDEFINED);
+                ClaraConstants.UNDEFINED);
         a.isContainer = true;
         return a;
     }
@@ -349,7 +349,7 @@ public final class ClaraComponent {
      */
     public static ClaraComponent container(String dpeHost, String container,
                                            int subscriptionPoolSize, String description) {
-        return container(dpeHost, xMsgConstants.DEFAULT_PORT, CConstants.JAVA_LANG,
+        return container(dpeHost, xMsgConstants.DEFAULT_PORT, ClaraConstants.JAVA_LANG,
                          container, subscriptionPoolSize, description);
     }
 
@@ -366,7 +366,7 @@ public final class ClaraComponent {
     public static ClaraComponent container(String container,
                                            int subscriptionPoolSize,
                                            String description) {
-        return container(ClaraUtil.localhost(), xMsgConstants.DEFAULT_PORT, CConstants.JAVA_LANG,
+        return container(ClaraUtil.localhost(), xMsgConstants.DEFAULT_PORT, ClaraConstants.JAVA_LANG,
                          container, subscriptionPoolSize, description);
     }
 
@@ -400,7 +400,7 @@ public final class ClaraComponent {
      */
     public static ClaraComponent container(String containerCanonicalName)
             throws ClaraException {
-        return container(containerCanonicalName, CConstants.UNDEFINED);
+        return container(containerCanonicalName, ClaraConstants.UNDEFINED);
     }
 
     /**
@@ -449,9 +449,9 @@ public final class ClaraComponent {
     public static ClaraComponent service(String dpeHost, int dpePort, String dpeLang,
                                          String container, String engine) {
         return service(dpeHost, dpePort, dpeLang,
-                       container, engine, CConstants.UNDEFINED,
-                       1, CConstants.UNDEFINED,
-                       CConstants.UNDEFINED);
+                       container, engine, ClaraConstants.UNDEFINED,
+                       1, ClaraConstants.UNDEFINED,
+                       ClaraConstants.UNDEFINED);
     }
 
     /**
@@ -468,9 +468,9 @@ public final class ClaraComponent {
     public static ClaraComponent service(String dpeHost, String dpeLang,
                                          String container, String engine) {
         return service(dpeHost, xMsgConstants.DEFAULT_PORT, dpeLang,
-                       container, engine, CConstants.UNDEFINED,
-                       1, CConstants.UNDEFINED,
-                       CConstants.UNDEFINED);
+                       container, engine, ClaraConstants.UNDEFINED,
+                       1, ClaraConstants.UNDEFINED,
+                       ClaraConstants.UNDEFINED);
     }
 
     /**
@@ -482,10 +482,10 @@ public final class ClaraComponent {
      * @return the service component
      */
     public static ClaraComponent service(String container, String engine) {
-        return service(ClaraUtil.localhost(), xMsgConstants.DEFAULT_PORT, CConstants.JAVA_LANG,
-                       container, engine, CConstants.UNDEFINED,
-                       1, CConstants.UNDEFINED,
-                       CConstants.UNDEFINED);
+        return service(ClaraUtil.localhost(), xMsgConstants.DEFAULT_PORT, ClaraConstants.JAVA_LANG,
+                       container, engine, ClaraConstants.UNDEFINED,
+                       1, ClaraConstants.UNDEFINED,
+                       ClaraConstants.UNDEFINED);
     }
 
     /**
@@ -498,10 +498,10 @@ public final class ClaraComponent {
      * @return the service component
      */
     public static ClaraComponent service(String container, String engine, int poolSize) {
-        return service(ClaraUtil.localhost(), xMsgConstants.DEFAULT_PORT, CConstants.JAVA_LANG,
-                       container, engine, CConstants.UNDEFINED,
-                       poolSize, CConstants.UNDEFINED,
-                       CConstants.UNDEFINED);
+        return service(ClaraUtil.localhost(), xMsgConstants.DEFAULT_PORT, ClaraConstants.JAVA_LANG,
+                       container, engine, ClaraConstants.UNDEFINED,
+                       poolSize, ClaraConstants.UNDEFINED,
+                       ClaraConstants.UNDEFINED);
     }
 
     /**
@@ -519,9 +519,9 @@ public final class ClaraComponent {
                        ClaraUtil.getDpeLang(serviceCanonicalName),
                        ClaraUtil.getContainerName(serviceCanonicalName),
                        ClaraUtil.getEngineName(serviceCanonicalName),
-                       CConstants.UNDEFINED,
-                       xMsgConstants.DEFAULT_POOL_SIZE, CConstants.UNDEFINED,
-                       CConstants.UNDEFINED);
+                       ClaraConstants.UNDEFINED,
+                       xMsgConstants.DEFAULT_POOL_SIZE, ClaraConstants.UNDEFINED,
+                       ClaraConstants.UNDEFINED);
     }
 
     /**

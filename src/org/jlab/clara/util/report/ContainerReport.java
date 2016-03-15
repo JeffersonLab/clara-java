@@ -29,7 +29,7 @@ import java.util.Map;
  * @author gurjyan
  * @version 4.x
  */
-public class ContainerReport extends CReportBase {
+public class ContainerReport extends BaseReport {
 
     private Map<String, ServiceReport> services = new HashMap<>();
 

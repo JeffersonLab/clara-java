@@ -22,7 +22,7 @@
 
 package org.jlab.clara.base;
 
-import org.jlab.clara.base.core.CConstants;
+import org.jlab.clara.base.core.ClaraConstants;
 import org.jlab.clara.base.core.ClaraBase;
 import org.jlab.clara.base.core.ClaraComponent;
 import org.jlab.clara.base.core.MessageUtils;
@@ -74,7 +74,7 @@ public class ClaraSubscriptions {
          * in extra background threads, so it must be thread-safe.
          */
         public void start(C callback) throws ClaraException {
-            String key = frontEnd.getDpeHost() + CConstants.MAPKEY_SEP + topic;
+            String key = frontEnd.getDpeHost() + ClaraConstants.MAPKEY_SEP + topic;
             if (subscriptions.containsKey(key)) {
                 throw new IllegalStateException("duplicated subscription to: " + frontEnd);
             }
@@ -88,7 +88,7 @@ public class ClaraSubscriptions {
         }
 
         public void stop() throws ClaraException {
-            String key = frontEnd.getDpeHost() + CConstants.MAPKEY_SEP + topic;
+            String key = frontEnd.getDpeHost() + ClaraConstants.MAPKEY_SEP + topic;
             xMsgSubscription handler = subscriptions.remove(key);
             if (handler != null) {
                 try {
@@ -260,7 +260,7 @@ public class ClaraSubscriptions {
          */
         public JsonReportSubscription aliveDpes() {
             return new JsonReportSubscription(base, subscriptions, frontEnd,
-                                              MessageUtils.buildTopic(CConstants.DPE_ALIVE));
+                                              MessageUtils.buildTopic(ClaraConstants.DPE_ALIVE));
         }
     }
 }

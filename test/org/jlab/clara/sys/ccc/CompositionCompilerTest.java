@@ -22,7 +22,7 @@
 
 package org.jlab.clara.sys.ccc;
 
-import org.jlab.clara.base.core.CConstants;
+import org.jlab.clara.base.core.ClaraConstants;
 import org.jlab.clara.base.error.ClaraException;
 import org.junit.Test;
 
@@ -33,7 +33,7 @@ import java.util.Set;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-public class CCompilerTest {
+public class CompositionCompilerTest {
 
     private String composition = "10.10.10.1_java:C:S1+" +
                                  "10.10.10.1_java:C:S2+" +
@@ -45,19 +45,19 @@ public class CCompilerTest {
         String composition = "10.10.10.1_java:C:S1+" +
                              "10.10.10.1:C:S2+" +
                              "10.10.10.1:C:S4;";
-        CCompiler cc = new CCompiler("10.10.10.1_java:C:S1");
+        CompositionCompiler cc = new CompositionCompiler("10.10.10.1_java:C:S1");
         cc.compile(composition);
     }
 
     @Test(expected = ClaraException.class)
     public void testMissingCurrentService() throws Exception {
-        CCompiler cc = new CCompiler("10.10.10.1_java:C:S6");
+        CompositionCompiler cc = new CompositionCompiler("10.10.10.1_java:C:S6");
         cc.compile(composition);
     }
 
     @Test
     public void testServiceAtTheBeginning() throws Exception {
-        CCompiler cc = new CCompiler("10.10.10.1_java:C:S1");
+        CompositionCompiler cc = new CompositionCompiler("10.10.10.1_java:C:S1");
         cc.compile(composition);
 
         Set<String> expected = new HashSet<>(Arrays.asList("10.10.10.1_java:C:S2"));
@@ -68,7 +68,7 @@ public class CCompilerTest {
 
     @Test
     public void testServiceAtTheMiddle() throws Exception {
-        CCompiler cc = new CCompiler("10.10.10.1_java:C:S2");
+        CompositionCompiler cc = new CompositionCompiler("10.10.10.1_java:C:S2");
         cc.compile(composition);
 
         Set<String> expected = new HashSet<>(Arrays.asList("10.10.10.1_java:C:S3"));
@@ -77,7 +77,7 @@ public class CCompilerTest {
 
     @Test
     public void testServiceAtTheEnd() throws Exception {
-        CCompiler cc = new CCompiler("10.10.10.1_java:C:S4");
+        CompositionCompiler cc = new CompositionCompiler("10.10.10.1_java:C:S4");
         cc.compile(composition);
 
         Set<String> expected = new HashSet<>();
@@ -86,7 +86,7 @@ public class CCompilerTest {
 
     @Test
     public void testLastServiceOnALoop() throws Exception {
-        CCompiler cc = new CCompiler("10.10.10.1_java:C:S3");
+        CompositionCompiler cc = new CompositionCompiler("10.10.10.1_java:C:S3");
         String composition = "10.10.10.1_java:C:S1+"
                            + "10.10.10.1_java:C:S3+"
                            + "10.10.10.1_java:C:S1;";
@@ -99,7 +99,7 @@ public class CCompilerTest {
 
     @Test
     public void testMultipleCalls() throws Exception {
-        CCompiler cc = new CCompiler("10.10.10.1_java:C:S3");
+        CompositionCompiler cc = new CompositionCompiler("10.10.10.1_java:C:S3");
         cc.compile(composition);
 
         String composition2 = "10.10.10.1_java:C:S1+" +
@@ -113,7 +113,7 @@ public class CCompilerTest {
 
     @Test
     public void testConditional() throws Exception {
-        CCompiler cc = new CCompiler("10.10.10.1_java:C:S1");
+        CompositionCompiler cc = new CompositionCompiler("10.10.10.1_java:C:S1");
         cc.compile(composition);
 
         String composition2 = "10.10.10.1_java:C:S1;"
@@ -131,7 +131,7 @@ public class CCompilerTest {
 
     @Test
     public void testElifConditional() throws Exception {
-        CCompiler cc = new CCompiler("10.10.10.1_java:C:S1");
+        CompositionCompiler cc = new CompositionCompiler("10.10.10.1_java:C:S1");
         cc.compile(composition);
 
         String composition2 = "10.10.10.1_java:C:S1;"
@@ -153,7 +153,7 @@ public class CCompilerTest {
 
     @Test
     public void testElseConditional() throws Exception {
-        CCompiler cc = new CCompiler("10.10.10.1_java:C:S1");
+        CompositionCompiler cc = new CompositionCompiler("10.10.10.1_java:C:S1");
         cc.compile(composition);
 
         String composition2 = "10.10.10.1_java:C:S1;"
@@ -177,7 +177,7 @@ public class CCompilerTest {
 
     @Test
     public void testConditionalMultipleStatement() throws Exception {
-        CCompiler cc = new CCompiler("10.10.10.1_java:C:S1");
+        CompositionCompiler cc = new CompositionCompiler("10.10.10.1_java:C:S1");
         cc.compile(composition);
 
         String composition2 = "10.10.10.1_java:C:S1;"
@@ -197,7 +197,7 @@ public class CCompilerTest {
 
     @Test
     public void testConditionalLastServiceOnALoop() throws Exception {
-        CCompiler cc = new CCompiler("10.10.10.1_java:C:S3");
+        CompositionCompiler cc = new CompositionCompiler("10.10.10.1_java:C:S3");
         String composition = "10.10.10.1_java:C:S1+"
                            + "10.10.10.1_java:C:S3+"
                            + "10.10.10.1_java:C:S1;";
@@ -205,8 +205,8 @@ public class CCompilerTest {
 
 
         // service-states for conditional routing
-        ServiceState ownerSS = new ServiceState("10.10.10.1_java:C:S3", CConstants.UNDEFINED);
-        ServiceState inputSS = new ServiceState("10.10.10.1_java:C:S3", CConstants.UNDEFINED);
+        ServiceState ownerSS = new ServiceState("10.10.10.1_java:C:S3", ClaraConstants.UNDEFINED);
+        ServiceState inputSS = new ServiceState("10.10.10.1_java:C:S3", ClaraConstants.UNDEFINED);
 
         Set<String> expected = new HashSet<>(Arrays.asList("10.10.10.1_java:C:S1"));
         assertThat(cc.getLinks(ownerSS, inputSS), is(expected));

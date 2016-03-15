@@ -23,7 +23,7 @@
 package org.jlab.clara.sys;
 
 import org.jlab.clara.base.ClaraUtil;
-import org.jlab.clara.base.core.CConstants;
+import org.jlab.clara.base.core.ClaraConstants;
 import org.jlab.clara.base.core.ClaraBase;
 import org.jlab.clara.base.core.ClaraComponent;
 import org.jlab.clara.base.error.ClaraException;
@@ -31,7 +31,7 @@ import org.jlab.clara.engine.Engine;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.engine.EngineStatus;
-import org.jlab.clara.sys.ccc.CCompiler;
+import org.jlab.clara.sys.ccc.CompositionCompiler;
 import org.jlab.clara.sys.ccc.ServiceState;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
@@ -62,7 +62,7 @@ class ServiceEngine extends ClaraBase {
     // Already recorded (previous) composition
     private String prevComposition = xMsgConstants.UNDEFINED;
 
-    private CCompiler compiler;
+    private CompositionCompiler compiler;
 
     // The last execution time
     private long executionTime;
@@ -86,7 +86,7 @@ class ServiceEngine extends ClaraBase {
         releaseConnection(getConnection());
 
         // create an object of the composition parser
-        compiler = new CCompiler(comp.getCanonicalName());
+        compiler = new CompositionCompiler(comp.getCanonicalName());
     }
 
     @Override
@@ -304,7 +304,7 @@ class ServiceEngine extends ClaraBase {
     private EngineData getEngineData(xMsgMessage message) throws ClaraException {
         xMsgMeta.Builder metadata = message.getMetaData();
         String mimeType = metadata.getDataType();
-        if (mimeType.equals(CConstants.SHARED_MEMORY_KEY)) {
+        if (mimeType.equals(ClaraConstants.SHARED_MEMORY_KEY)) {
             String sender = metadata.getSender();
             int id = metadata.getCommunicationId();
             return SharedMemory.getEngineData(getName(), sender, id);
@@ -325,9 +325,9 @@ class ServiceEngine extends ClaraBase {
             metadata.setComposition(data.getComposition());
             metadata.setCommunicationId(id);
             metadata.setAction(xMsgMeta.ControlAction.EXECUTE);
-            metadata.setDataType(CConstants.SHARED_MEMORY_KEY);
+            metadata.setDataType(ClaraConstants.SHARED_MEMORY_KEY);
 
-            return new xMsgMessage(topic, metadata, CConstants.SHARED_MEMORY_KEY.getBytes());
+            return new xMsgMessage(topic, metadata, ClaraConstants.SHARED_MEMORY_KEY.getBytes());
         } else {
             return serialize(topic, data, engineObject.getOutputDataTypes());
         }
