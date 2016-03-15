@@ -20,7 +20,7 @@
  *   Department of Experimental Nuclear Physics, Jefferson Lab.
  */
 
-package org.jlab.clara.util;
+package org.jlab.clara.base.core;
 
 /**
  * Clara internal constants.

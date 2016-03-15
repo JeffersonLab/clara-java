@@ -22,11 +22,13 @@
 
 package org.jlab.clara.base;
 
+import org.jlab.clara.base.core.CConstants;
+import org.jlab.clara.base.core.ClaraBase;
+import org.jlab.clara.base.core.ClaraComponent;
+import org.jlab.clara.base.core.MessageUtils;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.EngineDataType;
-import org.jlab.clara.util.CConstants;
-import org.jlab.clara.util.MessageUtils;
 import org.jlab.clara.util.report.CReportTypes;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgTopic;

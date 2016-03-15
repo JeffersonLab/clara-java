@@ -22,11 +22,12 @@
 
 package org.jlab.clara.base;
 
-import org.jlab.clara.util.CConstants;
 import org.junit.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+
+import org.jlab.clara.base.core.CConstants;
 
 public class ClaraFiltersTest {
 

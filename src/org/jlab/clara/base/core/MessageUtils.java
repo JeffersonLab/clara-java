@@ -20,37 +20,37 @@
  *   Department of Experimental Nuclear Physics, Jefferson Lab.
  */
 
-package org.jlab.clara.util;
+package org.jlab.clara.base.core;
 
-import org.jlab.clara.base.error.ClaraException;
-import org.jlab.clara.engine.Engine;
+import org.jlab.coda.xmsg.core.xMsgConstants;
+import org.jlab.coda.xmsg.core.xMsgMessage;
+import org.jlab.coda.xmsg.core.xMsgTopic;
 
-/**
- * Clara dynamic class loader.
- *
- * @author gurjyan
- * @version 4.x
- * @since 2/9/15
- */
-public class CClassLoader {
+public final class MessageUtils {
 
-    private ClassLoader classLoader;
+    private MessageUtils() { }
 
-    public CClassLoader(ClassLoader cl) {
-        classLoader = cl;
-    }
-
-    public Engine load(String className) throws ClaraException,
-                                                ClassNotFoundException,
-                                                IllegalAccessException,
-                                                InstantiationException {
-        Class<?> aClass = classLoader.loadClass(className);
-        Object aInstance = aClass.newInstance();
-        if (aInstance instanceof Engine) {
-            return (Engine) aInstance;
-        } else {
-            throw new ClaraException("not a Clara service engine");
+    public static  xMsgTopic buildTopic(Object... args) {
+        StringBuilder topic  = new StringBuilder();
+        topic.append(args[0]);
+        for (int i = 1; i < args.length; i++) {
+            topic.append(xMsgConstants.TOPIC_SEP);
+            topic.append(args[i]);
         }
+        return xMsgTopic.wrap(topic.toString());
     }
 
+    public static String buildData(Object... args) {
+        StringBuilder topic  = new StringBuilder();
+        topic.append(args[0]);
+        for (int i = 1; i < args.length; i++) {
+            topic.append(xMsgConstants.DATA_SEP);
+            topic.append(args[i]);
+        }
+        return topic.toString();
+    }
+
+    public static xMsgMessage buildRequest(xMsgTopic topic, String data) {
+        return new xMsgMessage(topic, xMsgConstants.MimeType.STRING, data.getBytes());
+    }
 }

@@ -20,37 +20,36 @@
  *   Department of Experimental Nuclear Physics, Jefferson Lab.
  */
 
-package org.jlab.clara.util;
+package org.jlab.clara.sys;
 
-import org.jlab.coda.xmsg.core.xMsgConstants;
-import org.jlab.coda.xmsg.core.xMsgMessage;
-import org.jlab.coda.xmsg.core.xMsgTopic;
+import org.jlab.clara.base.error.ClaraException;
+import org.jlab.clara.engine.Engine;
 
-public final class MessageUtils {
+/**
+ * Clara dynamic class loader.
+ *
+ * @author gurjyan
+ * @version 4.x
+ * @since 2/9/15
+ */
+class CClassLoader {
 
-    private MessageUtils() { }
+    private ClassLoader classLoader;
 
-    public static  xMsgTopic buildTopic(Object... args) {
-        StringBuilder topic  = new StringBuilder();
-        topic.append(args[0]);
-        for (int i = 1; i < args.length; i++) {
-            topic.append(xMsgConstants.TOPIC_SEP);
-            topic.append(args[i]);
-        }
-        return xMsgTopic.wrap(topic.toString());
+    CClassLoader(ClassLoader cl) {
+        classLoader = cl;
     }
 
-    public static String buildData(Object... args) {
-        StringBuilder topic  = new StringBuilder();
-        topic.append(args[0]);
-        for (int i = 1; i < args.length; i++) {
-            topic.append(xMsgConstants.DATA_SEP);
-            topic.append(args[i]);
+    public Engine load(String className) throws ClaraException,
+                                                ClassNotFoundException,
+                                                IllegalAccessException,
+                                                InstantiationException {
+        Class<?> aClass = classLoader.loadClass(className);
+        Object aInstance = aClass.newInstance();
+        if (aInstance instanceof Engine) {
+            return (Engine) aInstance;
+        } else {
+            throw new ClaraException("not a Clara service engine");
         }
-        return topic.toString();
-    }
-
-    public static xMsgMessage buildRequest(xMsgTopic topic, String data) {
-        return new xMsgMessage(topic, xMsgConstants.MimeType.STRING, data.getBytes());
     }
 }
