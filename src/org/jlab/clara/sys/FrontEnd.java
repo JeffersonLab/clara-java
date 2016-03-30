@@ -65,7 +65,7 @@ class FrontEnd {
 
             // create the xMsg actor
             ClaraComponent frontEnd = dpe(frontEndAddress.host(),
-                                          frontEndAddress.port(),
+                                          frontEndAddress.pubPort(),
                                           ClaraConstants.JAVA_LANG,
                                           poolSize,
                                           description);
