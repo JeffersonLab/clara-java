@@ -72,25 +72,6 @@ class DpeOptionsParser {
         parser.acceptsAll(asList("h", "help")).forHelp();
     }
 
-    private static <V> String optionHelp(OptionSpec<V> spec, String arg, String... help) {
-        StringBuilder sb = new StringBuilder();
-        String[] lhs = new String[help.length];
-        lhs[0] = optionName(spec, arg);
-        for (int i = 0; i < help.length; i++) {
-            sb.append(String.format("  %-22s  %s%n", lhs[i] == null ? "" : lhs[i], help[i]));
-        }
-        return sb.toString();
-    }
-
-    private static <V> String optionName(OptionSpec<V> spec, String arg) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("-").append(spec.options().get(0));
-        if (arg != null) {
-            sb.append(" <").append(arg).append(">");
-        }
-        return sb.toString();
-    }
-
     public void parse(String[] args) {
         try {
             options = parser.parse(args);
@@ -181,6 +162,25 @@ class DpeOptionsParser {
              + optionHelp(poolSize, "size", "the subscriptions poolsize for this DPE")
              + optionHelp(description, "string", "a short description of this DPE")
              + optionHelp(reportInterval, "seconds", "the interval to send reports");
+    }
+
+    private static <V> String optionHelp(OptionSpec<V> spec, String arg, String... help) {
+        StringBuilder sb = new StringBuilder();
+        String[] lhs = new String[help.length];
+        lhs[0] = optionName(spec, arg);
+        for (int i = 0; i < help.length; i++) {
+            sb.append(String.format("  %-22s  %s%n", lhs[i] == null ? "" : lhs[i], help[i]));
+        }
+        return sb.toString();
+    }
+
+    private static <V> String optionName(OptionSpec<V> spec, String arg) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("-").append(spec.options().get(0));
+        if (arg != null) {
+            sb.append(" <").append(arg).append(">");
+        }
+        return sb.toString();
     }
 
     static class DpeOptionsException extends RuntimeException {

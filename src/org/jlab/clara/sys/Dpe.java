@@ -178,6 +178,11 @@ public class Dpe extends ClaraBase {
     }
 
     @Override
+    public void start(ClaraComponent component) {
+        // nothing
+    }
+
+    @Override
     public void end() {
         try {
             for (Container cont : myContainers.values()) {
@@ -190,11 +195,6 @@ public class Dpe extends ClaraBase {
         } catch (xMsgException | ClaraException e) {
             e.printStackTrace();
         }
-    }
-
-    @Override
-    public void start(ClaraComponent component) {
-        // nothing
     }
 
     /**
