@@ -105,11 +105,7 @@ class FrontEnd {
     public void stop() {
         context.destroy();
         registrar.shutdown();
-        try {
-            base.destroy();
-        } catch (xMsgException e) {
-            e.printStackTrace();
-        }
+        base.destroy();
     }
 
 

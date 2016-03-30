@@ -91,11 +91,7 @@ public class ClaraSubscriptions {
             String key = frontEnd.getDpeHost() + ClaraConstants.MAPKEY_SEP + topic;
             xMsgSubscription handler = subscriptions.remove(key);
             if (handler != null) {
-                try {
-                    base.unsubscribe(handler);
-                } catch (xMsgException e) {
-                    throw new ClaraException("Could not stop subscription", e);
-                }
+                base.unsubscribe(handler);
             }
         }
 

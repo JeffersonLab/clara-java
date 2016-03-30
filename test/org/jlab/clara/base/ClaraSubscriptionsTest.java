@@ -157,17 +157,6 @@ public class ClaraSubscriptionsTest {
 
 
     @Test
-    public void stopSubscriptionThrowsOnFailure() throws Exception {
-        build("ERROR:10.2.9.96_java:master:Simple").start(callback);
-
-        doThrow(new xMsgException("")).when(baseMock).unsubscribe(any(xMsgSubscription.class));
-        expectedEx.expect(ClaraException.class);
-
-        build("ERROR:10.2.9.96_java:master:Simple").stop();
-    }
-
-
-    @Test
     public void stopSubscriptionRemovesSubscriptionHandler() throws Exception {
         build("ERROR:10.2.9.96_java:master:Simple").start(callback);
         build("WARNING:10.2.9.96_java:master:Simple").start(callback);
