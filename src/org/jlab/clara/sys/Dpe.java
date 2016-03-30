@@ -98,7 +98,7 @@ public class Dpe extends ClaraBase {
 
             // start a dpe
             new Dpe(options.localAddress(), options.frontEnd(),
-                    options.poolSize(), options.description(), options.reportInterval());
+                    options.poolSize(), options.reportInterval(), options.description());
 
         } catch (DpeOptionsException e) {
             System.err.println(e.getMessage());
@@ -125,8 +125,8 @@ public class Dpe extends ClaraBase {
     public Dpe(xMsgProxyAddress proxyAddress,
                xMsgProxyAddress frontEndAddress,
                int poolSize,
-               String description,
-               int reportInterval)
+               int reportInterval,
+               String description)
             throws xMsgException, ClaraException {
         super(ClaraComponent.dpe(proxyAddress.host(),
                                  proxyAddress.port(),
