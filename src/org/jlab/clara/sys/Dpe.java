@@ -78,6 +78,39 @@ public class Dpe extends ClaraBase {
     private AtomicBoolean isReporting = new AtomicBoolean();
     private int reportWait;
 
+
+    public static void main(String[] args) {
+        DpeOptionsParser options = new DpeOptionsParser();
+        try {
+            options.parse(args);
+            if (options.hasHelp()) {
+                System.out.println(options.usage());
+                System.exit(0);
+            }
+
+            // start the proxy
+            startProxy(options.localAddress());
+
+            // start the front-end
+            if (options.isFrontEnd()) {
+                new FrontEnd(options.frontEnd(), options.poolSize(), options.description());
+            }
+
+            // start a dpe
+            new Dpe(options.localAddress(), options.frontEnd(),
+                    options.poolSize(), options.description(), options.reportInterval());
+
+        } catch (DpeOptionsException e) {
+            System.err.println(e.getMessage());
+            System.err.println();
+            System.err.println(options.usage());
+            System.exit(1);
+        } catch (xMsgException | ClaraException e) {
+            e.printStackTrace();
+            System.exit(1);
+        }
+    }
+
     /**
      * Constructor starts a DPE component, that connects to the local xMsg proxy server.
      * Does proper subscriptions nad starts heart beat reporting thread.
@@ -127,38 +160,6 @@ public class Dpe extends ClaraBase {
         startHeartBeatReport();
 
         printLogo();
-    }
-
-    public static void main(String[] args) {
-        DpeOptionsParser options = new DpeOptionsParser();
-        try {
-            options.parse(args);
-            if (options.hasHelp()) {
-                System.out.println(options.usage());
-                System.exit(0);
-            }
-
-            // start the proxy
-            startProxy(options.localAddress());
-
-            // start the front-end
-            if (options.isFrontEnd()) {
-                new FrontEnd(options.frontEnd(), options.poolSize(), options.description());
-            }
-
-            // start a dpe
-            new Dpe(options.localAddress(), options.frontEnd(),
-                    options.poolSize(), options.description(), options.reportInterval());
-
-        } catch (DpeOptionsException e) {
-            System.err.println(e.getMessage());
-            System.err.println();
-            System.err.println(options.usage());
-            System.exit(1);
-        } catch (xMsgException | ClaraException e) {
-            e.printStackTrace();
-            System.exit(1);
-        }
     }
 
     private static void startProxy(final xMsgProxyAddress address) {
