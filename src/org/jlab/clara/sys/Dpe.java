@@ -106,7 +106,7 @@ public class Dpe extends ClaraBase {
             System.err.println();
             System.err.println(options.usage());
             System.exit(1);
-        } catch (xMsgException | ClaraException e) {
+        } catch (ClaraException e) {
             e.printStackTrace();
             System.exit(1);
         }
@@ -120,7 +120,6 @@ public class Dpe extends ClaraBase {
      * @param poolSize subscription pool size
      * @param reportInterval the time between publishing the reports
      * @param description textual description of the DPE
-     * @throws xMsgException
      * @throws ClaraException
      */
     public Dpe(xMsgProxyAddress proxyAddress,
@@ -128,7 +127,8 @@ public class Dpe extends ClaraBase {
                int poolSize,
                int reportInterval,
                String description)
-            throws xMsgException, ClaraException {
+            throws ClaraException {
+
         super(ClaraComponent.dpe(proxyAddress.host(),
                                  proxyAddress.port(),
                                  ClaraConstants.JAVA_LANG,
@@ -168,14 +168,18 @@ public class Dpe extends ClaraBase {
      * Does proper subscriptions to receive requests and starts heart beat
      * reporting thread.
      */
-    public void start() throws xMsgException, ClaraException {
-        // Create a socket connections to the local dpe proxy
-        releaseConnection(getConnection());
+    public void start() throws ClaraException {
+        try {
+            // Create a socket connections to the local dpe proxy
+            releaseConnection(getConnection());
 
-        // Subscribe and register
-        xMsgTopic topic = xMsgTopic.build(ClaraConstants.DPE, getMe().getCanonicalName());
-        subscriptionHandler = listen(topic, new DpeCallBack());
-        register(topic, getMe().getDescription());
+            // Subscribe and register
+            xMsgTopic topic = xMsgTopic.build(ClaraConstants.DPE, getMe().getCanonicalName());
+            subscriptionHandler = listen(topic, new DpeCallBack());
+            register(topic, getMe().getDescription());
+        } catch (xMsgException e) {
+            throw new ClaraException("Could not start DPE", e);
+        }
 
         myReport.setStartTime(ClaraUtil.getCurrentTime());
         myReport.setMemorySize(Runtime.getRuntime().maxMemory());
