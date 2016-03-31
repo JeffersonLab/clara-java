@@ -118,6 +118,7 @@ public class Dpe extends ClaraBase {
      * @param proxyAddress address of local proxy
      * @param frontEndAddress address of front-end proxy
      * @param poolSize subscription pool size
+     * @param reportInterval the time between publishing the reports
      * @param description textual description of the DPE
      * @throws xMsgException
      * @throws ClaraException
@@ -197,9 +198,6 @@ public class Dpe extends ClaraBase {
         }
     }
 
-    /**
-     *
-     */
     private void printLogo() {
         System.out.println("=========================================");
         System.out.println("                 CLARA DPE               ");
@@ -222,17 +220,11 @@ public class Dpe extends ClaraBase {
         System.out.println("=========================================");
     }
 
-    /**
-     *
-     */
     private void startHeartBeatReport() {
         ScheduledExecutorService scheduledPingService = Executors.newScheduledThreadPool(3);
         scheduledPingService.schedule(() -> report(), 5, TimeUnit.SECONDS);
     }
 
-    /**
-     * Builds a report for the heart beat reporting thread.
-     */
     private void report() {
         try {
             xMsgProxyAddress feHost = getFrontEnd().getProxyAddress();
