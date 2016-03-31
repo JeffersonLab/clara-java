@@ -97,8 +97,9 @@ public class Dpe extends ClaraBase {
             }
 
             // start a dpe
-            new Dpe(options.localAddress(), options.frontEnd(),
-                    options.poolSize(), options.reportInterval(), options.description());
+            Dpe dpe = new Dpe(options.localAddress(), options.frontEnd(),
+                              options.poolSize(), options.reportInterval(), options.description());
+            dpe.start();
 
         } catch (DpeOptionsException e) {
             System.err.println(e.getMessage());
@@ -112,8 +113,7 @@ public class Dpe extends ClaraBase {
     }
 
     /**
-     * Constructor starts a DPE component, that connects to the local xMsg proxy server.
-     * Does proper subscriptions nad starts heart beat reporting thread.
+     * Constructor of a DPE.
      *
      * @param proxyAddress address of local proxy
      * @param frontEndAddress address of front-end proxy
@@ -138,29 +138,13 @@ public class Dpe extends ClaraBase {
                       frontEndAddress.port(),
                       ClaraConstants.JAVA_LANG,
                       1, "Front End"));
-        // Create a socket connections to the local dpe proxy
-        releaseConnection(getConnection());
-
-        // Subscribe and register
-        xMsgTopic topic = xMsgTopic.wrap(ClaraConstants.DPE + ":" + getMe().getCanonicalName());
-        subscriptionHandler = listen(topic, new DpeCallBack());
-        register(topic, description);
-
         myReport = new DpeReport(getMe().getCanonicalName());
         myReport.setHost(getMe().getCanonicalName());
         myReport.setLang(getMe().getDpeLang());
         myReport.setDescription(description);
         myReport.setAuthor(System.getenv("USER"));
-        myReport.setStartTime(ClaraUtil.getCurrentTime());
-        myReport.setMemorySize(Runtime.getRuntime().maxMemory());
-        myReport.setCoreCount(Runtime.getRuntime().availableProcessors());
 
-        isReporting.set(true);
         reportWait = reportInterval * 1000;
-
-        startHeartBeatReport();
-
-        printLogo();
     }
 
     private static void startProxy(final xMsgProxyAddress address) {
@@ -176,6 +160,32 @@ public class Dpe extends ClaraBase {
             }
         });
         t.start();
+    }
+
+    /**
+     * Starts this DPE.
+     * <p>
+     * Does proper subscriptions to receive requests and starts heart beat
+     * reporting thread.
+     */
+    public void start() throws xMsgException, ClaraException {
+        // Create a socket connections to the local dpe proxy
+        releaseConnection(getConnection());
+
+        // Subscribe and register
+        xMsgTopic topic = xMsgTopic.build(ClaraConstants.DPE, getMe().getCanonicalName());
+        subscriptionHandler = listen(topic, new DpeCallBack());
+        register(topic, getMe().getDescription());
+
+        myReport.setStartTime(ClaraUtil.getCurrentTime());
+        myReport.setMemorySize(Runtime.getRuntime().maxMemory());
+        myReport.setCoreCount(Runtime.getRuntime().availableProcessors());
+
+        isReporting.set(true);
+
+        startHeartBeatReport();
+
+        printLogo();
     }
 
     @Override
