@@ -42,8 +42,6 @@ import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 import org.jlab.coda.xmsg.excp.xMsgException;
 import org.jlab.coda.xmsg.net.xMsgConnection;
 import org.jlab.coda.xmsg.net.xMsgProxyAddress;
-import org.jlab.coda.xmsg.xsys.xMsgProxy;
-import org.zeromq.ZContext;
 
 import java.io.IOException;
 import java.util.HashMap;
@@ -146,21 +144,6 @@ public class Dpe extends ClaraBase {
         reportWait = reportInterval * 1000;
     }
 
-    private static void startProxy(final xMsgProxyAddress address) {
-        Thread t = new Thread(() -> {
-            try {
-                xMsgProxy proxy = new xMsgProxy(new ZContext(), address);
-                if (System.getenv("XMSG_PROXY_DEBUG") != null) {
-                    proxy.verbose();
-                }
-                proxy.start();
-            } catch (xMsgException e) {
-                e.printStackTrace();
-            }
-        });
-        t.start();
-    }
-
     /**
      * Starts this DPE.
      * <p>
@@ -171,7 +154,8 @@ public class Dpe extends ClaraBase {
     public void start() throws ClaraException {
         try {
             // start the proxy
-            startProxy(getMe().getProxyAddress());
+            Proxy proxy = new Proxy(getMe().getProxyAddress());
+            proxy.start();
 
             // start the front-end
             if (isFrontEnd) {
