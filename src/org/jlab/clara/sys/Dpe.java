@@ -67,6 +67,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class Dpe extends ClaraBase {
 
+    private final boolean isFrontEnd;
+
     // The containers running on this DPE
     private final Map<String, Container> myContainers = new HashMap<>();
 
@@ -97,7 +99,7 @@ public class Dpe extends ClaraBase {
             }
 
             // start a dpe
-            Dpe dpe = new Dpe(options.localAddress(), options.frontEnd(),
+            Dpe dpe = new Dpe(options.isFrontEnd(), options.localAddress(), options.frontEnd(),
                               options.poolSize(), options.reportInterval(), options.description());
             dpe.start();
 
@@ -115,6 +117,7 @@ public class Dpe extends ClaraBase {
     /**
      * Constructor of a DPE.
      *
+     * @param isFrontEnd true if this DPE is the front-end
      * @param proxyAddress address of local proxy
      * @param frontEndAddress address of front-end proxy
      * @param poolSize subscription pool size
@@ -122,7 +125,8 @@ public class Dpe extends ClaraBase {
      * @param description textual description of the DPE
      * @throws ClaraException
      */
-    public Dpe(xMsgProxyAddress proxyAddress,
+    public Dpe(boolean isFrontEnd,
+               xMsgProxyAddress proxyAddress,
                xMsgProxyAddress frontEndAddress,
                int poolSize,
                int reportInterval,
@@ -138,6 +142,9 @@ public class Dpe extends ClaraBase {
                       frontEndAddress.port(),
                       ClaraConstants.JAVA_LANG,
                       1, "Front End"));
+
+        this.isFrontEnd = isFrontEnd;
+
         myReport = new DpeReport(getMe().getCanonicalName());
         myReport.setHost(getMe().getCanonicalName());
         myReport.setLang(getMe().getDpeLang());
