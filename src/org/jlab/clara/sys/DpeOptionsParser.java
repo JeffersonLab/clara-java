@@ -62,11 +62,13 @@ class DpeOptionsParser {
 
         parser.acceptsAll(asList("fe", "frontend"));
 
-        dpeHost = parser.accepts("dpe_host").withRequiredArg();
-        dpePort = parser.accepts("dpe_port").withRequiredArg().ofType(Integer.class);
+        dpeHost = parser.acceptsAll(asList("host", "dpe_host")).withRequiredArg();
+        dpePort = parser.acceptsAll(asList("port", "dpe_port"))
+                        .withRequiredArg().ofType(Integer.class);
 
-        feHost = parser.accepts("fe_host").withRequiredArg();
-        fePort = parser.accepts("fe_port").withRequiredArg().ofType(Integer.class);
+        feHost = parser.acceptsAll(asList("fe-host", "fe_host")).withRequiredArg();
+        fePort = parser.acceptsAll(asList("fe-port", "fe_port"))
+                       .withRequiredArg().ofType(Integer.class);
 
         poolSize = parser.accepts("poolsize").withRequiredArg().ofType(Integer.class);
         description = parser.accepts("description").withRequiredArg();
@@ -154,14 +156,14 @@ class DpeOptionsParser {
         return String.format("usage: j_dpe [options]%n%n  Options:%n")
              + optionHelp(dpeHost, "hostname", "use given host for this DPE")
              + optionHelp(dpePort, "port", "use given port for this DPE")
-             + optionHelp(feHost, "hostname", "the host used by the front-end")
-             + optionHelp(fePort, "port", "the port used by the front-end")
+             + optionHelp(feHost, "hostname", "the host used by the remote front-end")
+             + optionHelp(fePort, "port", "the port used by the remote front-end")
              + optionHelp(poolSize, "size", "the subscriptions poolsize for this DPE")
              + optionHelp(description, "string", "a short description of this DPE")
              + optionHelp(reportInterval, "seconds", "the interval to send reports");
     }
 
-    private static <V> String optionHelp(OptionSpec<V> spec, String arg, String... help) {
+    private <V> String optionHelp(OptionSpec<V> spec, String arg, String... help) {
         StringBuilder sb = new StringBuilder();
         String[] lhs = new String[help.length];
         lhs[0] = optionName(spec, arg);
@@ -171,9 +173,13 @@ class DpeOptionsParser {
         return sb.toString();
     }
 
-    private static <V> String optionName(OptionSpec<V> spec, String arg) {
+    private <V> String optionName(OptionSpec<V> spec, String arg) {
         StringBuilder sb = new StringBuilder();
-        sb.append("-").append(spec.options().get(0));
+        if (spec == dpeHost || spec == dpePort) {
+            sb.append("--").append(spec.options().get(1));
+        } else {
+            sb.append("--").append(spec.options().get(0));
+        }
         if (arg != null) {
             sb.append(" <").append(arg).append(">");
         }

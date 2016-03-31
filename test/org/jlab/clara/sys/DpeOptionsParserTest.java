@@ -37,15 +37,15 @@ import static org.junit.Assert.assertTrue;
 
 public class DpeOptionsParserTest {
 
-    private static final String DPE_HOST_OPT = "-dpe_host";
-    private static final String DPE_PORT_OPT = "-dpe_port";
+    private static final String DPE_HOST_OPT = "--host";
+    private static final String DPE_PORT_OPT = "--port";
 
-    private static final String FE_HOST_OPT = "-fe_host";
-    private static final String FE_PORT_OPT = "-fe_port";
+    private static final String FE_HOST_OPT = "--fe-host";
+    private static final String FE_PORT_OPT = "--fe-port";
 
-    private static final String POOL_OPT = "-poolsize";
-    private static final String DESC_OPT = "-description";
-    private static final String REPORT_OPT = "-report";
+    private static final String POOL_OPT = "--poolsize";
+    private static final String DESC_OPT = "--description";
+    private static final String REPORT_OPT = "--report";
     private final String defaultHost;
     @Rule
     public ExpectedException expectedEx = ExpectedException.none();
