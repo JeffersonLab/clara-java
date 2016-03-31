@@ -159,9 +159,10 @@ public class Dpe extends ClaraBase {
 
             // start the front-end
             if (isFrontEnd) {
-                new FrontEnd(getFrontEnd().getProxyAddress(),
-                             getPoolSize(),
-                             getMe().getDescription());
+                FrontEnd fe = new FrontEnd(getFrontEnd().getProxyAddress(),
+                                           getPoolSize(),
+                                           getMe().getDescription());
+                fe.start();
             }
 
             // Create a socket connections to the local dpe proxy
