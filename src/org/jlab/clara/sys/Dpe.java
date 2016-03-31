@@ -47,6 +47,7 @@ import org.jlab.coda.xmsg.net.xMsgProxyAddress;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -108,6 +109,133 @@ public final class Dpe extends ClaraBase {
             System.exit(1);
         }
     }
+
+
+    /**
+     * Helps constructing a {@link Dpe DPE}.
+     */
+    public static class Builder {
+
+        final boolean isFrontEnd;
+
+        xMsgProxyAddress localAddress;
+        xMsgProxyAddress frontEndAddress;
+
+        int poolSize = DEFAULT_POOL_SIZE;
+        long reportInterval = DEFAULT_REPORT_WAIT;
+        String description = "";
+
+        /**
+         * Creates a builder for a front-end DPE.
+         * The front-end DPE contains the registration service used by the
+         * orchestrators to find running worker DPEs and engines.
+         * <p>
+         * A front-end DPE is also a worker DPE that can run user engines,
+         * so it is recommended to run a front-end when using CLARA on a local box.
+         * In multi-node CLARA distributions it is mostly used a discovery and
+         * gateway for workers DPEs.
+         */
+        public Builder() {
+            isFrontEnd = true;
+            localAddress = new xMsgProxyAddress(ClaraUtil.localhost(), DEFAULT_PROXY_PORT);
+            frontEndAddress = localAddress;
+        }
+
+        /**
+         * Creates a builder for a worker DPE.
+         * A worker DPE mainly runs user engines as part of a cloud of DPEs.
+         * All worker DPEs must register with the main front-end DPE.
+         * <p>
+         * When running CLARA on single node, a front-end DPE must be used
+         * instead of a worker DPE.
+         *
+         * @param frontEndHost the host address of the front-end
+         */
+        public Builder(String frontEndHost) {
+            this(frontEndHost, DEFAULT_PROXY_PORT);
+        }
+
+        /**
+         * Creates a builder for a worker DPE.
+         * A worker DPE mainly runs user engines as part of a cloud of DPEs.
+         * All worker DPEs must register with the main front-end DPE.
+         * <p>
+         * When running CLARA on single node, a front-end DPE must be used
+         * instead of a worker DPE.
+         *
+         * @param frontEndHost the host address of the front-end
+         * @param frontEndPort the port number of the front-end
+         */
+        public Builder(String frontEndHost, int frontEndPort) {
+            isFrontEnd = false;
+            localAddress = new xMsgProxyAddress(ClaraUtil.localhost(), DEFAULT_PROXY_PORT);
+            frontEndAddress = new xMsgProxyAddress(frontEndHost, frontEndPort);
+        }
+
+        /**
+         * Uses the given host for the local address.
+         */
+        public Builder withHost(String host) {
+            localAddress = new xMsgProxyAddress(host, localAddress.port());
+            if (isFrontEnd) {
+                frontEndAddress = localAddress;
+            }
+            return this;
+        }
+
+        /**
+         * Uses the given port for the local address.
+         */
+        public Builder withPort(int port) {
+            localAddress = new xMsgProxyAddress(localAddress.host(), port);
+            if (isFrontEnd) {
+                frontEndAddress = localAddress;
+            }
+            return this;
+        }
+
+        /**
+         * Sets the interval of time between publishing reports.
+         */
+        public Builder withReportInterval(long interval, TimeUnit unit) {
+            if (interval <= 0) {
+                throw new IllegalArgumentException("Invalid report interval: " + interval);
+            }
+            this.reportInterval = unit.toMillis(interval);
+            return this;
+        }
+
+        /**
+         * Sets the size of the thread-pool that will process requests.
+         */
+        public Builder withPoolSize(int poolSize) {
+            if (poolSize <= 0) {
+                throw new IllegalArgumentException("Invalid pool size: " + poolSize);
+            }
+            this.poolSize = poolSize;
+            return this;
+        }
+
+        /**
+         * Sets a description for this DPE.
+         */
+        public Builder withDescription(String description) {
+            Objects.requireNonNull(description, "description parameter is null");
+            this.description = description;
+            return this;
+        }
+
+        /**
+         * Creates the DPE.
+         *
+         * @throws ClaraException if the DPE could not be created
+         */
+        public Dpe build() throws ClaraException {
+            return new Dpe(isFrontEnd, localAddress, frontEndAddress,
+                           poolSize, reportInterval, description);
+        }
+    }
+
 
     /**
      * Constructor of a DPE.
