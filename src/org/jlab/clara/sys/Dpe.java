@@ -68,15 +68,15 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class Dpe extends ClaraBase {
 
     // The containers running on this DPE
-    private Map<String, Container> myContainers = new HashMap<>();
+    private final Map<String, Container> myContainers = new HashMap<>();
 
     private xMsgSubscription subscriptionHandler;
 
-    private DpeReport myReport;
-    private JsonReportBuilder myReportBuilder = new JsonReportBuilder();
+    private final DpeReport myReport;
+    private final JsonReportBuilder myReportBuilder = new JsonReportBuilder();
 
-    private AtomicBoolean isReporting = new AtomicBoolean();
-    private int reportWait;
+    private final AtomicBoolean isReporting = new AtomicBoolean();
+    private final int reportWait;
 
 
     public static void main(String[] args) {
