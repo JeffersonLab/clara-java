@@ -34,6 +34,7 @@ import org.jlab.clara.util.report.DpeReport;
 import org.jlab.clara.util.report.JsonReportBuilder;
 import org.jlab.clara.util.report.SystemStats;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
+import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgSubscription;
 import org.jlab.coda.xmsg.core.xMsgTopic;
@@ -64,6 +65,10 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @version 4.x
  */
 public class Dpe extends ClaraBase {
+
+    static final int DEFAULT_PROXY_PORT = xMsgConstants.DEFAULT_PORT;
+    static final int DEFAULT_POOL_SIZE = 2;
+    static final long DEFAULT_REPORT_WAIT = 10_000;
 
     private final boolean isFrontEnd;
 

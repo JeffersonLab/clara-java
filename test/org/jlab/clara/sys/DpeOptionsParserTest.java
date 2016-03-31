@@ -160,6 +160,13 @@ public class DpeOptionsParserTest {
     }
 
     @Test
+    public void dpeUsesDefaultPoolSize() throws Exception {
+        parse();
+
+        assertThat(parser.poolSize(), is(Dpe.DEFAULT_POOL_SIZE));
+    }
+
+    @Test
     public void dpeReceivesOptionalPoolSize() throws Exception {
         parse(POOL_OPT, "10");
 
@@ -184,7 +191,7 @@ public class DpeOptionsParserTest {
     public void dpeUsesDefaultReportInterval() throws Exception {
         parse();
 
-        assertThat(parser.reportInterval(), is(10_000L));
+        assertThat(parser.reportInterval(), is(Dpe.DEFAULT_REPORT_WAIT));
     }
 
     @Test
@@ -200,7 +207,7 @@ public class DpeOptionsParserTest {
     }
 
     private xMsgProxyAddress proxy(String host) throws Exception {
-        return new xMsgProxyAddress(host, DpeOptionsParser.PROXY_PORT);
+        return new xMsgProxyAddress(host, Dpe.DEFAULT_PROXY_PORT);
     }
 
     private xMsgProxyAddress proxy(String host, int port) throws Exception {

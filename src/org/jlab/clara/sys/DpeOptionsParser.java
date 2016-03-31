@@ -27,7 +27,6 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import org.jlab.clara.base.ClaraUtil;
-import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.net.xMsgProxyAddress;
 
 import java.util.concurrent.TimeUnit;
@@ -39,8 +38,6 @@ import static java.util.Arrays.asList;
  */
 class DpeOptionsParser {
 
-    public static final int PROXY_PORT = xMsgConstants.DEFAULT_PORT;
-    public static final int REG_PORT = xMsgConstants.REGISTRAR_PORT;
     private final OptionSpec<String> dpeHost;
     private final OptionSpec<Integer> dpePort;
     private final OptionSpec<String> feHost;
@@ -87,7 +84,7 @@ class DpeOptionsParser {
 
             // Get local DPE address
             String localHost = valueOf(dpeHost, ClaraUtil.localhost());
-            int localPort = valueOf(dpePort, PROXY_PORT);
+            int localPort = valueOf(dpePort, Dpe.DEFAULT_PROXY_PORT);
             localAddress = new xMsgProxyAddress(localHost, localPort);
 
             if (fe) {
@@ -99,7 +96,7 @@ class DpeOptionsParser {
                     error("The remote front-end host is required");
                 }
                 String host = options.valueOf(feHost);
-                int port = valueOf(fePort, PROXY_PORT);
+                int port = valueOf(fePort, Dpe.DEFAULT_PROXY_PORT);
                 frontEndAddress = new xMsgProxyAddress(host, port);
             }
 
@@ -132,7 +129,7 @@ class DpeOptionsParser {
     }
 
     public int poolSize() {
-        return valueOf(poolSize, xMsgConstants.DEFAULT_POOL_SIZE);
+        return valueOf(poolSize, Dpe.DEFAULT_POOL_SIZE);
     }
 
     public String description() {
@@ -140,7 +137,8 @@ class DpeOptionsParser {
     }
 
     public long reportInterval() {
-        long reportWaitSeconds = valueOf(reportInterval, 10L);
+        long defaultWaitSeconds = TimeUnit.MILLISECONDS.toSeconds(Dpe.DEFAULT_REPORT_WAIT);
+        long reportWaitSeconds = valueOf(reportInterval, defaultWaitSeconds);
         return TimeUnit.SECONDS.toMillis(reportWaitSeconds);
     }
 
