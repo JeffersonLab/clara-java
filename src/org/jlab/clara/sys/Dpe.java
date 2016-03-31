@@ -90,14 +90,6 @@ public class Dpe extends ClaraBase {
                 System.exit(0);
             }
 
-            // start the proxy
-            startProxy(options.localAddress());
-
-            // start the front-end
-            if (options.isFrontEnd()) {
-                new FrontEnd(options.frontEnd(), options.poolSize(), options.description());
-            }
-
             // start a dpe
             Dpe dpe = new Dpe(options.isFrontEnd(), options.localAddress(), options.frontEnd(),
                               options.poolSize(), options.reportInterval(), options.description());
@@ -172,11 +164,22 @@ public class Dpe extends ClaraBase {
     /**
      * Starts this DPE.
      * <p>
-     * Does proper subscriptions to receive requests and starts heart beat
-     * reporting thread.
+     * Starts a local xMsg proxy server, and a local xMsg registrar service
+     * in case it is a front-end. Does proper subscriptions to receive requests
+     * and starts heart beat reporting thread.
      */
     public void start() throws ClaraException {
         try {
+            // start the proxy
+            startProxy(getMe().getProxyAddress());
+
+            // start the front-end
+            if (isFrontEnd) {
+                new FrontEnd(getFrontEnd().getProxyAddress(),
+                             getPoolSize(),
+                             getMe().getDescription());
+            }
+
             // Create a socket connections to the local dpe proxy
             releaseConnection(getConnection());
 
