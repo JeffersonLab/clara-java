@@ -64,7 +64,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author gurjyan
  * @version 4.x
  */
-public class Dpe extends ClaraBase {
+public final class Dpe extends ClaraBase {
 
     static final int DEFAULT_PROXY_PORT = xMsgConstants.DEFAULT_PORT;
     static final int DEFAULT_POOL_SIZE = 2;
@@ -120,12 +120,12 @@ public class Dpe extends ClaraBase {
      * @param description textual description of the DPE
      * @throws ClaraException
      */
-    public Dpe(boolean isFrontEnd,
-               xMsgProxyAddress proxyAddress,
-               xMsgProxyAddress frontEndAddress,
-               int poolSize,
-               long reportInterval,
-               String description)
+    private Dpe(boolean isFrontEnd,
+                xMsgProxyAddress proxyAddress,
+                xMsgProxyAddress frontEndAddress,
+                int poolSize,
+                long reportInterval,
+                String description)
             throws ClaraException {
 
         super(ClaraComponent.dpe(proxyAddress.host(),
