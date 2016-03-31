@@ -236,8 +236,8 @@ public class Dpe extends ClaraBase {
         try {
             xMsgProxyAddress feHost = getFrontEnd().getProxyAddress();
 
-            xMsgTopic reportTopic = MessageUtils.buildTopic(ClaraConstants.DPE_REPORT, feHost.host());
-            xMsgTopic aliveTopic = MessageUtils.buildTopic(ClaraConstants.DPE_ALIVE, feHost.host());
+            xMsgTopic reportTopic = xMsgTopic.build(ClaraConstants.DPE_REPORT, feHost.host());
+            xMsgTopic aliveTopic = xMsgTopic.build(ClaraConstants.DPE_ALIVE, feHost.host());
 
             xMsgConnection con = createConnection(feHost);
             xMsgUtil.sleep(100);
@@ -280,8 +280,13 @@ public class Dpe extends ClaraBase {
             poolSize = getMe().getSubscriptionPoolSize();
         }
 
-        ClaraComponent contComp = ClaraComponent.container(getMe().getDpeHost(),
-                getMe().getDpePort(), ClaraConstants.JAVA_LANG, containerName, poolSize, description);
+        ClaraComponent contComp = ClaraComponent.container(
+                getMe().getDpeHost(),
+                getMe().getDpePort(),
+                ClaraConstants.JAVA_LANG,
+                containerName,
+                poolSize,
+                description);
 
         if (myContainers.containsKey(containerName)) {
             String msg = "%s: Container %s already exists. No new container is created%n";

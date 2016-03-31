@@ -58,7 +58,7 @@ class Container extends ClaraBase {
         releaseConnection(getConnection());
 
         // Subscribe messages published to this container
-        xMsgTopic topic = MessageUtils.buildTopic(ClaraConstants.CONTAINER, comp.getCanonicalName());
+        xMsgTopic topic = xMsgTopic.build(ClaraConstants.CONTAINER, comp.getCanonicalName());
 
         // Register this subscriber
         register(topic, comp.getDescription());
@@ -77,7 +77,8 @@ class Container extends ClaraBase {
     public void end() {
         try {
             // broadcast to the local proxy
-            String data = MessageUtils.buildData(ClaraConstants.CONTAINER_DOWN, getMe().getContainerName());
+            String data = MessageUtils.buildData(ClaraConstants.CONTAINER_DOWN,
+                                                 getMe().getContainerName());
             send(getFrontEnd(), data);
 
             removeRegistration(getMe().getTopic());

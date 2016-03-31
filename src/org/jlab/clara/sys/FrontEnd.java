@@ -80,7 +80,7 @@ class FrontEnd {
             base.setFrontEnd(frontEnd);
 
             // subscribe to forwarding requests
-            xMsgTopic topic = xMsgTopic.wrap(ClaraConstants.DPE + ":" + frontEnd.getCanonicalName());
+            xMsgTopic topic = xMsgTopic.build(ClaraConstants.DPE, frontEnd.getCanonicalName());
             fwdSubscription = base.listen(topic, new GatewayCallback());
             base.register(topic, description);
 
