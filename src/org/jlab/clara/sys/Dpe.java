@@ -76,7 +76,7 @@ public class Dpe extends ClaraBase {
     private final JsonReportBuilder myReportBuilder = new JsonReportBuilder();
 
     private final AtomicBoolean isReporting = new AtomicBoolean();
-    private final int reportWait;
+    private final long reportWait;
 
 
     public static void main(String[] args) {
@@ -119,7 +119,7 @@ public class Dpe extends ClaraBase {
                xMsgProxyAddress proxyAddress,
                xMsgProxyAddress frontEndAddress,
                int poolSize,
-               int reportInterval,
+               long reportInterval,
                String description)
             throws ClaraException {
 
@@ -141,7 +141,7 @@ public class Dpe extends ClaraBase {
         myReport.setDescription(description);
         myReport.setAuthor(System.getenv("USER"));
 
-        reportWait = reportInterval * 1000;
+        reportWait = reportInterval;
     }
 
     /**
@@ -262,7 +262,7 @@ public class Dpe extends ClaraBase {
                 xMsgMessage reportMsg = MessageUtils.buildRequest(reportTopic, jsonData);
                 send(con, reportMsg);
 
-                xMsgUtil.sleep(reportWait);
+                xMsgUtil.sleep((int) reportWait);
             }
 
             destroyConnection(con);

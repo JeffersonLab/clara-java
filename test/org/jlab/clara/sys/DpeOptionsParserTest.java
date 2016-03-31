@@ -178,14 +178,14 @@ public class DpeOptionsParserTest {
     public void dpeUsesDefaultReportInterval() throws Exception {
         parse();
 
-        assertThat(parser.reportInterval(), is(10));
+        assertThat(parser.reportInterval(), is(10_000L));
     }
 
     @Test
     public void dpeReceivesOptionalReportInterval() throws Exception {
         parse(REPORT_OPT, "20");
 
-        assertThat(parser.reportInterval(), is(20));
+        assertThat(parser.reportInterval(), is(20_000L));
     }
 
 

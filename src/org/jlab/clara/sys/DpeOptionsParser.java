@@ -30,6 +30,8 @@ import org.jlab.clara.base.ClaraUtil;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.net.xMsgProxyAddress;
 
+import java.util.concurrent.TimeUnit;
+
 import static java.util.Arrays.asList;
 
 /**
@@ -46,7 +48,7 @@ class DpeOptionsParser {
     private final OptionSpec<Integer> fePort;
     private final OptionSpec<Integer> poolSize;
     private final OptionSpec<String> description;
-    private final OptionSpec<Integer> reportInterval;
+    private final OptionSpec<Long> reportInterval;
     private OptionParser parser;
     private OptionSet options;
     private boolean fe;
@@ -67,7 +69,7 @@ class DpeOptionsParser {
 
         poolSize = parser.accepts("poolsize").withRequiredArg().ofType(Integer.class);
         description = parser.accepts("description").withRequiredArg();
-        reportInterval = parser.accepts("report").withRequiredArg().ofType(Integer.class);
+        reportInterval = parser.accepts("report").withRequiredArg().ofType(Long.class);
 
         parser.acceptsAll(asList("h", "help")).forHelp();
     }
@@ -140,8 +142,9 @@ class DpeOptionsParser {
         return valueOf(description, "");
     }
 
-    public int reportInterval() {
-        return valueOf(reportInterval, 10);
+    public long reportInterval() {
+        long reportWaitSeconds = valueOf(reportInterval, 10L);
+        return TimeUnit.SECONDS.toMillis(reportWaitSeconds);
     }
 
     public boolean isFrontEnd() {
