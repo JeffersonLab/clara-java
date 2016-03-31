@@ -37,8 +37,6 @@ import static org.junit.Assert.assertTrue;
 
 public class DpeOptionsParserTest {
 
-    private static final String IS_FE_OPT = "-fe";
-
     private static final String DPE_HOST_OPT = "-dpe_host";
     private static final String DPE_PORT_OPT = "-dpe_port";
 
@@ -100,6 +98,14 @@ public class DpeOptionsParserTest {
     }
 
     @Test
+    public void workerReceivesOptionalLocalHostAndPort() throws Exception {
+        parse(DPE_HOST_OPT, "10.2.9.4", DPE_PORT_OPT, "8500", FE_HOST_OPT, "10.2.9.100");
+
+        assertThat(parser.localAddress(), is(proxy("10.2.9.4", 8500)));
+        assertThat(parser.frontEnd(), is(proxy("10.2.9.100")));
+    }
+
+    @Test
     public void workerReceivesRemoteFrontEndAddress() throws Exception {
         parse(FE_HOST_OPT, "10.2.9.100");
 
@@ -138,19 +144,19 @@ public class DpeOptionsParserTest {
     }
 
     @Test
-    public void frontEndReceivesOptionalHost() throws Exception {
-        parse(IS_FE_OPT, FE_HOST_OPT, "10.2.9.100");
+    public void frontEndReceivesOptionalLocalPort() throws Exception {
+        parse(DPE_PORT_OPT, "8500");
 
-        assertThat(parser.localAddress(), is(proxy(defaultHost)));
-        assertThat(parser.frontEnd(), is(proxy("10.2.9.100")));
+        assertThat(parser.localAddress(), is(proxy(defaultHost, 8500)));
+        assertThat(parser.frontEnd(), is(proxy(defaultHost, 8500)));
     }
 
     @Test
-    public void frontEndReceivesOptionalPort() throws Exception {
-        parse(IS_FE_OPT, FE_PORT_OPT, "9500");
+    public void frontEndReceivesOptionalLocalHostAndPort() throws Exception {
+        parse(DPE_HOST_OPT, "10.2.9.100", DPE_PORT_OPT, "8500");
 
-        assertThat(parser.localAddress(), is(proxy(defaultHost)));
-        assertThat(parser.frontEnd(), is(proxy(defaultHost, 9500)));
+        assertThat(parser.localAddress(), is(proxy("10.2.9.100", 8500)));
+        assertThat(parser.frontEnd(), is(proxy("10.2.9.100", 8500)));
     }
 
     @Test

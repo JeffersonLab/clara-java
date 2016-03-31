@@ -43,14 +43,15 @@ class DpeOptionsParser {
     public static final int REG_PORT = xMsgConstants.REGISTRAR_PORT;
     private final OptionSpec<String> dpeHost;
     private final OptionSpec<Integer> dpePort;
-    private final OptionSpec<Void> isFrontEnd;
     private final OptionSpec<String> feHost;
     private final OptionSpec<Integer> fePort;
     private final OptionSpec<Integer> poolSize;
     private final OptionSpec<String> description;
     private final OptionSpec<Long> reportInterval;
+
     private OptionParser parser;
     private OptionSet options;
+
     private boolean fe;
     private xMsgProxyAddress localAddress;
     private xMsgProxyAddress frontEndAddress;
@@ -59,7 +60,7 @@ class DpeOptionsParser {
     DpeOptionsParser() {
         parser = new OptionParser();
 
-        isFrontEnd = parser.acceptsAll(asList("fe", "frontend"));
+        parser.acceptsAll(asList("fe", "frontend"));
 
         dpeHost = parser.accepts("dpe_host").withRequiredArg();
         dpePort = parser.accepts("dpe_port").withRequiredArg().ofType(Integer.class);
@@ -78,24 +79,18 @@ class DpeOptionsParser {
         try {
             options = parser.parse(args);
 
+            // Act as front-end by default but if feHost or fePort are passed
+            // act as a worker DPE with remote front-end
+            fe = !options.has(feHost) && !options.has(fePort);
+
             // Get local DPE address
             String localHost = valueOf(dpeHost, ClaraUtil.localhost());
             int localPort = valueOf(dpePort, PROXY_PORT);
             localAddress = new xMsgProxyAddress(localHost, localPort);
 
-            // Act as front-end by default (no need to pass isFrontEnd),
-            // but if feHost or fePort are passed and not isFrontEnd,
-            // act as a worker DPE with remote front-end
-            fe = true;
-            if (!options.has(isFrontEnd) && (options.has(feHost) || options.has(fePort))) {
-                fe = false;
-            }
-
             if (fe) {
-                // Get local FE address (use local DPE by default)
-                String host = valueOf(feHost, localAddress.host());
-                int port = valueOf(fePort, localAddress.port());
-                frontEndAddress = new xMsgProxyAddress(host, port);
+                // Get local FE address (use same local DPE address)
+                frontEndAddress = localAddress;
             } else {
                 // Get remote FE address
                 if (!options.has(feHost)) {
@@ -159,7 +154,6 @@ class DpeOptionsParser {
         return String.format("usage: j_dpe [options]%n%n  Options:%n")
              + optionHelp(dpeHost, "hostname", "use given host for this DPE")
              + optionHelp(dpePort, "port", "use given port for this DPE")
-             + optionHelp(isFrontEnd, null, "use this DPE as front-end")
              + optionHelp(feHost, "hostname", "the host used by the front-end")
              + optionHelp(fePort, "port", "the port used by the front-end")
              + optionHelp(poolSize, "size", "the subscriptions poolsize for this DPE")
