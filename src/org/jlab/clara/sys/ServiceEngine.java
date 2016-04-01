@@ -90,12 +90,12 @@ class ServiceEngine extends ClaraBase {
     }
 
     @Override
-    public void end() {
+    public void start() throws ClaraException {
         // nothing
     }
 
     @Override
-    public void start(ClaraComponent component) {
+    public void end() {
         // nothing
     }
 

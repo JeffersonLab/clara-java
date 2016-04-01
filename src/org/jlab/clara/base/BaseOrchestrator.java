@@ -145,7 +145,7 @@ public class BaseOrchestrator {
             ClaraComponent fe = ClaraComponent.dpe(frontEnd.canonicalName());
             ClaraBase b = new ClaraBase(o, fe) {
                 @Override
-                public void start(ClaraComponent component) {
+                public void start() {
                     // Nothing
                 }
 

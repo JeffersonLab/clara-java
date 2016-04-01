@@ -284,6 +284,7 @@ public final class Dpe extends ClaraBase {
      * in case it is a front-end. Does proper subscriptions to receive requests
      * and starts heart beat reporting thread.
      */
+    @Override
     public void start() throws ClaraException {
         try {
             // start the proxy
@@ -318,11 +319,6 @@ public final class Dpe extends ClaraBase {
         startHeartBeatReport();
 
         printLogo();
-    }
-
-    @Override
-    public void start(ClaraComponent component) {
-        // nothing
     }
 
     @Override

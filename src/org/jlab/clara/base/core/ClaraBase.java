@@ -136,10 +136,11 @@ public abstract class ClaraBase extends xMsg {
         throw new ClaraException("Unsupported mime-type = " + mimeType);
     }
 
-    // abstract methods to start and gracefully end Clara components
-    public abstract void end();
+    // abstract methods to start Clara component
+    public abstract void start() throws ClaraException;
 
-    public abstract void start(ClaraComponent component);
+    // abstract method to gracefully end Clara component
+    public abstract void end();
 
     /**
      * @return the path to the Clara_home defined

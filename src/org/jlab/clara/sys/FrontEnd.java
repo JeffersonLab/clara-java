@@ -71,7 +71,7 @@ class FrontEnd {
                                           description);
             base = new ClaraBase(frontEnd, frontEnd) {
                 @Override
-                public void start(ClaraComponent component) { }
+                public void start() { }
 
                 @Override
                 public void end() { }

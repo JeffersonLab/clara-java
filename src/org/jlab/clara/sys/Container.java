@@ -74,6 +74,11 @@ class Container extends ClaraBase {
     }
 
     @Override
+    public void start() throws ClaraException {
+        // nothing
+    }
+
+    @Override
     public void end() {
         try {
             // broadcast to the local proxy
@@ -86,11 +91,6 @@ class Container extends ClaraBase {
         } catch (ClaraException | xMsgException | IOException e) {
             e.printStackTrace();
         }
-    }
-
-    @Override
-    public void start(ClaraComponent component) {
-        // nothing
     }
 
     public ContainerReport getReport() {

@@ -126,6 +126,12 @@ class Service extends ClaraBase {
 
 
     @Override
+    public void start() throws ClaraException {
+        // nothing
+    }
+
+
+    @Override
     public void end() {
         try {
             executionPool.shutdown();
@@ -140,10 +146,6 @@ class Service extends ClaraBase {
 
     }
 
-    @Override
-    public void start(ClaraComponent component) {
-        // nothing
-    }
 
     private void validateEngine(Engine engine) throws ClaraException {
         validateDataTypes(engine.getInputDataTypes(), "input data types");
