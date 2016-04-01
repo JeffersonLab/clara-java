@@ -35,8 +35,8 @@ import org.jlab.clara.sys.RequestParser.RequestException;
 import org.jlab.clara.util.shell.ClaraFork;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgMessage;
-import org.jlab.coda.xmsg.core.xMsgSubscription;
 import org.jlab.coda.xmsg.core.xMsgTopic;
+import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta.Builder;
 import org.jlab.coda.xmsg.excp.xMsgException;
@@ -51,18 +51,17 @@ import java.util.concurrent.TimeoutException;
 
 class FrontEnd {
 
-    private ClaraBase base;
+    private final ClaraBase base;
 
-    private xMsgRegistrar registrar;
-    private xMsgSubscription fwdSubscription;
+    private final ZContext context = new ZContext();
+    private final xMsgRegistrar registrar;
 
     FrontEnd(xMsgProxyAddress frontEndAddress, int poolSize, String description)
             throws ClaraException {
         try {
             // create the xMsg registrar
             xMsgRegAddress regAddress = new xMsgRegAddress(frontEndAddress.host());
-            registrar = new xMsgRegistrar(new ZContext(), regAddress);
-            registrar.start();
+            registrar = new xMsgRegistrar(context, regAddress);
 
             // create the xMsg actor
             ClaraComponent frontEnd = dpe(frontEndAddress.host(),
@@ -78,14 +77,38 @@ class FrontEnd {
                 public void end() { }
             };
             base.setFrontEnd(frontEnd);
-
-            // subscribe to forwarding requests
-            xMsgTopic topic = xMsgTopic.build(ClaraConstants.DPE, frontEnd.getCanonicalName());
-            fwdSubscription = base.listen(topic, new GatewayCallback());
-            base.register(topic, description);
-
         } catch (xMsgException e) {
             throw new ClaraException("Cannot create front-end", e);
+        }
+    }
+
+
+    public void start() throws ClaraException {
+        try {
+            // start registrar service
+            registrar.start();
+
+            // subscribe to forwarding requests
+            xMsgTopic topic = xMsgTopic.build(ClaraConstants.DPE,
+                                              base.getFrontEnd().getCanonicalName());
+            base.listen(topic, new GatewayCallback());
+            base.register(topic, base.getMe().getDescription());
+
+            xMsgUtil.sleep(100);
+
+        } catch (xMsgException e) {
+            throw new ClaraException("Cannot start front-end", e);
+        }
+    }
+
+
+    public void stop() {
+        context.destroy();
+        registrar.shutdown();
+        try {
+            base.destroy();
+        } catch (xMsgException e) {
+            e.printStackTrace();
         }
     }
 

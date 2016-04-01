@@ -27,8 +27,9 @@ import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 import org.jlab.clara.base.ClaraUtil;
-import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.net.xMsgProxyAddress;
+
+import java.util.concurrent.TimeUnit;
 
 import static java.util.Arrays.asList;
 
@@ -37,18 +38,17 @@ import static java.util.Arrays.asList;
  */
 class DpeOptionsParser {
 
-    public static final int PROXY_PORT = xMsgConstants.DEFAULT_PORT;
-    public static final int REG_PORT = xMsgConstants.REGISTRAR_PORT;
     private final OptionSpec<String> dpeHost;
     private final OptionSpec<Integer> dpePort;
-    private final OptionSpec<Void> isFrontEnd;
     private final OptionSpec<String> feHost;
     private final OptionSpec<Integer> fePort;
     private final OptionSpec<Integer> poolSize;
     private final OptionSpec<String> description;
-    private final OptionSpec<Integer> reportInterval;
+    private final OptionSpec<Long> reportInterval;
+
     private OptionParser parser;
     private OptionSet options;
+
     private boolean fe;
     private xMsgProxyAddress localAddress;
     private xMsgProxyAddress frontEndAddress;
@@ -57,69 +57,46 @@ class DpeOptionsParser {
     DpeOptionsParser() {
         parser = new OptionParser();
 
-        isFrontEnd = parser.acceptsAll(asList("fe", "frontend"));
+        parser.acceptsAll(asList("fe", "frontend"));
 
-        dpeHost = parser.accepts("dpe_host").withRequiredArg();
-        dpePort = parser.accepts("dpe_port").withRequiredArg().ofType(Integer.class);
+        dpeHost = parser.acceptsAll(asList("host", "dpe_host")).withRequiredArg();
+        dpePort = parser.acceptsAll(asList("port", "dpe_port"))
+                        .withRequiredArg().ofType(Integer.class);
 
-        feHost = parser.accepts("fe_host").withRequiredArg();
-        fePort = parser.accepts("fe_port").withRequiredArg().ofType(Integer.class);
+        feHost = parser.acceptsAll(asList("fe-host", "fe_host")).withRequiredArg();
+        fePort = parser.acceptsAll(asList("fe-port", "fe_port"))
+                       .withRequiredArg().ofType(Integer.class);
 
         poolSize = parser.accepts("poolsize").withRequiredArg().ofType(Integer.class);
         description = parser.accepts("description").withRequiredArg();
-        reportInterval = parser.accepts("report").withRequiredArg().ofType(Integer.class);
+        reportInterval = parser.accepts("report").withRequiredArg().ofType(Long.class);
 
         parser.acceptsAll(asList("h", "help")).forHelp();
-    }
-
-    private static <V> String optionHelp(OptionSpec<V> spec, String arg, String... help) {
-        StringBuilder sb = new StringBuilder();
-        String[] lhs = new String[help.length];
-        lhs[0] = optionName(spec, arg);
-        for (int i = 0; i < help.length; i++) {
-            sb.append(String.format("  %-22s  %s%n", lhs[i] == null ? "" : lhs[i], help[i]));
-        }
-        return sb.toString();
-    }
-
-    private static <V> String optionName(OptionSpec<V> spec, String arg) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("-").append(spec.options().get(0));
-        if (arg != null) {
-            sb.append(" <").append(arg).append(">");
-        }
-        return sb.toString();
     }
 
     public void parse(String[] args) {
         try {
             options = parser.parse(args);
 
+            // Act as front-end by default but if feHost or fePort are passed
+            // act as a worker DPE with remote front-end
+            fe = !options.has(feHost) && !options.has(fePort);
+
             // Get local DPE address
             String localHost = valueOf(dpeHost, ClaraUtil.localhost());
-            int localPort = valueOf(dpePort, PROXY_PORT);
+            int localPort = valueOf(dpePort, Dpe.DEFAULT_PROXY_PORT);
             localAddress = new xMsgProxyAddress(localHost, localPort);
 
-            // Act as front-end by default (no need to pass isFrontEnd),
-            // but if feHost or fePort are passed and not isFrontEnd,
-            // act as a worker DPE with remote front-end
-            fe = true;
-            if (!options.has(isFrontEnd) && (options.has(feHost) || options.has(fePort))) {
-                fe = false;
-            }
-
             if (fe) {
-                // Get local FE address (use local DPE by default)
-                String host = valueOf(feHost, localAddress.host());
-                int port = valueOf(fePort, localAddress.port());
-                frontEndAddress = new xMsgProxyAddress(host, port);
+                // Get local FE address (use same local DPE address)
+                frontEndAddress = localAddress;
             } else {
                 // Get remote FE address
                 if (!options.has(feHost)) {
                     error("The remote front-end host is required");
                 }
                 String host = options.valueOf(feHost);
-                int port = valueOf(fePort, PROXY_PORT);
+                int port = valueOf(fePort, Dpe.DEFAULT_PROXY_PORT);
                 frontEndAddress = new xMsgProxyAddress(host, port);
             }
 
@@ -152,15 +129,17 @@ class DpeOptionsParser {
     }
 
     public int poolSize() {
-        return valueOf(poolSize, xMsgConstants.DEFAULT_POOL_SIZE);
+        return valueOf(poolSize, Dpe.DEFAULT_POOL_SIZE);
     }
 
     public String description() {
         return valueOf(description, "");
     }
 
-    public int reportInterval() {
-        return valueOf(reportInterval, 10);
+    public long reportInterval() {
+        long defaultWaitSeconds = TimeUnit.MILLISECONDS.toSeconds(Dpe.DEFAULT_REPORT_WAIT);
+        long reportWaitSeconds = valueOf(reportInterval, defaultWaitSeconds);
+        return TimeUnit.SECONDS.toMillis(reportWaitSeconds);
     }
 
     public boolean isFrontEnd() {
@@ -175,12 +154,34 @@ class DpeOptionsParser {
         return String.format("usage: j_dpe [options]%n%n  Options:%n")
              + optionHelp(dpeHost, "hostname", "use given host for this DPE")
              + optionHelp(dpePort, "port", "use given port for this DPE")
-             + optionHelp(isFrontEnd, null, "use this DPE as front-end")
-             + optionHelp(feHost, "hostname", "the host used by the front-end")
-             + optionHelp(fePort, "port", "the port used by the front-end")
+             + optionHelp(feHost, "hostname", "the host used by the remote front-end")
+             + optionHelp(fePort, "port", "the port used by the remote front-end")
              + optionHelp(poolSize, "size", "the subscriptions poolsize for this DPE")
              + optionHelp(description, "string", "a short description of this DPE")
              + optionHelp(reportInterval, "seconds", "the interval to send reports");
+    }
+
+    private <V> String optionHelp(OptionSpec<V> spec, String arg, String... help) {
+        StringBuilder sb = new StringBuilder();
+        String[] lhs = new String[help.length];
+        lhs[0] = optionName(spec, arg);
+        for (int i = 0; i < help.length; i++) {
+            sb.append(String.format("  %-22s  %s%n", lhs[i] == null ? "" : lhs[i], help[i]));
+        }
+        return sb.toString();
+    }
+
+    private <V> String optionName(OptionSpec<V> spec, String arg) {
+        StringBuilder sb = new StringBuilder();
+        if (spec == dpeHost || spec == dpePort) {
+            sb.append("--").append(spec.options().get(1));
+        } else {
+            sb.append("--").append(spec.options().get(0));
+        }
+        if (arg != null) {
+            sb.append(" <").append(arg).append(">");
+        }
+        return sb.toString();
     }
 
     static class DpeOptionsException extends RuntimeException {

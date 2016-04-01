@@ -23,188 +23,161 @@
 package org.jlab.clara.sys;
 
 import org.jlab.clara.base.ClaraUtil;
-import org.jlab.clara.sys.DpeOptionsParser.DpeOptionsException;
+import org.jlab.clara.sys.Dpe.Builder;
 import org.jlab.coda.xmsg.net.xMsgProxyAddress;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+
+import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-public class DpeOptionsParserTest {
+public class DpeBuilderTest {
 
-    private static final String DPE_HOST_OPT = "--host";
-    private static final String DPE_PORT_OPT = "--port";
-
-    private static final String FE_HOST_OPT = "--fe-host";
-    private static final String FE_PORT_OPT = "--fe-port";
-
-    private static final String POOL_OPT = "--poolsize";
-    private static final String DESC_OPT = "--description";
-    private static final String REPORT_OPT = "--report";
     private final String defaultHost;
+
     @Rule
     public ExpectedException expectedEx = ExpectedException.none();
-    private DpeOptionsParser parser;
 
-
-    public DpeOptionsParserTest() throws Exception {
+    public DpeBuilderTest() throws Exception {
         defaultHost = ClaraUtil.localhost();
     }
 
-    @Before
-    public void setUp() throws Exception {
-        parser = new DpeOptionsParser();
-    }
-
-
     @Test
     public void dpeIsFrontEndByDefault() throws Exception {
-        parse();
+        Builder builder = new Builder();
 
-        assertTrue(parser.isFrontEnd());
+        assertTrue(builder.isFrontEnd);
     }
 
     @Test
     public void dpeIsWorkerIfReceivesFrontEndHost() throws Exception {
-        parse(FE_HOST_OPT, "10.2.9.100");
+        Builder builder = new Builder("10.2.9.100");
 
-        assertFalse(parser.isFrontEnd());
+        assertFalse(builder.isFrontEnd);
     }
 
     @Test
     public void workerUsesDefaultLocalAddress() throws Exception {
-        parse(FE_HOST_OPT, "10.2.9.100");
+        Builder builder = new Builder("10.2.9.100");
 
-        assertThat(parser.localAddress(), is(proxy(defaultHost)));
+        assertThat(builder.localAddress, is(proxy(defaultHost)));
     }
 
     @Test
     public void workerReceivesOptionalLocalHost() throws Exception {
-        parse(DPE_HOST_OPT, "10.2.9.4", FE_HOST_OPT, "10.2.9.100");
+        Builder builder = new Builder("10.2.9.100").withHost("10.2.9.4");
 
-        assertThat(parser.localAddress(), is(proxy("10.2.9.4")));
+        assertThat(builder.localAddress, is(proxy("10.2.9.4")));
     }
 
     @Test
     public void workerReceivesOptionalLocalPort() throws Exception {
-        parse(DPE_PORT_OPT, "8500", FE_HOST_OPT, "10.2.9.100");
+        Builder builder = new Builder("10.2.9.100").withPort(8500);
 
-        assertThat(parser.localAddress(), is(proxy(defaultHost, 8500)));
+        assertThat(builder.localAddress, is(proxy(defaultHost, 8500)));
     }
 
     @Test
     public void workerReceivesOptionalLocalHostAndPort() throws Exception {
-        parse(DPE_HOST_OPT, "10.2.9.4", DPE_PORT_OPT, "8500", FE_HOST_OPT, "10.2.9.100");
+        Builder builder = new Builder("10.2.9.100").withHost("10.2.9.4").withPort(8500);
 
-        assertThat(parser.localAddress(), is(proxy("10.2.9.4", 8500)));
-        assertThat(parser.frontEnd(), is(proxy("10.2.9.100")));
+        assertThat(builder.localAddress, is(proxy("10.2.9.4", 8500)));
+        assertThat(builder.frontEndAddress, is(proxy("10.2.9.100")));
     }
 
     @Test
     public void workerReceivesRemoteFrontEndAddress() throws Exception {
-        parse(FE_HOST_OPT, "10.2.9.100");
+        Builder builder = new Builder("10.2.9.100");
 
-        assertThat(parser.frontEnd(), is(proxy("10.2.9.100")));
+        assertThat(builder.frontEndAddress, is(proxy("10.2.9.100")));
     }
 
     @Test
     public void workerReceivesRemoteFrontEndAddressAndPort() throws Exception {
-        parse(FE_HOST_OPT, "10.2.9.100", FE_PORT_OPT, "9000");
+        Builder builder = new Builder("10.2.9.100", 9000);
 
-        assertThat(parser.frontEnd(), is(proxy("10.2.9.100", 9000)));
-    }
-
-    @Test
-    public void workerRequiresRemoteFrontEndHostWhenPortIsGiven() throws Exception {
-        expectedEx.expect(DpeOptionsException.class);
-        expectedEx.expectMessage("remote front-end host is required");
-
-        parse(FE_PORT_OPT, "9000");
+        assertThat(builder.frontEndAddress, is(proxy("10.2.9.100", 9000)));
     }
 
     @Test
     public void frontEndUsesDefaultLocalAddress() throws Exception {
-        parse();
+        Builder builder = new Builder();
 
-        assertThat(parser.localAddress(), is(proxy(defaultHost)));
-        assertThat(parser.frontEnd(), is(proxy(defaultHost)));
+        assertThat(builder.localAddress, is(proxy(defaultHost)));
+        assertThat(builder.frontEndAddress, is(proxy(defaultHost)));
     }
 
     @Test
     public void frontEndReceivesOptionalLocalHost() throws Exception {
-        parse(DPE_HOST_OPT, "10.2.9.100");
+        Builder builder = new Builder().withHost("10.2.9.100");
 
-        assertThat(parser.localAddress(), is(proxy("10.2.9.100")));
-        assertThat(parser.frontEnd(), is(proxy("10.2.9.100")));
+        assertThat(builder.localAddress, is(proxy("10.2.9.100")));
+        assertThat(builder.frontEndAddress, is(proxy("10.2.9.100")));
     }
 
     @Test
     public void frontEndReceivesOptionalLocalPort() throws Exception {
-        parse(DPE_PORT_OPT, "8500");
+        Builder builder = new Builder().withPort(8500);
 
-        assertThat(parser.localAddress(), is(proxy(defaultHost, 8500)));
-        assertThat(parser.frontEnd(), is(proxy(defaultHost, 8500)));
+        assertThat(builder.localAddress, is(proxy(defaultHost, 8500)));
+        assertThat(builder.frontEndAddress, is(proxy(defaultHost, 8500)));
     }
 
     @Test
     public void frontEndReceivesOptionalLocalHostAndPort() throws Exception {
-        parse(DPE_HOST_OPT, "10.2.9.100", DPE_PORT_OPT, "8500");
+        Builder builder = new Builder().withHost("10.2.9.4").withPort(8500);
 
-        assertThat(parser.localAddress(), is(proxy("10.2.9.100", 8500)));
-        assertThat(parser.frontEnd(), is(proxy("10.2.9.100", 8500)));
+        assertThat(builder.localAddress, is(proxy("10.2.9.4", 8500)));
+        assertThat(builder.frontEndAddress, is(proxy("10.2.9.4", 8500)));
     }
 
     @Test
     public void dpeUsesDefaultPoolSize() throws Exception {
-        parse();
+        Builder builder = new Builder();
 
-        assertThat(parser.poolSize(), is(Dpe.DEFAULT_POOL_SIZE));
+        assertThat(builder.poolSize, is(Dpe.DEFAULT_POOL_SIZE));
     }
 
     @Test
     public void dpeReceivesOptionalPoolSize() throws Exception {
-        parse(POOL_OPT, "10");
+        Builder builder = new Builder().withPoolSize(10);
 
-        assertThat(parser.poolSize(), is(10));
+        assertThat(builder.poolSize, is(10));
     }
 
     @Test
     public void dpeUsesDefaultEmptyDescription() throws Exception {
-        parse();
+        Builder builder = new Builder();
 
-        assertThat(parser.description(), is(""));
+        assertThat(builder.description, is(""));
     }
 
     @Test
     public void dpeReceivesOptionalDescription() throws Exception {
-        parse(DESC_OPT, "A processing DPE");
+        Builder builder = new Builder().withDescription("A processing DPE");
 
-        assertThat(parser.description(), is("A processing DPE"));
+        assertThat(builder.description, is("A processing DPE"));
     }
 
     @Test
     public void dpeUsesDefaultReportInterval() throws Exception {
-        parse();
+        Builder builder = new Builder();
 
-        assertThat(parser.reportInterval(), is(Dpe.DEFAULT_REPORT_WAIT));
+        assertThat(builder.reportInterval, is(Dpe.DEFAULT_REPORT_WAIT));
     }
 
     @Test
     public void dpeReceivesOptionalReportInterval() throws Exception {
-        parse(REPORT_OPT, "20");
+        Builder builder = new Builder().withReportInterval(20, TimeUnit.SECONDS);
 
-        assertThat(parser.reportInterval(), is(20_000L));
+        assertThat(builder.reportInterval, is(20_000L));
     }
 
-
-    private void parse(String... args) throws Exception {
-        parser.parse(args);
-    }
 
     private xMsgProxyAddress proxy(String host) throws Exception {
         return new xMsgProxyAddress(host, Dpe.DEFAULT_PROXY_PORT);

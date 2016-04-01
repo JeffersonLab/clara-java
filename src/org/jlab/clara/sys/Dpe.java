@@ -34,6 +34,7 @@ import org.jlab.clara.util.report.DpeReport;
 import org.jlab.clara.util.report.JsonReportBuilder;
 import org.jlab.clara.util.report.SystemStats;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
+import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgSubscription;
 import org.jlab.coda.xmsg.core.xMsgTopic;
@@ -42,12 +43,11 @@ import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 import org.jlab.coda.xmsg.excp.xMsgException;
 import org.jlab.coda.xmsg.net.xMsgConnection;
 import org.jlab.coda.xmsg.net.xMsgProxyAddress;
-import org.jlab.coda.xmsg.xsys.xMsgProxy;
-import org.zeromq.ZContext;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -65,69 +65,25 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author gurjyan
  * @version 4.x
  */
-public class Dpe extends ClaraBase {
+public final class Dpe extends ClaraBase {
+
+    static final int DEFAULT_PROXY_PORT = xMsgConstants.DEFAULT_PORT;
+    static final int DEFAULT_POOL_SIZE = 2;
+    static final long DEFAULT_REPORT_WAIT = 10_000;
+
+    private final boolean isFrontEnd;
 
     // The containers running on this DPE
-    private Map<String, Container> myContainers = new HashMap<>();
+    private final Map<String, Container> myContainers = new HashMap<>();
 
     private xMsgSubscription subscriptionHandler;
 
-    private DpeReport myReport;
-    private JsonReportBuilder myReportBuilder = new JsonReportBuilder();
+    private final DpeReport myReport;
+    private final JsonReportBuilder myReportBuilder = new JsonReportBuilder();
 
-    private AtomicBoolean isReporting = new AtomicBoolean();
-    private int reportWait;
+    private final AtomicBoolean isReporting = new AtomicBoolean();
+    private final long reportWait;
 
-    /**
-     * Constructor starts a DPE component, that connects to the local xMsg proxy server.
-     * Does proper subscriptions nad starts heart beat reporting thread.
-     *
-     * @param proxyAddress address of local proxy
-     * @param frontEndAddress address of front-end proxy
-     * @param poolSize subscription pool size
-     * @param description textual description of the DPE
-     * @throws xMsgException
-     * @throws ClaraException
-     */
-    public Dpe(xMsgProxyAddress proxyAddress,
-               xMsgProxyAddress frontEndAddress,
-               int poolSize,
-               String description,
-               int reportInterval)
-            throws xMsgException, ClaraException {
-        super(ClaraComponent.dpe(proxyAddress.host(),
-                                 proxyAddress.port(),
-                                 ClaraConstants.JAVA_LANG,
-                                 poolSize,
-                                 description),
-              ClaraComponent.dpe(frontEndAddress.host(),
-                      frontEndAddress.port(),
-                      ClaraConstants.JAVA_LANG,
-                      1, "Front End"));
-        // Create a socket connections to the local dpe proxy
-        releaseConnection(getConnection());
-
-        // Subscribe and register
-        xMsgTopic topic = xMsgTopic.wrap(ClaraConstants.DPE + ":" + getMe().getCanonicalName());
-        subscriptionHandler = listen(topic, new DpeCallBack());
-        register(topic, description);
-
-        myReport = new DpeReport(getMe().getCanonicalName());
-        myReport.setHost(getMe().getCanonicalName());
-        myReport.setLang(getMe().getDpeLang());
-        myReport.setDescription(description);
-        myReport.setAuthor(System.getenv("USER"));
-        myReport.setStartTime(ClaraUtil.getCurrentTime());
-        myReport.setMemorySize(Runtime.getRuntime().maxMemory());
-        myReport.setCoreCount(Runtime.getRuntime().availableProcessors());
-
-        isReporting.set(true);
-        reportWait = reportInterval * 1000;
-
-        startHeartBeatReport();
-
-        printLogo();
-    }
 
     public static void main(String[] args) {
         DpeOptionsParser options = new DpeOptionsParser();
@@ -138,42 +94,235 @@ public class Dpe extends ClaraBase {
                 System.exit(0);
             }
 
-            // start the proxy
-            startProxy(options.localAddress());
-
-            // start the front-end
-            if (options.isFrontEnd()) {
-                new FrontEnd(options.frontEnd(), options.poolSize(), options.description());
-            }
-
             // start a dpe
-            new Dpe(options.localAddress(), options.frontEnd(),
-                    options.poolSize(), options.description(), options.reportInterval());
+            Dpe dpe = new Dpe(options.isFrontEnd(), options.localAddress(), options.frontEnd(),
+                              options.poolSize(), options.reportInterval(), options.description());
+            dpe.start();
 
         } catch (DpeOptionsException e) {
             System.err.println(e.getMessage());
             System.err.println();
             System.err.println(options.usage());
             System.exit(1);
-        } catch (xMsgException | ClaraException e) {
+        } catch (ClaraException e) {
             e.printStackTrace();
             System.exit(1);
         }
     }
 
-    private static void startProxy(final xMsgProxyAddress address) {
-        Thread t = new Thread(() -> {
-            try {
-                xMsgProxy proxy = new xMsgProxy(new ZContext(), address);
-                if (System.getenv("XMSG_PROXY_DEBUG") != null) {
-                    proxy.verbose();
-                }
-                proxy.start();
-            } catch (xMsgException e) {
-                e.printStackTrace();
+
+    /**
+     * Helps constructing a {@link Dpe DPE}.
+     */
+    public static class Builder {
+
+        final boolean isFrontEnd;
+
+        xMsgProxyAddress localAddress;
+        xMsgProxyAddress frontEndAddress;
+
+        int poolSize = DEFAULT_POOL_SIZE;
+        long reportInterval = DEFAULT_REPORT_WAIT;
+        String description = "";
+
+        /**
+         * Creates a builder for a front-end DPE.
+         * The front-end DPE contains the registration service used by the
+         * orchestrators to find running worker DPEs and engines.
+         * <p>
+         * A front-end DPE is also a worker DPE that can run user engines,
+         * so it is recommended to run a front-end when using CLARA on a local box.
+         * In multi-node CLARA distributions it is mostly used a discovery and
+         * gateway for workers DPEs.
+         */
+        public Builder() {
+            isFrontEnd = true;
+            localAddress = new xMsgProxyAddress(ClaraUtil.localhost(), DEFAULT_PROXY_PORT);
+            frontEndAddress = localAddress;
+        }
+
+        /**
+         * Creates a builder for a worker DPE.
+         * A worker DPE mainly runs user engines as part of a cloud of DPEs.
+         * All worker DPEs must register with the main front-end DPE.
+         * <p>
+         * When running CLARA on single node, a front-end DPE must be used
+         * instead of a worker DPE.
+         *
+         * @param frontEndHost the host address of the front-end
+         */
+        public Builder(String frontEndHost) {
+            this(frontEndHost, DEFAULT_PROXY_PORT);
+        }
+
+        /**
+         * Creates a builder for a worker DPE.
+         * A worker DPE mainly runs user engines as part of a cloud of DPEs.
+         * All worker DPEs must register with the main front-end DPE.
+         * <p>
+         * When running CLARA on single node, a front-end DPE must be used
+         * instead of a worker DPE.
+         *
+         * @param frontEndHost the host address of the front-end
+         * @param frontEndPort the port number of the front-end
+         */
+        public Builder(String frontEndHost, int frontEndPort) {
+            isFrontEnd = false;
+            localAddress = new xMsgProxyAddress(ClaraUtil.localhost(), DEFAULT_PROXY_PORT);
+            frontEndAddress = new xMsgProxyAddress(frontEndHost, frontEndPort);
+        }
+
+        /**
+         * Uses the given host for the local address.
+         */
+        public Builder withHost(String host) {
+            localAddress = new xMsgProxyAddress(host, localAddress.port());
+            if (isFrontEnd) {
+                frontEndAddress = localAddress;
             }
-        });
-        t.start();
+            return this;
+        }
+
+        /**
+         * Uses the given port for the local address.
+         */
+        public Builder withPort(int port) {
+            localAddress = new xMsgProxyAddress(localAddress.host(), port);
+            if (isFrontEnd) {
+                frontEndAddress = localAddress;
+            }
+            return this;
+        }
+
+        /**
+         * Sets the interval of time between publishing reports.
+         */
+        public Builder withReportInterval(long interval, TimeUnit unit) {
+            if (interval <= 0) {
+                throw new IllegalArgumentException("Invalid report interval: " + interval);
+            }
+            this.reportInterval = unit.toMillis(interval);
+            return this;
+        }
+
+        /**
+         * Sets the size of the thread-pool that will process requests.
+         */
+        public Builder withPoolSize(int poolSize) {
+            if (poolSize <= 0) {
+                throw new IllegalArgumentException("Invalid pool size: " + poolSize);
+            }
+            this.poolSize = poolSize;
+            return this;
+        }
+
+        /**
+         * Sets a description for this DPE.
+         */
+        public Builder withDescription(String description) {
+            Objects.requireNonNull(description, "description parameter is null");
+            this.description = description;
+            return this;
+        }
+
+        /**
+         * Creates the DPE.
+         *
+         * @throws ClaraException if the DPE could not be created
+         */
+        public Dpe build() throws ClaraException {
+            return new Dpe(isFrontEnd, localAddress, frontEndAddress,
+                           poolSize, reportInterval, description);
+        }
+    }
+
+
+    /**
+     * Constructor of a DPE.
+     *
+     * @param isFrontEnd true if this DPE is the front-end
+     * @param proxyAddress address of local proxy
+     * @param frontEndAddress address of front-end proxy
+     * @param poolSize subscription pool size
+     * @param reportInterval the time between publishing the reports
+     * @param description textual description of the DPE
+     * @throws ClaraException
+     */
+    private Dpe(boolean isFrontEnd,
+                xMsgProxyAddress proxyAddress,
+                xMsgProxyAddress frontEndAddress,
+                int poolSize,
+                long reportInterval,
+                String description)
+            throws ClaraException {
+
+        super(ClaraComponent.dpe(proxyAddress.host(),
+                                 proxyAddress.port(),
+                                 ClaraConstants.JAVA_LANG,
+                                 poolSize,
+                                 description),
+              ClaraComponent.dpe(frontEndAddress.host(),
+                      frontEndAddress.port(),
+                      ClaraConstants.JAVA_LANG,
+                      1, "Front End"));
+
+        this.isFrontEnd = isFrontEnd;
+
+        myReport = new DpeReport(getMe().getCanonicalName());
+        myReport.setHost(getMe().getCanonicalName());
+        myReport.setLang(getMe().getDpeLang());
+        myReport.setDescription(description);
+        myReport.setAuthor(System.getenv("USER"));
+
+        reportWait = reportInterval;
+    }
+
+    /**
+     * Starts this DPE.
+     * <p>
+     * Starts a local xMsg proxy server, and a local xMsg registrar service
+     * in case it is a front-end. Does proper subscriptions to receive requests
+     * and starts heart beat reporting thread.
+     */
+    public void start() throws ClaraException {
+        try {
+            // start the proxy
+            Proxy proxy = new Proxy(getMe().getProxyAddress());
+            proxy.start();
+
+            // start the front-end
+            if (isFrontEnd) {
+                FrontEnd fe = new FrontEnd(getFrontEnd().getProxyAddress(),
+                                           getPoolSize(),
+                                           getMe().getDescription());
+                fe.start();
+            }
+
+            // Create a socket connections to the local dpe proxy
+            releaseConnection(getConnection());
+
+            // Subscribe and register
+            xMsgTopic topic = xMsgTopic.build(ClaraConstants.DPE, getMe().getCanonicalName());
+            subscriptionHandler = listen(topic, new DpeCallBack());
+            register(topic, getMe().getDescription());
+        } catch (xMsgException e) {
+            throw new ClaraException("Could not start DPE", e);
+        }
+
+        myReport.setStartTime(ClaraUtil.getCurrentTime());
+        myReport.setMemorySize(Runtime.getRuntime().maxMemory());
+        myReport.setCoreCount(Runtime.getRuntime().availableProcessors());
+
+        isReporting.set(true);
+
+        startHeartBeatReport();
+
+        printLogo();
+    }
+
+    @Override
+    public void start(ClaraComponent component) {
+        // nothing
     }
 
     @Override
@@ -191,14 +340,6 @@ public class Dpe extends ClaraBase {
         }
     }
 
-    @Override
-    public void start(ClaraComponent component) {
-        // nothing
-    }
-
-    /**
-     *
-     */
     private void printLogo() {
         System.out.println("=========================================");
         System.out.println("                 CLARA DPE               ");
@@ -221,17 +362,11 @@ public class Dpe extends ClaraBase {
         System.out.println("=========================================");
     }
 
-    /**
-     *
-     */
     private void startHeartBeatReport() {
         ScheduledExecutorService scheduledPingService = Executors.newScheduledThreadPool(3);
         scheduledPingService.schedule(() -> report(), 5, TimeUnit.SECONDS);
     }
 
-    /**
-     * Builds a report for the heart beat reporting thread.
-     */
     private void report() {
         try {
             xMsgProxyAddress feHost = getFrontEnd().getProxyAddress();
@@ -260,7 +395,7 @@ public class Dpe extends ClaraBase {
                 xMsgMessage reportMsg = MessageUtils.buildRequest(reportTopic, jsonData);
                 send(con, reportMsg);
 
-                xMsgUtil.sleep(reportWait);
+                xMsgUtil.sleep((int) reportWait);
             }
 
             destroyConnection(con);
