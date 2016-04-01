@@ -65,7 +65,7 @@ class FrontEnd {
 
             // create the xMsg actor
             ClaraComponent frontEnd = dpe(frontEndAddress.host(),
-                                          frontEndAddress.port(),
+                                          frontEndAddress.pubPort(),
                                           ClaraConstants.JAVA_LANG,
                                           poolSize,
                                           description);
@@ -105,11 +105,7 @@ class FrontEnd {
     public void stop() {
         context.destroy();
         registrar.shutdown();
-        try {
-            base.destroy();
-        } catch (xMsgException e) {
-            e.printStackTrace();
-        }
+        base.destroy();
     }
 
 

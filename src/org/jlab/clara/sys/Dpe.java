@@ -176,7 +176,7 @@ public final class Dpe extends ClaraBase {
          * Uses the given host for the local address.
          */
         public Builder withHost(String host) {
-            localAddress = new xMsgProxyAddress(host, localAddress.port());
+            localAddress = new xMsgProxyAddress(host, localAddress.pubPort());
             if (isFrontEnd) {
                 frontEndAddress = localAddress;
             }
@@ -257,12 +257,12 @@ public final class Dpe extends ClaraBase {
             throws ClaraException {
 
         super(ClaraComponent.dpe(proxyAddress.host(),
-                                 proxyAddress.port(),
+                                 proxyAddress.pubPort(),
                                  ClaraConstants.JAVA_LANG,
                                  poolSize,
                                  description),
               ClaraComponent.dpe(frontEndAddress.host(),
-                      frontEndAddress.port(),
+                      frontEndAddress.pubPort(),
                       ClaraConstants.JAVA_LANG,
                       1, "Front End"));
 
@@ -354,7 +354,7 @@ public final class Dpe extends ClaraBase {
         }
         System.out.println();
         System.out.println(" Proxy Host       = " + getDefaultProxyAddress().host());
-        System.out.println(" Proxy Port       = " + getDefaultProxyAddress().port());
+        System.out.println(" Proxy Port       = " + getDefaultProxyAddress().pubPort());
         System.out.println();
         System.out.println(" FrontEnd Host    = " + getFrontEnd().getDpeHost());
         System.out.println(" FrontEnd Port    = " + getFrontEnd().getDpePort());
