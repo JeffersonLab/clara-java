@@ -132,7 +132,7 @@ class Service extends ClaraBase {
 
 
     @Override
-    public void end() {
+    protected void end() {
         try {
             executionPool.shutdown();
             userEngine.destroy();

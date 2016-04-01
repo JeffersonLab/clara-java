@@ -95,7 +95,7 @@ class ServiceEngine extends ClaraBase {
     }
 
     @Override
-    public void end() {
+    protected void end() {
         // nothing
     }
 

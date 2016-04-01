@@ -150,7 +150,7 @@ public class BaseOrchestrator {
                 }
 
                 @Override
-                public void end() {
+                protected void end() {
                     // Nothing
                 }
             };

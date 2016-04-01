@@ -322,7 +322,7 @@ public final class Dpe extends ClaraBase {
     }
 
     @Override
-    public void end() {
+    protected void end() {
         try {
             for (Container cont : myContainers.values()) {
                 cont.end();

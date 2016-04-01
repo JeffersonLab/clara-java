@@ -79,7 +79,7 @@ class Container extends ClaraBase {
     }
 
     @Override
-    public void end() {
+    protected void end() {
         try {
             // broadcast to the local proxy
             String data = MessageUtils.buildData(ClaraConstants.CONTAINER_DOWN,

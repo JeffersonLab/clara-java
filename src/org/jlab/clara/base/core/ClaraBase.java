@@ -140,7 +140,13 @@ public abstract class ClaraBase extends xMsg {
     public abstract void start() throws ClaraException;
 
     // abstract method to gracefully end Clara component
-    public abstract void end();
+    protected abstract void end();
+
+    @Override
+    public void close() {
+        end();
+        super.close();
+    }
 
     /**
      * @return the path to the Clara_home defined

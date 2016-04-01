@@ -74,7 +74,7 @@ class FrontEnd {
                 public void start() { }
 
                 @Override
-                public void end() { }
+                protected void end() { }
             };
             base.setFrontEnd(frontEnd);
         } catch (xMsgException e) {
