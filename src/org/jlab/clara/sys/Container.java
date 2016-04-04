@@ -93,10 +93,6 @@ class Container extends ClaraBase {
         }
     }
 
-    public ContainerReport getReport() {
-        return myReport;
-    }
-
     public void addService(ClaraComponent comp, ClaraComponent frontEnd)
                            throws xMsgException, ClaraException, IOException {
 
@@ -140,5 +136,9 @@ class Container extends ClaraBase {
 
     public ConcurrentHashMap<String, Service> geServices() {
         return myServices;
+    }
+
+    public ContainerReport getReport() {
+        return myReport;
     }
 }
