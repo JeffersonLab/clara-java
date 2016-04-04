@@ -70,8 +70,7 @@ public abstract class ClaraBase extends xMsg {
      * @param frontEnd  definition of the front-end
      * @throws ClaraException
      */
-    public ClaraBase(ClaraComponent me,
-                     ClaraComponent frontEnd) throws ClaraException {
+    public ClaraBase(ClaraComponent me, ClaraComponent frontEnd) {
         super(me.getCanonicalName(),
               new xMsgProxyAddress(me.getDpeHost(), me.getDpePort()),
               new xMsgRegAddress(),
@@ -94,7 +93,7 @@ public abstract class ClaraBase extends xMsg {
         this.frontEnd = frontEnd;
         this.claraHome = System.getenv("CLARA_HOME");
         if (claraHome == null) {
-            throw new ClaraException("CLARA_HOME environmental variable is not defined.");
+            throw new IllegalStateException("CLARA_HOME environmental variable is not defined.");
         }
     }
 

@@ -75,7 +75,7 @@ class ServiceEngine extends ClaraBase {
     ServiceEngine(ClaraComponent comp,
                   ClaraComponent frontEnd,
                   Engine userEngine,
-                  ServiceSysConfig config) throws ClaraException, xMsgException {
+                  ServiceSysConfig config) throws xMsgException {
         super(comp, frontEnd);
 
         this.engineObject = userEngine;

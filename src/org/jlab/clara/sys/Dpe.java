@@ -253,8 +253,7 @@ public final class Dpe extends ClaraBase {
                 xMsgProxyAddress frontEndAddress,
                 int poolSize,
                 long reportInterval,
-                String description)
-            throws ClaraException {
+                String description) {
 
         super(ClaraComponent.dpe(proxyAddress.host(),
                                  proxyAddress.pubPort(),
