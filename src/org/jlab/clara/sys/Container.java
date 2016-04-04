@@ -50,10 +50,6 @@ class Container extends ClaraBase {
     Container(ClaraComponent comp, ClaraComponent frontEnd) throws ClaraException, xMsgException {
         super(comp, frontEnd);
 
-        if (!comp.isContainer()) {
-            throw new ClaraException("Clara-Error: incompatible component.");
-        }
-
         // Create a socket connections to the dpe proxy
         releaseConnection(getConnection());
 
