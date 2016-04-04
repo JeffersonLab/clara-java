@@ -99,6 +99,14 @@ public final class Dpe extends ClaraBase {
             // start a dpe
             Dpe dpe = new Dpe(options.isFrontEnd(), options.localAddress(), options.frontEnd(),
                               options.poolSize(), options.reportInterval(), options.description());
+
+            Runtime.getRuntime().addShutdownHook(new Thread() {
+                @Override
+                public void run() {
+                    dpe.close();
+                }
+            });
+
             dpe.start();
 
         } catch (DpeOptionsException e) {
