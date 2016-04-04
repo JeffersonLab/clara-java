@@ -420,7 +420,7 @@ public final class Dpe extends ClaraBase {
     }
 
     private void startContainer(RequestParser parser)
-            throws RequestException, ClaraException {
+            throws RequestException, DpeException {
 
         String containerName = parser.nextString();
         int poolSize = parser.nextInteger();
@@ -438,7 +438,7 @@ public final class Dpe extends ClaraBase {
                 description);
 
         if (myContainers.containsKey(containerName)) {
-            String msg = "%s: Container %s already exists. No new container is created%n";
+            String msg = "%s: container = %s already exists. No new container is created%n";
             System.err.printf(msg, ClaraUtil.getCurrentTimeInH(), contComp.getCanonicalName());
             return;
         }
@@ -448,13 +448,13 @@ public final class Dpe extends ClaraBase {
             myContainers.put(containerName, container);
             myReport.addContainerReport(container.getReport());
         } catch (ClaraException e) {
-            throw new ClaraException("Could not start container " + contComp, e);
+            throw new DpeException("could not start container = " + contComp, e);
         }
     }
 
 
     private void startService(RequestParser parser)
-            throws RequestException, ClaraException {
+            throws RequestException, DpeException {
         String containerName = parser.nextString();
         String engineName = parser.nextString();
         String engineClass = parser.nextString();
@@ -476,16 +476,17 @@ public final class Dpe extends ClaraBase {
         if (myContainers.containsKey(containerName)) {
             try {
                 myContainers.get(containerName).addService(serComp, getFrontEnd());
-            } catch (xMsgException | IOException e) {
-                throw new ClaraException("Could not start service " + serComp, e);
+            } catch (xMsgException | IOException | ClaraException e) {
+                throw new DpeException("could not start service " + serComp, e);
             }
         } else {
-            throw new ClaraException("Could not start service " + serComp + " (missing container)");
+            throw new RequestException("could not start service = " + serComp +
+                                       ": missing container");
         }
     }
 
     private void stopService(RequestParser parser)
-            throws RequestException, ClaraException {
+            throws RequestException, DpeException {
         String containerName = parser.nextString();
         String engineName = parser.nextString();
         String serviceName = MessageUtils.buildTopic(getMe().getCanonicalName(),
@@ -494,23 +495,23 @@ public final class Dpe extends ClaraBase {
         if (myContainers.containsKey(containerName)) {
             try {
                 myContainers.get(containerName).removeService(serviceName);
-            } catch (xMsgException | IOException e) {
-                throw new ClaraException("Could not start service " + serviceName, e);
+            } catch (xMsgException | IOException | ClaraException e) {
+                throw new DpeException("could not stop service = " + serviceName, e);
             }
         } else {
-            throw new ClaraException("Could not stop service " + serviceName + " (missing container)");
+            throw new RequestException("could not stop service = " + serviceName +
+                                       ": missing container");
         }
-
     }
 
     private void stopContainer(RequestParser parser)
-            throws RequestException, ClaraException {
+            throws RequestException, DpeException {
         String containerName = parser.nextString();
         if (myContainers.containsKey(containerName)) {
-            System.out.println("Removing container " + containerName);
             myContainers.get(containerName).end();
         } else {
-            System.out.println("Clara-Warning: wrong address. Container = " + containerName);
+            throw new RequestException("could not stop container = " + containerName +
+                                       ": container doesn't exist");
         }
     }
 
@@ -527,6 +528,27 @@ public final class Dpe extends ClaraBase {
             for (Service ser : cont.geServices().values()) {
                 ser.setFrontEnd(frontEnd);
             }
+        }
+    }
+
+
+    /**
+     * A problem that occurs processing a valid request.
+     */
+    private static class DpeException extends Exception {
+
+        DpeException(String msg, Throwable cause) {
+            super(msg, cause);
+        }
+
+        @Override
+        public String getMessage() {
+            StringBuilder sb = new StringBuilder();
+            sb.append(super.getMessage());
+            if (getCause() != null) {
+                sb.append(": ").append(getCause().getMessage());
+            }
+            return sb.toString();
         }
     }
 
@@ -610,8 +632,8 @@ public final class Dpe extends ClaraBase {
                     sendResponse(msg, xMsgMeta.Status.INFO, parser.request());
                 }
 
-            } catch (RequestException | ClaraException e) {
-                e.printStackTrace();
+            } catch (RequestException | DpeException e) {
+                System.err.printf("%s: %s%n", ClaraUtil.getCurrentTimeInH(), e.getMessage());
                 if (msg.getMetaData().hasReplyTo()) {
                     sendResponse(msg, xMsgMeta.Status.ERROR, e.getMessage());
                 }
