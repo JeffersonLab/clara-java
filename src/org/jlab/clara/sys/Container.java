@@ -43,9 +43,9 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 class Container extends ClaraBase {
 
+    private final ConcurrentHashMap<String, Service> myServices = new ConcurrentHashMap<>();
+    private final ContainerReport myReport;
 
-    private ConcurrentHashMap<String, Service> myServices = new ConcurrentHashMap<>();
-    private ContainerReport myReport;
 
     Container(ClaraComponent comp, ClaraComponent frontEnd) throws ClaraException {
         super(comp, frontEnd);

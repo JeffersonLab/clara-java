@@ -55,14 +55,14 @@ class ServiceEngine extends ClaraBase {
     // Engine instantiated object
     private final Engine engineObject;
 
-    private ServiceSysConfig sysConfig;
+    private final ServiceSysConfig sysConfig;
 
-    private Semaphore semaphore = new Semaphore(1);
+    private final Semaphore semaphore = new Semaphore(1);
+
+    private final CompositionCompiler compiler;
 
     // Already recorded (previous) composition
     private String prevComposition = xMsgConstants.UNDEFINED;
-
-    private CompositionCompiler compiler;
 
     // The last execution time
     private long executionTime;

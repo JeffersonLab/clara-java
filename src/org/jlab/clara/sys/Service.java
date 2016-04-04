@@ -56,14 +56,13 @@ import java.util.concurrent.ExecutorService;
 class Service extends ClaraBase {
 
     private final String name;
+    private final Engine userEngine;
 
-    private ExecutorService executionPool;
-    private ServiceEngine[] enginePool;
-    private Engine userEngine;
+    private final ExecutorService executionPool;
+    private final ServiceEngine[] enginePool;
+    private final ServiceSysConfig sysConfig;
 
-    private ServiceSysConfig sysConfig;
     private xMsgSubscription subscription;
-
 
     /**
      * Constructor of a service.
