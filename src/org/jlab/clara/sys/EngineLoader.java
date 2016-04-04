@@ -24,6 +24,9 @@ package org.jlab.clara.sys;
 
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.Engine;
+import org.jlab.clara.engine.EngineDataType;
+
+import java.util.Set;
 
 /**
  * Clara dynamic class loader.
@@ -40,16 +43,46 @@ class EngineLoader {
         classLoader = cl;
     }
 
-    public Engine load(String className) throws ClaraException,
-                                                ClassNotFoundException,
-                                                IllegalAccessException,
-                                                InstantiationException {
-        Class<?> aClass = classLoader.loadClass(className);
-        Object aInstance = aClass.newInstance();
-        if (aInstance instanceof Engine) {
-            return (Engine) aInstance;
-        } else {
-            throw new ClaraException("not a Clara service engine");
+    public Engine load(String className) throws ClaraException {
+        try {
+            Class<?> aClass = classLoader.loadClass(className);
+            Object aInstance = aClass.newInstance();
+            if (aInstance instanceof Engine) {
+                Engine engine = (Engine) aInstance;
+                validateEngine(engine);
+                return engine;
+            } else {
+                throw new ClaraException("not a CLARA engine: " + className);
+            }
+        } catch (ClassNotFoundException e) {
+            throw new ClaraException("class not found: " + className);
+        } catch (IllegalAccessException | InstantiationException e) {
+            throw new ClaraException("could not create instance: " + className, e);
+        }
+    }
+
+    private void validateEngine(Engine engine) throws ClaraException {
+        validateDataTypes(engine.getInputDataTypes(), "input data types");
+        validateDataTypes(engine.getOutputDataTypes(), "output data types");
+        validateString(engine.getDescription(), "description");
+        validateString(engine.getVersion(), "version");
+        validateString(engine.getAuthor(), "author");
+    }
+
+    private void validateString(String value, String field) throws ClaraException {
+        if (value == null || value.isEmpty()) {
+            throw new ClaraException("missing engine " + field);
+        }
+    }
+
+    private void validateDataTypes(Set<EngineDataType> types, String field) throws ClaraException {
+        if (types == null || types.isEmpty()) {
+            throw new ClaraException("missing engine " + field);
+        }
+        for (EngineDataType dt : types) {
+            if (dt == null) {
+                throw new ClaraException("null data type on engine " + field);
+            }
         }
     }
 }

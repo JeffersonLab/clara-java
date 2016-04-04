@@ -29,7 +29,6 @@ import org.jlab.clara.base.core.ClaraComponent;
 import org.jlab.clara.base.core.MessageUtils;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.Engine;
-import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.sys.RequestParser.RequestException;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgMessage;
@@ -41,7 +40,6 @@ import org.jlab.coda.xmsg.excp.xMsgException;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Set;
 import java.util.concurrent.ExecutorService;
 
 /**
@@ -83,13 +81,8 @@ class Service extends ClaraBase {
 
         // Dynamic loading of the Clara engine class
         // Note: using system class loader
-        try {
-            EngineLoader cl = new EngineLoader(ClassLoader.getSystemClassLoader());
-            userEngine = cl.load(comp.getEngineClass());
-            validateEngine(userEngine);
-        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
-            throw new ClaraException("Clara-Error: Could not load engine", e.getCause());
-        }
+        EngineLoader cl = new EngineLoader(ClassLoader.getSystemClassLoader());
+        userEngine = cl.load(comp.getEngineClass());
 
         // Creating thread pool
         executionPool = xMsgUtil.newFixedThreadPool(comp.getSubscriptionPoolSize(), name);
@@ -131,34 +124,6 @@ class Service extends ClaraBase {
         stopSubscription();
         destroyEngines();
         System.out.printf("%s: removed service = %s%n", ClaraUtil.getCurrentTimeInH(), name);
-    }
-
-
-    private void validateEngine(Engine engine) throws ClaraException {
-        validateDataTypes(engine.getInputDataTypes(), "input data types");
-        validateDataTypes(engine.getOutputDataTypes(), "output data types");
-        validateString(engine.getDescription(), "description");
-        validateString(engine.getVersion(), "version");
-        validateString(engine.getAuthor(), "author");
-    }
-
-
-    private void validateString(String value, String field) throws ClaraException {
-        if (value == null || value.isEmpty()) {
-            throw new ClaraException("Clara-Error: missing engine " + field);
-        }
-    }
-
-
-    private void validateDataTypes(Set<EngineDataType> types, String field) throws ClaraException {
-        if (types == null || types.isEmpty()) {
-            throw new ClaraException("Clara-Error: missing engine " + field);
-        }
-        for (EngineDataType dt : types) {
-            if (dt == null) {
-                throw new ClaraException("Clara-Error: null data type on engine " + field);
-            }
-        }
     }
 
 
