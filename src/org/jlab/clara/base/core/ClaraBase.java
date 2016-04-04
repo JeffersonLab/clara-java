@@ -318,10 +318,8 @@ public abstract class ClaraBase extends xMsg {
      * Stops listening to a subscription defined by the handler.
      *
      * @param handle subscription handler {@link org.jlab.coda.xmsg.core.xMsgMessage} object
-     * @throws xMsgException
      */
-    public void stopListening(xMsgSubscription handle)
-            throws xMsgException {
+    public void stopListening(xMsgSubscription handle) {
         unsubscribe(handle);
     }
 
