@@ -73,10 +73,12 @@ public final class Dpe extends ClaraBase {
 
     private final boolean isFrontEnd;
 
+    private Proxy proxy = null;
+    private FrontEnd frontEnd = null;
+    private xMsgSubscription subscriptionHandler;
+
     // The containers running on this DPE
     private final Map<String, Container> myContainers = new HashMap<>();
-
-    private xMsgSubscription subscriptionHandler;
 
     private final DpeReport myReport;
     private final JsonReportBuilder myReportBuilder = new JsonReportBuilder();
@@ -302,6 +304,8 @@ public final class Dpe extends ClaraBase {
 
             isReporting.set(false);
             removeRegistration(getMe().getTopic());
+
+            stopProxyAndFrontEnd();
         } catch (ClaraException e) {
             e.printStackTrace();
         }
@@ -309,14 +313,14 @@ public final class Dpe extends ClaraBase {
 
     private void startProxyAndFrontEnd() throws ClaraException {
         // start the proxy
-        Proxy proxy = new Proxy(getMe().getProxyAddress());
+        proxy = new Proxy(getMe().getProxyAddress());
         proxy.start();
 
         // start the front-end
         if (isFrontEnd) {
-            FrontEnd frontEnd = new FrontEnd(getFrontEnd().getProxyAddress(),
-                                             getPoolSize(),
-                                             getMe().getDescription());
+            frontEnd = new FrontEnd(getFrontEnd().getProxyAddress(),
+                                    getPoolSize(),
+                                    getMe().getDescription());
             frontEnd.start();
         }
     }
@@ -336,6 +340,15 @@ public final class Dpe extends ClaraBase {
 
         ScheduledExecutorService scheduledPingService = Executors.newScheduledThreadPool(3);
         scheduledPingService.schedule(() -> report(), 5, TimeUnit.SECONDS);
+    }
+
+    private void stopProxyAndFrontEnd() {
+        if (proxy != null) {
+            proxy.stop();
+        }
+        if (frontEnd != null) {
+            frontEnd.stop();
+        }
     }
 
     private void printLogo() {

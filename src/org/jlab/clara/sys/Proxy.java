@@ -50,7 +50,7 @@ class Proxy {
         xMsgUtil.sleep(100);
     }
 
-    public void stop() throws InterruptedException {
+    public void stop() {
         context.destroy();
         proxy.shutdown();
     }
