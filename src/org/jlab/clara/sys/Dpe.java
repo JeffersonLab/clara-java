@@ -301,16 +301,9 @@ public final class Dpe extends ClaraBase {
             throw new ClaraException("Could not start DPE", e);
         }
 
-        // Create a socket connection to the local dpe proxy
         cacheConnection();
-
-        // Subscribe and register
-        xMsgTopic topic = xMsgTopic.build(ClaraConstants.DPE, getMe().getCanonicalName());
-        subscriptionHandler = listen(topic, new DpeCallBack());
-        register(topic, getMe().getDescription());
-
+        startSubscription();
         startHeartBeatReport();
-
         printLogo();
     }
 
@@ -327,6 +320,12 @@ public final class Dpe extends ClaraBase {
         } catch (ClaraException e) {
             e.printStackTrace();
         }
+    }
+
+    private void startSubscription() throws ClaraException {
+        xMsgTopic topic = xMsgTopic.build(ClaraConstants.DPE, getMe().getCanonicalName());
+        subscriptionHandler = listen(topic, new DpeCallBack());
+        register(topic, getMe().getDescription());
     }
 
     private void startHeartBeatReport() {
