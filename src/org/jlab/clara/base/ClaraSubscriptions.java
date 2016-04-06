@@ -33,7 +33,6 @@ import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgSubscription;
 import org.jlab.coda.xmsg.core.xMsgTopic;
-import org.jlab.coda.xmsg.excp.xMsgException;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -78,13 +77,9 @@ public class ClaraSubscriptions {
             if (subscriptions.containsKey(key)) {
                 throw new IllegalStateException("duplicated subscription to: " + frontEnd);
             }
-            try {
-                xMsgCallBack wrapperCallback = wrap(callback);
-                xMsgSubscription handler = base.listen(frontEnd, topic, wrapperCallback);
-                subscriptions.put(key, handler);
-            } catch (xMsgException e) {
-                throw new ClaraException("Could not start subscription", e);
-            }
+            xMsgCallBack wrapperCallback = wrap(callback);
+            xMsgSubscription handler = base.listen(frontEnd, topic, wrapperCallback);
+            subscriptions.put(key, handler);
         }
 
         public void stop() {

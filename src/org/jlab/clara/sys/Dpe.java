@@ -330,7 +330,7 @@ public final class Dpe extends ClaraBase {
 
             isReporting.set(false);
             removeRegistration(getMe().getTopic());
-        } catch (xMsgException | ClaraException e) {
+        } catch (ClaraException e) {
             e.printStackTrace();
         }
     }

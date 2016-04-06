@@ -275,12 +275,11 @@ public abstract class ClaraBase extends xMsg {
      * @param component {@link org.jlab.clara.base.core.ClaraComponent} object
      * @param callback {@link org.jlab.coda.xmsg.core.xMsgCallBack} object
      * @return subscription handler {@link org.jlab.coda.xmsg.core.xMsgMessage} object
-     * @throws xMsgException
+     * @throws ClaraException
      */
     public xMsgSubscription listen(ClaraComponent component, xMsgCallBack callback)
-            throws xMsgException {
-        xMsgConnection con = getConnection(component.getProxyAddress());
-        return subscribe(con, component.getTopic(), callback);
+            throws ClaraException {
+        return listen(me, component.getTopic(), callback);
     }
 
     /**
@@ -291,12 +290,16 @@ public abstract class ClaraBase extends xMsg {
      * @param topic topic of the subscription
      * @param callback {@link org.jlab.coda.xmsg.core.xMsgCallBack} object
      * @return subscription handler {@link org.jlab.coda.xmsg.core.xMsgMessage} object
-     * @throws xMsgException
+     * @throws ClaraException
      */
     public xMsgSubscription listen(ClaraComponent component, xMsgTopic topic, xMsgCallBack callback)
-            throws xMsgException {
-        xMsgConnection con = getConnection(component.getProxyAddress());
-        return subscribe(con, topic, callback);
+            throws ClaraException {
+        try {
+            xMsgConnection con = getConnection(component.getProxyAddress());
+            return subscribe(con, topic, callback);
+        } catch (xMsgException e) {
+            throw new ClaraException("could not subscribe to " + topic);
+        }
     }
 
     /**
@@ -306,12 +309,11 @@ public abstract class ClaraBase extends xMsg {
      * @param topic topic of the subscription
      * @param callback {@link org.jlab.coda.xmsg.core.xMsgCallBack} object
      * @return subscription handler {@link org.jlab.coda.xmsg.core.xMsgMessage} object
-     * @throws xMsgException
+     * @throws ClaraException
      */
     public xMsgSubscription listen(xMsgTopic topic, xMsgCallBack callback)
-            throws xMsgException {
-        xMsgConnection con = getConnection(me.getProxyAddress());
-        return subscribe(con, topic, callback);
+            throws ClaraException {
+        return listen(me, topic, callback);
     }
 
     /**

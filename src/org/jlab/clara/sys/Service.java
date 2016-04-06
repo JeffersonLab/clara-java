@@ -140,7 +140,7 @@ class Service extends ClaraBase {
             removeRegistration(getMe().getTopic());
             stopListening(subscription);
             System.out.println(ClaraUtil.getCurrentTimeInH() + ": Removed service = " + name + "\n");
-        } catch (xMsgException | ClaraException e) {
+        } catch (ClaraException e) {
             e.printStackTrace();
         }
 

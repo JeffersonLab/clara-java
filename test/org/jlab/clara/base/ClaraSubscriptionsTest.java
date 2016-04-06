@@ -29,7 +29,6 @@ import org.jlab.clara.base.error.ClaraException;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgSubscription;
 import org.jlab.coda.xmsg.core.xMsgTopic;
-import org.jlab.coda.xmsg.excp.xMsgException;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -110,7 +109,7 @@ public class ClaraSubscriptionsTest {
 
     @Test
     public void startSubscriptionThrowsOnFailure() throws Exception {
-        doThrow(new xMsgException("")).when(baseMock)
+        doThrow(new ClaraException("")).when(baseMock)
                 .listen(any(ClaraComponent.class), any(xMsgTopic.class), any(xMsgCallBack.class));
         expectedEx.expect(ClaraException.class);
 

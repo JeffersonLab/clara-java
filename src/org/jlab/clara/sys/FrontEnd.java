@@ -96,7 +96,7 @@ class FrontEnd {
 
             xMsgUtil.sleep(100);
 
-        } catch (xMsgException e) {
+        } catch (ClaraException e) {
             throw new ClaraException("Cannot start front-end", e);
         }
     }
