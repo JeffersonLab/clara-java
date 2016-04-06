@@ -294,10 +294,14 @@ public abstract class ClaraBase extends xMsg {
      */
     public xMsgSubscription listen(ClaraComponent component, xMsgTopic topic, xMsgCallBack callback)
             throws ClaraException {
+        xMsgConnection con = null;
         try {
-            xMsgConnection con = getConnection(component.getProxyAddress());
+            con = getConnection(component.getProxyAddress());
             return subscribe(con, topic, callback);
         } catch (xMsgException e) {
+            if (con != null) {
+                releaseConnection(con);
+            }
             throw new ClaraException("could not subscribe to " + topic);
         }
     }
