@@ -428,7 +428,7 @@ public final class Dpe extends ClaraBase {
             Container container = new Container(contComp, getFrontEnd());
             myContainers.put(containerName, container);
             myReport.addContainerReport(container.getReport());
-        } catch (xMsgException | ClaraException e) {
+        } catch (ClaraException e) {
             throw new ClaraException("Could not start container " + contComp, e);
         }
     }
