@@ -309,12 +309,6 @@ public final class Dpe extends ClaraBase {
         subscriptionHandler = listen(topic, new DpeCallBack());
         register(topic, getMe().getDescription());
 
-        myReport.setStartTime(ClaraUtil.getCurrentTime());
-        myReport.setMemorySize(Runtime.getRuntime().maxMemory());
-        myReport.setCoreCount(Runtime.getRuntime().availableProcessors());
-
-        isReporting.set(true);
-
         startHeartBeatReport();
 
         printLogo();
@@ -336,6 +330,12 @@ public final class Dpe extends ClaraBase {
     }
 
     private void startHeartBeatReport() {
+        myReport.setStartTime(ClaraUtil.getCurrentTime());
+        myReport.setMemorySize(Runtime.getRuntime().maxMemory());
+        myReport.setCoreCount(Runtime.getRuntime().availableProcessors());
+
+        isReporting.set(true);
+
         ScheduledExecutorService scheduledPingService = Executors.newScheduledThreadPool(3);
         scheduledPingService.schedule(() -> report(), 5, TimeUnit.SECONDS);
     }
