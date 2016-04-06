@@ -292,6 +292,8 @@ public final class Dpe extends ClaraBase {
      * Starts a local xMsg proxy server, and a local xMsg registrar service
      * in case it is a front-end. Does proper subscriptions to receive requests
      * and starts heart beat reporting thread.
+     *
+     * @throws ClaraException if the DPE could not be started
      */
     @Override
     public void start() throws ClaraException {
@@ -335,8 +337,9 @@ public final class Dpe extends ClaraBase {
 
     private void startSubscription() throws ClaraException {
         xMsgTopic topic = xMsgTopic.build(ClaraConstants.DPE, getMe().getCanonicalName());
-        subscriptionHandler = listen(topic, new DpeCallBack());
-        register(topic, getMe().getDescription());
+        subscriptionHandler = startRegisteredSubscription(topic,
+                                                          new DpeCallBack(),
+                                                          getMe().getDescription());
     }
 
     private void startHeartBeatReport() {
@@ -445,6 +448,7 @@ public final class Dpe extends ClaraBase {
 
         try {
             Container container = new Container(contComp, getFrontEnd());
+            container.start();
             myContainers.put(containerName, container);
             myReport.addContainerReport(container.getReport());
         } catch (ClaraException e) {
@@ -476,7 +480,7 @@ public final class Dpe extends ClaraBase {
         if (myContainers.containsKey(containerName)) {
             try {
                 myContainers.get(containerName).addService(serComp, getFrontEnd());
-            } catch (xMsgException | IOException | ClaraException e) {
+            } catch (ClaraException e) {
                 throw new DpeException("could not start service " + serComp, e);
             }
         } else {

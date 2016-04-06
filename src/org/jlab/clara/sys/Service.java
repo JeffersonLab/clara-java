@@ -78,11 +78,8 @@ class Service extends ClaraBase {
 
         super(comp, frontEnd);
 
-        // Create a socket connections to the dpe proxy
-        cacheConnection();
-
-        this.name = comp.getCanonicalName();
-        this.sysConfig = new ServiceSysConfig(name, comp.getInitialState());
+        name = comp.getCanonicalName();
+        sysConfig = new ServiceSysConfig(name, comp.getInitialState());
 
         // Dynamic loading of the Clara engine class
         // Note: using system class loader
@@ -95,35 +92,37 @@ class Service extends ClaraBase {
         }
 
         // Creating thread pool
-        this.executionPool = xMsgUtil.newFixedThreadPool(comp.getSubscriptionPoolSize(), name);
+        executionPool = xMsgUtil.newFixedThreadPool(comp.getSubscriptionPoolSize(), name);
 
         // Creating service object pool
-        this.enginePool = new ServiceEngine[comp.getSubscriptionPoolSize()];
+        enginePool = new ServiceEngine[comp.getSubscriptionPoolSize()];
 
         // Fill the object pool
         for (int i = 0; i < comp.getSubscriptionPoolSize(); i++) {
-            ServiceEngine engine = new ServiceEngine(getMe(), getFrontEnd(), userEngine, sysConfig);
-            enginePool[i] = engine;
+            enginePool[i] = new ServiceEngine(getMe(), getFrontEnd(), userEngine, sysConfig);
         }
 
         // Register with the shared memory
         SharedMemory.addReceiver(name);
-
-        // subscription
-
-        this.subscription = listen(comp.getTopic(), new ServiceCallBack());
-        System.out.printf("%s: Started service = %s  pool_size = %d%n",
-                ClaraUtil.getCurrentTimeInH(), name, comp.getSubscriptionPoolSize());
-
-        // Register this subscriber
-        register(comp.getTopic(), comp.getDescription());
-        System.out.printf("%s: Registered service = %s%n", ClaraUtil.getCurrentTimeInH(), name);
     }
 
 
     @Override
     public void start() throws ClaraException {
-        // nothing
+        cacheConnection();
+
+        // start the engines
+        for (ServiceEngine engine : enginePool) {
+            engine.start();
+        }
+
+        // subscribe and register
+        subscription = startRegisteredSubscription(getMe().getTopic(),
+                                                   new ServiceCallBack(),
+                                                   getMe().getDescription());
+        System.out.printf("%s: started service = %s  pool_size = %d%n",
+                          ClaraUtil.getCurrentTimeInH(),
+                          name, getMe().getSubscriptionPoolSize());
     }
 
 

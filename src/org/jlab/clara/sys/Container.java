@@ -47,28 +47,21 @@ class Container extends ClaraBase {
     private final ContainerReport myReport;
 
 
-    Container(ClaraComponent comp, ClaraComponent frontEnd) throws ClaraException {
+    Container(ClaraComponent comp, ClaraComponent frontEnd) {
         super(comp, frontEnd);
-
-        // Subscribe messages published to this container
-        xMsgTopic topic = xMsgTopic.build(ClaraConstants.CONTAINER, comp.getCanonicalName());
-
-        // Register this subscriber
-        register(topic, comp.getDescription());
-        System.out.println(ClaraUtil.getCurrentTimeInH() + ": Registered container = " + comp.getCanonicalName());
-
-        System.out.println(ClaraUtil.getCurrentTimeInH() + ": Started container = " + comp.getCanonicalName());
 
         myReport = new ContainerReport(comp.getCanonicalName());
         myReport.setLang(getMe().getDpeLang());
         myReport.setDescription(comp.getDescription());
         myReport.setAuthor(System.getenv("USER"));
-        myReport.setStartTime(ClaraUtil.getCurrentTime());
     }
 
     @Override
     public void start() throws ClaraException {
-        // nothing
+        register();
+        myReport.setStartTime(ClaraUtil.getCurrentTime());
+        System.out.printf("%s: started container = %s%n",
+                          ClaraUtil.getCurrentTimeInH(), getMe().getCanonicalName());
     }
 
     @Override
@@ -87,19 +80,19 @@ class Container extends ClaraBase {
     }
 
     public void addService(ClaraComponent comp, ClaraComponent frontEnd)
-                           throws xMsgException, ClaraException, IOException {
-
+                           throws ClaraException {
         // in this case serviceName is a canonical nam
         String serviceName = comp.getCanonicalName();
 
-
         if (myServices.containsKey(serviceName)) {
-            String msg = "%s Clara-Warning: service %s already exists. No new service is deployed%n";
+            String msg = "%s: service = %s already exists. No new service is deployed%n";
             System.err.printf(msg, ClaraUtil.getCurrentTimeInH(), serviceName);
             return;
         }
 
         Service service = new Service(comp, frontEnd);
+        service.start();
+
         myServices.put(serviceName, service);
     }
 
@@ -125,6 +118,11 @@ class Container extends ClaraBase {
             s.end();
         }
         myServices.clear();
+    }
+
+    private void register() throws ClaraException {
+        xMsgTopic topic = xMsgTopic.build(ClaraConstants.CONTAINER, getMe().getCanonicalName());
+        register(topic, getMe().getDescription());
     }
 
     public ConcurrentHashMap<String, Service> geServices() {
