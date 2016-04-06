@@ -164,6 +164,20 @@ public abstract class ClaraBase extends xMsg {
     }
 
     /**
+     * Stores a connection to the default proxy in the connection pool.
+     *
+     * @throws ClaraException if a connection could not be created or connected
+     */
+    public void cacheConnection() throws ClaraException {
+        try {
+            // Create a socket connection to the local proxy
+            releaseConnection(getConnection());
+        } catch (xMsgException e) {
+            throw new ClaraException("could not connect to local proxy", e);
+        }
+    }
+
+    /**
      * Sends xMsgMessage message to a component.
      *
      * @param component {@link org.jlab.clara.base.core.ClaraComponent} object

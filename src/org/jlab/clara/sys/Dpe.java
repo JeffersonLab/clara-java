@@ -297,17 +297,17 @@ public final class Dpe extends ClaraBase {
                                            getMe().getDescription());
                 fe.start();
             }
-
-            // Create a socket connections to the local dpe proxy
-            releaseConnection(getConnection());
-
-            // Subscribe and register
-            xMsgTopic topic = xMsgTopic.build(ClaraConstants.DPE, getMe().getCanonicalName());
-            subscriptionHandler = listen(topic, new DpeCallBack());
-            register(topic, getMe().getDescription());
         } catch (xMsgException e) {
             throw new ClaraException("Could not start DPE", e);
         }
+
+        // Create a socket connection to the local dpe proxy
+        cacheConnection();
+
+        // Subscribe and register
+        xMsgTopic topic = xMsgTopic.build(ClaraConstants.DPE, getMe().getCanonicalName());
+        subscriptionHandler = listen(topic, new DpeCallBack());
+        register(topic, getMe().getDescription());
 
         myReport.setStartTime(ClaraUtil.getCurrentTime());
         myReport.setMemorySize(Runtime.getRuntime().maxMemory());

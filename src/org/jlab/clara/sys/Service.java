@@ -75,15 +75,13 @@ class Service extends ClaraBase {
      * to be 0 or negative number.
      *
      * @throws ClaraException
-     * @throws xMsgException
      */
-    Service(ClaraComponent comp, ClaraComponent frontEnd)
-                throws ClaraException, xMsgException {
+    Service(ClaraComponent comp, ClaraComponent frontEnd) throws ClaraException {
 
         super(comp, frontEnd);
 
         // Create a socket connections to the dpe proxy
-        releaseConnection(getConnection());
+        cacheConnection();
 
         this.name = comp.getCanonicalName();
         this.sysConfig = new ServiceSysConfig(name, comp.getInitialState());
