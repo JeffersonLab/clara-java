@@ -285,22 +285,7 @@ public final class Dpe extends ClaraBase {
      */
     @Override
     public void start() throws ClaraException {
-        try {
-            // start the proxy
-            Proxy proxy = new Proxy(getMe().getProxyAddress());
-            proxy.start();
-
-            // start the front-end
-            if (isFrontEnd) {
-                FrontEnd fe = new FrontEnd(getFrontEnd().getProxyAddress(),
-                                           getPoolSize(),
-                                           getMe().getDescription());
-                fe.start();
-            }
-        } catch (xMsgException e) {
-            throw new ClaraException("Could not start DPE", e);
-        }
-
+        startProxyAndFrontEnd();
         cacheConnection();
         startSubscription();
         startHeartBeatReport();
@@ -319,6 +304,20 @@ public final class Dpe extends ClaraBase {
             removeRegistration(getMe().getTopic());
         } catch (ClaraException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void startProxyAndFrontEnd() throws ClaraException {
+        // start the proxy
+        Proxy proxy = new Proxy(getMe().getProxyAddress());
+        proxy.start();
+
+        // start the front-end
+        if (isFrontEnd) {
+            FrontEnd frontEnd = new FrontEnd(getFrontEnd().getProxyAddress(),
+                                             getPoolSize(),
+                                             getMe().getDescription());
+            frontEnd.start();
         }
     }
 
