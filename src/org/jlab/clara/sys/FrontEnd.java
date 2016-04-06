@@ -78,27 +78,22 @@ class FrontEnd {
             };
             base.setFrontEnd(frontEnd);
         } catch (xMsgException e) {
-            throw new ClaraException("Cannot create front-end", e);
+            throw new ClaraException("Could not create front-end", e);
         }
     }
 
 
     public void start() throws ClaraException {
-        try {
-            // start registrar service
-            registrar.start();
+        // start registrar service
+        registrar.start();
 
-            // subscribe to forwarding requests
-            xMsgTopic topic = xMsgTopic.build(ClaraConstants.DPE,
-                                              base.getFrontEnd().getCanonicalName());
-            base.listen(topic, new GatewayCallback());
-            base.register(topic, base.getMe().getDescription());
+        // subscribe to forwarding requests
+        xMsgTopic topic = xMsgTopic.build(ClaraConstants.DPE,
+                                          base.getFrontEnd().getCanonicalName());
+        base.listen(topic, new GatewayCallback());
+        base.register(topic, base.getMe().getDescription());
 
-            xMsgUtil.sleep(100);
-
-        } catch (ClaraException e) {
-            throw new ClaraException("Cannot start front-end", e);
-        }
+        xMsgUtil.sleep(100);
     }
 
 
