@@ -335,6 +335,11 @@ public final class Dpe extends ClaraBase {
         }
     }
 
+    private void startHeartBeatReport() {
+        ScheduledExecutorService scheduledPingService = Executors.newScheduledThreadPool(3);
+        scheduledPingService.schedule(() -> report(), 5, TimeUnit.SECONDS);
+    }
+
     private void printLogo() {
         System.out.println("=========================================");
         System.out.println("                 CLARA DPE               ");
@@ -355,11 +360,6 @@ public final class Dpe extends ClaraBase {
         System.out.println(" FrontEnd Port    = " + getFrontEnd().getDpePort());
         System.out.println(" FrontEnd Lang    = " + getFrontEnd().getDpeLang());
         System.out.println("=========================================");
-    }
-
-    private void startHeartBeatReport() {
-        ScheduledExecutorService scheduledPingService = Executors.newScheduledThreadPool(3);
-        scheduledPingService.schedule(() -> report(), 5, TimeUnit.SECONDS);
     }
 
     private void report() {
