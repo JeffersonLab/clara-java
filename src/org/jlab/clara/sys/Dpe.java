@@ -454,19 +454,23 @@ public final class Dpe extends ClaraBase {
                 poolSize,
                 description);
 
-        if (myContainers.containsKey(containerName)) {
+        Container container = myContainers.get(containerName);
+        if (container == null) {
+            container = new Container(contComp, getFrontEnd());
+            Container result = myContainers.putIfAbsent(containerName, container);
+            if (result == null) {
+                try {
+                    container.start();
+                    myReport.addContainerReport(container.getReport());
+                } catch (ClaraException e) {
+                    container.close();
+                    myContainers.remove(containerName, container);
+                    throw new DpeException("could not start container = " + contComp, e);
+                }
+            }
+        } else {
             String msg = "%s: container = %s already exists. No new container is created%n";
             System.err.printf(msg, ClaraUtil.getCurrentTimeInH(), contComp.getCanonicalName());
-            return;
-        }
-
-        try {
-            Container container = new Container(contComp, getFrontEnd());
-            container.start();
-            myContainers.put(containerName, container);
-            myReport.addContainerReport(container.getReport());
-        } catch (ClaraException e) {
-            throw new DpeException("could not start container = " + contComp, e);
         }
     }
 
