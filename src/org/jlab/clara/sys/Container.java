@@ -68,7 +68,6 @@ class Container extends ClaraBase {
     protected void end() {
         removeAllServices();
         removeRegistration();
-        reportDown();
         System.out.printf("%s: removed container = %s%n",
                           ClaraUtil.getCurrentTimeInH(), getMe().getCanonicalName());
     }
@@ -113,6 +112,7 @@ class Container extends ClaraBase {
     private void removeRegistration() {
         if (isRegistered) {
             try {
+                reportDown();
                 removeRegistration(getMe().getTopic());
             } catch (ClaraException e) {
                 System.err.printf("%s: container = %s: %s%n", ClaraUtil.getCurrentTimeInH(),
