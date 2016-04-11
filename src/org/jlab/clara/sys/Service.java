@@ -39,7 +39,6 @@ import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 import org.jlab.coda.xmsg.excp.xMsgException;
 
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.Set;
@@ -251,7 +250,7 @@ class Service extends ClaraBase {
             xMsgMessage repMsg = MessageUtils.buildRequest(topic, data);
             repMsg.getMetaData().setStatus(status);
             send(repMsg);
-        } catch (IOException | xMsgException e) {
+        } catch (xMsgException e) {
             e.printStackTrace();
         }
     }

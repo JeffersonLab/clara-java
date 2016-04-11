@@ -605,7 +605,7 @@ public final class Dpe extends ClaraBase {
                 xMsgMessage repMsg = MessageUtils.buildRequest(topic, data);
                 repMsg.getMetaData().setStatus(status);
                 send(repMsg);
-            } catch (IOException | xMsgException e) {
+            } catch (xMsgException e) {
                 e.printStackTrace();
             }
         }

@@ -158,11 +158,10 @@ public abstract class ClaraBase extends xMsg {
      *
      * @param component {@link org.jlab.clara.base.core.ClaraComponent} object
      * @param requestText string of the message
-     * @throws IOException
      * @throws xMsgException
      */
     public void send(ClaraComponent component, String requestText)
-            throws IOException, xMsgException {
+            throws xMsgException {
         xMsgMessage msg = MessageUtils.buildRequest(component.getTopic(), requestText);
         xMsgConnection con = getConnection(component.getProxyAddress());
         publish(con, msg);
@@ -185,11 +184,10 @@ public abstract class ClaraBase extends xMsg {
      * Sending a message using the dpe host and port of this component.
      *
      * @param msg message: {@link org.jlab.coda.xmsg.core.xMsgMessage} object
-     * @throws IOException
      * @throws xMsgException
      */
     public void send(xMsgMessage msg)
-            throws IOException, xMsgException {
+            throws xMsgException {
         send(me, msg);
     }
 
@@ -197,11 +195,10 @@ public abstract class ClaraBase extends xMsg {
      * Sending a text message using the dpe host and port of this component.
      *
      * @param msgText String of the message
-     * @throws IOException
      * @throws xMsgException
      */
     public void send(String msgText)
-            throws IOException, xMsgException {
+            throws xMsgException {
         send(me, msgText);
     }
 
@@ -230,12 +227,11 @@ public abstract class ClaraBase extends xMsg {
      * @param requestText String of the message
      * @param timeout in milli seconds
      * @return message: {@link org.jlab.coda.xmsg.core.xMsgMessage} object
-     * @throws IOException
      * @throws xMsgException
      * @throws TimeoutException
      */
     public xMsgMessage syncSend(ClaraComponent component, String requestText, int timeout)
-            throws IOException, xMsgException, TimeoutException {
+            throws xMsgException, TimeoutException {
         xMsgMessage msg = MessageUtils.buildRequest(component.getTopic(), requestText);
         xMsgConnection con = getConnection(component.getProxyAddress());
         xMsgMessage m = syncPublish(con, msg, timeout);
