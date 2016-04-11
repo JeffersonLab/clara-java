@@ -97,8 +97,8 @@ class Container extends ClaraBase {
     }
 
     public void removeService(String serviceName) throws ClaraException {
-        if (myServices.containsKey(serviceName)) {
-            Service service = myServices.remove(serviceName);
+        Service service = myServices.remove(serviceName);
+        if (service != null) {
             service.close();
         }
     }
