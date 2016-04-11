@@ -118,8 +118,7 @@ public abstract class ClaraBase extends xMsg {
     }
 
     /**
-     * @return the description of this component:
-     * {@link org.jlab.clara.base.core.ClaraComponent} object
+     * Returns the description of this component.
      */
     public ClaraComponent getMe() {
         return me;
@@ -140,11 +139,11 @@ public abstract class ClaraBase extends xMsg {
     }
 
     /**
-     * Sends xMsgMessage message to a component.
+     * Sends a message to the address of the given CLARA component.
      *
-     * @param component {@link org.jlab.clara.base.core.ClaraComponent} object
-     * @param msg message: {@link org.jlab.coda.xmsg.core.xMsgMessage} object
-     * @throws xMsgException
+     * @param component the component that shall receive the message
+     * @param msg the message to be published
+     * @throws xMsgException if the message could not be sent
      */
     public void send(ClaraComponent component, xMsgMessage msg)
             throws xMsgException {
@@ -154,11 +153,11 @@ public abstract class ClaraBase extends xMsg {
     }
 
     /**
-     * Sends a string to a component.
+     * Sends a string to the given CLARA component.
      *
-     * @param component {@link org.jlab.clara.base.core.ClaraComponent} object
+     * @param component the component that shall receive the message
      * @param requestText string of the message
-     * @throws xMsgException
+     * @throws xMsgException if the message could not be sent
      */
     public void send(ClaraComponent component, String requestText)
             throws xMsgException {
@@ -169,11 +168,11 @@ public abstract class ClaraBase extends xMsg {
     }
 
     /**
-     * Sending a message using the defined connection.
+     * Sends a message using the specified connection.
      *
-     * @param con connection: {@link org.jlab.coda.xmsg.net.xMsgConnection} object
-     * @param msg message: {@link org.jlab.coda.xmsg.core.xMsgMessage} object
-     * @throws xMsgException
+     * @param con the connection that shall be used to publish the message
+     * @param msg the message to be published
+     * @throws xMsgException if the message could not be sent
      */
     public void send(xMsgConnection con, xMsgMessage msg)
             throws xMsgException {
@@ -181,10 +180,10 @@ public abstract class ClaraBase extends xMsg {
     }
 
     /**
-     * Sending a message using the dpe host and port of this component.
+     * Sends a message to the address of this CLARA component.
      *
-     * @param msg message: {@link org.jlab.coda.xmsg.core.xMsgMessage} object
-     * @throws xMsgException
+     * @param msg the message to be published
+     * @throws xMsgException if the message could not be sent
      */
     public void send(xMsgMessage msg)
             throws xMsgException {
@@ -192,10 +191,10 @@ public abstract class ClaraBase extends xMsg {
     }
 
     /**
-     * Sending a text message using the dpe host and port of this component.
+     * Sends a text message to this CLARA component.
      *
-     * @param msgText String of the message
-     * @throws xMsgException
+     * @param msgText string of the message
+     * @throws xMsgException if the message could not be sent
      */
     public void send(String msgText)
             throws xMsgException {
@@ -203,14 +202,13 @@ public abstract class ClaraBase extends xMsg {
     }
 
     /**
-     * Synchronous xMsgMessage send to a component.
+     * Synchronous sends a message to the address of the given CLARA component.
      *
-     * @param component {@link org.jlab.clara.base.core.ClaraComponent} object
-     * @param msg message: {@link org.jlab.coda.xmsg.core.xMsgMessage} object
-     * @param timeout in milli seconds
-     * @return message: {@link org.jlab.coda.xmsg.core.xMsgMessage} object
-     * @throws xMsgException
-     * @throws TimeoutException
+     * @param component the component that shall receive the message
+     * @param msg the message to be published
+     * @param timeout in milliseconds
+     * @throws xMsgException if the message could not be sent
+     * @throws TimeoutException if a response was not received
      */
     public xMsgMessage syncSend(ClaraComponent component, xMsgMessage msg, int timeout)
             throws xMsgException, TimeoutException {
@@ -221,14 +219,13 @@ public abstract class ClaraBase extends xMsg {
     }
 
     /**
-     * Synchronous string send to a component.
+     * Synchronous sends a string to the given CLARA component.
      *
-     * @param component {@link org.jlab.clara.base.core.ClaraComponent} object
-     * @param requestText String of the message
+     * @param component the component that shall receive the message
+     * @param requestText string of the message
      * @param timeout in milli seconds
-     * @return message: {@link org.jlab.coda.xmsg.core.xMsgMessage} object
-     * @throws xMsgException
-     * @throws TimeoutException
+     * @throws xMsgException if the message could not be sent
+     * @throws TimeoutException if a response was not received
      */
     public xMsgMessage syncSend(ClaraComponent component, String requestText, int timeout)
             throws xMsgException, TimeoutException {
@@ -240,14 +237,12 @@ public abstract class ClaraBase extends xMsg {
     }
 
     /**
-     * Listens messages from the defined component.
-     * Connection is done to the dpe of the passed component.
-     * The topic is the name of the define component.
+     * Listens for messages published to the given component.
      *
-     * @param component {@link org.jlab.clara.base.core.ClaraComponent} object
-     * @param callback {@link org.jlab.coda.xmsg.core.xMsgCallBack} object
-     * @return subscription handler {@link org.jlab.coda.xmsg.core.xMsgMessage} object
-     * @throws ClaraException
+     * @param component a component defining the topic of interest
+     * @param callback the callback action
+     * @return a handler to the subscription
+     * @throws ClaraException if the subscription could not be started
      */
     public xMsgSubscription listen(ClaraComponent component, xMsgCallBack callback)
             throws ClaraException {
@@ -255,14 +250,14 @@ public abstract class ClaraBase extends xMsg {
     }
 
     /**
-     * Listens messages from a defined component to a specified topic.
-     * Connection is done to the dpe of the passed component.
+     * Listens for messages of given topic published to the address of the given
+     * component.
      *
-     * @param component {@link org.jlab.clara.base.core.ClaraComponent} object
-     * @param topic topic of the subscription
-     * @param callback {@link org.jlab.coda.xmsg.core.xMsgCallBack} object
-     * @return subscription handler {@link org.jlab.coda.xmsg.core.xMsgMessage} object
-     * @throws ClaraException
+     * @param component a component defining the address to connect
+     * @param topic topic of interest
+     * @param callback the callback action
+     * @return a handler to the subscription
+     * @throws ClaraException if the subscription could not be started
      */
     public xMsgSubscription listen(ClaraComponent component, xMsgTopic topic, xMsgCallBack callback)
             throws ClaraException {
@@ -279,13 +274,13 @@ public abstract class ClaraBase extends xMsg {
     }
 
     /**
-     * Listens messages coming to a dpe of this component (i.e. connection
-     * is done to the local dpe) to a specified topic.
+     * Listens for messages of given topic published to the address of this
+     * component.
      *
-     * @param topic topic of the subscription
-     * @param callback {@link org.jlab.coda.xmsg.core.xMsgCallBack} object
-     * @return subscription handler {@link org.jlab.coda.xmsg.core.xMsgMessage} object
-     * @throws ClaraException
+     * @param topic topic of interest
+     * @param callback the callback action
+     * @return a handler to the subscription
+     * @throws ClaraException if the subscription could not be started
      */
     public xMsgSubscription listen(xMsgTopic topic, xMsgCallBack callback)
             throws ClaraException {
@@ -295,7 +290,7 @@ public abstract class ClaraBase extends xMsg {
     /**
      * Stops listening to a subscription defined by the handler.
      *
-     * @param handle subscription handler {@link org.jlab.coda.xmsg.core.xMsgMessage} object
+     * @param handle the subscription handler
      */
     public void stopListening(xMsgSubscription handle) {
         unsubscribe(handle);
