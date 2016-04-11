@@ -128,17 +128,9 @@ class Service extends ClaraBase {
 
     @Override
     protected void end() {
-        try {
-            executionPool.shutdown();
-            userEngine.destroy();
-
-            removeRegistration(getMe().getTopic());
-            stopListening(subscription);
-            System.out.println(ClaraUtil.getCurrentTimeInH() + ": Removed service = " + name + "\n");
-        } catch (ClaraException e) {
-            e.printStackTrace();
-        }
-
+        stopSubscription();
+        destroyEngines();
+        System.out.printf("%s: removed service = %s%n", ClaraUtil.getCurrentTimeInH(), name);
     }
 
 
@@ -251,6 +243,28 @@ class Service extends ClaraBase {
         } catch (xMsgException e) {
             e.printStackTrace();
         }
+    }
+
+
+    private void stopSubscription() {
+        if (subscription != null) {
+            stopListening(subscription);
+            try {
+                removeRegistration(getMe().getTopic());
+            } catch (ClaraException e) {
+                System.err.printf("%s: service = %s: %s%n", ClaraUtil.getCurrentTimeInH(),
+                                  name, e.getMessage());
+            }
+        }
+    }
+
+
+    private void destroyEngines() {
+        executionPool.shutdown();
+        for (ServiceEngine engine : enginePool) {
+            engine.close();
+        }
+        userEngine.destroy();
     }
 
 

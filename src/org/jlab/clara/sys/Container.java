@@ -32,7 +32,6 @@ import org.jlab.clara.util.report.ContainerReport;
 import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.excp.xMsgException;
 
-import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -46,6 +45,7 @@ class Container extends ClaraBase {
     private final ConcurrentHashMap<String, Service> myServices = new ConcurrentHashMap<>();
     private final ContainerReport myReport;
 
+    private boolean isRegistered = false;
 
     Container(ClaraComponent comp, ClaraComponent frontEnd) {
         super(comp, frontEnd);
@@ -66,17 +66,11 @@ class Container extends ClaraBase {
 
     @Override
     protected void end() {
-        try {
-            // broadcast to the local proxy
-            String data = MessageUtils.buildData(ClaraConstants.CONTAINER_DOWN,
-                                                 getMe().getContainerName());
-            send(getFrontEnd(), data);
-
-            removeRegistration(getMe().getTopic());
-            removeAllServices();
-        } catch (ClaraException | xMsgException | IOException e) {
-            e.printStackTrace();
-        }
+        removeAllServices();
+        removeRegistration();
+        reportDown();
+        System.out.printf("%s: removed container = %s%n",
+                          ClaraUtil.getCurrentTimeInH(), getMe().getCanonicalName());
     }
 
     public void addService(ClaraComponent comp, ClaraComponent frontEnd)
@@ -96,26 +90,16 @@ class Container extends ClaraBase {
         myServices.put(serviceName, service);
     }
 
-    /**
-     *
-     * @param serviceName service canonical name
-     * @throws ClaraException
-     */
-    public void removeService(String serviceName)
-            throws ClaraException, IOException, xMsgException {
+    public void removeService(String serviceName) throws ClaraException {
         if (myServices.containsKey(serviceName)) {
             Service service = myServices.remove(serviceName);
-            service.end();
+            service.close();
         }
     }
 
-    /**
-     *
-     * @throws ClaraException
-     */
-    public void removeAllServices() throws ClaraException, IOException, xMsgException {
+    private void removeAllServices() {
         for (Service s : myServices.values()) {
-            s.end();
+            s.close();
         }
         myServices.clear();
     }
@@ -123,6 +107,32 @@ class Container extends ClaraBase {
     private void register() throws ClaraException {
         xMsgTopic topic = xMsgTopic.build(ClaraConstants.CONTAINER, getMe().getCanonicalName());
         register(topic, getMe().getDescription());
+        isRegistered = true;
+    }
+
+    private void removeRegistration() {
+        if (isRegistered) {
+            try {
+                removeRegistration(getMe().getTopic());
+            } catch (ClaraException e) {
+                System.err.printf("%s: container = %s: %s%n", ClaraUtil.getCurrentTimeInH(),
+                                  getMe().getCanonicalName(), e.getMessage());
+            }
+        }
+    }
+
+    private void reportDown() {
+        try {
+            // broadcast to the local proxy
+            String data = MessageUtils.buildData(ClaraConstants.CONTAINER_DOWN,
+                                                 getMe().getContainerName());
+            send(getFrontEnd(), data);
+        } catch (xMsgException e) {
+            System.out.printf("%s: container = %s: could not send down report: %s%n",
+                              ClaraUtil.getCurrentTimeInH(),
+                              getMe().getCanonicalName(),
+                              e.getMessage());
+        }
     }
 
     public ConcurrentHashMap<String, Service> geServices() {

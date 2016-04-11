@@ -44,7 +44,6 @@ import org.jlab.coda.xmsg.excp.xMsgException;
 import org.jlab.coda.xmsg.net.xMsgConnection;
 import org.jlab.coda.xmsg.net.xMsgProxyAddress;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -306,19 +305,10 @@ public final class Dpe extends ClaraBase {
 
     @Override
     protected void end() {
-        try {
-            for (Container cont : myContainers.values()) {
-                cont.end();
-            }
-            stopListening(subscriptionHandler);
-
-            isReporting.set(false);
-            removeRegistration(getMe().getTopic());
-
-            stopProxyAndFrontEnd();
-        } catch (ClaraException e) {
-            e.printStackTrace();
-        }
+        stopHeartBeatReport();
+        stopSubscription();
+        stopContainers();
+        stopProxyAndFrontEnd();
     }
 
     private void startProxyAndFrontEnd() throws ClaraException {
@@ -351,6 +341,30 @@ public final class Dpe extends ClaraBase {
 
         ScheduledExecutorService scheduledPingService = Executors.newScheduledThreadPool(3);
         scheduledPingService.schedule(() -> report(), 5, TimeUnit.SECONDS);
+    }
+
+    private void stopHeartBeatReport() {
+        isReporting.set(false);
+    }
+
+    private void stopSubscription() {
+        if (subscriptionHandler != null) {
+            stopListening(subscriptionHandler);
+            if (!isFrontEnd) {
+                try {
+                    removeRegistration(getMe().getTopic());
+                } catch (ClaraException e) {
+                    System.err.printf("%s: %s%n", ClaraUtil.getCurrentTimeInH(), e.getMessage());
+                }
+            }
+        }
+    }
+
+    private void stopContainers() {
+        for (Container cont : myContainers.values()) {
+            cont.close();
+        }
+        myContainers.clear();
     }
 
     private void stopProxyAndFrontEnd() {
@@ -499,8 +513,8 @@ public final class Dpe extends ClaraBase {
         if (myContainers.containsKey(containerName)) {
             try {
                 myContainers.get(containerName).removeService(serviceName);
-            } catch (xMsgException | IOException | ClaraException e) {
-                throw new DpeException("could not stop service = " + serviceName, e);
+            } catch (ClaraException e) {
+                throw new DpeException("could not stop service " + serviceName, e);
             }
         } else {
             throw new RequestException("could not stop service = " + serviceName +
