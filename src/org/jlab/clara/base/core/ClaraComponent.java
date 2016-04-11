@@ -647,4 +647,9 @@ public final class ClaraComponent {
     public void setInitialState(String initialState) {
         this.initialState = initialState;
     }
+
+    @Override
+    public String toString() {
+        return canonicalName;
+    }
 }
