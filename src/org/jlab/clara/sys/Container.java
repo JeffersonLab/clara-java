@@ -74,19 +74,26 @@ class Container extends ClaraBase {
 
     public void addService(ClaraComponent comp, ClaraComponent frontEnd)
                            throws ClaraException {
-        // in this case serviceName is a canonical nam
         String serviceName = comp.getCanonicalName();
-
-        if (myServices.containsKey(serviceName)) {
+        Service service = myServices.get(serviceName);
+        if (service == null) {
+            service = new Service(comp, frontEnd);
+            Service result = myServices.putIfAbsent(serviceName, service);
+            if (result == null) {
+                try {
+                    service.start();
+                } catch (ClaraException e) {
+                    service.close();
+                    myServices.remove(serviceName, service);
+                    throw e;
+                }
+            } else {
+                service.close();    // destroy the extra engine object
+            }
+        } else {
             String msg = "%s: service = %s already exists. No new service is deployed%n";
             System.err.printf(msg, ClaraUtil.getCurrentTimeInH(), serviceName);
-            return;
         }
-
-        Service service = new Service(comp, frontEnd);
-        service.start();
-
-        myServices.put(serviceName, service);
     }
 
     public void removeService(String serviceName) throws ClaraException {
