@@ -515,15 +515,16 @@ public final class Dpe extends ClaraBase {
         String serviceName = MessageUtils.buildTopic(getMe().getCanonicalName(),
                                                      containerName,
                                                      engineName).toString();
-        if (myContainers.containsKey(containerName)) {
-            try {
-                myContainers.get(containerName).removeService(serviceName);
-            } catch (ClaraException e) {
-                throw new DpeException("could not stop service " + serviceName, e);
-            }
-        } else {
+
+        Container container = myContainers.get(containerName);
+        if (container == null) {
             throw new RequestException("could not stop service = " + serviceName +
                                        ": missing container");
+        }
+        boolean removed = container.removeService(serviceName);
+        if (!removed) {
+            throw new RequestException("could not stop service = " + serviceName +
+                                       ": service doesn't exist");
         }
     }
 
