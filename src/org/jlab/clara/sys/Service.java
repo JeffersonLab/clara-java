@@ -41,6 +41,7 @@ import org.jlab.coda.xmsg.excp.xMsgException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 
 /**
  * A Clara service listening and executing requests.
@@ -225,11 +226,28 @@ class Service extends ClaraBase {
 
 
     private void destroyEngines() {
-        executionPool.shutdown();
+        destroyPool();
         for (ServiceEngine engine : enginePool) {
             engine.close();
         }
         userEngine.destroy();
+    }
+
+
+    private void destroyPool() {
+        executionPool.shutdown();
+        try {
+            if (!executionPool.awaitTermination(10, TimeUnit.SECONDS)) {
+                executionPool.shutdownNow();
+                if (!executionPool.awaitTermination(10, TimeUnit.SECONDS)) {
+                    System.err.printf("%s: service = %s: execution pool did not terminate%n",
+                                      ClaraUtil.getCurrentTimeInH(), name);
+                }
+            }
+        } catch (InterruptedException ie) {
+            executionPool.shutdownNow();
+            Thread.currentThread().interrupt();
+        }
     }
 
 
