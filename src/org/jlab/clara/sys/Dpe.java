@@ -529,12 +529,12 @@ public final class Dpe extends ClaraBase {
     private void stopContainer(RequestParser parser)
             throws RequestException, DpeException {
         String containerName = parser.nextString();
-        if (myContainers.containsKey(containerName)) {
-            myContainers.get(containerName).end();
-        } else {
+        Container container = myContainers.remove(containerName);
+        if (container == null) {
             throw new RequestException("could not stop container = " + containerName +
                                        ": container doesn't exist");
         }
+        container.close();
     }
 
     private void setFrontEnd(RequestParser parser) throws RequestException {
