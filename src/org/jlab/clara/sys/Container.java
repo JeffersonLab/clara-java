@@ -117,6 +117,8 @@ class Container extends ClaraBase {
             } catch (ClaraException e) {
                 System.err.printf("%s: container = %s: %s%n", ClaraUtil.getCurrentTimeInH(),
                                   getMe().getCanonicalName(), e.getMessage());
+            } finally {
+                isRegistered = false;
             }
         }
     }
