@@ -337,7 +337,7 @@ public abstract class ClaraBase extends xMsg {
         try {
             registerAsSubscriber(regAddress, topic, description);
         } catch (xMsgException e) {
-            throw new ClaraException("Could not register with front-end " + regAddress, e);
+            throw new ClaraException("could not register with front-end = " + regAddress, e);
         }
     }
 
@@ -349,11 +349,11 @@ public abstract class ClaraBase extends xMsg {
      * @throws ClaraException if removing the registration failed
      */
     public void removeRegistration(xMsgTopic topic) throws ClaraException {
+        xMsgRegAddress regAddress = new xMsgRegAddress(frontEnd.getDpeHost());
         try {
-            xMsgRegAddress regAddress = new xMsgRegAddress(frontEnd.getDpeHost());
             deregisterAsSubscriber(regAddress, topic);
         } catch (xMsgException e) {
-            throw new ClaraException("Could not register with front-end registrar", e);
+            throw new ClaraException("could not deregister from front-end = " + regAddress, e);
         }
     }
 
