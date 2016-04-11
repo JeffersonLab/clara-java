@@ -495,15 +495,16 @@ public final class Dpe extends ClaraBase {
                                                         poolSize,
                                                         description,
                                                         initialState);
-        if (myContainers.containsKey(containerName)) {
-            try {
-                myContainers.get(containerName).addService(serComp, getFrontEnd());
-            } catch (ClaraException e) {
-                throw new DpeException("could not start service " + serComp, e);
-            }
-        } else {
+
+        Container container = myContainers.get(containerName);
+        if (container == null) {
             throw new RequestException("could not start service = " + serComp +
                                        ": missing container");
+        }
+        try {
+            container.addService(serComp, getFrontEnd());
+        } catch (ClaraException e) {
+            throw new DpeException("could not start service " + serComp, e);
         }
     }
 
