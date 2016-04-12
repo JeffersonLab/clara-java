@@ -1,0 +1,17 @@
+# Example commands file used by j_command script
+# 
+# send <component> <request>
+# sync_send <timeout> <component> <request>
+# sleep <timeout>
+
+sync_send 1000 localhost_java pingDpe
+send localhost_java startContainer?master?5?undefined
+sleep 100
+send localhost_java startService?master?E1?org.jlab.clara.examples.engines.E1?1?undefined?undefined
+send localhost_java startService?master?E2?org.jlab.clara.examples.engines.E1?1?undefined?undefined
+send localhost_java startService?master?E3?org.jlab.clara.examples.engines.E1?1?undefined?undefined
+send localhost_java startService?master?E4?org.jlab.clara.examples.engines.E1?1?undefined?undefined
+sleep 2000
+send localhost_java stopService?master?E1
+sleep 1000
+sync_send 1000 localhost_java stopContainer?master

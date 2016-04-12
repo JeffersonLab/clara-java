@@ -140,6 +140,17 @@ task(orInteractive, dependsOn: 'classes', type: JavaExec) {
 }
 
 
+task(runCommands, dependsOn: 'classes', type: JavaExec) {
+    main = 'org.jlab.clara.base.core.CommandDebugger'
+    classpath = sourceSets.main.runtimeClasspath
+    if ( project.hasProperty("cmdDbgArgs") ) {
+        args Eval.me(cmdDbgArgs)
+    }
+    standardInput = System.in
+    errorOutput = System.out
+}
+
+
 
 def deploySpec = copySpec {
     into ('lib') {
