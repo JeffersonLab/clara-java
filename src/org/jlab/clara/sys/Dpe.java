@@ -619,6 +619,8 @@ public final class Dpe extends ClaraBase {
             try {
                 RequestParser parser = RequestParser.build(msg);
                 String cmd = parser.nextString();
+                String response = parser.request();
+
                 switch (cmd) {
 
                     case ClaraConstants.STOP_DPE:
@@ -654,7 +656,7 @@ public final class Dpe extends ClaraBase {
                 }
 
                 if (msg.getMetaData().hasReplyTo()) {
-                    sendResponse(msg, xMsgMeta.Status.INFO, parser.request());
+                    sendResponse(msg, xMsgMeta.Status.INFO, response);
                 }
 
             } catch (RequestException | DpeException e) {
