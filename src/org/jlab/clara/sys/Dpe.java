@@ -79,11 +79,7 @@ public final class Dpe extends ClaraBase {
     // The containers running on this DPE
     private final Map<String, Container> myContainers = new HashMap<>();
 
-    private final DpeReport myReport;
-    private final JsonReportBuilder myReportBuilder = new JsonReportBuilder();
-
-    private final AtomicBoolean isReporting = new AtomicBoolean();
-    private final long reportWait;
+    private final ReportService reportService;
 
 
     public static void main(String[] args) {
@@ -275,14 +271,7 @@ public final class Dpe extends ClaraBase {
                       1, "Front End"));
 
         this.isFrontEnd = isFrontEnd;
-
-        myReport = new DpeReport(getMe().getCanonicalName());
-        myReport.setHost(getMe().getCanonicalName());
-        myReport.setLang(getMe().getDpeLang());
-        myReport.setDescription(description);
-        myReport.setAuthor(System.getenv("USER"));
-
-        reportWait = reportInterval;
+        this.reportService = new ReportService(reportInterval);
     }
 
     /**
@@ -333,18 +322,11 @@ public final class Dpe extends ClaraBase {
     }
 
     private void startHeartBeatReport() {
-        myReport.setStartTime(ClaraUtil.getCurrentTime());
-        myReport.setMemorySize(Runtime.getRuntime().maxMemory());
-        myReport.setCoreCount(Runtime.getRuntime().availableProcessors());
-
-        isReporting.set(true);
-
-        ScheduledExecutorService scheduledPingService = Executors.newScheduledThreadPool(3);
-        scheduledPingService.schedule(() -> report(), 5, TimeUnit.SECONDS);
+        reportService.start();
     }
 
     private void stopHeartBeatReport() {
-        isReporting.set(false);
+        reportService.stop();
     }
 
     private void stopSubscription() {
@@ -398,43 +380,6 @@ public final class Dpe extends ClaraBase {
         System.out.println("=========================================");
     }
 
-    private void report() {
-        try {
-            xMsgProxyAddress feHost = getFrontEnd().getProxyAddress();
-
-            xMsgTopic reportTopic = xMsgTopic.build(ClaraConstants.DPE_REPORT, feHost.host());
-            xMsgTopic aliveTopic = xMsgTopic.build(ClaraConstants.DPE_ALIVE, feHost.host());
-
-            xMsgConnection con = createConnection(feHost);
-            xMsgUtil.sleep(100);
-
-            int availableProcessors = Runtime.getRuntime().availableProcessors();
-            String claraHome = System.getenv("CLARA_HOME");
-            String dpeName = getMe().getCanonicalName();
-            String data = dpeName + "?" + availableProcessors + "?" + claraHome;
-
-            while (isReporting.get()) {
-
-                xMsgMessage msg = MessageUtils.buildRequest(aliveTopic, data);
-                send(con, msg);
-
-                myReport.setMemoryUsage(SystemStats.getMemoryUsage());
-                myReport.setCpuUsage(SystemStats.getCpuUsage());
-
-                String jsonData = myReportBuilder.generateReport(myReport);
-
-                xMsgMessage reportMsg = MessageUtils.buildRequest(reportTopic, jsonData);
-                send(con, reportMsg);
-
-                xMsgUtil.sleep((int) reportWait);
-            }
-
-            destroyConnection(con);
-        } catch (xMsgException | ClaraException e) {
-            e.printStackTrace();
-        }
-
-    }
 
     private void startContainer(RequestParser parser)
             throws RequestException, DpeException {
@@ -461,7 +406,7 @@ public final class Dpe extends ClaraBase {
             if (result == null) {
                 try {
                     container.start();
-                    myReport.addContainerReport(container.getReport());
+                    reportService.addContainer(container);
                 } catch (ClaraException e) {
                     container.close();
                     myContainers.remove(containerName, container);
@@ -558,6 +503,94 @@ public final class Dpe extends ClaraBase {
 
 
     /**
+     * Periodically publishes reports to the front-end.
+     */
+    private class ReportService {
+
+        private final String aliveData;
+
+        private final DpeReport myReport;
+        private final JsonReportBuilder myReportBuilder = new JsonReportBuilder();
+
+        private final AtomicBoolean isReporting = new AtomicBoolean();
+        private final long reportWait;
+
+        ReportService(long reportInterval) {
+            int availableProcessors = Runtime.getRuntime().availableProcessors();
+            String claraHome = System.getenv("CLARA_HOME");
+            String dpeName = getMe().getCanonicalName();
+
+            aliveData = dpeName + "?" + availableProcessors + "?" + claraHome;
+
+            myReport = new DpeReport(dpeName);
+            myReport.setHost(getMe().getCanonicalName());
+            myReport.setLang(getMe().getDpeLang());
+            myReport.setDescription(getMe().getDescription());
+            myReport.setAuthor(System.getenv("USER"));
+
+            reportWait = reportInterval;
+        }
+
+        public void start() {
+            myReport.setStartTime(ClaraUtil.getCurrentTime());
+            myReport.setMemorySize(Runtime.getRuntime().maxMemory());
+            myReport.setCoreCount(Runtime.getRuntime().availableProcessors());
+
+            isReporting.set(true);
+
+            ScheduledExecutorService scheduledPingService = Executors.newScheduledThreadPool(3);
+            scheduledPingService.schedule(() -> run(), 5, TimeUnit.SECONDS);
+        }
+
+        public void stop() {
+            isReporting.set(false);
+        }
+
+        public void addContainer(Container container) {
+            myReport.addContainerReport(container.getReport());
+        }
+
+        public String aliveReport() {
+            return aliveData;
+        }
+
+        public String jsonReport() throws ClaraException {
+            myReport.setMemoryUsage(SystemStats.getMemoryUsage());
+            myReport.setCpuUsage(SystemStats.getCpuUsage());
+
+            return myReportBuilder.generateReport(myReport);
+        }
+
+        private void run() {
+            try {
+                xMsgProxyAddress feHost = getFrontEnd().getProxyAddress();
+                xMsgTopic jsonTopic = xMsgTopic.build(ClaraConstants.DPE_REPORT, feHost.host());
+                xMsgTopic aliveTopic = xMsgTopic.build(ClaraConstants.DPE_ALIVE, feHost.host());
+
+                xMsgConnection con = createConnection(feHost);
+                xMsgUtil.sleep(100);
+
+                try {
+                    while (isReporting.get()) {
+                        xMsgMessage msg = MessageUtils.buildRequest(aliveTopic, aliveData);
+                        send(con, msg);
+
+                        xMsgMessage reportMsg = MessageUtils.buildRequest(jsonTopic, jsonReport());
+                        send(con, reportMsg);
+
+                        xMsgUtil.sleep(reportWait);
+                    }
+                } finally {
+                    destroyConnection(con);
+                }
+            } catch (xMsgException | ClaraException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+
+    /**
      * A problem that occurs processing a valid request.
      */
     private static class DpeException extends Exception {
@@ -632,7 +665,7 @@ public final class Dpe extends ClaraBase {
                         break;
 
                     case ClaraConstants.PING_DPE:
-                        report();
+                        response = reportService.aliveReport();
                         break;
 
                     case ClaraConstants.START_CONTAINER:
