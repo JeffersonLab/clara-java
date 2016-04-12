@@ -533,7 +533,8 @@ public final class Dpe extends ClaraBase {
         String containerName = parser.nextString();
         Container container = myContainers.remove(containerName);
         if (container == null) {
-            throw new RequestException("could not stop container = " + containerName +
+            String canonName = getMe().getCanonicalName() + ":" + containerName;
+            throw new RequestException("could not stop container = " + canonName +
                                        ": container doesn't exist");
         }
         container.close();
