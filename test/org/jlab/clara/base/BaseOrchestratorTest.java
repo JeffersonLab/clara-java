@@ -26,7 +26,6 @@ import org.jlab.clara.base.ClaraRequests.BaseRequest;
 import org.jlab.clara.base.ClaraSubscriptions.BaseSubscription;
 import org.jlab.clara.base.core.ClaraBase;
 import org.jlab.clara.base.core.ClaraComponent;
-import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.engine.EngineStatus;
@@ -286,7 +285,7 @@ public class BaseOrchestratorTest {
     @ParametersAreNonnullByDefault
     private class OrchestratorMock extends BaseOrchestrator {
 
-        OrchestratorMock() throws ClaraException, IOException {
+        OrchestratorMock() throws IOException {
             super();
         }
 
