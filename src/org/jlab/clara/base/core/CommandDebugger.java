@@ -24,9 +24,9 @@ package org.jlab.clara.base.core;
 import org.jlab.clara.base.ClaraUtil;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.coda.xmsg.core.xMsg;
-import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgTopic;
+import org.jlab.coda.xmsg.data.xMsgMimeType;
 import org.jlab.coda.xmsg.excp.xMsgException;
 import org.jlab.coda.xmsg.net.xMsgConnection;
 import org.jlab.coda.xmsg.net.xMsgProxyAddress;
@@ -97,7 +97,7 @@ public final class CommandDebugger extends xMsg {
     }
 
     private void printResponse(xMsgMessage res) {
-        if (res.getMetaData().getDataType().equals(xMsgConstants.MimeType.STRING)) {
+        if (res.getMetaData().getDataType().equals(xMsgMimeType.STRING)) {
             String data = new String(res.getData());
             System.out.printf("R: %s%n", data);
         } else {
