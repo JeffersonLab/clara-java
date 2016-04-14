@@ -74,7 +74,7 @@ public class BaseOrchestrator {
      * Creates a new orchestrator.
      * Uses a random name and the local node as front-end.
      *
-     * @throws IOException if localhost could not be obtained
+     * @throws UncheckedIOException if localhost could not be obtained
      */
     public BaseOrchestrator() {
         this(xMsgConstants.DEFAULT_POOL_SIZE);
@@ -85,7 +85,7 @@ public class BaseOrchestrator {
      * Uses a random name and receives the location of the front-end.
      *
      * @param subPoolSize set the size of the pool for processing subscriptions on background
-     * @throws IOException if localhost could not be obtained
+     * @throws UncheckedIOException if localhost could not be obtained
      */
     public BaseOrchestrator(int subPoolSize) {
         this(getUniqueName(),
@@ -98,7 +98,7 @@ public class BaseOrchestrator {
      * Uses a random name and receives the location of the front-end.
      *
      * @param frontEnd use this front-end for communication with the Clara cloud
-     * @throws IOException if localhost could not be obtained
+     * @throws UncheckedIOException if localhost could not be obtained
      */
     public BaseOrchestrator(DpeName frontEnd) {
         this(getUniqueName(), frontEnd, xMsgConstants.DEFAULT_POOL_SIZE);
@@ -129,8 +129,6 @@ public class BaseOrchestrator {
     /**
      * Creates the internal base object.
      * It can be overridden to return a mock for testing purposes.
-     *
-     * @throws IOException
      */
     ClaraBase getClaraBase(String name, DpeName frontEnd, int poolSize) {
         try {
