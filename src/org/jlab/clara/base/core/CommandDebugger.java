@@ -97,11 +97,12 @@ public final class CommandDebugger extends xMsg {
     }
 
     private void printResponse(xMsgMessage res) {
-        if (res.getMetaData().getDataType().equals(xMsgMimeType.STRING)) {
+        String mimeType = res.getMimeType();
+        if (mimeType.equals(xMsgMimeType.STRING)) {
             String data = new String(res.getData());
             System.out.printf("R: %s%n", data);
         } else {
-            System.out.printf("R: mime-type = %s%n", res.getMetaData().getDataType());
+            System.out.printf("R: mime-type = %s%n", mimeType);
         }
     }
 

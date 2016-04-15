@@ -155,7 +155,7 @@ public class ClaraSubscriptions {
         protected xMsgCallBack wrap(final GenericCallback userCallback) {
             return msg -> {
                 try {
-                    String mimeType = msg.getMetaData().getDataType();
+                    String mimeType = msg.getMimeType();
                     if (mimeType.equals("text/string")) {
                         userCallback.callback(new String(msg.getData()));
                     } else {

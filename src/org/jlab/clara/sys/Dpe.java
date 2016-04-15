@@ -688,13 +688,13 @@ public final class Dpe extends ClaraBase {
                         break;
                 }
 
-                if (msg.getMetaData().hasReplyTo()) {
+                if (msg.hasReplyTopic()) {
                     sendResponse(msg, xMsgMeta.Status.INFO, response);
                 }
 
             } catch (RequestException | DpeException e) {
                 System.err.printf("%s: %s%n", ClaraUtil.getCurrentTimeInH(), e.getMessage());
-                if (msg.getMetaData().hasReplyTo()) {
+                if (msg.hasReplyTopic()) {
                     sendResponse(msg, xMsgMeta.Status.ERROR, e.getMessage());
                 }
             }
@@ -702,8 +702,7 @@ public final class Dpe extends ClaraBase {
 
         private void sendResponse(xMsgMessage msg, xMsgMeta.Status status, String data) {
             try {
-                xMsgTopic topic = xMsgTopic.wrap(msg.getMetaData().getReplyTo());
-                xMsgMessage repMsg = MessageUtils.buildRequest(topic, data);
+                xMsgMessage repMsg = MessageUtils.buildRequest(msg.getReplyTopic(), data);
                 repMsg.getMetaData().setStatus(status);
                 send(repMsg);
             } catch (xMsgException e) {
