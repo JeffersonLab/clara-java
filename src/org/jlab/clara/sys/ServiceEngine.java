@@ -39,7 +39,6 @@ import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 import org.jlab.coda.xmsg.excp.xMsgException;
 
-import java.io.IOException;
 import java.util.Set;
 import java.util.concurrent.Semaphore;
 
@@ -92,7 +91,6 @@ class ServiceEngine extends ClaraBase {
             throws ClaraException,
             xMsgException,
             InterruptedException,
-            IOException,
             ClassNotFoundException {
 
         EngineData inputData;
@@ -137,7 +135,7 @@ class ServiceEngine extends ClaraBase {
 
 
     public void execute(xMsgMessage message)
-            throws ClaraException, xMsgException, IOException {
+            throws ClaraException, xMsgException {
 
         // Increment request count in the sysConfig object
         sysConfig.addRequest();
@@ -232,7 +230,7 @@ class ServiceEngine extends ClaraBase {
 
 
     private void sendReports(EngineData outData)
-            throws xMsgException, IOException, ClaraException {
+            throws xMsgException, ClaraException {
         // External send data
         if (sysConfig.isDataRequest()) {
             reportData(outData);
@@ -247,7 +245,7 @@ class ServiceEngine extends ClaraBase {
     }
 
     private void sendResponse(EngineData outData, Set<String> outLinks)
-            throws xMsgException, IOException, ClaraException {
+            throws xMsgException, ClaraException {
         for (String ss : outLinks) {
             ClaraComponent comp = ClaraComponent.dpe(ss);
             xMsgMessage msg = putEngineData(outData, ss);
@@ -255,8 +253,7 @@ class ServiceEngine extends ClaraBase {
         }
     }
 
-    private void reportDone(EngineData data)
-            throws xMsgException, IOException, ClaraException {
+    private void reportDone(EngineData data) throws xMsgException, ClaraException {
         String mt = data.getMimeType();
         Object ob = data.getData();
         data.setData(EngineDataType.STRING.mimeType(), xMsgConstants.DONE);
@@ -266,13 +263,11 @@ class ServiceEngine extends ClaraBase {
         data.setData(mt, ob);
     }
 
-    private void reportData(EngineData data)
-            throws xMsgException, IOException, ClaraException {
+    private void reportData(EngineData data) throws xMsgException, ClaraException {
         report(xMsgConstants.DATA, data);
     }
 
-    private void reportProblem(EngineData data)
-            throws xMsgException, IOException, ClaraException {
+    private void reportProblem(EngineData data) throws xMsgException, ClaraException {
         EngineStatus status = data.getStatus();
         if (status.equals(EngineStatus.ERROR)) {
             report(xMsgConstants.ERROR, data);
@@ -283,7 +278,7 @@ class ServiceEngine extends ClaraBase {
 
 
     private void report(String topicPrefix, EngineData data)
-            throws ClaraException, xMsgException, IOException {
+            throws ClaraException, xMsgException {
         xMsgTopic topic = xMsgTopic.wrap(topicPrefix + xMsgConstants.TOPIC_SEP + getName());
         xMsgMessage transit = serialize(topic, data, engineObject.getOutputDataTypes());
         send(getFrontEnd(), transit);
