@@ -366,7 +366,7 @@ public final class ClaraRequests {
      * A request to configure a service.
      */
     public static class ServiceConfigRequest
-                extends ServiceRequest<ServiceConfigRequest, Boolean> {
+                extends ServiceRequest<ServiceConfigRequest, EngineData> {
 
         ServiceConfigRequest(ClaraBase base, ClaraComponent frontEnd, ServiceName service,
                              EngineData data, Set<EngineDataType> dataTypes) {
@@ -375,9 +375,8 @@ public final class ClaraRequests {
         }
 
         @Override
-        protected Boolean parseData(xMsgMessage msg) {
-            // TODO Auto-generated catch block
-            return true;
+        protected EngineData parseData(xMsgMessage msg) throws ClaraException {
+            return base.deSerialize(msg, dataTypes);
         }
     }
 
