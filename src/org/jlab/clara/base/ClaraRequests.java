@@ -56,7 +56,6 @@ public final class ClaraRequests {
 
         protected ClaraComponent frontEnd;
         protected xMsgTopic topic;
-        protected xMsgMeta.Builder meta;
 
         BaseRequest(ClaraBase base,
                     ClaraComponent frontEnd,
@@ -64,7 +63,6 @@ public final class ClaraRequests {
             this.base = base;
             this.frontEnd = frontEnd;
             this.topic = xMsgTopic.wrap(topic);
-            this.meta = xMsgMeta.newBuilder();
         }
 
         /**
