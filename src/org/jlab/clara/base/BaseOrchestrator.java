@@ -40,8 +40,9 @@ import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgSubscription;
 import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
-import org.jlab.coda.xmsg.data.xMsgR.xMsgRegistration;
 import org.jlab.coda.xmsg.excp.xMsgException;
+import org.jlab.coda.xmsg.xsys.regdis.xMsgRegQuery;
+import org.jlab.coda.xmsg.xsys.regdis.xMsgRegRecord;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
@@ -52,6 +53,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
 
 
 /**
@@ -381,12 +383,10 @@ public class BaseOrchestrator {
      */
     public Set<String> getDpeNames() throws ClaraException, xMsgException {
         xMsgTopic topic = xMsgTopic.build(ClaraConstants.DPE);
-        Set<xMsgRegistration> rs = base.findSubscribers(topic);
-        HashSet<String> result = new HashSet<>();
-        for (xMsgRegistration r : rs) {
-            result.add(r.getName());
-        }
-        return result;
+        return base.discover(xMsgRegQuery.subscribers(topic))
+                   .stream()
+                   .map(e -> e.name())
+                   .collect(Collectors.toSet());
     }
 
     /**
@@ -400,12 +400,10 @@ public class BaseOrchestrator {
      */
     public Set<String> getContainerNames(String dpeName) throws ClaraException, xMsgException {
         xMsgTopic topic = xMsgTopic.build(ClaraConstants.CONTAINER, dpeName);
-        Set<xMsgRegistration> rs = base.findSubscribers(topic);
-        HashSet<String> result = new HashSet<>();
-        for (xMsgRegistration r : rs) {
-            result.add(r.getName());
-        }
-        return result;
+        return base.discover(xMsgRegQuery.subscribers(topic))
+                   .stream()
+                   .map(e -> e.name())
+                   .collect(Collectors.toSet());
     }
 
     /**
@@ -421,12 +419,10 @@ public class BaseOrchestrator {
     public Set<String> getEngineNames(String dpeName, String containerName)
             throws ClaraException, xMsgException {
         xMsgTopic topic = xMsgTopic.build(dpeName, containerName);
-        Set<xMsgRegistration> rs = base.findSubscribers(topic);
-        HashSet<String> result = new HashSet<>();
-        for (xMsgRegistration r : rs) {
-            result.add(r.getName());
-        }
-        return result;
+        return base.discover(xMsgRegQuery.subscribers(topic))
+                   .stream()
+                   .map(e -> e.name())
+                   .collect(Collectors.toSet());
     }
 
     /**
@@ -436,10 +432,10 @@ public class BaseOrchestrator {
      * @param canonicalName the name of the actor
      * @return Set of {@link org.jlab.coda.xmsg.data.xMsgR.xMsgRegistration} objects
      */
-    public Set<xMsgRegistration> getRegistrationInfo(String canonicalName)
+    public Set<xMsgRegRecord> getRegistrationInfo(String canonicalName)
             throws ClaraException, xMsgException {
         xMsgTopic topic = xMsgTopic.wrap(canonicalName);
-        return base.findSubscribers(topic);
+        return base.discover(xMsgRegQuery.subscribers(topic));
     }
 
 
@@ -447,7 +443,7 @@ public class BaseOrchestrator {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
-    public String reg2Json(xMsgRegistration regData) throws ClaraException {
+    public String reg2Json(xMsgRegRecord regData) throws ClaraException {
         throw new UnsupportedOperationException("Not implemented yet");
     }
 
