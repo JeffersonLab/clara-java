@@ -252,7 +252,6 @@ public final class ClaraComponent {
      * DPE default settings are used
      *
      * @return the DPE component
-     * @throws IOException
      */
     public static ClaraComponent dpe() {
         return dpe(ClaraUtil.localhost(), xMsgConstants.DEFAULT_PORT, ClaraConstants.JAVA_LANG,

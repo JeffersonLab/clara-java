@@ -40,7 +40,7 @@ final class RequestParser {
     }
 
     static RequestParser build(xMsgMessage msg) throws RequestException {
-        String mimeType = msg.getMetaData().getDataType();
+        String mimeType = msg.getMimeType();
         if (mimeType.equals("text/string")) {
             return new RequestParser(new String(msg.getData()));
         }

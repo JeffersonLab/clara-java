@@ -28,13 +28,10 @@ import org.jlab.clara.engine.EngineStatus;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.core.xMsgUtil;
-import org.jlab.coda.xmsg.excp.xMsgAddressException;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.net.SocketException;
 import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -252,8 +249,7 @@ public final class ClaraUtil {
     }
 
 
-    public static Boolean isHostLocal(String hostName)
-            throws IOException {
+    public static Boolean isHostLocal(String hostName) {
         for (String s : xMsgUtil.getLocalHostIps()) {
             if (s.equals(hostName)) {
                 return true;
@@ -267,33 +263,19 @@ public final class ClaraUtil {
      *
      * @param serviceName service canonical name (dpe-ip:container:engine)
      * @return true/false
-     * @throws org.jlab.clara.base.error.ClaraException
      */
-    public static Boolean isRemoteService(String serviceName)
-            throws ClaraException, IOException {
-
-        try {
-            xMsgTopic topic = xMsgTopic.wrap(serviceName);
-            for (String s : xMsgUtil.getLocalHostIps()) {
-                if (s.equals(topic.domain())) {
-                    return false;
-                }
+    public static Boolean isRemoteService(String serviceName) {
+        xMsgTopic topic = xMsgTopic.wrap(serviceName);
+        for (String s : xMsgUtil.getLocalHostIps()) {
+            if (s.equals(topic.domain())) {
+                return false;
             }
-        } catch (SocketException e) {
-            throw new ClaraException(e.getMessage());
         }
-
         return true;
     }
 
     public static String localhost() {
-        try {
-            // Workaround to convert IOException into a runtime exception,
-            // until Java 8 is used
-            return xMsgUtil.localhost();
-        } catch (IOException e) {
-            throw new xMsgAddressException(e);
-        }
+        return xMsgUtil.localhost();
     }
 
     /**

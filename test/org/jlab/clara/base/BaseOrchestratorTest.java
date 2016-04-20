@@ -38,7 +38,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.io.IOException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -285,7 +284,7 @@ public class BaseOrchestratorTest {
     @ParametersAreNonnullByDefault
     private class OrchestratorMock extends BaseOrchestrator {
 
-        OrchestratorMock() throws IOException {
+        OrchestratorMock() {
             super();
         }
 

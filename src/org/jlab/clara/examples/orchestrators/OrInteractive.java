@@ -42,7 +42,6 @@ import org.jlab.clara.util.xml.XMLTagValue;
 import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.w3c.dom.Document;
 
-import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -107,11 +106,7 @@ public class OrInteractive extends BaseOrchestrator {
     }
 
     private static ContainerName buildContainerName(String dpeHost, String container) {
-        try {
-            return new ContainerName(xMsgUtil.toHostAddress(dpeHost), ClaraLang.JAVA, container);
-        } catch (IOException e) {
-            throw new UserInputException(e);
-        }
+        return new ContainerName(xMsgUtil.toHostAddress(dpeHost), ClaraLang.JAVA, container);
     }
 
     private static String buildData(String dataSize) {
@@ -380,10 +375,6 @@ public class OrInteractive extends BaseOrchestrator {
 
         UserInputException(String msg) {
             super(msg);
-        }
-
-        UserInputException(Throwable cause) {
-            super(cause);
         }
     }
 

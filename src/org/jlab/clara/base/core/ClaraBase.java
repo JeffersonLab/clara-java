@@ -32,12 +32,14 @@ import org.jlab.coda.xmsg.core.xMsgSubscription;
 import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
-import org.jlab.coda.xmsg.data.xMsgR.xMsgRegistration;
 import org.jlab.coda.xmsg.excp.xMsgException;
 import org.jlab.coda.xmsg.net.xMsgConnection;
 import org.jlab.coda.xmsg.net.xMsgConnectionSetup;
 import org.jlab.coda.xmsg.net.xMsgProxyAddress;
 import org.jlab.coda.xmsg.net.xMsgRegAddress;
+import org.jlab.coda.xmsg.xsys.regdis.xMsgRegInfo;
+import org.jlab.coda.xmsg.xsys.regdis.xMsgRegQuery;
+import org.jlab.coda.xmsg.xsys.regdis.xMsgRegRecord;
 import org.zeromq.ZMQ.Socket;
 
 import java.io.IOException;
@@ -306,7 +308,7 @@ public abstract class ClaraBase extends xMsg {
     public void register(xMsgTopic topic, String description) throws ClaraException {
         xMsgRegAddress regAddress = new xMsgRegAddress(frontEnd.getDpeHost());
         try {
-            registerAsSubscriber(regAddress, topic, description);
+            register(xMsgRegInfo.subscriber(topic, description), regAddress);
         } catch (xMsgException e) {
             throw new ClaraException("could not register with front-end = " + regAddress, e);
         }
@@ -322,7 +324,7 @@ public abstract class ClaraBase extends xMsg {
     public void removeRegistration(xMsgTopic topic) throws ClaraException {
         xMsgRegAddress regAddress = new xMsgRegAddress(frontEnd.getDpeHost());
         try {
-            deregisterAsSubscriber(regAddress, topic);
+            deregister(xMsgRegInfo.subscriber(topic), regAddress);
         } catch (xMsgException e) {
             throw new ClaraException("could not deregister from front-end = " + regAddress, e);
         }
@@ -362,10 +364,10 @@ public abstract class ClaraBase extends xMsg {
      * @throws IOException
      * @throws xMsgException
      */
-    public Set<xMsgRegistration> discover(String regHost, int regPort, xMsgTopic topic)
+    public Set<xMsgRegRecord> discover(String regHost, int regPort, xMsgTopic topic)
             throws IOException, xMsgException {
         xMsgRegAddress regAddress = new xMsgRegAddress(regHost, regPort);
-        return findSubscribers(regAddress, topic);
+        return discover(xMsgRegQuery.subscribers(topic), regAddress, 1000);
     }
 
     /**
@@ -378,10 +380,10 @@ public abstract class ClaraBase extends xMsg {
      * @throws IOException
      * @throws xMsgException
      */
-    public Set<xMsgRegistration> discover(String regHost, xMsgTopic topic)
+    public Set<xMsgRegRecord> discover(String regHost, xMsgTopic topic)
             throws IOException, xMsgException {
         xMsgRegAddress regAddress = new xMsgRegAddress(regHost);
-        return findSubscribers(regAddress, topic);
+        return discover(xMsgRegQuery.subscribers(topic), regAddress);
     }
 
     /**
@@ -393,9 +395,9 @@ public abstract class ClaraBase extends xMsg {
      * @throws IOException
      * @throws xMsgException
      */
-    public Set<xMsgRegistration> discover(xMsgTopic topic)
+    public Set<xMsgRegRecord> discover(xMsgTopic topic)
             throws IOException, xMsgException {
-        return findSubscribers(topic);
+        return discover(xMsgRegQuery.subscribers(topic));
     }
 
     /**
