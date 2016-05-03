@@ -185,6 +185,8 @@ public class OrInteractive extends BaseOrchestrator {
                 System.out.println();
                 System.out.println("Exiting...");
                 return;
+            } finally {
+                scanner.close();
             }
         }
     }

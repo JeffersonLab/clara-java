@@ -1,6 +1,7 @@
 package org.jlab.clara.engine;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
@@ -99,6 +100,12 @@ public class EngineSpecification {
                 }
             } catch (YAMLException e) {
                 throw new ParseException(e);
+            } finally {
+                try {
+                    input.close();
+                } catch (IOException e) {
+                    // ignore
+                }
             }
         } else {
             throw new ParseException("Service specification file not found for " + engine);
