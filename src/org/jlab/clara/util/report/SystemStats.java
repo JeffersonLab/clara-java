@@ -22,8 +22,6 @@
 
 package org.jlab.clara.util.report;
 
-import org.jlab.clara.base.error.ClaraException;
-
 import java.lang.management.ManagementFactory;
 
 import javax.management.Attribute;
@@ -38,7 +36,7 @@ public final class SystemStats {
 
     private SystemStats() { }
 
-    public static double getCpuUsage() throws ClaraException {
+    public static double getCpuUsage() {
         try {
             MBeanServer mbs = ManagementFactory.getPlatformMBeanServer();
             ObjectName name = ObjectName.getInstance("java.lang:type=OperatingSystem");
@@ -59,7 +57,8 @@ public final class SystemStats {
             return ((int) (value * 1000) / 10.0);
         } catch (MalformedObjectNameException | NullPointerException |
                  InstanceNotFoundException | ReflectionException e) {
-            throw new ClaraException("Could not get CPU usage", e);
+            System.err.println("Could not obtain CPU usage: " + e.getMessage());
+            return Double.NaN;
         }
     }
 

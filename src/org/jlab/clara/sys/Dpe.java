@@ -554,7 +554,7 @@ public final class Dpe extends ClaraBase {
             return aliveData;
         }
 
-        public String jsonReport() throws ClaraException {
+        public String jsonReport() {
             myReport.setMemoryUsage(SystemStats.getMemoryUsage());
             myReport.setCpuUsage(SystemStats.getCpuUsage());
 
@@ -583,7 +583,7 @@ public final class Dpe extends ClaraBase {
                 } finally {
                     destroyConnection(con);
                 }
-            } catch (xMsgException | ClaraException e) {
+            } catch (xMsgException e) {
                 e.printStackTrace();
             }
         }
