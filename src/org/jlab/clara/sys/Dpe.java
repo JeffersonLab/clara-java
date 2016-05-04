@@ -678,7 +678,7 @@ public final class Dpe extends ClaraBase {
                 switch (cmd) {
 
                     case ClaraConstants.STOP_DPE:
-                        end();
+                        new Thread(() -> close()).start();
                         break;
 
                     case ClaraConstants.SET_FRONT_END:
