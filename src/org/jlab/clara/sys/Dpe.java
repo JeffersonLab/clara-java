@@ -44,9 +44,9 @@ import org.jlab.coda.xmsg.excp.xMsgException;
 import org.jlab.coda.xmsg.net.xMsgConnection;
 import org.jlab.coda.xmsg.net.xMsgProxyAddress;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -77,7 +77,7 @@ public final class Dpe extends ClaraBase {
     private xMsgSubscription subscriptionHandler;
 
     // The containers running on this DPE
-    private final Map<String, Container> myContainers = new HashMap<>();
+    private final ConcurrentMap<String, Container> myContainers = new ConcurrentHashMap<>();
 
     private final ReportService reportService;
 
