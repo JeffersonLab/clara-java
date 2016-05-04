@@ -512,6 +512,7 @@ public final class Dpe extends ClaraBase {
         private final DpeReport myReport;
         private final JsonReportBuilder myReportBuilder = new JsonReportBuilder();
 
+        private final ScheduledExecutorService scheduledPingService;
         private final AtomicBoolean isReporting = new AtomicBoolean();
         private final long reportWait;
 
@@ -528,6 +529,8 @@ public final class Dpe extends ClaraBase {
             myReport.setDescription(getMe().getDescription());
             myReport.setAuthor(System.getenv("USER"));
 
+            scheduledPingService = Executors.newSingleThreadScheduledExecutor();
+
             reportWait = reportInterval;
         }
 
@@ -538,12 +541,24 @@ public final class Dpe extends ClaraBase {
 
             isReporting.set(true);
 
-            ScheduledExecutorService scheduledPingService = Executors.newScheduledThreadPool(3);
             scheduledPingService.schedule(() -> run(), 5, TimeUnit.SECONDS);
         }
 
         public void stop() {
             isReporting.set(false);
+
+            scheduledPingService.shutdown();
+            try {
+                if (!scheduledPingService.awaitTermination(100, TimeUnit.MILLISECONDS)) {
+                    scheduledPingService.shutdownNow();
+                    if (!scheduledPingService.awaitTermination(1, TimeUnit.SECONDS)) {
+                        System.err.println("reporting thread did not terminate");
+                    }
+                }
+            } catch (InterruptedException ie) {
+                scheduledPingService.shutdownNow();
+                Thread.currentThread().interrupt();
+            }
         }
 
         public void addContainer(Container container) {
