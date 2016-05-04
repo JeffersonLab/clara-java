@@ -580,10 +580,16 @@ public final class Dpe extends ClaraBase {
 
                         xMsgUtil.sleep(reportWait);
                     }
+                } catch (xMsgException e) {
+                    System.err.println("Could not publish DPE report:" + e.getMessage());
                 } finally {
                     destroyConnection(con);
                 }
             } catch (xMsgException e) {
+                System.err.println("Could not start DPE reporting thread:");
+                e.printStackTrace();
+            } catch (Exception e) {
+                System.err.println("Error running DPE reporting thread:");
                 e.printStackTrace();
             }
         }
