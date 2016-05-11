@@ -34,6 +34,7 @@ import org.jlab.clara.util.report.DpeReport;
 import org.jlab.clara.util.report.JsonReportBuilder;
 import org.jlab.clara.util.report.SystemStats;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
+import org.jlab.coda.xmsg.core.xMsgConnection;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgSubscription;
@@ -41,7 +42,6 @@ import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 import org.jlab.coda.xmsg.excp.xMsgException;
-import org.jlab.coda.xmsg.net.xMsgConnection;
 import org.jlab.coda.xmsg.net.xMsgProxyAddress;
 
 import java.util.Objects;
@@ -582,7 +582,7 @@ public final class Dpe extends ClaraBase {
                 xMsgTopic jsonTopic = xMsgTopic.build(ClaraConstants.DPE_REPORT, feHost.host());
                 xMsgTopic aliveTopic = xMsgTopic.build(ClaraConstants.DPE_ALIVE, feHost.host());
 
-                xMsgConnection con = createConnection(feHost);
+                xMsgConnection con = getConnection(feHost);
                 xMsgUtil.sleep(100);
 
                 try {
@@ -598,7 +598,7 @@ public final class Dpe extends ClaraBase {
                 } catch (xMsgException e) {
                     System.err.println("Could not publish DPE report:" + e.getMessage());
                 } finally {
-                    destroyConnection(con);
+                    con.close();
                 }
             } catch (xMsgException e) {
                 System.err.println("Could not start DPE reporting thread:");
