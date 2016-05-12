@@ -42,7 +42,7 @@ import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta.Builder;
 import org.jlab.coda.xmsg.excp.xMsgException;
 import org.jlab.coda.xmsg.net.xMsgProxyAddress;
 import org.jlab.coda.xmsg.net.xMsgRegAddress;
-import org.jlab.coda.xmsg.xsys.xMsgRegistrar;
+import org.jlab.coda.xmsg.sys.xMsgRegistrar;
 import org.zeromq.ZContext;
 
 import java.io.IOException;
