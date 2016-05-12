@@ -68,10 +68,10 @@ public final class ClaraComponent {
         this.dpeHost = dpeHost;
         this.dpePort = dpePort;
         if (dpePort == xMsgConstants.DEFAULT_PORT) {
-            this.dpeCanonicalName = dpeHost + xMsgConstants.LANG_SEP + dpeLang;
+            this.dpeCanonicalName = dpeHost + ClaraConstants.LANG_SEP + dpeLang;
         } else {
-            this.dpeCanonicalName = dpeHost + xMsgConstants.PRXHOSTPORT_SEP +
-                    Integer.toString(dpePort) + xMsgConstants.LANG_SEP + dpeLang;
+            this.dpeCanonicalName = dpeHost + ClaraConstants.PORT_SEP +
+                    Integer.toString(dpePort) + ClaraConstants.LANG_SEP + dpeLang;
         }
         this.containerName = container;
         this.engineName = engine;

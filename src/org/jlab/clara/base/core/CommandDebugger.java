@@ -24,11 +24,11 @@ package org.jlab.clara.base.core;
 import org.jlab.clara.base.ClaraUtil;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.coda.xmsg.core.xMsg;
+import org.jlab.coda.xmsg.core.xMsgConnection;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.data.xMsgMimeType;
 import org.jlab.coda.xmsg.excp.xMsgException;
-import org.jlab.coda.xmsg.net.xMsgConnection;
 import org.jlab.coda.xmsg.net.xMsgProxyAddress;
 
 import java.io.IOException;
@@ -80,16 +80,13 @@ public final class CommandDebugger extends xMsg {
         try {
             Command cmd = new Command(line);
             System.out.println("C: " + cmd);
-            xMsgConnection connection = getConnection(cmd.address);
-            try {
+            try (xMsgConnection connection = getConnection(cmd.address)) {
                 xMsgMessage message = MessageUtils.buildRequest(cmd.topic, cmd.request);
                 if (cmd.action.equals("send")) {
                     publish(connection, message);
                 } else {
                     printResponse(syncPublish(connection, message, cmd.timeout));
                 }
-            } finally {
-                releaseConnection(connection);
             }
         } catch (xMsgException | ClaraException | TimeoutException e) {
             e.printStackTrace();

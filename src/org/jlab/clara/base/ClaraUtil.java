@@ -22,6 +22,7 @@
 
 package org.jlab.clara.base;
 
+import org.jlab.clara.base.core.ClaraConstants;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.engine.EngineStatus;
@@ -173,11 +174,11 @@ public final class ClaraUtil {
         if (!isCanonicalName(canonicalName)) {
             throw new ClaraException("Clara-Error: not a canonical name");
         }
-        int portSep = canonicalName.indexOf(xMsgConstants.PRXHOSTPORT_SEP);
+        int portSep = canonicalName.indexOf(ClaraConstants.PORT_SEP);
         if (portSep > 0) {
             return canonicalName.substring(0, portSep);
         } else {
-            int langSep = canonicalName.indexOf(xMsgConstants.LANG_SEP);
+            int langSep = canonicalName.indexOf(ClaraConstants.LANG_SEP);
             return canonicalName.substring(0, langSep);
         }
     }
@@ -186,8 +187,8 @@ public final class ClaraUtil {
         if (!isCanonicalName(canonicalName)) {
             throw new ClaraException("Clara-Error: not a canonical name");
         }
-        int portSep = canonicalName.indexOf(xMsgConstants.PRXHOSTPORT_SEP);
-        int langSep = canonicalName.indexOf(xMsgConstants.LANG_SEP);
+        int portSep = canonicalName.indexOf(ClaraConstants.PORT_SEP);
+        int langSep = canonicalName.indexOf(ClaraConstants.LANG_SEP);
         if (portSep > 0) {
             String port = canonicalName.substring(portSep + 1, langSep);
             return Integer.parseInt(port);
@@ -201,7 +202,7 @@ public final class ClaraUtil {
             throw new ClaraException("Clara-Error: not a canonical name");
         }
         String dpeName = getDpeName(canonicalName);
-        return dpeName.substring(dpeName.indexOf(xMsgConstants.LANG_SEP) + 1);
+        return dpeName.substring(dpeName.indexOf(ClaraConstants.LANG_SEP) + 1);
     }
 
     /**
@@ -324,11 +325,11 @@ public final class ClaraUtil {
     public static String getStatusText(EngineStatus status) {
         switch (status) {
             case INFO:
-                return xMsgConstants.INFO;
+                return ClaraConstants.INFO;
             case WARNING:
-                return xMsgConstants.WARNING;
+                return ClaraConstants.WARNING;
             case ERROR:
-                return xMsgConstants.ERROR;
+                return ClaraConstants.ERROR;
             default:
                 throw new IllegalStateException("Clara-Error: Unknown status " + status);
         }

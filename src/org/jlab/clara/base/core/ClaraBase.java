@@ -27,19 +27,19 @@ import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.util.report.ReportType;
 import org.jlab.coda.xmsg.core.xMsg;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
+import org.jlab.coda.xmsg.core.xMsgConnection;
+import org.jlab.coda.xmsg.core.xMsgConnectionSetup;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgSubscription;
 import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
+import org.jlab.coda.xmsg.data.xMsgRegInfo;
+import org.jlab.coda.xmsg.data.xMsgRegQuery;
+import org.jlab.coda.xmsg.data.xMsgRegRecord;
 import org.jlab.coda.xmsg.excp.xMsgException;
-import org.jlab.coda.xmsg.net.xMsgConnection;
-import org.jlab.coda.xmsg.net.xMsgConnectionSetup;
 import org.jlab.coda.xmsg.net.xMsgProxyAddress;
 import org.jlab.coda.xmsg.net.xMsgRegAddress;
-import org.jlab.coda.xmsg.xsys.regdis.xMsgRegInfo;
-import org.jlab.coda.xmsg.xsys.regdis.xMsgRegQuery;
-import org.jlab.coda.xmsg.xsys.regdis.xMsgRegRecord;
 import org.zeromq.ZMQ.Socket;
 
 import java.io.IOException;
@@ -133,8 +133,8 @@ public abstract class ClaraBase extends xMsg {
      */
     public void cacheConnection() throws ClaraException {
         try {
-            // Create a socket connection to the local proxy
-            releaseConnection(getConnection());
+            xMsgConnection connection = getConnection();
+            connection.close();
         } catch (xMsgException e) {
             throw new ClaraException("could not connect to local proxy", e);
         }
@@ -149,9 +149,7 @@ public abstract class ClaraBase extends xMsg {
      */
     public void send(ClaraComponent component, xMsgMessage msg)
             throws xMsgException {
-        xMsgConnection con = getConnection(component.getProxyAddress());
-        publish(con, msg);
-        releaseConnection(con);
+        publish(component.getProxyAddress(), msg);
     }
 
     /**
@@ -164,9 +162,7 @@ public abstract class ClaraBase extends xMsg {
     public void send(ClaraComponent component, String requestText)
             throws xMsgException {
         xMsgMessage msg = MessageUtils.buildRequest(component.getTopic(), requestText);
-        xMsgConnection con = getConnection(component.getProxyAddress());
-        publish(con, msg);
-        releaseConnection(con);
+        publish(component.getProxyAddress(), msg);
     }
 
     /**
@@ -214,10 +210,7 @@ public abstract class ClaraBase extends xMsg {
      */
     public xMsgMessage syncSend(ClaraComponent component, xMsgMessage msg, int timeout)
             throws xMsgException, TimeoutException {
-        xMsgConnection con = getConnection(component.getProxyAddress());
-        xMsgMessage m = syncPublish(con, msg, timeout);
-        releaseConnection(con);
-        return m;
+        return syncPublish(component.getProxyAddress(), msg, timeout);
     }
 
     /**
@@ -232,10 +225,7 @@ public abstract class ClaraBase extends xMsg {
     public xMsgMessage syncSend(ClaraComponent component, String requestText, int timeout)
             throws xMsgException, TimeoutException {
         xMsgMessage msg = MessageUtils.buildRequest(component.getTopic(), requestText);
-        xMsgConnection con = getConnection(component.getProxyAddress());
-        xMsgMessage m = syncPublish(con, msg, timeout);
-        releaseConnection(con);
-        return m;
+        return syncPublish(component.getProxyAddress(), msg, timeout);
     }
 
     /**
@@ -263,14 +253,9 @@ public abstract class ClaraBase extends xMsg {
      */
     public xMsgSubscription listen(ClaraComponent component, xMsgTopic topic, xMsgCallBack callback)
             throws ClaraException {
-        xMsgConnection con = null;
         try {
-            con = getConnection(component.getProxyAddress());
-            return subscribe(con, topic, callback);
+            return subscribe(component.getProxyAddress(), topic, callback);
         } catch (xMsgException e) {
-            if (con != null) {
-                releaseConnection(con);
-            }
             throw new ClaraException("could not subscribe to " + topic);
         }
     }

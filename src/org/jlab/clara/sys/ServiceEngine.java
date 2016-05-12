@@ -256,23 +256,23 @@ class ServiceEngine extends ClaraBase {
     private void reportDone(EngineData data) throws xMsgException, ClaraException {
         String mt = data.getMimeType();
         Object ob = data.getData();
-        data.setData(EngineDataType.STRING.mimeType(), xMsgConstants.DONE);
+        data.setData(EngineDataType.STRING.mimeType(), ClaraConstants.DONE);
 
-        report(xMsgConstants.DONE, data);
+        report(ClaraConstants.DONE, data);
 
         data.setData(mt, ob);
     }
 
     private void reportData(EngineData data) throws xMsgException, ClaraException {
-        report(xMsgConstants.DATA, data);
+        report(ClaraConstants.DATA, data);
     }
 
     private void reportProblem(EngineData data) throws xMsgException, ClaraException {
         EngineStatus status = data.getStatus();
         if (status.equals(EngineStatus.ERROR)) {
-            report(xMsgConstants.ERROR, data);
+            report(ClaraConstants.ERROR, data);
         } else if (status.equals(EngineStatus.WARNING)) {
-            report(xMsgConstants.WARNING, data);
+            report(ClaraConstants.WARNING, data);
         }
     }
 

@@ -26,7 +26,7 @@ import org.jlab.clara.base.error.ClaraException;
 import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.excp.xMsgException;
 import org.jlab.coda.xmsg.net.xMsgProxyAddress;
-import org.jlab.coda.xmsg.xsys.xMsgProxy;
+import org.jlab.coda.xmsg.sys.xMsgProxy;
 import org.zeromq.ZContext;
 
 class Proxy {
