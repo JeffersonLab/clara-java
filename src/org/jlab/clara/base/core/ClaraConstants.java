@@ -68,6 +68,15 @@ public final class ClaraConstants {
     public static final String SHARED_MEMORY_KEY = "clara/shmkey";
 
     public static final String MAPKEY_SEP = "#";
+    public static final String DATA_SEP = "?";
+    public static final String LANG_SEP = "_";
+    public static final String PORT_SEP = "%";
+
+    public static final String INFO = "INFO";
+    public static final String WARNING = "WARNING";
+    public static final String ERROR = "ERROR";
+    public static final String DONE = "done";
+    public static final String DATA = "data";
 
     public static final int BENCHMARK = 10000;
 

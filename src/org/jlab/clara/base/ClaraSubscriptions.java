@@ -30,7 +30,6 @@ import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.engine.EngineStatus;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
-import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgSubscription;
 import org.jlab.coda.xmsg.core.xMsgTopic;
 
@@ -211,7 +210,7 @@ public class ClaraSubscriptions {
          */
         public ServiceSubscription done() {
             return new ServiceSubscription(base, subscriptions, dataTypes, frontEnd,
-                                           getTopic(xMsgConstants.DONE, component));
+                                           getTopic(ClaraConstants.DONE, component));
         }
 
         /**
@@ -223,7 +222,7 @@ public class ClaraSubscriptions {
          */
         public ServiceSubscription data() {
             return new ServiceSubscription(base, subscriptions, dataTypes, frontEnd,
-                                           getTopic(xMsgConstants.DATA, component));
+                                           getTopic(ClaraConstants.DATA, component));
         }
 
         private xMsgTopic getTopic(String prefix, ClaraName service) {

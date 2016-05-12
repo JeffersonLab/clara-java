@@ -22,7 +22,7 @@
 
 package org.jlab.clara.sys;
 
-import org.jlab.coda.xmsg.core.xMsgConstants;
+import org.jlab.clara.base.core.ClaraConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 
 import java.util.NoSuchElementException;
@@ -36,7 +36,7 @@ final class RequestParser {
 
     private RequestParser(String data) {
         cmdData = data;
-        tokenizer = new StringTokenizer(cmdData, xMsgConstants.DATA_SEP);
+        tokenizer = new StringTokenizer(cmdData, ClaraConstants.DATA_SEP);
     }
 
     static RequestParser build(xMsgMessage msg) throws RequestException {

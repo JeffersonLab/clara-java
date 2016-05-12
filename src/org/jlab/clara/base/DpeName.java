@@ -22,8 +22,8 @@
 
 package org.jlab.clara.base;
 
+import org.jlab.clara.base.core.ClaraConstants;
 import org.jlab.clara.base.error.ClaraException;
-import org.jlab.coda.xmsg.core.xMsgConstants;
 
 /**
  * The name of a Clara DPE.
@@ -44,7 +44,7 @@ public class DpeName implements ClaraName {
     public DpeName(String host, ClaraLang lang) {
         address = new ClaraAddress(host);
         language = lang;
-        name = new StringBuilder().append(host).append(xMsgConstants.LANG_SEP)
+        name = new StringBuilder().append(host).append(ClaraConstants.LANG_SEP)
                                   .append(lang).toString();
     }
 
@@ -58,8 +58,8 @@ public class DpeName implements ClaraName {
     public DpeName(String host, int port, ClaraLang lang) {
         address = new ClaraAddress(host, port);
         language = lang;
-        name = new StringBuilder().append(host).append(xMsgConstants.PRXHOSTPORT_SEP)
-                                  .append(port).append(xMsgConstants.LANG_SEP)
+        name = new StringBuilder().append(host).append(ClaraConstants.PORT_SEP)
+                                  .append(port).append(ClaraConstants.LANG_SEP)
                                   .append(lang).toString();
     }
 

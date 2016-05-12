@@ -45,7 +45,7 @@ public final class MessageUtils {
         StringBuilder topic  = new StringBuilder();
         topic.append(args[0]);
         for (int i = 1; i < args.length; i++) {
-            topic.append(xMsgConstants.DATA_SEP);
+            topic.append(ClaraConstants.DATA_SEP);
             topic.append(args[i]);
         }
         return topic.toString();
