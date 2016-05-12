@@ -34,12 +34,12 @@ import org.jlab.coda.xmsg.core.xMsgSubscription;
 import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
+import org.jlab.coda.xmsg.data.xMsgRegInfo;
+import org.jlab.coda.xmsg.data.xMsgRegQuery;
+import org.jlab.coda.xmsg.data.xMsgRegRecord;
 import org.jlab.coda.xmsg.excp.xMsgException;
 import org.jlab.coda.xmsg.net.xMsgProxyAddress;
 import org.jlab.coda.xmsg.net.xMsgRegAddress;
-import org.jlab.coda.xmsg.xsys.regdis.xMsgRegInfo;
-import org.jlab.coda.xmsg.xsys.regdis.xMsgRegQuery;
-import org.jlab.coda.xmsg.xsys.regdis.xMsgRegRecord;
 import org.zeromq.ZMQ.Socket;
 
 import java.io.IOException;

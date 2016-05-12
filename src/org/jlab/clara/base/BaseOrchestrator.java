@@ -40,9 +40,9 @@ import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgSubscription;
 import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
+import org.jlab.coda.xmsg.data.xMsgRegQuery;
+import org.jlab.coda.xmsg.data.xMsgRegRecord;
 import org.jlab.coda.xmsg.excp.xMsgException;
-import org.jlab.coda.xmsg.xsys.regdis.xMsgRegQuery;
-import org.jlab.coda.xmsg.xsys.regdis.xMsgRegRecord;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.IOException;
