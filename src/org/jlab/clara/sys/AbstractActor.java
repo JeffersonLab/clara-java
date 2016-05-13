@@ -25,7 +25,7 @@ import org.jlab.clara.base.core.ClaraBase;
 import org.jlab.clara.base.core.ClaraComponent;
 import org.jlab.clara.base.error.ClaraException;
 
-abstract class AbstractActor implements AutoCloseable {
+abstract class AbstractActor {
 
     protected final ClaraBase base;
 
@@ -43,8 +43,7 @@ abstract class AbstractActor implements AutoCloseable {
         initialize();
     }
 
-    @Override
-    public void close() {
+    public void stop() {
         end();
         base.close();
     }

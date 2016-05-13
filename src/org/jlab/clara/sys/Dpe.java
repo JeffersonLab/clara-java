@@ -97,7 +97,7 @@ public final class Dpe extends AbstractActor {
             Runtime.getRuntime().addShutdownHook(new Thread() {
                 @Override
                 public void run() {
-                    dpe.close();
+                    dpe.stop();
                 }
             });
 
@@ -285,6 +285,19 @@ public final class Dpe extends AbstractActor {
     @Override
     public void start() throws ClaraException {
         super.start();
+    }
+
+    /**
+     * Shuts down this DPE.
+     * <p>
+     * Stops accepting new requests, stops the reporting thread,
+     * and waits for all containers and services to shut down.
+     * The local xMsg proxy server, and the local xMsg registrar service in case
+     * it is a front-end, are destroyed last.
+     */
+    @Override
+    public void stop() {
+        super.stop();
     }
 
     @Override
@@ -682,7 +695,7 @@ public final class Dpe extends AbstractActor {
                 switch (cmd) {
 
                     case ClaraConstants.STOP_DPE:
-                        new Thread(() -> close()).start();
+                        new Thread(() -> stop()).start();
                         break;
 
                     case ClaraConstants.SET_FRONT_END:
