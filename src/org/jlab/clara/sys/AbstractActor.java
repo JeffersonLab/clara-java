@@ -28,6 +28,7 @@ import org.jlab.clara.base.error.ClaraException;
 abstract class AbstractActor {
 
     protected final ClaraBase base;
+
     private final Object lock = new Object();
 
     AbstractActor(ClaraComponent component, ClaraComponent fe) {

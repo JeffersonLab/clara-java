@@ -280,6 +280,9 @@ public final class Dpe extends AbstractActor {
      * Starts a local xMsg proxy server, and a local xMsg registrar service
      * in case it is a front-end. Does proper subscriptions to receive requests
      * and starts heart beat reporting thread.
+     * <p>
+     * It is never legal to start a DPE more than once. More specifically,
+     * a DPE should not be restarted once it has being stopped.
      *
      * @throws ClaraException if the DPE could not be started
      */
@@ -303,24 +306,28 @@ public final class Dpe extends AbstractActor {
 
     @Override
     protected void initialize() throws ClaraException {
-        try {
-            startProxyAndFrontEnd();
-            base.cacheConnection();
-            startSubscription();
-            startHeartBeatReport();
-            printLogo();
-        } catch (ClaraException e) {
-            stop();
-            throw e;
+        if (proxy == null) {
+            try {
+                startProxyAndFrontEnd();
+                base.cacheConnection();
+                startSubscription();
+                startHeartBeatReport();
+                printLogo();
+            } catch (ClaraException e) {
+                stop();
+                throw e;
+            }
         }
     }
 
     @Override
     protected void end() {
-        stopHeartBeatReport();
-        stopSubscription();
-        stopContainers();
-        stopProxyAndFrontEnd();
+        if (proxy != null) {
+            stopHeartBeatReport();
+            stopSubscription();
+            stopContainers();
+            stopProxyAndFrontEnd();
+        }
     }
 
     private void startProxyAndFrontEnd() throws ClaraException {
@@ -373,11 +380,12 @@ public final class Dpe extends AbstractActor {
     }
 
     private void stopProxyAndFrontEnd() {
-        if (proxy != null) {
-            proxy.stop();
-        }
+        proxy.stop();
+        proxy = null;
+
         if (frontEnd != null) {
             frontEnd.stop();
+            frontEnd = null;
         }
     }
 
