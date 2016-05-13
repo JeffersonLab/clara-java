@@ -302,11 +302,16 @@ public final class Dpe extends AbstractActor {
 
     @Override
     protected void initialize() throws ClaraException {
-        startProxyAndFrontEnd();
-        base.cacheConnection();
-        startSubscription();
-        startHeartBeatReport();
-        printLogo();
+        try {
+            startProxyAndFrontEnd();
+            base.cacheConnection();
+            startSubscription();
+            startHeartBeatReport();
+            printLogo();
+        } catch (ClaraException e) {
+            stop();
+            throw e;
+        }
     }
 
     @Override
