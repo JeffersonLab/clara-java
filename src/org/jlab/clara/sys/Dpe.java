@@ -71,6 +71,7 @@ public final class Dpe extends AbstractActor {
 
     private final boolean isFrontEnd;
 
+    // these are guarded by start/stop synchronized blocks on parent
     private Proxy proxy = null;
     private FrontEnd frontEnd = null;
     private xMsgSubscription subscriptionHandler;

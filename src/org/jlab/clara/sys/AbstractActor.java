@@ -28,6 +28,7 @@ import org.jlab.clara.base.error.ClaraException;
 abstract class AbstractActor {
 
     protected final ClaraBase base;
+    private final Object lock = new Object();
 
     AbstractActor(ClaraComponent component, ClaraComponent fe) {
         this.base = new ClaraBase(component, fe) {
@@ -40,12 +41,16 @@ abstract class AbstractActor {
     }
 
     public void start() throws ClaraException {
-        initialize();
+        synchronized (lock) {
+            initialize();
+        }
     }
 
     public void stop() {
-        end();
-        base.close();
+        synchronized (lock) {
+            end();
+            base.close();
+        }
     }
 
     /**
