@@ -111,10 +111,9 @@ class Service extends AbstractActor {
         // subscribe and register
         subscription = base.startRegisteredSubscription(base.getMe().getTopic(),
                                                         new ServiceCallBack(),
-                                                        base.getMe().getDescription());
+                                                        base.getDescription());
         System.out.printf("%s: started service = %s  pool_size = %d%n",
-                          ClaraUtil.getCurrentTimeInH(),
-                          name, base.getMe().getSubscriptionPoolSize());
+                          ClaraUtil.getCurrentTimeInH(), name, base.getPoolSize());
     }
 
 

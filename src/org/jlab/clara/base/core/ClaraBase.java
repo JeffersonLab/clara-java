@@ -120,10 +120,17 @@ public abstract class ClaraBase extends xMsg {
     }
 
     /**
-     * Returns the description of this component.
+     * Returns the definition of this component.
      */
     public ClaraComponent getMe() {
         return me;
+    }
+
+    /**
+     * Returns the description of this component.
+     */
+    public String getDescription() {
+        return me.getDescription();
     }
 
     /**

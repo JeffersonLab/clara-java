@@ -339,15 +339,15 @@ public final class Dpe extends AbstractActor {
         if (isFrontEnd) {
             frontEnd = new FrontEnd(base.getFrontEnd().getProxyAddress(),
                                     base.getPoolSize(),
-                                    base.getMe().getDescription());
+                                    base.getDescription());
             frontEnd.start();
         }
     }
 
     private void startSubscription() throws ClaraException {
-        xMsgTopic topic = xMsgTopic.build(ClaraConstants.DPE, base.getMe().getCanonicalName());
+        xMsgTopic topic = xMsgTopic.build(ClaraConstants.DPE, base.getName());
         xMsgCallBack callback = new DpeCallBack();
-        String description = base.getMe().getDescription();
+        String description = base.getDescription();
         subscriptionHandler = base.startRegisteredSubscription(topic, callback, description);
     }
 
@@ -391,17 +391,17 @@ public final class Dpe extends AbstractActor {
         System.out.println("=========================================");
         System.out.println("                 CLARA DPE               ");
         System.out.println("=========================================");
-        System.out.println(" Name             = " + base.getMe().getCanonicalName());
+        System.out.println(" Name             = " + base.getName());
         System.out.println(" Date             = " + ClaraUtil.getCurrentTimeInH());
         System.out.println(" Version          = 4.3");
         System.out.println(" Lang             = Java");
         System.out.println(" Pool size        = " + base.getPoolSize());
-        if (!base.getMe().getDescription().isEmpty()) {
-            System.out.println(" Description      = " + base.getMe().getDescription());
+        if (!base.getDescription().isEmpty()) {
+            System.out.println(" Description      = " + base.getDescription());
         }
         System.out.println();
-        System.out.println(" Proxy Host       = " + base.getDefaultProxyAddress().host());
-        System.out.println(" Proxy Port       = " + base.getDefaultProxyAddress().pubPort());
+        System.out.println(" Proxy Host       = " + base.getMe().getDpeHost());
+        System.out.println(" Proxy Port       = " + base.getMe().getDpePort());
         System.out.println();
         System.out.println(" FrontEnd Host    = " + base.getFrontEnd().getDpeHost());
         System.out.println(" FrontEnd Port    = " + base.getFrontEnd().getDpePort());
@@ -417,7 +417,7 @@ public final class Dpe extends AbstractActor {
         int poolSize = parser.nextInteger();
         String description = parser.nextString();
         if (poolSize <= 0) {
-            poolSize = base.getMe().getSubscriptionPoolSize();
+            poolSize = base.getPoolSize();
         }
 
         ClaraComponent contComp = ClaraComponent.container(
@@ -458,11 +458,11 @@ public final class Dpe extends AbstractActor {
         String description = parser.nextString();
         String initialState = parser.nextString();
         if (poolSize <= 0) {
-            poolSize = base.getMe().getSubscriptionPoolSize();
+            poolSize = base.getPoolSize();
         }
         ClaraComponent serComp = ClaraComponent.service(base.getMe().getDpeHost(),
                                                         base.getMe().getDpePort(),
-                                                        base.getMe().getDpeLang(),
+                                                        ClaraConstants.JAVA_LANG,
                                                         containerName,
                                                         engineName,
                                                         engineClass,
@@ -486,9 +486,8 @@ public final class Dpe extends AbstractActor {
             throws RequestException, DpeException {
         String containerName = parser.nextString();
         String engineName = parser.nextString();
-        String serviceName = MessageUtils.buildTopic(base.getMe().getCanonicalName(),
-                                                     containerName,
-                                                     engineName).toString();
+        String serviceName = MessageUtils.buildTopic(base.getName(), containerName, engineName)
+                                         .toString();
 
         Container container = myContainers.get(containerName);
         if (container == null) {
@@ -507,7 +506,7 @@ public final class Dpe extends AbstractActor {
         String containerName = parser.nextString();
         Container container = myContainers.remove(containerName);
         if (container == null) {
-            String canonName = base.getMe().getCanonicalName() + ":" + containerName;
+            String canonName = base.getName() + ":" + containerName;
             throw new RequestException("could not stop container = " + canonName +
                                        ": container doesn't exist");
         }
@@ -548,14 +547,14 @@ public final class Dpe extends AbstractActor {
         ReportService(long reportInterval) {
             int availableProcessors = Runtime.getRuntime().availableProcessors();
             String claraHome = System.getenv("CLARA_HOME");
-            String dpeName = base.getMe().getCanonicalName();
+            String dpeName = base.getName();
 
             aliveData = dpeName + "?" + availableProcessors + "?" + claraHome;
 
             myReport = new DpeReport(dpeName);
-            myReport.setHost(base.getMe().getCanonicalName());
-            myReport.setLang(base.getMe().getDpeLang());
-            myReport.setDescription(base.getMe().getDescription());
+            myReport.setHost(base.getName());
+            myReport.setLang(ClaraConstants.JAVA_LANG);
+            myReport.setDescription(base.getDescription());
             myReport.setAuthor(System.getenv("USER"));
 
             scheduledPingService = Executors.newSingleThreadScheduledExecutor();
