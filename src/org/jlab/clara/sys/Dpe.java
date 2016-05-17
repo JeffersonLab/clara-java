@@ -373,9 +373,7 @@ public final class Dpe extends AbstractActor {
     }
 
     private void stopContainers() {
-        for (Container cont : myContainers.values()) {
-            cont.close();
-        }
+        myContainers.values().forEach(Container::stop);
         myContainers.clear();
     }
 
@@ -439,7 +437,7 @@ public final class Dpe extends AbstractActor {
                     container.start();
                     reportService.addContainer(container);
                 } catch (ClaraException e) {
-                    container.close();
+                    container.stop();
                     myContainers.remove(containerName, container);
                     throw new DpeException("could not start container = " + contComp, e);
                 }
@@ -513,7 +511,7 @@ public final class Dpe extends AbstractActor {
             throw new RequestException("could not stop container = " + canonName +
                                        ": container doesn't exist");
         }
-        container.close();
+        container.stop();
     }
 
     private void setFrontEnd(RequestParser parser) throws RequestException {

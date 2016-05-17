@@ -24,7 +24,6 @@ package org.jlab.clara.sys;
 
 import org.jlab.clara.base.ClaraUtil;
 import org.jlab.clara.base.core.ClaraConstants;
-import org.jlab.clara.base.core.ClaraBase;
 import org.jlab.clara.base.core.ClaraComponent;
 import org.jlab.clara.base.core.MessageUtils;
 import org.jlab.clara.base.error.ClaraException;
@@ -51,7 +50,7 @@ import java.util.concurrent.TimeUnit;
  * Number of threads in the pool is equal to the size of the object pool.
  * Thread pool is fixed size, however object pool is capable of expanding.
  */
-class Service extends ClaraBase {
+class Service extends AbstractActor {
 
     private final String name;
     private final Engine userEngine;
@@ -92,7 +91,7 @@ class Service extends ClaraBase {
 
         // Fill the object pool
         for (int i = 0; i < comp.getSubscriptionPoolSize(); i++) {
-            enginePool[i] = new ServiceEngine(getMe(), getFrontEnd(), userEngine, sysConfig);
+            enginePool[i] = new ServiceEngine(comp, frontEnd, userEngine, sysConfig);
         }
 
         // Register with the shared memory
@@ -101,8 +100,8 @@ class Service extends ClaraBase {
 
 
     @Override
-    public void start() throws ClaraException {
-        cacheConnection();
+    protected void initialize() throws ClaraException {
+        base.cacheConnection();
 
         // start the engines
         for (ServiceEngine engine : enginePool) {
@@ -110,12 +109,12 @@ class Service extends ClaraBase {
         }
 
         // subscribe and register
-        subscription = startRegisteredSubscription(getMe().getTopic(),
-                                                   new ServiceCallBack(),
-                                                   getMe().getDescription());
+        subscription = base.startRegisteredSubscription(base.getMe().getTopic(),
+                                                        new ServiceCallBack(),
+                                                        base.getMe().getDescription());
         System.out.printf("%s: started service = %s  pool_size = %d%n",
                           ClaraUtil.getCurrentTimeInH(),
-                          name, getMe().getSubscriptionPoolSize());
+                          name, base.getMe().getSubscriptionPoolSize());
     }
 
 
@@ -203,18 +202,23 @@ class Service extends ClaraBase {
         try {
             xMsgMessage repMsg = MessageUtils.buildRequest(msg.getReplyTopic(), data);
             repMsg.getMetaData().setStatus(status);
-            send(repMsg);
+            base.send(repMsg);
         } catch (xMsgException e) {
             e.printStackTrace();
         }
     }
 
 
+    void setFrontEnd(ClaraComponent frontEnd) {
+        base.setFrontEnd(frontEnd);
+    }
+
+
     private void stopSubscription() {
         if (subscription != null) {
-            stopListening(subscription);
+            base.stopListening(subscription);
             try {
-                removeRegistration(getMe().getTopic());
+                base.removeRegistration(base.getMe().getTopic());
             } catch (ClaraException e) {
                 System.err.printf("%s: service = %s: %s%n", ClaraUtil.getCurrentTimeInH(),
                                   name, e.getMessage());
@@ -226,7 +230,7 @@ class Service extends ClaraBase {
     private void destroyEngines() {
         destroyPool();
         for (ServiceEngine engine : enginePool) {
-            engine.close();
+            engine.stop();
         }
         userEngine.destroy();
     }

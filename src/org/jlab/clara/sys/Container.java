@@ -24,7 +24,6 @@ package org.jlab.clara.sys;
 
 import org.jlab.clara.base.ClaraUtil;
 import org.jlab.clara.base.core.ClaraConstants;
-import org.jlab.clara.base.core.ClaraBase;
 import org.jlab.clara.base.core.ClaraComponent;
 import org.jlab.clara.base.core.MessageUtils;
 import org.jlab.clara.base.error.ClaraException;
@@ -40,7 +39,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * @author gurjyan
  * @version 4.x
  */
-class Container extends ClaraBase {
+class Container extends AbstractActor {
 
     private final ConcurrentHashMap<String, Service> myServices = new ConcurrentHashMap<>();
     private final ContainerReport myReport;
@@ -51,17 +50,17 @@ class Container extends ClaraBase {
         super(comp, frontEnd);
 
         myReport = new ContainerReport(comp.getCanonicalName());
-        myReport.setLang(getMe().getDpeLang());
+        myReport.setLang(comp.getDpeLang());
         myReport.setDescription(comp.getDescription());
         myReport.setAuthor(System.getenv("USER"));
     }
 
     @Override
-    public void start() throws ClaraException {
+    protected void initialize() throws ClaraException {
         register();
         myReport.setStartTime(ClaraUtil.getCurrentTime());
         System.out.printf("%s: started container = %s%n",
-                          ClaraUtil.getCurrentTimeInH(), getMe().getCanonicalName());
+                          ClaraUtil.getCurrentTimeInH(), base.getMe().getCanonicalName());
     }
 
     @Override
@@ -69,7 +68,7 @@ class Container extends ClaraBase {
         removeAllServices();
         removeRegistration();
         System.out.printf("%s: removed container = %s%n",
-                          ClaraUtil.getCurrentTimeInH(), getMe().getCanonicalName());
+                          ClaraUtil.getCurrentTimeInH(), base.getMe().getCanonicalName());
     }
 
     public void addService(ClaraComponent comp, ClaraComponent frontEnd)
@@ -83,12 +82,12 @@ class Container extends ClaraBase {
                 try {
                     service.start();
                 } catch (ClaraException e) {
-                    service.close();
+                    service.stop();
                     myServices.remove(serviceName, service);
                     throw e;
                 }
             } else {
-                service.close();    // destroy the extra engine object
+                service.stop();    // destroy the extra engine object
             }
         } else {
             String msg = "%s: service = %s already exists. No new service is deployed%n";
@@ -99,22 +98,21 @@ class Container extends ClaraBase {
     public boolean removeService(String serviceName) {
         Service service = myServices.remove(serviceName);
         if (service != null) {
-            service.close();
+            service.stop();
             return true;
         }
         return false;
     }
 
     private void removeAllServices() {
-        for (Service s : myServices.values()) {
-            s.close();
-        }
+        myServices.values().forEach(Service::stop);
         myServices.clear();
     }
 
     private void register() throws ClaraException {
-        xMsgTopic topic = xMsgTopic.build(ClaraConstants.CONTAINER, getMe().getCanonicalName());
-        register(topic, getMe().getDescription());
+        xMsgTopic topic = xMsgTopic.build(ClaraConstants.CONTAINER,
+                                          base.getMe().getCanonicalName());
+        base.register(topic, base.getMe().getDescription());
         isRegistered = true;
     }
 
@@ -122,10 +120,10 @@ class Container extends ClaraBase {
         if (isRegistered) {
             try {
                 reportDown();
-                removeRegistration(getMe().getTopic());
+                base.removeRegistration(base.getMe().getTopic());
             } catch (ClaraException e) {
                 System.err.printf("%s: container = %s: %s%n", ClaraUtil.getCurrentTimeInH(),
-                                  getMe().getCanonicalName(), e.getMessage());
+                                  base.getMe().getCanonicalName(), e.getMessage());
             } finally {
                 isRegistered = false;
             }
@@ -136,14 +134,18 @@ class Container extends ClaraBase {
         try {
             // broadcast to the local proxy
             String data = MessageUtils.buildData(ClaraConstants.CONTAINER_DOWN,
-                                                 getMe().getContainerName());
-            send(getFrontEnd(), data);
+                                                 base.getMe().getContainerName());
+            base.send(base.getFrontEnd(), data);
         } catch (xMsgException e) {
             System.out.printf("%s: container = %s: could not send down report: %s%n",
                               ClaraUtil.getCurrentTimeInH(),
-                              getMe().getCanonicalName(),
+                              base.getMe().getCanonicalName(),
                               e.getMessage());
         }
+    }
+
+    public void setFrontEnd(ClaraComponent frontEnd) {
+        base.setFrontEnd(frontEnd);
     }
 
     public ConcurrentHashMap<String, Service> geServices() {

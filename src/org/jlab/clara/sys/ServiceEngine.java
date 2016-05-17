@@ -49,7 +49,7 @@ import java.util.concurrent.Semaphore;
  * @author gurjyan
  * @version 4.x
  */
-class ServiceEngine extends ClaraBase {
+class ServiceEngine extends AbstractActor {
 
     // Engine instantiated object
     private final Engine engineObject;
@@ -78,8 +78,8 @@ class ServiceEngine extends ClaraBase {
     }
 
     @Override
-    public void start() throws ClaraException {
-        cacheConnection();
+    public void initialize() throws ClaraException {
+        base.cacheConnection();
     }
 
     @Override
@@ -100,16 +100,16 @@ class ServiceEngine extends ClaraBase {
             outData = configureEngine(inputData);
         } catch (Exception e) {
             e.printStackTrace();
-            outData = buildSystemErrorData("unhandled exception", -4, ClaraUtil.reportException(e));
+            outData = base.buildSystemErrorData("unhandled exception", -4, ClaraUtil.reportException(e));
         } finally {
-            updateMetadata(message.getMetaData(), getMetadata(outData));
+            updateMetadata(message.getMetaData(), base.getMetadata(outData));
             resetClock();
         }
 
         String replyTo = getReplyTo(message);
         if (replyTo != null) {
             xMsgMessage msgOut = putEngineData(outData, replyTo);
-            send(msgOut);
+            base.send(msgOut);
         } else {
             reportProblem(outData);
         }
@@ -149,17 +149,17 @@ class ServiceEngine extends ClaraBase {
             outData = executeEngine(inData);
         } catch (Exception e) {
             e.printStackTrace();
-            outData = buildSystemErrorData("unhandled exception", -4, ClaraUtil.reportException(e));
+            outData = base.buildSystemErrorData("unhandled exception", -4, ClaraUtil.reportException(e));
         } finally {
-            updateMetadata(message.getMetaData(), getMetadata(outData));
+            updateMetadata(message.getMetaData(), base.getMetadata(outData));
             resetClock();
         }
 
         String replyTo = getReplyTo(message);
         if (replyTo != null) {
             xMsgTopic topic = xMsgTopic.wrap(replyTo);
-            xMsgMessage msgReply = serialize(topic, outData, engineObject.getOutputDataTypes());
-            send(msgReply);
+            xMsgMessage msgReply = ClaraBase.serialize(topic, outData, engineObject.getOutputDataTypes());
+            base.send(msgReply);
             return;
         }
 
@@ -213,7 +213,7 @@ class ServiceEngine extends ClaraBase {
     }
 
     private void updateMetadata(xMsgMeta.Builder inMeta, xMsgMeta.Builder outMeta) {
-        outMeta.setAuthor(getMe().getCanonicalName());
+        outMeta.setAuthor(base.getName());
         outMeta.setVersion(engineObject.getVersion());
 
         if (!outMeta.hasCommunicationId()) {
@@ -249,7 +249,7 @@ class ServiceEngine extends ClaraBase {
         for (String ss : outLinks) {
             ClaraComponent comp = ClaraComponent.dpe(ss);
             xMsgMessage msg = putEngineData(outData, ss);
-            send(comp, msg);
+            base.send(comp, msg);
         }
     }
 
@@ -279,9 +279,9 @@ class ServiceEngine extends ClaraBase {
 
     private void report(String topicPrefix, EngineData data)
             throws ClaraException, xMsgException {
-        xMsgTopic topic = xMsgTopic.wrap(topicPrefix + xMsgConstants.TOPIC_SEP + getName());
-        xMsgMessage transit = serialize(topic, data, engineObject.getOutputDataTypes());
-        send(getFrontEnd(), transit);
+        xMsgTopic topic = xMsgTopic.wrap(topicPrefix + xMsgConstants.TOPIC_SEP + base.getName());
+        xMsgMessage transit = ClaraBase.serialize(topic, data, engineObject.getOutputDataTypes());
+        base.send(base.getFrontEnd(), transit);
     }
 
 
@@ -291,9 +291,9 @@ class ServiceEngine extends ClaraBase {
         if (mimeType.equals(ClaraConstants.SHARED_MEMORY_KEY)) {
             String sender = metadata.getSender();
             int id = metadata.getCommunicationId();
-            return SharedMemory.getEngineData(getName(), sender, id);
+            return SharedMemory.getEngineData(base.getName(), sender, id);
         } else {
-            return deSerialize(message, engineObject.getInputDataTypes());
+            return base.deSerialize(message, engineObject.getInputDataTypes());
         }
     }
 
@@ -302,10 +302,10 @@ class ServiceEngine extends ClaraBase {
         xMsgTopic topic = xMsgTopic.wrap(receiver);
         if (SharedMemory.containsReceiver(receiver)) {
             int id = data.getCommunicationId();
-            SharedMemory.putEngineData(receiver, getName(), id, data);
+            SharedMemory.putEngineData(receiver, base.getName(), id, data);
 
             xMsgMeta.Builder metadata = xMsgMeta.newBuilder();
-            metadata.setSender(getName());
+            metadata.setSender(base.getName());
             metadata.setComposition(data.getComposition());
             metadata.setCommunicationId(id);
             metadata.setAction(xMsgMeta.ControlAction.EXECUTE);
@@ -313,7 +313,7 @@ class ServiceEngine extends ClaraBase {
 
             return new xMsgMessage(topic, metadata, ClaraConstants.SHARED_MEMORY_KEY.getBytes());
         } else {
-            return serialize(topic, data, engineObject.getOutputDataTypes());
+            return ClaraBase.serialize(topic, data, engineObject.getOutputDataTypes());
         }
     }
 
