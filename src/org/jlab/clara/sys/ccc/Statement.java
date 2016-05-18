@@ -143,7 +143,6 @@ public class Statement {
      * @param serviceName the name of the service
      *                     for which we find input/output links
      * @param statement    the string of the composition
-     * @return the list containing names of linked services
      */
     private void parseLinked(String serviceName,
                              String statement) throws ClaraException {
