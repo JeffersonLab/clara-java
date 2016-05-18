@@ -305,6 +305,16 @@ public final class Dpe extends AbstractActor {
     }
 
     @Override
+    protected void startMsg() {
+        printLogo();
+    }
+
+    @Override
+    protected void stopMsg() {
+        Logging.info("shutdown DPE");
+    }
+
+    @Override
     protected void initialize() throws ClaraException {
         if (proxy == null) {
             try {
@@ -312,7 +322,6 @@ public final class Dpe extends AbstractActor {
                 base.cacheConnection();
                 startSubscription();
                 startHeartBeatReport();
-                printLogo();
             } catch (ClaraException e) {
                 stop();
                 throw e;

@@ -111,7 +111,6 @@ class Service extends AbstractActor {
         subscription = base.startRegisteredSubscription(base.getMe().getTopic(),
                                                         new ServiceCallBack(),
                                                         base.getDescription());
-        Logging.info("started service = %s  pool_size = %d", name, base.getPoolSize());
     }
 
 
@@ -119,6 +118,17 @@ class Service extends AbstractActor {
     protected void end() {
         stopSubscription();
         destroyEngines();
+    }
+
+
+    @Override
+    protected void startMsg() {
+        Logging.info("started service = %s  pool_size = %d", name, base.getPoolSize());
+    }
+
+
+    @Override
+    protected void stopMsg() {
         Logging.info("removed service = %s", name);
     }
 

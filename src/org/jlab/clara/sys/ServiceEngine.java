@@ -87,6 +87,16 @@ class ServiceEngine extends AbstractActor {
         // nothing
     }
 
+    @Override
+    protected void startMsg() {
+        // nothing
+    }
+
+    @Override
+    protected void stopMsg() {
+        // nothing
+    }
+
     public void configure(xMsgMessage message)
             throws ClaraException,
             xMsgException,

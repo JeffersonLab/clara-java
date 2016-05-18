@@ -29,6 +29,7 @@ abstract class AbstractActor {
 
     protected final ClaraBase base;
 
+    private boolean running = false;
     private final Object lock = new Object();
 
     AbstractActor(ClaraComponent component, ClaraComponent fe) {
@@ -44,6 +45,8 @@ abstract class AbstractActor {
     public void start() throws ClaraException {
         synchronized (lock) {
             initialize();
+            startMsg();
+            running = true;
         }
     }
 
@@ -51,6 +54,10 @@ abstract class AbstractActor {
         synchronized (lock) {
             end();
             base.close();
+            if (running) {
+                running = false;
+                stopMsg();
+            }
         }
     }
 
@@ -63,4 +70,8 @@ abstract class AbstractActor {
      * Runs before closing the actor.
      */
     protected abstract void end();
+
+    protected abstract void startMsg();
+
+    protected abstract void stopMsg();
 }

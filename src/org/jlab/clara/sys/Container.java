@@ -59,13 +59,21 @@ class Container extends AbstractActor {
     protected void initialize() throws ClaraException {
         register();
         myReport.setStartTime(ClaraUtil.getCurrentTime());
-        Logging.info("started container = %s", base.getName());
     }
 
     @Override
     protected void end() {
         removeAllServices();
         removeRegistration();
+    }
+
+    @Override
+    protected void startMsg() {
+        Logging.info("started container = %s", base.getName());
+    }
+
+    @Override
+    protected void stopMsg() {
         Logging.info("removed container = %s", base.getName());
     }
 
