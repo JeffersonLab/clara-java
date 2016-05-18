@@ -132,10 +132,7 @@ public class ServiceName implements ClaraName {
             return false;
         }
         ServiceName other = (ServiceName) obj;
-        if (!canonicalName.equals(other.canonicalName)) {
-            return false;
-        }
-        return true;
+        return canonicalName.equals(other.canonicalName);
     }
 
     @Override

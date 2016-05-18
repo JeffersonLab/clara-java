@@ -117,10 +117,7 @@ public class ContainerName implements ClaraName {
             return false;
         }
         ContainerName other = (ContainerName) obj;
-        if (!canonicalName.equals(other.canonicalName)) {
-            return false;
-        }
-        return true;
+        return canonicalName.equals(other.canonicalName);
     }
 
     @Override

@@ -122,10 +122,7 @@ public class DpeName implements ClaraName {
             return false;
         }
         DpeName other = (DpeName) obj;
-        if (!name.equals(other.name)) {
-            return false;
-        }
-        return true;
+        return name.equals(other.name);
     }
 
     @Override
