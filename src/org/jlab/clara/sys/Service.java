@@ -22,7 +22,6 @@
 
 package org.jlab.clara.sys;
 
-import org.jlab.clara.base.ClaraUtil;
 import org.jlab.clara.base.core.ClaraConstants;
 import org.jlab.clara.base.core.ClaraComponent;
 import org.jlab.clara.base.core.MessageUtils;
@@ -112,8 +111,7 @@ class Service extends AbstractActor {
         subscription = base.startRegisteredSubscription(base.getMe().getTopic(),
                                                         new ServiceCallBack(),
                                                         base.getDescription());
-        System.out.printf("%s: started service = %s  pool_size = %d%n",
-                          ClaraUtil.getCurrentTimeInH(), name, base.getPoolSize());
+        Logging.info("started service = %s  pool_size = %d", name, base.getPoolSize());
     }
 
 
@@ -121,7 +119,7 @@ class Service extends AbstractActor {
     protected void end() {
         stopSubscription();
         destroyEngines();
-        System.out.printf("%s: removed service = %s%n", ClaraUtil.getCurrentTimeInH(), name);
+        Logging.info("removed service = %s", name);
     }
 
 
@@ -219,8 +217,7 @@ class Service extends AbstractActor {
             try {
                 base.removeRegistration(base.getMe().getTopic());
             } catch (ClaraException e) {
-                System.err.printf("%s: service = %s: %s%n", ClaraUtil.getCurrentTimeInH(),
-                                  name, e.getMessage());
+                Logging.error("service = %s: %s", name, e.getMessage());
             }
         }
     }
@@ -241,8 +238,7 @@ class Service extends AbstractActor {
             if (!executionPool.awaitTermination(10, TimeUnit.SECONDS)) {
                 executionPool.shutdownNow();
                 if (!executionPool.awaitTermination(10, TimeUnit.SECONDS)) {
-                    System.err.printf("%s: service = %s: execution pool did not terminate%n",
-                                      ClaraUtil.getCurrentTimeInH(), name);
+                    Logging.error("service = %s: execution pool did not terminate", name);
                 }
             }
         } catch (InterruptedException ie) {

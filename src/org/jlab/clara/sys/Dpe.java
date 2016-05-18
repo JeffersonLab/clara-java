@@ -366,7 +366,7 @@ public final class Dpe extends AbstractActor {
                 try {
                     base.removeRegistration(base.getMe().getTopic());
                 } catch (ClaraException e) {
-                    System.err.printf("%s: %s%n", ClaraUtil.getCurrentTimeInH(), e.getMessage());
+                    Logging.error("%s", e.getMessage());
                 }
             }
         }
@@ -443,8 +443,7 @@ public final class Dpe extends AbstractActor {
                 }
             }
         } else {
-            String msg = "%s: container = %s already exists. No new container is created%n";
-            System.err.printf(msg, ClaraUtil.getCurrentTimeInH(), contComp.getCanonicalName());
+            Logging.error("container = %s already exists. No new container is created", contComp);
         }
     }
 
@@ -742,7 +741,7 @@ public final class Dpe extends AbstractActor {
                 }
 
             } catch (RequestException | DpeException e) {
-                System.err.printf("%s: %s%n", ClaraUtil.getCurrentTimeInH(), e.getMessage());
+                Logging.error("%s", e.getMessage());
                 if (msg.hasReplyTopic()) {
                     sendResponse(msg, xMsgMeta.Status.ERROR, e.getMessage());
                 }

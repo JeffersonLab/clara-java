@@ -59,16 +59,14 @@ class Container extends AbstractActor {
     protected void initialize() throws ClaraException {
         register();
         myReport.setStartTime(ClaraUtil.getCurrentTime());
-        System.out.printf("%s: started container = %s%n",
-                          ClaraUtil.getCurrentTimeInH(), base.getName());
+        Logging.info("started container = %s", base.getName());
     }
 
     @Override
     protected void end() {
         removeAllServices();
         removeRegistration();
-        System.out.printf("%s: removed container = %s%n",
-                          ClaraUtil.getCurrentTimeInH(), base.getName());
+        Logging.info("removed container = %s", base.getName());
     }
 
     public void addService(ClaraComponent comp, ClaraComponent frontEnd)
@@ -90,8 +88,7 @@ class Container extends AbstractActor {
                 service.stop();    // destroy the extra engine object
             }
         } else {
-            String msg = "%s: service = %s already exists. No new service is deployed%n";
-            System.err.printf(msg, ClaraUtil.getCurrentTimeInH(), serviceName);
+            Logging.error("service = %s already exists. No new service is deployed", serviceName);
         }
     }
 
@@ -121,8 +118,7 @@ class Container extends AbstractActor {
                 reportDown();
                 base.removeRegistration(base.getMe().getTopic());
             } catch (ClaraException e) {
-                System.err.printf("%s: container = %s: %s%n", ClaraUtil.getCurrentTimeInH(),
-                                  base.getName(), e.getMessage());
+                Logging.error("container = %s: %s", base.getName(), e.getMessage());
             } finally {
                 isRegistered = false;
             }
@@ -135,8 +131,8 @@ class Container extends AbstractActor {
             String data = MessageUtils.buildData(ClaraConstants.CONTAINER_DOWN, base.getName());
             base.send(base.getFrontEnd(), data);
         } catch (xMsgException e) {
-            System.out.printf("%s: container = %s: could not send down report: %s%n",
-                              ClaraUtil.getCurrentTimeInH(), base.getName(), e.getMessage());
+            Logging.error("container = %s: could not send down report: %s",
+                          base.getName(), e.getMessage());
         }
     }
 
