@@ -251,7 +251,6 @@ public final class Dpe extends AbstractActor {
      * @param poolSize subscription pool size
      * @param reportInterval the time between publishing the reports
      * @param description textual description of the DPE
-     * @throws ClaraException
      */
     private Dpe(boolean isFrontEnd,
                 xMsgProxyAddress proxyAddress,

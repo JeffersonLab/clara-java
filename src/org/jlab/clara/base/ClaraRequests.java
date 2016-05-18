@@ -35,6 +35,7 @@ import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 import org.jlab.coda.xmsg.excp.xMsgException;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
@@ -343,9 +344,7 @@ public final class ClaraRequests {
          */
         public D withDataTypes(EngineDataType... dataTypes) {
             Set<EngineDataType> newTypes = new HashSet<>();
-            for (EngineDataType dt : dataTypes) {
-                newTypes.add(dt);
-            }
+            Collections.addAll(newTypes, dataTypes);
             this.dataTypes = newTypes;
             return self();
         }

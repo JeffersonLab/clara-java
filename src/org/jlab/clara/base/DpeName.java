@@ -44,8 +44,7 @@ public class DpeName implements ClaraName {
     public DpeName(String host, ClaraLang lang) {
         address = new ClaraAddress(host);
         language = lang;
-        name = new StringBuilder().append(host).append(ClaraConstants.LANG_SEP)
-                                  .append(lang).toString();
+        name = host + ClaraConstants.LANG_SEP + lang;
     }
 
     /**
@@ -58,9 +57,9 @@ public class DpeName implements ClaraName {
     public DpeName(String host, int port, ClaraLang lang) {
         address = new ClaraAddress(host, port);
         language = lang;
-        name = new StringBuilder().append(host).append(ClaraConstants.PORT_SEP)
-                                  .append(port).append(ClaraConstants.LANG_SEP)
-                                  .append(lang).toString();
+        name = host + ClaraConstants.PORT_SEP +
+               port + ClaraConstants.LANG_SEP +
+               lang;
     }
 
     /**
@@ -123,10 +122,7 @@ public class DpeName implements ClaraName {
             return false;
         }
         DpeName other = (DpeName) obj;
-        if (!name.equals(other.name)) {
-            return false;
-        }
-        return true;
+        return name.equals(other.name);
     }
 
     @Override

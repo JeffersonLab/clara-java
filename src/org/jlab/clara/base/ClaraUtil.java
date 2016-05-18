@@ -35,6 +35,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.Format;
 import java.text.SimpleDateFormat;
+import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
@@ -212,10 +213,8 @@ public final class ClaraUtil {
      * @return a set with the data types
      */
     public static Set<EngineDataType> buildDataTypes(EngineDataType... dataTypes) {
-        Set<EngineDataType> set = new HashSet<EngineDataType>();
-        for (EngineDataType dt : dataTypes) {
-            set.add(dt);
-        }
+        Set<EngineDataType> set = new HashSet<>();
+        Collections.addAll(set, dataTypes);
         return set;
     }
 

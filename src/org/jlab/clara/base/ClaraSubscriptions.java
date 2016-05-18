@@ -33,6 +33,7 @@ import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgSubscription;
 import org.jlab.coda.xmsg.core.xMsgTopic;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -119,9 +120,7 @@ public class ClaraSubscriptions {
 
         public ServiceSubscription withDataTypes(EngineDataType... dataTypes) {
             Set<EngineDataType> newTypes = new HashSet<>();
-            for (EngineDataType dt : dataTypes) {
-                newTypes.add(dt);
-            }
+            Collections.addAll(newTypes, dataTypes);
             this.dataTypes = newTypes;
             return this;
         }

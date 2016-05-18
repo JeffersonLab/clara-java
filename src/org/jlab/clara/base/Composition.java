@@ -29,7 +29,7 @@ import java.util.StringTokenizer;
 
 public class Composition {
 
-    private List<String> allServices = new ArrayList<String>();
+    private List<String> allServices = new ArrayList<>();
     private String text;
 
     public Composition(String composition) {

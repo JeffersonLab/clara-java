@@ -204,14 +204,21 @@ public class OrInteractive extends BaseOrchestrator {
             String pool = "1";
 
             for (XMLTagValue t : s.getContainer()) {
-                if (t.getTag().equals("dpe")) {
-                    dpe = t.getValue();
-                } else if (t.getTag().equals("container")) {
-                    container = t.getValue();
-                } else if (t.getTag().equals("engine")) {
-                    engine = t.getValue();
-                } else if (t.getTag().equals("pool")) {
-                    pool = t.getValue();
+                switch (t.getTag()) {
+                    case "dpe":
+                        dpe = t.getValue();
+                        break;
+                    case "container":
+                        container = t.getValue();
+                        break;
+                    case "engine":
+                        engine = t.getValue();
+                        break;
+                    case "pool":
+                        pool = t.getValue();
+                        break;
+                    default:
+                        throw new RuntimeException("Invalid tag: " + t.getTag());
                 }
             }
 

@@ -50,9 +50,7 @@ public class ContainerName implements ClaraName {
      */
     public ContainerName(DpeName dpe, String name) {
         this.dpe = dpe;
-        this.canonicalName = new StringBuilder().append(dpe.canonicalName())
-                                                .append(xMsgConstants.TOPIC_SEP)
-                                                .append(name).toString();
+        this.canonicalName = dpe.canonicalName() + xMsgConstants.TOPIC_SEP + name;
         this.name = name;
     }
 
@@ -119,10 +117,7 @@ public class ContainerName implements ClaraName {
             return false;
         }
         ContainerName other = (ContainerName) obj;
-        if (!canonicalName.equals(other.canonicalName)) {
-            return false;
-        }
-        return true;
+        return canonicalName.equals(other.canonicalName);
     }
 
     @Override
