@@ -183,13 +183,11 @@ public class EngineSpecification {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("NAME:\n    " + name + "\n\n");
-        sb.append("ENGINE:\n    " + engine + "\n\n");
-        sb.append("TYPE:\n    " + type + "\n\n");
-        sb.append("VERSION:\n    " + version + "\n\n");
-        sb.append("AUTHOR:\n    " + author + " <" + email + ">\n\n");
-        sb.append("DESCRIPTION:\n    " + description);
-        return sb.toString();
+        return "NAME:"          + "\n    " + name + "\n\n" +
+               "ENGINE:"        + "\n    " + engine + "\n\n" +
+               "TYPE:"          + "\n    " + type + "\n\n" +
+               "VERSION:"       + "\n    " + version + "\n\n" +
+               "AUTHOR:"        + "\n    " + author + " <" + email + ">\n\n" +
+               "DESCRIPTION:"   + "\n    " + description;
     }
 }
