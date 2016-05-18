@@ -58,7 +58,7 @@ public class SimpleCompilerTest {
         SimpleCompiler cc = new SimpleCompiler("10.10.10.1_java:C:S1");
         cc.compile(composition);
 
-        Set<String> expected = new HashSet<String>(Arrays.asList("10.10.10.1_java:C:S2"));
+        Set<String> expected = new HashSet<>(Arrays.asList("10.10.10.1_java:C:S2"));
         assertThat(cc.getOutputs(), is(expected));
     }
 
@@ -67,7 +67,7 @@ public class SimpleCompilerTest {
         SimpleCompiler cc = new SimpleCompiler("10.10.10.1_java:C:S2");
         cc.compile(composition);
 
-        Set<String> expected = new HashSet<String>(Arrays.asList("10.10.10.1_java:C:S3"));
+        Set<String> expected = new HashSet<>(Arrays.asList("10.10.10.1_java:C:S3"));
         assertThat(cc.getOutputs(), is(expected));
     }
 
@@ -76,7 +76,7 @@ public class SimpleCompilerTest {
         SimpleCompiler cc = new SimpleCompiler("10.10.10.1_java:C:S4");
         cc.compile(composition);
 
-        Set<String> expected = new HashSet<String>();
+        Set<String> expected = new HashSet<>();
         assertThat(cc.getOutputs(), is(expected));
     }
 
@@ -90,7 +90,7 @@ public class SimpleCompilerTest {
                               "10.10.10.1_java:C:S5";
         cc.compile(composition2);
 
-        Set<String> expected = new HashSet<String>(Arrays.asList("10.10.10.1_java:C:S5"));
+        Set<String> expected = new HashSet<>(Arrays.asList("10.10.10.1_java:C:S5"));
         assertThat(cc.getOutputs(), is(expected));
     }
 }

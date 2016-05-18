@@ -65,7 +65,7 @@ final class SharedMemory {
     }
 
     static void addReceiver(String receiver) {
-        sharedData.put(receiver, new ConcurrentHashMap<String, EngineData>());
+        sharedData.put(receiver, new ConcurrentHashMap<>());
     }
 
     static void removeReceiver(String receiver) {

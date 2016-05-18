@@ -212,7 +212,7 @@ public final class ClaraUtil {
      * @return a set with the data types
      */
     public static Set<EngineDataType> buildDataTypes(EngineDataType... dataTypes) {
-        Set<EngineDataType> set = new HashSet<EngineDataType>();
+        Set<EngineDataType> set = new HashSet<>();
         for (EngineDataType dt : dataTypes) {
             set.add(dt);
         }
