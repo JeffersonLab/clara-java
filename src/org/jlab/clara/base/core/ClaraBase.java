@@ -70,7 +70,6 @@ public abstract class ClaraBase extends xMsg {
      *
      * @param me        definition of the component
      * @param frontEnd  definition of the front-end
-     * @throws ClaraException
      */
     public ClaraBase(ClaraComponent me, ClaraComponent frontEnd) {
         super(me.getCanonicalName(),
