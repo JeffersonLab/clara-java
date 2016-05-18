@@ -385,7 +385,7 @@ public class BaseOrchestrator {
         xMsgTopic topic = xMsgTopic.build(ClaraConstants.DPE);
         return base.discover(xMsgRegQuery.subscribers(topic))
                    .stream()
-                   .map(e -> e.name())
+                   .map(xMsgRegRecord::name)
                    .collect(Collectors.toSet());
     }
 
@@ -402,7 +402,7 @@ public class BaseOrchestrator {
         xMsgTopic topic = xMsgTopic.build(ClaraConstants.CONTAINER, dpeName);
         return base.discover(xMsgRegQuery.subscribers(topic))
                    .stream()
-                   .map(e -> e.name())
+                   .map(xMsgRegRecord::name)
                    .collect(Collectors.toSet());
     }
 
@@ -421,7 +421,7 @@ public class BaseOrchestrator {
         xMsgTopic topic = xMsgTopic.build(dpeName, containerName);
         return base.discover(xMsgRegQuery.subscribers(topic))
                    .stream()
-                   .map(e -> e.name())
+                   .map(xMsgRegRecord::name)
                    .collect(Collectors.toSet());
     }
 
