@@ -172,7 +172,8 @@ public final class ClaraComponent {
                                               int subscriptionPoolSize,
                                               String description) {
         return orchestrator(name,
-                            ClaraUtil.localhost(), xMsgConstants.DEFAULT_PORT, ClaraConstants.JAVA_LANG,
+                            ClaraUtil.localhost(),
+                            xMsgConstants.DEFAULT_PORT, ClaraConstants.JAVA_LANG,
                             subscriptionPoolSize, description);
     }
 
@@ -365,8 +366,10 @@ public final class ClaraComponent {
     public static ClaraComponent container(String container,
                                            int subscriptionPoolSize,
                                            String description) {
-        return container(ClaraUtil.localhost(), xMsgConstants.DEFAULT_PORT, ClaraConstants.JAVA_LANG,
-                         container, subscriptionPoolSize, description);
+        return container(ClaraUtil.localhost(),
+                         xMsgConstants.DEFAULT_PORT, ClaraConstants.JAVA_LANG,
+                         container,
+                         subscriptionPoolSize, description);
     }
 
     /**
