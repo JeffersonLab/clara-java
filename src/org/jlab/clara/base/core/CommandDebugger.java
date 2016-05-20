@@ -23,7 +23,6 @@ package org.jlab.clara.base.core;
 
 import org.jlab.clara.base.ClaraUtil;
 import org.jlab.clara.base.error.ClaraException;
-import org.jlab.coda.xmsg.core.xMsg;
 import org.jlab.coda.xmsg.core.xMsgConnection;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgTopic;
@@ -43,13 +42,23 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-public final class CommandDebugger extends xMsg {
+public final class CommandDebugger extends ClaraBase {
 
     private final Pattern commentPattern = Pattern.compile("^\\s*#.*$");
     private final Pattern sleepPattern = Pattern.compile("^\\s*(sleep)\\s+(\\d*)$");
 
     private CommandDebugger() {
-        super("broker");
+        super(ClaraComponent.orchestrator("broker", 1, "broker"), ClaraComponent.dpe());
+    }
+
+    @Override
+    public void start() throws ClaraException {
+        // nothing
+    }
+
+    @Override
+    protected void end() {
+        // nothing
     }
 
     private void processFile(String file) {
