@@ -25,7 +25,7 @@ package org.jlab.clara.sys;
 import org.jlab.clara.base.ClaraUtil;
 import org.jlab.clara.base.core.ClaraConstants;
 import org.jlab.clara.base.core.ClaraComponent;
-import org.jlab.clara.base.core.MessageUtils;
+import org.jlab.clara.base.core.MessageUtil;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.util.report.ContainerReport;
 import org.jlab.coda.xmsg.core.xMsgTopic;
@@ -136,7 +136,7 @@ class Container extends AbstractActor {
     private void reportDown() {
         try {
             // broadcast to the local proxy
-            String data = MessageUtils.buildData(ClaraConstants.CONTAINER_DOWN, base.getName());
+            String data = MessageUtil.buildData(ClaraConstants.CONTAINER_DOWN, base.getName());
             base.send(base.getFrontEnd(), data);
         } catch (xMsgException e) {
             Logging.error("container = %s: could not send down report: %s",

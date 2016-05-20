@@ -25,7 +25,7 @@ package org.jlab.clara.sys;
 import org.jlab.clara.base.ClaraUtil;
 import org.jlab.clara.base.core.ClaraConstants;
 import org.jlab.clara.base.core.ClaraComponent;
-import org.jlab.clara.base.core.MessageUtils;
+import org.jlab.clara.base.core.MessageUtil;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.sys.DpeOptionsParser.DpeOptionsException;
 import org.jlab.clara.sys.RequestParser.RequestException;
@@ -492,8 +492,8 @@ public final class Dpe extends AbstractActor {
             throws RequestException, DpeException {
         String containerName = parser.nextString();
         String engineName = parser.nextString();
-        String serviceName = MessageUtils.buildTopic(base.getName(), containerName, engineName)
-                                         .toString();
+        String serviceName = MessageUtil.buildTopic(base.getName(), containerName, engineName)
+                                        .toString();
 
         Container container = myContainers.get(containerName);
         if (container == null) {
@@ -621,10 +621,10 @@ public final class Dpe extends AbstractActor {
 
                 try {
                     while (isReporting.get()) {
-                        xMsgMessage msg = MessageUtils.buildRequest(aliveTopic, aliveData);
+                        xMsgMessage msg = MessageUtil.buildRequest(aliveTopic, aliveData);
                         base.send(con, msg);
 
-                        xMsgMessage reportMsg = MessageUtils.buildRequest(jsonTopic, jsonReport());
+                        xMsgMessage reportMsg = MessageUtil.buildRequest(jsonTopic, jsonReport());
                         base.send(con, reportMsg);
 
                         xMsgUtil.sleep(reportWait);
@@ -757,7 +757,7 @@ public final class Dpe extends AbstractActor {
 
         private void sendResponse(xMsgMessage msg, xMsgMeta.Status status, String data) {
             try {
-                xMsgMessage repMsg = MessageUtils.buildRequest(msg.getReplyTopic(), data);
+                xMsgMessage repMsg = MessageUtil.buildRequest(msg.getReplyTopic(), data);
                 repMsg.getMetaData().setStatus(status);
                 base.send(repMsg);
             } catch (xMsgException e) {

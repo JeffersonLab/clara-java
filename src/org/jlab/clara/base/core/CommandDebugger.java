@@ -81,7 +81,7 @@ public final class CommandDebugger extends xMsg {
             Command cmd = new Command(line);
             System.out.println("C: " + cmd);
             try (xMsgConnection connection = getConnection(cmd.address)) {
-                xMsgMessage message = MessageUtils.buildRequest(cmd.topic, cmd.request);
+                xMsgMessage message = MessageUtil.buildRequest(cmd.topic, cmd.request);
                 if (cmd.action.equals("send")) {
                     publish(connection, message);
                 } else {

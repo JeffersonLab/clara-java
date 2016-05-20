@@ -27,9 +27,9 @@ import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.data.xMsgMimeType;
 
-public final class MessageUtils {
+public final class MessageUtil {
 
-    private MessageUtils() { }
+    private MessageUtil() { }
 
     public static  xMsgTopic buildTopic(Object... args) {
         StringBuilder topic  = new StringBuilder();

@@ -24,7 +24,7 @@ package org.jlab.clara.sys;
 
 import org.jlab.clara.base.core.ClaraConstants;
 import org.jlab.clara.base.core.ClaraComponent;
-import org.jlab.clara.base.core.MessageUtils;
+import org.jlab.clara.base.core.MessageUtil;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.Engine;
 import org.jlab.clara.sys.RequestParser.RequestException;
@@ -207,7 +207,7 @@ class Service extends AbstractActor {
 
     private void sendResponse(xMsgMessage msg, xMsgMeta.Status status, String data) {
         try {
-            xMsgMessage repMsg = MessageUtils.buildRequest(msg.getReplyTopic(), data);
+            xMsgMessage repMsg = MessageUtil.buildRequest(msg.getReplyTopic(), data);
             repMsg.getMetaData().setStatus(status);
             base.send(repMsg);
         } catch (xMsgException e) {
