@@ -63,6 +63,7 @@ public class BaseOrchestratorTest {
         orchestrator = new OrchestratorMock();
 
         when(baseMock.getFrontEnd()).thenReturn(ClaraComponent.dpe(feHost));
+        when(baseMock.getName()).thenReturn("test_orchestrator");
     }
 
 
@@ -258,8 +259,11 @@ public class BaseOrchestratorTest {
 
     private void assertMessage(xMsgMessage msg, String topic, String data)
         throws Exception {
+        xMsgMeta.Builder msgMeta = msg.getMetaData();
         String msgData = new String(msg.getData());
+
         assertThat(msg.getTopic().toString(), is(topic));
+        assertThat(msgMeta.getAuthor(), is("test_orchestrator"));
         assertThat(msgData, is(data));
     }
 
@@ -269,6 +273,7 @@ public class BaseOrchestratorTest {
         xMsgMeta.Builder msgMeta = msg.getMetaData();
 
         assertThat(msg.getTopic().toString(), is(topic));
+        assertThat(msgMeta.getAuthor(), is("test_orchestrator"));
         assertThat(msgMeta.getComposition(), is(composition));
         assertThat(msgMeta.getAction(), is(action));
     }

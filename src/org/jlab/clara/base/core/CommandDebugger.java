@@ -91,6 +91,7 @@ public final class CommandDebugger extends ClaraBase {
             System.out.println("C: " + cmd);
             try (xMsgConnection connection = getConnection(cmd.address)) {
                 xMsgMessage message = MessageUtil.buildRequest(cmd.topic, cmd.request);
+                message.getMetaData().setAuthor(getName());
                 message.getMetaData().setSender(getName());
                 if (cmd.action.equals("send")) {
                     publish(connection, message);

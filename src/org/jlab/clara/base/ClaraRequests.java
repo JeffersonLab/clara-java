@@ -141,6 +141,7 @@ public final class ClaraRequests {
         @Override
         protected xMsgMessage msg() throws ClaraException {
             xMsgMessage msg = MessageUtil.buildRequest(topic, getData());
+            msg.getMetaData().setAuthor(base.getName());
             return msg;
         }
 
@@ -354,6 +355,7 @@ public final class ClaraRequests {
         protected xMsgMessage msg() throws ClaraException {
             xMsgMessage msg = DataUtil.serialize(topic, userData, dataTypes);
             xMsgMeta.Builder meta = msg.getMetaData();
+            meta.setAuthor(base.getName());
             meta.setAction(action);
             meta.setComposition(composition.toString());
             return msg;
