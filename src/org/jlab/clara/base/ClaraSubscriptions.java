@@ -23,6 +23,7 @@
 package org.jlab.clara.base;
 
 import org.jlab.clara.base.core.ClaraConstants;
+import org.jlab.clara.base.core.DataUtil;
 import org.jlab.clara.base.core.ClaraBase;
 import org.jlab.clara.base.core.ClaraComponent;
 import org.jlab.clara.base.core.MessageUtil;
@@ -129,7 +130,7 @@ public class ClaraSubscriptions {
         protected xMsgCallBack wrap(final EngineCallback userCallback) {
             return msg -> {
                 try {
-                    userCallback.callback(base.deSerialize(msg, dataTypes));
+                    userCallback.callback(DataUtil.deserialize(msg, dataTypes));
                 } catch (ClaraException e) {
                     System.out.println("Error receiving data to " + msg.getTopic());
                     e.printStackTrace();

@@ -22,8 +22,6 @@
 package org.jlab.clara.base.core;
 
 import org.jlab.clara.base.error.ClaraException;
-import org.jlab.clara.engine.EngineData;
-import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.util.report.ReportType;
 import org.jlab.coda.xmsg.core.xMsg;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
@@ -33,7 +31,6 @@ import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgSubscription;
 import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.core.xMsgUtil;
-import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 import org.jlab.coda.xmsg.data.xMsgRegInfo;
 import org.jlab.coda.xmsg.data.xMsgRegQuery;
 import org.jlab.coda.xmsg.data.xMsgRegRecord;
@@ -43,8 +40,6 @@ import org.jlab.coda.xmsg.net.xMsgRegAddress;
 import org.zeromq.ZMQ.Socket;
 
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
@@ -57,7 +52,6 @@ import java.util.concurrent.TimeoutException;
  */
 public abstract class ClaraBase extends xMsg {
 
-    private static final EngineDataAccessor DATA_ACCESSOR = EngineDataAccessor.getDefault();
     private final String claraHome;
     // reference to this component description
     private final ClaraComponent me;
@@ -421,108 +415,6 @@ public abstract class ClaraBase extends xMsg {
         return null;
     }
 
-    /**
-     * Builds a message by serializing passed data object using serialization
-     * routine defined in one of the data types objects.
-     *
-     * @param topic     the topic where the data will be published
-     * @param data      the data to be serialized
-     * @param dataTypes the set of registered data types
-     * @throws ClaraException if the data could not be serialized
-     */
-    public static xMsgMessage serialize(xMsgTopic topic,
-                                        EngineData data,
-                                        Set<EngineDataType> dataTypes)
-            throws ClaraException {
-
-        xMsgMeta.Builder metadata = DATA_ACCESSOR.getMetadata(data);
-        String mimeType = metadata.getDataType();
-        for (EngineDataType dt : dataTypes) {
-            if (dt.mimeType().equals(mimeType)) {
-                try {
-                    ByteBuffer bb = dt.serializer().write(data.getData());
-                    if (bb.order() == ByteOrder.BIG_ENDIAN) {
-                        metadata.setByteOrder(xMsgMeta.Endian.Big);
-                    } else {
-                        metadata.setByteOrder(xMsgMeta.Endian.Little);
-                    }
-                    return new xMsgMessage(topic, metadata, bb.array());
-                } catch (ClaraException e) {
-                    throw new ClaraException("Could not serialize " + mimeType, e);
-                }
-            }
-        }
-        if (mimeType.equals(EngineDataType.STRING.mimeType())) {
-            ByteBuffer bb = EngineDataType.STRING.serializer().write(data.getData());
-            return new xMsgMessage(topic, metadata, bb.array());
-        }
-        throw new ClaraException("Unsupported mime-type = " + mimeType);
-    }
-
-    /**
-     * De-serializes data of the message {@link org.jlab.coda.xmsg.core.xMsgMessage},
-     * represented as a byte[] into an object of az type defined using the mimeType/dataType
-     * of the meta-data (also as a part of the xMsgMessage). Second argument is used to
-     * pass the serialization routine as a method of the
-     * {@link org.jlab.clara.engine.EngineDataType} object.
-     *
-     * @param msg {@link org.jlab.coda.xmsg.core.xMsgMessage} object
-     * @param dataTypes set of {@link org.jlab.clara.engine.EngineDataType} objects
-     * @return {@link org.jlab.clara.engine.EngineData} object containing de-serialized data object
-     *          and metadata
-     * @throws ClaraException
-     */
-    public EngineData deSerialize(xMsgMessage msg, Set<EngineDataType> dataTypes)
-            throws ClaraException {
-        xMsgMeta.Builder metadata = msg.getMetaData();
-        String mimeType = metadata.getDataType();
-        for (EngineDataType dt : dataTypes) {
-            if (dt.mimeType().equals(mimeType)) {
-                try {
-                    ByteBuffer bb = ByteBuffer.wrap(msg.getData());
-                    if (metadata.getByteOrder() == xMsgMeta.Endian.Little) {
-                        bb.order(ByteOrder.LITTLE_ENDIAN);
-                    }
-                    Object userData = dt.serializer().read(bb);
-                    return DATA_ACCESSOR.build(userData, metadata);
-                } catch (ClaraException e) {
-                    throw new ClaraException("Clara-Error: Could not deserialize " + mimeType, e);
-                }
-            }
-        }
-        throw new ClaraException("Clara-Error: Unsupported mime-type = " + mimeType);
-    }
-
-    /**
-     * Creates system exception data (EngineData object).
-     *
-     * @param msg         the exception message
-     * @param severity    severity ID of the exception
-     * @param description More thorough description of the source of the exception
-     * @return {@link org.jlab.clara.engine.EngineData} object
-     */
-    public EngineData buildSystemErrorData(String msg, int severity, String description) {
-        EngineData outData = new EngineData();
-        outData.setData(EngineDataType.STRING.mimeType(), msg);
-        outData.setDescription(description);
-
-        xMsgMeta.Builder outMeta = getMetadata(outData);
-        outMeta.setStatus(xMsgMeta.Status.ERROR);
-        outMeta.setSeverityId(severity);
-
-        return outData;
-    }
-
-    /**
-     * Convoluted way to access the internal EngineData metadata,
-     * which is hidden to users.
-     *
-     * @param data {@link org.jlab.clara.engine.EngineData} object
-     * @return {@link org.jlab.coda.xmsg.data.xMsgM.xMsgMeta.Builder} object
-     */
-    public xMsgMeta.Builder getMetadata(EngineData data) {
-        return DATA_ACCESSOR.getMetadata(data);
-    }
 
     /**
      * Returns the reference to the front-end DPE.
@@ -540,33 +432,5 @@ public abstract class ClaraBase extends xMsg {
      */
     public void setFrontEnd(ClaraComponent frontEnd) {
         this.frontEnd = frontEnd;
-    }
-
-
-    public abstract static class EngineDataAccessor {
-
-        // CHECKSTYLE.OFF: StaticVariableName
-        private static volatile EngineDataAccessor DEFAULT;
-        // CHECKSTYLE.ON: StaticVariableName
-
-        public static EngineDataAccessor getDefault() {
-            new EngineData(); // Load the accessor
-            EngineDataAccessor a = DEFAULT;
-            if (a == null) {
-                throw new IllegalStateException("EngineDataAccessor should not be null");
-            }
-            return a;
-        }
-
-        public static void setDefault(EngineDataAccessor accessor) {
-            if (DEFAULT != null) {
-                throw new IllegalStateException("EngineDataAccessor should be null");
-            }
-            DEFAULT = accessor;
-        }
-
-        protected abstract xMsgMeta.Builder getMetadata(EngineData data);
-
-        protected abstract EngineData build(Object data, xMsgMeta.Builder metadata);
     }
 }

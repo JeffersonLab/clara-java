@@ -21,7 +21,7 @@
 
 package org.jlab.clara.engine;
 
-import org.jlab.clara.base.core.ClaraBase.EngineDataAccessor;
+import org.jlab.clara.base.core.DataUtil.EngineDataAccessor;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 
 /**

@@ -23,6 +23,7 @@
 package org.jlab.clara.base;
 
 import org.jlab.clara.base.core.ClaraConstants;
+import org.jlab.clara.base.core.DataUtil;
 import org.jlab.clara.base.core.ClaraBase;
 import org.jlab.clara.base.core.ClaraComponent;
 import org.jlab.clara.base.core.MessageUtil;
@@ -351,7 +352,7 @@ public final class ClaraRequests {
 
         @Override
         protected xMsgMessage msg() throws ClaraException {
-            xMsgMessage msg = ClaraBase.serialize(topic, userData, dataTypes);
+            xMsgMessage msg = DataUtil.serialize(topic, userData, dataTypes);
             xMsgMeta.Builder meta = msg.getMetaData();
             meta.setAction(action);
             meta.setComposition(composition.toString());
@@ -373,7 +374,7 @@ public final class ClaraRequests {
 
         @Override
         protected EngineData parseData(xMsgMessage msg) throws ClaraException {
-            return base.deSerialize(msg, dataTypes);
+            return DataUtil.deserialize(msg, dataTypes);
         }
     }
 
@@ -393,7 +394,7 @@ public final class ClaraRequests {
 
         @Override
         protected EngineData parseData(xMsgMessage msg) throws ClaraException {
-            return base.deSerialize(msg, dataTypes);
+            return DataUtil.deserialize(msg, dataTypes);
         }
     }
 

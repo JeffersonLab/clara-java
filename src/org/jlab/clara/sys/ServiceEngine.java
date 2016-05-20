@@ -22,10 +22,9 @@
 
 package org.jlab.clara.sys;
 
-import org.jlab.clara.base.ClaraUtil;
 import org.jlab.clara.base.core.ClaraConstants;
-import org.jlab.clara.base.core.ClaraBase;
 import org.jlab.clara.base.core.ClaraComponent;
+import org.jlab.clara.base.core.DataUtil;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.Engine;
 import org.jlab.clara.engine.EngineData;
@@ -110,9 +109,9 @@ class ServiceEngine extends AbstractActor {
             outData = configureEngine(inputData);
         } catch (Exception e) {
             e.printStackTrace();
-            outData = base.buildSystemErrorData("unhandled exception", -4, ClaraUtil.reportException(e));
+            outData = DataUtil.buildErrorData("unhandled exception", -4, e);
         } finally {
-            updateMetadata(message.getMetaData(), base.getMetadata(outData));
+            updateMetadata(message.getMetaData(), DataUtil.getMetadata(outData));
             resetClock();
         }
 
@@ -159,16 +158,16 @@ class ServiceEngine extends AbstractActor {
             outData = executeEngine(inData);
         } catch (Exception e) {
             e.printStackTrace();
-            outData = base.buildSystemErrorData("unhandled exception", -4, ClaraUtil.reportException(e));
+            outData = DataUtil.buildErrorData("unhandled exception", -4, e);
         } finally {
-            updateMetadata(message.getMetaData(), base.getMetadata(outData));
+            updateMetadata(message.getMetaData(), DataUtil.getMetadata(outData));
             resetClock();
         }
 
         String replyTo = getReplyTo(message);
         if (replyTo != null) {
             xMsgTopic topic = xMsgTopic.wrap(replyTo);
-            xMsgMessage msgReply = ClaraBase.serialize(topic, outData, engineObject.getOutputDataTypes());
+            xMsgMessage msgReply = DataUtil.serialize(topic, outData, engineObject.getOutputDataTypes());
             base.send(msgReply);
             return;
         }
@@ -290,7 +289,7 @@ class ServiceEngine extends AbstractActor {
     private void report(String topicPrefix, EngineData data)
             throws ClaraException, xMsgException {
         xMsgTopic topic = xMsgTopic.wrap(topicPrefix + xMsgConstants.TOPIC_SEP + base.getName());
-        xMsgMessage transit = ClaraBase.serialize(topic, data, engineObject.getOutputDataTypes());
+        xMsgMessage transit = DataUtil.serialize(topic, data, engineObject.getOutputDataTypes());
         base.send(base.getFrontEnd(), transit);
     }
 
@@ -303,7 +302,7 @@ class ServiceEngine extends AbstractActor {
             int id = metadata.getCommunicationId();
             return SharedMemory.getEngineData(base.getName(), sender, id);
         } else {
-            return base.deSerialize(message, engineObject.getInputDataTypes());
+            return DataUtil.deserialize(message, engineObject.getInputDataTypes());
         }
     }
 
@@ -323,7 +322,7 @@ class ServiceEngine extends AbstractActor {
 
             return new xMsgMessage(topic, metadata, ClaraConstants.SHARED_MEMORY_KEY.getBytes());
         } else {
-            return ClaraBase.serialize(topic, data, engineObject.getOutputDataTypes());
+            return DataUtil.serialize(topic, data, engineObject.getOutputDataTypes());
         }
     }
 
