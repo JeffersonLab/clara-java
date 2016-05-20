@@ -162,7 +162,7 @@ public abstract class ClaraBase extends xMsg {
     public void send(ClaraComponent component, String requestText)
             throws xMsgException {
         xMsgMessage msg = MessageUtil.buildRequest(component.getTopic(), requestText);
-        publish(component.getProxyAddress(), msg);
+        send(component, msg);
     }
 
     /**
@@ -225,7 +225,7 @@ public abstract class ClaraBase extends xMsg {
     public xMsgMessage syncSend(ClaraComponent component, String requestText, int timeout)
             throws xMsgException, TimeoutException {
         xMsgMessage msg = MessageUtil.buildRequest(component.getTopic(), requestText);
-        return syncPublish(component.getProxyAddress(), msg, timeout);
+        return syncSend(component, msg, timeout);
     }
 
     /**
