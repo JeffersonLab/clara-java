@@ -314,7 +314,7 @@ class ServiceEngine extends AbstractActor {
             SharedMemory.putEngineData(receiver, base.getName(), id, data);
 
             xMsgMeta.Builder metadata = xMsgMeta.newBuilder();
-            metadata.setSender(base.getName());
+            metadata.setAuthor(base.getName());
             metadata.setComposition(data.getComposition());
             metadata.setCommunicationId(id);
             metadata.setAction(xMsgMeta.ControlAction.EXECUTE);
