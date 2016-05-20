@@ -232,10 +232,8 @@ public final class Dpe extends AbstractActor {
 
         /**
          * Creates the DPE.
-         *
-         * @throws ClaraException if the DPE could not be created
          */
-        public Dpe build() throws ClaraException {
+        public Dpe build() {
             return new Dpe(isFrontEnd, localAddress, frontEndAddress,
                            poolSize, reportInterval, description);
         }
