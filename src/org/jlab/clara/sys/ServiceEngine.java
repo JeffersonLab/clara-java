@@ -51,7 +51,7 @@ import java.util.concurrent.Semaphore;
 class ServiceEngine extends AbstractActor {
 
     // Engine instantiated object
-    private final Engine engineObject;
+    private final Engine engine;
 
     private final ServiceSysConfig sysConfig;
 
@@ -71,7 +71,7 @@ class ServiceEngine extends AbstractActor {
                   Engine userEngine,
                   ServiceSysConfig config) {
         super(comp, frontEnd);
-        this.engineObject = userEngine;
+        this.engine = userEngine;
         this.sysConfig = config;
         this.compiler = new CompositionCompiler(comp.getCanonicalName());
     }
@@ -128,7 +128,7 @@ class ServiceEngine extends AbstractActor {
     private EngineData configureEngine(EngineData inputData) {
         long startTime = startClock();
 
-        EngineData outData = engineObject.configure(inputData);
+        EngineData outData = engine.configure(inputData);
 
         stopClock(startTime);
 
@@ -167,7 +167,7 @@ class ServiceEngine extends AbstractActor {
         String replyTo = getReplyTo(message);
         if (replyTo != null) {
             xMsgTopic topic = xMsgTopic.wrap(replyTo);
-            xMsgMessage msgReply = DataUtil.serialize(topic, outData, engineObject.getOutputDataTypes());
+            xMsgMessage msgReply = DataUtil.serialize(topic, outData, engine.getOutputDataTypes());
             base.send(msgReply);
             return;
         }
@@ -202,7 +202,7 @@ class ServiceEngine extends AbstractActor {
             throws ClaraException {
         long startTime = startClock();
 
-        EngineData outData = engineObject.execute(inData);
+        EngineData outData = engine.execute(inData);
 
         stopClock(startTime);
 
@@ -223,7 +223,7 @@ class ServiceEngine extends AbstractActor {
 
     private void updateMetadata(xMsgMeta.Builder inMeta, xMsgMeta.Builder outMeta) {
         outMeta.setAuthor(base.getName());
-        outMeta.setVersion(engineObject.getVersion());
+        outMeta.setVersion(engine.getVersion());
 
         if (!outMeta.hasCommunicationId()) {
             outMeta.setCommunicationId(inMeta.getCommunicationId());
@@ -289,7 +289,7 @@ class ServiceEngine extends AbstractActor {
     private void report(String topicPrefix, EngineData data)
             throws ClaraException, xMsgException {
         xMsgTopic topic = xMsgTopic.wrap(topicPrefix + xMsgConstants.TOPIC_SEP + base.getName());
-        xMsgMessage transit = DataUtil.serialize(topic, data, engineObject.getOutputDataTypes());
+        xMsgMessage transit = DataUtil.serialize(topic, data, engine.getOutputDataTypes());
         base.send(base.getFrontEnd(), transit);
     }
 
@@ -302,7 +302,7 @@ class ServiceEngine extends AbstractActor {
             int id = metadata.getCommunicationId();
             return SharedMemory.getEngineData(base.getName(), sender, id);
         } else {
-            return DataUtil.deserialize(message, engineObject.getInputDataTypes());
+            return DataUtil.deserialize(message, engine.getInputDataTypes());
         }
     }
 
@@ -322,7 +322,7 @@ class ServiceEngine extends AbstractActor {
 
             return new xMsgMessage(topic, metadata, ClaraConstants.SHARED_MEMORY_KEY.getBytes());
         } else {
-            return DataUtil.serialize(topic, data, engineObject.getOutputDataTypes());
+            return DataUtil.serialize(topic, data, engine.getOutputDataTypes());
         }
     }
 
