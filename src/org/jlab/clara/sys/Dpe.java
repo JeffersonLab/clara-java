@@ -354,7 +354,7 @@ public final class Dpe extends AbstractActor {
         xMsgTopic topic = xMsgTopic.build(ClaraConstants.DPE, base.getName());
         xMsgCallBack callback = new DpeCallBack();
         String description = base.getDescription();
-        subscriptionHandler = base.startRegisteredSubscription(topic, callback, description);
+        subscriptionHandler = startRegisteredSubscription(topic, callback, description);
     }
 
     private void startHeartBeatReport() {

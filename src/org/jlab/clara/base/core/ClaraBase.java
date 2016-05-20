@@ -326,30 +326,6 @@ public abstract class ClaraBase extends xMsg {
     }
 
     /**
-     * Listens for messages of given topic published to the address of this component,
-     * and registers as a subscriber with the front-end.
-     *
-     * @param topic topic of interest
-     * @param callback the callback action
-     * @param description a description for the registration
-     * @return a handler to the subscription
-     * @throws ClaraException if the subscription could not be started or
-     *                        if the registration failed
-     */
-    public xMsgSubscription startRegisteredSubscription(xMsgTopic topic,
-                                                        xMsgCallBack callback,
-                                                        String description) throws ClaraException {
-        xMsgSubscription sub = listen(topic, callback);
-        try {
-            register(topic, description);
-        } catch (Exception e) {
-            unsubscribe(sub);
-            throw e;
-        }
-        return sub;
-    }
-
-    /**
      * Retrieves Clara actor registration information from the xMsg registrar service.
      *
      * @param regHost registrar server host

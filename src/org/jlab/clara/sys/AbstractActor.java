@@ -24,6 +24,9 @@ package org.jlab.clara.sys;
 import org.jlab.clara.base.core.ClaraBase;
 import org.jlab.clara.base.core.ClaraComponent;
 import org.jlab.clara.base.error.ClaraException;
+import org.jlab.coda.xmsg.core.xMsgCallBack;
+import org.jlab.coda.xmsg.core.xMsgSubscription;
+import org.jlab.coda.xmsg.core.xMsgTopic;
 
 abstract class AbstractActor {
 
@@ -74,4 +77,28 @@ abstract class AbstractActor {
     protected abstract void startMsg();
 
     protected abstract void stopMsg();
+
+    /**
+     * Listens for messages of given topic published to the address of this component,
+     * and registers as a subscriber with the front-end.
+     *
+     * @param topic topic of interest
+     * @param callback the callback action
+     * @param description a description for the registration
+     * @return a handler to the subscription
+     * @throws ClaraException if the subscription could not be started or
+     *                        if the registration failed
+     */
+    xMsgSubscription startRegisteredSubscription(xMsgTopic topic,
+                                                 xMsgCallBack callback,
+                                                 String description) throws ClaraException {
+        xMsgSubscription sub = base.listen(topic, callback);
+        try {
+            base.register(topic, description);
+        } catch (Exception e) {
+            base.unsubscribe(sub);
+            throw e;
+        }
+        return sub;
+    }
 }
