@@ -290,6 +290,13 @@ public abstract class ClaraBase extends xMsg {
     }
 
     /**
+     * Terminates all callbacks.
+     */
+    public void stopCallbacks() {
+        terminateCallbacks();
+    }
+
+    /**
      * Registers this component with the front-end as subscriber to the given topic.
      *
      * @param topic the subscribed topic
