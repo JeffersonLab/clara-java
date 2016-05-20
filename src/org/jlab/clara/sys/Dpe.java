@@ -754,15 +754,5 @@ public final class Dpe extends AbstractActor {
                 }
             }
         }
-
-        private void sendResponse(xMsgMessage msg, xMsgMeta.Status status, String data) {
-            try {
-                xMsgMessage repMsg = MessageUtil.buildRequest(msg.getReplyTopic(), data);
-                repMsg.getMetaData().setStatus(status);
-                base.send(repMsg);
-            } catch (xMsgException e) {
-                e.printStackTrace();
-            }
-        }
     }
 }

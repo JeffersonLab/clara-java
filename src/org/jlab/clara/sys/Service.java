@@ -24,7 +24,6 @@ package org.jlab.clara.sys;
 
 import org.jlab.clara.base.core.ClaraConstants;
 import org.jlab.clara.base.core.ClaraComponent;
-import org.jlab.clara.base.core.MessageUtil;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.Engine;
 import org.jlab.clara.sys.RequestParser.RequestException;
@@ -34,7 +33,6 @@ import org.jlab.coda.xmsg.core.xMsgSubscription;
 import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
-import org.jlab.coda.xmsg.excp.xMsgException;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -204,17 +202,6 @@ class Service extends AbstractActor {
         errors.write(name + ": Clara error: ");
         e.printStackTrace(new PrintWriter(errors));
         System.err.println(errors.toString());
-    }
-
-
-    private void sendResponse(xMsgMessage msg, xMsgMeta.Status status, String data) {
-        try {
-            xMsgMessage repMsg = MessageUtil.buildRequest(msg.getReplyTopic(), data);
-            repMsg.getMetaData().setStatus(status);
-            base.send(repMsg);
-        } catch (xMsgException e) {
-            e.printStackTrace();
-        }
     }
 
 
