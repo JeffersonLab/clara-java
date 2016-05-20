@@ -375,6 +375,7 @@ public final class Dpe extends AbstractActor {
                     Logging.error("%s", e.getMessage());
                 }
             }
+            base.stopCallbacks();
         }
     }
 
