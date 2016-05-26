@@ -31,7 +31,6 @@ import org.jlab.clara.sys.DpeOptionsParser.DpeOptionsException;
 import org.jlab.clara.sys.RequestParser.RequestException;
 import org.jlab.clara.util.report.DpeReport;
 import org.jlab.clara.util.report.JsonReportBuilder;
-import org.jlab.clara.util.report.SystemStats;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgConnection;
 import org.jlab.coda.xmsg.core.xMsgConstants;
@@ -594,9 +593,6 @@ public final class Dpe extends AbstractActor {
         }
 
         public String jsonReport() {
-            myReport.setMemoryUsage(SystemStats.getMemoryUsage());
-            myReport.setCpuUsage(SystemStats.getCpuUsage());
-
             return myReportBuilder.generateReport(myReport);
         }
 

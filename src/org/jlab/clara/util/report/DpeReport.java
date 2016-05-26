@@ -40,10 +40,6 @@ public class DpeReport extends BaseReport {
     private final int coreCount;
     private final long memorySize;
 
-    private double cpuUsage;
-    private long memoryUsage;
-    private double load;
-
     private final Map<String, ContainerReport> containers = new ConcurrentHashMap<>();
 
     public DpeReport(ClaraBase base, String author) {
@@ -73,28 +69,15 @@ public class DpeReport extends BaseReport {
     }
 
     public double getCpuUsage() {
-        return cpuUsage;
-    }
-
-    public void setCpuUsage(double cpuUsage) {
-        this.cpuUsage = cpuUsage;
+        return SystemStats.getCpuUsage();
     }
 
     public long getMemoryUsage() {
-        return memoryUsage;
+        return SystemStats.getMemoryUsage();
     }
-
-    public void setMemoryUsage(long memoryUsage) {
-        this.memoryUsage = memoryUsage;
-    }
-
 
     public double getLoad() {
-        return load;
-    }
-
-    public void setLoad(int load) {
-        this.load = load;
+        return 1.0; // TODO get system load
     }
 
     public Collection<ContainerReport> getContainers() {
