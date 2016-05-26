@@ -25,6 +25,8 @@ package org.jlab.clara.util.report;
 import org.jlab.clara.base.ClaraLang;
 import org.jlab.clara.base.ClaraUtil;
 
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * @author gurjyan
  * @version 4.x
@@ -37,7 +39,7 @@ public class BaseReport {
     protected final String description;
     protected final String startTime;
 
-    private int requestCount;
+    private final AtomicInteger requestCount = new AtomicInteger();
 
     public BaseReport(String name, String author, String description) {
         this.name = name;
@@ -68,10 +70,10 @@ public class BaseReport {
     }
 
     public int getRequestCount() {
-        return requestCount;
+        return requestCount.get();
     }
 
     public void incrementRequestCount() {
-        requestCount++;
+        requestCount.getAndIncrement();
     }
 }

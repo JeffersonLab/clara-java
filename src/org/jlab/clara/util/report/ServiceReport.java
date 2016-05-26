@@ -25,6 +25,9 @@ package org.jlab.clara.util.report;
 import org.jlab.clara.base.core.ClaraComponent;
 import org.jlab.clara.engine.Engine;
 
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
+
 /**
  * @author gurjyan
  * @version 4.x
@@ -35,12 +38,12 @@ public class ServiceReport extends BaseReport {
     private final String className;
     private final String version;
 
-    private int failureCount;
-    private int shrmReads;
-    private int shrmWrites;
-    private long bytesReceived;
-    private long bytesSent;
-    private long executionTime;
+    private final AtomicInteger failureCount = new AtomicInteger();
+    private final AtomicInteger shrmReads = new AtomicInteger();
+    private final AtomicInteger shrmWrites = new AtomicInteger();
+    private final AtomicLong bytesReceived = new AtomicLong();
+    private final AtomicLong bytesSent = new AtomicLong();
+    private final AtomicLong executionTime = new AtomicLong();
 
     public ServiceReport(ClaraComponent comp, Engine engine) {
         super(comp.getCanonicalName(), engine.getAuthor(), engine.getDescription());
@@ -58,51 +61,51 @@ public class ServiceReport extends BaseReport {
     }
 
     public int getFailureCount() {
-        return failureCount;
+        return failureCount.get();
     }
 
     public void incrementFailureCount() {
-        failureCount++;
+        failureCount.getAndIncrement();
     }
 
     public int getShrmReads() {
-        return shrmReads;
+        return shrmReads.get();
     }
 
     public void incrementShrmReads() {
-        shrmReads++;
+        shrmReads.getAndIncrement();
     }
 
     public int getShrmWrites() {
-        return shrmWrites;
+        return shrmWrites.get();
     }
 
     public void incrementShrmWrites() {
-        shrmWrites++;
+        shrmWrites.getAndIncrement();
     }
 
     public long getBytesReceived() {
-        return bytesReceived;
+        return bytesReceived.get();
     }
 
     public void addBytesReceived(long bytes) {
-        bytesReceived += bytes;
+        bytesReceived.getAndAdd(bytes);
     }
 
     public long getBytesSent() {
-        return bytesSent;
+        return bytesSent.get();
     }
 
     public void addBytesSent(long bytes) {
-        bytesSent += bytes;
+        bytesSent.getAndAdd(bytes);
     }
 
     public long getExecutionTime() {
-        return executionTime;
+        return executionTime.get();
     }
 
     public void addExecutionTime(long deltaTime) {
-        executionTime += deltaTime;
+        executionTime.getAndAdd(deltaTime);
     }
 
     public String getVersion() {
