@@ -72,11 +72,11 @@ public class JsonReportBuilder implements ExternalReport {
         dpeRuntime.put("containers", containersRuntimeArray);
 
         JSONObject dpeRegistration = new JSONObject();
-        dpeRegistration.put("language", dpeData.getLang());
-        dpeRegistration.put("start_time", dpeData.getStartTime());
-        dpeRegistration.put("n_cores", dpeData.getCoreCount());
         dpeRegistration.put("hostname", dpeData.getHost());
+        dpeRegistration.put("language", dpeData.getLang());
+        dpeRegistration.put("n_cores", dpeData.getCoreCount());
         dpeRegistration.put("memory_size", dpeData.getMemorySize());
+        dpeRegistration.put("start_time", dpeData.getStartTime());
 
         JSONArray containersRegistrationArray = new JSONArray();
         for (ContainerReport cr : dpeData.getContainers().values()) {
