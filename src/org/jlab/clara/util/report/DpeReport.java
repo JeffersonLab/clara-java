@@ -101,19 +101,19 @@ public class DpeReport extends BaseReport {
         this.containers = containers;
     }
 
-    public void addContainerReport(ContainerReport cr) {
+    public void addContainer(ContainerReport cr) {
         if (!containers.containsKey(cr.getName())) {
             containers.put(cr.getName(), cr);
         }
     }
 
-    public void removeContainerReport(String containerName) {
-        if (containers.containsKey(containerName)) {
-            containers.remove(containerName);
+    public void removeContainer(ContainerReport cr) {
+        if (containers.containsKey(cr.getName())) {
+            containers.remove(cr.getName());
         }
     }
 
-    public void removeAllContainerReports() {
+    public void removeAllContainers() {
         containers.clear();
     }
 }

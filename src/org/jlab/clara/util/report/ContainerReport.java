@@ -49,19 +49,19 @@ public class ContainerReport extends BaseReport {
         this.services = services;
     }
 
-    public void addServiceReport(ServiceReport sr) {
+    public void addService(ServiceReport sr) {
         if (!services.containsKey(sr.getName())) {
             services.put(sr.getName(), sr);
         }
     }
 
-    public void removeServiceReport(String serviceName) {
-        if (services.containsKey(serviceName)) {
-            services.remove(serviceName);
+    public void removeService(ServiceReport sr) {
+        if (services.containsKey(sr.getName())) {
+            services.remove(sr.getName());
         }
     }
 
-    public void removeAllServiceReportings() {
+    public void removeAllServices() {
         services.clear();
     }
 }

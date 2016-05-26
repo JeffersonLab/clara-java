@@ -596,7 +596,7 @@ public final class Dpe extends AbstractActor {
         }
 
         public void addContainer(Container container) {
-            myReport.addContainerReport(container.getReport());
+            myReport.addContainer(container.getReport());
         }
 
         public String aliveReport() {
