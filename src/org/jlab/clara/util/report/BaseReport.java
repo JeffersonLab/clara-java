@@ -37,7 +37,6 @@ public class BaseReport {
     protected final String description;
     protected final String startTime;
 
-    private String snapshotTime;
     private int requestCount;
 
     public BaseReport(String name, String author, String description) {
@@ -66,14 +65,6 @@ public class BaseReport {
 
     public String getStartTime() {
         return startTime;
-    }
-
-    public String getSnapshotTime() {
-        return snapshotTime;
-    }
-
-    public void setSnapshotTime(String snapshotTime) {
-        this.snapshotTime = snapshotTime;
     }
 
     public int getRequestCount() {

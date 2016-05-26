@@ -22,6 +22,7 @@
 
 package org.jlab.clara.util.report;
 
+import org.jlab.clara.base.ClaraUtil;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 
@@ -34,9 +35,11 @@ public class JsonReportBuilder implements ExternalReport {
     @SuppressWarnings("unchecked")
     @Override
     public String generateReport(DpeReport dpeData) {
+        String snapshotTime = ClaraUtil.getCurrentTimeInH();
+
         JSONObject dpeRuntime = new JSONObject();
         dpeRuntime.put("hostname", dpeData.getHost());
-        dpeRuntime.put("snapshot_time", dpeData.getSnapshotTime());
+        dpeRuntime.put("snapshot_time", snapshotTime);
         dpeRuntime.put("cpu_usage", dpeData.getCpuUsage());
         dpeRuntime.put("memory_usage", dpeData.getMemoryUsage());
         dpeRuntime.put("load", dpeData.getLoad());
@@ -45,14 +48,14 @@ public class JsonReportBuilder implements ExternalReport {
         for (ContainerReport cr : dpeData.getContainers()) {
             JSONObject containerRuntime = new JSONObject();
             containerRuntime.put("name", cr.getName());
-            containerRuntime.put("snapshot_time", cr.getSnapshotTime());
+            containerRuntime.put("snapshot_time", snapshotTime);
             containerRuntime.put("n_requests", cr.getRequestCount());
 
             JSONArray servicesRuntimeArray = new JSONArray();
             for (ServiceReport sr : cr.getServices()) {
                 JSONObject serviceRuntime = new JSONObject();
                 serviceRuntime.put("name", sr.getName());
-                serviceRuntime.put("snapshot_time", sr.getSnapshotTime());
+                serviceRuntime.put("snapshot_time", snapshotTime);
                 serviceRuntime.put("n_requests", sr.getRequestCount());
                 serviceRuntime.put("n_failures", sr.getFailureCount());
                 serviceRuntime.put("shm_reads", sr.getShrmReads());
