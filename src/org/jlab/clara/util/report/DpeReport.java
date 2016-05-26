@@ -35,6 +35,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class DpeReport extends BaseReport {
 
     private final String host;
+    private final String claraHome;
+
     private final int coreCount;
     private final long memorySize;
 
@@ -48,12 +50,18 @@ public class DpeReport extends BaseReport {
         super(base.getName(), author, base.getDescription());
 
         this.host = name;
+        this.claraHome = base.getClaraHome();
+
         this.coreCount = Runtime.getRuntime().availableProcessors();
         this.memorySize = Runtime.getRuntime().maxMemory();
     }
 
     public String getHost() {
         return host;
+    }
+
+    public String getClaraHome() {
+        return claraHome;
     }
 
     public int getCoreCount() {

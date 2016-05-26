@@ -74,6 +74,7 @@ public class JsonReportBuilder implements ExternalReport {
         JSONObject dpeRegistration = new JSONObject();
         dpeRegistration.put("hostname", dpeData.getHost());
         dpeRegistration.put("language", dpeData.getLang());
+        dpeRegistration.put("clara_home", dpeData.getClaraHome());
         dpeRegistration.put("n_cores", dpeData.getCoreCount());
         dpeRegistration.put("memory_size", dpeData.getMemorySize());
         dpeRegistration.put("start_time", dpeData.getStartTime());
