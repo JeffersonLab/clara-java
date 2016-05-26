@@ -38,9 +38,9 @@ public class ServiceReport extends BaseReport {
     private int failureCount;
     private int shrmReads;
     private int shrmWrites;
-    private int bytesReceived;
-    private int bytesSent;
-    private int executionTime;
+    private long bytesReceived;
+    private long bytesSent;
+    private long executionTime;
 
     public ServiceReport(ClaraComponent comp, Engine engine) {
         super(comp.getCanonicalName(), engine.getAuthor(), engine.getDescription());
@@ -81,27 +81,27 @@ public class ServiceReport extends BaseReport {
         this.shrmWrites = shrmWrites;
     }
 
-    public int getBytesReceived() {
+    public long getBytesReceived() {
         return bytesReceived;
     }
 
-    public void setBytesReceived(int bytesReceived) {
+    public void setBytesReceived(long bytesReceived) {
         this.bytesReceived = bytesReceived;
     }
 
-    public int getBytesSent() {
+    public long getBytesSent() {
         return bytesSent;
     }
 
-    public void setBytesSent(int bytesSent) {
+    public void setBytesSent(long bytesSent) {
         this.bytesSent = bytesSent;
     }
 
-    public int getExecutionTime() {
+    public long getExecutionTime() {
         return executionTime;
     }
 
-    public void setExecutionTime(int executionTime) {
+    public void setExecutionTime(long executionTime) {
         this.executionTime = executionTime;
     }
 
