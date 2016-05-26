@@ -82,6 +82,7 @@ class Container extends AbstractActor {
             if (result == null) {
                 try {
                     service.start();
+                    myReport.addService(service.getReport());
                 } catch (ClaraException e) {
                     service.stop();
                     myServices.remove(serviceName, service);
@@ -99,6 +100,7 @@ class Container extends AbstractActor {
         Service service = myServices.remove(serviceName);
         if (service != null) {
             service.stop();
+            myReport.removeService(service.getReport());
             return true;
         }
         return false;

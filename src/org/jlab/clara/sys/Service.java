@@ -27,6 +27,7 @@ import org.jlab.clara.base.core.ClaraComponent;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.Engine;
 import org.jlab.clara.sys.RequestParser.RequestException;
+import org.jlab.clara.util.report.ServiceReport;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgSubscription;
@@ -56,6 +57,7 @@ class Service extends AbstractActor {
     private final ExecutorService executionPool;
     private final ServiceEngine[] enginePool;
     private final ServiceSysConfig sysConfig;
+    private final ServiceReport sysReport;
 
     private xMsgSubscription subscription;
 
@@ -80,6 +82,8 @@ class Service extends AbstractActor {
         // Note: using system class loader
         EngineLoader cl = new EngineLoader(ClassLoader.getSystemClassLoader());
         userEngine = cl.load(comp.getEngineClass());
+
+        sysReport = new ServiceReport(comp, userEngine);
 
         // Creating thread pool
         executionPool = xMsgUtil.newFixedThreadPool(comp.getSubscriptionPoolSize(), name);
@@ -207,6 +211,10 @@ class Service extends AbstractActor {
 
     void setFrontEnd(ClaraComponent frontEnd) {
         base.setFrontEnd(frontEnd);
+    }
+
+    ServiceReport getReport() {
+        return sysReport;
     }
 
 
