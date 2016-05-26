@@ -516,6 +516,7 @@ public final class Dpe extends AbstractActor {
                                        ": container doesn't exist");
         }
         container.stop();
+        reportService.removeContainer(container);
     }
 
     private void setFrontEnd(RequestParser parser) throws RequestException {
@@ -577,6 +578,10 @@ public final class Dpe extends AbstractActor {
 
         public void addContainer(Container container) {
             myReport.addContainer(container.getReport());
+        }
+
+        public void removeContainer(Container container) {
+            myReport.removeContainer(container.getReport());
         }
 
         public String aliveReport() {
