@@ -23,6 +23,7 @@
 package org.jlab.clara.util.report;
 
 import org.jlab.clara.base.ClaraLang;
+import org.jlab.clara.base.ClaraUtil;
 
 /**
  * @author gurjyan
@@ -34,8 +35,8 @@ public class BaseReport {
     protected final String author;
     protected final String lang;
     protected final String description;
+    protected final String startTime;
 
-    private String startTime;
     private String snapshotTime;
     private int requestCount;
 
@@ -44,6 +45,7 @@ public class BaseReport {
         this.author = author;
         this.lang = ClaraLang.JAVA.toString();
         this.description = description;
+        this.startTime = ClaraUtil.getCurrentTimeInH();
     }
 
     public String getName() {
@@ -64,10 +66,6 @@ public class BaseReport {
 
     public String getStartTime() {
         return startTime;
-    }
-
-    public void setStartTime(String startTime) {
-        this.startTime = startTime;
     }
 
     public String getSnapshotTime() {

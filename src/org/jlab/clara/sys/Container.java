@@ -22,7 +22,6 @@
 
 package org.jlab.clara.sys;
 
-import org.jlab.clara.base.ClaraUtil;
 import org.jlab.clara.base.core.ClaraConstants;
 import org.jlab.clara.base.core.ClaraComponent;
 import org.jlab.clara.base.core.MessageUtil;
@@ -55,7 +54,6 @@ class Container extends AbstractActor {
     @Override
     protected void initialize() throws ClaraException {
         register();
-        myReport.setStartTime(ClaraUtil.getCurrentTime());
     }
 
     @Override

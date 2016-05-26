@@ -564,10 +564,7 @@ public final class Dpe extends AbstractActor {
         }
 
         public void start() {
-            myReport.setStartTime(ClaraUtil.getCurrentTime());
-
             isReporting.set(true);
-
             scheduledPingService.schedule(() -> run(), 5, TimeUnit.SECONDS);
         }
 
