@@ -49,14 +49,19 @@ public class JsonReportBuilder implements ExternalReport {
             JSONObject containerRuntime = new JSONObject();
             containerRuntime.put("name", cr.getName());
             containerRuntime.put("snapshot_time", snapshotTime);
-            containerRuntime.put("n_requests", cr.getRequestCount());
+
+            long containerRequests = 0;
 
             JSONArray servicesRuntimeArray = new JSONArray();
             for (ServiceReport sr : cr.getServices()) {
                 JSONObject serviceRuntime = new JSONObject();
+
+                long serviceRequests = sr.getRequestCount();
+                containerRequests += serviceRequests;
+
                 serviceRuntime.put("name", sr.getName());
                 serviceRuntime.put("snapshot_time", snapshotTime);
-                serviceRuntime.put("n_requests", sr.getRequestCount());
+                serviceRuntime.put("n_requests", serviceRequests);
                 serviceRuntime.put("n_failures", sr.getFailureCount());
                 serviceRuntime.put("shm_reads", sr.getShrmReads());
                 serviceRuntime.put("shm_writes", sr.getShrmWrites());
@@ -67,9 +72,9 @@ public class JsonReportBuilder implements ExternalReport {
                 servicesRuntimeArray.add(serviceRuntime);
             }
 
+            containerRuntime.put("n_requests", containerRequests);
             containerRuntime.put("services", servicesRuntimeArray);
             containersRuntimeArray.add(containerRuntime);
-
         }
 
         dpeRuntime.put("containers", containersRuntimeArray);
