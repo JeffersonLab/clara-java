@@ -22,6 +22,7 @@
 
 package org.jlab.clara.util.report;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -93,8 +94,8 @@ public class DpeReport extends BaseReport {
         this.load = load;
     }
 
-    public Map<String, ContainerReport> getContainers() {
-        return containers;
+    public Collection<ContainerReport> getContainers() {
+        return containers.values();
     }
 
     public void setContainers(Map<String, ContainerReport> containers) {

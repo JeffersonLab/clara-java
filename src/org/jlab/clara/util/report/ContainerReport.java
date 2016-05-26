@@ -22,6 +22,7 @@
 
 package org.jlab.clara.util.report;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -41,8 +42,8 @@ public class ContainerReport extends BaseReport {
         return services.size();
     }
 
-    public Map<String, ServiceReport> getServices() {
-        return services;
+    public Collection<ServiceReport> getServices() {
+        return services.values();
     }
 
     public void setServices(Map<String, ServiceReport> services) {

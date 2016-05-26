@@ -42,14 +42,14 @@ public class JsonReportBuilder implements ExternalReport {
         dpeRuntime.put("load", dpeData.getLoad());
 
         JSONArray containersRuntimeArray = new JSONArray();
-        for (ContainerReport cr : dpeData.getContainers().values()) {
+        for (ContainerReport cr : dpeData.getContainers()) {
             JSONObject containerRuntime = new JSONObject();
             containerRuntime.put("name", cr.getName());
             containerRuntime.put("snapshot_time", cr.getSnapshotTime());
             containerRuntime.put("n_requests", cr.getRequestCount());
 
             JSONArray servicesRuntimeArray = new JSONArray();
-            for (ServiceReport sr : cr.getServices().values()) {
+            for (ServiceReport sr : cr.getServices()) {
                 JSONObject serviceRuntime = new JSONObject();
                 serviceRuntime.put("name", sr.getName());
                 serviceRuntime.put("snapshot_time", sr.getSnapshotTime());
@@ -79,7 +79,7 @@ public class JsonReportBuilder implements ExternalReport {
         dpeRegistration.put("start_time", dpeData.getStartTime());
 
         JSONArray containersRegistrationArray = new JSONArray();
-        for (ContainerReport cr : dpeData.getContainers().values()) {
+        for (ContainerReport cr : dpeData.getContainers()) {
             JSONObject containerRegistration = new JSONObject();
             containerRegistration.put("name", cr.getName());
             containerRegistration.put("language", cr.getLang());
@@ -87,7 +87,7 @@ public class JsonReportBuilder implements ExternalReport {
             containerRegistration.put("start_time", cr.getStartTime());
 
             JSONArray servicesRegistrationArray = new JSONArray();
-            for (ServiceReport sr : cr.getServices().values()) {
+            for (ServiceReport sr : cr.getServices()) {
                 JSONObject serviceRegistration = new JSONObject();
                 serviceRegistration.put("class_name", sr.getClassName());
                 serviceRegistration.put("engine_name", sr.getEngineName());
