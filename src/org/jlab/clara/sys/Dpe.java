@@ -540,8 +540,6 @@ public final class Dpe extends AbstractActor {
      */
     private class ReportService {
 
-        private final String aliveData;
-
         private final DpeReport myReport;
         private final JsonReportBuilder myReportBuilder = new JsonReportBuilder();
 
@@ -550,15 +548,8 @@ public final class Dpe extends AbstractActor {
         private final long reportWait;
 
         ReportService(long reportInterval) {
-            int availableProcessors = Runtime.getRuntime().availableProcessors();
-            String claraHome = System.getenv("CLARA_HOME");
-            String dpeName = base.getName();
-
-            aliveData = dpeName + "?" + availableProcessors + "?" + claraHome;
-
             myReport = new DpeReport(base, System.getenv("USER"));
             scheduledPingService = Executors.newSingleThreadScheduledExecutor();
-
             reportWait = reportInterval;
         }
 
@@ -589,7 +580,7 @@ public final class Dpe extends AbstractActor {
         }
 
         public String aliveReport() {
-            return aliveData;
+            return myReport.getAliveData();
         }
 
         public String jsonReport() {
@@ -607,7 +598,7 @@ public final class Dpe extends AbstractActor {
 
                 try {
                     while (isReporting.get()) {
-                        xMsgMessage msg = MessageUtil.buildRequest(aliveTopic, aliveData);
+                        xMsgMessage msg = MessageUtil.buildRequest(aliveTopic, aliveReport());
                         base.send(con, msg);
 
                         xMsgMessage reportMsg = MessageUtil.buildRequest(jsonTopic, jsonReport());

@@ -28,6 +28,8 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static org.jlab.clara.base.core.ClaraConstants.DATA_SEP;
+
 /**
  * @author gurjyan
  * @version 4.x
@@ -40,6 +42,8 @@ public class DpeReport extends BaseReport {
     private final int coreCount;
     private final long memorySize;
 
+    private final String aliveData;
+
     private final Map<String, ContainerReport> containers = new ConcurrentHashMap<>();
 
     public DpeReport(ClaraBase base, String author) {
@@ -50,6 +54,8 @@ public class DpeReport extends BaseReport {
 
         this.coreCount = Runtime.getRuntime().availableProcessors();
         this.memorySize = Runtime.getRuntime().maxMemory();
+
+        this.aliveData = name + DATA_SEP + coreCount + DATA_SEP + claraHome;
     }
 
     public String getHost() {
@@ -94,5 +100,9 @@ public class DpeReport extends BaseReport {
 
     public void removeAllContainers() {
         containers.clear();
+    }
+
+    public String getAliveData() {
+        return aliveData;
     }
 }
