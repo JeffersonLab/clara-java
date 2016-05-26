@@ -23,8 +23,8 @@
 package org.jlab.clara.util.report;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author gurjyan
@@ -39,7 +39,7 @@ public class DpeReport extends BaseReport {
 
     private double load;
 
-    private Map<String, ContainerReport> containers = new HashMap<>();
+    private Map<String, ContainerReport> containers = new ConcurrentHashMap<>();
 
     public DpeReport(String name) {
         super(name);

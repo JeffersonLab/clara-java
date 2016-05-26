@@ -23,8 +23,8 @@
 package org.jlab.clara.util.report;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @author gurjyan
@@ -32,7 +32,7 @@ import java.util.Map;
  */
 public class ContainerReport extends BaseReport {
 
-    private Map<String, ServiceReport> services = new HashMap<>();
+    private Map<String, ServiceReport> services = new ConcurrentHashMap<>();
 
     public ContainerReport(String name) {
         super(name);
