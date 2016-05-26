@@ -50,16 +50,12 @@ public class ContainerReport extends BaseReport {
         this.services = services;
     }
 
-    public void addService(ServiceReport sr) {
-        if (!services.containsKey(sr.getName())) {
-            services.put(sr.getName(), sr);
-        }
+    public ServiceReport addService(ServiceReport sr) {
+        return services.putIfAbsent(sr.getName(), sr);
     }
 
-    public void removeService(ServiceReport sr) {
-        if (services.containsKey(sr.getName())) {
-            services.remove(sr.getName());
-        }
+    public ServiceReport removeService(ServiceReport sr) {
+        return services.remove(sr.getName());
     }
 
     public void removeAllServices() {

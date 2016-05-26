@@ -102,16 +102,12 @@ public class DpeReport extends BaseReport {
         this.containers = containers;
     }
 
-    public void addContainer(ContainerReport cr) {
-        if (!containers.containsKey(cr.getName())) {
-            containers.put(cr.getName(), cr);
-        }
+    public ContainerReport addContainer(ContainerReport cr) {
+        return containers.putIfAbsent(cr.getName(), cr);
     }
 
-    public void removeContainer(ContainerReport cr) {
-        if (containers.containsKey(cr.getName())) {
-            containers.remove(cr.getName());
-        }
+    public ContainerReport removeContainer(ContainerReport cr) {
+        return containers.remove(cr.getName());
     }
 
     public void removeAllContainers() {
