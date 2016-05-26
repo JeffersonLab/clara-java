@@ -37,7 +37,7 @@ public class DpeReport extends BaseReport {
     private double cpuUsage;
     private long memoryUsage;
 
-    private int load;
+    private double load;
 
     private Map<String, ContainerReport> containers = new HashMap<>();
 
@@ -86,7 +86,7 @@ public class DpeReport extends BaseReport {
     }
 
 
-    public int getLoad() {
+    public double getLoad() {
         return load;
     }
 
