@@ -49,10 +49,7 @@ class Container extends AbstractActor {
     Container(ClaraComponent comp, ClaraComponent frontEnd) {
         super(comp, frontEnd);
 
-        myReport = new ContainerReport(comp.getCanonicalName());
-        myReport.setLang(comp.getDpeLang());
-        myReport.setDescription(comp.getDescription());
-        myReport.setAuthor(System.getenv("USER"));
+        myReport = new ContainerReport(base, System.getenv("USER"));
     }
 
     @Override

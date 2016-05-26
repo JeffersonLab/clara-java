@@ -22,6 +22,8 @@
 
 package org.jlab.clara.util.report;
 
+import org.jlab.clara.base.core.ClaraBase;
+
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -34,8 +36,8 @@ public class ContainerReport extends BaseReport {
 
     private Map<String, ServiceReport> services = new ConcurrentHashMap<>();
 
-    public ContainerReport(String name) {
-        super(name);
+    public ContainerReport(ClaraBase base, String author) {
+        super(base.getName(), author, base.getDescription());
     }
 
     public int getServiceCount() {
@@ -44,10 +46,6 @@ public class ContainerReport extends BaseReport {
 
     public Collection<ServiceReport> getServices() {
         return services.values();
-    }
-
-    public void setServices(Map<String, ServiceReport> services) {
-        this.services = services;
     }
 
     public ServiceReport addService(ServiceReport sr) {

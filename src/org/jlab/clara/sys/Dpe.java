@@ -557,12 +557,7 @@ public final class Dpe extends AbstractActor {
 
             aliveData = dpeName + "?" + availableProcessors + "?" + claraHome;
 
-            myReport = new DpeReport(dpeName);
-            myReport.setHost(base.getName());
-            myReport.setLang(ClaraConstants.JAVA_LANG);
-            myReport.setDescription(base.getDescription());
-            myReport.setAuthor(System.getenv("USER"));
-
+            myReport = new DpeReport(base, System.getenv("USER"));
             scheduledPingService = Executors.newSingleThreadScheduledExecutor();
 
             reportWait = reportInterval;
@@ -570,8 +565,6 @@ public final class Dpe extends AbstractActor {
 
         public void start() {
             myReport.setStartTime(ClaraUtil.getCurrentTime());
-            myReport.setMemorySize(Runtime.getRuntime().maxMemory());
-            myReport.setCoreCount(Runtime.getRuntime().availableProcessors());
 
             isReporting.set(true);
 

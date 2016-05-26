@@ -22,39 +22,39 @@
 
 package org.jlab.clara.util.report;
 
+import org.jlab.clara.base.core.ClaraComponent;
+import org.jlab.clara.engine.Engine;
+
 /**
  * @author gurjyan
  * @version 4.x
  */
 public class ServiceReport extends BaseReport {
-    private String engineName;
-    private String className;
+
+    private final String engineName;
+    private final String className;
+    private final String version;
+
     private int failureCount;
     private int shrmReads;
     private int shrmWrites;
     private int bytesReceived;
     private int bytesSent;
     private int executionTime;
-    private String version;
 
-    public ServiceReport(String name) {
-        super(name);
+    public ServiceReport(ClaraComponent comp, Engine engine) {
+        super(comp.getCanonicalName(), engine.getAuthor(), engine.getDescription());
+        this.engineName = comp.getEngineName();
+        this.className = comp.getEngineClass();
+        this.version = engine.getVersion();
     }
 
     public String getEngineName() {
         return engineName;
     }
 
-    public void setEngineName(String engineName) {
-        this.engineName = engineName;
-    }
-
     public String getClassName() {
         return className;
-    }
-
-    public void setClassName(String className) {
-        this.className = className;
     }
 
     public int getFailureCount() {
@@ -107,9 +107,5 @@ public class ServiceReport extends BaseReport {
 
     public String getVersion() {
         return version;
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
     }
 }
