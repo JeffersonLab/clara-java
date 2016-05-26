@@ -61,48 +61,48 @@ public class ServiceReport extends BaseReport {
         return failureCount;
     }
 
-    public void setFailureCount(int failureCount) {
-        this.failureCount = failureCount;
+    public void incrementFailureCount() {
+        failureCount++;
     }
 
     public int getShrmReads() {
         return shrmReads;
     }
 
-    public void setShrmReads(int shrmReads) {
-        this.shrmReads = shrmReads;
+    public void incrementShrmReads() {
+        shrmReads++;
     }
 
     public int getShrmWrites() {
         return shrmWrites;
     }
 
-    public void setShrmWrites(int shrmWrites) {
-        this.shrmWrites = shrmWrites;
+    public void incrementShrmWrites() {
+        shrmWrites++;
     }
 
     public long getBytesReceived() {
         return bytesReceived;
     }
 
-    public void setBytesReceived(long bytesReceived) {
-        this.bytesReceived = bytesReceived;
+    public void addBytesReceived(long bytes) {
+        bytesReceived += bytes;
     }
 
     public long getBytesSent() {
         return bytesSent;
     }
 
-    public void setBytesSent(long bytesSent) {
-        this.bytesSent = bytesSent;
+    public void addBytesSent(long bytes) {
+        bytesSent += bytes;
     }
 
     public long getExecutionTime() {
         return executionTime;
     }
 
-    public void setExecutionTime(long executionTime) {
-        this.executionTime = executionTime;
+    public void addExecutionTime(long deltaTime) {
+        executionTime += deltaTime;
     }
 
     public String getVersion() {

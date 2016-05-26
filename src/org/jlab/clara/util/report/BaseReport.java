@@ -71,7 +71,7 @@ public class BaseReport {
         return requestCount;
     }
 
-    public void setRequestCount(int requestCount) {
-        this.requestCount = requestCount;
+    public void incrementRequestCount() {
+        requestCount++;
     }
 }
