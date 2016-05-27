@@ -32,6 +32,7 @@ import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.engine.EngineStatus;
 import org.jlab.clara.sys.ccc.CompositionCompiler;
 import org.jlab.clara.sys.ccc.ServiceState;
+import org.jlab.clara.util.report.ServiceReport;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgTopic;
@@ -54,6 +55,7 @@ class ServiceEngine extends AbstractActor {
     private final Engine engine;
 
     private final ServiceSysConfig sysConfig;
+    private final ServiceReport sysReport;
 
     private final Semaphore semaphore = new Semaphore(1);
 
@@ -69,10 +71,12 @@ class ServiceEngine extends AbstractActor {
     ServiceEngine(ClaraComponent comp,
                   ClaraComponent frontEnd,
                   Engine userEngine,
-                  ServiceSysConfig config) {
+                  ServiceSysConfig config,
+                  ServiceReport report) {
         super(comp, frontEnd);
         this.engine = userEngine;
         this.sysConfig = config;
+        this.sysReport = report;
         this.compiler = new CompositionCompiler(comp.getCanonicalName());
     }
 
@@ -148,6 +152,7 @@ class ServiceEngine extends AbstractActor {
 
         // Increment request count in the sysConfig object
         sysConfig.addRequest();
+        sysReport.incrementRequestCount();
 
         EngineData inData = null;
         EngineData outData = null;
@@ -156,6 +161,7 @@ class ServiceEngine extends AbstractActor {
             inData = getEngineData(message);
             parseComposition(inData);
             outData = executeEngine(inData);
+            sysReport.addExecutionTime(executionTime);
         } catch (Exception e) {
             e.printStackTrace();
             outData = DataUtil.buildErrorData("unhandled exception", -4, e);
@@ -174,6 +180,7 @@ class ServiceEngine extends AbstractActor {
 
         reportProblem(outData);
         if (outData.getStatus() == EngineStatus.ERROR) {
+            sysReport.incrementFailureCount();
             return;
         }
 
@@ -298,10 +305,12 @@ class ServiceEngine extends AbstractActor {
         xMsgMeta.Builder metadata = message.getMetaData();
         String mimeType = metadata.getDataType();
         if (mimeType.equals(ClaraConstants.SHARED_MEMORY_KEY)) {
+            sysReport.incrementShrmReads();
             String sender = metadata.getSender();
             int id = metadata.getCommunicationId();
             return SharedMemory.getEngineData(base.getName(), sender, id);
         } else {
+            sysReport.addBytesReceived(message.getDataSize());
             return DataUtil.deserialize(message, engine.getInputDataTypes());
         }
     }
@@ -312,6 +321,7 @@ class ServiceEngine extends AbstractActor {
         if (SharedMemory.containsReceiver(receiver)) {
             int id = data.getCommunicationId();
             SharedMemory.putEngineData(receiver, base.getName(), id, data);
+            sysReport.incrementShrmWrites();
 
             xMsgMeta.Builder metadata = xMsgMeta.newBuilder();
             metadata.setAuthor(base.getName());
@@ -322,7 +332,9 @@ class ServiceEngine extends AbstractActor {
 
             return new xMsgMessage(topic, metadata, ClaraConstants.SHARED_MEMORY_KEY.getBytes());
         } else {
-            return DataUtil.serialize(topic, data, engine.getOutputDataTypes());
+            xMsgMessage output = DataUtil.serialize(topic, data, engine.getOutputDataTypes());
+            sysReport.addBytesSent(output.getDataSize());
+            return output;
         }
     }
 
