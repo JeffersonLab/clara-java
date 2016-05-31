@@ -22,98 +22,87 @@
 
 package org.jlab.clara.util.report;
 
-import java.util.HashMap;
+import org.jlab.clara.base.core.ClaraBase;
+
+import java.util.Collection;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import static org.jlab.clara.base.core.ClaraConstants.DATA_SEP;
 
 /**
  * @author gurjyan
  * @version 4.x
  */
 public class DpeReport extends BaseReport {
-    private String host;
-    private int coreCount;
-    private long memorySize;
-    private double cpuUsage;
-    private long memoryUsage;
 
-    private int load;
+    private final String host;
+    private final String claraHome;
 
-    private Map<String, ContainerReport> containers = new HashMap<>();
+    private final int coreCount;
+    private final long memorySize;
 
-    public DpeReport(String name) {
-        super(name);
+    private final String aliveData;
+
+    private final Map<String, ContainerReport> containers = new ConcurrentHashMap<>();
+
+    public DpeReport(ClaraBase base, String author) {
+        super(base.getName(), author, base.getDescription());
+
+        this.host = name;
+        this.claraHome = base.getClaraHome();
+
+        this.coreCount = Runtime.getRuntime().availableProcessors();
+        this.memorySize = Runtime.getRuntime().maxMemory();
+
+        this.aliveData = name + DATA_SEP + coreCount + DATA_SEP + claraHome;
     }
 
     public String getHost() {
         return host;
     }
 
-    public void setHost(String host) {
-        this.host = host;
+    public String getClaraHome() {
+        return claraHome;
     }
 
     public int getCoreCount() {
         return coreCount;
     }
 
-    public void setCoreCount(int coreCount) {
-        this.coreCount = coreCount;
-    }
-
     public long getMemorySize() {
         return memorySize;
     }
 
-    public void setMemorySize(long memorySize) {
-        this.memorySize = memorySize;
-    }
-
     public double getCpuUsage() {
-        return cpuUsage;
-    }
-
-    public void setCpuUsage(double cpuUsage) {
-        this.cpuUsage = cpuUsage;
+        return SystemStats.getCpuUsage();
     }
 
     public long getMemoryUsage() {
-        return memoryUsage;
+        return SystemStats.getMemoryUsage();
     }
 
-    public void setMemoryUsage(long memoryUsage) {
-        this.memoryUsage = memoryUsage;
+    public double getLoad() {
+        return 1.0; // TODO get system load
     }
 
-
-    public int getLoad() {
-        return load;
+    public Collection<ContainerReport> getContainers() {
+        return containers.values();
     }
 
-    public void setLoad(int load) {
-        this.load = load;
+    public ContainerReport addContainer(ContainerReport cr) {
+        return containers.putIfAbsent(cr.getName(), cr);
     }
 
-    public Map<String, ContainerReport> getContainers() {
-        return containers;
+    public ContainerReport removeContainer(ContainerReport cr) {
+        return containers.remove(cr.getName());
     }
 
-    public void setContainers(Map<String, ContainerReport> containers) {
-        this.containers = containers;
-    }
-
-    public void addContainerReport(ContainerReport cr) {
-        if (!containers.containsKey(cr.getName())) {
-            containers.put(cr.getName(), cr);
-        }
-    }
-
-    public void removeContainerReport(String containerName) {
-        if (containers.containsKey(containerName)) {
-            containers.remove(containerName);
-        }
-    }
-
-    public void removeAllContainerReports() {
+    public void removeAllContainers() {
         containers.clear();
+    }
+
+    public String getAliveData() {
+        return aliveData;
     }
 }

@@ -22,8 +22,9 @@
 
 package org.jlab.clara.util.report;
 
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
+import org.jlab.clara.base.ClaraUtil;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 /**
  * @author gurjyan
@@ -31,29 +32,35 @@ import org.json.simple.JSONObject;
  */
 public class JsonReportBuilder implements ExternalReport {
 
-    @SuppressWarnings("unchecked")
     @Override
     public String generateReport(DpeReport dpeData) {
+        String snapshotTime = ClaraUtil.getCurrentTimeInH();
+
         JSONObject dpeRuntime = new JSONObject();
         dpeRuntime.put("hostname", dpeData.getHost());
-        dpeRuntime.put("snapshot_time", dpeData.getSnapshotTime());
+        dpeRuntime.put("snapshot_time", snapshotTime);
         dpeRuntime.put("cpu_usage", dpeData.getCpuUsage());
         dpeRuntime.put("memory_usage", dpeData.getMemoryUsage());
         dpeRuntime.put("load", dpeData.getLoad());
 
         JSONArray containersRuntimeArray = new JSONArray();
-        for (ContainerReport cr : dpeData.getContainers().values()) {
+        for (ContainerReport cr : dpeData.getContainers()) {
             JSONObject containerRuntime = new JSONObject();
             containerRuntime.put("name", cr.getName());
-            containerRuntime.put("snapshot_time", cr.getSnapshotTime());
-            containerRuntime.put("n_requests", cr.getRequestCount());
+            containerRuntime.put("snapshot_time", snapshotTime);
+
+            long containerRequests = 0;
 
             JSONArray servicesRuntimeArray = new JSONArray();
-            for (ServiceReport sr : cr.getServices().values()) {
+            for (ServiceReport sr : cr.getServices()) {
                 JSONObject serviceRuntime = new JSONObject();
+
+                long serviceRequests = sr.getRequestCount();
+                containerRequests += serviceRequests;
+
                 serviceRuntime.put("name", sr.getName());
-                serviceRuntime.put("snapshot_time", sr.getSnapshotTime());
-                serviceRuntime.put("n_requests", sr.getRequestCount());
+                serviceRuntime.put("snapshot_time", snapshotTime);
+                serviceRuntime.put("n_requests", serviceRequests);
                 serviceRuntime.put("n_failures", sr.getFailureCount());
                 serviceRuntime.put("shm_reads", sr.getShrmReads());
                 serviceRuntime.put("shm_writes", sr.getShrmWrites());
@@ -61,25 +68,26 @@ public class JsonReportBuilder implements ExternalReport {
                 serviceRuntime.put("bytes_sent", sr.getBytesSent());
                 serviceRuntime.put("exec_time", sr.getExecutionTime());
 
-                servicesRuntimeArray.add(serviceRuntime);
+                servicesRuntimeArray.put(serviceRuntime);
             }
 
+            containerRuntime.put("n_requests", containerRequests);
             containerRuntime.put("services", servicesRuntimeArray);
-            containersRuntimeArray.add(containerRuntime);
-
+            containersRuntimeArray.put(containerRuntime);
         }
 
         dpeRuntime.put("containers", containersRuntimeArray);
 
         JSONObject dpeRegistration = new JSONObject();
-        dpeRegistration.put("language", dpeData.getLang());
-        dpeRegistration.put("start_time", dpeData.getStartTime());
-        dpeRegistration.put("n_cores", dpeData.getCoreCount());
         dpeRegistration.put("hostname", dpeData.getHost());
+        dpeRegistration.put("language", dpeData.getLang());
+        dpeRegistration.put("clara_home", dpeData.getClaraHome());
+        dpeRegistration.put("n_cores", dpeData.getCoreCount());
         dpeRegistration.put("memory_size", dpeData.getMemorySize());
+        dpeRegistration.put("start_time", dpeData.getStartTime());
 
         JSONArray containersRegistrationArray = new JSONArray();
-        for (ContainerReport cr : dpeData.getContainers().values()) {
+        for (ContainerReport cr : dpeData.getContainers()) {
             JSONObject containerRegistration = new JSONObject();
             containerRegistration.put("name", cr.getName());
             containerRegistration.put("language", cr.getLang());
@@ -87,7 +95,7 @@ public class JsonReportBuilder implements ExternalReport {
             containerRegistration.put("start_time", cr.getStartTime());
 
             JSONArray servicesRegistrationArray = new JSONArray();
-            for (ServiceReport sr : cr.getServices().values()) {
+            for (ServiceReport sr : cr.getServices()) {
                 JSONObject serviceRegistration = new JSONObject();
                 serviceRegistration.put("class_name", sr.getClassName());
                 serviceRegistration.put("engine_name", sr.getEngineName());
@@ -97,11 +105,11 @@ public class JsonReportBuilder implements ExternalReport {
                 serviceRegistration.put("language", sr.getLang());
                 serviceRegistration.put("start_time", sr.getStartTime());
 
-                servicesRegistrationArray.add(serviceRegistration);
+                servicesRegistrationArray.put(serviceRegistration);
             }
 
             containerRegistration.put("services", servicesRegistrationArray);
-            containersRegistrationArray.add(containerRegistration);
+            containersRegistrationArray.put(containerRegistration);
 
         }
 
@@ -111,6 +119,6 @@ public class JsonReportBuilder implements ExternalReport {
         dpeJsonData.put("DPERuntime", dpeRuntime);
         dpeJsonData.put("DPERegistration", dpeRegistration);
 
-        return dpeJsonData.toJSONString();
+        return dpeJsonData.toString();
     }
 }

@@ -31,7 +31,6 @@ import org.jlab.clara.sys.DpeOptionsParser.DpeOptionsException;
 import org.jlab.clara.sys.RequestParser.RequestException;
 import org.jlab.clara.util.report.DpeReport;
 import org.jlab.clara.util.report.JsonReportBuilder;
-import org.jlab.clara.util.report.SystemStats;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgConnection;
 import org.jlab.coda.xmsg.core.xMsgConstants;
@@ -517,6 +516,7 @@ public final class Dpe extends AbstractActor {
                                        ": container doesn't exist");
         }
         container.stop();
+        reportService.removeContainer(container);
     }
 
     private void setFrontEnd(RequestParser parser) throws RequestException {
@@ -541,8 +541,6 @@ public final class Dpe extends AbstractActor {
      */
     private class ReportService {
 
-        private final String aliveData;
-
         private final DpeReport myReport;
         private final JsonReportBuilder myReportBuilder = new JsonReportBuilder();
 
@@ -551,30 +549,13 @@ public final class Dpe extends AbstractActor {
         private final long reportWait;
 
         ReportService(long reportInterval) {
-            int availableProcessors = Runtime.getRuntime().availableProcessors();
-            String claraHome = System.getenv("CLARA_HOME");
-            String dpeName = base.getName();
-
-            aliveData = dpeName + "?" + availableProcessors + "?" + claraHome;
-
-            myReport = new DpeReport(dpeName);
-            myReport.setHost(base.getName());
-            myReport.setLang(ClaraConstants.JAVA_LANG);
-            myReport.setDescription(base.getDescription());
-            myReport.setAuthor(System.getenv("USER"));
-
+            myReport = new DpeReport(base, System.getenv("USER"));
             scheduledPingService = Executors.newSingleThreadScheduledExecutor();
-
             reportWait = reportInterval;
         }
 
         public void start() {
-            myReport.setStartTime(ClaraUtil.getCurrentTime());
-            myReport.setMemorySize(Runtime.getRuntime().maxMemory());
-            myReport.setCoreCount(Runtime.getRuntime().availableProcessors());
-
             isReporting.set(true);
-
             scheduledPingService.schedule(() -> run(), 5, TimeUnit.SECONDS);
         }
 
@@ -596,17 +577,18 @@ public final class Dpe extends AbstractActor {
         }
 
         public void addContainer(Container container) {
-            myReport.addContainerReport(container.getReport());
+            myReport.addContainer(container.getReport());
+        }
+
+        public void removeContainer(Container container) {
+            myReport.removeContainer(container.getReport());
         }
 
         public String aliveReport() {
-            return aliveData;
+            return myReport.getAliveData();
         }
 
         public String jsonReport() {
-            myReport.setMemoryUsage(SystemStats.getMemoryUsage());
-            myReport.setCpuUsage(SystemStats.getCpuUsage());
-
             return myReportBuilder.generateReport(myReport);
         }
 
@@ -621,7 +603,7 @@ public final class Dpe extends AbstractActor {
 
                 try {
                     while (isReporting.get()) {
-                        xMsgMessage msg = MessageUtil.buildRequest(aliveTopic, aliveData);
+                        xMsgMessage msg = MessageUtil.buildRequest(aliveTopic, aliveReport());
                         base.send(con, msg);
 
                         xMsgMessage reportMsg = MessageUtil.buildRequest(jsonTopic, jsonReport());

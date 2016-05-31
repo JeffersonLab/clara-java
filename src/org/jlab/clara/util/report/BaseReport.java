@@ -22,21 +22,31 @@
 
 package org.jlab.clara.util.report;
 
+import org.jlab.clara.base.ClaraLang;
+import org.jlab.clara.base.ClaraUtil;
+
+import java.util.concurrent.atomic.AtomicInteger;
+
 /**
  * @author gurjyan
  * @version 4.x
  */
 public class BaseReport {
-    private String name;
-    private String lang;
-    private String author;
-    private String description;
-    private String startTime;
-    private String snapshotTime;
-    private int requestCount;
 
-    public BaseReport(String name) {
+    protected final String name;
+    protected final String author;
+    protected final String lang;
+    protected final String description;
+    protected final String startTime;
+
+    private final AtomicInteger requestCount = new AtomicInteger();
+
+    public BaseReport(String name, String author, String description) {
         this.name = name;
+        this.author = author;
+        this.lang = ClaraLang.JAVA.toString();
+        this.description = description;
+        this.startTime = ClaraUtil.getCurrentTimeInH();
     }
 
     public String getName() {
@@ -47,47 +57,23 @@ public class BaseReport {
         return lang;
     }
 
-    public void setLang(String lang) {
-        this.lang = lang;
-    }
-
     public String getAuthor() {
         return author;
-    }
-
-    public void setAuthor(String author) {
-        this.author = author;
     }
 
     public String getDescription() {
         return description;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
     public String getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(String startTime) {
-        this.startTime = startTime;
-    }
-
-    public String getSnapshotTime() {
-        return snapshotTime;
-    }
-
-    public void setSnapshotTime(String snapshotTime) {
-        this.snapshotTime = snapshotTime;
-    }
-
     public int getRequestCount() {
-        return requestCount;
+        return requestCount.get();
     }
 
-    public void setRequestCount(int requestCount) {
-        this.requestCount = requestCount;
+    public void incrementRequestCount() {
+        requestCount.getAndIncrement();
     }
 }

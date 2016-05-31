@@ -22,7 +22,6 @@
 
 package org.jlab.clara.sys;
 
-import org.jlab.clara.base.ClaraUtil;
 import org.jlab.clara.base.core.ClaraConstants;
 import org.jlab.clara.base.core.ClaraComponent;
 import org.jlab.clara.base.core.MessageUtil;
@@ -49,16 +48,12 @@ class Container extends AbstractActor {
     Container(ClaraComponent comp, ClaraComponent frontEnd) {
         super(comp, frontEnd);
 
-        myReport = new ContainerReport(comp.getCanonicalName());
-        myReport.setLang(comp.getDpeLang());
-        myReport.setDescription(comp.getDescription());
-        myReport.setAuthor(System.getenv("USER"));
+        myReport = new ContainerReport(base, System.getenv("USER"));
     }
 
     @Override
     protected void initialize() throws ClaraException {
         register();
-        myReport.setStartTime(ClaraUtil.getCurrentTime());
     }
 
     @Override
@@ -87,6 +82,7 @@ class Container extends AbstractActor {
             if (result == null) {
                 try {
                     service.start();
+                    myReport.addService(service.getReport());
                 } catch (ClaraException e) {
                     service.stop();
                     myServices.remove(serviceName, service);
@@ -104,6 +100,7 @@ class Container extends AbstractActor {
         Service service = myServices.remove(serviceName);
         if (service != null) {
             service.stop();
+            myReport.removeService(service.getReport());
             return true;
         }
         return false;

@@ -20,43 +20,34 @@
  *   Department of Experimental Nuclear Physics, Jefferson Lab.
  */
 
-package org.jlab.clara.util.report;
+package org.jlab.clara.sys;
 
-import org.jlab.clara.base.core.ClaraBase;
+import org.jlab.clara.base.core.ClaraConstants;
+import org.jlab.coda.xmsg.core.xMsg;
+import org.jlab.coda.xmsg.core.xMsgTopic;
+import org.jlab.coda.xmsg.core.xMsgUtil;
+import org.jlab.coda.xmsg.excp.xMsgException;
+import org.json.JSONObject;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+public final class DpeReportTest {
 
-/**
- * @author gurjyan
- * @version 4.x
- */
-public class ContainerReport extends BaseReport {
-
-    private Map<String, ServiceReport> services = new ConcurrentHashMap<>();
-
-    public ContainerReport(ClaraBase base, String author) {
-        super(base.getName(), author, base.getDescription());
+    public static void main(String[] args) {
+        xMsgTopic jsonTopic = xMsgTopic.build(ClaraConstants.DPE_REPORT);
+        try (xMsg subscriber = new xMsg("report_subscriber")) {
+            subscriber.subscribe(jsonTopic, (msg) -> {
+                try {
+                    String data = new String(msg.getData());
+                    String output = new JSONObject(data).toString(2);
+                    System.out.println(output);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+            xMsgUtil.keepAlive();
+        } catch (xMsgException e) {
+            e.printStackTrace();
+        }
     }
 
-    public int getServiceCount() {
-        return services.size();
-    }
-
-    public Collection<ServiceReport> getServices() {
-        return services.values();
-    }
-
-    public ServiceReport addService(ServiceReport sr) {
-        return services.putIfAbsent(sr.getName(), sr);
-    }
-
-    public ServiceReport removeService(ServiceReport sr) {
-        return services.remove(sr.getName());
-    }
-
-    public void removeAllServices() {
-        services.clear();
-    }
+    private DpeReportTest() { }
 }
