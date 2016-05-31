@@ -61,9 +61,7 @@ dependencies {
     compile 'org.jlab.coda:xmsg:2.3-SNAPSHOT'
     compile 'net.sf.jopt-simple:jopt-simple:4.9'
     compile 'org.yaml:snakeyaml:1.16'
-    compile ('com.googlecode.json-simple:json-simple:1.1.1') {
-        exclude group: "junit", module: "*"
-    }
+    compile 'org.json:json:20160212'
     compile 'com.google.code.findbugs:jsr305:3.0.0'
     provided 'org.apache.jena:jena-core:3.0.1'
     provided 'edu.stanford.protege:org.protege.editor.owl.codegeneration:1.0.2'

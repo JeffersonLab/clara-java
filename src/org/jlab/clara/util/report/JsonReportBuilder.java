@@ -23,8 +23,8 @@
 package org.jlab.clara.util.report;
 
 import org.jlab.clara.base.ClaraUtil;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 /**
  * @author gurjyan
@@ -32,7 +32,6 @@ import org.json.simple.JSONObject;
  */
 public class JsonReportBuilder implements ExternalReport {
 
-    @SuppressWarnings("unchecked")
     @Override
     public String generateReport(DpeReport dpeData) {
         String snapshotTime = ClaraUtil.getCurrentTimeInH();
@@ -69,12 +68,12 @@ public class JsonReportBuilder implements ExternalReport {
                 serviceRuntime.put("bytes_sent", sr.getBytesSent());
                 serviceRuntime.put("exec_time", sr.getExecutionTime());
 
-                servicesRuntimeArray.add(serviceRuntime);
+                servicesRuntimeArray.put(serviceRuntime);
             }
 
             containerRuntime.put("n_requests", containerRequests);
             containerRuntime.put("services", servicesRuntimeArray);
-            containersRuntimeArray.add(containerRuntime);
+            containersRuntimeArray.put(containerRuntime);
         }
 
         dpeRuntime.put("containers", containersRuntimeArray);
@@ -106,11 +105,11 @@ public class JsonReportBuilder implements ExternalReport {
                 serviceRegistration.put("language", sr.getLang());
                 serviceRegistration.put("start_time", sr.getStartTime());
 
-                servicesRegistrationArray.add(serviceRegistration);
+                servicesRegistrationArray.put(serviceRegistration);
             }
 
             containerRegistration.put("services", servicesRegistrationArray);
-            containersRegistrationArray.add(containerRegistration);
+            containersRegistrationArray.put(containerRegistration);
 
         }
 
@@ -120,6 +119,6 @@ public class JsonReportBuilder implements ExternalReport {
         dpeJsonData.put("DPERuntime", dpeRuntime);
         dpeJsonData.put("DPERegistration", dpeRegistration);
 
-        return dpeJsonData.toJSONString();
+        return dpeJsonData.toString();
     }
 }
