@@ -149,6 +149,13 @@ task(runCommands, dependsOn: 'classes', type: JavaExec) {
 }
 
 
+task(listenReports, dependsOn: 'classes', type: JavaExec) {
+    main = 'org.jlab.clara.sys.DpeReportTest'
+    classpath = sourceSets.test.runtimeClasspath
+    errorOutput = System.out
+}
+
+
 
 def deploySpec = copySpec {
     into ('lib') {
