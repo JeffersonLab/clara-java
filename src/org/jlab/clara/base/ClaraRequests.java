@@ -54,10 +54,10 @@ public final class ClaraRequests {
      */
     abstract static class BaseRequest<D extends BaseRequest<D, T>, T> {
 
-        protected final ClaraBase base;
+        final ClaraBase base;
 
-        protected ClaraComponent frontEnd;
-        protected xMsgTopic topic;
+        ClaraComponent frontEnd;
+        xMsgTopic topic;
 
         BaseRequest(ClaraBase base,
                     ClaraComponent frontEnd,
@@ -163,8 +163,8 @@ public final class ClaraRequests {
     abstract static class DeployRequest<D extends DeployRequest<D>>
             extends DataRequest<D> {
 
-        protected int poolSize = 1;
-        protected String description = ClaraConstants.UNDEFINED;
+        int poolSize = 1;
+        String description = ClaraConstants.UNDEFINED;
 
         DeployRequest(ClaraBase base, ClaraComponent frontEnd, String topic) {
             super(base, frontEnd, topic);
@@ -300,10 +300,11 @@ public final class ClaraRequests {
     abstract static class ServiceRequest<D extends ServiceRequest<D, T>, T>
                 extends BaseRequest<D, T> {
 
-        protected final EngineData userData;
-        protected final xMsgMeta.ControlAction action;
-        protected final Composition composition;
-        protected Set<EngineDataType> dataTypes;
+        private final EngineData userData;
+        private final xMsgMeta.ControlAction action;
+        private final Composition composition;
+
+        Set<EngineDataType> dataTypes;
 
         ServiceRequest(ClaraBase base, ClaraComponent frontEnd, ServiceName service,
                        xMsgMeta.ControlAction action,
