@@ -52,7 +52,7 @@ public final class ClaraRequests {
      * @param <D> The specific subclass
      * @param <T> The type returned when a result is expected
      */
-    public abstract static class BaseRequest<D extends BaseRequest<D, T>, T> {
+    abstract static class BaseRequest<D extends BaseRequest<D, T>, T> {
 
         protected final ClaraBase base;
 
@@ -126,7 +126,7 @@ public final class ClaraRequests {
      * Base class for sending a string-encoded request
      * and parsing the status of the operation.
      */
-    public abstract static class DataRequest<D extends DataRequest<D>>
+    abstract static class DataRequest<D extends DataRequest<D>>
             extends BaseRequest<D, Boolean> {
 
         DataRequest(ClaraBase base, ClaraComponent frontEnd, String topic) {
@@ -160,7 +160,7 @@ public final class ClaraRequests {
      * Base class to deploy a Clara component.
      * Each subclass presents the optional fields specific to each component.
      */
-    public abstract static class DeployRequest<D extends DeployRequest<D>>
+    abstract static class DeployRequest<D extends DeployRequest<D>>
             extends DataRequest<D> {
 
         protected int poolSize = 1;
@@ -297,7 +297,7 @@ public final class ClaraRequests {
      *
      * @param <T> The type of data returned to the client by the request.
      */
-    public abstract static class ServiceRequest<D extends ServiceRequest<D, T>, T>
+    abstract static class ServiceRequest<D extends ServiceRequest<D, T>, T>
                 extends BaseRequest<D, T> {
 
         protected final EngineData userData;
