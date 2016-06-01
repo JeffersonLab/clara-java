@@ -49,11 +49,11 @@ public class ClaraSubscriptions {
      */
     abstract static class BaseSubscription<D extends BaseSubscription<D, C>, C> {
 
-        protected final ClaraBase base;
+        final ClaraBase base;
 
-        protected ClaraComponent frontEnd;
+        ClaraComponent frontEnd;
 
-        protected xMsgTopic topic;
+        xMsgTopic topic;
 
         private Map<String, xMsgSubscription> subscriptions;
 
