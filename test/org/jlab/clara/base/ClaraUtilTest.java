@@ -29,6 +29,8 @@ import java.lang.reflect.Method;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
+import org.jlab.clara.base.core.ClaraConstants;
+
 public class ClaraUtilTest {
 
     private String[] goodDpeNames = new String[] {
@@ -171,9 +173,17 @@ public class ClaraUtilTest {
 
     @Test
     public void getDpePortReturnsThePort() throws Exception {
-        assertThat(ClaraUtil.getDpePort(goodDpeNames[0]),       is(7771));
-        assertThat(ClaraUtil.getDpePort(goodContainerNames[0]), is(7771));
-        assertThat(ClaraUtil.getDpePort(goodServiceNames[0]),   is(7771));
+        assertThat(ClaraUtil.getDpePort(goodDpeNames[0]),       is(ClaraConstants.JAVA_PORT));
+        assertThat(ClaraUtil.getDpePort(goodContainerNames[0]), is(ClaraConstants.JAVA_PORT));
+        assertThat(ClaraUtil.getDpePort(goodServiceNames[0]),   is(ClaraConstants.JAVA_PORT));
+
+        assertThat(ClaraUtil.getDpePort(goodDpeNames[1]),       is(ClaraConstants.CPP_PORT));
+        assertThat(ClaraUtil.getDpePort(goodContainerNames[1]), is(ClaraConstants.CPP_PORT));
+        assertThat(ClaraUtil.getDpePort(goodServiceNames[1]),   is(ClaraConstants.CPP_PORT));
+
+        assertThat(ClaraUtil.getDpePort(goodDpeNames[2]),       is(ClaraConstants.PYTHON_PORT));
+        assertThat(ClaraUtil.getDpePort(goodContainerNames[2]), is(ClaraConstants.PYTHON_PORT));
+        assertThat(ClaraUtil.getDpePort(goodServiceNames[2]),   is(ClaraConstants.PYTHON_PORT));
 
         assertThat(ClaraUtil.getDpePort(goodDpeNames[3]),       is(20000));
         assertThat(ClaraUtil.getDpePort(goodContainerNames[3]), is(20000));

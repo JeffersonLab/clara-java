@@ -194,7 +194,7 @@ public final class ClaraUtil {
             String port = canonicalName.substring(portSep + 1, langSep);
             return Integer.parseInt(port);
         } else {
-            return xMsgConstants.DEFAULT_PORT;
+            return getPort(canonicalName, langSep + 1);
         }
     }
 
@@ -204,6 +204,23 @@ public final class ClaraUtil {
         }
         String dpeName = getDpeName(canonicalName);
         return dpeName.substring(dpeName.indexOf(ClaraConstants.LANG_SEP) + 1);
+    }
+
+    public static int getDefaultPort(String lang) {
+        return getPort(lang, 0);
+    }
+
+    private static int getPort(String fullName, int index) {
+        switch (fullName.charAt(index)) {
+            case 'j': case 'J':
+                return ClaraConstants.JAVA_PORT;
+            case 'c': case 'C':
+                return ClaraConstants.CPP_PORT;
+            case 'p': case 'P':
+                return ClaraConstants.PYTHON_PORT;
+            default:
+                throw new IllegalArgumentException("Invalid language:" + fullName);
+        }
     }
 
     /**
