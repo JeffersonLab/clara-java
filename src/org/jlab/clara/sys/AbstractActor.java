@@ -34,7 +34,7 @@ import org.jlab.coda.xmsg.excp.xMsgException;
 
 abstract class AbstractActor {
 
-    protected final ClaraBase base;
+    final ClaraBase base;
 
     private boolean running = false;
     private final Object lock = new Object();
