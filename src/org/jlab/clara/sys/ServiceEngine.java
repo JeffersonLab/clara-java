@@ -81,22 +81,22 @@ class ServiceEngine extends AbstractActor {
     }
 
     @Override
-    public void initialize() throws ClaraException {
+    void initialize() throws ClaraException {
         base.cacheConnection();
     }
 
     @Override
-    protected void end() {
+    void end() {
         // nothing
     }
 
     @Override
-    protected void startMsg() {
+    void startMsg() {
         // nothing
     }
 
     @Override
-    protected void stopMsg() {
+    void stopMsg() {
         // nothing
     }
 

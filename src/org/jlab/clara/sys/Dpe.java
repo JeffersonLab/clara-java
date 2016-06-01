@@ -301,17 +301,17 @@ public final class Dpe extends AbstractActor {
     }
 
     @Override
-    protected void startMsg() {
+    void startMsg() {
         printLogo();
     }
 
     @Override
-    protected void stopMsg() {
+    void stopMsg() {
         Logging.info("shutdown DPE");
     }
 
     @Override
-    protected void initialize() throws ClaraException {
+    void initialize() throws ClaraException {
         if (proxy == null) {
             try {
                 startProxyAndFrontEnd();
@@ -326,7 +326,7 @@ public final class Dpe extends AbstractActor {
     }
 
     @Override
-    protected void end() {
+    void end() {
         if (proxy != null) {
             stopHeartBeatReport();
             stopSubscription();

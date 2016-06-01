@@ -71,16 +71,16 @@ abstract class AbstractActor {
     /**
      * Initializes the CLARA actor.
      */
-    protected abstract void initialize() throws ClaraException;
+    abstract void initialize() throws ClaraException;
 
     /**
      * Runs before closing the actor.
      */
-    protected abstract void end();
+    abstract void end();
 
-    protected abstract void startMsg();
+    abstract void startMsg();
 
-    protected abstract void stopMsg();
+    abstract void stopMsg();
 
     /**
      * Listens for messages of given topic published to the address of this component,

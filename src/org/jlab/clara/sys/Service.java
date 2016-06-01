@@ -102,7 +102,7 @@ class Service extends AbstractActor {
 
 
     @Override
-    protected void initialize() throws ClaraException {
+    void initialize() throws ClaraException {
         base.cacheConnection();
 
         // start the engines
@@ -119,20 +119,20 @@ class Service extends AbstractActor {
 
 
     @Override
-    protected void end() {
+    void end() {
         stopSubscription();
         destroyEngines();
     }
 
 
     @Override
-    protected void startMsg() {
+    void startMsg() {
         Logging.info("started service = %s  pool_size = %d", name, base.getPoolSize());
     }
 
 
     @Override
-    protected void stopMsg() {
+    void stopMsg() {
         Logging.info("removed service = %s", name);
     }
 
