@@ -74,6 +74,10 @@ dependencies {
 
 
 javadoc {
+    options.charSet = "utf8"
+    options.encoding = "utf8"
+    options.docEncoding = "utf8"
+    options.links("http://docs.oracle.com/javase/8/docs/api/")
     classpath += configurations.provided
 }
 
