@@ -32,6 +32,10 @@ public final class ClaraConstants {
 
     private ClaraConstants() { }
 
+    public static final int JAVA_PORT = 7771;
+    public static final int CPP_PORT = 7781;
+    public static final int PYTHON_PORT = 7791;
+
     public static final String DPE = "dpe";
     public static final String START_DPE = "startDpe";
     public static final String STOP_DPE = "stopDpe";
