@@ -78,6 +78,11 @@ javadoc {
     options.encoding = "utf8"
     options.docEncoding = "utf8"
     options.links("http://docs.oracle.com/javase/8/docs/api/")
+    include 'org/jlab/clara/base/**'
+    include 'org/jlab/clara/engine/**'
+    include 'org/jlab/clara/sys/**'
+    exclude 'org/jlab/clara/base/core/**'
+    exclude 'org/jlab/clara/sys/ccc/**'
     classpath += configurations.provided
 }
 
