@@ -47,7 +47,7 @@ public class ClaraSubscriptions {
      * @param <D> The specific subclass
      * @param <C> The user callback
      */
-    public abstract static class BaseSubscription<D extends BaseSubscription<D, C>, C> {
+    abstract static class BaseSubscription<D extends BaseSubscription<D, C>, C> {
 
         protected final ClaraBase base;
 
