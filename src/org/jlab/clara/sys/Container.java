@@ -52,23 +52,23 @@ class Container extends AbstractActor {
     }
 
     @Override
-    protected void initialize() throws ClaraException {
+    void initialize() throws ClaraException {
         register();
     }
 
     @Override
-    protected void end() {
+    void end() {
         removeAllServices();
         removeRegistration();
     }
 
     @Override
-    protected void startMsg() {
+    void startMsg() {
         Logging.info("started container = %s", base.getName());
     }
 
     @Override
-    protected void stopMsg() {
+    void stopMsg() {
         Logging.info("removed container = %s", base.getName());
     }
 

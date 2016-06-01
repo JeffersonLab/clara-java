@@ -52,12 +52,12 @@ public final class ClaraRequests {
      * @param <D> The specific subclass
      * @param <T> The type returned when a result is expected
      */
-    public abstract static class BaseRequest<D extends BaseRequest<D, T>, T> {
+    abstract static class BaseRequest<D extends BaseRequest<D, T>, T> {
 
-        protected final ClaraBase base;
+        final ClaraBase base;
 
-        protected ClaraComponent frontEnd;
-        protected xMsgTopic topic;
+        ClaraComponent frontEnd;
+        xMsgTopic topic;
 
         BaseRequest(ClaraBase base,
                     ClaraComponent frontEnd,
@@ -103,7 +103,7 @@ public final class ClaraRequests {
         }
 
         @SuppressWarnings("unchecked")
-        protected D self() {
+        D self() {
             return (D) this;
         }
 
@@ -112,21 +112,21 @@ public final class ClaraRequests {
          *
          * @throws ClaraException if the message could not be created
          */
-        protected abstract xMsgMessage msg() throws ClaraException;
+        abstract xMsgMessage msg() throws ClaraException;
 
         /**
          * Parses the data returned by a sync request.
          *
          * @throws ClaraException if the data could not be parsed
          */
-        protected abstract T parseData(xMsgMessage msg) throws ClaraException;
+        abstract T parseData(xMsgMessage msg) throws ClaraException;
     }
 
     /**
      * Base class for sending a string-encoded request
      * and parsing the status of the operation.
      */
-    public abstract static class DataRequest<D extends DataRequest<D>>
+    abstract static class DataRequest<D extends DataRequest<D>>
             extends BaseRequest<D, Boolean> {
 
         DataRequest(ClaraBase base, ClaraComponent frontEnd, String topic) {
@@ -136,17 +136,17 @@ public final class ClaraRequests {
         /**
          * Creates the data to be sent to the component.
          */
-        protected abstract String getData();
+        abstract String getData();
 
         @Override
-        protected xMsgMessage msg() throws ClaraException {
+        xMsgMessage msg() throws ClaraException {
             xMsgMessage msg = MessageUtil.buildRequest(topic, getData());
             msg.getMetaData().setAuthor(base.getName());
             return msg;
         }
 
         @Override
-        protected Boolean parseData(xMsgMessage msg) throws ClaraException {
+        Boolean parseData(xMsgMessage msg) throws ClaraException {
             xMsgMeta.Status status = msg.getMetaData().getStatus();
             if (status == xMsgMeta.Status.ERROR) {
                 // TODO: use specific "request" exception
@@ -160,11 +160,11 @@ public final class ClaraRequests {
      * Base class to deploy a Clara component.
      * Each subclass presents the optional fields specific to each component.
      */
-    public abstract static class DeployRequest<D extends DeployRequest<D>>
+    abstract static class DeployRequest<D extends DeployRequest<D>>
             extends DataRequest<D> {
 
-        protected int poolSize = 1;
-        protected String description = ClaraConstants.UNDEFINED;
+        int poolSize = 1;
+        String description = ClaraConstants.UNDEFINED;
 
         DeployRequest(ClaraBase base, ClaraComponent frontEnd, String topic) {
             super(base, frontEnd, topic);
@@ -207,7 +207,7 @@ public final class ClaraRequests {
         }
 
         @Override
-        protected String getData() {
+        String getData() {
             return MessageUtil.buildData(ClaraConstants.START_CONTAINER,
                                          container.name(),
                                          poolSize,
@@ -243,7 +243,7 @@ public final class ClaraRequests {
         }
 
         @Override
-        protected String getData() {
+        String getData() {
             return MessageUtil.buildData(ClaraConstants.START_SERVICE,
                                          service.container().name(),
                                          service.name(),
@@ -287,7 +287,7 @@ public final class ClaraRequests {
         }
 
         @Override
-        protected String getData() {
+        String getData() {
             return data;
         }
     }
@@ -297,13 +297,14 @@ public final class ClaraRequests {
      *
      * @param <T> The type of data returned to the client by the request.
      */
-    public abstract static class ServiceRequest<D extends ServiceRequest<D, T>, T>
+    abstract static class ServiceRequest<D extends ServiceRequest<D, T>, T>
                 extends BaseRequest<D, T> {
 
-        protected final EngineData userData;
-        protected final xMsgMeta.ControlAction action;
-        protected final Composition composition;
-        protected Set<EngineDataType> dataTypes;
+        private final EngineData userData;
+        private final xMsgMeta.ControlAction action;
+        private final Composition composition;
+
+        Set<EngineDataType> dataTypes;
 
         ServiceRequest(ClaraBase base, ClaraComponent frontEnd, ServiceName service,
                        xMsgMeta.ControlAction action,
@@ -352,7 +353,7 @@ public final class ClaraRequests {
         }
 
         @Override
-        protected xMsgMessage msg() throws ClaraException {
+        xMsgMessage msg() throws ClaraException {
             xMsgMessage msg = DataUtil.serialize(topic, userData, dataTypes);
             xMsgMeta.Builder meta = msg.getMetaData();
             meta.setAuthor(base.getName());
@@ -375,7 +376,7 @@ public final class ClaraRequests {
         }
 
         @Override
-        protected EngineData parseData(xMsgMessage msg) throws ClaraException {
+        EngineData parseData(xMsgMessage msg) throws ClaraException {
             return DataUtil.deserialize(msg, dataTypes);
         }
     }
@@ -395,7 +396,7 @@ public final class ClaraRequests {
         }
 
         @Override
-        protected EngineData parseData(xMsgMessage msg) throws ClaraException {
+        EngineData parseData(xMsgMessage msg) throws ClaraException {
             return DataUtil.deserialize(msg, dataTypes);
         }
     }
@@ -414,7 +415,7 @@ public final class ClaraRequests {
         }
 
         @Override
-        protected String getData() {
+        String getData() {
             return data;
         }
     }

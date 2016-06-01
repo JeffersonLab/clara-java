@@ -47,13 +47,13 @@ public class ClaraSubscriptions {
      * @param <D> The specific subclass
      * @param <C> The user callback
      */
-    public abstract static class BaseSubscription<D extends BaseSubscription<D, C>, C> {
+    abstract static class BaseSubscription<D extends BaseSubscription<D, C>, C> {
 
-        protected final ClaraBase base;
+        final ClaraBase base;
 
-        protected ClaraComponent frontEnd;
+        ClaraComponent frontEnd;
 
-        protected xMsgTopic topic;
+        xMsgTopic topic;
 
         private Map<String, xMsgSubscription> subscriptions;
 
@@ -92,11 +92,11 @@ public class ClaraSubscriptions {
         }
 
         @SuppressWarnings("unchecked")
-        protected D self() {
+        D self() {
             return (D) this;
         }
 
-        protected abstract xMsgCallBack wrap(C callback);
+        abstract xMsgCallBack wrap(C callback);
     }
 
 
@@ -127,7 +127,7 @@ public class ClaraSubscriptions {
         }
 
         @Override
-        protected xMsgCallBack wrap(final EngineCallback userCallback) {
+        xMsgCallBack wrap(final EngineCallback userCallback) {
             return msg -> {
                 try {
                     userCallback.callback(DataUtil.deserialize(msg, dataTypes));
@@ -151,7 +151,7 @@ public class ClaraSubscriptions {
         }
 
         @Override
-        protected xMsgCallBack wrap(final GenericCallback userCallback) {
+        xMsgCallBack wrap(final GenericCallback userCallback) {
             return msg -> {
                 try {
                     String mimeType = msg.getMimeType();
