@@ -92,11 +92,11 @@ public class ClaraSubscriptions {
         }
 
         @SuppressWarnings("unchecked")
-        protected D self() {
+        D self() {
             return (D) this;
         }
 
-        protected abstract xMsgCallBack wrap(C callback);
+        abstract xMsgCallBack wrap(C callback);
     }
 
 
@@ -127,7 +127,7 @@ public class ClaraSubscriptions {
         }
 
         @Override
-        protected xMsgCallBack wrap(final EngineCallback userCallback) {
+        xMsgCallBack wrap(final EngineCallback userCallback) {
             return msg -> {
                 try {
                     userCallback.callback(DataUtil.deserialize(msg, dataTypes));
@@ -151,7 +151,7 @@ public class ClaraSubscriptions {
         }
 
         @Override
-        protected xMsgCallBack wrap(final GenericCallback userCallback) {
+        xMsgCallBack wrap(final GenericCallback userCallback) {
             return msg -> {
                 try {
                     String mimeType = msg.getMimeType();
