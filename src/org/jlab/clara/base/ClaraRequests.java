@@ -103,7 +103,7 @@ public final class ClaraRequests {
         }
 
         @SuppressWarnings("unchecked")
-        protected D self() {
+        D self() {
             return (D) this;
         }
 
@@ -112,14 +112,14 @@ public final class ClaraRequests {
          *
          * @throws ClaraException if the message could not be created
          */
-        protected abstract xMsgMessage msg() throws ClaraException;
+        abstract xMsgMessage msg() throws ClaraException;
 
         /**
          * Parses the data returned by a sync request.
          *
          * @throws ClaraException if the data could not be parsed
          */
-        protected abstract T parseData(xMsgMessage msg) throws ClaraException;
+        abstract T parseData(xMsgMessage msg) throws ClaraException;
     }
 
     /**
@@ -136,17 +136,17 @@ public final class ClaraRequests {
         /**
          * Creates the data to be sent to the component.
          */
-        protected abstract String getData();
+        abstract String getData();
 
         @Override
-        protected xMsgMessage msg() throws ClaraException {
+        xMsgMessage msg() throws ClaraException {
             xMsgMessage msg = MessageUtil.buildRequest(topic, getData());
             msg.getMetaData().setAuthor(base.getName());
             return msg;
         }
 
         @Override
-        protected Boolean parseData(xMsgMessage msg) throws ClaraException {
+        Boolean parseData(xMsgMessage msg) throws ClaraException {
             xMsgMeta.Status status = msg.getMetaData().getStatus();
             if (status == xMsgMeta.Status.ERROR) {
                 // TODO: use specific "request" exception
@@ -207,7 +207,7 @@ public final class ClaraRequests {
         }
 
         @Override
-        protected String getData() {
+        String getData() {
             return MessageUtil.buildData(ClaraConstants.START_CONTAINER,
                                          container.name(),
                                          poolSize,
@@ -243,7 +243,7 @@ public final class ClaraRequests {
         }
 
         @Override
-        protected String getData() {
+        String getData() {
             return MessageUtil.buildData(ClaraConstants.START_SERVICE,
                                          service.container().name(),
                                          service.name(),
@@ -287,7 +287,7 @@ public final class ClaraRequests {
         }
 
         @Override
-        protected String getData() {
+        String getData() {
             return data;
         }
     }
@@ -352,7 +352,7 @@ public final class ClaraRequests {
         }
 
         @Override
-        protected xMsgMessage msg() throws ClaraException {
+        xMsgMessage msg() throws ClaraException {
             xMsgMessage msg = DataUtil.serialize(topic, userData, dataTypes);
             xMsgMeta.Builder meta = msg.getMetaData();
             meta.setAuthor(base.getName());
@@ -375,7 +375,7 @@ public final class ClaraRequests {
         }
 
         @Override
-        protected EngineData parseData(xMsgMessage msg) throws ClaraException {
+        EngineData parseData(xMsgMessage msg) throws ClaraException {
             return DataUtil.deserialize(msg, dataTypes);
         }
     }
@@ -395,7 +395,7 @@ public final class ClaraRequests {
         }
 
         @Override
-        protected EngineData parseData(xMsgMessage msg) throws ClaraException {
+        EngineData parseData(xMsgMessage msg) throws ClaraException {
             return DataUtil.deserialize(msg, dataTypes);
         }
     }
@@ -414,7 +414,7 @@ public final class ClaraRequests {
         }
 
         @Override
-        protected String getData() {
+        String getData() {
             return data;
         }
     }
