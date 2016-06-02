@@ -28,6 +28,7 @@ import org.jlab.clara.base.error.ClaraException;
 import org.jlab.coda.xmsg.data.xMsgD.xMsgData;
 
 import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Objects;
 
@@ -116,6 +117,10 @@ public class EngineDataType {
      */
     public static final EngineDataType ARRAY_STRING = buildPrimitive(MimeType.ARRAY_STRING);
     /**
+     * JSON text.
+     */
+    public static final EngineDataType JSON = buildJson();
+    /**
      * An xMsg native data object.
      */
     public static final EngineDataType NATIVE = buildNative();
@@ -147,6 +152,10 @@ public class EngineDataType {
 
     private static EngineDataType buildRawBytes() {
         return new EngineDataType(MimeType.BYTES.toString(), new RawBytesSerializer());
+    }
+
+    private static EngineDataType buildJson() {
+        return new EngineDataType(MimeType.JSON.toString(), new StringSerializer());
     }
 
     private static EngineDataType buildNative() {
@@ -193,6 +202,7 @@ public class EngineDataType {
         ARRAY_STRING    ("binary/array-string"),
         ARRAY_BYTES     ("binary/array-string"),
 
+        JSON            ("application/json"),
         NATIVE          ("native");
 
         private final String name;
@@ -224,6 +234,21 @@ public class EngineDataType {
             } catch (InvalidProtocolBufferException e) {
                 throw new ClaraException(e.getMessage());
             }
+        }
+    }
+
+
+    private static class StringSerializer implements ClaraSerializer {
+
+        @Override
+        public ByteBuffer write(Object data) throws ClaraException {
+            String text = (String) data;
+            return ByteBuffer.wrap(text.getBytes(StandardCharsets.UTF_8));
+        }
+
+        @Override
+        public Object read(ByteBuffer data) throws ClaraException {
+            return new String(data.array(), StandardCharsets.UTF_8);
         }
     }
 
