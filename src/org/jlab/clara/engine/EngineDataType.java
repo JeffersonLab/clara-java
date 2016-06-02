@@ -167,6 +167,11 @@ public class EngineDataType {
         return serializer;
     }
 
+    @Override
+    public String toString() {
+        return mimeType;
+    }
+
 
     // CHECKSTYLE.OFF: MethodParamPad
     private enum MimeType {
