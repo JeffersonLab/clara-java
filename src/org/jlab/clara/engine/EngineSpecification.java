@@ -1,4 +1,4 @@
-package org.jlab.clara.sys;
+package org.jlab.clara.engine;
 
 import java.io.File;
 import java.io.IOException;
@@ -12,24 +12,24 @@ import org.yaml.snakeyaml.error.YAMLException;
 /**
  * Loads the service specification from a YAML file.
  */
-class EngineSpecification {
+public class EngineSpecification {
 
     /**
      * Reports any problem parsing the service specification file.
      */
-    static class ParseException extends RuntimeException {
-        ParseException() {
+    public static class ParseException extends RuntimeException {
+        public ParseException() {
         }
 
-        ParseException(String message) {
+        public ParseException(String message) {
             super(message);
         }
 
-        ParseException(Throwable cause) {
+        public ParseException(Throwable cause) {
             super(cause);
         }
 
-        ParseException(String message, Throwable cause) {
+        public ParseException(String message, Throwable cause) {
             super(message, cause);
         }
     }
@@ -71,7 +71,7 @@ class EngineSpecification {
      * will search for the file
      * <code>std/services/Simple.yaml</code> in the CLASSPATH.
      */
-    EngineSpecification(Class<?> c) {
+    public EngineSpecification(Class<?> c) {
         this(c.getName());
     }
 
@@ -87,7 +87,7 @@ class EngineSpecification {
      * <code>std/services/convertors/EvioToEvioReader.yaml</code> in the CLASSPATH.
      */
     @SuppressWarnings("unchecked")
-    EngineSpecification(String engine) {
+    public EngineSpecification(String engine) {
         InputStream input = getSpecStream(engine);
         if (input != null) {
             Yaml yaml = new Yaml();
