@@ -51,7 +51,7 @@ sourceSets {
 repositories {
     mavenLocal()
     maven {
-        url 'https://userweb.jlab.org/~smancill/repo/'
+        url 'http://clasweb.jlab.org/clas12maven/'
     }
     mavenCentral()
 }
