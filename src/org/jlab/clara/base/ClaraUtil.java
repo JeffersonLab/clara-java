@@ -309,7 +309,7 @@ public final class ClaraUtil {
      * @return string representing the current time.
      */
     public static String getCurrentTime() {
-        Format formatter = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+        Format formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         return formatter.format(new Date());
     }
 
