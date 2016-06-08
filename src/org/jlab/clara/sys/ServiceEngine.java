@@ -41,6 +41,7 @@ import org.jlab.coda.xmsg.excp.xMsgException;
 
 import java.util.Set;
 import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
 
 /**
  * A Service engine.
@@ -357,7 +358,7 @@ class ServiceEngine extends AbstractActor {
     }
 
     private void stopClock(long watch) {
-        executionTime = (System.nanoTime() - watch) / 1000;
+        executionTime = TimeUnit.NANOSECONDS.toMicros(System.nanoTime() - watch);
     }
 
 
