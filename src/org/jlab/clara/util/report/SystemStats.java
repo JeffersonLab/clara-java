@@ -23,6 +23,7 @@
 package org.jlab.clara.util.report;
 
 import java.lang.management.ManagementFactory;
+import java.lang.management.OperatingSystemMXBean;
 
 import javax.management.Attribute;
 import javax.management.AttributeList;
@@ -64,5 +65,10 @@ public final class SystemStats {
 
     public static long getMemoryUsage() {
         return Runtime.getRuntime().totalMemory() - Runtime.getRuntime().freeMemory();
+    }
+
+    public static double getSystemLoad() {
+        OperatingSystemMXBean os = ManagementFactory.getOperatingSystemMXBean();
+        return os.getSystemLoadAverage();
     }
 }
