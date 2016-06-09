@@ -34,7 +34,7 @@ public class JsonReportBuilder implements ExternalReport {
 
     @Override
     public String generateReport(DpeReport dpeData) {
-        String snapshotTime = ClaraUtil.getCurrentTimeInH();
+        String snapshotTime = ClaraUtil.getCurrentTime();
 
         JSONObject dpeRuntime = new JSONObject();
         dpeRuntime.put("hostname", dpeData.getHost());

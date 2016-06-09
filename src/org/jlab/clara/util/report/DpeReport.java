@@ -83,7 +83,7 @@ public class DpeReport extends BaseReport {
     }
 
     public double getLoad() {
-        return 1.0; // TODO get system load
+        return SystemStats.getSystemLoad();
     }
 
     public Collection<ContainerReport> getContainers() {

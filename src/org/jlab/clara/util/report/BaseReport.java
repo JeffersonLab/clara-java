@@ -46,7 +46,7 @@ public class BaseReport {
         this.author = author;
         this.lang = ClaraLang.JAVA.toString();
         this.description = description;
-        this.startTime = ClaraUtil.getCurrentTimeInH();
+        this.startTime = ClaraUtil.getCurrentTime();
     }
 
     public String getName() {
