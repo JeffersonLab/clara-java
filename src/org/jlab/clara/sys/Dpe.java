@@ -534,6 +534,11 @@ public final class Dpe extends AbstractActor {
     }
 
 
+    private String reportRuntime(RequestParser parser) {
+        return reportService.jsonReport();
+    }
+
+
     /**
      * Periodically publishes reports to the front-end.
      */
@@ -717,6 +722,10 @@ public final class Dpe extends AbstractActor {
 
                     case ClaraConstants.STOP_SERVICE:
                         stopService(parser);
+                        break;
+
+                    case ClaraConstants.REPORT_RUNTIME:
+                        response = reportRuntime(parser);
                         break;
 
                     default:
