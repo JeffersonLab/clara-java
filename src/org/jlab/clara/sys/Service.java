@@ -37,6 +37,7 @@ import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.Arrays;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.TimeUnit;
 
@@ -106,8 +107,16 @@ class Service extends AbstractActor {
         base.cacheConnection();
 
         // start the engines
-        for (ServiceEngine engine : enginePool) {
-            engine.start();
+        try {
+            Arrays.stream(enginePool).parallel().forEach(s -> {
+                try {
+                    s.start();
+                } catch (ClaraException e) {
+                    throwWrapped(e);
+                }
+            });
+        } catch (WrappedException e) {
+            throw e.cause;
         }
 
         // subscribe and register

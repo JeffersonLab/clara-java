@@ -126,4 +126,16 @@ abstract class AbstractActor {
     static final boolean shouldDeregister() {
         return !(isShutDown.get() && isFrontEnd.get());
     }
+
+    static class WrappedException extends RuntimeException {
+        ClaraException cause;
+
+        WrappedException(ClaraException cause) {
+            this.cause = cause;
+        }
+    }
+
+    static WrappedException throwWrapped(ClaraException t) {
+        throw new WrappedException(t);
+    }
 }
