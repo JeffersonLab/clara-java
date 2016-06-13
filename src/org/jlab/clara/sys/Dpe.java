@@ -396,7 +396,7 @@ public final class Dpe extends AbstractActor {
         System.out.println("                 CLARA DPE               ");
         System.out.println("=========================================");
         System.out.println(" Name             = " + base.getName());
-        System.out.println(" Date             = " + ClaraUtil.getCurrentTimeInH());
+        System.out.println(" Date             = " + ClaraUtil.getCurrentTime());
         System.out.println(" Version          = 4.3");
         System.out.println(" Lang             = Java");
         System.out.println(" Pool size        = " + base.getPoolSize());

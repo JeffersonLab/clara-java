@@ -29,12 +29,12 @@ import java.util.Date;
 final class Logging {
 
     private static final Object LOCK = new Object();
+    private static final Format FORMATTER = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
     private Logging() { }
 
     static String getCurrentTime() {
-        Format formatter = new SimpleDateFormat("HH:mm:ss MM/dd");
-        return formatter.format(new Date());
+        return FORMATTER.format(new Date());
     }
 
     static void info(String format, Object... args) {
