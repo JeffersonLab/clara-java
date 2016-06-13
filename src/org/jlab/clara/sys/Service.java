@@ -230,6 +230,7 @@ class Service extends AbstractActor {
     private void stopSubscription() {
         if (subscription != null) {
             base.stopListening(subscription);
+            base.stopCallbacks();
             try {
                 if (shouldDeregister()) {
                     base.removeRegistration(base.getMe().getTopic());
