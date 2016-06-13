@@ -67,8 +67,6 @@ public final class Dpe extends AbstractActor {
     static final int DEFAULT_POOL_SIZE = 2;
     static final long DEFAULT_REPORT_WAIT = 10_000;
 
-    private final boolean isFrontEnd;
-
     // these are guarded by start/stop synchronized blocks on parent
     private Proxy proxy = null;
     private FrontEnd frontEnd = null;
@@ -265,7 +263,7 @@ public final class Dpe extends AbstractActor {
                       ClaraConstants.JAVA_LANG,
                       1, "Front End"));
 
-        this.isFrontEnd = isFrontEnd;
+        AbstractActor.isFrontEnd.set(isFrontEnd);
         this.reportService = new ReportService(reportInterval);
     }
 
@@ -326,6 +324,7 @@ public final class Dpe extends AbstractActor {
 
     @Override
     void end() {
+        isShutDown.set(true);
         if (proxy != null) {
             stopHeartBeatReport();
             stopSubscription();
@@ -340,7 +339,7 @@ public final class Dpe extends AbstractActor {
         proxy.start();
 
         // start the front-end
-        if (isFrontEnd) {
+        if (isFrontEnd.get()) {
             frontEnd = new FrontEnd(base.getFrontEnd().getProxyAddress(),
                                     base.getPoolSize(),
                                     base.getDescription());
@@ -366,7 +365,7 @@ public final class Dpe extends AbstractActor {
     private void stopSubscription() {
         if (subscriptionHandler != null) {
             base.stopListening(subscriptionHandler);
-            if (!isFrontEnd) {
+            if (shouldDeregister()) {
                 try {
                     base.removeRegistration(base.getMe().getTopic());
                 } catch (ClaraException e) {

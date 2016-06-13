@@ -118,7 +118,7 @@ class Container extends AbstractActor {
     }
 
     private void removeRegistration() {
-        if (isRegistered) {
+        if (isRegistered && shouldDeregister()) {
             try {
                 reportDown();
                 base.removeRegistration(base.getMe().getTopic());

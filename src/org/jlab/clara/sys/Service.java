@@ -222,7 +222,9 @@ class Service extends AbstractActor {
         if (subscription != null) {
             base.stopListening(subscription);
             try {
-                base.removeRegistration(base.getMe().getTopic());
+                if (shouldDeregister()) {
+                    base.removeRegistration(base.getMe().getTopic());
+                }
             } catch (ClaraException e) {
                 Logging.error("service = %s: %s", name, e.getMessage());
             }

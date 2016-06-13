@@ -32,7 +32,12 @@ import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 import org.jlab.coda.xmsg.excp.xMsgException;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 abstract class AbstractActor {
+
+    static final AtomicBoolean isShutDown = new AtomicBoolean();
+    static final AtomicBoolean isFrontEnd = new AtomicBoolean();
 
     final ClaraBase base;
 
@@ -115,5 +120,10 @@ abstract class AbstractActor {
         } catch (xMsgException e) {
             e.printStackTrace();
         }
+    }
+
+
+    static final boolean shouldDeregister() {
+        return !(isShutDown.get() && isFrontEnd.get());
     }
 }
