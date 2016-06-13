@@ -107,7 +107,7 @@ class Container extends AbstractActor {
     }
 
     private void removeAllServices() {
-        myServices.values().forEach(Service::stop);
+        myServices.values().parallelStream().forEach(Service::stop);
         myServices.clear();
     }
 

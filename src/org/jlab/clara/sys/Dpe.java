@@ -377,7 +377,7 @@ public final class Dpe extends AbstractActor {
     }
 
     private void stopContainers() {
-        myContainers.values().forEach(Container::stop);
+        myContainers.values().parallelStream().forEach(Container::stop);
         myContainers.clear();
     }
 

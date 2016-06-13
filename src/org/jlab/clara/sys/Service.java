@@ -243,9 +243,7 @@ class Service extends AbstractActor {
 
     private void destroyEngines() {
         destroyPool();
-        for (ServiceEngine engine : enginePool) {
-            engine.stop();
-        }
+        Arrays.stream(enginePool).parallel().forEach(ServiceEngine::stop);
         userEngine.destroy();
     }
 
