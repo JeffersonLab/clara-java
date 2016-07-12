@@ -121,9 +121,9 @@ public class EngineDataType {
      */
     public static final EngineDataType JSON = buildJson();
     /**
-     * An xMsg native data object.
+     * A native xMsg data object.
      */
-    public static final EngineDataType NATIVE = buildNative();
+    public static final EngineDataType NATIVE_DATA = buildNative();
     private final String mimeType;
     private final ClaraSerializer serializer;
 
@@ -159,7 +159,7 @@ public class EngineDataType {
     }
 
     private static EngineDataType buildNative() {
-        return new EngineDataType(MimeType.NATIVE.toString(), new NativeSerializer());
+        return new EngineDataType(MimeType.NATIVE_DATA.toString(), new NativeSerializer());
     }
 
     /**
@@ -203,7 +203,8 @@ public class EngineDataType {
         ARRAY_BYTES     ("binary/array-string"),
 
         JSON            ("application/json"),
-        NATIVE          ("native");
+
+        NATIVE_DATA     ("xmsg/data");
 
         private final String name;
 

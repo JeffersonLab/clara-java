@@ -109,7 +109,7 @@ public class EngineDataTypeTest {
     }
 
     @Test
-    public void testNativeSerializer() throws Exception {
+    public void testNativeDataSerializer() throws Exception {
         xMsgData.Builder builder = xMsgData.newBuilder();
 
         builder.setFLSINT32(56);
@@ -118,7 +118,7 @@ public class EngineDataTypeTest {
         builder.addSTRINGA("Master of Puppets");
         builder.addSTRINGA("...And Justice for All");
 
-        EngineDataType dt = EngineDataType.NATIVE;
+        EngineDataType dt = EngineDataType.NATIVE_DATA;
         ClaraSerializer s = dt.serializer();
 
         ByteBuffer b = s.write(builder.build());
