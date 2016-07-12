@@ -26,6 +26,7 @@ import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.coda.xmsg.data.xMsgD.xMsgData;
+import org.jlab.coda.xmsg.data.xMsgD.xMsgPayload;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
@@ -124,6 +125,12 @@ public class EngineDataType {
      * A native xMsg data object.
      */
     public static final EngineDataType NATIVE_DATA = buildNative();
+
+    /**
+     * A native xMsg payload object.
+     */
+    public static final EngineDataType NATIVE_PAYLOAD = buildPayload();
+
     private final String mimeType;
     private final ClaraSerializer serializer;
 
@@ -160,6 +167,10 @@ public class EngineDataType {
 
     private static EngineDataType buildNative() {
         return new EngineDataType(MimeType.NATIVE_DATA.toString(), new NativeSerializer());
+    }
+
+    private static EngineDataType buildPayload() {
+        return new EngineDataType(MimeType.NATIVE_PAYLOAD.toString(), new PayloadSerializer());
     }
 
     /**
@@ -204,7 +215,8 @@ public class EngineDataType {
 
         JSON            ("application/json"),
 
-        NATIVE_DATA     ("xmsg/data");
+        NATIVE_DATA     ("xmsg/data"),
+        NATIVE_PAYLOAD  ("xmsg/payload");
 
         private final String name;
 
@@ -232,6 +244,25 @@ public class EngineDataType {
         public Object read(ByteBuffer data) throws ClaraException {
             try {
                 return xMsgData.parseFrom(data.array());
+            } catch (InvalidProtocolBufferException e) {
+                throw new ClaraException(e.getMessage());
+            }
+        }
+    }
+
+
+    private static class PayloadSerializer implements ClaraSerializer {
+
+        @Override
+        public ByteBuffer write(Object data) throws ClaraException {
+            xMsgPayload payload = (xMsgPayload) data;
+            return ByteBuffer.wrap(payload.toByteArray());
+        }
+
+        @Override
+        public Object read(ByteBuffer data) throws ClaraException {
+            try {
+                return xMsgPayload.parseFrom(data.array());
             } catch (InvalidProtocolBufferException e) {
                 throw new ClaraException(e.getMessage());
             }

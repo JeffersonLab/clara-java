@@ -23,6 +23,7 @@
 package org.jlab.clara.engine;
 
 import org.jlab.coda.xmsg.data.xMsgD.xMsgData;
+import org.jlab.coda.xmsg.data.xMsgD.xMsgPayload;
 import org.junit.Test;
 
 import java.nio.ByteBuffer;
@@ -125,6 +126,39 @@ public class EngineDataTypeTest {
         xMsgData d = (xMsgData) s.read(b);
 
         assertThat(d, is(builder.build()));
+    }
+
+
+    @Test
+    public void testNativePayloadSerializer() throws Exception {
+        xMsgPayload.Builder payload = xMsgPayload.newBuilder();
+
+        xMsgData data1 = xMsgData.newBuilder()
+                                 .addDOUBLEA(1)
+                                 .addDOUBLEA(4.5)
+                                 .addDOUBLEA(5.8)
+                                 .build();
+        xMsgPayload.Item.Builder item1 = xMsgPayload.Item.newBuilder();
+        item1.setData(data1);
+        item1.setName("doubles");
+
+        xMsgData data2 = xMsgData.newBuilder()
+                                 .addFLOATA(4.3f)
+                                 .addFLOATA(4.5f)
+                                 .addFLOATA(5.8f)
+                                 .build();
+        xMsgPayload.Item.Builder item2 = xMsgPayload.Item.newBuilder();
+        item2.setData(data2);
+        item2.setName("floats");
+
+
+        EngineDataType dt = EngineDataType.NATIVE_PAYLOAD;
+        ClaraSerializer s = dt.serializer();
+
+        ByteBuffer b = s.write(payload.build());
+        xMsgPayload p = (xMsgPayload) s.read(b);
+
+        assertThat(p, is(payload.build()));
     }
 
 
