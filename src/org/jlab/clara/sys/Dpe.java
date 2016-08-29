@@ -65,7 +65,7 @@ public final class Dpe extends AbstractActor {
 
     static final int DEFAULT_PROXY_PORT = ClaraConstants.JAVA_PORT;
     static final int DEFAULT_POOL_SIZE = 2;
-    static final long DEFAULT_REPORT_WAIT = 10_000;
+    static final long DEFAULT_REPORT_PERIOD = 10_000;
 
     // these are guarded by start/stop synchronized blocks on parent
     private Proxy proxy = null;
@@ -89,7 +89,7 @@ public final class Dpe extends AbstractActor {
 
             // start a dpe
             Dpe dpe = new Dpe(options.isFrontEnd(), options.localAddress(), options.frontEnd(),
-                              options.poolSize(), options.reportInterval(), options.description());
+                              options.poolSize(), options.reportPeriod(), options.description());
 
             Runtime.getRuntime().addShutdownHook(new Thread() {
                 @Override
@@ -123,7 +123,7 @@ public final class Dpe extends AbstractActor {
         xMsgProxyAddress frontEndAddress;
 
         int poolSize = DEFAULT_POOL_SIZE;
-        long reportInterval = DEFAULT_REPORT_WAIT;
+        long reportPeriod = DEFAULT_REPORT_PERIOD;
         String description = "";
 
         /**
@@ -198,11 +198,11 @@ public final class Dpe extends AbstractActor {
         /**
          * Sets the interval of time between publishing reports.
          */
-        public Builder withReportInterval(long interval, TimeUnit unit) {
+        public Builder withReportPeriod(long interval, TimeUnit unit) {
             if (interval <= 0) {
                 throw new IllegalArgumentException("Invalid report interval: " + interval);
             }
-            this.reportInterval = unit.toMillis(interval);
+            this.reportPeriod = unit.toMillis(interval);
             return this;
         }
 
@@ -231,7 +231,7 @@ public final class Dpe extends AbstractActor {
          */
         public Dpe build() {
             return new Dpe(isFrontEnd, localAddress, frontEndAddress,
-                           poolSize, reportInterval, description);
+                           poolSize, reportPeriod, description);
         }
     }
 
@@ -243,14 +243,14 @@ public final class Dpe extends AbstractActor {
      * @param proxyAddress address of local proxy
      * @param frontEndAddress address of front-end proxy
      * @param poolSize subscription pool size
-     * @param reportInterval the time between publishing the reports
+     * @param reportPeriod the time between publishing the reports
      * @param description textual description of the DPE
      */
     private Dpe(boolean isFrontEnd,
                 xMsgProxyAddress proxyAddress,
                 xMsgProxyAddress frontEndAddress,
                 int poolSize,
-                long reportInterval,
+                long reportPeriod,
                 String description) {
 
         super(ClaraComponent.dpe(proxyAddress.host(),
@@ -264,7 +264,7 @@ public final class Dpe extends AbstractActor {
                       1, "Front End"));
 
         AbstractActor.isFrontEnd.set(isFrontEnd);
-        this.reportService = new ReportService(reportInterval);
+        this.reportService = new ReportService(reportPeriod);
     }
 
     /**
@@ -549,12 +549,12 @@ public final class Dpe extends AbstractActor {
 
         private final ScheduledExecutorService scheduledPingService;
         private final AtomicBoolean isReporting = new AtomicBoolean();
-        private final long reportWait;
+        private final long reportPeriod;
 
-        ReportService(long reportInterval) {
+        ReportService(long periodMillis) {
             myReport = new DpeReport(base, System.getenv("USER"));
             scheduledPingService = Executors.newSingleThreadScheduledExecutor();
-            reportWait = reportInterval;
+            reportPeriod = periodMillis;
         }
 
         public void start() {
@@ -612,7 +612,7 @@ public final class Dpe extends AbstractActor {
                         xMsgMessage reportMsg = MessageUtil.buildRequest(jsonTopic, jsonReport());
                         base.send(con, reportMsg);
 
-                        xMsgUtil.sleep(reportWait);
+                        xMsgUtil.sleep(reportPeriod);
                     }
                 } catch (xMsgException e) {
                     System.err.println("Could not publish DPE report:" + e.getMessage());

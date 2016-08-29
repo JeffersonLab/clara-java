@@ -44,7 +44,7 @@ class DpeOptionsParser {
     private final OptionSpec<Integer> fePort;
     private final OptionSpec<Integer> poolSize;
     private final OptionSpec<String> description;
-    private final OptionSpec<Long> reportInterval;
+    private final OptionSpec<Long> reportPeriod;
 
     private OptionParser parser;
     private OptionSet options;
@@ -69,7 +69,7 @@ class DpeOptionsParser {
 
         poolSize = parser.accepts("poolsize").withRequiredArg().ofType(Integer.class);
         description = parser.accepts("description").withRequiredArg();
-        reportInterval = parser.accepts("report").withRequiredArg().ofType(Long.class);
+        reportPeriod = parser.accepts("report").withRequiredArg().ofType(Long.class);
 
         parser.acceptsAll(asList("h", "help")).forHelp();
     }
@@ -136,10 +136,10 @@ class DpeOptionsParser {
         return valueOf(description, "");
     }
 
-    public long reportInterval() {
-        long defaultWaitSeconds = TimeUnit.MILLISECONDS.toSeconds(Dpe.DEFAULT_REPORT_WAIT);
-        long reportWaitSeconds = valueOf(reportInterval, defaultWaitSeconds);
-        return TimeUnit.SECONDS.toMillis(reportWaitSeconds);
+    public long reportPeriod() {
+        long defaultPeriodSeconds = TimeUnit.MILLISECONDS.toSeconds(Dpe.DEFAULT_REPORT_PERIOD);
+        long reportPeriodSeconds = valueOf(reportPeriod, defaultPeriodSeconds);
+        return TimeUnit.SECONDS.toMillis(reportPeriodSeconds);
     }
 
     public boolean isFrontEnd() {
@@ -158,7 +158,7 @@ class DpeOptionsParser {
              + optionHelp(fePort, "port", "the port used by the remote front-end")
              + optionHelp(poolSize, "size", "the subscriptions poolsize for this DPE")
              + optionHelp(description, "string", "a short description of this DPE")
-             + optionHelp(reportInterval, "seconds", "the interval to send reports");
+             + optionHelp(reportPeriod, "seconds", "the period to publish reports");
     }
 
     private <V> String optionHelp(OptionSpec<V> spec, String arg, String... help) {

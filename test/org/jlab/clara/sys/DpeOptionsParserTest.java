@@ -189,17 +189,17 @@ public class DpeOptionsParserTest {
     }
 
     @Test
-    public void dpeUsesDefaultReportInterval() throws Exception {
+    public void dpeUsesDefaultReportPeriod() throws Exception {
         parse();
 
-        assertThat(parser.reportInterval(), is(Dpe.DEFAULT_REPORT_WAIT));
+        assertThat(parser.reportPeriod(), is(Dpe.DEFAULT_REPORT_PERIOD));
     }
 
     @Test
-    public void dpeReceivesOptionalReportInterval() throws Exception {
+    public void dpeReceivesOptionalReportPeriod() throws Exception {
         parse(REPORT_OPT, "20");
 
-        assertThat(parser.reportInterval(), is(20_000L));
+        assertThat(parser.reportPeriod(), is(20_000L));
     }
 
 

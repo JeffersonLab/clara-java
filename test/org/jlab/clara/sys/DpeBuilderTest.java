@@ -168,14 +168,14 @@ public class DpeBuilderTest {
     public void dpeUsesDefaultReportInterval() throws Exception {
         Builder builder = new Builder();
 
-        assertThat(builder.reportInterval, is(Dpe.DEFAULT_REPORT_WAIT));
+        assertThat(builder.reportPeriod, is(Dpe.DEFAULT_REPORT_PERIOD));
     }
 
     @Test
     public void dpeReceivesOptionalReportInterval() throws Exception {
-        Builder builder = new Builder().withReportInterval(20, TimeUnit.SECONDS);
+        Builder builder = new Builder().withReportPeriod(20, TimeUnit.SECONDS);
 
-        assertThat(builder.reportInterval, is(20_000L));
+        assertThat(builder.reportPeriod, is(20_000L));
     }
 
 
