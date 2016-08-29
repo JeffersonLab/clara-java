@@ -44,6 +44,7 @@ class DpeOptionsParser {
     private final OptionSpec<Integer> fePort;
 
     private final OptionSpec<Integer> poolSize;
+    private final OptionSpec<Integer> maxCores;
     private final OptionSpec<Long> reportPeriod;
 
     private final OptionSpec<String> description;
@@ -70,6 +71,7 @@ class DpeOptionsParser {
                        .withRequiredArg().ofType(Integer.class);
 
         poolSize = parser.accepts("poolsize").withRequiredArg().ofType(Integer.class);
+        maxCores = parser.accepts("max-cores").withRequiredArg().ofType(Integer.class);
         reportPeriod = parser.accepts("report").withRequiredArg().ofType(Long.class);
 
         description = parser.accepts("description").withRequiredArg();
@@ -133,12 +135,13 @@ class DpeOptionsParser {
 
     public DpeConfig config() {
         int dpePoolSize = valueOf(poolSize, Dpe.DEFAULT_POOL_SIZE);
+        int dpeMaxCores = valueOf(maxCores, Dpe.DEFAULT_MAX_CORES);
 
         long defaultPeriodSeconds = TimeUnit.MILLISECONDS.toSeconds(Dpe.DEFAULT_REPORT_PERIOD);
         long reportPeriodSeconds = valueOf(reportPeriod, defaultPeriodSeconds);
         long dpeReportPeriod = TimeUnit.SECONDS.toMillis(reportPeriodSeconds);
 
-        return new DpeConfig(dpePoolSize, dpeReportPeriod);
+        return new DpeConfig(dpePoolSize, dpeMaxCores, dpeReportPeriod);
     }
 
     public String description() {
@@ -162,6 +165,7 @@ class DpeOptionsParser {
              + optionHelp(description, "string", "a short description of this DPE")
              + String.format("%n  Config options:%n")
              + optionHelp(poolSize, "size", "the subscriptions poolsize for this DPE")
+             + optionHelp(maxCores, "cores", "how many cores can be used by a service")
              + optionHelp(reportPeriod, "seconds", "the period to publish reports");
     }
 

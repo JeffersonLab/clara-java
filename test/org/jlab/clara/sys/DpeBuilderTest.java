@@ -151,6 +151,20 @@ public class DpeBuilderTest {
     }
 
     @Test
+    public void dpeUsesDefaultMaxCores() throws Exception {
+        Builder builder = new Builder();
+
+        assertThat(builder.maxCores, is(Dpe.DEFAULT_MAX_CORES));
+    }
+
+    @Test
+    public void dpeReceivesOptionalMaxCores() throws Exception {
+        Builder builder = new Builder().withMaxCores(64);
+
+        assertThat(builder.maxCores, is(64));
+    }
+
+    @Test
     public void dpeUsesDefaultEmptyDescription() throws Exception {
         Builder builder = new Builder();
 

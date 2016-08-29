@@ -46,6 +46,7 @@ public class DpeOptionsParserTest {
     private static final String DESC_OPT = "--description";
 
     private static final String POOL_OPT = "--poolsize";
+    private static final String CORES_OPT = "--max-cores";
     private static final String REPORT_OPT = "--report";
 
     private final String defaultHost;
@@ -188,6 +189,20 @@ public class DpeOptionsParserTest {
         parse(POOL_OPT, "10");
 
         assertThat(parser.config().poolSize(), is(10));
+    }
+
+    @Test
+    public void dpeUsesDefaultMaxCores() throws Exception {
+        parse();
+
+        assertThat(parser.config().maxCores(), is(Dpe.DEFAULT_MAX_CORES));
+    }
+
+    @Test
+    public void dpeReceivesOptionalMaxCores() throws Exception {
+        parse(CORES_OPT, "64");
+
+        assertThat(parser.config().maxCores(), is(64));
     }
 
     @Test

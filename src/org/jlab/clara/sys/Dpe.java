@@ -64,6 +64,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public final class Dpe extends AbstractActor {
 
     static final int DEFAULT_PROXY_PORT = ClaraConstants.JAVA_PORT;
+
+    static final int DEFAULT_MAX_CORES = Runtime.getRuntime().availableProcessors();
     static final int DEFAULT_POOL_SIZE = 2;
     static final long DEFAULT_REPORT_PERIOD = 10_000;
 
@@ -76,6 +78,7 @@ public final class Dpe extends AbstractActor {
     private final ConcurrentMap<String, Container> myContainers = new ConcurrentHashMap<>();
 
     private final ReportService reportService;
+    private final int maxCores;
 
 
     public static void main(String[] args) {
@@ -123,6 +126,7 @@ public final class Dpe extends AbstractActor {
         xMsgProxyAddress frontEndAddress;
 
         int poolSize = DEFAULT_POOL_SIZE;
+        int maxCores = DEFAULT_MAX_CORES;
         long reportPeriod = DEFAULT_REPORT_PERIOD;
         String description = "";
 
@@ -218,6 +222,17 @@ public final class Dpe extends AbstractActor {
         }
 
         /**
+         * Sets the number of cores that a service can use in parallel.
+         */
+        public Builder withMaxCores(int maxCores) {
+            if (maxCores <= 0) {
+                throw new IllegalArgumentException("Invalid number of cores: " + maxCores);
+            }
+            this.maxCores = maxCores;
+            return this;
+        }
+
+        /**
          * Sets a description for this DPE.
          */
         public Builder withDescription(String description) {
@@ -230,7 +245,7 @@ public final class Dpe extends AbstractActor {
          * Creates the DPE.
          */
         public Dpe build() {
-            DpeConfig config = new DpeConfig(poolSize, reportPeriod);
+            DpeConfig config = new DpeConfig(poolSize, maxCores, reportPeriod);
             return new Dpe(isFrontEnd, localAddress, frontEndAddress, config, description);
         }
     }
@@ -264,6 +279,7 @@ public final class Dpe extends AbstractActor {
 
         AbstractActor.isFrontEnd.set(isFrontEnd);
         this.reportService = new ReportService(config.reportPeriod());
+        this.maxCores = config.maxCores();
     }
 
     /**
@@ -460,7 +476,9 @@ public final class Dpe extends AbstractActor {
         String description = parser.nextString();
         String initialState = parser.nextString();
         if (poolSize <= 0) {
-            poolSize = base.getPoolSize();
+            poolSize = 1;
+        } else if (poolSize > maxCores) {
+            poolSize = maxCores;
         }
         ClaraComponent serComp = ClaraComponent.service(base.getMe().getDpeHost(),
                                                         base.getMe().getDpePort(),

@@ -25,15 +25,21 @@ package org.jlab.clara.sys;
 class DpeConfig {
 
     private final int poolSize;
+    private final int maxCores;
     private final long reportPeriod;
 
-    DpeConfig(int poolSize, long reportPeriod) {
+    DpeConfig(int poolSize, int maxCores, long reportPeriod) {
         this.poolSize = poolSize;
+        this.maxCores = maxCores;
         this.reportPeriod = reportPeriod;
     }
 
     int poolSize() {
         return poolSize;
+    }
+
+    int maxCores() {
+        return maxCores;
     }
 
     long reportPeriod() {
