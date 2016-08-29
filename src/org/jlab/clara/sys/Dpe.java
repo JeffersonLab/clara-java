@@ -643,8 +643,8 @@ public final class Dpe extends AbstractActor {
         public String getMessage() {
             StringBuilder sb = new StringBuilder();
             sb.append(super.getMessage());
-            if (getCause() != null) {
-                sb.append(": ").append(getCause().getMessage());
+            for (Throwable e: ClaraUtil.getThrowableList(getCause())) {
+                sb.append(": ").append(e.getMessage());
             }
             return sb.toString();
         }
