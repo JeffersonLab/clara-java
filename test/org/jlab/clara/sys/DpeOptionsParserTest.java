@@ -43,9 +43,11 @@ public class DpeOptionsParserTest {
     private static final String FE_HOST_OPT = "--fe-host";
     private static final String FE_PORT_OPT = "--fe-port";
 
-    private static final String POOL_OPT = "--poolsize";
     private static final String DESC_OPT = "--description";
+
+    private static final String POOL_OPT = "--poolsize";
     private static final String REPORT_OPT = "--report";
+
     private final String defaultHost;
     private DpeOptionsParser parser;
 
@@ -161,20 +163,6 @@ public class DpeOptionsParserTest {
     }
 
     @Test
-    public void dpeUsesDefaultPoolSize() throws Exception {
-        parse();
-
-        assertThat(parser.poolSize(), is(Dpe.DEFAULT_POOL_SIZE));
-    }
-
-    @Test
-    public void dpeReceivesOptionalPoolSize() throws Exception {
-        parse(POOL_OPT, "10");
-
-        assertThat(parser.poolSize(), is(10));
-    }
-
-    @Test
     public void dpeUsesDefaultEmptyDescription() throws Exception {
         parse();
 
@@ -189,17 +177,31 @@ public class DpeOptionsParserTest {
     }
 
     @Test
+    public void dpeUsesDefaultPoolSize() throws Exception {
+        parse();
+
+        assertThat(parser.config().poolSize(), is(Dpe.DEFAULT_POOL_SIZE));
+    }
+
+    @Test
+    public void dpeReceivesOptionalPoolSize() throws Exception {
+        parse(POOL_OPT, "10");
+
+        assertThat(parser.config().poolSize(), is(10));
+    }
+
+    @Test
     public void dpeUsesDefaultReportPeriod() throws Exception {
         parse();
 
-        assertThat(parser.reportPeriod(), is(Dpe.DEFAULT_REPORT_PERIOD));
+        assertThat(parser.config().reportPeriod(), is(Dpe.DEFAULT_REPORT_PERIOD));
     }
 
     @Test
     public void dpeReceivesOptionalReportPeriod() throws Exception {
         parse(REPORT_OPT, "20");
 
-        assertThat(parser.reportPeriod(), is(20_000L));
+        assertThat(parser.config().reportPeriod(), is(20_000L));
     }
 
 

@@ -89,7 +89,7 @@ public final class Dpe extends AbstractActor {
 
             // start a dpe
             Dpe dpe = new Dpe(options.isFrontEnd(), options.localAddress(), options.frontEnd(),
-                              options.poolSize(), options.reportPeriod(), options.description());
+                              options.config(), options.description());
 
             Runtime.getRuntime().addShutdownHook(new Thread() {
                 @Override
@@ -230,8 +230,8 @@ public final class Dpe extends AbstractActor {
          * Creates the DPE.
          */
         public Dpe build() {
-            return new Dpe(isFrontEnd, localAddress, frontEndAddress,
-                           poolSize, reportPeriod, description);
+            DpeConfig config = new DpeConfig(poolSize, reportPeriod);
+            return new Dpe(isFrontEnd, localAddress, frontEndAddress, config, description);
         }
     }
 
@@ -249,14 +249,13 @@ public final class Dpe extends AbstractActor {
     private Dpe(boolean isFrontEnd,
                 xMsgProxyAddress proxyAddress,
                 xMsgProxyAddress frontEndAddress,
-                int poolSize,
-                long reportPeriod,
+                DpeConfig config,
                 String description) {
 
         super(ClaraComponent.dpe(proxyAddress.host(),
                                  proxyAddress.pubPort(),
                                  ClaraConstants.JAVA_LANG,
-                                 poolSize,
+                                 config.poolSize(),
                                  description),
               ClaraComponent.dpe(frontEndAddress.host(),
                       frontEndAddress.pubPort(),
@@ -264,7 +263,7 @@ public final class Dpe extends AbstractActor {
                       1, "Front End"));
 
         AbstractActor.isFrontEnd.set(isFrontEnd);
-        this.reportService = new ReportService(reportPeriod);
+        this.reportService = new ReportService(config.reportPeriod());
     }
 
     /**

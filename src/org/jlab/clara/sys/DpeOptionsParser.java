@@ -42,9 +42,11 @@ class DpeOptionsParser {
     private final OptionSpec<Integer> dpePort;
     private final OptionSpec<String> feHost;
     private final OptionSpec<Integer> fePort;
+
     private final OptionSpec<Integer> poolSize;
-    private final OptionSpec<String> description;
     private final OptionSpec<Long> reportPeriod;
+
+    private final OptionSpec<String> description;
 
     private OptionParser parser;
     private OptionSet options;
@@ -68,8 +70,9 @@ class DpeOptionsParser {
                        .withRequiredArg().ofType(Integer.class);
 
         poolSize = parser.accepts("poolsize").withRequiredArg().ofType(Integer.class);
-        description = parser.accepts("description").withRequiredArg();
         reportPeriod = parser.accepts("report").withRequiredArg().ofType(Long.class);
+
+        description = parser.accepts("description").withRequiredArg();
 
         parser.acceptsAll(asList("h", "help")).forHelp();
     }
@@ -128,18 +131,18 @@ class DpeOptionsParser {
         return frontEndAddress;
     }
 
-    public int poolSize() {
-        return valueOf(poolSize, Dpe.DEFAULT_POOL_SIZE);
+    public DpeConfig config() {
+        int dpePoolSize = valueOf(poolSize, Dpe.DEFAULT_POOL_SIZE);
+
+        long defaultPeriodSeconds = TimeUnit.MILLISECONDS.toSeconds(Dpe.DEFAULT_REPORT_PERIOD);
+        long reportPeriodSeconds = valueOf(reportPeriod, defaultPeriodSeconds);
+        long dpeReportPeriod = TimeUnit.SECONDS.toMillis(reportPeriodSeconds);
+
+        return new DpeConfig(dpePoolSize, dpeReportPeriod);
     }
 
     public String description() {
         return valueOf(description, "");
-    }
-
-    public long reportPeriod() {
-        long defaultPeriodSeconds = TimeUnit.MILLISECONDS.toSeconds(Dpe.DEFAULT_REPORT_PERIOD);
-        long reportPeriodSeconds = valueOf(reportPeriod, defaultPeriodSeconds);
-        return TimeUnit.SECONDS.toMillis(reportPeriodSeconds);
     }
 
     public boolean isFrontEnd() {
@@ -156,8 +159,9 @@ class DpeOptionsParser {
              + optionHelp(dpePort, "port", "use given port for this DPE")
              + optionHelp(feHost, "hostname", "the host used by the remote front-end")
              + optionHelp(fePort, "port", "the port used by the remote front-end")
-             + optionHelp(poolSize, "size", "the subscriptions poolsize for this DPE")
              + optionHelp(description, "string", "a short description of this DPE")
+             + String.format("%n  Config options:%n")
+             + optionHelp(poolSize, "size", "the subscriptions poolsize for this DPE")
              + optionHelp(reportPeriod, "seconds", "the period to publish reports");
     }
 
