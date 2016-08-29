@@ -47,9 +47,10 @@ public class DpeOptionsParserTest {
     private static final String DESC_OPT = "--description";
     private static final String REPORT_OPT = "--report";
     private final String defaultHost;
+    private DpeOptionsParser parser;
+
     @Rule
     public ExpectedException expectedEx = ExpectedException.none();
-    private DpeOptionsParser parser;
 
 
     public DpeOptionsParserTest() throws Exception {
