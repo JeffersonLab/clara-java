@@ -40,6 +40,7 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -333,6 +334,14 @@ public final class ClaraUtil {
     public static void sleep(long millis) {
         try {
             Thread.sleep(millis);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+    public static void sleep(long duration, TimeUnit unit) {
+        try {
+            unit.sleep(duration);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
         }
