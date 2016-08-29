@@ -164,7 +164,7 @@ class DpeOptionsParser {
              + optionHelp(fePort, "port", "the port used by the remote front-end")
              + optionHelp(description, "string", "a short description of this DPE")
              + String.format("%n  Config options:%n")
-             + optionHelp(poolSize, "size", "the subscriptions poolsize for this DPE")
+             + optionHelp(poolSize, "size", "size of thread pool to handle requests")
              + optionHelp(maxCores, "cores", "how many cores can be used by a service")
              + optionHelp(reportPeriod, "seconds", "the period to publish reports");
     }
