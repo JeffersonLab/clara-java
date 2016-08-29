@@ -39,6 +39,7 @@ import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 import org.jlab.coda.xmsg.excp.xMsgException;
+import org.jlab.coda.xmsg.net.xMsgContext;
 import org.jlab.coda.xmsg.net.xMsgProxyAddress;
 
 import java.util.Objects;
@@ -69,6 +70,9 @@ public final class Dpe extends AbstractActor {
     static final int DEFAULT_POOL_SIZE = 2;
     static final long DEFAULT_REPORT_PERIOD = 10_000;
 
+    static final int DEFAULT_MAX_SOCKETS = 1024;
+    static final int DEFAULT_IO_THREADS = 1;
+
     // these are guarded by start/stop synchronized blocks on parent
     private Proxy proxy = null;
     private FrontEnd frontEnd = null;
@@ -89,6 +93,10 @@ public final class Dpe extends AbstractActor {
                 System.out.println(options.usage());
                 System.exit(0);
             }
+
+            // config ZMQ context
+            xMsgContext.setIOThreads(options.ioThreads());
+            xMsgContext.setMaxSockets(options.maxSockets());
 
             // start a dpe
             Dpe dpe = new Dpe(options.isFrontEnd(), options.localAddress(), options.frontEnd(),

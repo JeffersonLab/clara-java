@@ -47,6 +47,9 @@ class DpeOptionsParser {
     private final OptionSpec<Integer> maxCores;
     private final OptionSpec<Long> reportPeriod;
 
+    private final OptionSpec<Integer> maxSockets;
+    private final OptionSpec<Integer> ioThreads;
+
     private final OptionSpec<String> description;
 
     private OptionParser parser;
@@ -73,6 +76,9 @@ class DpeOptionsParser {
         poolSize = parser.accepts("poolsize").withRequiredArg().ofType(Integer.class);
         maxCores = parser.accepts("max-cores").withRequiredArg().ofType(Integer.class);
         reportPeriod = parser.accepts("report").withRequiredArg().ofType(Long.class);
+
+        maxSockets = parser.accepts("max-sockets").withRequiredArg().ofType(Integer.class);
+        ioThreads = parser.accepts("io-threads").withRequiredArg().ofType(Integer.class);
 
         description = parser.accepts("description").withRequiredArg();
 
@@ -144,6 +150,14 @@ class DpeOptionsParser {
         return new DpeConfig(dpePoolSize, dpeMaxCores, dpeReportPeriod);
     }
 
+    public int maxSockets() {
+        return valueOf(maxSockets, Dpe.DEFAULT_MAX_SOCKETS);
+    }
+
+    public int ioThreads() {
+        return valueOf(ioThreads, Dpe.DEFAULT_IO_THREADS);
+    }
+
     public String description() {
         return valueOf(description, "");
     }
@@ -166,7 +180,10 @@ class DpeOptionsParser {
              + String.format("%n  Config options:%n")
              + optionHelp(poolSize, "size", "size of thread pool to handle requests")
              + optionHelp(maxCores, "cores", "how many cores can be used by a service")
-             + optionHelp(reportPeriod, "seconds", "the period to publish reports");
+             + optionHelp(reportPeriod, "seconds", "the period to publish reports")
+             + String.format("%n  Advanced options:%n")
+             + optionHelp(maxSockets, "sockets", "maximum number of allowed ZMQ sockets")
+             + optionHelp(ioThreads, "threads", "size of ZMQ thread pool to handle I/O");
     }
 
     private <V> String optionHelp(OptionSpec<V> spec, String arg, String... help) {
@@ -174,7 +191,7 @@ class DpeOptionsParser {
         String[] lhs = new String[help.length];
         lhs[0] = optionName(spec, arg);
         for (int i = 0; i < help.length; i++) {
-            sb.append(String.format("  %-22s  %s%n", lhs[i] == null ? "" : lhs[i], help[i]));
+            sb.append(String.format("  %-24s  %s%n", lhs[i] == null ? "" : lhs[i], help[i]));
         }
         return sb.toString();
     }

@@ -49,6 +49,9 @@ public class DpeOptionsParserTest {
     private static final String CORES_OPT = "--max-cores";
     private static final String REPORT_OPT = "--report";
 
+    private static final String SOCKETS_OPT = "--max-sockets";
+    private static final String IO_THREADS_OPT = "--io-threads";
+
     private final String defaultHost;
     private DpeOptionsParser parser;
 
@@ -217,6 +220,34 @@ public class DpeOptionsParserTest {
         parse(REPORT_OPT, "20");
 
         assertThat(parser.config().reportPeriod(), is(20_000L));
+    }
+
+    @Test
+    public void dpeUsesDefaultMaxSockets() throws Exception {
+        parse();
+
+        assertThat(parser.maxSockets(), is(Dpe.DEFAULT_MAX_SOCKETS));
+    }
+
+    @Test
+    public void dpeReceivesOptionalMaxSockets() throws Exception {
+        parse(SOCKETS_OPT, "4096");
+
+        assertThat(parser.maxSockets(), is(4096));
+    }
+
+    @Test
+    public void dpeUsesDefaultIOThreads() throws Exception {
+        parse();
+
+        assertThat(parser.ioThreads(), is(Dpe.DEFAULT_IO_THREADS));
+    }
+
+    @Test
+    public void dpeReceivesOptionalIOThreads() throws Exception {
+        parse(IO_THREADS_OPT, "2");
+
+        assertThat(parser.ioThreads(), is(2));
     }
 
 
