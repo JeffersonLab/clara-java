@@ -35,10 +35,12 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.text.Format;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
@@ -247,6 +249,40 @@ public final class ClaraUtil {
         PrintWriter pw = new PrintWriter(sw);
         e.printStackTrace(pw);
         return sw.toString();
+    }
+
+    /**
+     * Returns the list of <code>Throwable</code> objects in the
+     * exception chain.
+     * <p>
+     * A throwable without cause will return a list containing
+     * one element: the input throwable.
+     * A throwable with one cause will return a list containing
+     * two elements: the input throwable and the cause throwable.
+     * A <code>null</code> throwable will return an empty list.</p>
+     *
+     * @param throwable  the throwable to inspect, may be null
+     * @return the list of throwables
+     */
+    public static List<Throwable> getThrowableList(Throwable throwable) {
+        List<Throwable> list = new ArrayList<Throwable>();
+        while (throwable != null && !list.contains(throwable)) {
+            list.add(throwable);
+            throwable = throwable.getCause();
+        }
+        return list;
+    }
+
+    /**
+     * Obtains the root cause of the given the <code>Throwable</code>, if any.
+     *
+     * @param throwable the throwable to get the root cause for, may be null
+     * @return the root cause of the <code>Throwable</code>,
+     *         <code>null</code> if none found or null throwable input
+     */
+    public static Throwable getRootCause(Throwable throwable) {
+        List<Throwable> list = getThrowableList(throwable);
+        return list.size() < 2 ? null : list.get(list.size() - 1);
     }
 
     /**
