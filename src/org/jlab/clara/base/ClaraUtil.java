@@ -330,9 +330,9 @@ public final class ClaraUtil {
         return new GregorianCalendar().getTimeInMillis();
     }
 
-    public static void sleep(int s) {
+    public static void sleep(long millis) {
         try {
-            Thread.sleep(s);
+            Thread.sleep(millis);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
