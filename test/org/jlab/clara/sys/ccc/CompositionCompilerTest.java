@@ -98,6 +98,30 @@ public class CompositionCompilerTest {
     }
 
     @Test
+    public void testCompositionWithSingleServiceAndCustomPorts() throws Exception {
+        CompositionCompiler cc = new CompositionCompiler("10.10.10.1%9999_java:C:S1");
+        String composition = "10.10.10.1%9999_java:C:S1;";
+        cc.compile(composition);
+
+        Set<String> expected = new HashSet<>(Arrays.asList("10.10.10.1%9999_java:C:S1"));
+        assertThat(cc.getUnconditionalLinks(), is(expected));
+
+    }
+
+    @Test
+    public void testCompositionWithMultipleServicesAndCustomPorts() throws Exception {
+        CompositionCompiler cc = new CompositionCompiler("10.10.10.1%9999_java:C:S2");
+        String composition = "10.10.10.1%10099_java:C:S1+"
+                           + "10.10.10.1%9999_java:C:S2+"
+                           + "10.10.10.1%10099_java:C:S3;";
+        cc.compile(composition);
+
+        Set<String> expected = new HashSet<>(Arrays.asList("10.10.10.1_java:C:S2"));
+        assertThat(cc.getUnconditionalLinks(), is(expected));
+    }
+
+
+    @Test
     public void testMultipleCalls() throws Exception {
         CompositionCompiler cc = new CompositionCompiler("10.10.10.1_java:C:S3");
         cc.compile(composition);
