@@ -265,8 +265,6 @@ public final class Dpe extends AbstractActor {
      * @param isFrontEnd true if this DPE is the front-end
      * @param proxyAddress address of local proxy
      * @param frontEndAddress address of front-end proxy
-     * @param poolSize subscription pool size
-     * @param reportPeriod the time between publishing the reports
      * @param description textual description of the DPE
      */
     private Dpe(boolean isFrontEnd,
