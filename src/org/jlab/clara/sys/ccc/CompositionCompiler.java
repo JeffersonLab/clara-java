@@ -69,12 +69,13 @@ public class CompositionCompiler {
      * String that starts with a character and can have preceding number.
      */
     public static final String STR = "([A-Z|a-z]+[0-9]*)";
+    public static final String STR2 = "(%+[0-9]*)*";
 
     /**
      * Service canonical name.
      * Format: <code>dpe_ip:container_name:service_engine_name</code>.
      */
-    public static final String Sn = IP + "_(java|python|cpp):" + STR + ":" + STR;
+    public static final String Sn = IP + STR2 + "_(java|python|cpp):" + STR + ":" + STR;
 
     /**
      *    Routing statement. Example:
