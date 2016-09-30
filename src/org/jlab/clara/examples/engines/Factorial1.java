@@ -8,19 +8,18 @@ import org.jlab.clara.engine.EngineDataType;
 import java.util.Set;
 
 /**
- * Simple factorial engine
- * <p>
+ * Simple factorial engine.
  *
  * @author gurjyan
- *         Date 9/26/16
- * @version 3.x
  */
 public class Factorial1 implements Engine {
 
-    private double fact(double n){
+    private double fact(double n) {
         double result;
-        if(n==1) return 1;
-        result = fact(n-1) * n;
+        if (n == 1) {
+            return 1;
+        }
+        result = fact(n - 1) * n;
         return result;
     }
 
@@ -31,7 +30,7 @@ public class Factorial1 implements Engine {
 
     @Override
     public EngineData execute(EngineData input) {
-        for(int i =0; i<1000; i++) {
+        for (int i = 0; i < 1000; i++) {
             fact(7778);
         }
         return input;
@@ -71,6 +70,7 @@ public class Factorial1 implements Engine {
     public String getAuthor() {
         return "Vardan Gyurgyan";
     }
+
     @Override
     public void reset() {
 
