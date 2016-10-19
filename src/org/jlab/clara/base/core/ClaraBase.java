@@ -35,7 +35,6 @@ import org.jlab.coda.xmsg.data.xMsgRegInfo;
 import org.jlab.coda.xmsg.data.xMsgRegQuery;
 import org.jlab.coda.xmsg.data.xMsgRegRecord;
 import org.jlab.coda.xmsg.excp.xMsgException;
-import org.jlab.coda.xmsg.net.xMsgProxyAddress;
 import org.jlab.coda.xmsg.net.xMsgRegAddress;
 import org.zeromq.ZMQ.Socket;
 
@@ -67,8 +66,8 @@ public abstract class ClaraBase extends xMsg {
      */
     public ClaraBase(ClaraComponent me, ClaraComponent frontEnd) {
         super(me.getCanonicalName(),
-              new xMsgProxyAddress(me.getDpeHost(), me.getDpePort()),
-              new xMsgRegAddress(),
+              me.getProxyAddress(),
+              getRegAddress(frontEnd),
               me.getSubscriptionPoolSize());
         this.me = me;
         this.frontEnd = frontEnd;
@@ -300,7 +299,7 @@ public abstract class ClaraBase extends xMsg {
      * @throws ClaraException if registration failed
      */
     public void register(xMsgTopic topic, String description) throws ClaraException {
-        xMsgRegAddress regAddress = new xMsgRegAddress(frontEnd.getDpeHost());
+        xMsgRegAddress regAddress = getRegAddress(frontEnd);
         try {
             register(xMsgRegInfo.subscriber(topic, description), regAddress);
         } catch (xMsgException e) {
@@ -316,7 +315,7 @@ public abstract class ClaraBase extends xMsg {
      * @throws ClaraException if removing the registration failed
      */
     public void removeRegistration(xMsgTopic topic) throws ClaraException {
-        xMsgRegAddress regAddress = new xMsgRegAddress(frontEnd.getDpeHost());
+        xMsgRegAddress regAddress = getRegAddress(frontEnd);
         try {
             deregister(xMsgRegInfo.subscriber(topic), regAddress);
         } catch (xMsgException e) {
@@ -368,6 +367,10 @@ public abstract class ClaraBase extends xMsg {
     public Set<xMsgRegRecord> discover(xMsgTopic topic)
             throws IOException, xMsgException {
         return discover(xMsgRegQuery.subscribers(topic));
+    }
+
+    public static xMsgRegAddress getRegAddress(ClaraComponent fe) {
+        return new xMsgRegAddress(fe.getDpeHost(), fe.getDpePort() + ClaraConstants.REG_PORT_SHIFT);
     }
 
     /**
