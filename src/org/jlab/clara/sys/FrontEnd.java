@@ -22,8 +22,6 @@
 
 package org.jlab.clara.sys;
 
-import static org.jlab.clara.base.core.ClaraComponent.dpe;
-
 import org.jlab.clara.base.core.ClaraConstants;
 import org.jlab.clara.base.core.ClaraBase;
 import org.jlab.clara.base.core.ClaraComponent;
@@ -36,7 +34,6 @@ import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta.Builder;
 import org.jlab.coda.xmsg.excp.xMsgException;
-import org.jlab.coda.xmsg.net.xMsgProxyAddress;
 import org.jlab.coda.xmsg.net.xMsgRegAddress;
 import org.jlab.coda.xmsg.sys.xMsgRegistrar;
 import org.zeromq.ZContext;
@@ -48,19 +45,14 @@ class FrontEnd {
     private final ZContext context = new ZContext();
     private final xMsgRegistrar registrar;
 
-    FrontEnd(xMsgProxyAddress frontEndAddress, int poolSize, String description)
+    FrontEnd(ClaraComponent frontEnd)
             throws ClaraException {
         try {
             // create the xMsg registrar
-            xMsgRegAddress regAddress = new xMsgRegAddress(frontEndAddress.host());
+            xMsgRegAddress regAddress = new xMsgRegAddress(frontEnd.getDpeHost());
             registrar = new xMsgRegistrar(context, regAddress);
 
             // create the xMsg actor
-            ClaraComponent frontEnd = dpe(frontEndAddress.host(),
-                                          frontEndAddress.pubPort(),
-                                          ClaraConstants.JAVA_LANG,
-                                          poolSize,
-                                          description);
             base = new ClaraBase(frontEnd, frontEnd) {
                 @Override
                 public void start() { }
@@ -68,7 +60,6 @@ class FrontEnd {
                 @Override
                 protected void end() { }
             };
-            base.setFrontEnd(frontEnd);
         } catch (xMsgException e) {
             throw new ClaraException("Could not create front-end", e);
         }

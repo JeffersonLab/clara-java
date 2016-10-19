@@ -361,9 +361,7 @@ public final class Dpe extends AbstractActor {
 
         // start the front-end
         if (isFrontEnd.get()) {
-            frontEnd = new FrontEnd(base.getFrontEnd().getProxyAddress(),
-                                    base.getPoolSize(),
-                                    base.getDescription());
+            frontEnd = new FrontEnd(base.getMe());
             frontEnd.start();
         }
     }
