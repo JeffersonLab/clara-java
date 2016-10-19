@@ -70,9 +70,14 @@ public abstract class ClaraBase extends xMsg {
               new xMsgProxyAddress(me.getDpeHost(), me.getDpePort()),
               new xMsgRegAddress(),
               me.getSubscriptionPoolSize());
+        this.me = me;
+        this.frontEnd = frontEnd;
+        this.claraHome = System.getenv("CLARA_HOME");
+        if (claraHome == null) {
+            throw new IllegalStateException("CLARA_HOME environmental variable is not defined.");
+        }
 
         setConnectionSetup(new xMsgConnectionSetup() {
-
             @Override
             public void preConnection(Socket socket) {
                 socket.setRcvHWM(0);
@@ -84,12 +89,6 @@ public abstract class ClaraBase extends xMsg {
                 xMsgUtil.sleep(100);
             }
         });
-        this.me = me;
-        this.frontEnd = frontEnd;
-        this.claraHome = System.getenv("CLARA_HOME");
-        if (claraHome == null) {
-            throw new IllegalStateException("CLARA_HOME environmental variable is not defined.");
-        }
     }
 
     // abstract methods to start Clara component
