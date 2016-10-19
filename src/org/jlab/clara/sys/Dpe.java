@@ -356,7 +356,7 @@ public final class Dpe extends AbstractActor {
 
     private void startProxyAndFrontEnd() throws ClaraException {
         // start the proxy
-        proxy = new Proxy(base.getMe().getProxyAddress());
+        proxy = new Proxy(base.getMe());
         proxy.start();
 
         // start the front-end

@@ -22,10 +22,10 @@
 
 package org.jlab.clara.sys;
 
+import org.jlab.clara.base.core.ClaraComponent;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.excp.xMsgException;
-import org.jlab.coda.xmsg.net.xMsgProxyAddress;
 import org.jlab.coda.xmsg.sys.xMsgProxy;
 import org.zeromq.ZContext;
 
@@ -34,9 +34,9 @@ class Proxy {
     private final ZContext context = new ZContext();
     private final xMsgProxy proxy;
 
-    Proxy(xMsgProxyAddress address) throws ClaraException {
+    Proxy(ClaraComponent dpe) throws ClaraException {
         try {
-            proxy = new xMsgProxy(context, address);
+            proxy = new xMsgProxy(context, dpe.getProxyAddress());
             if (System.getenv("XMSG_PROXY_DEBUG") != null) {
                 proxy.verbose();
             }
