@@ -78,6 +78,9 @@ public final class Dpe extends AbstractActor {
     private FrontEnd frontEnd = null;
     private xMsgSubscription subscriptionHandler;
 
+    // session ID
+    private volatile String session = "";
+
     // The containers running on this DPE
     private final ConcurrentMap<String, Container> myContainers = new ConcurrentHashMap<>();
 
@@ -100,7 +103,7 @@ public final class Dpe extends AbstractActor {
 
             // start a dpe
             Dpe dpe = new Dpe(options.isFrontEnd(), options.localAddress(), options.frontEnd(),
-                              options.config(), options.description());
+                              options.config(), options.session(), options.description());
 
             Runtime.getRuntime().addShutdownHook(new Thread() {
                 @Override
@@ -132,6 +135,8 @@ public final class Dpe extends AbstractActor {
 
         xMsgProxyAddress localAddress;
         xMsgProxyAddress frontEndAddress;
+
+        String session = "";
 
         int poolSize = DEFAULT_POOL_SIZE;
         int maxCores = DEFAULT_MAX_CORES;
@@ -208,6 +213,15 @@ public final class Dpe extends AbstractActor {
         }
 
         /**
+         * Sets a session for this DPE.
+         */
+        public Builder withSession(String id) {
+            Objects.requireNonNull(id, "id parameter is null");
+            this.session = id;
+            return this;
+        }
+
+        /**
          * Sets the interval of time between publishing reports.
          */
         public Builder withReportPeriod(long interval, TimeUnit unit) {
@@ -254,7 +268,8 @@ public final class Dpe extends AbstractActor {
          */
         public Dpe build() {
             DpeConfig config = new DpeConfig(poolSize, maxCores, reportPeriod);
-            return new Dpe(isFrontEnd, localAddress, frontEndAddress, config, description);
+            return new Dpe(isFrontEnd, localAddress, frontEndAddress,
+                           config, session, description);
         }
     }
 
@@ -271,6 +286,7 @@ public final class Dpe extends AbstractActor {
                 xMsgProxyAddress proxyAddress,
                 xMsgProxyAddress frontEndAddress,
                 DpeConfig config,
+                String session,
                 String description) {
 
         super(ClaraComponent.dpe(proxyAddress.host(),
@@ -285,6 +301,7 @@ public final class Dpe extends AbstractActor {
 
         AbstractActor.isFrontEnd.set(isFrontEnd);
         this.reportService = new ReportService(config.reportPeriod());
+        this.session = session;
         this.maxCores = config.maxCores();
     }
 
@@ -419,6 +436,9 @@ public final class Dpe extends AbstractActor {
         }
         System.out.println("=========================================");
         System.out.println(" Name             = " + base.getName());
+        if (!session.isEmpty()) {
+            System.out.println(" Session          = " + session);
+        }
         System.out.println(" Date             = " + ClaraUtil.getCurrentTime());
         System.out.println(" Version          = 4.3");
         System.out.println(" Lang             = Java");
@@ -543,6 +563,12 @@ public final class Dpe extends AbstractActor {
         container.stop();
         reportService.removeContainer(container);
     }
+
+
+    private void setSession(RequestParser parser) throws RequestException {
+        session = parser.nextString("");
+    }
+
 
     private void setFrontEnd(RequestParser parser) throws RequestException {
         String frontEndHost = parser.nextString();
@@ -729,6 +755,10 @@ public final class Dpe extends AbstractActor {
 
                     case ClaraConstants.SET_FRONT_END:
                         setFrontEnd(parser);
+                        break;
+
+                    case ClaraConstants.SET_SESSION:
+                        setSession(parser);
                         break;
 
                     case ClaraConstants.PING_DPE:

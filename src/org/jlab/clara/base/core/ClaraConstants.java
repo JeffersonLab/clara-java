@@ -69,6 +69,8 @@ public final class ClaraConstants {
     public static final String SET_FRONT_END = "setFrontEnd";
     public static final String SET_FRONT_END_REMOTE = "setFrontEndRemote";
 
+    public static final String SET_SESSION = "setSession";
+
     public static final String REPORT_REGISTRATION = "reportRegistration";
     public static final String REPORT_RUNTIME = "reportRuntime";
 

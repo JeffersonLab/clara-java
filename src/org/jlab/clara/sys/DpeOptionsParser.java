@@ -43,6 +43,8 @@ class DpeOptionsParser {
     private final OptionSpec<String> feHost;
     private final OptionSpec<Integer> fePort;
 
+    private final OptionSpec<String> session;
+
     private final OptionSpec<Integer> poolSize;
     private final OptionSpec<Integer> maxCores;
     private final OptionSpec<Long> reportPeriod;
@@ -72,6 +74,8 @@ class DpeOptionsParser {
         feHost = parser.acceptsAll(asList("fe-host", "fe_host")).withRequiredArg();
         fePort = parser.acceptsAll(asList("fe-port", "fe_port"))
                        .withRequiredArg().ofType(Integer.class);
+
+        session = parser.accepts("session").withRequiredArg();
 
         poolSize = parser.accepts("poolsize").withRequiredArg().ofType(Integer.class);
         maxCores = parser.accepts("max-cores").withRequiredArg().ofType(Integer.class);
@@ -139,6 +143,10 @@ class DpeOptionsParser {
         return frontEndAddress;
     }
 
+    public String session() {
+        return valueOf(session, "");
+    }
+
     public DpeConfig config() {
         int dpePoolSize = valueOf(poolSize, Dpe.DEFAULT_POOL_SIZE);
         int dpeMaxCores = valueOf(maxCores, Dpe.DEFAULT_MAX_CORES);
@@ -176,6 +184,7 @@ class DpeOptionsParser {
              + optionHelp(dpePort, "port", "use given port for this DPE")
              + optionHelp(feHost, "hostname", "the host used by the remote front-end")
              + optionHelp(fePort, "port", "the port used by the remote front-end")
+             + optionHelp(session, "id", "the session ID of this DPE")
              + optionHelp(description, "string", "a short description of this DPE")
              + String.format("%n  Config options:%n")
              + optionHelp(poolSize, "size", "size of thread pool to handle requests")
