@@ -649,12 +649,12 @@ public final class Dpe extends AbstractActor {
         }
 
         private xMsgMessage aliveMessage() {
-            xMsgTopic topic = xMsgTopic.build(ClaraConstants.DPE_ALIVE, base.getName());
+            xMsgTopic topic = xMsgTopic.build(ClaraConstants.DPE_ALIVE, session, base.getName());
             return MessageUtil.buildRequest(topic, aliveReport());
         }
 
         private xMsgMessage jsonMessage() {
-            xMsgTopic topic = xMsgTopic.build(ClaraConstants.DPE_REPORT, base.getName());
+            xMsgTopic topic = xMsgTopic.build(ClaraConstants.DPE_REPORT, session, base.getName());
             return MessageUtil.buildRequest(topic, jsonReport());
         }
 
