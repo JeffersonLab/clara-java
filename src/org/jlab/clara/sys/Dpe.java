@@ -651,8 +651,8 @@ public final class Dpe extends AbstractActor {
         private void run() {
             try {
                 xMsgProxyAddress feHost = base.getFrontEnd().getProxyAddress();
-                xMsgTopic jsonTopic = xMsgTopic.build(ClaraConstants.DPE_REPORT, feHost.host());
-                xMsgTopic aliveTopic = xMsgTopic.build(ClaraConstants.DPE_ALIVE, feHost.host());
+                xMsgTopic jsonTopic = xMsgTopic.build(ClaraConstants.DPE_REPORT, base.getName());
+                xMsgTopic aliveTopic = xMsgTopic.build(ClaraConstants.DPE_ALIVE, base.getName());
 
                 xMsgConnection con = base.getConnection(feHost);
                 xMsgUtil.sleep(100);
