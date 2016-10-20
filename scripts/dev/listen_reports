@@ -1,3 +1,9 @@
 #!/usr/bin/env bash
 
-gradle --console plain listenReports
+if [ $# -gt 0 ]; then
+    printf -v var "'%s', " "$@"
+    var=${var%??}
+    gradle --console plain listenReports -PlistRepArgs="[$var]"
+else
+    gradle --console plain listenReports
+fi
