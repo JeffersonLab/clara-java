@@ -648,23 +648,25 @@ public final class Dpe extends AbstractActor {
             return myReportBuilder.generateReport(myReport);
         }
 
+        private xMsgMessage aliveMessage() {
+            xMsgTopic topic = xMsgTopic.build(ClaraConstants.DPE_ALIVE, base.getName());
+            return MessageUtil.buildRequest(topic, aliveReport());
+        }
+
+        private xMsgMessage jsonMessage() {
+            xMsgTopic topic = xMsgTopic.build(ClaraConstants.DPE_REPORT, base.getName());
+            return MessageUtil.buildRequest(topic, jsonReport());
+        }
+
         private void run() {
             try {
                 xMsgProxyAddress feHost = base.getFrontEnd().getProxyAddress();
-                xMsgTopic jsonTopic = xMsgTopic.build(ClaraConstants.DPE_REPORT, base.getName());
-                xMsgTopic aliveTopic = xMsgTopic.build(ClaraConstants.DPE_ALIVE, base.getName());
-
                 xMsgConnection con = base.getConnection(feHost);
                 xMsgUtil.sleep(100);
-
                 try {
                     while (isReporting.get()) {
-                        xMsgMessage msg = MessageUtil.buildRequest(aliveTopic, aliveReport());
-                        base.send(con, msg);
-
-                        xMsgMessage reportMsg = MessageUtil.buildRequest(jsonTopic, jsonReport());
-                        base.send(con, reportMsg);
-
+                        base.send(con, aliveMessage());
+                        base.send(con, jsonMessage());
                         xMsgUtil.sleep(reportPeriod);
                     }
                 } catch (xMsgException e) {
