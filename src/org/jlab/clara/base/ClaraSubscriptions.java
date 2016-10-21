@@ -246,11 +246,11 @@ public class ClaraSubscriptions {
 
         /**
          * A subscription to the periodic alive message reported by
-         * the running DPEs.
+         * all running DPEs.
          */
         public JsonReportSubscription aliveDpes() {
-            return new JsonReportSubscription(base, subscriptions, frontEnd,
-                                              MessageUtil.buildTopic(ClaraConstants.DPE_ALIVE));
+            xMsgTopic topic = MessageUtil.buildTopic(ClaraConstants.DPE_ALIVE, "");
+            return new JsonReportSubscription(base, subscriptions, frontEnd, topic);
         }
     }
 }
