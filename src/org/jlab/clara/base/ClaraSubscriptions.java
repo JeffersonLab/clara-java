@@ -252,5 +252,19 @@ public class ClaraSubscriptions {
             xMsgTopic topic = MessageUtil.buildTopic(ClaraConstants.DPE_ALIVE, "");
             return new JsonReportSubscription(base, subscriptions, frontEnd, topic);
         }
+
+        /**
+         * A subscription to the periodic alive message reported by
+         * the running DPEs with the given session.
+         * <p>
+         * If the session is empty, only DPEs with no session will be listened.
+         */
+        public JsonReportSubscription aliveDpes(String session) {
+            if (session == null) {
+                throw new IllegalArgumentException("null session argument");
+            }
+            xMsgTopic topic = MessageUtil.buildTopic(ClaraConstants.DPE_ALIVE, session, "");
+            return new JsonReportSubscription(base, subscriptions, frontEnd, topic);
+        }
     }
 }
