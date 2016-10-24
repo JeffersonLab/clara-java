@@ -7,6 +7,8 @@ if [ -z ${1+x} ]; then
 echo "Usage:"
 echo "clara-dpe <session> [<clara-home> <plugin-dir> <fe-host>]"
 echo "<session>         Clara data processing session"
+echo
+echo "optional parameters:"
 echo "<clara-home       Clara home (default = $CLARA_HOME env variable)"
 echo "<plugin-dir>      Clara plugin directory (default = $CLAS12DIR env variable)"
 echo "<fe-host>         Front-End host name (default = localhost)"

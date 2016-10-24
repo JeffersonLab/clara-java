@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+a=`ps -ef | grep sys.Dpe | grep -v grep | awk '{print $2}'`
+for f in $a;
+do
+kill -9 $f
+done
+exit

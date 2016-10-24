@@ -6,7 +6,9 @@ if [ -z ${1+x} ]; then
 echo "Usage:"
 echo "clara-orchestrator <session> [<threads-number> <clara-home> <plugin-dir> <in-dir> <out-dir>]"
 echo "<session>         Clara data processing session"
-echo "<threads-number>  number of parallel threads (default = 13)"
+echo
+echo "optional parameters:"
+echo "<threads-number>  number of parallel threads (default = 72)"
 echo "<clara-home       Clara home (default = $CLARA_HOME env variable)"
 echo "<plugin-dir>      Clara plugin directory (default = $CLAS12DIR env variable)"
 echo "<in-dir           Input data directory (default = $CLARA_HOME/../data/in"
@@ -16,9 +18,9 @@ fi
 
 SESSION=$1
 
-if [ -z ${2+x} ]; then THREAD_NUM=13 ; else THREAD_NUM=$2; fi
+if [ -z ${2+x} ]; then THREAD_NUM=72 ; else THREAD_NUM=$2; fi
 if ! [ -z ${3+x} ]; then CLARA_HOME=$3; fi
-if ! [ -z ${4+x} ]; then CLAS12DIR=$3; fi
+if ! [ -z ${4+x} ]; then CLAS12DIR=$4; fi
 
 export CLARA_HOME
 export CLAS12DIR
@@ -29,11 +31,6 @@ if [ -z ${6+x} ]; then OUT_DIR="$CLARA_HOME/../data/out"; else OUT_DIR=$6; fi
 
 export CCDB_DATABASE="etc/data/database/clas12database.sqlite"
 export PATH=$PATH:$CLARA_HOME/bin
-
-clara $SESSION &
-sleep 3
-clara $SESSION &
-sleep 3
 
 
 SERVICE_YAML="$CLAS12DIR/config/services.yaml"
