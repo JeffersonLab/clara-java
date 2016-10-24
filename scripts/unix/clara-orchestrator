@@ -26,9 +26,9 @@ export CLAS12DIR
 if [ -z ${5+x} ]; then IN_DIR="$CLARA_HOME/../data/in"; else IN_DIR=$5; fi
 if [ -z ${6+x} ]; then OUT_DIR="$CLARA_HOME/../data/out"; else OUT_DIR=$6; fi
 
-export JAVA_HOME="/group/da/Java/jdk/1.8/x64/jdk1.8.0_102"
+
 export CCDB_DATABASE="etc/data/database/clas12database.sqlite"
-export PATH=$PATH:$JAVA_HOME/bin:$CLARA_HOME/bin
+export PATH=$PATH:$CLARA_HOME/bin
 
 clara $SESSION &
 sleep 3
