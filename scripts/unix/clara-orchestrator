@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# author vhg
+# date 10.21.16
+
+if [ -z ${1+x} ]; then
+echo "Usage:"
+echo "clara-orchestrator <session> [<threads-number> <clara-home> <plugin-dir> <in-dir> <out-dir>]"
+echo "<session>         Clara data processing session"
+echo "<threads-number>  number of parallel threads (default = 13)"
+echo "<clara-home       Clara home (default = $CLARA_HOME env variable)"
+echo "<plugin-dir>      Clara plugin directory (default = $CLAS12DIR env variable)"
+echo "<in-dir           Input data directory (default = $CLARA_HOME/../data/in"
+echo "<out-dir>         Output directory (default = $CLARA_HOME/../data/out"
+exit;
+fi
+
+SESSION=$1
+
+if [ -z ${2+x} ]; then THREAD_NUM=13 ; else THREAD_NUM=$2; fi
+if ! [ -z ${3+x} ]; then CLARA_HOME=$3; fi
+if ! [ -z ${4+x} ]; then CLAS12DIR=$3; fi
+
+export CLARA_HOME
+export CLAS12DIR
+
+if [ -z ${5+x} ]; then IN_DIR="$CLARA_HOME/../data/in"; else IN_DIR=$5; fi
+if [ -z ${6+x} ]; then OUT_DIR="$CLARA_HOME/../data/out"; else OUT_DIR=$6; fi
+
+export JAVA_HOME="/group/da/Java/jdk/1.8/x64/jdk1.8.0_102"
+export CCDB_DATABASE="etc/data/database/clas12database.sqlite"
+export PATH=$PATH:$JAVA_HOME/bin:$CLARA_HOME/bin
+
+clara $SESSION &
+sleep 3
+clara $SESSION &
+sleep 3
+
+
+SERVICE_YAML="$CLAS12DIR/config/services.yaml"
+FILE_LIST="$CLAS12DIR/config/files.list"
+
+run-cloud -s $SESSION -F -i $IN_DIR -o $OUT_DIR -p $THREAD_NUM -t $THREAD_NUM $SERVICE_YAML $FILE_LIST
+

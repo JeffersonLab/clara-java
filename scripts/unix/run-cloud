@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+TEST_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+##############################################################################
+# Launch cloud orchestrator
+##############################################################################
+if [ -n "$CLARA_HOME" ]; then
+    export CLASSPATH="$CLARA_HOME/lib/*:$CLAS12DIR/lib/*:$CLAS12DIR/services/*"
+    else
+    echo "CLARA_HOME is not defined. Exiting..."
+    exit
+fi
+
+MAIN=org.jlab.clas.std.orchestrators.CloudOrchestrator
+
+java -cp $CLASSPATH $MAIN "$@" 2>&1 | tee $TEST_DIR/log/run-cloud.log
+
+exit ${PIPESTATUS[0]}

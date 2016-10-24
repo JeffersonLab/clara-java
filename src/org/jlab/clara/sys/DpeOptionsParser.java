@@ -179,7 +179,7 @@ class DpeOptionsParser {
     }
 
     public String usage() {
-        return String.format("usage: j_dpe [options]%n%n  Options:%n")
+        return String.format("usage: clara-dpe [options]%n%n  Options:%n")
              + optionHelp(dpeHost, "hostname", "use given host for this DPE")
              + optionHelp(dpePort, "port", "use given port for this DPE")
              + optionHelp(feHost, "hostname", "the host used by the remote front-end")
