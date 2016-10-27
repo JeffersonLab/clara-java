@@ -25,7 +25,7 @@ fi
 # Check to see if FE DPE is running on the local host.
 # If not fe_port will be set to up, otherwise the variable fe_port will not be defined.
 exec 6<>/dev/tcp/127.0.0.1/7771 || fe_port=up
-clear
+#clear
 
 
 if ! [ -z ${2+x} ]; then CLARA_HOME=$2; fi
