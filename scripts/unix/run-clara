@@ -163,7 +163,7 @@ echo $rcCmd
 sleep 3
 
 # Submit auger job request
-jsub clara_1.jsub
+jsub clara_p.jsub
 
 # Create dpe job submission script
 {
@@ -180,7 +180,7 @@ echo $rdpCmd
 } > $CLAS12DIR/config/clara_d.jsub
 
 for ((i = 1; i < $NODE_NUM; i++)); do
-jsub clara_2.jsub
+jsub clara_d.jsub
 done
 
 # ----------------- Local deployment ----------------------
