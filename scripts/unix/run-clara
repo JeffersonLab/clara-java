@@ -137,17 +137,18 @@ export PATH=$PATH:$JAVA_HOME/bin:$CLARA_HOME/bin
 SERVICE_YAML="$CLAS12DIR/config/services.yaml"
 FILE_LIST="$CLAS12DIR/config/files.list"
 
-echo "==================================="
-echo $MODE
-echo "==================================="
-
 
 if [ "$MODE" == "farm" ]; then
 # ----------------- Farm deployment ----------------------
 echo ' Note: Data input/output directories must be visible by JLAB farm nodes'
-# Create orchestrator job submission script
+
+# For farm nodes we set thread count to be 36 * 2
+THREAD_NUM=36
+# Build auger commands
 rcCmd="COMMAND: run-clara -c $CLARA_HOME -i $IN_DIR -j $JAVA_HOME -m local_2 -o $OUT_DIR -p $CLAS12DIR -s $SESSION -t $THREAD_NUM"
 rdpCmd="COMMAND: clara-dpe  $SESSION $CLARA_HOME $CLAS12DIR"
+
+# Create orchestrator job submission script
 {
 echo 'PROJECT: clas12'
 echo 'JOBNAME: rec_$USER'
