@@ -95,7 +95,7 @@ do
 	  ;;
       -m | --mode)
       {
-      if [ "$1" == "farm" ] || [ "$1" == "local_2" ]; then
+      if [ "$2" == "farm" ] || [ "$2" == "local_2" ]; then
 	      MODE="$2"
 	  fi
 	  }
