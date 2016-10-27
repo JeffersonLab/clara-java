@@ -1,0 +1,197 @@
+#!/usr/bin/env bash
+# author Vardan Gyurjyan
+# date 10.21.16
+
+if ! [ -n "$CLARA_HOME" ]; then
+    echo "CLARA_HOME is not defined. Exiting..."
+    exit
+fi
+
+function display_help {
+
+echo 'Usage: run-clara [option <operand>]'
+echo
+echo '  [-h | --help]'
+echo '        Usage instructions'
+echo
+echo '  [-j | --java_home <java_home>]'
+echo '        JDK/JRE installation directory. (default: %JAVA_HOME)'
+echo
+echo '  [-c | --clara_home <clara_home>]'
+echo '        CLARA installation directory. (default: %CLARA_HOME)'
+echo
+echo '  [-p | --plugin <plugin>]'
+echo '        Plugin installation directory. (default: %CLARA_HOME/plugins/clas12)'
+echo
+echo '  [-s | --session <session>]'
+echo '        The data processing session. (default: $USER)'
+echo
+echo '  [-m | --mode <mode>]'
+echo '        The data processing mode. (default: local. Accepts local2 and farm operands)'
+echo
+echo '  [-i | --input_dir <inputDir>]'
+echo '        The input directory where the files to be processed are located.'
+echo '        (default: $CLARA_HOME/../data/in)'
+echo
+echo '  [-o | --output_dir <outputDir>]'
+echo '        The output directory where processed files will be saved.'
+echo '        (default: $CLARA_HOME/../data/out)'
+echo
+echo '  [-n | --nodes <maxNodes>]'
+echo '        The maximum number of processing nodes to be used. Farm mode only. (default: 1)'
+echo
+echo '  [-t | --threads <maxThreads>]'
+echo '        The maximum number of processing threads to be used per node.'
+echo '        (default: 36 for farm mode and local-node processor count otherwise))'
+}
+
+# Default parameter settings
+# CLARA_HOME
+CL_HOME="/group/da/vhg/Clas/clara-coat"
+
+# Input data directory
+IN_DIR="$CLARA_HOME/../data/in"
+
+# JAVA_HOME
+J_HOME=$JAVA_HOME
+
+# Running mode
+MODE=local
+
+# Number of nodes in case of farm deployment
+NODE_NUM=1
+
+# Output directory
+OUT_DIR="$CLARA_HOME/../data/out"
+
+# User service plugin
+PLUGIN="$CLARA_HOME/plugins/clas12"
+
+# Data processing session
+SESSION=$USER
+
+# Number of parallel threads
+THREAD_NUM=`getconf _NPROCESSORS_ONLN`
+
+
+while :
+do
+    case "$1" in
+      -c | --clara_home)
+	  CL_HOME="$2"
+	  shift 2
+	  ;;
+      -h | --help)
+	  display_help  # function call
+	  exit 0
+	  ;;
+      -i | --input_dir)
+	  IN_DIR="$2"
+	  shift 2
+	  ;;
+      -j | --java_home)
+	  J_HOME="$2"
+	  shift 2
+	  ;;
+      -m | --mode)
+      {
+      if [ "$1" == "farm" ] || [ "$1" == "local_2" ]; then
+	      MODE="$2"
+	  fi
+	  }
+	  shift 2
+	  ;;
+      -n | --nodes)
+	  NODE_NUM="$2"
+	  shift 2
+	  ;;
+      -o | --output_dir)
+	  OUT_DIR="$2"
+	  shift 2
+	  ;;
+      -p | --plugin)
+	  PLUGIN="$2"
+	  shift 2
+	  ;;
+      -s | --session)
+	  SESSION="$2"
+	  shift 2
+	  ;;
+      -t | --threads)
+	  THREAD_NUM="$2"
+	  shift 2
+	  ;;
+     *)  # No more options
+	  break
+	  ;;
+    esac
+done
+
+export JAVA_HOME="$J_HOME"
+export CLARA_HOME="$CL_HOME"
+export CLAS12DIR="$PLUGIN"
+export CCDB_DATABASE="etc/data/database/clas12database.sqlite"
+export PATH=$PATH:$JAVA_HOME/bin:$CLARA_HOME/bin
+#export CLASSPATH="$CLARA_HOME/lib/*:$CLAS12DIR/lib/*:$CLAS12DIR/services/*"
+
+SERVICE_YAML="$CLAS12DIR/config/services.yaml"
+FILE_LIST="$CLAS12DIR/config/files.list"
+
+if [ "$MODE" == "farm" ]; then
+# ----------------- Farm deployment ----------------------
+# Create orchestrator job submission script
+{
+echo 'PROJECT: clas12'
+echo 'JOBNAME: rec_$USER'
+echo 'MEMORY: 30 GB'
+echo 'TRACK: debug'
+echo 'OS: centos65'
+echo 'CPU: 48'
+echo 'DISK_SPACE: 3 GB'
+
+echo 'COMMAND: run-clara -c $CLARA_HOME -i $IN_DIR -j $JAVA_HOME -m local_2 -o $OUT_DIR -p $CLAS12DIR -s $SESSION -t $THREAD_NUM'
+
+} > clara_1.jsub
+sleep 3
+
+# Submit auger job request
+jsub clara_1.jsub
+
+# Create dpe job submission script
+{
+echo 'PROJECT: clas12'
+echo 'JOBNAME: rec_$USER'
+echo 'MEMORY: 30 GB'
+echo 'TRACK: debug'
+echo 'OS: centos65'
+echo 'CPU: 48'
+echo 'DISK_SPACE: 3 GB'
+
+echo 'COMMAND: clara-dpe  $SESSION $CLARA_HOME $CLAS12DIR '
+
+} > clara_2.jsub
+
+for ((i = 1; i < $NODE_NUM; i++)); do
+jsub clara_2.jsub
+done
+
+# ----------------- Local deployment ----------------------
+else
+# Starting DPEs
+clara-dpe $SESSION &
+sleep 3
+
+# We start second DPE if mode is set to farm
+if [ "$MODE" == "local_2" ]; then
+clara-dpe $SESSION &
+THREAD_NUM=36
+sleep 3
+fi
+
+# Starting cloud orchestrator
+j_cloud -s $SESSION -F -i $IN_DIR -o $OUT_DIR -p $THREAD_NUM -t $THREAD_NUM $SERVICE_YAML $FILE_LIST
+
+fi
+
+
+

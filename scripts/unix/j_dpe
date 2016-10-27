@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# author gurjyan
+# author Vardan Gyurjyan
 # date 2.7.15
 
 if [ -n "$CLARA_HOME" ]; then
@@ -9,4 +9,4 @@ if [ -n "$CLARA_HOME" ]; then
     exit
 fi
 
-java -Xms1024m -Xmx2048m -XX:+UseNUMA -XX:+UseBiasedLocking org.jlab.clara.sys.Dpe "$@"
+$JAVA_HOME/bin/java -Xms1024m -Xmx2048m -XX:+UseNUMA -XX:+UseBiasedLocking org.jlab.clara.sys.Dpe "$@"

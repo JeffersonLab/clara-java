@@ -36,5 +36,5 @@ export PATH=$PATH:$CLARA_HOME/bin
 SERVICE_YAML="$CLAS12DIR/config/services.yaml"
 FILE_LIST="$CLAS12DIR/config/files.list"
 
-run-cloud -s $SESSION -F -i $IN_DIR -o $OUT_DIR -p $THREAD_NUM -t $THREAD_NUM $SERVICE_YAML $FILE_LIST
+j_cloud -s $SESSION -F -i $IN_DIR -o $OUT_DIR -p $THREAD_NUM -t $THREAD_NUM $SERVICE_YAML $FILE_LIST
 

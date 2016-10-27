@@ -50,6 +50,7 @@ echo "------------------------------------------"
 echo
 j_dpe --port 7881 --fe-host $FE_HOST --session $1 2>&1 | tee "$LOG_FILE-jdpe.log"
 else
+
 echo " Log file           = Clara distribution/log/$HOSTNAME-jfe.log"
 echo " Note               = Running as local Front-End"
 echo "------------------------------------------"
