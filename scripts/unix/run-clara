@@ -139,6 +139,7 @@ FILE_LIST="$CLAS12DIR/config/files.list"
 
 if [ "$MODE" == "farm" ]; then
 # ----------------- Farm deployment ----------------------
+echo ' Note: Data input/output directories must be visible by JLAB farm nodes'
 # Create orchestrator job submission script
 {
 echo 'PROJECT: clas12'
@@ -151,7 +152,7 @@ echo 'DISK_SPACE: 3 GB'
 
 echo 'COMMAND: run-clara -c $CLARA_HOME -i $IN_DIR -j $JAVA_HOME -m local_2 -o $OUT_DIR -p $CLAS12DIR -s $SESSION -t $THREAD_NUM'
 
-} > clara_1.jsub
+} > $CLAS12DIR/config/clara_1.jsub
 sleep 3
 
 # Submit auger job request
@@ -169,7 +170,7 @@ echo 'DISK_SPACE: 3 GB'
 
 echo 'COMMAND: clara-dpe  $SESSION $CLARA_HOME $CLAS12DIR '
 
-} > clara_2.jsub
+} > $CLAS12DIR/config/clara_2.jsub
 
 for ((i = 1; i < $NODE_NUM; i++)); do
 jsub clara_2.jsub
