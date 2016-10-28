@@ -50,7 +50,7 @@ echo '        (default: 36 for farm mode and local-node processor count otherwis
 CL_HOME=$CLARA_HOME
 
 # Input data directory
-IN_DIR="$CLARA_HOME/../data/in"
+IN_DIR="$CLARA_HOME/data/in"
 
 # JAVA_HOME
 J_HOME=$JAVA_HOME
@@ -62,7 +62,7 @@ MODE=local
 NODE_NUM=1
 
 # Output directory
-OUT_DIR="$CLARA_HOME/../data/out"
+OUT_DIR="$CLARA_HOME/data/out"
 
 # User service plugin
 PLUGIN="$CLARA_HOME/plugins/clas12"

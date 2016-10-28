@@ -15,37 +15,48 @@ if ! [ -n "$JAVA_HOME" ]; then
     exit
 fi
 
-if command_exists git; then
-    echo "Can not run git. Exiting..."
-    exit
+if ! command_exists git ; then
+echo "Can not run git. Exiting..."
+exit
 fi
 
-if command_exists gradle; then
+if ! command_exists gradle  ; then
     echo "Can not run gradle. Exiting..."
     exit
 fi
 
+echo "Creating clara working directory ..."
 mkdir clara-work
 cd clara-work
 
+echo "Downloading and building xMsg package ..."
 git clone https://github.com/JeffersonLab/xmsg-java.git
 cd xmsg-java
 gradle install
 
-cd ../../clara-java
+cd ..
+echo "Downloading and building clara-java package ..."
+git clone https://github.com/JeffersonLab/clara-java.git
+cd clara-java
 gradle install
 gradle deploy
 
+cd ..
+echo "Downloading and building clasrec-io package ..."
 git clone https://github.com/JeffersonLab/clasrec-io.git
-cd ../clasrec-io
+cd clasrec-io
 gradle deploy
 
+cd ..
+echo "Downloading and building clasrec-orchestrators package ..."
 git clone https://github.com/JeffersonLab/clasrec-orchestrators.git
-cd ../clasrec-orchestrators
+cd clasrec-orchestrators
 gradle deploy
 
+cd ..
+echo "Downloading coat-java package ..."
 git clone https://github.com/JeffersonLab/coat-java.git
-cd ../coat-java
+cd coat-java
 cp lib/clas/* $CLARA_HOME/plugins/clas12/lib/.
 cp lib/plugins/* $CLARA_HOME/plugins/clas12/services/.
 cp -r etc $CLARA_HOME/plugins/clas12/.
@@ -55,6 +66,7 @@ mkdir $CLARA_HOME/data
 mkdir $CLARA_HOME/data/in
 mkdir $CLARA_HOME/data/out
 
-mv data/gemc_eklambda_A0043_gen_1.evio $CLARA_HOME/data/in/.
+hash -r
+mv data/gemc_eklambda_A0043_gen_1.evio $CLARA_HOME/data/in/
 
 echo done
