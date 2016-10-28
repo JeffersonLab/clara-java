@@ -12,6 +12,7 @@ if [ -n "$CLARA_HOME" ]; then
     exit
 fi
 
+
 MAIN=org.jlab.clas.std.orchestrators.CloudOrchestrator
 
 java -cp $CLASSPATH $MAIN "$@" 2>&1 | tee $TEST_DIR/log/run-cloud.log

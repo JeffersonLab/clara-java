@@ -37,6 +37,7 @@ export CLAS12DIR
 export CCDB_DATABASE="etc/data/database/clas12database.sqlite"
 export CLASSPATH="$CLARA_HOME/lib/*:$CLAS12DIR/lib/*:$CLAS12DIR/services/*"
 
+
 LOG_FILE=$CLARA_HOME/log/$HOSTNAME
 
 echo "-------- Running Conditions ---------------"

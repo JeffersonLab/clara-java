@@ -47,7 +47,7 @@ echo '        (default: 36 for farm mode and local-node processor count otherwis
 
 # Default parameter settings
 # CLARA_HOME
-CL_HOME="/group/da/vhg/Clas/clara-coat"
+CL_HOME=$CLARA_HOME
 
 # Input data directory
 IN_DIR="$CLARA_HOME/../data/in"
@@ -72,7 +72,6 @@ SESSION=$USER
 
 # Number of parallel threads
 THREAD_NUM=`getconf _NPROCESSORS_ONLN`
-
 
 while :
 do
@@ -132,7 +131,7 @@ export CLARA_HOME="$CL_HOME"
 export CLAS12DIR="$PLUGIN"
 export CCDB_DATABASE="etc/data/database/clas12database.sqlite"
 export PATH=$PATH:$JAVA_HOME/bin:$CLARA_HOME/bin
-#export CLASSPATH="$CLARA_HOME/lib/*:$CLAS12DIR/lib/*:$CLAS12DIR/services/*"
+export CLASSPATH="$CLARA_HOME/lib/*:$CLAS12DIR/lib/*:$CLAS12DIR/services/*"
 
 SERVICE_YAML="$CLAS12DIR/config/services.yaml"
 FILE_LIST="$CLAS12DIR/config/files.list"
