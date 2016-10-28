@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+# author Vardan Gyurjyan
+# date 10.28.16
+
+command_exists () {
+    type "$1" &> /dev/null ;
+}
+
+if ! [ -n "$CLARA_HOME" ]; then
+    echo "CLARA_HOME is not defined. Exiting..."
+    exit
+fi
+if ! [ -n "$JAVA_HOME" ]; then
+    echo "CLARA_HOME is not defined. Exiting..."
+    exit
+fi
+
+if command_exists git; then
+    echo "Can not run git. Exiting..."
+    exit
+fi
+
+if command_exists gradle; then
+    echo "Can not run gradle. Exiting..."
+    exit
+fi
+
+mkdir clara-work
+cd clara-work
+
+git clone https://github.com/JeffersonLab/xmsg-java.git
+cd xmsg-java
+gradle install
+
+cd ../../clara-java
+gradle install
+gradle deploy
+
+git clone https://github.com/JeffersonLab/clasrec-io.git
+cd ../clasrec-io
+gradle deploy
+
+git clone https://github.com/JeffersonLab/clasrec-orchestrators.git
+cd ../clasrec-orchestrators
+gradle deploy
+
+git clone https://github.com/JeffersonLab/coat-java.git
+cd ../coat-java
+cp lib/clas/* $CLARA_HOME/plugins/clas12/lib/.
+cp lib/plugins/* $CLARA_HOME/plugins/clas12/services/.
+cp -r etc $CLARA_HOME/plugins/clas12/.
+rm -rf $CLARA_HOME/plugins/clas12/etc/services
+
+mkdir $CLARA_HOME/data
+mkdir $CLARA_HOME/data/in
+mkdir $CLARA_HOME/data/out
+
+mv data/gemc_eklambda_A0043_gen_1.evio $CLARA_HOME/data/in/.
+
+echo done

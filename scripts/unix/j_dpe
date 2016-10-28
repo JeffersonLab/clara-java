@@ -9,10 +9,4 @@ if [ -n "$CLARA_HOME" ]; then
     exit
 fi
 
-echo ================================
-echo $CLARA_HOME
-echo $CLAS12DIR
-echo $CLASSPATH
-echo ================================
-
 $JAVA_HOME/bin/java -Xms1024m -Xmx2048m -XX:+UseNUMA -XX:+UseBiasedLocking org.jlab.clara.sys.Dpe "$@"
