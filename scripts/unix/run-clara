@@ -203,20 +203,76 @@ done
 # ----------------- Local deployment ----------------------
 else
 # Starting DPEs
-#clara-dpe for multi-fe case
-clara-2dpe $SESSION &
+################# Starting DPE ############
+UPPER=8000
+PORT=7000
+dpe_port=0
+while  [ $dpe_port == 0 ]
+do
+dpe_port=0
+exec 6<>/dev/tcp/127.0.0.1/$PORT || dpe_port=1
+if [ $dpe_port == 0 ]; then
+let "PORT=PORT+10"
+fi
+done
+echo "$PORT"
+
+
+if ! [ -z ${2+x} ]; then CLARA_HOME=$2; fi
+if ! [ -z ${3+x} ]; then CLAS12DIR=$3; fi
+if [ -z ${4+x} ]; then FE_HOST="localhost" ; else FE_HOST=$4; fi
+
+echo $FE_HOST
+
+export CLARA_HOME
+export CLAS12DIR
+export CCDB_DATABASE="etc/data/database/clas12database.sqlite"
+export CLASSPATH="$CLARA_HOME/lib/*:$CLAS12DIR/lib/*:$CLAS12DIR/services/*"
+
+
+LOG_FILE=$CLARA_HOME/log/$HOSTNAME
+
+echo "-------- Running Conditions ---------------"
+echo " Start time         = "$(date)
+echo " Clara distribution = $CLARA_HOME"
+echo " Plugin directory   = $CLAS12DIR"
+echo " Log file           = Clara distribution/log/$HOSTNAME-jfe.log"
+echo " Note               = Running as local Front-End"
+echo "------------------------------------------"
+echo
+j_dpe --port $PORT --host $FE_HOST --session $SESSION 2>&1 | tee "$LOG_FILE-jfe.log" &
+
+
+case $OS in
+  'Linux')
+ IP=$(ifconfig eth0 | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p')
+    ;;
+  'WindowsNT')
+    OS='Windows'
+    ;;
+  'Darwin')
+ IP=$(ifconfig | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p')
+    ;;
+  *) ;;
+esac
+
+################# Starting DPE ############
+
 sleep 3
 
 # We start second DPE if mode is set to farm
-if [ "$MODE" == "local_2" ]; then
+#if [ "$MODE" == "local_2" ]; then
 #clara-dpe for multi-fe case
-clara-2dpe $SESSION &
-THREAD_NUM=36
-sleep 3
-fi
+#clara-2dpe $SESSION &
+#THREAD_NUM=36
+#sleep 3
+#fi
+
+j="_java"
+FENAME=$IP%$PORT$j
 
 # Starting cloud orchestrator
-j_cloud -s $SESSION -F -i $IN_DIR -o $OUT_DIR -p $THREAD_NUM -t $THREAD_NUM $SERVICE_YAML $FILE_LIST
+j_cloud -f $FENAME -s $SESSION -F -i $IN_DIR -o $OUT_DIR -p $THREAD_NUM -t $THREAD_NUM $SERVICE_YAML $FILE_LIST
 
 fi
 
