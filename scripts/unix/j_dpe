@@ -27,4 +27,10 @@ if [ -z "${CLASSPATH}" ]; then
     export CLASSPATH
 fi
 
-$JAVA_HOME/bin/java -Xms1024m -Xmx2048m -XX:+UseNUMA -XX:+UseBiasedLocking org.jlab.clara.sys.Dpe "$@"
+if [ -n "${JAVA_HOME}" ]; then
+    java_bin="${JAVA_HOME}/bin/java"
+else
+    java_bin=java
+fi
+
+"${java_bin}" -Xms1024m -Xmx2048m -XX:+UseNUMA -XX:+UseBiasedLocking org.jlab.clara.sys.Dpe "$@"
