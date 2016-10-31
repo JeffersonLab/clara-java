@@ -242,6 +242,14 @@ public class BaseOrchestratorTest {
     }
 
 
+    @Test
+    public void listenDpesAliveWithSession() throws Exception {
+        subscription = orchestrator.listen().aliveDpes("foobar");
+
+        assertSubscription("dpeAlive:foobar:");
+    }
+
+
 
     private void assertRequest(String host, String topic, String data) throws Exception {
         assertThat(request.frontEnd.getDpeHost(), is(host));
