@@ -238,7 +238,7 @@ public class BaseOrchestratorTest {
     public void listenDpesAlive() throws Exception {
         subscription = orchestrator.listen().aliveDpes();
 
-        assertSubscription("dpeAlive");
+        assertSubscription("dpeAlive:");
     }
 
 
