@@ -203,7 +203,7 @@ done
 # ----------------- Local deployment ----------------------
 else
 # Starting DPEs
-clara-dpe $SESSION &
+clara-2dpe $SESSION &
 sleep 3
 
 # We start second DPE if mode is set to farm
