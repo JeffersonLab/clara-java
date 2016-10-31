@@ -7,9 +7,24 @@ if ! [ -n "$CLARA_HOME" ]; then
     exit
 fi
 
+command_exists () {
+    type "$1" &> /dev/null ;
+}
+
+if ! command_exists wget ; then
+echo "Can not run wget. Exiting..."
+exit
+fi
+
+if ! command_exists git ; then
+echo "Can not run git. Exiting..."
+exit
+fi
+
 echo #############################################################
 echo "Downloading and installing CLARA run-time and CLAS12 plugin"
 accessing git repository...
+
 git clone
 
 OS="`uname`"
