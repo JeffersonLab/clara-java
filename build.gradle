@@ -177,6 +177,15 @@ def deploySpec = copySpec {
         fileMode 0755
     }
 
+    // trick Gradle to "create" empy directories
+    def tempDir = File.createTempDir()
+    tempDir.deleteOnExit()
+
+    def treeBuilder = new FileTreeBuilder(tempDir)
+    treeBuilder.dir('log')
+    treeBuilder.dir('plugins')
+
+    from (tempDir)
 }
 
 
@@ -209,9 +218,6 @@ task distBinaries(type: Tar, dependsOn: build) {
 task deploy(type: Copy, overwrite: true, dependsOn: jar) {
     def dest = "$System.env.CLARA_HOME"
     def dir = new File(dest)
-
-    def log = new File("$System.env.CLARA_HOME/log")
-    log.mkdirs()
 
     into dir
     with deploySpec
