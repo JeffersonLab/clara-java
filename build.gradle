@@ -196,9 +196,14 @@ task distSources(type: Tar, dependsOn: build) {
 
     into "${baseName}-${version}-${classifier}"
     from "${project.rootDir}/build.gradle"
-    from "${project.rootDir}/build.xml"
+    from ("${project.rootDir}/config") {
+        into 'config'
+    }
     from ("${project.rootDir}/src") {
         into 'src'
+    }
+    from ("${project.rootDir}/test") {
+        into 'test'
     }
     from ("${project.rootDir}/scripts") {
         into 'scripts'
