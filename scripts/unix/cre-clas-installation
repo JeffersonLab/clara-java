@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+# author Vardan Gyurjyan
+# date 10.28.16
+
+if ! [ -n "$CLARA_HOME" ]; then
+    echo "CLARA_HOME is not defined. Exiting..."
+    exit
+fi
+
+echo "Downloading and installing CRE and CLAS12 plugin"
+git clone https://github.com/JeffersonLab/xmsg-java.git
+
+

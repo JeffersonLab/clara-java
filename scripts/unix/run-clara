@@ -53,7 +53,24 @@ CL_HOME=$CLARA_HOME
 IN_DIR="$CLARA_HOME/data/in"
 
 # JAVA_HOME
-J_HOME=$JAVA_HOME
+OS="`uname`"
+case $OS in
+  'Linux')
+if $(uname -a | grep 'x86_64'); then
+  J_HOME=
+else
+  J_HOME=
+  echo "I'm 32-bit"
+fi
+    ;;
+  'WindowsNT')
+    OS='Windows'
+    ;;
+  'Darwin')
+    OS='Mac'
+    ;;
+  *) ;;
+esac
 
 # Running mode
 MODE=local
