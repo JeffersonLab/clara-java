@@ -57,17 +57,16 @@ OS="`uname`"
 case $OS in
   'Linux')
 if $(uname -a | grep 'x86_64'); then
-  J_HOME=
+  J_HOME=$CLARA_HOME/jre/linux-64/jre1.8.0_112
 else
-  J_HOME=
-  echo "I'm 32-bit"
+  J_HOME=#CLARA_HOME/jre/linux-i586/jre1.8.0_112
 fi
     ;;
   'WindowsNT')
     OS='Windows'
     ;;
   'Darwin')
-    OS='Mac'
+  J_HOME=#CLARA_HOME/jre/macosx-64/jre1.8.0_112.jre/Contents/Home
     ;;
   *) ;;
 esac
@@ -154,6 +153,8 @@ SERVICE_YAML="$CLAS12DIR/config/services.yaml"
 FILE_LIST="$CLAS12DIR/config/files.list"
 
 if [ "$MODE" == "farm" ]; then
+J_HOME=group/da/Java/jdk/1.8/x64/jdk1.8.0_102/
+export JAVA_HOME="$J_HOME"
 # ----------------- Farm deployment ----------------------
 echo ' Note: Data input/output directories must be visible by JLAB farm nodes.'
 
@@ -161,7 +162,7 @@ echo ' Note: Data input/output directories must be visible by JLAB farm nodes.'
 THREAD_NUM=36
 # Build auger commands
 rcCmd="COMMAND: run-clara -c $CLARA_HOME -i $IN_DIR -j $JAVA_HOME -m local_2 -o $OUT_DIR -p $CLAS12DIR -s $SESSION -t $THREAD_NUM"
-rdpCmd="COMMAND: clara-dpe  $SESSION $CLARA_HOME $CLAS12DIR"
+rdpCmd="COMMAND: clara-2dpe  $SESSION $CLARA_HOME $CLAS12DIR"
 
 # Create orchestrator job submission script
 {

@@ -15,26 +15,22 @@ echo "<fe-host>         Front-End host name (default = localhost)"
 exit;
 fi
 
-
-UPPER=8000
-PORT=7000
-dpe_port=0
-while  [ $dpe_port == 0 ]
-do
-dpe_port=0
-exec 6<>/dev/tcp/127.0.0.1/$PORT || dpe_port=1
-if [ $dpe_port == 0 ]; then
-let "PORT=PORT+10"
+# Check to see if port 7881 is in use. if so exit.
+exec 6<>/dev/tcp/127.0.0.1/7881 || dpe_port=up
+if [ -z ${dpe_port+x} ]; then
+echo "Found active running Clara on the local host. Exiting..."
+exit
 fi
-done
-echo "$PORT"
+
+# Check to see if FE DPE is running on the local host.
+# If not fe_port will be set to up, otherwise the variable fe_port will not be defined.
+exec 6<>/dev/tcp/127.0.0.1/7771 || fe_port=up
+#clear
 
 
 if ! [ -z ${2+x} ]; then CLARA_HOME=$2; fi
 if ! [ -z ${3+x} ]; then CLAS12DIR=$3; fi
 if [ -z ${4+x} ]; then FE_HOST="localhost" ; else FE_HOST=$4; fi
-
-echo $FE_HOST
 
 export CLARA_HOME
 export CLAS12DIR
@@ -48,8 +44,17 @@ echo "-------- Running Conditions ---------------"
 echo " Start time         = "$(date)
 echo " Clara distribution = $CLARA_HOME"
 echo " Plugin directory   = $CLAS12DIR"
+
+if [ -z ${fe_port+x} ]; then
+echo " Log file           = Clara distribution/log/$HOSTNAME-jdpe.log"
+echo "------------------------------------------"
+echo
+j_dpe --port 7881 --fe-host $FE_HOST --session $1 2>&1 | tee "$LOG_FILE-jdpe.log"
+else
+
 echo " Log file           = Clara distribution/log/$HOSTNAME-jfe.log"
 echo " Note               = Running as local Front-End"
 echo "------------------------------------------"
 echo
-j_dpe --port $PORT --host $FE_HOST --session $1 2>&1 | tee "$LOG_FILE-jfe.log"
+j_dpe --host $FE_HOST --session $1 2>&1 | tee "$LOG_FILE-jfe.log"
+fi

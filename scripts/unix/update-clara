@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+# author Vardan Gyurjyan
+# date 10.28.16
+
+command_exists () {
+    type "$1" &> /dev/null ;
+}
+
+if ! [ -n "$CLARA_HOME" ]; then
+    echo "CLARA_HOME is not defined. Exiting..."
+    exit
+fi
+if ! [ -n "$JAVA_HOME" ]; then
+    echo "CLARA_HOME is not defined. Exiting..."
+    exit
+fi
+
+if ! command_exists git ; then
+echo "Can not run git. Exiting..."
+exit
+fi
+
+if ! command_exists gradle  ; then
+    echo "Can not run gradle. Exiting..."
+    exit
+fi
+
+cd clara-work
+
+echo "Updating and building xMsg package ..."
+cd xmsg-java
+git pull
+gradle install
+
+cd ..
+echo "Updating and building clara-java package ..."
+cd clara-java
+git pull
+gradle install
+gradle deploy
+
+cd ..
+echo "Updating and building clasrec-io package ..."
+cd clasrec-io
+git pull
+gradle deploy
+
+cd ..
+echo "Updating and building clasrec-orchestrators package ..."
+cd clasrec-orchestrators
+git pull
+gradle deploy
+
+cd ..
+echo "Updating coat-java package ..."
+cd coat-java
+git pull
+cp lib/clas/* $CLARA_HOME/plugins/clas12/lib/.
+cp lib/plugins/* $CLARA_HOME/plugins/clas12/services/.
+cp -r etc $CLARA_HOME/plugins/clas12/.
+rm -rf $CLARA_HOME/plugins/clas12/etc/services
+
+hash -r
+echo done
