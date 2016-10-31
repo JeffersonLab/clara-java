@@ -7,7 +7,33 @@ if ! [ -n "$CLARA_HOME" ]; then
     exit
 fi
 
-echo "Downloading and installing CRE and CLAS12 plugin"
-git clone https://github.com/JeffersonLab/xmsg-java.git
+echo #############################################################
+echo "Downloading and installing CLARA run-time and CLAS12 plugin"
+accessing git repository...
+git clone
+
+OS="`uname`"
+case $OS in
+  'Linux')
+if $(uname -a | grep 'x86_64'); then
+  cd $CLARA_HOME/jre/linux-64
+  wget --no-cookies --no-check-certificate --header "Cookie: gpw_e24=http%3A%2F%2Fwww.oracle.com%2F" "http://download.oracle.com/otn-pub/java/jdk/8u112-b15/jre-8u112-linux-x64.tar.gz"
+  tar xvzf jre-8u112-linux-x64.tar.gz
+else
+  cd $CLARA_HOME/jre/linux-i586
+  wget --no-cookies --no-check-certificate --header "Cookie: gpw_e24=http%3A%2F%2Fwww.oracle.com%2F" "http://download.oracle.com/otn-pub/java/jdk/8u112-b15/jre-8u112-linux-i586.tar.gz"
+  tar xvzf jre-8u112-linux-i586.tar.gz
+fi
+    ;;
+  'WindowsNT')
+    OS='Windows'
+    ;;
+  'Darwin')
+  cd $CLARA_HOME/jre/macosx-64
+  wget --no-cookies --no-check-certificate --header "Cookie: gpw_e24=http%3A%2F%2Fwww.oracle.com%2F" "http://download.oracle.com/otn-pub/java/jdk/8u112-b16/jre-8u112-macosx-x64.tar.gz"
+  tar xvzf jre-8u112-macosx-x64.tar.gz
+    ;;
+  *) ;;
+esac
 
 
