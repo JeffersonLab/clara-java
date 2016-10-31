@@ -59,14 +59,14 @@ case $OS in
 if $(uname -a | grep 'x86_64'); then
   J_HOME=$CLARA_HOME/jre/linux-64/jre1.8.0_112
 else
-  J_HOME=#CLARA_HOME/jre/linux-i586/jre1.8.0_112
+  J_HOME=$CLARA_HOME/jre/linux-i586/jre1.8.0_112
 fi
     ;;
   'WindowsNT')
     OS='Windows'
     ;;
   'Darwin')
-  J_HOME=#CLARA_HOME/jre/macosx-64/jre1.8.0_112.jre/Contents/Home
+  J_HOME=$CLARA_HOME/jre/macosx-64/jre1.8.0_112.jre/Contents/Home
     ;;
   *) ;;
 esac
