@@ -203,12 +203,14 @@ done
 # ----------------- Local deployment ----------------------
 else
 # Starting DPEs
+#clara-dpe for multi-fe case
 clara-2dpe $SESSION &
 sleep 3
 
 # We start second DPE if mode is set to farm
 if [ "$MODE" == "local_2" ]; then
-clara-dpe $SESSION &
+#clara-dpe for multi-fe case
+clara-2dpe $SESSION &
 THREAD_NUM=36
 sleep 3
 fi
