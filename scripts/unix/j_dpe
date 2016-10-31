@@ -2,11 +2,11 @@
 # author Vardan Gyurjyan
 # date 2.7.15
 
-if [ -n "$CLARA_HOME" ]; then
-    export CLASSPATH="$CLARA_HOME/lib/*:$CLAS12DIR/lib/*:$CLAS12DIR/services/*"
-    else
-    echo "CLARA_HOME is not defined. Exiting..."
-    exit
+if [ -z "${CLARA_HOME}" ]; then
+    echo "Error: \$CLARA_HOME is not defined."
+    exit 1
 fi
+
+export CLASSPATH="$CLARA_HOME/lib/*:$CLAS12DIR/lib/*:$CLAS12DIR/services/*"
 
 $JAVA_HOME/bin/java -Xms1024m -Xmx2048m -XX:+UseNUMA -XX:+UseBiasedLocking org.jlab.clara.sys.Dpe "$@"
