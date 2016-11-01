@@ -243,7 +243,7 @@ echo
 (j_dpe --port $PORT --host $FE_HOST --session $SESSION 2>&1 | tee "$LOG_FILE-jfe.log" &)
 dpepid=$!
 
-IP=$(host $HOST | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b")
+IP=$(host `hostname` | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b")
 
 #case $OS in
 #  'Linux')
