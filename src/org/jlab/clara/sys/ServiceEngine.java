@@ -113,8 +113,13 @@ class ServiceEngine extends AbstractActor {
             inputData = getEngineData(message);
             outData = configureEngine(inputData);
         } catch (Exception e) {
+            Logging.error("UNHANDLED EXCEPTION ON SERVICE CONFIGURATION: %s", base.getName());
             e.printStackTrace();
             outData = DataUtil.buildErrorData("unhandled exception", 4, e);
+        } catch (Throwable e) {
+            Logging.error("UNHANDLED CRITICAL ERROR ON SERVICE CONFIGURATION: %s", base.getName());
+            e.printStackTrace();
+            outData = DataUtil.buildErrorData("unhandled critical error", 4, e);
         } finally {
             updateMetadata(message.getMetaData(), DataUtil.getMetadata(outData));
             resetClock();
@@ -164,8 +169,13 @@ class ServiceEngine extends AbstractActor {
             outData = executeEngine(inData);
             sysReport.addExecutionTime(executionTime);
         } catch (Exception e) {
+            Logging.error("UNHANDLED EXCEPTION ON SERVICE EXECUTION: %s", base.getName());
             e.printStackTrace();
             outData = DataUtil.buildErrorData("unhandled exception", 4, e);
+        } catch (Throwable e) {
+            Logging.error("UNHANDLED CRITICAL ERROR ON SERVICE EXECUTION: %s", base.getName());
+            e.printStackTrace();
+            outData = DataUtil.buildErrorData("unhandled critical error", 4, e);
         } finally {
             updateMetadata(message.getMetaData(), DataUtil.getMetadata(outData));
             resetClock();

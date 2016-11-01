@@ -41,7 +41,7 @@ public final class DataUtil {
 
     private DataUtil() { }
 
-    public static EngineData buildErrorData(String msg, int severity, Exception exception) {
+    public static EngineData buildErrorData(String msg, int severity, Throwable exception) {
         EngineData outData = new EngineData();
         outData.setData(EngineDataType.STRING.mimeType(), msg);
         outData.setDescription(ClaraUtil.reportException(exception));
