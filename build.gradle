@@ -178,8 +178,7 @@ def deploySpec = copySpec {
     }
 
     // trick Gradle to "create" empy directories
-    def tempDir = File.createTempDir()
-    tempDir.deleteOnExit()
+    def tempDir = new File(buildDir, "distribution/clara_home")
 
     new File("${tempDir}/log").mkdirs()
     new File("${tempDir}/plugins").mkdirs()
