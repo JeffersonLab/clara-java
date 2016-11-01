@@ -243,18 +243,19 @@ echo
 (j_dpe --port $PORT --host $FE_HOST --session $SESSION 2>&1 | tee "$LOG_FILE-jfe.log" &)
 dpepid=$!
 
-case $OS in
-  'Linux')
- IP=$(/sbin/ifconfig eth0 | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p')
-    ;;
-  'WindowsNT')
-    OS='Windows'
-    ;;
-  'Darwin')
- IP=$(/sbin/ifconfig | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p')
-    ;;
-  *) ;;
-esac
+IP=$(host $HOST | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b")
+
+#case $OS in
+#  'Linux')
+#    ;;
+#  'WindowsNT')
+#    OS='Windows'
+#    ;;
+#  'Darwin')
+# IP=$(/sbin/ifconfig | sed -En 's/127.0.0.1//;s/.*inet (addr:)?(([0-9]*\.){3}[0-9]*).*/\2/p')
+#    ;;
+#  *) ;;
+#esac
 
 ################# Starting DPE ############
 
