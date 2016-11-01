@@ -240,9 +240,7 @@ echo " Log file           = Clara distribution/log/$HOSTNAME-jfe.log"
 echo " Note               = Running as local Front-End"
 echo "------------------------------------------"
 echo
-(j_dpe --port $PORT --host $FE_HOST --session $SESSION 2>&1 | tee "$LOG_FILE-jfe.log" &)
-
-dpepid=$!
+j_dpe --port $PORT --host $FE_HOST --session $SESSION 2>&1 | tee "$LOG_FILE-jfe.log" & export dpepid=$!
 
 echo "DPE process ID = $dpepid"
 
