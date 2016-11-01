@@ -114,7 +114,7 @@ class ServiceEngine extends AbstractActor {
             outData = configureEngine(inputData);
         } catch (Exception e) {
             e.printStackTrace();
-            outData = DataUtil.buildErrorData("unhandled exception", -4, e);
+            outData = DataUtil.buildErrorData("unhandled exception", 4, e);
         } finally {
             updateMetadata(message.getMetaData(), DataUtil.getMetadata(outData));
             resetClock();
@@ -165,7 +165,7 @@ class ServiceEngine extends AbstractActor {
             sysReport.addExecutionTime(executionTime);
         } catch (Exception e) {
             e.printStackTrace();
-            outData = DataUtil.buildErrorData("unhandled exception", -4, e);
+            outData = DataUtil.buildErrorData("unhandled exception", 4, e);
         } finally {
             updateMetadata(message.getMetaData(), DataUtil.getMetadata(outData));
             resetClock();
