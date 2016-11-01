@@ -240,9 +240,9 @@ echo " Log file           = Clara distribution/log/$HOSTNAME-jfe.log"
 echo " Note               = Running as local Front-End"
 echo "------------------------------------------"
 echo
-j_dpe --port $PORT --host $FE_HOST --session $SESSION 2>&1 | tee "$LOG_FILE-jfe.log" & export dpepid=$!
+j_dpe --port $PORT --host $FE_HOST --session $SESSION 2>&1 | tee "$LOG_FILE-jfe.log" &
 
-echo "DPE process ID = $dpepid"
+#j_dpe --port $PORT --host $FE_HOST --session $SESSION & export dpepid=$!
 
 IP=$(host `hostname` | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b")
 
@@ -275,7 +275,8 @@ FENAME=$IP%$PORT$j
 
 # Starting cloud orchestrator
 j_cloud -f $FENAME -s $SESSION -F -i $IN_DIR -o $OUT_DIR -p $THREAD_NUM -t $THREAD_NUM $SERVICE_YAML $FILE_LIST
-kill -9 $dpepid
+
+remove-dpe
 
 fi
 
