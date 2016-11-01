@@ -181,9 +181,8 @@ def deploySpec = copySpec {
     def tempDir = File.createTempDir()
     tempDir.deleteOnExit()
 
-    def treeBuilder = new FileTreeBuilder(tempDir)
-    treeBuilder.dir('log')
-    treeBuilder.dir('plugins')
+    new File("${tempDir}/log").mkdirs()
+    new File("${tempDir}/plugins").mkdirs()
 
     from (tempDir)
 }
