@@ -172,7 +172,7 @@ def deploySpec = copySpec {
         from "${jar.archivePath}"
     }
 
-    from ("${project.rootDir}/scripts/unix") {
+    from ("${projectDir}/scripts/unix") {
         into 'bin'
         fileMode 0755
     }
@@ -193,17 +193,17 @@ task distSources(type: Tar, dependsOn: build) {
     compression = Compression.GZIP
 
     into "${baseName}-${version}-${classifier}"
-    from "${project.rootDir}/build.gradle"
-    from ("${project.rootDir}/config") {
+    from "${projectDir}/build.gradle"
+    from ("${projectDir}/config") {
         into 'config'
     }
-    from ("${project.rootDir}/src") {
+    from ("${projectDir}/src") {
         into 'src'
     }
-    from ("${project.rootDir}/test") {
+    from ("${projectDir}/test") {
         into 'test'
     }
-    from ("${project.rootDir}/scripts") {
+    from ("${projectDir}/scripts") {
         into 'scripts'
     }
 }
@@ -237,7 +237,7 @@ task deploy(type: Copy, overwrite: true, dependsOn: jar) {
 
 checkstyle {
     toolVersion = "6.14"
-    configFile = new File(rootDir, "config/quality/checkstyle.xml")
+    configFile = new File(projectDir, "config/quality/checkstyle.xml")
     configProperties['samedir'] = new File(project.projectDir, "config/quality")
 }
 
@@ -246,12 +246,12 @@ findbugs {
     ignoreFailures = true
     effort = "default"
     reportLevel = "medium"
-    excludeFilter = new File(rootDir, "config/quality/findbugs-exclude.xml")
+    excludeFilter = new File(projectDir, "config/quality/findbugs-exclude.xml")
 }
 
 task checkstyleHtml << {
     ant.xslt(in: checkstyleMain.reports.xml.destination,
-             style: new File(rootDir, 'config/quality/checkstyle-noframes-sorted.xsl'),
+             style: new File(projectDir, 'config/quality/checkstyle-noframes-sorted.xsl'),
              out: new File(checkstyleMain.reports.xml.destination.parent, 'main.html'))
 }
 
