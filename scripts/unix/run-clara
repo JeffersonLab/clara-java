@@ -274,6 +274,7 @@ FENAME=$IP%$PORT$j
 # Starting cloud orchestrator
 j_cloud -f $FENAME -s $SESSION -F -i $IN_DIR -o $OUT_DIR -p $THREAD_NUM -t $THREAD_NUM $SERVICE_YAML $FILE_LIST
 kill -9 $dpepid
+
 fi
 
 
