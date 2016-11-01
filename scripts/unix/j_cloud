@@ -12,10 +12,22 @@ if [ -n "$CLARA_HOME" ]; then
     exit
 fi
 
+if [ -n "${JAVA_OPTS}" ]; then
+    jvm_options=("${JAVA_OPTS}")
+else
+    jvm_options=(-Xms1024m -Xmx2048m -XX:+UseNUMA -XX:+UseBiasedLocking)
+fi
+
+if [ -n "${JAVA_HOME}" ]; then
+    java_bin="${JAVA_HOME}/bin/java"
+else
+    java_bin=java
+fi
+
 
 MAIN=org.jlab.clas.std.orchestrators.CloudOrchestrator
 
-java -cp $CLASSPATH $MAIN "$@" 2>&1 | tee $TEST_DIR/log/run-cloud.log
+"${java_bin}" -cp $CLASSPATH $MAIN "$@" 2>&1 | tee $TEST_DIR/log/run-cloud.log
 
 # Cleanup after we done
 #remove-dpe
