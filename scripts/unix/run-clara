@@ -92,7 +92,7 @@ THREAD_NUM=`getconf _NPROCESSORS_ONLN`
 while :
 do
     case "$1" in
-      -c | --clara_home)
+      -c | --clara-home)
 	  CL_HOME="$2"
 	  shift 2
 	  ;;
@@ -100,11 +100,11 @@ do
 	  display_help  # function call
 	  exit 0
 	  ;;
-      -i | --input_dir)
+      -i | --input-dir)
 	  IN_DIR="$2"
 	  shift 2
 	  ;;
-      -j | --java_home)
+      -j | --java-home)
 	  J_HOME="$2"
 	  shift 2
 	  ;;
@@ -120,7 +120,7 @@ do
 	  NODE_NUM="$2"
 	  shift 2
 	  ;;
-      -o | --output_dir)
+      -o | --output-dir)
 	  OUT_DIR="$2"
 	  shift 2
 	  ;;
@@ -240,8 +240,8 @@ echo " Log file           = Clara distribution/log/$HOSTNAME-jfe.log"
 echo " Note               = Running as local Front-End"
 echo "------------------------------------------"
 echo
-j_dpe --port $PORT --host $FE_HOST --session $SESSION 2>&1 | tee "$LOG_FILE-jfe.log" &
-
+(j_dpe --port $PORT --host $FE_HOST --session $SESSION 2>&1 | tee "$LOG_FILE-jfe.log" &)
+dpepid=$!
 
 case $OS in
   'Linux')
@@ -273,7 +273,7 @@ FENAME=$IP%$PORT$j
 
 # Starting cloud orchestrator
 j_cloud -f $FENAME -s $SESSION -F -i $IN_DIR -o $OUT_DIR -p $THREAD_NUM -t $THREAD_NUM $SERVICE_YAML $FILE_LIST
-
+kill -9 $dpepid
 fi
 
 
