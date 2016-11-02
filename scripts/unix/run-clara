@@ -53,6 +53,8 @@ CL_HOME=$CLARA_HOME
 IN_DIR="$CLARA_HOME/data/in"
 
 # JAVA_HOME
+if ! [ -n "${JAVA_HOME}" ]; then
+
 OS="`uname`"
 case $OS in
   'Linux')
@@ -70,6 +72,8 @@ fi
     ;;
   *) ;;
 esac
+
+fi
 
 # Running mode
 MODE=local
