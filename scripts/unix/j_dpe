@@ -20,7 +20,7 @@ if [ -z "${CLASSPATH}" ]; then
     fi
     for plugin in "${plugins_dir}"/*; do
         if [ -d "${plugin}" ]; then
-            CLASSPATH+=":${plugin}/lib/*:${plugin}/services/*"
+            CLASSPATH+=":${plugin}/services/*:${plugin}/lib/*"
         fi
     done
     CLASSPATH+=":${CLARA_HOME}/services/*"
