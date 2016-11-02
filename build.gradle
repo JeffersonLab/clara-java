@@ -194,17 +194,22 @@ task distSources(type: Tar, dependsOn: build) {
 
     into "${baseName}-${version}-${classifier}"
     from "${projectDir}/build.gradle"
+    from "${projectDir}/gradlew"
+    from "${projectDir}/gradlew.bat"
     from ("${projectDir}/config") {
         into 'config'
+    }
+    from ("${projectDir}/gradle") {
+        into 'gradle'
+    }
+    from ("${projectDir}/scripts") {
+        into 'scripts'
     }
     from ("${projectDir}/src") {
         into 'src'
     }
     from ("${projectDir}/test") {
         into 'test'
-    }
-    from ("${projectDir}/scripts") {
-        into 'scripts'
     }
 }
 
