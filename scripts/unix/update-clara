@@ -53,8 +53,8 @@ gradle deploy
 
 cd ..
 echo "Updating coat-java package ..."
-cd coat-java
-git pull
+cd coatjava
+#git pull
 cp lib/clas/* $CLARA_HOME/plugins/clas12/lib/.
 cp lib/plugins/* $CLARA_HOME/plugins/clas12/services/.
 cp -r etc $CLARA_HOME/plugins/clas12/.
