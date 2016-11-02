@@ -55,7 +55,20 @@ gradle deploy
 
 cd ..
 echo "Downloading coat-java package ..."
-git clone https://github.com/JeffersonLab/coat-java.git
+case $OS in
+  'Linux')
+  wget https://userweb.jlab.org/~gavalian/software/coatjava/coatjava-3.0.tar.gz
+    ;;
+#  'WindowsNT')
+#    OS='Windows'
+#    ;;
+  'Darwin')
+ curl "https://userweb.jlab.org/~gavalian/software/coatjava/coatjava-3.0.tar.gz" -o coatjava-3.0.tar.gz
+    ;;
+  *) ;;
+esac
+ rm -rf coatjava
+ tar xvzf coatjava-3.0.tar.gz
 cd coat-java
 cp lib/clas/* $CLARA_HOME/plugins/clas12/lib/.
 cp lib/plugins/* $CLARA_HOME/plugins/clas12/services/.
@@ -67,6 +80,6 @@ mkdir $CLARA_HOME/data/in
 mkdir $CLARA_HOME/data/out
 
 hash -r
-mv data/gemc_eklambda_A0043_gen_1.evio $CLARA_HOME/data/in/
+cp ../clasrec-io/data/gemcOut_header.evio $CLARA_HOME/data/in/
 
 echo done

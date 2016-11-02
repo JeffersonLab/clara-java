@@ -53,8 +53,21 @@ gradle deploy
 
 cd ..
 echo "Updating coat-java package ..."
+case $OS in
+  'Linux')
+  wget https://userweb.jlab.org/~gavalian/software/coatjava/coatjava-3.0.tar.gz
+    ;;
+#  'WindowsNT')
+#    OS='Windows'
+#    ;;
+  'Darwin')
+ curl "https://userweb.jlab.org/~gavalian/software/coatjava/coatjava-3.0.tar.gz" -o coatjava-3.0.tar.gz
+    ;;
+  *) ;;
+esac
+ rm -rf coatjava
+ tar xvzf coatjava-3.0.tar.gz
 cd coatjava
-#git pull
 cp lib/clas/* $CLARA_HOME/plugins/clas12/lib/.
 cp lib/plugins/* $CLARA_HOME/plugins/clas12/services/.
 cp -r etc $CLARA_HOME/plugins/clas12/.
