@@ -10,10 +10,6 @@ if ! [ -n "$CLARA_HOME" ]; then
     echo "CLARA_HOME is not defined. Exiting..."
     exit
 fi
-if ! [ -n "$JAVA_HOME" ]; then
-    echo "CLARA_HOME is not defined. Exiting..."
-    exit
-fi
 
 if ! command_exists git ; then
 echo "Can not run git. Exiting..."
