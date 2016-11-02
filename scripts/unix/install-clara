@@ -74,7 +74,9 @@ esac
  tar xvzf coatjava-3.0.tar.gz
  tar xvzf jre.tar.gz
 
-mv jre $CALRA_HOME
+hash -r
+
+mv jre $CLARA_HOME
 
 cd coatjava
 cp lib/clas/* $CLARA_HOME/plugins/clas12/lib/.
