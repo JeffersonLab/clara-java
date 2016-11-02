@@ -53,6 +53,7 @@ gradle deploy
 
 cd ..
 echo "Updating coat-java package ..."
+OS="`uname`"
 case $OS in
   'Linux')
   wget https://userweb.jlab.org/~gavalian/software/coatjava/coatjava-3.0.tar.gz
