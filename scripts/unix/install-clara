@@ -59,17 +59,21 @@ OS="`uname`"
 case $OS in
   'Linux')
   wget https://userweb.jlab.org/~gavalian/software/coatjava/coatjava-3.0.tar.gz
+  wget https://userweb.jlab.org/~gurjyan/clara-cre/jre.tar.gz
     ;;
 #  'WindowsNT')
 #    OS='Windows'
 #    ;;
   'Darwin')
  curl "https://userweb.jlab.org/~gavalian/software/coatjava/coatjava-3.0.tar.gz" -o coatjava-3.0.tar.gz
+ curl "https://userweb.jlab.org/~gurjyan/clara-cre/jre.tar.gz" -o jre.tar.gz
     ;;
   *) ;;
 esac
- rm -rf coatjava
+
  tar xvzf coatjava-3.0.tar.gz
+ tar xvzf jre.tar.gz
+
 cd coatjava
 cp lib/clas/* $CLARA_HOME/plugins/clas12/lib/.
 cp lib/plugins/* $CLARA_HOME/plugins/clas12/services/.
