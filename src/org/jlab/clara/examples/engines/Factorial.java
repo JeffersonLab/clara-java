@@ -33,14 +33,12 @@ import java.util.Set;
  */
 public class Factorial implements Engine {
 
-    private double fact(int n)
-    {
+    private double fact(int n) {
         double result;
-
-        if(n==1)
+        if (n == 1) {
             return 1;
-
-        result = fact(n-1) * n;
+        }
+        result = fact(n - 1) * n;
         return result;
     }
 
