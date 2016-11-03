@@ -5,7 +5,6 @@
 command_exists () {
     type "$1" &> /dev/null ;
 }
-installation-dir=$(pwd)
 
 OS="`uname`"
 case $OS in
@@ -34,18 +33,19 @@ case $OS in
     exit
     fi
 
- curl "https://userweb.jlab.org/~gurjyan/clara-cre/clara-cre-clas.tar.gz" -o clara-cre.tar.gz
+ curl "https://userweb.jlab.org/~gurjyan/clara-cre/clara-cre-clas.tar.gz" -o clara-cre-clas.tar.gz
 
  curl "https://userweb.jlab.org/~gurjyan/clara-cre/macosx-64.tar.gz" -o macosx-64.tar.gz
     ;;
   *) ;;
 esac
 
-    tar xvzf clara-cre.tar.gz
-    rm -f clara-cre.tar.gz
-    mkdir $installation-dir/clara-cre/jre
-    mv *.tar.* $installation-dir/clara-cre/jre
-    cd $installation-dir/clara-cre/jre
+    tar xvzf clara-cre-clas.tar.gz
+    rm -f clara-cre-clas.tar.gz
+    cd clara-cre
+    mkdir jre
+    cd jre
+    mv ../../*.tar.* .
 
 echo "Installing jre ..."
 tar xvzf *.tar.*

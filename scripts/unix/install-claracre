@@ -44,7 +44,8 @@ esac
     rm -f clara-cre.tar.gz
     cd clara-cre
     mkdir jre
-    mv ../*.tar.* .
+    cd jre
+    mv ../../*.tar.* .
 
 echo "Installing jre ..."
 tar xvzf *.tar.*
