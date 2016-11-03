@@ -52,6 +52,7 @@ gradle deploy
 cd ..
 echo "Downloading coat-java and jre packages ..."
 mkdir $CLARA_HOME/jre
+
 OS="`uname`"
 case $OS in
   'Linux')
@@ -70,7 +71,7 @@ case $OS in
   'Darwin')
  curl "https://userweb.jlab.org/~gavalian/software/coatjava/coatjava-3.0.tar.gz" -o coatjava-3.0.tar.gz
  curl "https://userweb.jlab.org/~gurjyan/clara-cre/macosx-64.tar.gz" -o macosx-64.tar.gz
-    mv macosx-64.tar.gz jre
+    mv macosx-64.tar.gz $CLARA_HOME/jre
     ;;
   *) ;;
 esac
