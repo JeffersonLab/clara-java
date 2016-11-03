@@ -38,6 +38,7 @@ gradle deploy
 cd ..
 echo "Updating and building clasrec-io package ..."
 cd clasrec-io
+
 git pull
 gradle deploy
 
