@@ -51,17 +51,17 @@ gradle deploy
 
 cd ..
 echo "Downloading coat-java and jre packages ..."
-mkdir jre
+mkdir $CLARA_HOME/jre
 OS="`uname`"
 case $OS in
   'Linux')
   wget https://userweb.jlab.org/~gavalian/software/coatjava/coatjava-3.0.tar.gz
   if $(uname -a | grep 'x86_64'); then
     wget https://userweb.jlab.org/~gurjyan/clara-cre/linux-64.tar.gz
-    mv linux-64.tar.gz jre
+    mv linux-64.tar.gz $CLARA_HOME/jre
   else
      wget https://userweb.jlab.org/~gurjyan/clara-cre/linux-i586.tar.gz
-    mv linux-i586.tar.gz jre
+    mv linux-i586.tar.gz $CLARA_HOME/jre
   fi
     ;;
 #  'WindowsNT')
@@ -77,13 +77,6 @@ esac
 
 tar xvzf coatjava-3.0.tar.gz
 
-echo "Installing jre ..."
-cd jre
-tar xvzf *.tar.*
-
-hash -r
-
-cd ..
 cd coatjava
 cp lib/clas/* $CLARA_HOME/plugins/clas12/lib/.
 cp lib/plugins/* $CLARA_HOME/plugins/clas12/services/.
@@ -96,5 +89,9 @@ mkdir $CLARA_HOME/data/out
 
 hash -r
 cp ../clasrec-io/data/gemcOut_header.evio $CLARA_HOME/data/in/
+
+echo "Installing jre ..."
+cd $CLARA_HOME/jre
+tar xvzf *.tar.*
 
 echo done
