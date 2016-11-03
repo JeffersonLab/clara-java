@@ -51,15 +51,17 @@ gradle deploy
 
 cd ..
 echo "Downloading coat-java and jre packages ..."
-
+mkdir jre
 OS="`uname`"
 case $OS in
   'Linux')
   wget https://userweb.jlab.org/~gavalian/software/coatjava/coatjava-3.0.tar.gz
   if $(uname -a | grep 'x86_64'); then
     wget https://userweb.jlab.org/~gurjyan/clara-cre/linux-64.tar.gz
+    mv linux-64.tar.gz jre
   else
      wget https://userweb.jlab.org/~gurjyan/clara-cre/linux-i586.tar.gz
+    mv linux-i586.tar.gz jre
   fi
     ;;
 #  'WindowsNT')
@@ -68,6 +70,7 @@ case $OS in
   'Darwin')
  curl "https://userweb.jlab.org/~gavalian/software/coatjava/coatjava-3.0.tar.gz" -o coatjava-3.0.tar.gz
  curl "https://userweb.jlab.org/~gurjyan/clara-cre/macosx-64.tar.gz" -o macosx-64.tar.gz
+    mv macosx-64.tar.gz jre
     ;;
   *) ;;
 esac
@@ -75,8 +78,6 @@ esac
 tar xvzf coatjava-3.0.tar.gz
 
 echo "Installing jre ..."
-mkdir jre
-mv *.tar.* jre
 cd jre
 tar xvzf *.tar.*
 
