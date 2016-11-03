@@ -74,6 +74,7 @@ javadoc {
     options.charSet = 'utf8'
     options.encoding = 'utf8'
     options.docEncoding = 'utf8'
+    options.addStringOption('Xdoclint:none', '-quiet')
     options.links('http://docs.oracle.com/javase/8/docs/api/')
 
     include "org/jlab/clara/base/**"
@@ -88,14 +89,6 @@ javadoc {
 task javadocJar(type: Jar) {
     classifier = 'javadoc'
     from javadoc
-}
-
-if (JavaVersion.current().isJava8Compatible()) {
-    allprojects {
-        tasks.withType(Javadoc) {
-            options.addStringOption('Xdoclint:none', '-quiet')
-        }
-    }
 }
 
 
