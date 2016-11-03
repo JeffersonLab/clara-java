@@ -5,7 +5,6 @@
 command_exists () {
     type "$1" &> /dev/null ;
 }
-installation-dir=$(pwd)
 
 OS="`uname`"
 case $OS in
@@ -43,9 +42,9 @@ esac
 
     tar xvzf clara-cre.tar.gz
     rm -f clara-cre.tar.gz
-    mkdir $installation-dir/clara-cre/jre
-    mv *.tar.* $installation-dir/clara-cre/jre
-    cd $installation-dir/clara-cre/jre
+    cd clara-cre
+    mkdir jre
+    mv ../*.tar.* .
 
 echo "Installing jre ..."
 tar xvzf *.tar.*
