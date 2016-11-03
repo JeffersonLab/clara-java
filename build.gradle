@@ -189,6 +189,7 @@ task distSources(type: Tar, dependsOn: build) {
 
     into "${baseName}-${version}-${classifier}"
 
+    from 'README.md'
     from 'build.gradle'
     from 'gradlew'
     from 'gradlew.bat'
