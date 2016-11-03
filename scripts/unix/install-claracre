@@ -1,0 +1,53 @@
+#!/usr/bin/env bash
+# author Vardan Gyurjyan
+# date 10.28.16
+
+command_exists () {
+    type "$1" &> /dev/null ;
+}
+installation-dir=$(pwd)
+
+OS="`uname`"
+case $OS in
+  'Linux')
+
+  if ! command_exists wget ; then
+  echo "Can not run wget. Exiting..."
+  exit
+  fi
+
+    wget https://userweb.jlab.org/~gurjyan/clara-cre/clara-cre.tar.gz
+    tar xvzf clara-cre.tar.gz
+  if $(uname -a | grep 'x86_64'); then
+    wget https://userweb.jlab.org/~gurjyan/clara-cre/linux-64.tar.gz
+  else
+     wget https://userweb.jlab.org/~gurjyan/clara-cre/linux-i586.tar.gz
+  fi
+    ;;
+#  'WindowsNT')
+#    OS='Windows'
+#    ;;
+  'Darwin')
+
+    if ! command_exists curl ; then
+    echo "Can not run curl. Exiting..."
+    exit
+    fi
+
+ curl "https://userweb.jlab.org/~gurjyan/clara-cre/clara-cre.tar.gz" -o clara-cre.tar.gz
+
+ curl "https://userweb.jlab.org/~gurjyan/clara-cre/macosx-64.tar.gz" -o macosx-64.tar.gz
+    ;;
+  *) ;;
+esac
+
+    tar xvzf clara-cre.tar.gz
+    rm -f clara-cre.tar.gz
+    mkdir $installation-dir/clara-cre/jre
+    mv *.tar.* $installation-dir/clara-cre/jre
+    cd $installation-dir/clara-cre/jre
+
+echo "Installing jre ..."
+tar xvzf *.tar.*
+
+echo done
