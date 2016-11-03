@@ -229,16 +229,14 @@ task distBinaries(type: Tar, dependsOn: build) {
 
 task deploy(type: Copy, overwrite: true, dependsOn: jar) {
     def dest = "$System.env.CLARA_HOME"
-    def dir = file(dest)
 
-    into dir
+    into dest
     with deploySpec
 
     doFirst {
         if (dest == 'null') {
             throw new GradleException('CLARA_HOME not set')
         }
-        dir.mkdirs()
     }
 }
 
