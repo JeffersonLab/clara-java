@@ -184,11 +184,10 @@ public class OrInteractive extends BaseOrchestrator {
             } catch (NoSuchElementException e) {
                 System.out.println();
                 System.out.println("Exiting...");
-                return;
-            } finally {
-                scanner.close();
+                break;
             }
         }
+        scanner.close();
     }
 
     private List<ServiceInfo> parseServices(Document doc) {
