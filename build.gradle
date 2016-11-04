@@ -8,8 +8,8 @@ apply plugin: 'eclipse'
 apply plugin: 'idea'
 
 
-archivesBaseName = 'jclara'
 group = 'org.jlab.coda'
+archivesBaseName = 'jclara'
 version = '4.3-SNAPSHOT'
 
 defaultTasks 'build'
