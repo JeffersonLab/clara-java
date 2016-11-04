@@ -90,6 +90,7 @@ public class OrInteractive extends BaseOrchestrator {
             } else {
                 or.interactive();
             }
+            System.exit(0);
         } catch (OptionException | UserInputException e) {
             System.err.println(e.getMessage());
             System.exit(1);
