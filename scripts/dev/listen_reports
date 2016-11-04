@@ -1,9 +1,3 @@
-#!/usr/bin/env bash
+#!/bin/sh
 
-if [ $# -gt 0 ]; then
-    printf -v var "'%s', " "$@"
-    var=${var%??}
-    gradle --console plain listenReports -PlistRepArgs="[$var]"
-else
-    gradle --console plain listenReports
-fi
+./scripts/exec-class -t org.jlab.clara.sys.DpeReportTest "$@"

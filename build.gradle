@@ -118,49 +118,6 @@ uploadArchives {
 
 
 
-task(startDpe, dependsOn: 'classes', type: JavaExec) {
-    main = 'org.jlab.clara.sys.Dpe'
-    classpath = sourceSets.main.runtimeClasspath
-    if (hasProperty('dpeArgs')) {
-        args Eval.me(dpeArgs)
-    }
-    errorOutput = System.out
-}
-
-
-task(orInteractive, dependsOn: 'classes', type: JavaExec) {
-    main = 'org.jlab.clara.examples.orchestrators.OrInteractive'
-    classpath = sourceSets.main.runtimeClasspath
-    if (hasProperty('orArgs')) {
-        args Eval.me(orArgs)
-    }
-    standardInput = System.in
-    errorOutput = System.out
-}
-
-
-task(runCommands, dependsOn: 'classes', type: JavaExec) {
-    main = 'org.jlab.clara.base.core.CommandDebugger'
-    classpath = sourceSets.main.runtimeClasspath
-    if (hasProperty('cmdDbgArgs')) {
-        args Eval.me(cmdDbgArgs)
-    }
-    standardInput = System.in
-    errorOutput = System.out
-}
-
-
-task(listenReports, dependsOn: 'classes', type: JavaExec) {
-    main = 'org.jlab.clara.sys.DpeReportTest'
-    classpath = sourceSets.test.runtimeClasspath
-    if (hasProperty('listRepArgs')) {
-        args Eval.me(listRepArgs)
-    }
-    errorOutput = System.out
-}
-
-
-
 def deploySpec = copySpec {
     into ('lib') {
         from configurations.runtime
@@ -233,6 +190,31 @@ task deploy(type: Copy, overwrite: true, dependsOn: jar) {
         }
     }
 }
+
+
+
+ext.classPathCache = file("${buildDir}/tmp/classpath")
+ext.testClassPathCache = file("${buildDir}/tmp/test_classpath")
+
+task cacheClasspath << {
+    if (!classPathCache.isFile()) {
+        classPathCache.parentFile.mkdirs()
+        classPathCache.createNewFile()
+    }
+    classPathCache.write sourceSets.main.runtimeClasspath.asPath
+    testClassPathCache.write sourceSets.test.runtimeClasspath.asPath
+}
+cacheClasspath.inputs.files sourceSets.main.runtimeClasspath
+cacheClasspath.inputs.files sourceSets.test.runtimeClasspath
+cacheClasspath.outputs.files classPathCache
+cacheClasspath.outputs.files testClassPathCache
+
+task printClasspath << {
+    println classPathCache.text
+}
+
+build.dependsOn cacheClasspath
+printClasspath.dependsOn cacheClasspath
 
 
 
