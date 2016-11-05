@@ -1,11 +1,15 @@
 #!/usr/bin/env bash
 # author Vardan Gyurjyan
-# date 10.21.16
+# date 11.03.16
 
 if ! [ -n "$CLARA_HOME" ]; then
     echo "CLARA_HOME is not defined. Exiting..."
     exit
 fi
+
+remove-dpe
+
+unset CCDB_DATABASE
 
 function display_help {
 
@@ -15,19 +19,19 @@ echo '  [-h | --help]'
 echo '        Usage instructions'
 echo
 echo '  [-j | --java_home <java_home>]'
-echo '        JDK/JRE installation directory. (default: %JAVA_HOME)'
+echo '        JDK/JRE installation directory. (default: $JAVA_HOME)'
 echo
 echo '  [-c | --clara_home <clara_home>]'
-echo '        CLARA installation directory. (default: %CLARA_HOME)'
+echo '        CLARA installation directory. (default: $CLARA_HOME)'
 echo
 echo '  [-p | --plugin <plugin>]'
-echo '        Plugin installation directory. (default: %CLARA_HOME/plugins/clas12)'
+echo '        Plugin installation directory. (default: $CLARA_HOME/plugins/clas12)'
 echo
 echo '  [-s | --session <session>]'
 echo '        The data processing session. (default: $USER)'
 echo
 echo '  [-m | --mode <mode>]'
-echo '        The data processing mode. (default: local. Accepts local2 and farm operands)'
+echo '        The data processing mode. (default: local. Accepts sqlite and farm operands)'
 echo
 echo '  [-i | --input_dir <inputDir>]'
 echo '        The input directory where the files to be processed are located.'
@@ -57,6 +61,7 @@ IN_DIR="$CLARA_HOME/data/in"
 OS="`uname`"
 case $OS in
   'Linux')
+IP=$(host `hostname` | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b")
 if $(uname -a | grep 'x86_64'); then
   J_HOME=$CLARA_HOME/jre/linux-64/jre1.8.0_112
 else
@@ -67,6 +72,7 @@ fi
     OS='Windows'
     ;;
   'Darwin')
+  IP=$(ipconfig getifaddr en1)
   J_HOME=$CLARA_HOME/jre/macosx-64/jre1.8.0_112.jre/Contents/Home
     ;;
   *) ;;
@@ -112,7 +118,7 @@ do
 	  ;;
       -m | --mode)
       {
-      if [ "$2" == "farm" ] || [ "$2" == "local_2" ]; then
+      if [ "$2" == "farm" ] || [ "$2" == "sqlite" ] ; then
 	      MODE="$2"
 	  fi
 	  }
@@ -147,7 +153,7 @@ done
 export JAVA_HOME="$J_HOME"
 export CLARA_HOME="$CL_HOME"
 export CLAS12DIR="$PLUGIN"
-export CCDB_DATABASE="etc/data/database/clas12database.sqlite"
+#export CCDB_DATABASE="etc/data/database/clas12database.sqlite"
 export PATH=$PATH:$JAVA_HOME/bin:$CLARA_HOME/bin
 export CLASSPATH="$CLARA_HOME/lib/*:$CLAS12DIR/lib/*:$CLAS12DIR/services/*"
 
@@ -169,7 +175,7 @@ rdpCmd="COMMAND: clara-2dpe  $SESSION $CLARA_HOME $CLAS12DIR"
 # Create orchestrator job submission script
 {
 echo 'PROJECT: clas12'
-echo 'JOBNAME: rec_'$USER
+echo 'JOBNAME: rec_$USER'
 echo 'MEMORY: 30 GB'
 echo 'TRACK: debug'
 echo 'OS: centos65'
@@ -187,7 +193,7 @@ jsub $CLAS12DIR/config/clara_p.jsub
 # Create dpe job submission script
 {
 echo 'PROJECT: clas12'
-echo 'JOBNAME: rec_'$USER
+echo 'JOBNAME: rec_$USER'
 echo 'MEMORY: 30 GB'
 echo 'TRACK: debug'
 echo 'OS: centos65'
@@ -204,6 +210,12 @@ done
 
 # ----------------- Local deployment ----------------------
 else
+
+# We start second DPE if mode is set to farm
+if [ "$MODE" == "sqlite" ]; then
+export CCDB_DATABASE="etc/data/database/clas12database.sqlite"
+fi
+
 # Starting DPEs
 ################# Starting DPE ############
 UPPER=8000
@@ -228,7 +240,6 @@ echo $FE_HOST
 
 export CLARA_HOME
 export CLAS12DIR
-export CCDB_DATABASE="etc/data/database/clas12database.sqlite"
 export CLASSPATH="$CLARA_HOME/lib/*:$CLAS12DIR/lib/*:$CLAS12DIR/services/*"
 
 
@@ -242,23 +253,15 @@ echo " Log file           = Clara distribution/log/$HOSTNAME-jfe.log"
 echo " Note               = Running as local Front-End"
 echo "------------------------------------------"
 echo
+
+
 j_dpe --port $PORT --host $FE_HOST --session $SESSION 2>&1 | tee "$LOG_FILE-jfe.log" &
 
 #j_dpe --port $PORT --host $FE_HOST --session $SESSION & export dpepid=$!
 
-IP=$(host `hostname` | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b")
-
 ################# Starting DPE ############
 
 sleep 3
-
-# We start second DPE if mode is set to farm
-#if [ "$MODE" == "local_2" ]; then
-#clara-dpe for multi-fe case
-#clara-2dpe $SESSION &
-#THREAD_NUM=36
-#sleep 3
-#fi
 
 j="_java"
 FENAME=$IP%$PORT$j
