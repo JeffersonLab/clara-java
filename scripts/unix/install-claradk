@@ -16,10 +16,6 @@ echo "Can not run git. Exiting..."
 exit
 fi
 
-if ! command_exists gradle  ; then
-    echo "Can not run gradle. Exiting..."
-    exit
-fi
 
 echo "Creating clara working directory ..."
 mkdir clara-work
@@ -28,14 +24,14 @@ cd clara-work
 echo "Downloading and building xMsg package ..."
 git clone https://github.com/JeffersonLab/xmsg-java.git
 cd xmsg-java
-gradle install
+./gradlew install
 
 cd ..
 echo "Downloading and building clara-java package ..."
 git clone https://github.com/JeffersonLab/clara-java.git
 cd clara-java
-gradle install
-gradle deploy
+./gradlew install
+./gradlew deploy
 
 
 cd ..
