@@ -2,10 +2,6 @@
 # author Vardan Gyurjyan
 # date 10.28.16
 
-command_exists () {
-    type "$1" &> /dev/null ;
-}
-
 if ! [ -n "$CLARA_HOME" ]; then
     echo "CLARA_HOME is not defined. Exiting..."
     exit
@@ -15,6 +11,16 @@ if ! command_exists git ; then
 echo "Can not run git. Exiting..."
 exit
 fi
+
+    case "$1" in
+      -u | --update)
+	  rm -rf $CLARA_HOME
+	  ;;
+	esac
+
+command_exists () {
+    type "$1" &> /dev/null ;
+}
 
 rm -rf clara-work
 
