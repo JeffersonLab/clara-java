@@ -72,7 +72,12 @@ fi
     OS='Windows'
     ;;
   'Darwin')
+
+  IP=$(ipconfig getifaddr en0)
+  if [ -z "$IP" ]; then
   IP=$(ipconfig getifaddr en1)
+  fi
+
   J_HOME=$CLARA_HOME/jre/macosx-64/jre1.8.0_112.jre/Contents/Home
     ;;
   *) ;;
