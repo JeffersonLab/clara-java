@@ -65,6 +65,8 @@ cd coatjava
 cp lib/clas/* $CLARA_HOME/plugins/clas12/lib/.
 cp lib/plugins/* $CLARA_HOME/plugins/clas12/services/.
 cp -r etc $CLARA_HOME/plugins/clas12/.
+cp -r bin $CLARA_HOME/plugins/clas12/.
+rm -f $CLARA_HOME/plugins/clas12/bin/clara-rec
 rm -rf $CLARA_HOME/plugins/clas12/etc/services
 
 hash -r

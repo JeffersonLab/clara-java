@@ -31,7 +31,7 @@ echo '  [-s | --session <session>]'
 echo '        The data processing session. (default: $USER)'
 echo
 echo '  [-m | --mode <mode>]'
-echo '        The data processing mode. (default: local. Accepts sqlite and farm operands)'
+echo '        The data processing mode. Accepts values = local, sqlite and farm (default: local)'
 echo
 echo '  [-i | --input_dir <inputDir>]'
 echo '        The input directory where the files to be processed are located.'
@@ -45,8 +45,17 @@ echo '  [-n | --nodes <maxNodes>]'
 echo '        The maximum number of processing nodes to be used. Farm mode only. (default: 1)'
 echo
 echo '  [-t | --threads <maxThreads>]'
-echo '        The maximum number of processing threads to be used per node.'
-echo '        (default: 36 for farm mode and local-node processor count otherwise))'
+echo '        The maximum number of processing threads to be used per node. In case value = auto t=local-node processor count.'
+echo '        (default: 36 for farm mode and 2 for the local mode))'
+echo
+echo '  [-f | --file-list <fileList>]'
+echo '        Full path to the file containing the names of data-files to be processed. Note: actual files are located in the inputDir.'
+echo '        (default: $CLAS12DIR/config/files.list)'
+echo
+echo '  [-y | --yaml <yamlComposition>]'
+echo '        Full path to the file describing application service composition.'
+echo '        (default: $CLAS12DIR/config/services.yaml)'
+
 }
 
 # Default parameter settings
@@ -100,13 +109,23 @@ PLUGIN="$CLARA_HOME/plugins/clas12"
 SESSION=$USER
 
 # Number of parallel threads
-THREAD_NUM=`getconf _NPROCESSORS_ONLN`
+THREAD_NUM=2
+
+# Composition yaml file
+SERVICE_YAML="$CLAS12DIR/config/services.yaml"
+
+# List of files to be processed
+FILE_LIST="$CLAS12DIR/config/files.list"
 
 while :
 do
     case "$1" in
       -c | --clara-home)
 	  CL_HOME="$2"
+	  shift 2
+	  ;;
+      -f | --files-list)
+	  FILE_LIST="$2"
 	  shift 2
 	  ;;
       -h | --help)
@@ -147,8 +166,18 @@ do
 	  ;;
       -t | --threads)
 	  THREAD_NUM="$2"
+
+	  if [ "$THREAD_NUM" == "auto" ] ; then
+	  THREAD_NUM=`getconf _NPROCESSORS_ONLN`
+	  fi
+
 	  shift 2
 	  ;;
+      -y | --yaml)
+	  ERVICE_YAML="$2"
+	  shift 2
+	  ;;
+
      *)  # No more options
 	  break
 	  ;;
@@ -162,9 +191,6 @@ export CLAS12DIR="$PLUGIN"
 export PATH=$PATH:$JAVA_HOME/bin:$CLARA_HOME/bin
 export CLASSPATH="$CLARA_HOME/lib/*:$CLAS12DIR/lib/*:$CLAS12DIR/services/*"
 
-SERVICE_YAML="$CLAS12DIR/config/services.yaml"
-FILE_LIST="$CLAS12DIR/config/files.list"
-
 if [ "$MODE" == "farm" ]; then
 J_HOME=group/da/Java/jdk/1.8/x64/jdk1.8.0_102/
 export JAVA_HOME="$J_HOME"
@@ -174,7 +200,7 @@ echo ' Note: Data input/output directories must be visible by JLAB farm nodes.'
 # For farm nodes we set thread count to be 36 * 2
 THREAD_NUM=36
 # Build auger commands
-rcCmd="COMMAND: run-clara -c $CLARA_HOME -i $IN_DIR -j $JAVA_HOME -m local_2 -o $OUT_DIR -p $CLAS12DIR -s $SESSION -t $THREAD_NUM"
+rcCmd="COMMAND: run-clara -c $CLARA_HOME -i $IN_DIR -j $JAVA_HOME -m local_2 -o $OUT_DIR -p $CLAS12DIR -s $SESSION -t $THREAD_NUM $SERVICE_YAML $FILE_LIST"
 rdpCmd="COMMAND: clara-2dpe  $SESSION $CLARA_HOME $CLAS12DIR"
 
 # Create orchestrator job submission script
@@ -256,6 +282,7 @@ echo " Clara distribution = $CLARA_HOME"
 echo " Plugin directory   = $CLAS12DIR"
 echo " Log file           = Clara distribution/log/$HOSTNAME-jfe.log"
 echo " Note               = Running as local Front-End"
+echo " Threads request    = $THREAD_NUM"
 echo "------------------------------------------"
 echo
 
