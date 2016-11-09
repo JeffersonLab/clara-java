@@ -29,26 +29,26 @@ mkdir clara-work
 cd clara-work
 
 echo "Downloading and building xMsg package ..."
-git clone https://github.com/JeffersonLab/xmsg-java.git
+git clone --depth 1 https://github.com/JeffersonLab/xmsg-java.git
 cd xmsg-java
 ./gradlew install
 
 cd ..
 echo "Downloading and building clara-java package ..."
-git clone https://github.com/JeffersonLab/clara-java.git
+git clone --depth 1 https://github.com/JeffersonLab/clara-java.git
 cd clara-java
 ./gradlew install
 ./gradlew deploy
 
 cd ..
 echo "Downloading and building clasrec-io package ..."
-git clone https://github.com/JeffersonLab/clasrec-io.git
+git clone --depth 1 https://github.com/JeffersonLab/clasrec-io.git
 cd clasrec-io
 ./gradlew deploy
 
 cd ..
 echo "Downloading and building clasrec-orchestrators package ..."
-git clone https://github.com/JeffersonLab/clasrec-orchestrators.git
+git clone --depth 1 https://github.com/JeffersonLab/clasrec-orchestrators.git
 cd clasrec-orchestrators
 ./gradlew deploy
 

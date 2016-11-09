@@ -27,13 +27,13 @@ mkdir clara-work
 cd clara-work
 
 echo "Downloading and building xMsg package ..."
-git clone https://github.com/JeffersonLab/xmsg-java.git
+git clone --depth 1 https://github.com/JeffersonLab/xmsg-java.git
 cd xmsg-java
 ./gradlew install
 
 cd ..
 echo "Downloading and building clara-java package ..."
-git clone https://github.com/JeffersonLab/clara-java.git
+git clone --depth 1 https://github.com/JeffersonLab/clara-java.git
 cd clara-java
 ./gradlew install
 ./gradlew deploy
