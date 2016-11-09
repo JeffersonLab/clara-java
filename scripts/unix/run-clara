@@ -35,11 +35,11 @@ echo '        The data processing mode. Accepts values = local, sqlite and farm 
 echo
 echo '  [-i | --input_dir <inputDir>]'
 echo '        The input directory where the files to be processed are located.'
-echo '        (default: $CLARA_HOME/../data/in)'
+echo '        (default: $CLARA_HOME/data/in)'
 echo
 echo '  [-o | --output_dir <outputDir>]'
 echo '        The output directory where processed files will be saved.'
-echo '        (default: $CLARA_HOME/../data/out)'
+echo '        (default: $CLARA_HOME/data/out)'
 echo
 echo '  [-n | --nodes <maxNodes>]'
 echo '        The maximum number of processing nodes to be used. Farm mode only. (default: 1)'
@@ -50,11 +50,11 @@ echo '        (default: 36 for farm mode and 2 for the local mode))'
 echo
 echo '  [-f | --file-list <fileList>]'
 echo '        Full path to the file containing the names of data-files to be processed. Note: actual files are located in the inputDir.'
-echo '        (default: $CLAS12DIR/config/files.list)'
+echo '        (default: $CLARA_HOME/plugins/clas12/config/files.list)'
 echo
 echo '  [-y | --yaml <yamlComposition>]'
 echo '        Full path to the file describing application service composition.'
-echo '        (default: $CLAS12DIR/config/services.yaml)'
+echo '        (default: $CLARA_HOME/plugins/clas12/config/services.yaml)'
 
 }
 
