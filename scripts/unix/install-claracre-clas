@@ -26,7 +26,7 @@ case $OS in
   fi
 
     wget https://userweb.jlab.org/~gurjyan/clara-cre/clara-cre-clas.tar.gz
-    tar xvzf clara-cre.tar.gz
+    tar xvzf clara-cre-clas.tar.gz
   if $(uname -a | grep 'x86_64'); then
     wget https://userweb.jlab.org/~gurjyan/clara-cre/linux-64.tar.gz
   else
