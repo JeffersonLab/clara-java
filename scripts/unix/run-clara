@@ -76,6 +76,7 @@ do
     case "$1" in
       -c | --clara-home)
 	  CL_HOME="$2"
+	  export CLARA_HOME="$CL_HOME"
 	  shift 2
 	  ;;
       -f | --files-list)
