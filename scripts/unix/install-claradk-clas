@@ -60,7 +60,8 @@ OS="`uname`"
 case $OS in
   'Linux')
   wget https://userweb.jlab.org/~gavalian/software/coatjava/coatjava-3.0.tar.gz
-  if $(uname -a | grep 'x86_64'); then
+      MACHINE_TYPE=`uname -m`
+      if [ ${MACHINE_TYPE} == 'x86_64' ]; then
     wget https://userweb.jlab.org/~gurjyan/clara-cre/linux-64.tar.gz
     mv linux-64.tar.gz $CLARA_HOME/jre
   else

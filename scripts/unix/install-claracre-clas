@@ -27,11 +27,13 @@ case $OS in
 
     wget https://userweb.jlab.org/~gurjyan/clara-cre/clara-cre-clas.tar.gz
     tar xvzf clara-cre-clas.tar.gz
-  if $(uname -a | grep 'x86_64'); then
-    wget https://userweb.jlab.org/~gurjyan/clara-cre/linux-64.tar.gz
-  else
-     wget https://userweb.jlab.org/~gurjyan/clara-cre/linux-i586.tar.gz
-  fi
+
+    MACHINE_TYPE=`uname -m`
+    if [ ${MACHINE_TYPE} == 'x86_64' ]; then
+      wget https://userweb.jlab.org/~gurjyan/clara-cre/linux-64.tar.gz
+    else
+      wget https://userweb.jlab.org/~gurjyan/clara-cre/linux-i586.tar.gz
+    fi
     ;;
 #  'WindowsNT')
 #    OS='Windows'

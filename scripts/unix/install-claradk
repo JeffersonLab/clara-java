@@ -46,7 +46,8 @@ mkdir $CLARA_HOME/jre
 OS="`uname`"
 case $OS in
   'Linux')
-  if $(uname -a | grep 'x86_64'); then
+      MACHINE_TYPE=`uname -m`
+      if [ ${MACHINE_TYPE} == 'x86_64' ]; then
     wget https://userweb.jlab.org/~gurjyan/clara-cre/linux-64.tar.gz
     mv linux-64.tar.gz $CLARA_HOME/jre
   else
