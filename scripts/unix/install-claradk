@@ -26,7 +26,6 @@ echo "Creating clara working directory ..."
 mkdir clara-work
 cd clara-work
 
-
 echo "Downloading and building xMsg package ..."
 git clone --depth 1 https://github.com/JeffersonLab/xmsg-java.git
 cd xmsg-java
