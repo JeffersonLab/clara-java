@@ -344,7 +344,6 @@ $CLARA_HOME/bin/j_cloud -f $FENAME -s $SESSION -F -i $IN_DIR -o $OUT_DIR -p $THR
 
 $CLARA_HOME/bin/remove-dpe
 
-exit
 
 fi
 
