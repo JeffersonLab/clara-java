@@ -2,13 +2,6 @@
 # author Vardan Gyurjyan
 # date 11.03.16
 
-if ! [ -n "$CLARA_HOME" ]; then
-    echo "CLARA_HOME is not defined. Exiting..."
-    exit
-fi
-
-$CLARA_HOME/bin/remove-dpe
-
 unset CCDB_DATABASE
 
 function display_help {
@@ -142,7 +135,14 @@ done
 
 # CLARA_HOME
 if [ "$CL_HOME" == "undefined" ]; then
+
+if ! [ -n "$CLARA_HOME" ]; then
+    echo "CLARA_HOME is not defined. Exiting..."
+    exit
+fi
+
 CL_HOME=$CLARA_HOME
+
 fi
 
 # Input data directory
@@ -284,6 +284,9 @@ else
 if [ "$MODE" == "sqlite" ]; then
 export CCDB_DATABASE="etc/data/database/clas12database.sqlite"
 fi
+
+# reset dangling DPEs
+$CLARA_HOME/bin/remove-dpe
 
 # Starting DPEs
 ################# Starting DPE ############
