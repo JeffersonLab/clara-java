@@ -1,8 +1,17 @@
 #!/usr/bin/env bash
 
-a=`ps -ef | grep sys.Dpe | grep -v grep | awk '{print $2}'`
+a=`ps -ef | grep 'session gurjyan' | grep -v grep | awk '{print $2}'`
+echo $a
+
 for f in $a;
 do
 kill -9 $f
 done
 
+b=`ps -ef | grep 's gurjyan' | grep -v grep | awk '{print $2}'`
+echo $b
+
+for ff in $b;
+do
+kill -9 $ff
+done
