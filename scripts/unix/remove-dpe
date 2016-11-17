@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 
-a=`ps -ef | grep 'session gurjyan' | grep -v grep | awk '{print $2}'`
+echo $1
+
+a=`ps -ef | grep "session $1" | grep -v grep | awk '{print $2}'`
 echo $a
 
 for f in $a;
@@ -8,7 +10,7 @@ do
 kill -9 $f
 done
 
-b=`ps -ef | grep 's gurjyan' | grep -v grep | awk '{print $2}'`
+b=`ps -ef | grep "s $1" | grep -v grep | awk '{print $2}'`
 echo $b
 
 for ff in $b;
