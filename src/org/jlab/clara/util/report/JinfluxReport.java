@@ -1,14 +1,14 @@
 package org.jlab.clara.util.report;
 
-import org.influxdb.dto.Point;
-import org.jlab.clara.base.ClaraUtil;
-import org.jlab.clara.base.core.ClaraConstants;
-import org.jlab.coda.jinflux.JinFlux;
-import org.jlab.coda.jinflux.JinFluxException;
-import org.jlab.coda.jinflux.JinTime;
-
-import java.util.HashMap;
-import java.util.Map;
+//import org.influxdb.dto.Point;
+//import org.jlab.clara.base.ClaraUtil;
+//import org.jlab.clara.base.core.ClaraConstants;
+//import org.jlab.coda.jinflux.JinFlux;
+//import org.jlab.coda.jinflux.JinFluxException;
+//import org.jlab.coda.jinflux.JinTime;
+//
+//import java.util.HashMap;
+//import java.util.Map;
 
 /**
  * Class description here....
