@@ -246,18 +246,18 @@ echo ' Note: Data input/output directories must be visible by JLAB farm nodes.'
 # For farm nodes we set thread count to be 36 * 2
 THREAD_NUM=36
 # Build auger commands
-rcCmd="COMMAND: run-clara -c $CLARA_HOME -i $IN_DIR -j $JAVA_HOME -m local_2 -o $OUT_DIR -p $CLAS12DIR -s $SESSION -t $THREAD_NUM $SERVICE_YAML $FILE_LIST"
-rdpCmd="COMMAND: clara-2dpe  $SESSION $CLARA_HOME $CLAS12DIR"
+rcCmd="COMMAND: $CLARA_HOME/bin/run-clara -c $CLARA_HOME -i $IN_DIR -j $JAVA_HOME -m local_2 -o $OUT_DIR -p $CLAS12DIR -s $SESSION -t $THREAD_NUM $SERVICE_YAML $FILE_LIST"
+rdpCmd="COMMAND: $CLARA_HOME/bin/clara-2dpe  $SESSION $CLARA_HOME $CLAS12DIR"
 
 # Create orchestrator job submission script
 {
-echo 'PROJECT: clas12'
-echo 'JOBNAME: rec_$USER'
-echo 'MEMORY: 30 GB'
-echo 'TRACK: debug'
-echo 'OS: centos7'
-echo 'CPU: 48'
-echo 'DISK_SPACE: 3 GB'
+echo "PROJECT: clas12"
+echo "JOBNAME: rec_$USER"
+echo "MEMORY: 30 GB"
+echo "TRACK: debug"
+echo "OS: centos7"
+echo "CPU: 48"
+echo "DISK_SPACE: 3 GB"
 
 echo $rcCmd
 
@@ -269,13 +269,13 @@ jsub $CLAS12DIR/config/clara_p.jsub
 
 # Create dpe job submission script
 {
-echo 'PROJECT: clas12'
-echo 'JOBNAME: rec_$USER'
-echo 'MEMORY: 30 GB'
-echo 'TRACK: debug'
-echo 'OS: centos7'
-echo 'CPU: 48'
-echo 'DISK_SPACE: 3 GB'
+echo "PROJECT: clas12"
+echo "JOBNAME: rec_$USER"
+echo "MEMORY: 30 GB"
+echo "TRACK: debug"
+echo "OS: centos7"
+echo "CPU: 48"
+echo "DISK_SPACE: 3 GB"
 
 echo $rdpCmd
 
