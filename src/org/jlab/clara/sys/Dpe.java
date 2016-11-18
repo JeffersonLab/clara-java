@@ -30,7 +30,9 @@ import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.sys.DpeOptionsParser.DpeOptionsException;
 import org.jlab.clara.sys.RequestParser.RequestException;
 import org.jlab.clara.util.report.DpeReport;
+import org.jlab.clara.util.report.JinfluxReport;
 import org.jlab.clara.util.report.JsonReportBuilder;
+import org.jlab.coda.jinflux.JinFluxException;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgConnection;
 import org.jlab.coda.xmsg.core.xMsgMessage;
@@ -600,14 +602,26 @@ public final class Dpe extends AbstractActor {
         private final DpeReport myReport;
         private final JsonReportBuilder myReportBuilder = new JsonReportBuilder();
 
+        private JinfluxReport myFluxReportBuilder = null;
+
         private final ScheduledExecutorService scheduledPingService;
         private final AtomicBoolean isReporting = new AtomicBoolean();
         private final long reportPeriod;
 
         ReportService(long periodMillis) {
-            myReport = new DpeReport(base, System.getenv("USER")+"_"+session);
+//            myReport = new DpeReport(base, System.getenv("USER")); 11.18.16
+            myReport = new DpeReport(base, session);
             scheduledPingService = Executors.newSingleThreadScheduledExecutor();
             reportPeriod = periodMillis;
+
+            // JinfluxReport initialization
+            // @todo InfluxDB is hard coded for now. It should be DPE parameter driven. 11.18.16
+//XXX            try {
+//                myFluxReportBuilder = new JinfluxReport("claraweb.jlab.org", "clara");
+//            } catch (JinFluxException e) {
+//                e.printStackTrace();
+//            }
+
         }
 
         public void start() {
@@ -648,6 +662,10 @@ public final class Dpe extends AbstractActor {
             return myReportBuilder.generateReport(myReport);
         }
 
+//XXX        public String jinfluxReport() {
+//            return myFluxReportBuilder.generateReport(myReport);
+//        }
+
         private xMsgMessage aliveMessage() {
             xMsgTopic topic = xMsgTopic.build(ClaraConstants.DPE_ALIVE, session, base.getName());
             return MessageUtil.buildRequest(topic, aliveReport());
@@ -659,6 +677,10 @@ public final class Dpe extends AbstractActor {
         }
 
         private void run() {
+
+            // report to influxDB database 11.18.16
+//XXX            jinfluxReport();
+
             try {
                 xMsgProxyAddress feHost = base.getFrontEnd().getProxyAddress();
                 xMsgConnection con = base.getConnection(feHost);

@@ -38,6 +38,7 @@ public final class ClaraConstants {
     public static final int REG_PORT_SHIFT = 4;
 
     public static final String DPE = "dpe";
+    public static final String SESSION = "claraSession";
     public static final String START_DPE = "startDpe";
     public static final String STOP_DPE = "stopDpe";
     public static final String STOP_REMOTE_DPE = "stopRemoteDpe";
