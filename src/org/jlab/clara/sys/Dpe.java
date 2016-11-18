@@ -605,7 +605,7 @@ public final class Dpe extends AbstractActor {
         private final long reportPeriod;
 
         ReportService(long periodMillis) {
-            myReport = new DpeReport(base, System.getenv("USER"));
+            myReport = new DpeReport(base, System.getenv("USER")+"_"+session);
             scheduledPingService = Executors.newSingleThreadScheduledExecutor();
             reportPeriod = periodMillis;
         }

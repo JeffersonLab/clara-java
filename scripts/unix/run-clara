@@ -294,7 +294,7 @@ export CCDB_DATABASE="etc/data/database/clas12database.sqlite"
 fi
 
 # reset dangling DPEs
-$CLARA_HOME/bin/remove-dpe $USER
+$CLARA_HOME/bin/remove-dpe $SESSION
 
 # Starting DPEs
 ################# Starting DPE ############
@@ -350,7 +350,7 @@ FENAME=$IP%$PORT$j
 # Starting cloud orchestrator
 $CLARA_HOME/bin/j_cloud -f $FENAME -s $SESSION -F -i $IN_DIR -o $OUT_DIR -p $THREAD_NUM -t $THREAD_NUM $SERVICE_YAML $FILE_LIST
 
-$CLARA_HOME/bin/remove-dpe $USER
+$CLARA_HOME/bin/remove-dpe $SESSION
 
 
 fi
