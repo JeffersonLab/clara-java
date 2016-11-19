@@ -1,7 +1,5 @@
 #!/usr/bin/env bash
 
-echo $1
-
 a=`ps -ef | grep "session $1" | grep -v grep | awk '{print $2}'`
 echo $a
 
