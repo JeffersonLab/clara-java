@@ -247,7 +247,8 @@ echo ' Note: Data input/output directories must be visible by JLAB farm nodes.'
 THREAD_NUM=36
 # Build auger commands
 #rcCmd="COMMAND: setenv CLARA_HOME "$CL_HOME"; "$CLARA_HOME"/bin/run-clara -c "$CLARA_HOME" -i "$IN_DIR" -j "$JAVA_HOME" -m local_2 -o "$OUT_DIR" -p "$CLAS12DIR" -s "$SESSION" -t "$THREAD_NUM" "$SERVICE_YAML" "$FILE_LIST""
-rcCmd="COMMAND: setenv CLARA_HOME "$CL_HOME"; "$CLARA_HOME"/bin/run-clara"
+rcCmd="COMMAND: setenv CLARA_HOME "$CL_HOME"; "$CLARA_HOME"/bin/run-clara -c "$CLARA_HOME" -i "$IN_DIR" -j "$JAVA_HOME" -o "$OUT_DIR" -p "$CLAS12DIR" -s "$SESSION" -t "$THREAD_NUM" "$SERVICE_YAML" "$FILE_LIST""
+#rcCmd="COMMAND: setenv CLARA_HOME "$CL_HOME"; "$CLARA_HOME"/bin/run-clara"
 rdpCmd="COMMAND: setenv CLARA_HOME="$CL_HOME"; "$CLARA_HOME"/bin/clara-2dpe  "$SESSION" "$CLARA_HOME" "$CLAS12DIR""
 
 # Create orchestrator job submission script
