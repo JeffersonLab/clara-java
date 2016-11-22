@@ -59,9 +59,11 @@ repositories {
 
 dependencies {
     compile 'org.jlab.coda:xmsg:2.3-SNAPSHOT'
+    compile 'org.jlab.coda:jinflux:1.0-SNAPSHOT'
     compile 'net.sf.jopt-simple:jopt-simple:4.9'
     compile 'org.yaml:snakeyaml:1.17'
     compile 'org.json:json:20160810'
+    compile 'org.influxdb:influxdb-java:2.2'
     compile 'com.google.code.findbugs:jsr305:3.0.0'
     testCompile 'junit:junit:4.+'
     testCompile 'org.hamcrest:hamcrest-library:1.3'
