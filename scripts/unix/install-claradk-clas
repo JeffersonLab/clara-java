@@ -53,6 +53,12 @@ cd clasrec-orchestrators
 ./gradlew deploy
 
 cd ..
+echo "Downloading and building jinflux package ..."
+git clone --depth 1 https://github.com/JeffersonLab/JinFlux.git
+cd JinFlux
+./gradlew deploy
+
+cd ..
 echo "Downloading coat-java and jre packages ..."
 mkdir $CLARA_HOME/jre
 
