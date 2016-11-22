@@ -35,7 +35,7 @@ cd ..
 echo "Downloading and building jinflux package ..."
 git clone --depth 1 https://github.com/JeffersonLab/JinFlux.git
 cd JinFlux
-./gradlew deploy
+./gradle deploy
 
 cd ..
 echo "Downloading and building clara-java package ..."
