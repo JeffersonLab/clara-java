@@ -122,7 +122,7 @@ do
 	  shift 2
 	  ;;
       -y | --yaml)
-	  ERVICE_YAML="$2"
+	  SERVICE_YAML="$2"
 	  shift 2
 	  ;;
 
@@ -238,17 +238,19 @@ FILE_LIST="$CLAS12DIR/config/files.list"
 fi
 
 if [ "$MODE" == "farm" ]; then
-J_HOME=group/da/Java/jdk/1.8/x64/jdk1.8.0_102/
-export JAVA_HOME="$J_HOME"
+#J_HOME=/group/da/Java/jdk/1.8/x64/jdk1.8.0_102/
+#export JAVA_HOME="$J_HOME"
 # ----------------- Farm deployment ----------------------
-echo ' Note: Data input/output directories must be visible by JLAB farm nodes.'
+echo ' Note: CLARA distribution and data input/output directories must be visible to JLAB farm nodes.'
 
 # For farm nodes we set thread count to be 36 * 2
 #THREAD_NUM=36
 
 # Build auger commands
-#rcCmd="COMMAND: setenv CLARA_HOME "$CL_HOME"; "$CLARA_HOME"/bin/run-clara -c "$CLARA_HOME" -i "$IN_DIR" -j "$JAVA_HOME" -m local_2 -o "$OUT_DIR" -p "$CLAS12DIR" -s "$SESSION" -t "$THREAD_NUM" "$SERVICE_YAML" "$FILE_LIST""
-rcCmd="COMMAND: setenv CLARA_HOME "$CL_HOME"; "$CLARA_HOME"/bin/run-clara -c "$CLARA_HOME" -i "$IN_DIR" -j "$JAVA_HOME" -o "$OUT_DIR" -p "$CLAS12DIR" -s "$SESSION" -t "$THREAD_NUM" "$SERVICE_YAML" "$FILE_LIST""
+#rcCmd="COMMAND: setenv CLARA_HOME "$CL_HOME"; "$CLARA_HOME"/bin/run-clara -c "$CLARA_HOME" -i "$IN_DIR" -j "$JAVA_HOME" -m local_2 -o "$OUT_DIR" -p "$CLAS12DIR" -s "$SESSION" -t "$THREAD_NUM" -y "$SERVICE_YAML" -f "$FILE_LIST""
+
+
+rcCmd="COMMAND: setenv CLARA_HOME "$CL_HOME"; $CLARA_HOME/bin/run-clara -i "$IN_DIR" -o "$OUT_DIR" -s "$SESSION" -t "$THREAD_NUM" -y $CLARA_HOME/plugins/clas12/config/services.yaml -f $CLARA_HOME/plugins/clas12/config/files.list"
 rdpCmd="COMMAND: setenv CLARA_HOME="$CL_HOME"; "$CLARA_HOME"/bin/clara-2dpe  "$SESSION" "$CLARA_HOME" "$CLAS12DIR""
 
 # Create orchestrator job submission script
@@ -289,6 +291,7 @@ done
 
 # ----------------- Local deployment ----------------------
 else
+
 
 # We start second DPE if mode is set to farm
 if [ "$MODE" == "sqlite" ]; then
