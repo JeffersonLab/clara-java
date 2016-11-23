@@ -3,10 +3,6 @@ package org.jlab.clara.util.report;
 import org.influxdb.dto.Point;
 import org.jlab.clara.base.ClaraUtil;
 import org.jlab.clara.base.core.ClaraConstants;
-import org.jlab.clara.util.report.ContainerReport;
-import org.jlab.clara.util.report.DpeReport;
-import org.jlab.clara.util.report.ExternalReport;
-import org.jlab.clara.util.report.ServiceReport;
 import org.jlab.coda.jinflux.JinFlux;
 import org.jlab.coda.jinflux.JinFluxException;
 import org.jlab.coda.jinflux.JinTime;
@@ -26,6 +22,7 @@ public class JinFluxReportBuilder extends JinFlux implements ExternalReport {
 
     private String dbName, session;
     private boolean jinFxConnected = true;
+    private long totalExecTime;
 
     public JinFluxReportBuilder(String dbNode, String dbName, String session, String user, String password) throws JinFluxException {
         super(dbNode, user, password);
@@ -77,13 +74,14 @@ public class JinFluxReportBuilder extends JinFlux implements ExternalReport {
                 addDP(p, "load", dpeData.getLoad());
                 write(dbName, p);
 
+                long totalExecTime = 0;
                 for (ContainerReport cr : dpeData.getContainers()) {
 
                     for (ServiceReport sr : cr.getServices()) {
                         tags = new HashMap<>();
                         tags.put(ClaraConstants.DPE, dpeData.getHost());
                         tags.put(ClaraConstants.SESSION, session);
-                        tags.put("service_name", sr.getName());
+                        tags.put("service_name", sr.getEngineName());
                         p = openTB("clas12", tags);
 
 
@@ -103,13 +101,22 @@ public class JinFluxReportBuilder extends JinFlux implements ExternalReport {
                         addDP(p,"shm_writes", sr.getShrmWrites());
                         addDP(p,"bytes_recv", sr.getBytesReceived());
                         addDP(p,"bytes_sent", sr.getBytesSent());
-                        if (sr.getShrmReads()>0) addDP(p,"exec_time", sr.getExecutionTime()/sr.getShrmReads());
-
+                        if (sr.getShrmReads()>0) {
+                            long execTime = sr.getExecutionTime()/sr.getShrmReads();
+                            addDP(p,"exec_time", execTime);
+                            totalExecTime = totalExecTime+execTime;
+                        }
                         write(dbName, p);
-
                         ClaraUtil.sleep(100);
                     }
                 }
+                tags = new HashMap<>();
+                tags.put(ClaraConstants.DPE, dpeData.getHost());
+                tags.put(ClaraConstants.SESSION, session);
+                p = openTB("clas12", tags);
+                addDP(p,"total_exec_time", totalExecTime);
+                write(dbName, p);
+
                 System.out.println("JinFlux report ...");
             }
         } catch (Exception e) {
