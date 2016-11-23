@@ -216,7 +216,11 @@ fi
 
 # Number of parallel threads
 if [ "$THREAD_NUM" == "undefined" ]; then
+if [ "$MODE" = "farm" ]; then
+THREAD_NUM=36
+else
 THREAD_NUM=2
+fi
 fi
 
 
@@ -242,9 +246,6 @@ if [ "$MODE" == "farm" ]; then
 #export JAVA_HOME="$J_HOME"
 # ----------------- Farm deployment ----------------------
 echo ' Note: CLARA distribution and data input/output directories must be visible to JLAB farm nodes.'
-
-# For farm nodes we set thread count to be 36 * 2
-#THREAD_NUM=36
 
 # Build auger commands
 #rcCmd="COMMAND: setenv CLARA_HOME "$CL_HOME"; "$CLARA_HOME"/bin/run-clara -c "$CLARA_HOME" -i "$IN_DIR" -j "$JAVA_HOME" -m local_2 -o "$OUT_DIR" -p "$CLAS12DIR" -s "$SESSION" -t "$THREAD_NUM" -y "$SERVICE_YAML" -f "$FILE_LIST""
