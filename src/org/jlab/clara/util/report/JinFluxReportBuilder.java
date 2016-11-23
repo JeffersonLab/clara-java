@@ -3,6 +3,10 @@ package org.jlab.clara.util.report;
 import org.influxdb.dto.Point;
 import org.jlab.clara.base.ClaraUtil;
 import org.jlab.clara.base.core.ClaraConstants;
+import org.jlab.clara.util.report.ContainerReport;
+import org.jlab.clara.util.report.DpeReport;
+import org.jlab.clara.util.report.ExternalReport;
+import org.jlab.clara.util.report.ServiceReport;
 import org.jlab.coda.jinflux.JinFlux;
 import org.jlab.coda.jinflux.JinFluxException;
 import org.jlab.coda.jinflux.JinTime;
@@ -18,14 +22,15 @@ import java.util.Map;
  *         Date 11/18/16
  * @version 4.x
  */
-public class JinfluxReport extends JinFlux implements ExternalReport {
+public class JinFluxReportBuilder extends JinFlux implements ExternalReport {
 
-    private String dbName;
+    private String dbName, session;
     private boolean jinFxConnected = true;
 
-    public JinfluxReport(String dbNode, String dbName, String user, String password) throws JinFluxException {
+    public JinFluxReportBuilder(String dbNode, String dbName, String session, String user, String password) throws JinFluxException {
         super(dbNode, user, password);
         this.dbName = dbName;
+        this.session = session;
         try {
             if (!existsDB(dbName)) {
                 createDB(dbName, 1, JinTime.HOURE);
@@ -36,9 +41,10 @@ public class JinfluxReport extends JinFlux implements ExternalReport {
 
     }
 
-    public JinfluxReport(String dbNode, String dbName) throws JinFluxException {
+    public JinFluxReportBuilder(String dbNode, String dbName, String session) throws JinFluxException {
         super(dbNode);
         this.dbName = dbName;
+        this.session = session;
 
         try {
             if (!existsDB(dbName)) {
@@ -47,6 +53,7 @@ public class JinfluxReport extends JinFlux implements ExternalReport {
 
         } catch (Exception e) {
             jinFxConnected = false;
+            e.printStackTrace();
         }
     }
 
@@ -56,51 +63,57 @@ public class JinfluxReport extends JinFlux implements ExternalReport {
 
             if (jinFxConnected) {
 
+                Map<String, String> tags = new HashMap<>();
+                tags.put(ClaraConstants.DPE, dpeData.getHost());
+                tags.put(ClaraConstants.SESSION, session);
+                Point.Builder p = openTB("clas12", tags);
+                if(dpeData.getLang()!=null) addDP(p, "language", dpeData.getLang());
+                if(dpeData.getClaraHome()!=null) addDP(p, "clara_home", dpeData.getClaraHome());
+//                        addDP(p, "start_time", dpeData.getStartTime());
+
+//                addDP(p, "host_name", dpeData.getHost());
+                addDP(p, "cpu_usage", dpeData.getCpuUsage());
+                addDP(p, "memory_usage", dpeData.getMemoryUsage());
+                addDP(p, "load", dpeData.getLoad());
+                write(dbName, p);
+
                 for (ContainerReport cr : dpeData.getContainers()) {
 
                     for (ServiceReport sr : cr.getServices()) {
-                        Map<String, String> tags = new HashMap<>();
+                        tags = new HashMap<>();
                         tags.put(ClaraConstants.DPE, dpeData.getHost());
-                        tags.put(ClaraConstants.SESSION, dpeData.getAuthor());
-                        Point.Builder p = openTB("clas12", tags);
+                        tags.put(ClaraConstants.SESSION, session);
+                        tags.put("service_name", sr.getName());
+                        p = openTB("clas12", tags);
 
-                        addDP(p, "language", dpeData.getLang());
-                        addDP(p, "clara_home", dpeData.getClaraHome());
-                        addDP(p, "n_cores", dpeData.getCoreCount());
-                        addDP(p, "memory_size", dpeData.getMemorySize());
-                        addDP(p, "start_time", dpeData.getStartTime());
-
-                        addDP(p, "host_name", dpeData.getHost());
-                        addDP(p, "cpu_usage", dpeData.getCpuUsage());
-                        addDP(p, "memory_usage", dpeData.getMemoryUsage());
-                        addDP(p, "load", dpeData.getLoad());
 
 //                        addDP(p,"class_name", sr.getClassName());
-                        addDP(p, "engine_name", sr.getEngineName());
-                        addDP(p, "author", sr.getAuthor());
-                        addDP(p, "version", sr.getVersion());
+//                        addDP(p, "engine_name", sr.getEngineName());
+//                        addDP(p, "author", sr.getAuthor());
+//                        addDP(p, "version", sr.getVersion());
 //                        addDP(p,"description", sr.getDescription());
 //                        addDP(p, "language", sr.getLang());
 //                        addDP(p,"start_time", sr.getStartTime());
 
                         long serviceRequests = sr.getRequestCount();
 
-                        addDP(p,"name", sr.getName());
                         addDP(p,"n_requests", serviceRequests);
                         addDP(p,"n_failures", sr.getFailureCount());
                         addDP(p,"shm_reads", sr.getShrmReads());
                         addDP(p,"shm_writes", sr.getShrmWrites());
                         addDP(p,"bytes_recv", sr.getBytesReceived());
                         addDP(p,"bytes_sent", sr.getBytesSent());
-                        addDP(p,"exec_time", sr.getExecutionTime());
+                        if (sr.getShrmReads()>0) addDP(p,"exec_time", sr.getExecutionTime()/sr.getShrmReads());
 
                         write(dbName, p);
-                        ClaraUtil.sleep(1);
+
+                        ClaraUtil.sleep(100);
                     }
                 }
+                System.out.println("JinFlux report ...");
             }
         } catch (Exception e) {
-            System.out.println("DDD: Error writing into influxDB");
+            System.out.println("DDD:Error =============: Error writing into influxDB");
         }
 
     }

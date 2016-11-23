@@ -30,10 +30,8 @@ import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.sys.DpeOptionsParser.DpeOptionsException;
 import org.jlab.clara.sys.RequestParser.RequestException;
 import org.jlab.clara.util.report.DpeReport;
-//import org.jlab.clara.util.report.JinfluxReport;
-import org.jlab.clara.util.report.JinfluxReport;
+import org.jlab.clara.util.report.JinFluxReportBuilder;
 import org.jlab.clara.util.report.JsonReportBuilder;
-//import org.jlab.coda.jinflux.JinFluxException;
 import org.jlab.coda.jinflux.JinFluxException;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgConnection;
@@ -83,7 +81,7 @@ public final class Dpe extends AbstractActor {
     private xMsgSubscription subscriptionHandler;
 
     // session ID
-    private volatile String session = "";
+    private volatile String session = "undefined";
 
     // The containers running on this DPE
     private final ConcurrentMap<String, Container> myContainers = new ConcurrentHashMap<>();
@@ -304,7 +302,7 @@ public final class Dpe extends AbstractActor {
                       1, "Front End"));
 
         AbstractActor.isFrontEnd.set(isFrontEnd);
-        this.reportService = new ReportService(config.reportPeriod());
+        this.reportService = new ReportService(config.reportPeriod(), session);
         this.session = session;
         this.maxCores = config.maxCores();
     }
@@ -603,26 +601,25 @@ public final class Dpe extends AbstractActor {
 
         private final DpeReport myReport;
         private final JsonReportBuilder myReportBuilder = new JsonReportBuilder();
-
-        private JinfluxReport myFluxReportBuilder = null;
+        private JinFluxReportBuilder myFluxReportBuilder = null;
 
         private final ScheduledExecutorService scheduledPingService;
         private final AtomicBoolean isReporting = new AtomicBoolean();
         private final long reportPeriod;
+        private String session;
 
-        ReportService(long periodMillis) {
+        ReportService(long periodMillis, String session) {
 //            myReport = new DpeReport(base, System.getenv("USER")); 11.18.16
             myReport = new DpeReport(base, session);
             scheduledPingService = Executors.newSingleThreadScheduledExecutor();
             reportPeriod = periodMillis;
-
-            // JinfluxReport initialization
-            // @todo InfluxDB is hard coded for now. It should be DPE parameter driven. 11.18.16
-           try {
-                myFluxReportBuilder = new JinfluxReport("claraweb.jlab.org", "clara");
+            this.session = session;
+            try {
+                myFluxReportBuilder = new JinFluxReportBuilder("claraweb.jlab.org", "clara", session);
             } catch (JinFluxException e) {
                 e.printStackTrace();
             }
+
 
         }
 
@@ -664,7 +661,7 @@ public final class Dpe extends AbstractActor {
             return myReportBuilder.generateReport(myReport);
         }
 
-        public String jinfluxReport() {
+        public String jinFluxReport() {
             return myFluxReportBuilder.generateReport(myReport);
         }
 
@@ -680,8 +677,6 @@ public final class Dpe extends AbstractActor {
 
         private void run() {
 
-            // report to influxDB database 11.18.16
-           jinfluxReport();
 
             try {
                 xMsgProxyAddress feHost = base.getFrontEnd().getProxyAddress();
@@ -691,6 +686,8 @@ public final class Dpe extends AbstractActor {
                     while (isReporting.get()) {
                         base.send(con, aliveMessage());
                         base.send(con, jsonMessage());
+                        // @todo report to influxDB database 11.18.16. THis is temporary solution and must be removed.
+                        jinFluxReport();
                         xMsgUtil.sleep(reportPeriod);
                     }
                 } catch (xMsgException e) {

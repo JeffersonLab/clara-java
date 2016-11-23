@@ -244,11 +244,11 @@ export JAVA_HOME="$J_HOME"
 echo ' Note: Data input/output directories must be visible by JLAB farm nodes.'
 
 # For farm nodes we set thread count to be 36 * 2
-THREAD_NUM=2
+THREAD_NUM=36
+
 # Build auger commands
 #rcCmd="COMMAND: setenv CLARA_HOME "$CL_HOME"; "$CLARA_HOME"/bin/run-clara -c "$CLARA_HOME" -i "$IN_DIR" -j "$JAVA_HOME" -m local_2 -o "$OUT_DIR" -p "$CLAS12DIR" -s "$SESSION" -t "$THREAD_NUM" "$SERVICE_YAML" "$FILE_LIST""
 rcCmd="COMMAND: setenv CLARA_HOME "$CL_HOME"; "$CLARA_HOME"/bin/run-clara -c "$CLARA_HOME" -i "$IN_DIR" -j "$JAVA_HOME" -o "$OUT_DIR" -p "$CLAS12DIR" -s "$SESSION" -t "$THREAD_NUM" "$SERVICE_YAML" "$FILE_LIST""
-#rcCmd="COMMAND: setenv CLARA_HOME "$CL_HOME"; "$CLARA_HOME"/bin/run-clara"
 rdpCmd="COMMAND: setenv CLARA_HOME="$CL_HOME"; "$CLARA_HOME"/bin/clara-2dpe  "$SESSION" "$CLARA_HOME" "$CLAS12DIR""
 
 # Create orchestrator job submission script
@@ -338,7 +338,7 @@ echo "------------------------------------------"
 echo
 
 
-$CLARA_HOME/bin/j_dpe --port $PORT --host $FE_HOST --session $SESSION 2>&1 | tee "$LOG_FILE-jfe.log" &
+$CLARA_HOME/bin/j_dpe --port $PORT --host $FE_HOST --session $SESSION --report 5 --max-cores $THREAD_NUM 2>&1 | tee "$LOG_FILE-jfe.log" &
 
 #$CLARA_HOME/bin/j_dpe --port $PORT --host $FE_HOST --session $SESSION & export dpepid=$!
 
