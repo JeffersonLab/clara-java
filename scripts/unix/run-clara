@@ -348,7 +348,7 @@ $CLARA_HOME/bin/j_dpe --port $PORT --host $FE_HOST --session $SESSION --report 5
 
 ################# Starting DPE ############
 
-sleep 3
+sleep 10
 
 j="_java"
 FENAME=$IP%$PORT$j
