@@ -84,14 +84,13 @@ public class JinFluxReportBuilder extends JinFlux implements ExternalReport {
                         tags.put("service_name", sr.getEngineName());
                         p = openTB("clas12", tags);
 
-
-//                        addDP(p,"class_name", sr.getClassName());
+//                        addDP(p, "class_name", sr.getClassName());
 //                        addDP(p, "engine_name", sr.getEngineName());
 //                        addDP(p, "author", sr.getAuthor());
 //                        addDP(p, "version", sr.getVersion());
-//                        addDP(p,"description", sr.getDescription());
+//                        addDP(p, "description", sr.getDescription());
 //                        addDP(p, "language", sr.getLang());
-//                        addDP(p,"start_time", sr.getStartTime());
+//                        addDP(p, "start_time", sr.getStartTime());
 
                         long serviceRequests = sr.getRequestCount();
 

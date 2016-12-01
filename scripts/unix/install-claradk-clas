@@ -104,7 +104,7 @@ mkdir $CLARA_HOME/data/in
 mkdir $CLARA_HOME/data/out
 
 hash -r
-cp ../clasrec-io/data/gemcOut_header.evio $CLARA_HOME/data/in/
+cp ../clasrec-io/data/clasDIS.11GeV.20events.evio $CLARA_HOME/data/in/
 
 echo "Installing jre ..."
 cd $CLARA_HOME/jre
