@@ -34,8 +34,8 @@ echo '  [-o | --output_dir <outputDir>]'
 echo '        The output directory where processed files will be saved.'
 echo '        (default: $CLARA_HOME/data/out)'
 echo
-echo '  [-n | --nodes <maxNodes>]'
-echo '        The maximum number of processing nodes to be used. Farm mode only. (default: 1)'
+#echo '  [-n | --nodes <maxNodes>]'
+#echo '        The maximum number of processing nodes to be used. Farm mode only. (default: 1)'
 echo
 echo '  [-t | --threads <maxThreads>]'
 echo '        The maximum number of processing threads to be used per node. In case value = auto t=local-node processor count.'
@@ -96,10 +96,10 @@ do
 	  }
 	  shift 2
 	  ;;
-      -n | --nodes)
-	  NODE_NUM="$2"
-	  shift 2
-	  ;;
+#      -n | --nodes)
+#	  NODE_NUM="$2"
+#	  shift 2
+#	  ;;
       -o | --output-dir)
 	  OUT_DIR="$2"
 	  shift 2
