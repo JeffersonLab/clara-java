@@ -251,7 +251,7 @@ echo ' Note: CLARA distribution and data input/output directories must be visibl
 #rcCmd="COMMAND: setenv CLARA_HOME "$CL_HOME"; "$CLARA_HOME"/bin/run-clara -c "$CLARA_HOME" -i "$IN_DIR" -j "$JAVA_HOME" -m local_2 -o "$OUT_DIR" -p "$CLAS12DIR" -s "$SESSION" -t "$THREAD_NUM" -y "$SERVICE_YAML" -f "$FILE_LIST""
 
 
-rcCmd="COMMAND: setenv CLARA_HOME "$CL_HOME"; $CLARA_HOME/bin/run-clara -i "$IN_DIR" -o "$OUT_DIR" -s "$SESSION" -t "$THREAD_NUM" -y $CLARA_HOME/plugins/clas12/config/services.yaml -f $CLARA_HOME/plugins/clas12/config/files.list"
+rcCmd="COMMAND: setenv CLARA_HOME "$CL_HOME"; $CLARA_HOME/bin/run-clara -i "$IN_DIR" -o "$OUT_DIR" -s "$SESSION" -t "$THREAD_NUM" -y "$SERVICE_YAML" -f "$FILE_LIST""
 rdpCmd="COMMAND: setenv CLARA_HOME="$CL_HOME"; "$CLARA_HOME"/bin/clara-2dpe  "$SESSION" "$CLARA_HOME" "$CLAS12DIR""
 
 # Create orchestrator job submission script
@@ -350,7 +350,7 @@ $CLARA_HOME/bin/j_dpe --port $PORT --host $FE_HOST --session $SESSION --report 5
 
 ################# Starting DPE ############
 
-sleep 10
+sleep 20
 
 j="_java"
 FENAME=$IP%$PORT$j
