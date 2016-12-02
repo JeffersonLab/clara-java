@@ -263,7 +263,7 @@ echo "TRACK: debug"
 echo "OS: centos7"
 echo "CPU: 72"
 echo "DISK_SPACE: 3 GB"
-echo "TIME: 1333"
+echo "TIME: 1440"
 
 echo $rcCmd
 
@@ -282,7 +282,7 @@ echo "TRACK: debug"
 echo "OS: centos7"
 echo "CPU: 72"
 echo "DISK_SPACE: 3 GB"
-echo "TIME: 1333"
+echo "TIME: 1440"
 
 echo $rdpCmd
 
