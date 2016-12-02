@@ -217,7 +217,7 @@ fi
 # Number of parallel threads
 if [ "$THREAD_NUM" == "undefined" ]; then
 if [ "$MODE" = "farm" ]; then
-THREAD_NUM=34
+THREAD_NUM=72
 else
 THREAD_NUM=2
 fi
@@ -344,7 +344,7 @@ echo "------------------------------------------"
 echo
 
 
-$CLARA_HOME/bin/j_dpe --port $PORT --host $FE_HOST --session $SESSION --report 5 --max-cores $THREAD_NUM 2>&1 | tee "$LOG_FILE-jfe.log" &
+$CLARA_HOME/bin/j_dpe --port $PORT --host $FE_HOST --session $SESSION --report 5 --max-cores --max-sockets 5120 $THREAD_NUM 2>&1 | tee "$LOG_FILE-jfe.log" &
 
 #$CLARA_HOME/bin/j_dpe --port $PORT --host $FE_HOST --session $SESSION & export dpepid=$!
 
