@@ -1,0 +1,14 @@
+#!/usr/bin/env bash
+# author Vardan Gyurjyan
+
+rm -rf $CLARA_HOME/plugins/clas12/bin
+rm -rf $CLARA_HOME/plugins/clas12/etc
+rm -rf $CLARA_HOME/plugins/clas12/log
+rm -rf $CLARA_HOME/plugins/clas12/scripts
+
+rm -rf $CLARA_HOME/jre
+cd $CLARA_HOME/..
+
+tar cvf clara-cre.tar clara-cre
+gzip clara-cre.tar
+

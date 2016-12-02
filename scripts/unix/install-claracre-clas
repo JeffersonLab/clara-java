@@ -25,8 +25,9 @@ case $OS in
   exit
   fi
 
-    wget https://userweb.jlab.org/~gurjyan/clara-cre/clara-cre-clas.tar.gz
-    tar xvzf clara-cre-clas.tar.gz
+    wget https://userweb.jlab.org/~gurjyan/clara-cre/clara-cre.tar.gz
+    wget https://userweb.jlab.org/~gavalian/software/coatjava/coatjava-3.0.tar.gz
+
 
     MACHINE_TYPE=`uname -m`
     if [ ${MACHINE_TYPE} == 'x86_64' ]; then
@@ -45,21 +46,49 @@ case $OS in
     exit
     fi
 
- curl "https://userweb.jlab.org/~gurjyan/clara-cre/clara-cre-clas.tar.gz" -o clara-cre-clas.tar.gz
+ curl "https://userweb.jlab.org/~gurjyan/clara-cre/clara-cre.tar.gz" -o clara-cre.tar.gz
+ curl "https://userweb.jlab.org/~gavalian/software/coatjava/coatjava-3.0.tar.gz" -o coatjava-3.0.tar.gz
 
  curl "https://userweb.jlab.org/~gurjyan/clara-cre/macosx-64.tar.gz" -o macosx-64.tar.gz
     ;;
   *) ;;
 esac
 
-    tar xvzf clara-cre-clas.tar.gz
-    rm -f clara-cre-clas.tar.gz
+    tar xvzf clara-cre.tar.gz
+    rm -f clara-cre.tar.gz
     cd clara-cre
+
     mkdir jre
     cd jre
     mv ../../*.tar.* .
+    mv coatjava-3.0.tar.gz ../../.
+
+
 
 echo "Installing jre ..."
 tar xvzf *.tar.*
+cd ../plugins
+mkdir clas12/lib
+mkdir clas12/services
+
+cd ../..
+
+echo `pwd`
+
+tar xvzf coatjava-3.0.tar.gz
+
+cd coatjava
+cp lib/clas/* $CLARA_HOME/plugins/clas12/lib/.
+cp lib/plugins/* $CLARA_HOME/plugins/clas12/services/.
+cp -r etc $CLARA_HOME/plugins/clas12/.
+cp -r bin $CLARA_HOME/plugins/clas12/.
+cp -r scripts $CLARA_HOME/plugins/clas12/.
+rm -f $CLARA_HOME/plugins/clas12/bin/clara-rec
+cp $CLARA_HOME/plugins/clas12/etc/services/reconstruction.yaml $CLARA_HOME/plugins/clas12/config/services.yaml
+rm -rf $CLARA_HOME/plugins/clas12/etc/services
+
+cd ..
+rm -rf coatjava
+rm coatjava-3.0.tar.gz
 
 echo done
