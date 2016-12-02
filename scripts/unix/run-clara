@@ -211,7 +211,7 @@ fi
 
 # Data processing session
 if [ "$SESSION" == "undefined" ]; then
-SESSION=$USER
+SESSION="$USER-$HOSTNAME"
 fi
 
 # Number of parallel threads
