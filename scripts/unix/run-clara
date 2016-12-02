@@ -217,7 +217,7 @@ fi
 # Number of parallel threads
 if [ "$THREAD_NUM" == "undefined" ]; then
 if [ "$MODE" = "farm" ]; then
-THREAD_NUM=36
+THREAD_NUM=34
 else
 THREAD_NUM=2
 fi
