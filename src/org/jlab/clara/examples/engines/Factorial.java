@@ -51,8 +51,7 @@ public class Factorial implements Engine {
 
     @Override
     public EngineData execute(EngineData input) {
-//        fact(7777);
-        xMsgUtil.sleep(120);
+        fact(7777);
         return input;
     }
 
