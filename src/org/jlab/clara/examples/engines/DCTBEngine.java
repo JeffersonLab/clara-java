@@ -70,17 +70,17 @@ public class DCTBEngine implements Engine {
 
     @Override
     public String getDescription() {
-        return null;
+        return "x";
     }
 
     @Override
     public String getVersion() {
-        return null;
+        return "x";
     }
 
     @Override
     public String getAuthor() {
-        return null;
+        return "x";
     }
 
     @Override
