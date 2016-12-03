@@ -21,6 +21,7 @@
 
 package org.jlab.clara.examples.engines;
 
+import org.jlab.clara.base.ClaraUtil;
 import org.jlab.clara.engine.Engine;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.EngineDataType;
@@ -50,12 +51,16 @@ public class ECEngine implements Engine {
 
     @Override
     public Set<EngineDataType> getInputDataTypes() {
-        return null;
+        return ClaraUtil.buildDataTypes(
+            EngineDataType.STRING,
+            EngineDataType.SFIXED32);
     }
 
     @Override
     public Set<EngineDataType> getOutputDataTypes() {
-        return null;
+        return ClaraUtil.buildDataTypes(
+            EngineDataType.STRING,
+            EngineDataType.SFIXED32);
     }
 
     @Override
