@@ -211,7 +211,7 @@ fi
 
 # Data processing session
 if [ "$SESSION" == "undefined" ]; then
-SESSION="$USER-$HOSTNAME"
+SESSION="$USER"
 fi
 
 # Number of parallel threads
@@ -251,8 +251,8 @@ echo ' Note: CLARA distribution and data input/output directories must be visibl
 #rcCmd="COMMAND: setenv CLARA_HOME "$CL_HOME"; "$CLARA_HOME"/bin/run-clara -c "$CLARA_HOME" -i "$IN_DIR" -j "$JAVA_HOME" -m local_2 -o "$OUT_DIR" -p "$CLAS12DIR" -s "$SESSION" -t "$THREAD_NUM" -y "$SERVICE_YAML" -f "$FILE_LIST""
 
 
-rcCmd="COMMAND: setenv CLARA_HOME "$CL_HOME"; $CLARA_HOME/bin/run-clara -i "$IN_DIR" -o "$OUT_DIR" -s "$USER-$HOSTNAME" -t "$THREAD_NUM" -y "$SERVICE_YAML" -f "$FILE_LIST""
-rdpCmd="COMMAND: setenv CLARA_HOME="$CL_HOME"; "$CLARA_HOME"/bin/clara-dpe  "$USER-$HOSTNAME" "$CLARA_HOME" "$CLAS12DIR""
+rcCmd="COMMAND: setenv CLARA_HOME "$CL_HOME"; $CLARA_HOME/bin/run-clara -i "$IN_DIR" -o "$OUT_DIR" -s "$SESSION" -t "$THREAD_NUM" -y "$SERVICE_YAML" -f "$FILE_LIST""
+rdpCmd="COMMAND: setenv CLARA_HOME="$CL_HOME"; "$CLARA_HOME"/bin/clara-dpe  "$SESSION" "$CLARA_HOME" "$CLAS12DIR""
 
 # Create orchestrator job submission script
 {

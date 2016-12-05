@@ -82,19 +82,8 @@ public class JinFluxReportBuilder extends JinFlux implements ExternalReport {
 
             if (jinFxConnected) {
 
-                Map<String, String> tags = new HashMap<>();
-                tags.put(ClaraConstants.DPE, dpeData.getHost());
-                tags.put(ClaraConstants.SESSION, session);
-                Point.Builder p = openTB("clas12", tags);
-                if(dpeData.getLang()!=null) addDP(p, "language", dpeData.getLang());
-                if(dpeData.getClaraHome()!=null) addDP(p, "clara_home", dpeData.getClaraHome());
-//                        addDP(p, "start_time", dpeData.getStartTime());
-
-//                addDP(p, "host_name", dpeData.getHost());
-                addDP(p, "cpu_usage", dpeData.getCpuUsage());
-                addDP(p, "memory_usage", dpeData.getMemoryUsage());
-                addDP(p, "load", dpeData.getLoad());
-                write(dbName, p);
+                Map<String, String> tags;
+                Point.Builder p;
 
                 long totalExecTime = 0;
                 for (ContainerReport cr : dpeData.getContainers()) {
@@ -105,6 +94,11 @@ public class JinFluxReportBuilder extends JinFlux implements ExternalReport {
                         tags.put(ClaraConstants.SESSION, session);
                         tags.put("service_name", sr.getEngineName());
                         p = openTB("clas12", tags);
+
+                        addDP(p, "core_count", dpeData.getCoreCount());
+                        addDP(p, "cpu_usage", dpeData.getCpuUsage());
+                        addDP(p, "memory_usage", dpeData.getMemoryUsage());
+                        addDP(p, "load", dpeData.getLoad());
 
 //                        addDP(p, "class_name", sr.getClassName());
 //                        addDP(p, "engine_name", sr.getEngineName());
@@ -136,6 +130,7 @@ public class JinFluxReportBuilder extends JinFlux implements ExternalReport {
                 tags.put(ClaraConstants.SESSION, session);
                 p = openTB("clas12", tags);
                 addDP(p,"total_exec_time", totalExecTime);
+                addDP(p,"average_exec_time", totalExecTime/dpeData.getCoreCount());
                 write(dbName, p);
 
                 System.out.println("JinFlux report ...");
