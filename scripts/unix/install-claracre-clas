@@ -26,7 +26,7 @@ case $OS in
   fi
 
     wget https://userweb.jlab.org/~gurjyan/clara-cre/clara-cre.tar.gz
-    wget https://userweb.jlab.org/~gavalian/software/coatjava/coatjava-3.0.tar.gz
+    wget https://userweb.jlab.org/~gavalian/software/coatjava/coatjava-3a.0.0.tar.gz
 
 
     MACHINE_TYPE=`uname -m`
@@ -47,7 +47,7 @@ case $OS in
     fi
 
  curl "https://userweb.jlab.org/~gurjyan/clara-cre/clara-cre.tar.gz" -o clara-cre.tar.gz
- curl "https://userweb.jlab.org/~gavalian/software/coatjava/coatjava-3.0.tar.gz" -o coatjava-3.0.tar.gz
+ curl "https://userweb.jlab.org/~gavalian/software/coatjava/coatjava-3a.0.0.tar.gz" -o coatjava-3a.0.0.tar.gz
 
  curl "https://userweb.jlab.org/~gurjyan/clara-cre/macosx-64.tar.gz" -o macosx-64.tar.gz
     ;;
@@ -61,7 +61,7 @@ esac
     mkdir jre
     cd jre
     mv ../../*.tar.* .
-    mv coatjava-3.0.tar.gz ../../.
+    mv coatjava-3a.0.0.tar.gz ../../.
 
 
 
@@ -75,7 +75,7 @@ cd ../..
 
 echo `pwd`
 
-tar xvzf coatjava-3.0.tar.gz
+tar xvzf coatjava-3a.0.0.tar.gz
 
 cd coatjava
 cp lib/clas/* $CLARA_HOME/plugins/clas12/lib/.
@@ -89,6 +89,6 @@ rm -rf $CLARA_HOME/plugins/clas12/etc/services
 
 cd ..
 rm -rf coatjava
-rm coatjava-3.0.tar.gz
+rm coatjava-3a.0.0.tar.gz
 
 echo done

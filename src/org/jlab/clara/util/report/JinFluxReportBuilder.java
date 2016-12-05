@@ -90,12 +90,13 @@ public class JinFluxReportBuilder extends JinFlux implements ExternalReport {
 
                     for (ServiceReport sr : cr.getServices()) {
                         tags = new HashMap<>();
-                        tags.put(ClaraConstants.DPE, dpeData.getHost());
-                        tags.put(ClaraConstants.SESSION, session);
+                        tags.put(ClaraConstants.SESSION, session+"-"+dpeData.getHost());
                         tags.put("service_name", sr.getEngineName());
                         p = openTB("clas12", tags);
 
-                        addDP(p, "core_count", dpeData.getCoreCount());
+                        addDP(p,ClaraConstants.DPE, dpeData.getHost());
+                        addDP(p, "core_count", dpeData.getPoolSize());
+                        addDP(p, "pool_size", dpeData.getPoolSize());
                         addDP(p, "cpu_usage", dpeData.getCpuUsage());
                         addDP(p, "memory_usage", dpeData.getMemoryUsage());
                         addDP(p, "load", dpeData.getLoad());
@@ -126,11 +127,11 @@ public class JinFluxReportBuilder extends JinFlux implements ExternalReport {
                     }
                 }
                 tags = new HashMap<>();
-                tags.put(ClaraConstants.DPE, dpeData.getHost());
-                tags.put(ClaraConstants.SESSION, session);
+                tags.put(ClaraConstants.SESSION, session+"-"+dpeData.getHost());
                 p = openTB("clas12", tags);
+                addDP(p,ClaraConstants.DPE, dpeData.getHost());
                 addDP(p,"total_exec_time", totalExecTime);
-                addDP(p,"average_exec_time", totalExecTime/dpeData.getCoreCount());
+                addDP(p,"average_exec_time", totalExecTime/dpeData.getPoolSize());
                 write(dbName, p);
 
                 System.out.println("JinFlux report ...");

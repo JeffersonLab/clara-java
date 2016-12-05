@@ -66,7 +66,7 @@ mkdir $CLARA_HOME/jre
 OS="`uname`"
 case $OS in
   'Linux')
-  wget https://userweb.jlab.org/~gavalian/software/coatjava/coatjava-3.0.tar.gz
+  wget https://userweb.jlab.org/~gavalian/software/coatjava/coatjava-3a.0.0.tar.gz
       MACHINE_TYPE=`uname -m`
       if [ ${MACHINE_TYPE} == 'x86_64' ]; then
     wget https://userweb.jlab.org/~gurjyan/clara-cre/linux-64.tar.gz
@@ -80,14 +80,14 @@ case $OS in
 #    OS='Windows'
 #    ;;
   'Darwin')
- curl "https://userweb.jlab.org/~gavalian/software/coatjava/coatjava-3.0.tar.gz" -o coatjava-3.0.tar.gz
+ curl "https://userweb.jlab.org/~gavalian/software/coatjava/coatjava-3a.0.0.tar.gz" -o coatjava-3a.0.0.tar.gz
  curl "https://userweb.jlab.org/~gurjyan/clara-cre/macosx-64.tar.gz" -o macosx-64.tar.gz
     mv macosx-64.tar.gz $CLARA_HOME/jre
     ;;
   *) ;;
 esac
 
-tar xvzf coatjava-3.0.tar.gz
+tar xvzf coatjava-3a.0.0.tar.gz
 
 cd coatjava
 cp lib/clas/* $CLARA_HOME/plugins/clas12/lib/.

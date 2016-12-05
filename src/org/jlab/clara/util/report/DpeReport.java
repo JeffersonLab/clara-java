@@ -40,6 +40,7 @@ public class DpeReport extends BaseReport {
     private final String claraHome;
 
     private final int coreCount;
+    private int poolSize;
     private final long memorySize;
 
     private final String aliveData;
@@ -104,5 +105,13 @@ public class DpeReport extends BaseReport {
 
     public String getAliveData() {
         return aliveData;
+    }
+
+    public int getPoolSize() {
+        return poolSize;
+    }
+
+    public void setPoolSize(int poolSize) {
+        this.poolSize = poolSize;
     }
 }
