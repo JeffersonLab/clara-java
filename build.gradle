@@ -22,19 +22,11 @@ compileJava {
 }
 
 
-configurations {
-    provided {
-        transitive = true
-    }
-}
-
 sourceSets {
     main {
         java {
             srcDir 'src'
         }
-        compileClasspath += configurations.provided
-        runtimeClasspath += configurations.provided
     }
     test {
         java {
@@ -44,8 +36,6 @@ sourceSets {
             srcDir 'test'
             include "resources/**"
         }
-        compileClasspath += configurations.provided
-        runtimeClasspath += configurations.provided
     }
 }
 
@@ -88,8 +78,6 @@ javadoc {
     include "org/jlab/clara/sys/**"
     exclude "org/jlab/clara/base/core/**"
     exclude "org/jlab/clara/sys/ccc/**"
-
-    classpath += configurations.provided
 }
 
 task javadocJar(type: Jar) {
@@ -273,12 +261,5 @@ gradle.taskGraph.whenReady { taskGraph ->
 eclipse {
     classpath {
         defaultOutputDir = file("${buildDir}/eclipse-classes")
-        plusConfigurations += [ configurations.provided ]
-    }
-}
-
-idea {
-    module {
-        scopes.COMPILE.plus += [configurations.provided]
     }
 }
