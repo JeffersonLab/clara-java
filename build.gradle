@@ -21,6 +21,11 @@ compileJava {
     targetCompatibility = 1.8
 }
 
+configurations {
+    all {
+         resolutionStrategy.cacheChangingModulesFor 30, 'minutes'
+    }
+}
 
 sourceSets {
     main {
