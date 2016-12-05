@@ -95,7 +95,8 @@ public class JinFluxReportBuilder extends JinFlux implements ExternalReport {
                         p = openTB("clas12", tags);
 
                         addDP(p,ClaraConstants.DPE, dpeData.getHost());
-                        addDP(p, "core_count", dpeData.getCoreCount());
+//                        addDP(p, "core_count", dpeData.getCoreCount());
+                        addDP(p, "core_count", 7);
                         addDP(p, "pool_size", dpeData.getPoolSize());
                         addDP(p, "cpu_usage", dpeData.getCpuUsage());
                         addDP(p, "memory_usage", dpeData.getMemoryUsage());
