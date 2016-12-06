@@ -103,6 +103,7 @@ public class JsonReportBuilder implements ExternalReport {
                 serviceRegistration.put("version", sr.getVersion());
                 serviceRegistration.put("description", sr.getDescription());
                 serviceRegistration.put("language", sr.getLang());
+                serviceRegistration.put("pool_size", sr.getPoolSize());
                 serviceRegistration.put("start_time", sr.getStartTime());
 
                 servicesRegistrationArray.put(serviceRegistration);

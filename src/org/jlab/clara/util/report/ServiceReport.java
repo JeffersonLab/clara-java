@@ -37,6 +37,7 @@ public class ServiceReport extends BaseReport {
     private final String engineName;
     private final String className;
     private final String version;
+    private final int poolSize;
 
     private final AtomicInteger failureCount = new AtomicInteger();
     private final AtomicInteger shrmReads = new AtomicInteger();
@@ -50,6 +51,7 @@ public class ServiceReport extends BaseReport {
         this.engineName = comp.getEngineName();
         this.className = comp.getEngineClass();
         this.version = engine.getVersion();
+        this.poolSize = comp.getSubscriptionPoolSize();
     }
 
     public String getEngineName() {
@@ -110,5 +112,9 @@ public class ServiceReport extends BaseReport {
 
     public String getVersion() {
         return version;
+    }
+
+    public int getPoolSize() {
+        return poolSize;
     }
 }
