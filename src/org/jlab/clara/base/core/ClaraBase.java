@@ -27,8 +27,8 @@ import org.jlab.clara.util.report.ReportType;
 import org.jlab.coda.xmsg.core.xMsg;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgConnection;
-import org.jlab.coda.xmsg.core.xMsgConnectionSetup;
 import org.jlab.coda.xmsg.core.xMsgMessage;
+import org.jlab.coda.xmsg.core.xMsgSetup;
 import org.jlab.coda.xmsg.core.xMsgSubscription;
 import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.core.xMsgUtil;
@@ -37,7 +37,6 @@ import org.jlab.coda.xmsg.data.xMsgRegQuery;
 import org.jlab.coda.xmsg.data.xMsgRegRecord;
 import org.jlab.coda.xmsg.excp.xMsgException;
 import org.jlab.coda.xmsg.net.xMsgRegAddress;
-import org.zeromq.ZMQ.Socket;
 
 import java.io.IOException;
 import java.util.Set;
@@ -66,29 +65,26 @@ public abstract class ClaraBase extends xMsg {
      * @param frontEnd  definition of the front-end
      */
     public ClaraBase(ClaraComponent me, ClaraComponent frontEnd) {
-        super(me.getCanonicalName(),
-              me.getProxyAddress(),
-              getRegAddress(frontEnd),
-              me.getSubscriptionPoolSize());
+        super(me.getCanonicalName(), setup(me, frontEnd));
         this.me = me;
         this.frontEnd = frontEnd;
         this.claraHome = System.getenv("CLARA_HOME");
         if (claraHome == null) {
             throw new IllegalStateException("CLARA_HOME environmental variable is not defined.");
         }
+    }
 
-        setConnectionSetup(new xMsgConnectionSetup() {
-            @Override
-            public void preConnection(Socket socket) {
-                socket.setRcvHWM(0);
-                socket.setSndHWM(0);
-            }
-
-            @Override
-            public void postConnection() {
-                xMsgUtil.sleep(100);
-            }
-        });
+    private static xMsgSetup setup(ClaraComponent me, ClaraComponent frontEnd) {
+        return xMsgSetup.newBuilder()
+                        .withProxy(me.getProxyAddress())
+                        .withRegistrar(getRegAddress(frontEnd))
+                        .withPoolSize(me.getSubscriptionPoolSize())
+                        .withPreConnectionSetup(s -> {
+                            s.setRcvHWM(0);
+                            s.setSndHWM(0);
+                        })
+                        .withPostConnectionSetup(() -> xMsgUtil.sleep(100))
+                        .build();
     }
 
     // abstract methods to start Clara component
