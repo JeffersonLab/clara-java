@@ -6,7 +6,7 @@
 | `<lang>`              | `java` or `cpp` or `python` |
 | `<dpe_name>`          | `<addr>_<lang>` |
 | `<container_name>`    | `<addr>_<lang>:<container>` |
-| `<service_name>`      | `<addr>_<lang>:<container>:<service>` |
+| `<service_name>`      | `<addr>_<lang>:<container>:<engine>` |
 | `<service_status>`    | `error` or `warning` or `info` |
 
 
@@ -27,12 +27,12 @@
 | Field | Value |
 | ----- | ----- |
 | **parameters**    | `<service_name>`, `<class_path>`, `<pool_size>`, `<description>` |
-| **actor**         | Container |
+| **actor**         | DPE |
 | **proxy**         | `<addr>` |
 | **topic**         | `container:<container_name>` |
 | **data**          | `startService?<engine>?<classs_path>?<pool_size>?<description>` |
 
-__Notes__: `pool_size` and `<description>` are optional.
+__Notes__: `<pool_size>` and `<description>` are optional.
 
 ### Exit DPE
 
@@ -59,9 +59,9 @@ __Notes__: `pool_size` and `<description>` are optional.
 | Field | Value |
 | ----- | ----- |
 | **parameters**    | `<service_name>` |
-| **actor**         | Container |
+| **actor**         | DPE |
 | **proxy**         | `<addr>` |
-| **topic**         | `container:<container_name>` |
+| **topic**         | `dpe:<dpe_name>` |
 | **data**          | `stopService?<engine>` |
 
 
@@ -99,7 +99,7 @@ __Notes__: `pool_size` and `<description>` are optional.
 | **parameters**    | `<composition>`, `<engine_data>`, `<request_id>` |
 | **actor**         | Service |
 | **proxy**         | `<addr>` of every service that start the composition |
-| **topic**         | `<service name>` of every service that start the composition |
+| **topic**         | `<service_name>` of every service that start the composition |
 | **composition**   | `<composition>` |
 | **action**        | `EXECUTE` |
 | **request ID**    | `<request_id>` |
@@ -112,7 +112,7 @@ __Notes__: `pool_size` and `<description>` are optional.
 | **parameters**    | `<service_name>`, `<event_count>` |
 | **actor**         | Service |
 | **proxy**         | `<addr>` |
-| **topic**         | `<service name>` |
+| **topic**         | `<service_name>` |
 | **data**          | `serviceReportData?<event_count>` |
 
 ### Start `done` reporting
@@ -122,7 +122,7 @@ __Notes__: `pool_size` and `<description>` are optional.
 | **parameters**    | `<service_name>`, `<event_count>` |
 | **actor**         | Service |
 | **proxy**         | `<addr>` |
-| **topic**         | `<service name>` |
+| **topic**         | `<service_name>` |
 | **data**          | `serviceReportDone?<event_count>` |
 
 ### Stop data reporting
@@ -132,7 +132,7 @@ __Notes__: `pool_size` and `<description>` are optional.
 | **parameters**    | `<service_name>` |
 | **actor**         | Service |
 | **proxy**         | `<addr>` |
-| **topic**         | `<service name>` |
+| **topic**         | `<service_name>` |
 | **data**          | `serviceReportData?0` |
 
 ### Stop `done` reporting
@@ -142,7 +142,7 @@ __Notes__: `pool_size` and `<description>` are optional.
 | **parameters**    | `<service_name>` |
 | **actor**         | Service |
 | **proxy**         | `<addr>` |
-| **topic**         | `<service name>` |
+| **topic**         | `<service_name>` |
 | **data**          | `serviceReportDone?0` |
 
 
@@ -152,34 +152,36 @@ __Notes__: `pool_size` and `<description>` are optional.
 
 | Field | Value |
 | ----- | ----- |
-| **parameters**    | None |
+| **parameters**    | `<session>` |
 | **actor**         | Front End |
 | **proxy**         | `<addr>` |
-| **subscription**  | `<service_status>:<service name>` |
+| **subscription**  | `dpeAlive:` or `dpeAlive:<session>:` |
+
+__Notes__: `<session>` is optional.
 
 ### Subscribe service status reports
 
 | Field | Value |
 | ----- | ----- |
 | **parameters**    | `<service_name>`, `<service_status>` |
-| **actor**         | Service |
+| **actor**         | Front End |
 | **proxy**         | `<addr>` |
-| **subscription**  | `<service_status>:<service name>` |
+| **subscription**  | `<service_status>:<service_name>` |
 
 ### Subscribe service data reports
 
 | Field | Value |
 | ----- | ----- |
 | **parameters**    | `<service_name>` |
-| **actor**         | Service |
+| **actor**         | Front End |
 | **proxy**         | `<addr>` |
-| **subscription**  | `data:<service name>` |
+| **subscription**  | `data:<service_name>` |
 
 ### Subscribe service `done` reports
 
 | Field | Value |
 | ----- | ----- |
 | **parameters**    | `<service_name>` |
-| **actor**         | Service |
+| **actor**         | Front End |
 | **proxy**         | `<addr>` |
-| **subscription**  | `done:<service name>` |
+| **subscription**  | `done:<service_name>` |
