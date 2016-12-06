@@ -86,6 +86,16 @@ public class JinFluxReportBuilder extends JinFlux implements ExternalReport {
     public void push(DpeReport dpeData) {
         try {
 
+            try {
+                if (!existsDB(dbName)) {
+                    createDB(dbName, 1, JinTime.HOURE);
+                }
+
+            } catch (Exception e) {
+                jinFxConnected = false;
+                e.printStackTrace();
+            }
+
             if (jinFxConnected) {
 
                 Map<String, String> tags;
