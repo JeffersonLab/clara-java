@@ -38,6 +38,8 @@ import static org.hamcrest.Matchers.sameInstance;
 
 public class EngineDataTypeTest {
 
+    private static final Random RANDOM = new Random();
+
     @Test
     public void testIntegerSerializer() throws Exception {
         EngineDataType dt = EngineDataType.SINT32;
@@ -166,7 +168,7 @@ public class EngineDataTypeTest {
     public void testRawBytesSerializer() throws Exception {
 
         byte[] r = new byte[100];
-        new Random().nextBytes(r);
+        RANDOM.nextBytes(r);
 
         ByteBuffer bb = ByteBuffer.wrap(r);
         bb.order(ByteOrder.LITTLE_ENDIAN);
