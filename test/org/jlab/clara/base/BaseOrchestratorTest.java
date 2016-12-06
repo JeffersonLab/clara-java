@@ -266,7 +266,7 @@ public class BaseOrchestratorTest {
 
 
     private void assertMessage(xMsgMessage msg, String topic, String data)
-        throws Exception {
+            throws Exception {
         xMsgMeta.Builder msgMeta = msg.getMetaData();
         String msgData = new String(msg.getData());
 
