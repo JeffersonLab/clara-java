@@ -25,7 +25,6 @@ package org.jlab.clara.examples.engines;
 import org.jlab.clara.engine.Engine;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.EngineDataType;
-import org.jlab.coda.xmsg.core.xMsgUtil;
 
 import java.util.Set;
 

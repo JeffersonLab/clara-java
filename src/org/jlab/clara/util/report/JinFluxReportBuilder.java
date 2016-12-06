@@ -42,11 +42,16 @@ import java.util.Map;
  */
 public class JinFluxReportBuilder extends JinFlux implements ExternalReport {
 
-    private String dbName, session;
-    private boolean jinFxConnected = true;
-    private long totalExecTime;
+    private final String dbName;
+    private final String session;
 
-    public JinFluxReportBuilder(String dbNode, String dbName, String session, String user, String password) throws JinFluxException {
+    private boolean jinFxConnected = true;
+
+    public JinFluxReportBuilder(String dbNode,
+                                String dbName,
+                                String session,
+                                String user,
+                                String password) throws JinFluxException {
         super(dbNode, user, password);
         this.dbName = dbName;
         this.session = session;
@@ -57,10 +62,11 @@ public class JinFluxReportBuilder extends JinFlux implements ExternalReport {
         } catch (Exception e) {
             jinFxConnected = false;
         }
-
     }
 
-    public JinFluxReportBuilder(String dbNode, String dbName, String session) throws JinFluxException {
+    public JinFluxReportBuilder(String dbNode,
+                                String dbName,
+                                String session) throws JinFluxException {
         super(dbNode);
         this.dbName = dbName;
         this.session = session;
@@ -90,7 +96,7 @@ public class JinFluxReportBuilder extends JinFlux implements ExternalReport {
 
                     for (ServiceReport sr : cr.getServices()) {
                         tags = new HashMap<>();
-                        tags.put(ClaraConstants.SESSION, session+"-"+dpeData.getHost());
+                        tags.put(ClaraConstants.SESSION, session + "-" + dpeData.getHost());
                         tags.put("service_name", sr.getEngineName());
                         p = openTB("clas12", tags);
 
@@ -110,26 +116,26 @@ public class JinFluxReportBuilder extends JinFlux implements ExternalReport {
 
                         long serviceRequests = sr.getRequestCount();
 
-                        addDP(p,"n_requests", serviceRequests);
-                        addDP(p,"n_failures", sr.getFailureCount());
-                        addDP(p,"shm_reads", sr.getShrmReads());
-                        addDP(p,"shm_writes", sr.getShrmWrites());
-                        addDP(p,"bytes_recv", sr.getBytesReceived());
-                        addDP(p,"bytes_sent", sr.getBytesSent());
-                        if (sr.getShrmReads()>0) {
-                            long execTime = sr.getExecutionTime()/sr.getShrmReads();
-                            addDP(p,"exec_time", execTime);
-                            totalExecTime = totalExecTime+execTime;
+                        addDP(p, "n_requests", serviceRequests);
+                        addDP(p, "n_failures", sr.getFailureCount());
+                        addDP(p, "shm_reads", sr.getShrmReads());
+                        addDP(p, "shm_writes", sr.getShrmWrites());
+                        addDP(p, "bytes_recv", sr.getBytesReceived());
+                        addDP(p, "bytes_sent", sr.getBytesSent());
+                        if (sr.getShrmReads() > 0) {
+                            long execTime = sr.getExecutionTime() / sr.getShrmReads();
+                            addDP(p, "exec_time", execTime);
+                            totalExecTime = totalExecTime + execTime;
                         }
                         write(dbName, p);
                         ClaraUtil.sleep(100);
                     }
                 }
                 tags = new HashMap<>();
-                tags.put(ClaraConstants.SESSION, session+"-"+dpeData.getHost());
+                tags.put(ClaraConstants.SESSION, session + "-" + dpeData.getHost());
                 p = openTB("clas12", tags);
-                addDP(p,"total_exec_time", totalExecTime);
-                addDP(p,"average_exec_time", totalExecTime/dpeData.getCoreCount());
+                addDP(p, "total_exec_time", totalExecTime);
+                addDP(p, "average_exec_time", totalExecTime / dpeData.getCoreCount());
                 write(dbName, p);
 
                 System.out.println("JinFlux report ...");
@@ -142,7 +148,6 @@ public class JinFluxReportBuilder extends JinFlux implements ExternalReport {
 
 
     public boolean isConnected() {
-
         return jinFxConnected;
     }
 
@@ -154,8 +159,6 @@ public class JinFluxReportBuilder extends JinFlux implements ExternalReport {
     public void checkCreate() {
         try {
             if (isServerUp(1)) {
-                // connect to the database
-                // create database if it does not exists
                 if (!existsDB(dbName)) {
                     createDB(dbName, 1, JinTime.HOURE);
                 }
@@ -171,5 +174,4 @@ public class JinFluxReportBuilder extends JinFlux implements ExternalReport {
         push(dpeData);
         return null;
     }
-
 }
