@@ -571,7 +571,7 @@ public final class Dpe extends AbstractActor {
                                        ": missing container");
         }
         try {
-            container.addService(serComp, base.getFrontEnd());
+            container.addService(serComp, base.getFrontEnd(), servicesConnectionPool);
         } catch (ClaraException e) {
             throw new DpeException("could not start service " + serComp, e);
         }

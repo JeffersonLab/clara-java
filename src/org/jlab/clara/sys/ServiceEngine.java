@@ -80,11 +80,11 @@ class ServiceEngine {
     }
 
     void start() throws ClaraException {
-        base.start();
+        // nothing
     }
 
     void stop() {
-        base.close();
+        // nothing
     }
 
     public void configure(xMsgMessage message) throws ClaraException {
