@@ -10,6 +10,7 @@ fi
 mkdir $CLARA_HOME
 mkdir $CLARA_HOME/plugins
 mkdir $CLARA_HOME/plugins/clas12
+mkdir $CLARA_HOME/plugins/clas12/config
 
 PLUGIN=coatjava-3a.0.1
 while :
@@ -126,6 +127,7 @@ cp clasrec-io/data/clasDIS.11GeV.20events.evio $CLARA_HOME/data/in/
 echo "Installing jre ..."
 cd $CLARA_HOME/jre
 tar xvzf *.tar.*
+rm -f *.tar.*
 
 hash -r
 
