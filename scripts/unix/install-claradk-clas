@@ -7,6 +7,10 @@ if ! [ -n "$CLARA_HOME" ]; then
     exit
 fi
 
+mkdir $CLARA_HOME
+mkdir $CLARA_HOME/plugins
+mkdir $CLARA_HOME/plugins/clas12
+
 PLUGIN=coatjava-3a.0.1
 while :
 do
