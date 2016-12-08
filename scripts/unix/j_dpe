@@ -8,6 +8,7 @@ if [ -z "${CLARA_HOME}" ]; then
 fi
 
 if [ -z "${CLASSPATH}" ]; then
+    # Find plugins directory
     CLASSPATH="${CLARA_HOME}/lib/*"
     if [ -n "${CLARA_PLUGINS}" ]; then
         if [ ! -d "${CLARA_PLUGINS}" ]; then
@@ -18,11 +19,21 @@ if [ -z "${CLASSPATH}" ]; then
     else
         plugins_dir="${CLARA_HOME}/plugins"
     fi
+
+    # Add every plugin
     for plugin in "${plugins_dir}"/*; do
         if [ -d "${plugin}" ]; then
-            CLASSPATH+=":${plugin}/lib/services/*:${plugin}/lib/clas/*"
+            CLASSPATH+=":${plugin}/services/*:${plugin}/lib/*"
+
+            # Support subdirectories inside lib/
+            for libdir in "${plugin}"/lib/*; do
+                if [ -d "${libdir}" ]; then
+                    CLASSPATH+=":${libdir}/*"
+                fi
+            done
         fi
     done
+
     CLASSPATH+=":${CLARA_HOME}/services/*"
     export CLASSPATH
 fi
