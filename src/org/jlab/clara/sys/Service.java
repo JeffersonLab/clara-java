@@ -94,7 +94,8 @@ class Service extends AbstractActor {
 
         // Fill the object pool
         for (int i = 0; i < comp.getSubscriptionPoolSize(); i++) {
-            enginePool[i] = new ServiceEngine(comp, frontEnd, userEngine, sysConfig, sysReport);
+            ServiceActor engineActor = new ServiceActor(comp, frontEnd);
+            enginePool[i] = new ServiceEngine(userEngine, engineActor, sysConfig, sysReport);
         }
 
         // Register with the shared memory

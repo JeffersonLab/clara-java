@@ -50,10 +50,10 @@ import java.util.concurrent.TimeUnit;
  * @author gurjyan
  * @version 4.x
  */
-class ServiceEngine extends AbstractActor {
+class ServiceEngine {
 
-    // Engine instantiated object
     private final Engine engine;
+    private final ServiceActor base;
 
     private final ServiceSysConfig sysConfig;
     private final ServiceReport sysReport;
@@ -69,36 +69,23 @@ class ServiceEngine extends AbstractActor {
     private long executionTime;
 
 
-    ServiceEngine(ClaraComponent comp,
-                  ClaraComponent frontEnd,
-                  Engine userEngine,
+    ServiceEngine(Engine userEngine,
+                  ServiceActor base,
                   ServiceSysConfig config,
                   ServiceReport report) {
-        super(comp, frontEnd);
+        this.base = base;
         this.engine = userEngine;
         this.sysConfig = config;
         this.sysReport = report;
-        this.compiler = new CompositionCompiler(comp.getCanonicalName());
+        this.compiler = new CompositionCompiler(base.getName());
     }
 
-    @Override
-    void initialize() throws ClaraException {
-        base.cacheConnection();
+    void start() throws ClaraException {
+        base.start();
     }
 
-    @Override
-    void end() {
-        // nothing
-    }
-
-    @Override
-    void startMsg() {
-        // nothing
-    }
-
-    @Override
-    void stopMsg() {
-        // nothing
+    void stop() {
+        base.close();
     }
 
     public void configure(xMsgMessage message)
@@ -277,7 +264,7 @@ class ServiceEngine extends AbstractActor {
         for (String ss : outLinks) {
             ClaraComponent comp = ClaraComponent.dpe(ss);
             xMsgMessage msg = putEngineData(outData, ss);
-            base.send(comp, msg);
+            base.send(comp.getProxyAddress(), msg);
         }
     }
 
