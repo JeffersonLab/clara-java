@@ -71,7 +71,6 @@ public class JinFluxReportBuilder extends JinFlux implements ExternalReport {
         this.dbName = dbName;
         this.session = session;
 
-        System.out.println("DDDD JINFLUX connected.........");
         try {
             if (!existsDB(dbName)) {
                 createDB(dbName, 1, JinTime.HOURE);
@@ -150,14 +149,13 @@ public class JinFluxReportBuilder extends JinFlux implements ExternalReport {
                 tags.put(ClaraConstants.SESSION, session + "-" + dpeData.getHost());
                 p = openTB("clas12", tags);
                 addDP(p, "total_exec_time", totalExecTime);
-                addDP(p, "average_exec_time", totalExecTime / poolSize);
+                if (poolSize > 0) addDP(p, "average_exec_time", totalExecTime / poolSize);
                 write(dbName, p);
 
-                System.out.println("JinFlux report ...");
+                System.out.println("JinFlux:Info reporting ...");
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            System.out.println("preparing influxDB ...");
+            System.out.println("Warning: failed to report to InfluxDb");
         }
 
     }
