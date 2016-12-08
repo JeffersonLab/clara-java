@@ -91,6 +91,7 @@ tar xvzf "$PLUGIN".tar.gz
 
 cd coatjava
 
+
 cp -r etc $CLARA_HOME/plugins/clas12/.
 cp -r bin $CLARA_HOME/plugins/clas12/.
 cp -r bin $CLARA_HOME/plugins/clas12/.
