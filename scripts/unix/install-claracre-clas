@@ -81,6 +81,8 @@ esac
 
 echo "Installing jre ..."
 tar xvzf *.tar.*
+rm -f *.tar.*
+
 cd ../plugins
 mkdir clas12
 
@@ -93,7 +95,11 @@ tar xvzf "$PLUGIN".tar.gz
 cp -r etc $CLARA_HOME/plugins/clas12/.
 cp -r bin $CLARA_HOME/plugins/clas12/.
 cp -r scripts $CLARA_HOME/plugins/clas12/.
-cp -r lib $CLARA_HOME/plugins/clas12/.
+cp -r lib/packages $CLARA_HOME/plugins/clas12/lib/
+cp -r lib/utils $CLARA_HOME/plugins/clas12/lib/
+cp  lib/clas/* $CLARA_HOME/plugins/clas12/lib/clas/*
+cp  lib/services/* $CLARA_HOME/plugins/clas12/lib/services/*
+
 rm -f $CLARA_HOME/plugins/clas12/bin/clara-rec
 rm -f $CLARA_HOME/plugins/clas12/README
 cp $CLARA_HOME/plugins/clas12/etc/services/reconstruction.yaml $CLARA_HOME/plugins/clas12/config/services.yaml

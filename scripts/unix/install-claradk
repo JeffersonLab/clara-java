@@ -76,5 +76,5 @@ mkdir $CLARA_HOME/plugins
 echo "Installing jre ..."
 cd $CLARA_HOME/jre
 tar xvzf *.tar.*
-
+rm -f *.tar.*
 echo done

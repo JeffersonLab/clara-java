@@ -155,7 +155,7 @@ public class JinFluxReportBuilder extends JinFlux implements ExternalReport {
                 System.out.println("JinFlux report ...");
             }
         } catch (Exception e) {
-            System.out.println("DDD:Error =============: Error writing into influxDB");
+            System.out.println("Warning: preparing influxDB...");
         }
 
     }
