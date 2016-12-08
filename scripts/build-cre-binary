@@ -5,6 +5,7 @@ rm -rf $CLARA_HOME/plugins/clas12/bin
 rm -rf $CLARA_HOME/plugins/clas12/etc
 rm -rf $CLARA_HOME/plugins/clas12/log
 rm -rf $CLARA_HOME/plugins/clas12/scripts
+rm $CLARA_HOME/data/out/*
 
 rm -rf $CLARA_HOME/jre
 cd $CLARA_HOME/..
