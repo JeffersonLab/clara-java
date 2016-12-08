@@ -35,7 +35,7 @@ if [ -z ${4+x} ]; then FE_HOST="localhost" ; else FE_HOST=$4; fi
 export CLARA_HOME
 export CLAS12DIR
 export CCDB_DATABASE="etc/data/database/clas12database.sqlite"
-export CLASSPATH="$CLARA_HOME/lib/*:$CLAS12DIR/lib/*:$CLAS12DIR/services/*"
+export CLASSPATH="$CLARA_HOME/lib/*:$CLAS12DIR/lib/clas/*:$CLAS12DIR/lib/services/*"
 
 
 LOG_FILE=$CLARA_HOME/log/$HOSTNAME

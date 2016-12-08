@@ -229,7 +229,7 @@ export CLARA_HOME="$CL_HOME"
 export CLAS12DIR="$PLUGIN"
 #export CCDB_DATABASE="etc/data/database/clas12database.sqlite"
 export PATH=$PATH:$JAVA_HOME/bin:$CLARA_HOME/bin
-export CLASSPATH="$CLARA_HOME/lib/*:$CLAS12DIR/lib/*:$CLAS12DIR/services/*"
+export CLASSPATH="$CLARA_HOME/lib/*:$CLAS12DIR/lib/clas/*:$CLAS12DIR/lib/services/*"
 
 # Composition yaml file
 if [ "$SERVICE_YAML" == "undefined" ]; then
