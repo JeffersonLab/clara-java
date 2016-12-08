@@ -24,12 +24,9 @@ else
     java_bin=java
 fi
 
+LOG_FILE=$CLARA_HOME/log/$HOST
 
 MAIN=org.jlab.clas.std.orchestrators.CloudOrchestrator
-echo =====================================
-echo "$LOG_FILE-co.log"
-echo =====================================
-
 
 "${java_bin}" -cp $CLASSPATH $MAIN "$@" 2>&1 | tee "$LOG_FILE-co.log"
 

@@ -42,7 +42,7 @@ export CCDB_DATABASE="etc/data/database/clas12database.sqlite"
 export CLASSPATH="$CLARA_HOME/lib/*:$CLAS12DIR/lib/clas/*:$CLAS12DIR/lib/services/*"
 
 
-LOG_FILE=$CLARA_HOME/log/$HOSTNAME
+LOG_FILE=$CLARA_HOME/log/$HOST
 
 echo "-------- Running Conditions ---------------"
 echo " Start time         = "$(date)
