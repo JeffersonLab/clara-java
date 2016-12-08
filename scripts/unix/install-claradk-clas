@@ -60,19 +60,6 @@ cd clara-java
 ./gradlew deploy
 
 cd ..
-echo "Downloading and building clasrec-io package ..."
-git clone --depth 1 https://github.com/JeffersonLab/clasrec-io.git
-cd clasrec-io
-./gradlew deploy
-
-cd ..
-echo "Downloading and building clasrec-orchestrators package ..."
-git clone --depth 1 https://github.com/JeffersonLab/clasrec-orchestrators.git
-cd clasrec-orchestrators
-./gradlew deploy
-
-
-cd ..
 echo "Downloading coat-java and jre packages ..."
 mkdir $CLARA_HOME/jre
 
@@ -108,18 +95,34 @@ cp -r bin $CLARA_HOME/plugins/clas12/.
 cp -r scripts $CLARA_HOME/plugins/clas12/.
 cp -r lib $CLARA_HOME/plugins/clas12/.
 rm -f $CLARA_HOME/plugins/clas12/bin/clara-rec
+rm -f $CLARA_HOME/plugins/clas12/README
 cp $CLARA_HOME/plugins/clas12/etc/services/reconstruction.yaml $CLARA_HOME/plugins/clas12/config/services.yaml
 rm -rf $CLARA_HOME/plugins/clas12/etc/services
+
+cd ..
+echo "Downloading and building clasrec-io package ..."
+git clone --depth 1 https://github.com/JeffersonLab/clasrec-io.git
+cd clasrec-io
+./gradlew deploy
+
+cd ..
+echo "Downloading and building clasrec-orchestrators package ..."
+git clone --depth 1 https://github.com/JeffersonLab/clasrec-orchestrators.git
+cd clasrec-orchestrators
+./gradlew deploy
+
+cd ..
 
 mkdir $CLARA_HOME/data
 mkdir $CLARA_HOME/data/in
 mkdir $CLARA_HOME/data/out
 
-hash -r
-cp ../clasrec-io/data/clasDIS.11GeV.20events.evio $CLARA_HOME/data/in/
+cp clasrec-io/data/clasDIS.11GeV.20events.evio $CLARA_HOME/data/in/
 
 echo "Installing jre ..."
 cd $CLARA_HOME/jre
 tar xvzf *.tar.*
+
+hash -r
 
 echo done
