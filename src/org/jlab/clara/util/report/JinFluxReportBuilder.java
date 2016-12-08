@@ -71,6 +71,7 @@ public class JinFluxReportBuilder extends JinFlux implements ExternalReport {
         this.dbName = dbName;
         this.session = session;
 
+        System.out.println("DDDD JINFLUX connected.........");
         try {
             if (!existsDB(dbName)) {
                 createDB(dbName, 1, JinTime.HOURE);
@@ -155,6 +156,7 @@ public class JinFluxReportBuilder extends JinFlux implements ExternalReport {
                 System.out.println("JinFlux report ...");
             }
         } catch (Exception e) {
+            e.printStackTrace();
             System.out.println("preparing influxDB ...");
         }
 
