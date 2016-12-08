@@ -38,7 +38,7 @@ export CCDB_DATABASE="etc/data/database/clas12database.sqlite"
 export CLASSPATH="$CLARA_HOME/lib/*:$CLAS12DIR/lib/clas/*:$CLAS12DIR/lib/services/*"
 
 
-LOG_FILE=$CLARA_HOME/log/$HOSTNAME
+LOG_FILE=$CLARA_HOME/log/$HOST
 
 echo "-------- Running Conditions ---------------"
 echo " Start time         = "$(date)
@@ -46,13 +46,13 @@ echo " Clara distribution = $CLARA_HOME"
 echo " Plugin directory   = $CLAS12DIR"
 
 if [ -z ${fe_port+x} ]; then
-echo " Log file           = Clara distribution/log/$HOSTNAME-jdpe.log"
+echo " Log file           = Clara distribution/log/$HOST-jdpe.log"
 echo "------------------------------------------"
 echo
 j_dpe --port 7881 --fe-host $FE_HOST --session $1 2>&1 | tee "$LOG_FILE-jdpe.log"
 else
 
-echo " Log file           = Clara distribution/log/$HOSTNAME-jfe.log"
+echo " Log file           = Clara distribution/log/$HOST-jfe.log"
 echo " Note               = Running as local Front-End"
 echo "------------------------------------------"
 echo
