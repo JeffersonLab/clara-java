@@ -35,6 +35,7 @@ import org.jlab.clara.util.report.JsonReportBuilder;
 import org.jlab.coda.jinflux.JinFluxException;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgConnection;
+import org.jlab.coda.xmsg.core.xMsgConnectionPool;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgSubscription;
 import org.jlab.coda.xmsg.core.xMsgTopic;
@@ -51,6 +52,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.IntStream;
 
 /**
  * Clara data processing environment. It can play the role of the Front-End
@@ -79,6 +81,9 @@ public final class Dpe extends AbstractActor {
     private Proxy proxy = null;
     private FrontEnd frontEnd = null;
     private xMsgSubscription subscriptionHandler;
+
+    // a shared connection pool between all services
+    private volatile xMsgConnectionPool servicesConnectionPool;
 
     // session ID
     private volatile String session = "undefined";
@@ -322,6 +327,7 @@ public final class Dpe extends AbstractActor {
     @Override
     public void start() throws ClaraException {
         super.start();
+        cacheConnections();
     }
 
     /**
@@ -352,7 +358,7 @@ public final class Dpe extends AbstractActor {
         if (proxy == null) {
             try {
                 startProxyAndFrontEnd();
-                base.cacheConnection();
+                startConnectionPool();
                 startSubscription();
                 startHeartBeatReport();
             } catch (ClaraException e) {
@@ -369,6 +375,7 @@ public final class Dpe extends AbstractActor {
             stopHeartBeatReport();
             stopSubscription();
             stopContainers();
+            stopConnectionPool();
             stopProxyAndFrontEnd();
         }
     }
@@ -382,6 +389,38 @@ public final class Dpe extends AbstractActor {
         if (isFrontEnd.get()) {
             frontEnd = new FrontEnd(base.getMe());
             frontEnd.start();
+        }
+    }
+
+    private void startConnectionPool() throws ClaraException {
+        servicesConnectionPool = xMsgConnectionPool.newBuilder()
+                .withProxy(base.getDefaultProxyAddress())
+                .withPreConnectionSetup(s -> {
+                    s.setRcvHWM(0);
+                    s.setSndHWM(0);
+                })
+                .withPostConnectionSetup(() -> xMsgUtil.sleep(100))
+                .build();
+    }
+
+    private void cacheConnections() throws ClaraException {
+        base.cacheConnection();
+
+        int createdConnections = IntStream.range(0, maxCores)
+                .parallel()
+                .map(i -> cacheLocalConnection())
+                .reduce(0, Integer::sum);
+
+        if (createdConnections < maxCores * 0.75) {
+            Logging.error("could not cache enough connections to local proxy");
+        }
+    }
+
+    private int cacheLocalConnection() {
+        try (xMsgConnection con = servicesConnectionPool.getConnection()) {
+            return 1;
+        } catch (xMsgException e) {
+            return 0;
         }
     }
 
@@ -417,6 +456,10 @@ public final class Dpe extends AbstractActor {
     private void stopContainers() {
         myContainers.values().parallelStream().forEach(Container::stop);
         myContainers.clear();
+    }
+
+    private void stopConnectionPool() {
+        servicesConnectionPool.close();
     }
 
     private void stopProxyAndFrontEnd() {
