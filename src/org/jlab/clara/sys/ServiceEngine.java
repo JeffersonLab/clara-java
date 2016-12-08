@@ -127,8 +127,7 @@ class ServiceEngine extends AbstractActor {
 
         String replyTo = getReplyTo(message);
         if (replyTo != null) {
-            xMsgMessage msgOut = putEngineData(outData, replyTo);
-            base.send(msgOut);
+            sendResponse(outData, replyTo);
         } else {
             reportProblem(outData);
         }
@@ -183,9 +182,7 @@ class ServiceEngine extends AbstractActor {
 
         String replyTo = getReplyTo(message);
         if (replyTo != null) {
-            xMsgTopic topic = xMsgTopic.wrap(replyTo);
-            xMsgMessage msgReply = DataUtil.serialize(topic, outData, engine.getOutputDataTypes());
-            base.send(msgReply);
+            sendResponse(outData, replyTo);
             return;
         }
 
@@ -195,8 +192,8 @@ class ServiceEngine extends AbstractActor {
             return;
         }
 
-        sendReports(outData);
-        sendResponse(outData, getLinks(inData, outData));
+        reportResult(outData);
+        sendResult(outData, getLinks(inData, outData));
     }
 
     private void parseComposition(EngineData inData) throws ClaraException {
@@ -255,8 +252,7 @@ class ServiceEngine extends AbstractActor {
         }
     }
 
-
-    private void sendReports(EngineData outData)
+    private void reportResult(EngineData outData)
             throws xMsgException, ClaraException {
         // External send data
         if (sysConfig.isDataRequest()) {
@@ -271,7 +267,12 @@ class ServiceEngine extends AbstractActor {
         }
     }
 
-    private void sendResponse(EngineData outData, Set<String> outLinks)
+    private void sendResponse(EngineData outData, String replyTo)
+            throws xMsgException, ClaraException {
+        base.send(putEngineData(outData, replyTo));
+    }
+
+    private void sendResult(EngineData outData, Set<String> outLinks)
             throws xMsgException, ClaraException {
         for (String ss : outLinks) {
             ClaraComponent comp = ClaraComponent.dpe(ss);
@@ -285,26 +286,26 @@ class ServiceEngine extends AbstractActor {
         Object ob = data.getData();
         data.setData(EngineDataType.STRING.mimeType(), ClaraConstants.DONE);
 
-        report(ClaraConstants.DONE, data);
+        sendReport(ClaraConstants.DONE, data);
 
         data.setData(mt, ob);
     }
 
     private void reportData(EngineData data) throws xMsgException, ClaraException {
-        report(ClaraConstants.DATA, data);
+        sendReport(ClaraConstants.DATA, data);
     }
 
     private void reportProblem(EngineData data) throws xMsgException, ClaraException {
         EngineStatus status = data.getStatus();
         if (status.equals(EngineStatus.ERROR)) {
-            report(ClaraConstants.ERROR, data);
+            sendReport(ClaraConstants.ERROR, data);
         } else if (status.equals(EngineStatus.WARNING)) {
-            report(ClaraConstants.WARNING, data);
+            sendReport(ClaraConstants.WARNING, data);
         }
     }
 
 
-    private void report(String topicPrefix, EngineData data)
+    private void sendReport(String topicPrefix, EngineData data)
             throws ClaraException, xMsgException {
         xMsgTopic topic = xMsgTopic.wrap(topicPrefix + xMsgConstants.TOPIC_SEP + base.getName());
         xMsgMessage transit = DataUtil.serialize(topic, data, engine.getOutputDataTypes());
