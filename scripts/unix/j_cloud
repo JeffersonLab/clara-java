@@ -27,7 +27,7 @@ fi
 
 MAIN=org.jlab.clas.std.orchestrators.CloudOrchestrator
 
-"${java_bin}" -cp $CLASSPATH $MAIN "$@" 2>&1 | tee $TEST_DIR/log/run-cloud.log
+"${java_bin}" -cp $CLASSPATH $MAIN "$@" 2>&1 | tee "$LOG_FILE-co.log"
 
 # Cleanup after we done
 #remove-dpe
