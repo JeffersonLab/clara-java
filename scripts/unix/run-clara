@@ -328,7 +328,7 @@ echo $FE_HOST
 
 export CLARA_HOME
 export CLAS12DIR
-export CLASSPATH="$CLARA_HOME/lib/*:$CLAS12DIR/lib/*:$CLAS12DIR/services/*"
+export CLASSPATH="$CLARA_HOME/lib/*:$CLAS12DIR/lib/clas/*:$CLAS12DIR/lib/services/*"
 
 
 LOG_FILE=$CLARA_HOME/log/$HOSTNAME
