@@ -5,11 +5,29 @@ TEST_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ##############################################################################
 # Launch cloud orchestrator
 ##############################################################################
-if [ -n "$CLARA_HOME" ]; then
-    export CLASSPATH="$CLARA_HOME/lib/*:$CLAS12DIR/lib/clas/*:$CLAS12DIR/lib/services/*"
-    else
+if [ -z "${CLARA_HOME}" ]; then
     echo "CLARA_HOME is not defined. Exiting..."
     exit
+fi
+
+if [ -z "${CLASSPATH}" ]; then
+    CLASSPATH="${CLARA_HOME}/lib/*"
+    if [ -n "${CLARA_PLUGINS}" ]; then
+        if [ ! -d "${CLARA_PLUGINS}" ]; then
+            echo "Error: \$CLARA_PLUGINS is not a directory."
+            exit 1
+        fi
+        plugins_dir="${CLARA_PLUGINS}"
+    else
+        plugins_dir="${CLARA_HOME}/plugins"
+    fi
+    for plugin in "${plugins_dir}"/*; do
+        if [ -d "${plugin}" ]; then
+            CLASSPATH+=":${plugin}/services/*:${plugin}/lib/*"
+        fi
+    done
+    CLASSPATH+=":${CLARA_HOME}/services/*"
+    export CLASSPATH
 fi
 
 if [ -n "${JAVA_OPTS}" ]; then
