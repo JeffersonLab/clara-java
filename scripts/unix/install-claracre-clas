@@ -7,24 +7,13 @@ if ! [ -n "$CLARA_HOME" ]; then
     exit
 fi
 
-PLUGIN=coatjava-3a.0.1
-while :
-do
+
     case "$1" in
       -u | --update)
-	  rm -rf $CLARA_HOME
-	  shift 2
-	  ;;
-      -p | --plugin)
-	  PLUGIN="$2"
-	  shift 2
-	  ;;
-
-     *)  # No more options
-	  break
+      if [ -z ${2+x} ]; then PLUGIN="coatjava-3a.0.1" ; else PLUGIN=$2; fi
+      echo $PLUGIN
 	  ;;
     esac
-done
 
 command_exists () {
     type "$1" &> /dev/null ;
