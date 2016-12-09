@@ -7,10 +7,11 @@ if ! [ -n "$CLARA_HOME" ]; then
     exit
 fi
 
+PLUGIN="coatjava-3a.0.1"
 
     case "$1" in
       -u | --update)
-      if [ -z ${2+x} ]; then PLUGIN="coatjava-3a.0.1" ; else PLUGIN=$2; fi
+      if ! [ -z ${2+x} ]; then PLUGIN=$2; fi
       echo $PLUGIN
 	  ;;
     esac
