@@ -275,7 +275,7 @@ echo "MEMORY: 70 GB"
 echo "TRACK: debug"
 echo "OS: centos7"
 echo "CPU: 72"
-echo "DISK_SPACE: 3 GB"
+echo "DISK_SPACE: 700 GB"
 echo "TIME: 1440"
 
 echo $rcCmd
@@ -294,7 +294,7 @@ echo "MEMORY: 70 GB"
 echo "TRACK: debug"
 echo "OS: centos7"
 echo "CPU: 72"
-echo "DISK_SPACE: 3 GB"
+echo "DISK_SPACE: 700 GB"
 echo "TIME: 1440"
 
 echo $rdpCmd
