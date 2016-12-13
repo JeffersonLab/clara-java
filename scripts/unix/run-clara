@@ -23,6 +23,9 @@ echo
 echo '  [-s | --session <session>]'
 echo '        The data processing session. (default: $USER)'
 echo
+echo '  [-l | --loading-zone <local-staging-dir> ]'
+echo '        Farm deployment only. Will stage input data set into the farm local directory. (default /scratch/pbs)'
+echo
 echo '  [-m | --mode <mode>]'
 echo '        The data processing mode. Accepts values = local, sqlite and farm (default: local)'
 echo
@@ -63,6 +66,7 @@ SESSION="undefined"
 THREAD_NUM="undefined"
 SERVICE_YAML="undefined"
 FILE_LIST="undefined"
+FARM_LOADING_ZONE="undefined"
 
 while :
 do
@@ -86,6 +90,10 @@ do
 	  ;;
       -j | --java-home)
 	  J_HOME="$2"
+	  shift 2
+	  ;;
+      -l | --loading-zone)
+	  FARM_LOADING_ZONE="$2"
 	  shift 2
 	  ;;
       -m | --mode)
@@ -248,10 +256,15 @@ if [ "$MODE" == "farm" ]; then
 echo ' Note: CLARA distribution and data input/output directories must be visible to JLAB farm nodes.'
 
 # Build auger commands
+
 #rcCmd="COMMAND: setenv CLARA_HOME "$CL_HOME"; "$CLARA_HOME"/bin/run-clara -c "$CLARA_HOME" -i "$IN_DIR" -j "$JAVA_HOME" -m local_2 -o "$OUT_DIR" -p "$CLAS12DIR" -s "$SESSION" -t "$THREAD_NUM" -y "$SERVICE_YAML" -f "$FILE_LIST""
 
+# Farm specific local staging directory
+if [ "$FARM_LOADING_ZONE" == "undefined" ]; then
+FARM_LOADING_ZONE="/scratch/pbs"
+fi
 
-rcCmd="COMMAND: setenv CLARA_HOME "$CL_HOME"; $CLARA_HOME/bin/run-clara -i "$IN_DIR" -o "$OUT_DIR" -s "$SESSION" -t "$THREAD_NUM" -y "$SERVICE_YAML" -f "$FILE_LIST""
+rcCmd="COMMAND: setenv CLARA_HOME "$CL_HOME"; $CLARA_HOME/bin/run-clara -i "$IN_DIR" -o "$OUT_DIR" -l "$FARM_LOADING_ZONE" -s "$SESSION" -t "$THREAD_NUM" -y "$SERVICE_YAML" -f "$FILE_LIST""
 rdpCmd="COMMAND: setenv CLARA_HOME="$CL_HOME"; "$CLARA_HOME"/bin/clara-dpe  "$SESSION" "$CLARA_HOME" "$CLAS12DIR""
 
 # Create orchestrator job submission script
@@ -356,10 +369,13 @@ j="_java"
 FENAME=$IP%$PORT$j
 
 # Starting cloud orchestrator
+if [ "$FARM_LOADING_ZONE" = "undefined" ]; then
 $CLARA_HOME/bin/j_cloud -f $FENAME -s $SESSION -F -i $IN_DIR -o $OUT_DIR -p $THREAD_NUM -t $THREAD_NUM $SERVICE_YAML $FILE_LIST
+else
+$CLARA_HOME/bin/j_cloud -f $FENAME -s $SESSION -F -B -L -i $IN_DIR -o $OUT_DIR -l $FARM_LOADING_ZONE -p $THREAD_NUM -t $THREAD_NUM $SERVICE_YAML $FILE_LIST
+fi
 
 $CLARA_HOME/bin/remove-dpe $SESSION
-
 
 fi
 
