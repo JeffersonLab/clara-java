@@ -271,11 +271,11 @@ rdpCmd="COMMAND: setenv CLARA_HOME="$CL_HOME"; "$CLARA_HOME"/bin/clara-dpe  "$SE
 {
 echo "PROJECT: clas12"
 echo "JOBNAME: rec_$USER"
-echo "MEMORY: 3 GB"
+echo "MEMORY: 70 GB"
 echo "TRACK: debug"
 echo "OS: centos7"
 echo "CPU: 72"
-echo "DISK_SPACE: 700 GB"
+echo "DISK_SPACE: 3 GB"
 echo "TIME: 1440"
 
 echo $rcCmd
@@ -290,11 +290,11 @@ jsub $CLAS12DIR/config/clara_p.jsub
 {
 echo "PROJECT: clas12"
 echo "JOBNAME: rec_$USER"
-echo "MEMORY: 3 GB"
+echo "MEMORY: 70 GB"
 echo "TRACK: debug"
 echo "OS: centos7"
 echo "CPU: 72"
-echo "DISK_SPACE: 700 GB"
+echo "DISK_SPACE: 3 GB"
 echo "TIME: 1440"
 
 echo $rdpCmd
