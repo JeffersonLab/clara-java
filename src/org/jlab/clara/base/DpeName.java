@@ -42,7 +42,7 @@ public class DpeName implements ClaraName {
      * @param lang the language of the DPE
      */
     public DpeName(String host, ClaraLang lang) {
-        address = new ClaraAddress(host);
+        address = new ClaraAddress(host, ClaraUtil.getDefaultPort(lang.toString()));
         language = lang;
         name = host + ClaraConstants.LANG_SEP + lang;
     }
