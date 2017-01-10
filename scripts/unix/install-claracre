@@ -2,15 +2,12 @@
 # author Vardan Gyurjyan
 # date 10.28.16
 
-if ! [ -n "$CLARA_HOME" ]; then
-    echo "CLARA_HOME is not defined. Exiting..."
+if ! [ -n "$CLARA" ]; then
+    echo "CLARA environmental variable is not defined. Exiting..."
     exit
 fi
-    case "$1" in
-      -u | --update)
-	  rm -rf $CLARA_HOME
-	  ;;
-	esac
+
+cd $CLARA
 
 command_exists () {
     type "$1" &> /dev/null ;

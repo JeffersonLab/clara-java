@@ -2,16 +2,12 @@
 # author Vardan Gyurjyan
 # date 10.28.16
 
-if ! [ -n "$CLARA_HOME" ]; then
-    echo "CLARA_HOME is not defined. Exiting..."
+if ! [ -n "$CLARA" ]; then
+    echo "CLARA environmental variable is not defined. Exiting..."
     exit
 fi
 
-    case "$1" in
-      -u | --update)
-	  rm -rf $CLARA_HOME
-	  ;;
-	esac
+cd $CLARA
 
 command_exists () {
     type "$1" &> /dev/null ;
@@ -47,7 +43,7 @@ cd clara-java
 
 cd ..
 echo "Downloading coat-java and jre packages ..."
-mkdir $CLARA_HOME/jre
+mkdir $CLARA/clara-cre/jre
 
 OS="`uname`"
 case $OS in
@@ -55,10 +51,10 @@ case $OS in
       MACHINE_TYPE=`uname -m`
       if [ ${MACHINE_TYPE} == 'x86_64' ]; then
     wget https://userweb.jlab.org/~gurjyan/clara-cre/linux-64.tar.gz
-    mv linux-64.tar.gz $CLARA_HOME/jre
+    mv linux-64.tar.gz $CLARA/clara-cre/jre
   else
      wget https://userweb.jlab.org/~gurjyan/clara-cre/linux-i586.tar.gz
-    mv linux-i586.tar.gz $CLARA_HOME/jre
+    mv linux-i586.tar.gz $CLARA/clara-cre/jre
   fi
     ;;
 #  'WindowsNT')
@@ -66,15 +62,15 @@ case $OS in
 #    ;;
   'Darwin')
  curl "https://userweb.jlab.org/~gurjyan/clara-cre/macosx-64.tar.gz" -o macosx-64.tar.gz
-    mv macosx-64.tar.gz $CLARA_HOME/jre
+    mv macosx-64.tar.gz $CLARA/clara-cre/jre
     ;;
   *) ;;
 esac
 
-mkdir $CLARA_HOME/plugins
+mkdir $CLARA/clara-cre/plugins
 
 echo "Installing jre ..."
-cd $CLARA_HOME/jre
+cd $CLARA/clara-cre/jre
 tar xvzf *.tar.*
 rm -f *.tar.*
 echo done

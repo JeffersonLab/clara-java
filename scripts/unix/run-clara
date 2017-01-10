@@ -68,12 +68,26 @@ SERVICE_YAML="undefined"
 FILE_LIST="undefined"
 FARM_LOADING_ZONE="undefined"
 
+#farm default parameters
+DESCRIPTION="NA"
+FARM_MEMORY="70"
+FARN_TRACK="debug"
+FARM_OS="centos7"
+FARM_CPU="72"
+FARM_DISK_SPACE="3"
+FARM_TIME="1440"
+
+
 while :
 do
     case "$1" in
       -c | --clara-home)
 	  CL_HOME="$2"
 	  export CLARA_HOME="$CL_HOME"
+	  shift 2
+	  ;;
+      -d | --description)
+	  DESCRIPTION="$2"
 	  shift 2
 	  ;;
       -f | --files-list)
@@ -131,6 +145,30 @@ do
 	  ;;
       -y | --yaml)
 	  SERVICE_YAML="$2"
+	  shift 2
+	  ;;
+      -fm | --farm-memory)
+	  FARM_MEMORY="$2"
+	  shift 2
+	  ;;
+      -ft | --farm-track)
+	  FARM_TRACK="$2"
+	  shift 2
+	  ;;
+      -fo | --farm-os)
+	  FARM_OS="$2"
+	  shift 2
+	  ;;
+      -fc | --farm-cpu)
+	  FARM_CPU="$2"
+	  shift 2
+	  ;;
+      -fd | --farm-disk-space)
+	  FARM_DISK_SPACE="$2"
+	  shift 2
+	  ;;
+      -fw | --farm-time)
+	  FARM_TIME="$2"
 	  shift 2
 	  ;;
 
@@ -270,13 +308,13 @@ rdpCmd="COMMAND: setenv CLARA_HOME="$CL_HOME"; "$CLARA_HOME"/bin/clara-dpe  "$SE
 # Create orchestrator job submission script
 {
 echo "PROJECT: clas12"
-echo "JOBNAME: rec_$USER"
-echo "MEMORY: 70 GB"
-echo "TRACK: debug"
-echo "OS: centos7"
-echo "CPU: 72"
-echo "DISK_SPACE: 3 GB"
-echo "TIME: 1440"
+echo "JOBNAME: rec_$USER_$DESCRIPTION"
+echo "MEMORY: $FARM_MEMORY GB"
+echo "TRACK: $FARN_TRACK"
+echo "OS: $FARM_OS"
+echo "CPU: $FARM_CPU"
+echo "DISK_SPACE: $FARM_DISK_SPACE GB"
+echo "TIME: $FARM_TIME"
 
 echo $rcCmd
 
@@ -289,13 +327,13 @@ jsub $CLAS12DIR/config/clara_p.jsub
 # Create dpe job submission script
 {
 echo "PROJECT: clas12"
-echo "JOBNAME: rec_$USER"
-echo "MEMORY: 70 GB"
-echo "TRACK: debug"
-echo "OS: centos7"
-echo "CPU: 72"
-echo "DISK_SPACE: 3 GB"
-echo "TIME: 1440"
+echo "JOBNAME: rec_$USER_$DESCRIPTION"
+echo "MEMORY: $FARM_MEMORY GB"
+echo "TRACK: $FARN_TRACK"
+echo "OS: $FARM_OS"
+echo "CPU: $FARM_CPU"
+echo "DISK_SPACE: $FARM_DISK_SPACE GB"
+echo "TIME: $FARM_TIME"
 
 echo $rdpCmd
 
