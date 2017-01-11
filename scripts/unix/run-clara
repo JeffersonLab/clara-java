@@ -95,7 +95,7 @@ FARM_OS="centos7"
 FARM_CPU="72"
 FARM_DISK_SPACE="3"
 FARM_TIME="1440"
-FARM_DPE_ORC_DELAY="3"
+FARM_DPE_ORC_DELAY="2"
 
 
 while :
@@ -370,7 +370,6 @@ done
 # ----------------- Local deployment ----------------------
 else
 
-FENAME=$IP%$PORT$j
 
 # We start second DPE if mode is set to farm
 if [ "$MODE" == "sqlite" ]; then
@@ -398,7 +397,7 @@ echo "$PORT"
 
 if ! [ -z ${2+x} ]; then CLARA_HOME=$2; fi
 if ! [ -z ${3+x} ]; then CLAS12DIR=$3; fi
-if [ -z ${4+x} ]; then FE_HOST=$FENAME ; else FE_HOST=$4; fi
+if [ -z ${4+x} ]; then FE_HOST="localhost" ; else FE_HOST=$4; fi
 
 echo $FE_HOST
 
@@ -429,13 +428,13 @@ $CLARA_HOME/bin/j_dpe --port $PORT --host $FE_HOST --session $SESSION --max-sock
 sleep "$FARM_DPE_ORC_DELAY"
 
 j="_java"
-
+FENAME=$IP%$PORT$j
 
 # Starting cloud orchestrator
 if [ "$FARM_LOADING_ZONE" = "undefined" ]; then
-$CLARA_HOME/bin/j_cloud -f $FE_HOST -s $SESSION -F -i $IN_DIR -o $OUT_DIR -p $THREAD_NUM -t $THREAD_NUM $SERVICE_YAML $FILE_LIST
+$CLARA_HOME/bin/j_cloud -f $FENAME -s $SESSION -F -i $IN_DIR -o $OUT_DIR -p $THREAD_NUM -t $THREAD_NUM $SERVICE_YAML $FILE_LIST
 else
-$CLARA_HOME/bin/j_cloud -f $FE_HOST -s $SESSION -F -B -L -i $IN_DIR -o $OUT_DIR -l $FARM_LOADING_ZONE -p $THREAD_NUM -t $THREAD_NUM $SERVICE_YAML $FILE_LIST
+$CLARA_HOME/bin/j_cloud -f $FENAME -s $SESSION -F -B -L -i $IN_DIR -o $OUT_DIR -l $FARM_LOADING_ZONE -p $THREAD_NUM -t $THREAD_NUM $SERVICE_YAML $FILE_LIST
 fi
 
 $CLARA_HOME/bin/remove-dpe $SESSION
