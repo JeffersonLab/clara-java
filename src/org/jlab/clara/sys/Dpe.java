@@ -460,7 +460,9 @@ public final class Dpe extends AbstractActor {
     }
 
     private void stopConnectionPool() {
-        servicesConnectionPool.close();
+        if (servicesConnectionPool != null) {
+            servicesConnectionPool.close();
+        }
     }
 
     private void stopProxyAndFrontEnd() {
