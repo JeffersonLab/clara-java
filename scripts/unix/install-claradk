@@ -2,12 +2,11 @@
 # author Vardan Gyurjyan
 # date 10.28.16
 
-if ! [ -n "$CLARA" ]; then
-    echo "CLARA environmental variable is not defined. Exiting..."
+if ! [ -n "$CLARA_HOME" ]; then
+    echo "CLARA_HOME environmental variable is not defined. Exiting..."
     exit
 fi
 
-cd $CLARA
 
 command_exists () {
     type "$1" &> /dev/null ;
@@ -18,9 +17,11 @@ echo "Can not run git. Exiting..."
 exit
 fi
 
+rm -rf clara-dk
+
 echo "Creating clara working directory ..."
-mkdir clara-work
-cd clara-work
+mkdir clara-dk
+cd clara-dk
 
 echo "Downloading and building xMsg package ..."
 git clone --depth 1 https://github.com/JeffersonLab/xmsg-java.git
@@ -42,8 +43,9 @@ cd clara-java
 
 
 cd ..
-echo "Downloading coat-java and jre packages ..."
-mkdir $CLARA/clara-cre/jre
+echo "Downloading jre packages ..."
+rm -rf $CLARA_HOME/clara-cre/jre
+mkdir $CLARA_HOME/clara-cre/jre
 
 OS="`uname`"
 case $OS in
@@ -54,7 +56,7 @@ case $OS in
     mv linux-64.tar.gz $CLARA/clara-cre/jre
   else
      wget https://userweb.jlab.org/~gurjyan/clara-cre/linux-i586.tar.gz
-    mv linux-i586.tar.gz $CLARA/clara-cre/jre
+    mv linux-i586.tar.gz $CLARA_HOME/clara-cre/jre
   fi
     ;;
 #  'WindowsNT')
@@ -62,15 +64,17 @@ case $OS in
 #    ;;
   'Darwin')
  curl "https://userweb.jlab.org/~gurjyan/clara-cre/macosx-64.tar.gz" -o macosx-64.tar.gz
-    mv macosx-64.tar.gz $CLARA/clara-cre/jre
+    mv macosx-64.tar.gz $CLARA_HOME/clara-cre/jre
     ;;
   *) ;;
 esac
 
-mkdir $CLARA/clara-cre/plugins
+mkdir $CLARA_HOME/clara-cre/plugins
 
 echo "Installing jre ..."
-cd $CLARA/clara-cre/jre
+cd $CLARA_HOME/clara-cre/jre
 tar xvzf *.tar.*
 rm -f *.tar.*
+
+echo `pwd`
 echo done

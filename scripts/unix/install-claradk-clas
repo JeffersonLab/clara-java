@@ -2,15 +2,17 @@
 # author Vardan Gyurjyan
 # date 10.28.16
 
-if ! [ -n "$CLARA" ]; then
-    echo "CLARA environmental variable is not defined. Exiting..."
+if ! [ -n "$CLARA_HOME" ]; then
+    echo "CLARA_HOME environmental variable is not defined. Exiting..."
     exit
 fi
 
-mkdir $CLARA/clara-cre
-mkdir $CLARA/clara-cre/plugins
-mkdir $CLARA/clara-cre/plugins/clas12
-mkdir $CLARA/clara-cre/plugins/clas12/config
+rm -rf $CLARA_HOME
+
+mkdir $CLARA_HOME
+mkdir $CLARA_HOME/plugins
+mkdir $CLARA_HOME/plugins/clas12
+mkdir $CLARA_HOME/plugins/clas12/config
 
 PLUGIN=coatjava-3a.0.1
 while :
@@ -36,11 +38,11 @@ echo "Can not run git. Exiting..."
 exit
 fi
 
-rm -rf clara-work
+rm -rf clara-dk
 
 echo "Creating clara working directory ..."
-mkdir clara-work
-cd clara-work
+mkdir clara-dk
+cd clara-dk
 
 echo "Downloading and building xMsg package ..."
 git clone --depth 1 https://github.com/JeffersonLab/xmsg-java.git
@@ -62,7 +64,7 @@ cd clara-java
 
 cd ..
 echo "Downloading coat-java and jre packages ..."
-mkdir $CLARA/clara-cre/jre
+mkdir $CLARA_HOME/jre
 
 OS="`uname`"
 case $OS in
@@ -71,10 +73,10 @@ case $OS in
       MACHINE_TYPE=`uname -m`
       if [ ${MACHINE_TYPE} == 'x86_64' ]; then
     wget https://userweb.jlab.org/~gurjyan/clara-cre/linux-64.tar.gz
-    mv linux-64.tar.gz $CLARA/clara-cre/jre
+    mv linux-64.tar.gz $CLARA_HOME/jre
   else
      wget https://userweb.jlab.org/~gurjyan/clara-cre/linux-i586.tar.gz
-    mv linux-i586.tar.gz $CLARA/clara-cre/jre
+    mv linux-i586.tar.gz $CLARA_HOME/jre
   fi
     ;;
 #  'WindowsNT')
@@ -83,7 +85,7 @@ case $OS in
   'Darwin')
  curl "https://userweb.jlab.org/~gavalian/software/coatjava/"$PLUGIN".tar.gz" -o "$PLUGIN".tar.gz
  curl "https://userweb.jlab.org/~gurjyan/clara-cre/macosx-64.tar.gz" -o macosx-64.tar.gz
-    mv macosx-64.tar.gz $CLARA/clara-cre/jre
+    mv macosx-64.tar.gz $CLARA_HOME/jre
     ;;
   *) ;;
 esac
@@ -91,12 +93,12 @@ esac
 tar xvzf "$PLUGIN".tar.gz
 
 cd coatjava
-cp -r etc $CLARA/clara-cre/plugins/clas12/.
-cp -r bin $CLARA/clara-cre/plugins/clas12/.
-cp -r scripts $CLARA/clara-cre/plugins/clas12/.
-cp -r lib $CLARA/clara-cre/plugins/clas12/.
-rm -f $CLARA/clara-cre/plugins/clas12/bin/clara-rec
-rm -f $CLARA/clara-cre/plugins/clas12/README
+cp -r etc $CLARA_HOME/plugins/clas12/.
+cp -r bin $CLARA_HOME/plugins/clas12/.
+cp -r scripts $CLARA_HOME/plugins/clas12/.
+cp -r lib $CLARA_HOME/plugins/clas12/.
+rm -f $CLARA_HOME/plugins/clas12/bin/clara-rec
+rm -f $CLARA_HOME/plugins/clas12/README
 
 cd ..
 echo "Downloading and building clasrec-io package ..."
@@ -110,19 +112,19 @@ git clone --depth 1 https://github.com/JeffersonLab/clasrec-orchestrators.git
 cd clasrec-orchestrators
 ./gradlew deploy
 
-cp $CLARA/clara-cre/plugins/clas12/etc/services/reconstruction.yaml $CLARA/clara-cre/plugins/clas12/config/services.yaml
-rm -rf $CLARA/clara-cre/plugins/clas12/etc/services
+cp $CLARA_HOME/plugins/clas12/etc/services/reconstruction.yaml $CLARA_HOME/plugins/clas12/config/services.yaml
+rm -rf $CLARA_HOME/plugins/clas12/etc/services
 
 cd ..
 
-mkdir $CLARA/clara-cre/data
-mkdir $CLARA/clara-cre/data/in
-mkdir $CLARA/clara-cre/data/out
+mkdir $CLARA_HOME/data
+mkdir $CLARA_HOME/data/in
+mkdir $CLARA_HOME/data/out
 
-cp clasrec-io/data/clasDIS.11GeV.20events.evio $CLARA/clara-cre/data/in/
+cp clasrec-io/data/clasDIS.11GeV.20events.evio $CLARA_HOME/data/in/
 
 echo "Installing jre ..."
-cd $CLARA/clara-cre/jre
+cd $CLARA_HOME/jre
 tar xvzf *.tar.*
 rm -f *.tar.*
 

@@ -2,12 +2,10 @@
 # author Vardan Gyurjyan
 # date 10.28.16
 
-if ! [ -n "$CLARA" ]; then
-    echo "CLARA environmental variable is not defined. Exiting..."
+if ! [ -n "$CLARA_HOME" ]; then
+    echo "CLARA_HOME environmental variable is not defined. Exiting..."
     exit
 fi
-
-cd $CLARA
 
 
 PLUGIN="coatjava-3a.0.1"
@@ -78,25 +76,28 @@ rm -f *.tar.*
 
 cd ../..
 
-echo `pwd`
+
 
 tar xvzf "$PLUGIN".tar.gz
 
+rm -rf $CLARA_HOME
+mv clara-cre $CLARA_HOME
+rm -rf clara-cre
+
 cd coatjava
 
+cp -r etc $CLARA_HOME/plugins/clas12/.
+cp -r bin $CLARA_HOME/plugins/clas12/.
+cp -r bin $CLARA_HOME/plugins/clas12/.
+cp -r lib/packages $CLARA_HOME/plugins/clas12/lib/
+cp -r lib/utils $CLARA_HOME/plugins/clas12/lib/
+cp  lib/clas/* $CLARA_HOME/plugins/clas12/lib/clas/.
+cp  lib/services/* $CLARA_HOME/plugins/clas12/lib/services/.
 
-cp -r etc $CLARA/clara-cre/plugins/clas12/.
-cp -r bin $CLARA/clara-cre/plugins/clas12/.
-cp -r bin $CLARA/clara-cre/plugins/clas12/.
-cp -r lib/packages $CLARA/clara-cre/plugins/clas12/lib/
-cp -r lib/utils $CLARA/clara-cre/plugins/clas12/lib/
-cp  lib/clas/* $CLARA/clara-cre/plugins/clas12/lib/clas/.
-cp  lib/services/* $CLARA/clara-cre/plugins/clas12/lib/services/.
-
-rm -f $CLARA/clara-cre/plugins/clas12/bin/clara-rec
-rm -f $CLARA/clara-cre/plugins/clas12/README
-cp $CLARA/clara-cre/plugins/clas12/etc/services/reconstruction.yaml $CLARA/clara-cre/plugins/clas12/config/services.yaml
-rm -rf $CLARA/clara-cre/plugins/clas12/etc/services
+rm -f $CLARA_HOME/plugins/clas12/bin/clara-rec
+rm -f $CLARA_HOME/plugins/clas12/README
+cp $CLARA_HOME/plugins/clas12/etc/services/reconstruction.yaml $CLARA_HOME/plugins/clas12/config/services.yaml
+rm -rf $CLARA_HOME/plugins/clas12/etc/services
 
 cd ..
 rm -rf coatjava

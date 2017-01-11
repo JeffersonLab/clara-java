@@ -2,12 +2,10 @@
 # author Vardan Gyurjyan
 # date 10.28.16
 
-if ! [ -n "$CLARA" ]; then
-    echo "CLARA environmental variable is not defined. Exiting..."
+if ! [ -n "$CLARA_HOME" ]; then
+    echo "CLARA_HOME environmental variable is not defined. Exiting..."
     exit
 fi
-
-cd $CLARA
 
 command_exists () {
     type "$1" &> /dev/null ;
@@ -57,5 +55,12 @@ esac
 
 echo "Installing jre ..."
 tar xvzf *.tar.*
+
+cd ../..
+echo `pwd`
+
+rm -rf $CLARA_HOME
+mv clara-cre $CLARA_HOME
+rm -rf clara-cre
 
 echo done

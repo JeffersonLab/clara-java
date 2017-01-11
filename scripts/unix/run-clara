@@ -16,6 +16,8 @@ echo '        JDK/JRE installation directory. (default: $JAVA_HOME)'
 echo
 echo '  [-c | --clara_home <clara_home>]'
 echo '        CLARA installation directory. (default: $CLARA_HOME)'
+echo '  [-d | --description <description>]'
+echo '        A single string (no spaces) describing data processing.'
 echo
 echo '  [-p | --plugin <plugin>]'
 echo '        Plugin installation directory. (default: $CLARA_HOME/plugins/clas12)'
@@ -51,7 +53,24 @@ echo
 echo '  [-y | --yaml <yamlComposition>]'
 echo '        Full path to the file describing application service composition.'
 echo '        (default: $CLARA_HOME/plugins/clas12/config/services.yaml)'
-
+echo '  [-fm | --farm-memory <farm memory>]'
+echo '        Farm job memory request (in GB).'
+echo '        (default: 70)'
+echo '  [-ft | --farm-track <farm track>]'
+echo '        Farm job track.'
+echo '        (default: debug)'
+echo '  [-fo | --farm-os <farm os>]'
+echo '        Farm resource OS.'
+echo '        (default: centos7)'
+echo '  [-fc | --farm-cpu <farm cpu>]'
+echo '        Farm resource core number request.'
+echo '        (default: 72)'
+echo '  [-fd | --farm-disk <farm disk>]'
+echo '        Farm job disk space request (in GB).'
+echo '        (default: 3)'
+echo '  [-fw | --farm-time <farm time>]'
+echo '        Farm job wall time request (in min).'
+echo '        (default: 1440)'
 }
 
 # Default parameter settings
@@ -76,6 +95,7 @@ FARM_OS="centos7"
 FARM_CPU="72"
 FARM_DISK_SPACE="3"
 FARM_TIME="1440"
+FARM_DPE_ORC_DELAY="0"
 
 
 while :
@@ -163,12 +183,16 @@ do
 	  FARM_CPU="$2"
 	  shift 2
 	  ;;
-      -fd | --farm-disk-space)
+      -fd | --farm-disk)
 	  FARM_DISK_SPACE="$2"
 	  shift 2
 	  ;;
       -fw | --farm-time)
 	  FARM_TIME="$2"
+	  shift 2
+	  ;;
+      -fdod | --farm-dpe-orc-delay)
+	  FARM_DPE_ORC_DELAY="$2"
 	  shift 2
 	  ;;
 
@@ -302,7 +326,7 @@ if [ "$FARM_LOADING_ZONE" == "undefined" ]; then
 FARM_LOADING_ZONE="/scratch/pbs"
 fi
 
-rcCmd="COMMAND: setenv CLARA_HOME "$CL_HOME"; $CLARA_HOME/bin/run-clara -i "$IN_DIR" -o "$OUT_DIR" -l "$FARM_LOADING_ZONE" -s "$SESSION" -t "$THREAD_NUM" -y "$SERVICE_YAML" -f "$FILE_LIST""
+rcCmd="COMMAND: setenv CLARA_HOME "$CL_HOME"; $CLARA_HOME/bin/run-clara -i "$IN_DIR" -o "$OUT_DIR" -l "$FARM_LOADING_ZONE" -s "$SESSION" -t "$THREAD_NUM" -y "$SERVICE_YAML" -f "$FILE_LIST" -fdod "20""
 rdpCmd="COMMAND: setenv CLARA_HOME="$CL_HOME"; "$CLARA_HOME"/bin/clara-dpe  "$SESSION" "$CLARA_HOME" "$CLAS12DIR""
 
 # Create orchestrator job submission script
@@ -401,9 +425,7 @@ $CLARA_HOME/bin/j_dpe --port $PORT --host $FE_HOST --session $SESSION --max-sock
 
 ################# Starting DPE ############
 
-if [ "$MODE" == "farm" ]; then
-sleep 20
-fi
+sleep "$FARM_DPE_ORC_DELAY"
 
 j="_java"
 FENAME=$IP%$PORT$j
