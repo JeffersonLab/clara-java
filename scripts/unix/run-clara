@@ -401,7 +401,9 @@ $CLARA_HOME/bin/j_dpe --port $PORT --host $FE_HOST --session $SESSION --max-sock
 
 ################# Starting DPE ############
 
+if [ "$MODE" == "farm" ]; then
 sleep 20
+fi
 
 j="_java"
 FENAME=$IP%$PORT$j
