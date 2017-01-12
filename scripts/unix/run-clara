@@ -90,7 +90,7 @@ FILE_LIST="undefined"
 FARM_LOADING_ZONE="undefined"
 
 #farm default parameters
-DESCRIPTION="NA"
+DESCRIPTION="clara"
 FARM_MEMORY="70"
 FARN_TRACK="debug"
 FARM_OS="centos7"
@@ -318,8 +318,6 @@ FILE_LIST="$CLAS12DIR/config/files.list"
 fi
 
 if [ "$MODE" == "farm" ]; then
-#J_HOME=/group/da/Java/jdk/1.8/x64/jdk1.8.0_102/
-#export JAVA_HOME="$J_HOME"
 # ----------------- Farm deployment ----------------------
 echo ' Note: CLARA distribution and data input/output directories must be visible to farm nodes.'
 
@@ -335,11 +333,11 @@ fi
 fi
 
 if [ "$FARM_LOADING_ZONE" == "undefined" ]; then
-rcCmd="COMMAND: setenv CLARA_HOME "$CL_HOME"; $CLARA_HOME/bin/run-clara -i "$IN_DIR" -o "$OUT_DIR" -s "$SESSION" -t "$THREAD_NUM" -y "$SERVICE_YAML" -f "$FILE_LIST" -fdod "20""
+rcCmd="setenv CLARA_HOME "$CL_HOME"; $CLARA_HOME/bin/run-clara -i "$IN_DIR" -o "$OUT_DIR" -s "$SESSION" -t "$THREAD_NUM" -y "$SERVICE_YAML" -f "$FILE_LIST" -fdod "20""
 else
-rcCmd="COMMAND: setenv CLARA_HOME "$CL_HOME"; $CLARA_HOME/bin/run-clara -i "$IN_DIR" -o "$OUT_DIR" -l "$FARM_LOADING_ZONE" -s "$SESSION" -t "$THREAD_NUM" -y "$SERVICE_YAML" -f "$FILE_LIST" -fdod "20""
+rcCmd="setenv CLARA_HOME "$CL_HOME"; $CLARA_HOME/bin/run-clara -i "$IN_DIR" -o "$OUT_DIR" -l "$FARM_LOADING_ZONE" -s "$SESSION" -t "$THREAD_NUM" -y "$SERVICE_YAML" -f "$FILE_LIST" -fdod "20""
 fi
-rdpCmd="COMMAND: setenv CLARA_HOME="$CL_HOME"; "$CLARA_HOME"/bin/clara-dpe  "$SESSION" "$CLARA_HOME" "$CLAS12DIR""
+rdpCmd="setenv CLARA_HOME="$CL_HOME"; "$CLARA_HOME"/bin/clara-dpe  "$SESSION" "$CLARA_HOME" "$CLAS12DIR""
 
 # Create orchestrator job submission script
 # ------------- JLKAB auger script creation and submission ------------
@@ -354,7 +352,7 @@ echo "CPU: $FARM_CPU"
 echo "DISK_SPACE: $FARM_DISK_SPACE GB"
 echo "TIME: $FARM_TIME"
 
-echo $rcCmd
+echo "COMMAND: $rcCmd"
 
 } > $CLAS12DIR/config/clara_p.jsub
 sleep 3
@@ -373,7 +371,7 @@ echo "CPU: $FARM_CPU"
 echo "DISK_SPACE: $FARM_DISK_SPACE GB"
 echo "TIME: $FARM_TIME"
 
-echo $rdpCmd
+echo "COMMAND: $rdpCmd"
 
 } > $CLAS12DIR/config/clara_d.jsub
 
@@ -430,8 +428,6 @@ fi
 # ----------------- Local deployment ----------------------
 else
 
-
-# We start second DPE if mode is set to farm
 if [ "$MODE" == "sqlite" ]; then
 export CCDB_DATABASE="etc/data/database/clas12database.sqlite"
 fi
