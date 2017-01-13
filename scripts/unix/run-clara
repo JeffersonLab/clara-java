@@ -291,8 +291,6 @@ THREAD_NUM=72
 else
 THREAD_NUM=2
 fi
-fi
-
 
 export JAVA_HOME="$J_HOME"
 export CLARA_HOME="$CL_HOME"
@@ -312,12 +310,8 @@ FILE_LIST="$CLAS12DIR/config/files.list"
 fi
 
 if [ "$MODE" == "farm" ]; then
-#J_HOME=/group/da/Java/jdk/1.8/x64/jdk1.8.0_102/
-#export JAVA_HOME="$J_HOME"
 # ----------------- Farm deployment ----------------------
 echo ' Note: CLARA distribution and data input/output directories must be visible to JLAB farm nodes.'
-
-# Build auger commands
 
 #rcCmd="COMMAND: setenv CLARA_HOME "$CL_HOME"; "$CLARA_HOME"/bin/run-clara -c "$CLARA_HOME" -i "$IN_DIR" -j "$JAVA_HOME" -m local_2 -o "$OUT_DIR" -p "$CLAS12DIR" -s "$SESSION" -t "$THREAD_NUM" -y "$SERVICE_YAML" -f "$FILE_LIST""
 
@@ -440,6 +434,4 @@ fi
 $CLARA_HOME/bin/remove-dpe $SESSION
 
 fi
-
-
-
+fi
