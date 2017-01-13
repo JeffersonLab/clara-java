@@ -140,13 +140,6 @@ if [ "$FILE_LIST" == "undefined" ]; then
 FILE_LIST="$CLAS12DIR/config/files.list"
 fi
 
-# Farm specific local staging directory
-if [ "$FARM_LOADING_ZONE" == "undefined" ]; then
-if [ "$FARM_FLAVOR" == "jlab" ]; then
-FARM_LOADING_ZONE="/scratch/pbs"
-fi
-fi
-
 }
 
 function display_options_help {
@@ -231,7 +224,7 @@ echo '                            Run Help'
 echo "-------------------------------------------------------------------"
 echo
 echo '  [run-local]'
-echo '        Starts data processing with defined parameter set on local node.'
+echo '        Starts data processing on a local node.'
 echo
 echo '  [run-farm]'
 echo '        Starts a data processing job on a local farm'
