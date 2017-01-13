@@ -92,7 +92,7 @@ FARM_LOADING_ZONE="undefined"
 #farm default parameters
 DESCRIPTION="clara"
 FARM_MEMORY="70"
-FARN_TRACK="debug"
+FARM_TRACK="debug"
 FARM_OS="centos7"
 FARM_CPU="72"
 FARM_DISK_SPACE="3"
@@ -297,6 +297,7 @@ THREAD_NUM=72
 else
 THREAD_NUM=2
 fi
+fi
 
 export JAVA_HOME="$J_HOME"
 export CLARA_HOME="$CL_HOME"
@@ -336,13 +337,13 @@ fi
 rdpCmd="setenv CLARA_HOME="$CL_HOME"; "$CLARA_HOME"/bin/clara-dpe  "$SESSION" "$CLARA_HOME" "$CLAS12DIR""
 
 # Create orchestrator job submission script
-# ------------- JLKAB auger script creation and submission ------------
+# ------------- JLAB auger script creation and submission ------------
 if [ "$FARM_FLAVOR" == "jlab" ]; then
 {
 echo "PROJECT: clas12"
 echo "JOBNAME: rec_$USER_$DESCRIPTION"
 echo "MEMORY: $FARM_MEMORY GB"
-echo "TRACK: $FARN_TRACK"
+echo "TRACK: $FARM_TRACK"
 echo "OS: $FARM_OS"
 echo "CPU: $FARM_CPU"
 echo "DISK_SPACE: $FARM_DISK_SPACE GB"
@@ -361,7 +362,7 @@ jsub $CLAS12DIR/config/clara_p.jsub
 echo "PROJECT: clas12"
 echo "JOBNAME: rec_$USER_$DESCRIPTION"
 echo "MEMORY: $FARM_MEMORY GB"
-echo "TRACK: $FARN_TRACK"
+echo "TRACK: $FARM_TRACK"
 echo "OS: $FARM_OS"
 echo "CPU: $FARM_CPU"
 echo "DISK_SPACE: $FARM_DISK_SPACE GB"
@@ -380,7 +381,7 @@ else
 {
 echo "#!/bin/csh"
 echo "#PBS -N rec_$USER_$DESCRIPTION"
-#echo "#PBS -q $FARN_TRACK"
+#echo "#PBS -q $FARM_TRACK"
 echo "#PBS -A clas12"
 #echo "#PBS -M gurjyan@jlab.org"
 echo "#PBS -S /bin/csh"
@@ -401,7 +402,7 @@ qsub $CLAS12DIR/config/clara_p.pbs
 {
 echo "#!/bin/csh"
 echo "#PBS -N rec_$USER_$DESCRIPTION"
-#echo "#PBS -q $FARN_TRACK"
+#echo "#PBS -q $FARM_TRACK"
 echo "#PBS -A clas12"
 #echo "#PBS -M gurjyan@jlab.org"
 echo "#PBS -S /bin/csh"
@@ -492,4 +493,4 @@ fi
 $CLARA_HOME/bin/remove-dpe $SESSION
 
 fi
-fi
+
