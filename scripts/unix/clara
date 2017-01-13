@@ -243,6 +243,9 @@ echo '        Reset to default parameter settings'
 echo
 echo '  [stop-dpe]'
 echo '        Stops currently running DPEs on a local node.'
+echo
+echo '  [-h param]'
+echo '        Parameter settings help'
 }
 
 function list_parameters {
