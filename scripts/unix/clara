@@ -477,19 +477,25 @@ do
 printf "\n"
 printf "clara>"
 #echo -en "\033[5C>"
-read opt value
+read -e opt value
 
     case "$opt" in
 # ---------------- configuring ------------------
       -c | --clara-home)
+      if ! [ -z "$value" ]; then
 	  CL_HOME="$value"
 	  export CLARA_HOME="$CL_HOME"
+	  fi
 	  ;;
       -d | --description)
+      if ! [ -z "$value" ]; then
 	  DESCRIPTION="$value"
+	  fi
 	  ;;
       -f | --files-list)
+      if ! [ -z "$value" ]; then
 	  FILE_LIST="$value"
+	  fi
 	  ;;
       -h | --help)
       if [ "$value" == "param" ]; then
@@ -499,60 +505,91 @@ read opt value
 	  fi
 	  ;;
       -i | --input-dir)
+      if ! [ -z "$value" ]; then
 	  IN_DIR="$value"
+	  fi
 	  ;;
       -j | --java-home)
+      if ! [ -z "$value" ]; then
 	  J_HOME="$value"
+	  fi
 	  ;;
 #      -n | --nodes)
 #	  NODE_NUM="$value"
 #	  ;;
       -o | --output-dir)
+      if ! [ -z "$value" ]; then
 	  OUT_DIR="$value"
+	  fi
 	  ;;
       -p | --plugin)
+      if ! [ -z "$value" ]; then
 	  PLUGIN="$value"
+	  fi
 	  ;;
       -s | --session)
+      if ! [ -z "$value" ]; then
 	  SESSION="$value"
+	  fi
 	  ;;
       -t | --threads)
+      if ! [ -z "$value" ]; then
 	  THREAD_NUM="$value"
 
 	  if [ "$THREAD_NUM" == "auto" ] ; then
 	  THREAD_NUM=`getconf _NPROCESSORS_ONLN`
 	  fi
-
+	  fi
 	  ;;
       -y | --yaml)
+      if ! [ -z "$value" ]; then
 	  SERVICE_YAML="$value"
+	  fi
 	  ;;
       -ff | --farm-flavor)
+      if ! [ -z "$value" ]; then
 	  FARM_FLAVOR="$value"
+	  fi
 	  ;;
       -fl | --farm-loading-zone)
+      if ! [ -z "$value" ]; then
 	  FARM_LOADING_ZONE="$value"
+	  fi
 	  ;;
       -fm | --farm-memory)
+      if ! [ -z "$value" ]; then
 	  FARM_MEMORY="$value"
+	  fi
 	  ;;
       -ft | --farm-track)
+      if ! [ -z "$value" ]; then
 	  FARM_TRACK="$value"
+	  fi
 	  ;;
       -fo | --farm-os)
+      if ! [ -z "$value" ]; then
 	  FARM_OS="$value"
+	  fi
 	  ;;
       -fc | --farm-cpu)
+      if ! [ -z "$value" ]; then
 	  FARM_CPU="$value"
+	  fi
 	  ;;
       -fd | --farm-disk)
+      if ! [ -z "$value" ]; then
 	  FARM_DISK_SPACE="$value"
+	  fi
 	  ;;
       -fw | --farm-time)
+      if ! [ -z "$value" ]; then
 	  FARM_TIME="$value"
+	  fi
 	  ;;
       -fdod | --farm-dpe-orc-delay)
+      if ! [ -z "$value" ]; then
 	  FARM_DPE_ORC_DELAY="$value"
+	  fi
 	  ;;
 # ------------------ running ---------------
       reset)
