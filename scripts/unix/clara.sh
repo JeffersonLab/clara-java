@@ -11,12 +11,11 @@ fi
 CL_HOME="undefined"
 IN_DIR="undefined"
 J_HOME="undefined"
-MODE="undefined"
 NODE_NUM="undefined"
 OUT_DIR="undefined"
 PLUGIN="undefined"
 SESSION="undefined"
-THREAD_NUM="undefined"
+THREAD_NUM=2
 SERVICE_YAML="undefined"
 FILE_LIST="undefined"
 DPE_UP="false"
@@ -103,9 +102,6 @@ esac
 fi
 
 # Running mode
-if [ "$MODE" == "undefined" ]; then
-MODE=local
-fi
 
 # Number of nodes in case of farm deployment
 if [ "$NODE_NUM" == "undefined" ]; then
@@ -125,15 +121,6 @@ fi
 # Data processing session
 if [ "$SESSION" == "undefined" ]; then
 SESSION="$USER"
-fi
-
-# Number of parallel threads
-if [ "$THREAD_NUM" == "undefined" ]; then
-if [ "$MODE" = "farm" ]; then
-THREAD_NUM=72
-else
-THREAD_NUM=2
-fi
 fi
 
 export JAVA_HOME="$J_HOME"
@@ -181,10 +168,6 @@ echo
 echo '  [-s | --session <session>]'
 echo '        The data processing session. (default: $USER)'
 echo
-echo '  [-m | --mode <mode>]'
-echo '        The data processing mode. Accepted values = local, sqlite and farm'
-echo '        (default: local)'
-echo
 echo '  [-i | --input_dir <inputDir>]'
 echo '        The input directory where the files to be processed are located.'
 echo '        (default: $CLARA_HOME/data/in)'
@@ -195,7 +178,7 @@ echo '        (default: $CLARA_HOME/data/out)'
 echo
 #echo '  [-n | --nodes <maxNodes>]'
 #echo '        The maximum number of processing nodes to be used. Farm mode only. (default: 1)'
-echo
+#echo
 echo '  [-t | --threads <maxThreads>]'
 echo '        The maximum number of processing threads to be used per node.'
 echo '        In case value = auto all system cores will be used.'
@@ -256,6 +239,12 @@ echo
 echo '  [params]'
 echo '        Lists data processing configuration options'
 echo
+echo '  [services]'
+echo '        Lists service based application composition'
+echo
+echo '  [files]'
+echo '        Lists names of input files to be processed'
+echo
 echo '  [reset]'
 echo '        Reset to default parameter settings'
 echo
@@ -277,7 +266,6 @@ echo "  session       = $SESSION"
 echo "  cores         = $THREAD_NUM"
 echo "  services      = $SERVICE_YAML"
 echo "  files         = $FILE_LIST"
-echo "  mode          = $MODE"
 echo "  description   = $DESCRIPTION"
 echo "  farm_stage    = $FARM_LOADING_ZONE"
 echo "  farm_memory   = $FARM_MEMORY"
@@ -293,7 +281,6 @@ function set_default_parameters {
 CL_HOME="undefined"
 IN_DIR="undefined"
 J_HOME="undefined"
-MODE="undefined"
 NODE_NUM="undefined"
 OUT_DIR="undefined"
 PLUGIN="undefined"
@@ -317,6 +304,172 @@ FARM_FLAVOR="jlab"
 
 update_parameters
 }
+
+function run_local {
+# Starting DPEs
+################# Starting DPE ############
+UPPER=8000
+PORT=7000
+dpe_port=0
+while  [ $dpe_port == 0 ]
+do
+dpe_port=0
+exec 6<>/dev/tcp/127.0.0.1/$PORT || dpe_port=1
+if [ $dpe_port == 0 ]; then
+let "PORT=PORT+10"
+fi
+done
+echo "$PORT"
+
+
+if ! [ -z ${2+x} ]; then CLARA_HOME=$2; fi
+if ! [ -z ${3+x} ]; then CLAS12DIR=$3; fi
+if [ -z ${4+x} ]; then FE_HOST="localhost" ; else FE_HOST=$4; fi
+
+echo $FE_HOST
+
+export CLARA_HOME
+export CLAS12DIR
+export CLASSPATH="$CLARA_HOME/lib/*:$CLAS12DIR/lib/clas/*:$CLAS12DIR/lib/services/*"
+
+
+LOG_FILE=$CLARA_HOME/log/$HOST
+
+echo "-------- Running Conditions ---------------"
+echo " Start time         = "$(date)
+echo " Clara distribution = $CLARA_HOME"
+echo " Plugin directory   = $CLAS12DIR"
+echo " Log file           = Clara distribution/log/$HOSTNAME-jfe.log"
+echo " Note               = Running as local Front-End"
+echo " Threads request    = $THREAD_NUM"
+echo "------------------------------------------"
+echo
+
+# start dpe if it is not already up
+if [ "$DPE_UP" == "false" ]; then
+$CLARA_HOME/bin/remove-dpe
+$CLARA_HOME/bin/j_dpe --port $PORT --host $FE_HOST --session $SESSION --max-sockets 5120 --report 5 --max-cores $THREAD_NUM 2>&1 | tee "$LOG_FILE-jfe.log" &
+fi
+
+sleep "$FARM_DPE_ORC_DELAY"
+
+j="_java"
+FENAME=$IP%$PORT$j
+
+# Starting cloud orchestrator
+if [ "$FARM_LOADING_ZONE" = "undefined" ]; then
+$CLARA_HOME/bin/j_cloud -f $FENAME -s $SESSION -F -i $IN_DIR -o $OUT_DIR -p $THREAD_NUM -t $THREAD_NUM $SERVICE_YAML $FILE_LIST
+else
+$CLARA_HOME/bin/j_cloud -f $FENAME -s $SESSION -F -B -L -i $IN_DIR -o $OUT_DIR -l $FARM_LOADING_ZONE -p $THREAD_NUM -t $THREAD_NUM $SERVICE_YAML $FILE_LIST
+fi
+}
+
+function run_farm {
+echo ' Note: Distribution and data input/output directories must be visible to farm nodes.'
+
+#rcCmd="COMMAND: setenv CLARA_HOME "$CL_HOME"; "$CLARA_HOME"/bin/run-clara -c "$CLARA_HOME" -i "$IN_DIR" -j "$JAVA_HOME" -m local_2 -o "$OUT_DIR" -p "$CLAS12DIR" -s "$SESSION" -t "$THREAD_NUM" -y "$SERVICE_YAML" -f "$FILE_LIST""
+
+# Farm specific local staging directory
+if [ "$FARM_LOADING_ZONE" == "undefined" ]; then
+if [ "$FARM_FLAVOR" == "jlab" ]; then
+FARM_LOADING_ZONE="/scratch/pbs"
+fi
+fi
+
+if [ "$FARM_LOADING_ZONE" == "undefined" ]; then
+rcCmd="setenv CLARA_HOME "$CL_HOME"; $CLARA_HOME/bin/run-clara -i "$IN_DIR" -o "$OUT_DIR" -s "$SESSION" -t "$THREAD_NUM" -y "$SERVICE_YAML" -f "$FILE_LIST" -fdod "20""
+else
+rcCmd="setenv CLARA_HOME "$CL_HOME"; $CLARA_HOME/bin/run-clara -i "$IN_DIR" -o "$OUT_DIR" -l "$FARM_LOADING_ZONE" -s "$SESSION" -t "$THREAD_NUM" -y "$SERVICE_YAML" -f "$FILE_LIST" -fdod "20""
+fi
+rdpCmd="setenv CLARA_HOME="$CL_HOME"; "$CLARA_HOME"/bin/clara-dpe  "$SESSION" "$CLARA_HOME" "$CLAS12DIR""
+
+# Create orchestrator job submission script
+# ------------- JLAB auger script creation and submission ------------
+if [ "$FARM_FLAVOR" == "jlab" ]; then
+{
+echo "PROJECT: clas12"
+echo "JOBNAME: rec_$USER_$DESCRIPTION"
+echo "MEMORY: $FARM_MEMORY GB"
+echo "TRACK: $FARM_TRACK"
+echo "OS: $FARM_OS"
+echo "CPU: $FARM_CPU"
+echo "DISK_SPACE: $FARM_DISK_SPACE GB"
+echo "TIME: $FARM_TIME"
+
+echo "COMMAND: $rcCmd"
+
+} > $CLAS12DIR/config/clara_p.jsub
+sleep 3
+
+# Submit auger job request
+jsub $CLAS12DIR/config/clara_p.jsub
+
+# Create dpe job submission script
+{
+echo "PROJECT: clas12"
+echo "JOBNAME: rec_$USER_$DESCRIPTION"
+echo "MEMORY: $FARM_MEMORY GB"
+echo "TRACK: $FARM_TRACK"
+echo "OS: $FARM_OS"
+echo "CPU: $FARM_CPU"
+echo "DISK_SPACE: $FARM_DISK_SPACE GB"
+echo "TIME: $FARM_TIME"
+
+echo "COMMAND: $rdpCmd"
+
+} > $CLAS12DIR/config/clara_d.jsub
+
+for ((i = 1; i < $NODE_NUM; i++)); do
+jsub $CLAS12DIR/config/clara_d.jsub
+done
+# ------------------------------------------------------------
+else
+# ------------- PBS script creation and submission -----------
+{
+echo "#!/bin/csh"
+echo "#PBS -N rec_$USER_$DESCRIPTION"
+#echo "#PBS -q $FARM_TRACK"
+echo "#PBS -A clas12"
+#echo "#PBS -M gurjyan@jlab.org"
+echo "#PBS -S /bin/csh"
+echo "#PBS -l nodes=1:ppn=$FARM_CPU"
+#echo "#PBS -l arch=$FARM_OS"
+echo "#PBS -l file=3145728kb"
+echo "#PBS -l walltime=24:00:00"
+
+echo $rcCmd
+
+} > $CLAS12DIR/config/clara_p.pbs
+sleep 3
+
+# Submit auger job request
+qsub $CLAS12DIR/config/clara_p.pbs
+
+# Create dpe job submission script
+{
+echo "#!/bin/csh"
+echo "#PBS -N rec_$USER_$DESCRIPTION"
+#echo "#PBS -q $FARM_TRACK"
+echo "#PBS -A clas12"
+#echo "#PBS -M gurjyan@jlab.org"
+echo "#PBS -S /bin/csh"
+echo "#PBS -l nodes=1:ppn=$FARM_CPU"
+#echo "#PBS -l arch=$FARM_OS"
+echo "#PBS -l file=3145728kb"
+echo "#PBS -l walltime=24:00:00"
+
+echo $rdpCmd
+
+} > $CLAS12DIR/config/clara_d.pbs
+
+for ((i = 1; i < $NODE_NUM; i++)); do
+qsub $CLAS12DIR/config/clara_d.pbs
+done
+
+# ------------------------------------------------------------
+fi
+
+}
 #--------------------------------------
 
 # ------- program loop ----------------
@@ -326,8 +479,8 @@ update_parameters
 while :
 do
 printf "\n"
-printf "clara"
-echo -en "\033[5C>"
+printf "clara>"
+#echo -en "\033[5C>"
 read opt value
 
     case "$opt" in
@@ -354,13 +507,6 @@ read opt value
 	  ;;
       -j | --java-home)
 	  J_HOME="$value"
-	  ;;
-      -m | --mode)
-      {
-      if [ "$value" == "farm" ] || [ "$value" == "sqlite" ] ; then
-	      MODE="$value"
-	  fi
-	  }
 	  ;;
 #      -n | --nodes)
 #	  NODE_NUM="$value"
@@ -415,6 +561,12 @@ read opt value
 # ------------------ running ---------------
       reset)
 	  set_default_parameters
+	  ;;
+      services)
+	  more $SERVICE_YAML
+	  ;;
+       files)
+	  more $FILE_LIST
 	  ;;
       params)
 	  list_parameters
