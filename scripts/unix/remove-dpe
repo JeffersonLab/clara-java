@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# date 1.13.17
 
 a=`ps -ef | grep j_cloud | grep -v grep | grep $USER | awk '{print $2}'`
 if ! [ -z "$a" ]; then

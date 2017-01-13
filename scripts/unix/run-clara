@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # author Vardan Gyurjyan
-# date 11.03.16
+# date 1.13.17
 
 unset CCDB_DATABASE
 

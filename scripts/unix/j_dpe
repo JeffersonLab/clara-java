@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # author Vardan Gyurjyan
-# date 2.7.15
+# date 1.13.17
+
 
 if [ -z "${CLARA_HOME}" ]; then
     echo "Error: \$CLARA_HOME is not defined."

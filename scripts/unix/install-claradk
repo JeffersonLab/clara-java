@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # author Vardan Gyurjyan
-# date 10.28.16
+# date 1.13.17
 
 if ! [ -n "$CLARA_HOME" ]; then
     echo "CLARA_HOME environmental variable is not defined. Exiting..."
