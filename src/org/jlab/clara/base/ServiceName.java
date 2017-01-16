@@ -22,7 +22,6 @@
 
 package org.jlab.clara.base;
 
-import org.jlab.clara.base.error.ClaraException;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 
 public class ServiceName implements ClaraName {
@@ -75,13 +74,9 @@ public class ServiceName implements ClaraName {
         if (!ClaraUtil.isServiceName(canonicalName)) {
             throw new IllegalArgumentException("Invalid service name: " + canonicalName);
         }
-        try {
-            this.container = new ContainerName(ClaraUtil.getContainerCanonicalName(canonicalName));
-            this.canonicalName = canonicalName;
-            this.engine = ClaraUtil.getEngineName(canonicalName);
-        } catch (ClaraException e) {
-            throw new IllegalArgumentException("Invalid service name: " + canonicalName);
-        }
+        this.container = new ContainerName(ClaraUtil.getContainerCanonicalName(canonicalName));
+        this.canonicalName = canonicalName;
+        this.engine = ClaraUtil.getEngineName(canonicalName);
     }
 
     @Override
