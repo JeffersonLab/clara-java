@@ -218,36 +218,82 @@ echo '         Farm job wall time request (in min).'
 echo '         (default: 1440)'
 }
 
+function display_main_help {
+echo
+echo '               Help'
+echo "----------------------------------------"
+echo
+echo '  [-h | --help | help  <set>]'
+echo '        Parameter settings'
+echo
+echo '  [-h | --help | help  <edit>]'
+echo '        Edit data processing conditions'
+echo
+echo '  [-h | --help | help  <run>]'
+echo '        Start data processing'
+echo
+echo '  [-h | --help | help  <monitor>]'
+echo '        Monitor data processing'
+}
+function display_edit_help {
+echo
+echo '               Edit'
+echo "----------------------------------------"
+echo
+echo '  [edit  <composition>]'
+echo '        Edit application service-based composition'
+echo
+echo '  [edit  <files>]'
+echo '        Edit input file list'
+echo
+echo '  [edit <>]'
+echo '        Edit help'
+}
+function display_monitor_help {
+echo
+echo '               Monitor'
+echo "----------------------------------------"
+echo
+echo '  [monitor  <composition>]'
+echo '        Show application service-based composition'
+echo
+echo '  [monitor  <files>]'
+echo '        Show input file list'
+echo
+echo '  [monitor  <params>]'
+echo '        Show data processing configuration parameters'
+echo
+echo '  [monitor <>]'
+echo '        Monitor help'
+}
 function display_run_help {
 echo
-echo '                            Run Help'
-echo "-------------------------------------------------------------------"
+echo '               Run'
+echo "----------------------------------------"
 echo
-echo '  [run-local]'
-echo '        Starts data processing on a local node.'
+echo '  [run  <local>]'
+echo '        Run data processing application on a local node'
 echo
-echo '  [run-farm]'
-echo '        Starts a data processing job on a local farm'
+echo '  [run  <farm>]'
+echo '        Run data processing application on a farm'
 echo
-echo '  [params]'
-echo '        Lists data processing configuration options'
-echo
-echo '  [services]'
-echo '        Lists service based application composition'
-echo
-echo '  [files]'
-echo '        Lists names of input files to be processed'
-echo
-echo '  [reset]'
-echo '        Reset to default parameter settings'
-echo
-echo '  [stop-dpe]'
-echo '        Stops currently running DPEs on a local node.'
-echo
-echo '  [-h param]'
-echo '        Parameter settings help'
+echo '  [run <>]'
+echo '        Run help'
 }
-
+function display_reset_help {
+echo
+echo '               Reset'
+echo "----------------------------------------"
+echo
+echo '  [reset  <param>]'
+echo '        Reset parameters to their default values'
+echo
+echo '  [reset  <dpe>]'
+echo '        Stop running DPEs'
+echo
+echo '  [reset <>]'
+echo '        Reset help'
+}
 function list_parameters {
 echo
 echo '             Data processing parameters'
@@ -304,6 +350,7 @@ update_parameters
 function run_local {
 # Starting DPEs
 ################# Starting DPE ############
+if [ "$DPE_UP" == "false" ]; then
 UPPER=8000
 PORT=7000
 dpe_port=0
@@ -316,7 +363,7 @@ let "PORT=PORT+10"
 fi
 done
 echo "$PORT"
-
+fi
 
 if ! [ -z ${2+x} ]; then CLARA_HOME=$2; fi
 if ! [ -z ${3+x} ]; then CLAS12DIR=$3; fi
@@ -345,9 +392,10 @@ echo
 if [ "$DPE_UP" == "false" ]; then
 $CLARA_HOME/bin/remove-dpe
 $CLARA_HOME/bin/j_dpe --port $PORT --host $FE_HOST --session $SESSION --max-sockets 5120 --report 5 --max-cores $THREAD_NUM 2>&1 | tee "$LOG_FILE-jfe.log" &
+sleep "$FARM_DPE_ORC_DELAY"
 fi
 
-sleep "$FARM_DPE_ORC_DELAY"
+
 
 j="_java"
 FENAME=$IP%$PORT$j
@@ -481,6 +529,21 @@ read -e opt value
 
     case "$opt" in
 # ---------------- configuring ------------------
+      -h | --help | help)
+      if [ "$value" == "set" ]; then
+	    display_options_help
+	  elif [ "$value" == "edit" ]; then
+	    display_edit_help
+	  elif [ "$value" == "monitor" ]; then
+	    display_monitor_help
+	  elif [ "$value" == "run" ]; then
+	    display_run_help
+	  elif [ "$value" == "reset" ]; then
+	    display_reset_help
+	  else
+	    display_main_help
+	  fi
+	  ;;
       -c | --clara-home)
       if ! [ -z "$value" ]; then
 	  CL_HOME="$value"
@@ -495,13 +558,6 @@ read -e opt value
       -f | --files-list)
       if ! [ -z "$value" ]; then
 	  FILE_LIST="$value"
-	  fi
-	  ;;
-      -h | --help)
-      if [ "$value" == "param" ]; then
-	    display_options_help
-	  else
-	    display_run_help
 	  fi
 	  ;;
       -i | --input-dir)
@@ -591,30 +647,58 @@ read -e opt value
 	  FARM_DPE_ORC_DELAY="$value"
 	  fi
 	  ;;
+# ------------------ edit ---------------
+      edit)
+      if ! [ -z "$value" ]; then
+	   if [ "$value" == "composition" ]; then
+	     vi $SERVICE_YAML
+	   elif [ "$value" == "files" ]; then
+	     vi $FILE_LIST
+	   else
+	     display_edit_help
+	   fi
+	  fi
+	  ;;
+# ------------------ monitor ---------------
+      monitor)
+      if ! [ -z "$value" ]; then
+	   if [ "$value" == "composition" ]; then
+	     cat $SERVICE_YAML
+	   elif [ "$value" == "files" ]; then
+	     cat $FILE_LIST
+	   elif [ "$value" == "params" ]; then
+	     list_parameters
+	   else
+	     display_monitor_help
+	   fi
+	  fi
+	  ;;
 # ------------------ running ---------------
+      run)
+      if ! [ -z "$value" ]; then
+	   if [ "$value" == "local" ]; then
+	     run_local
+	   elif [ "$value" == "farm" ]; then
+	     run_farm
+	   else
+	     display_run_help
+	   fi
+	  fi
+	  ;;
+# ------------------ resetting ---------------
       reset)
-	  set_default_parameters
-	  ;;
-      services)
-	  more $SERVICE_YAML
-	  ;;
-       files)
-	  more $FILE_LIST
-	  ;;
-      params)
-	  list_parameters
-	  ;;
-      run-local)
-      run_local
-      DPE_UP="true"
-	  ;;
-      stop-dpe)
+            if ! [ -z "$value" ]; then
+	   if [ "$value" == "param" ]; then
+	     set_default_parameters
+	   elif [ "$value" == "dpe" ]; then
       DPE_UP="false"
       $CLARA_HOME/bin/remove-dpe
+       else
+           display_reset_help
+	   fi
+	  fi
 	  ;;
-      run-farm)
-      run_farm
-	  ;;
+
       exit )
 	  printf "bye... \n"
 	  $CLARA_HOME/bin/remove-dpe
