@@ -260,8 +260,18 @@ echo
 echo '  [monitor  <files>]'
 echo '        Show input file list'
 echo
+echo '  [monitor  <idir>]'
+echo '        List input files directory'
+echo
+echo '  [monitor  <odir>]'
+echo '        List output files directory'
+echo
 echo '  [monitor  <params>]'
 echo '        Show data processing configuration parameters'
+echo
+echo '  [monitor  <jobstat>]'
+echo '        Show farm auger-submitted job statuses.'
+echo '        Note: works on the JLab-CUE machines only.'
 echo
 echo '  [monitor <>]'
 echo '        Monitor help'
@@ -654,9 +664,11 @@ read -e opt value
 	     vi $SERVICE_YAML
 	   elif [ "$value" == "files" ]; then
 	     vi $FILE_LIST
-	   else
+	   elif [ "$value" == "-h" ]; then
 	     display_edit_help
 	   fi
+	   else
+	     display_edit_help
 	  fi
 	  ;;
 # ------------------ monitor ---------------
@@ -666,11 +678,19 @@ read -e opt value
 	     cat $SERVICE_YAML
 	   elif [ "$value" == "files" ]; then
 	     cat $FILE_LIST
+	   elif [ "$value" == "idir" ]; then
+	     ls -l $IN_DIR
+	   elif [ "$value" == "odir" ]; then
+	     ls -l $OUT_DIR
 	   elif [ "$value" == "params" ]; then
 	     list_parameters
-	   else
+	   elif [ "$value" == "jobstat" ]; then
+	     jobstat -u $USER
+	   elif [ "$value" == "-h" ]; then
 	     display_monitor_help
 	   fi
+	   else
+	     display_monitor_help
 	  fi
 	  ;;
 # ------------------ running ---------------
@@ -678,11 +698,14 @@ read -e opt value
       if ! [ -z "$value" ]; then
 	   if [ "$value" == "local" ]; then
 	     run_local
+	     DPE_UP="true"
 	   elif [ "$value" == "farm" ]; then
 	     run_farm
-	   else
+	   elif [ "$value" == "-h" ]; then
 	     display_run_help
 	   fi
+	   else
+	     display_run_help
 	  fi
 	  ;;
 # ------------------ resetting ---------------
@@ -693,9 +716,11 @@ read -e opt value
 	   elif [ "$value" == "dpe" ]; then
       DPE_UP="false"
       $CLARA_HOME/bin/remove-dpe
-       else
-           display_reset_help
+	   elif [ "$value" == "-h" ]; then
+	     display_reset_help
 	   fi
+	   else
+	     display_reset_help
 	  fi
 	  ;;
 
