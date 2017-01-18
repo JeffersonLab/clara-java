@@ -710,7 +710,7 @@ read -e opt value
 	  ;;
 # ------------------ resetting ---------------
       reset)
-            if ! [ -z "$value" ]; then
+       if ! [ -z "$value" ]; then
 	   if [ "$value" == "param" ]; then
 	     set_default_parameters
 	   elif [ "$value" == "dpe" ]; then
