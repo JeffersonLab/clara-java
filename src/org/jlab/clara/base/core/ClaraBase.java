@@ -205,7 +205,7 @@ public abstract class ClaraBase extends xMsg {
      * @throws xMsgException if the message could not be sent
      * @throws TimeoutException if a response was not received
      */
-    public xMsgMessage syncSend(ClaraComponent component, xMsgMessage msg, int timeout)
+    public xMsgMessage syncSend(ClaraComponent component, xMsgMessage msg, long timeout)
             throws xMsgException, TimeoutException {
         msg.getMetaData().setSender(myName);
         return syncPublish(component.getProxyAddress(), msg, timeout);
@@ -220,7 +220,7 @@ public abstract class ClaraBase extends xMsg {
      * @throws xMsgException if the message could not be sent
      * @throws TimeoutException if a response was not received
      */
-    public xMsgMessage syncSend(ClaraComponent component, String requestText, int timeout)
+    public xMsgMessage syncSend(ClaraComponent component, String requestText, long timeout)
             throws xMsgException, TimeoutException {
         xMsgMessage msg = MessageUtil.buildRequest(component.getTopic(), requestText);
         return syncSend(component, msg, timeout);

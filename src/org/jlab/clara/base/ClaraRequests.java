@@ -89,12 +89,12 @@ public final class ClaraRequests {
          * @throws TimeoutException if the response is not received
          * @return the data of the response
          */
-        public T syncRun(int wait, TimeUnit unit) throws ClaraException, TimeoutException {
+        public T syncRun(long wait, TimeUnit unit) throws ClaraException, TimeoutException {
             try {
                 if (wait <= 0) {
                     throw new IllegalArgumentException("Invalid timeout: " + wait);
                 }
-                int timeout = (int) unit.toMillis(wait);
+                long timeout = unit.toMillis(wait);
                 xMsgMessage response = base.syncSend(frontEnd, msg(), timeout);
                 return parseData(response);
             } catch (xMsgException e) {

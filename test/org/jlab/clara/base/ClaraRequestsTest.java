@@ -127,14 +127,14 @@ public class ClaraRequestsTest {
     @Test
     public void syncRequestIsSentWithTimeoutInMillis() throws Exception {
         request.syncRun(20, TimeUnit.MILLISECONDS);
-        verify(baseMock).syncSend(any(ClaraComponent.class), any(xMsgMessage.class), eq(20));
+        verify(baseMock).syncSend(any(ClaraComponent.class), any(xMsgMessage.class), eq(20L));
     }
 
 
     @Test
     public void syncRequestIsSentWithTimeoutInOtherUnit() throws Exception {
         request.syncRun(10, TimeUnit.SECONDS);
-        verify(baseMock).syncSend(any(ClaraComponent.class), any(xMsgMessage.class), eq(10000));
+        verify(baseMock).syncSend(any(ClaraComponent.class), any(xMsgMessage.class), eq(10000L));
     }
 
 
