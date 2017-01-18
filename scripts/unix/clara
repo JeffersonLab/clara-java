@@ -731,7 +731,9 @@ read -e opt value
 	  ;;
 
      *)  # No more options
+     if  ! [ -z "$opt" ]; then
 	  printf "unknown option\n"
+	  fi
 	  ;;
     esac
 done
