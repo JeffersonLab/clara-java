@@ -524,12 +524,27 @@ local val2="$3"
 	       echo "Error: farm operations are not permitted from this node = $HOST"
 	    fi
 	   elif [ "$val1" == "log" ]; then
-	     LOG_FILE="$CLARA_HOME/log/*-$USER-$DESCRIPTION-jfe.log"
-	     cat $LOG_FILE
+	    LOG_FILE="$CLARA_HOME/log/*-$USER-$DESCRIPTION-jfe.log"
+	   if [ -f "$LOG_FILE" ]
+         then
+	       cat $LOG_FILE
+	      else
+	       echo "Error: file not found"
+       fi
 	   elif [ "$val1" == "jferror" ]; then
-	     cat ~/.farm_out/*.$val2.err
+	   if [ -f "~/.farm_out/*.$val2.err" ]
+         then
+	       cat ~/.farm_out/*.$val2.err
+	      else
+	       echo "Error: file not found"
+       fi
 	   elif [ "$val1" == "jfout" ]; then
-	     cat ~/.farm_out/*.$val2.out
+	   if [ -f "~/.farm_out/*.$val2.out" ]
+         then
+	       cat ~/.farm_out/*.$val2.out
+	      else
+	       echo "Error: file not found"
+       fi
 	   elif [ "$val1" == "-h" ]; then
 	     display_monitor_help
 	   else
