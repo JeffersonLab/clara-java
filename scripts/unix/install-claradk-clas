@@ -121,7 +121,8 @@ mkdir $CLARA_HOME/data
 mkdir $CLARA_HOME/data/in
 mkdir $CLARA_HOME/data/out
 
-cp clasrec-io/data/clasDIS.11GeV.20events.evio $CLARA_HOME/data/in/
+#cp /group/da/vhg/data/* $CLARA_HOME/data/in/
+cp ~/group/da/vhg/data/* $CLARA_HOME/data/in/
 
 echo "Installing jre ..."
 cd $CLARA_HOME/jre
