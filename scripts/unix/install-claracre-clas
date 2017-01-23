@@ -8,7 +8,7 @@ if ! [ -n "$CLARA_HOME" ]; then
 fi
 
 
-PLUGIN="coatjava-3a.0.1"
+PLUGIN="coatjava-4a.0.0"
 
     case "$1" in
       -u | --update)
