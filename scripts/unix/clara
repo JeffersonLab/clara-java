@@ -152,8 +152,11 @@ echo
 echo '  [monitor  <params>]'
 echo '        Show data processing configuration parameters.'
 echo
-echo '  [monitor  <log>]'
-echo '        Show data processing log.'
+echo '  [monitor  <logdpe>]'
+echo '        Show data processing log of DPE.'
+echo
+echo '  [monitor  <logco>]'
+echo '        Show data processing log of cloud orchestrator.'
 echo
 echo '  [monitor  <jjobstat>]'
 echo '        Show JLab farm auger-submitted job statuses.'
@@ -161,14 +164,6 @@ echo '        Works on interactive fam nodes only.'
 echo
 echo '  [monitor  <pjobstat>]'
 echo '        Show PBS controlled farm submitted job statuses.'
-echo '        Works on interactive fam nodes only.'
-echo
-echo '  [monitor  <jferror> <jobID>]'
-echo '        Show JLab farm job errors.'
-echo '        Works on interactive fam nodes only.'
-echo
-echo '  [monitor  <jfout> <jobID>]'
-echo '        Show JLab farm job output.'
 echo '        Works on interactive fam nodes only.'
 echo
 echo '  [monitor <>]'
@@ -307,7 +302,7 @@ echo
 
 a="setenv CLARA_HOME $CLARA_HOME"
 b="$a ; $CLARA_HOME/bin/remove-dpe"
-rcCmd="$b ; $CLARA_HOME/bin/etc/f-clara.sh $IN_DIR $OUT_DIR $SERVICE_YAML $FILE_LIST $PLUGIN $DESCRIPTION $THREAD_NUM $SESSION $FARM_LOADING_ZONE
+rcCmd="$b ; $CLARA_HOME/bin/etc/f-clara.sh $IN_DIR $OUT_DIR $SERVICE_YAML $FILE_LIST $PLUGIN $DESCRIPTION $FARM_CPU $SESSION $FARM_LOADING_ZONE
 "
 
 # Create orchestrator job submission script
@@ -523,28 +518,22 @@ local val2="$3"
 	      else
 	       echo "Error: farm operations are not permitted from this node = $HOST"
 	    fi
-	   elif [ "$val1" == "log" ]; then
+	   elif [ "$val1" == "logdpe" ]; then
 	    LOG_FILE="$CLARA_HOME/log/*-$USER-$DESCRIPTION-jfe.log"
-	   if [ -f "$LOG_FILE" ]
+	    for k in $LOG_FILE; do
+	   if [ -f "$k" ]
          then
-	       cat $LOG_FILE
-	      else
-	       echo "Error: file not found"
+	       more $k
        fi
-	   elif [ "$val1" == "jferror" ]; then
-	   if [ -f "~/.farm_out/*.$val2.err" ]
+       done
+	   elif [ "$val1" == "logco" ]; then
+	    LOG_FILE="$CLARA_HOME/log/*-$USER-$DESCRIPTION-co.log"
+	    for k in $LOG_FILE; do
+	   if [ -f "$k" ]
          then
-	       cat ~/.farm_out/*.$val2.err
-	      else
-	       echo "Error: file not found"
+	       more $k
        fi
-	   elif [ "$val1" == "jfout" ]; then
-	   if [ -f "~/.farm_out/*.$val2.out" ]
-         then
-	       cat ~/.farm_out/*.$val2.out
-	      else
-	       echo "Error: file not found"
-       fi
+       done
 	   elif [ "$val1" == "-h" ]; then
 	     display_monitor_help
 	   else
