@@ -121,7 +121,6 @@ mkdir $CLARA_HOME/data
 mkdir $CLARA_HOME/data/in
 mkdir $CLARA_HOME/data/out
 
-#cp /group/da/vhg/data/* $CLARA_HOME/data/in/
 cp ~/group/da/vhg/data/* $CLARA_HOME/data/in/
 
 echo "Installing jre ..."
