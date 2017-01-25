@@ -23,6 +23,33 @@ while IFS='' read -r line || [[ -n "$line" ]]; do
 done < "$FILE_LIST"
 }
 ######################################################################################################################
+function is_port_free {
+local x=
+
+ x=`nc -vz 127.0.0.1 $1`
+
+if [ $OS == "Linux" ]
+then
+ if ! [ -z "$x" ]
+  then
+   return 0
+ else
+   return 1
+ fi
+
+elif [ $OS == "Darwin" ]
+then
+
+  if [[ $x == *"succeeded"* ]]
+    then
+     return 0
+  elif [[ $x == *"refused"* ]]
+    then
+    return 1
+   fi
+fi
+ }
+######################################################################################################################
 
 # -------------------- preparation ---------------------------------
 HOST=$(hostname)
@@ -138,6 +165,7 @@ dpe_port=0
 exec 6<>/dev/tcp/127.0.0.1/$port || dpe_port=1
 if [ $dpe_port == 0 ]; then
 let "port=port+10"
+else break
 fi
 done
 echo "$port"

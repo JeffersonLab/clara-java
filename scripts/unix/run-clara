@@ -443,6 +443,7 @@ dpe_port=0
 exec 6<>/dev/tcp/127.0.0.1/$PORT || dpe_port=1
 if [ $dpe_port == 0 ]; then
 let "PORT=PORT+10"
+else break
 fi
 done
 echo "$PORT"
