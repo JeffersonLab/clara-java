@@ -152,6 +152,9 @@ echo
 echo '  [monitor  <params>]'
 echo '        Show data processing configuration parameters.'
 echo
+echo '  [monitor  <logdir>]'
+echo '        Show data processing log of DPE.'
+echo
 echo '  [monitor  <logdpe>]'
 echo '        Show data processing log of DPE.'
 echo
