@@ -519,7 +519,7 @@ local val2="$3"
 	       echo "Error: farm operations are not permitted from this node = $HOST"
 	    fi
 	   elif [ "$val1" == "logdpe" ]; then
-	    LOG_FILE="$CLARA_HOME/log/*-$USER-$DESCRIPTION-jfe.log"
+	    LOG_FILE="$CLARA_HOME/log/*-$SESSION-$DESCRIPTION-jfe.log"
 	    for k in $LOG_FILE; do
 	   if [ -f "$k" ]
          then
@@ -527,7 +527,7 @@ local val2="$3"
        fi
        done
 	   elif [ "$val1" == "logco" ]; then
-	    LOG_FILE="$CLARA_HOME/log/*-$USER-$DESCRIPTION-co.log"
+	    LOG_FILE="$CLARA_HOME/log/*-$SESSION-$DESCRIPTION-co.log"
 	    for k in $LOG_FILE; do
 	   if [ -f "$k" ]
          then
