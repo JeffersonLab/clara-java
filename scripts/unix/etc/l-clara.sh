@@ -160,7 +160,7 @@ echo
 if [ "$9" == "false" ]; then
 $CLARA_HOME/bin/remove-dpe
 $CLARA_HOME/bin/j_dpe --port $port --host $FE_HOST --session $SESSION --max-sockets 5120 --report 5 --max-cores $7 2>&1 | tee $LOG_FILE &
-sleep 2
+sleep 7
 fi
 
 j="_java"
