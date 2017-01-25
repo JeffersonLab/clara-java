@@ -8,7 +8,7 @@ if ! [ -n "$CLARA_HOME" ]; then
 fi
 
 
-PLUGIN="coatjava-4a.0.0"
+PLUGIN=coatjava-4a.0.0
 
     case "$1" in
       -u | --update)
@@ -82,7 +82,7 @@ tar xvzf "$PLUGIN".tar.gz
 
 rm -rf $CLARA_HOME
 mv clara-cre $CLARA_HOME
-rm -rf clara-cre
+#rm -rf clara-cre
 
 cd coatjava
 

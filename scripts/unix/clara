@@ -518,6 +518,8 @@ local val2="$3"
 	      else
 	       echo "Error: farm operations are not permitted from this node = $HOST"
 	    fi
+	   elif [ "$val1" == "logdir" ]; then
+	     ls -l $CLARA_HOME/log
 	   elif [ "$val1" == "logdpe" ]; then
 	    LOG_FILE="$CLARA_HOME/log/*-$SESSION-$DESCRIPTION-jfe.log"
 	    for k in $LOG_FILE; do
