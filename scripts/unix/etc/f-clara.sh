@@ -130,7 +130,7 @@ if [ in_files_exists ]
  then
 
 # Starting DPEs
-if [ "$5" == "false" ]; then
+if [ "$9" == "false" ]; then
 while  [ $dpe_port == 0 ]
 do
 dpe_port=0
