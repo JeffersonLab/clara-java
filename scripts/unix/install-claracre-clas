@@ -94,7 +94,7 @@ cp  lib/services/* $CLARA_HOME/plugins/clas12/lib/services/.
 
 rm -f $CLARA_HOME/plugins/clas12/bin/clara-rec
 rm -f $CLARA_HOME/plugins/clas12/README
-cp $CLARA_HOME/plugins/clas12/etc/services/reconstruction.yaml $CLARA_HOME/plugins/clas12/config/services.yaml
+#cp $CLARA_HOME/plugins/clas12/etc/services/reconstruction.yaml $CLARA_HOME/plugins/clas12/config/services.yaml
 rm -rf $CLARA_HOME/plugins/clas12/etc/services
 
 cd ..
