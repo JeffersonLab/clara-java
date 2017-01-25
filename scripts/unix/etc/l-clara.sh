@@ -152,6 +152,7 @@ echo " Plugin directory   = $PLUGIN"
 echo " Log file           = $LOG_FILE"
 echo " Note               = Running as local Front-End"
 echo " Threads request    = $7"
+echo " DPE is up          = $9"
 echo "------------------------------------------"
 echo
 
