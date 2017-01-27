@@ -23,6 +23,7 @@
 package org.jlab.clara.util.report;
 
 import org.jlab.clara.base.ClaraUtil;
+import org.jlab.clara.base.core.ClaraConstants;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -117,8 +118,8 @@ public class JsonReportBuilder implements ExternalReport {
         dpeRegistration.put("containers", containersRegistrationArray);
 
         JSONObject dpeJsonData = new JSONObject();
-        dpeJsonData.put("DPERuntime", dpeRuntime);
-        dpeJsonData.put("DPERegistration", dpeRegistration);
+        dpeJsonData.put(ClaraConstants.RUNTIME_KEY, dpeRuntime);
+        dpeJsonData.put(ClaraConstants.REGISTRATION_KEY, dpeRegistration);
 
         return dpeJsonData.toString();
     }

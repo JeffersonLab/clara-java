@@ -77,6 +77,9 @@ public final class ClaraConstants {
     public static final String REPORT_REGISTRATION = "reportRegistration";
     public static final String REPORT_RUNTIME = "reportRuntime";
 
+    public static final String REGISTRATION_KEY = "DPERegistration";
+    public static final String RUNTIME_KEY = "DPERuntime";
+
     public static final String SHARED_MEMORY_KEY = "clara/shmkey";
 
     public static final String MAPKEY_SEP = "#";
