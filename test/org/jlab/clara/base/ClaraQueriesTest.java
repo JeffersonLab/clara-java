@@ -522,6 +522,280 @@ public class ClaraQueriesTest {
     }
 
 
+    @Test
+    public void getRegistrationOfAllDpes() throws Exception {
+        Set<DpeRegistrationData> result = queryBuilder
+                .registrationData(ClaraFilters.allDpes())
+                .syncRun(3, TimeUnit.SECONDS);
+        Set<DpeName> expected = data.dpes("dpeJ1", "dpeJ2", "dpeC1", "dpeC2");
+
+        assertThat(names(result), is(expected));
+    }
+
+
+    @Test
+    public void getRegistrationOfAllContainers() throws Exception {
+        Set<ContainerRegistrationData> result = queryBuilder
+                .registrationData(ClaraFilters.allContainers())
+                .syncRun(3, TimeUnit.SECONDS);
+        Set<ContainerName> expected = data.containers("contAJ1", "contAJ2", "contAC1", "contAC2",
+                                                      "contBJ1", "contCJ1", "contCC1");
+
+        assertThat(names(result), is(expected));
+    }
+
+
+    @Test
+    public void getRegistrationOfAllServices() throws Exception {
+        Set<ServiceRegistrationData> result = queryBuilder
+                .registrationData(ClaraFilters.allServices())
+                .syncRun(3, TimeUnit.SECONDS);
+        Set<ServiceName> expected = data.services("E1", "E2", "E3",
+                                                  "F1", "F2", "G1", "H1", "H2",
+                                                  "M1", "M2", "N1", "N2");
+        assertThat(names(result), is(expected));
+    }
+
+
+    @Test
+    public void getRegistrationOfDpesByHost() throws Exception {
+        Set<DpeRegistrationData> result = queryBuilder
+                .registrationData(ClaraFilters.dpesByHost("10.2.9.1"))
+                .syncRun(3, TimeUnit.SECONDS);
+        Set<DpeName> expected = data.dpes("dpeJ1", "dpeC1");
+
+        assertThat(names(result), is(expected));
+    }
+
+
+    @Test
+    public void getRegistrationOfDpesByLanguage() throws Exception {
+        ClaraLang lang = ClaraLang.JAVA;
+        Set<DpeRegistrationData> result = queryBuilder
+                .registrationData(ClaraFilters.dpesByLanguage(lang))
+                .syncRun(3, TimeUnit.SECONDS);
+        Set<DpeName> expected = data.dpes("dpeJ1", "dpeJ2");
+
+        assertThat(names(result), is(expected));
+    }
+
+
+    @Test
+    public void getRegistrationOfContainersByHost() throws Exception {
+        Set<ContainerRegistrationData> result = queryBuilder
+                .registrationData(ClaraFilters.containersByHost("10.2.9.1"))
+                .syncRun(3, TimeUnit.SECONDS);
+        Set<ContainerName> expected = data.containers("contAJ1", "contAC1",
+                                                      "contBJ1", "contCJ1", "contCC1");
+
+        assertThat(names(result), is(expected));
+    }
+
+
+    @Test
+    public void getRegistrationOfContainersByDpe() throws Exception {
+        Set<ContainerRegistrationData> result = queryBuilder
+                .registrationData(ClaraFilters.containersByDpe(data.dpe("dpeJ1")))
+                .syncRun(3, TimeUnit.SECONDS);
+        Set<ContainerName> expected = data.containers("contAJ1", "contBJ1", "contCJ1");
+
+        assertThat(names(result), is(expected));
+    }
+
+
+    @Test
+    public void getRegistrationOfContainersByLanguage() throws Exception {
+        Set<ContainerRegistrationData> result = queryBuilder
+                .registrationData(ClaraFilters.containersByLanguage(ClaraLang.CPP))
+                .syncRun(3, TimeUnit.SECONDS);
+        Set<ContainerName> expected = data.containers("contAC1", "contAC2", "contCC1");
+
+        assertThat(names(result), is(expected));
+    }
+
+
+    @Test
+    public void getRegistrationOfContainersByName() throws Exception {
+        Set<ContainerRegistrationData> result = queryBuilder
+                .registrationData(ClaraFilters.containersByName("A"))
+                .syncRun(3, TimeUnit.SECONDS);
+        Set<ContainerName> expected = data.containers("contAJ1", "contAJ2", "contAC1", "contAC2");
+
+        assertThat(names(result), is(expected));
+    }
+
+
+    @Test
+    public void getRegistrationOfServicesByHost() throws Exception {
+        Set<ServiceRegistrationData> result = queryBuilder
+                .registrationData(ClaraFilters.servicesByHost("10.2.9.1"))
+                .syncRun(3, TimeUnit.SECONDS);
+        Set<ServiceName> expected = data.services("E1", "E3", "F1", "G1", "H1", "H2",
+                                                  "M1", "N1", "N2");
+
+        assertThat(names(result), is(expected));
+    }
+
+
+    @Test
+    public void getRegistrationOfServicesByDpe() throws Exception {
+        Set<ServiceRegistrationData> result = queryBuilder
+                .registrationData(ClaraFilters.servicesByDpe(data.dpe("dpeC1")))
+                .syncRun(3, TimeUnit.SECONDS);
+        Set<ServiceName> expected = data.services("M1", "N1", "N2");
+
+        assertThat(names(result), is(expected));
+    }
+
+
+    @Test
+    public void getRegistrationOfServicesByContainer() throws Exception {
+        Set<ServiceRegistrationData> result = queryBuilder
+                .registrationData(ClaraFilters.servicesByContainer(data.cont("contAJ1")))
+                .syncRun(3, TimeUnit.SECONDS);
+        Set<ServiceName> expected = data.services("E1", "F1", "G1");
+
+        assertThat(names(result), is(expected));
+    }
+
+
+    @Test
+    public void getRegistrationOfServicesByLanguage() throws Exception {
+        Set<ServiceRegistrationData> result = queryBuilder
+                .registrationData(ClaraFilters.servicesByLanguage(ClaraLang.CPP))
+                .syncRun(3, TimeUnit.SECONDS);
+        Set<ServiceName> expected = data.services("M1", "M2", "N1", "N2");
+
+        assertThat(names(result), is(expected));
+    }
+
+
+    @Test
+    public void getRegistrationOfServicesByName() throws Exception {
+        Set<ServiceRegistrationData> result = queryBuilder
+                .registrationData(ClaraFilters.servicesByName("E"))
+                .syncRun(3, TimeUnit.SECONDS);
+        Set<ServiceName> expected = data.services("E1", "E2", "E3");
+
+        assertThat(names(result), is(expected));
+    }
+
+
+    @Test
+    public void getRegistrationOfServicesByAuthor() throws Exception {
+        Set<ServiceRegistrationData> result = queryBuilder
+                .registrationData(ClaraFilters.servicesByAuthor("Trevor"))
+                .syncRun(3, TimeUnit.SECONDS);
+        Set<ServiceName> expected = data.services("E1", "E2", "E3");
+
+        assertThat(names(result), is(expected));
+    }
+
+
+    @Test
+    public void getRegistrationOfServicesByDescription() throws Exception {
+        Set<ServiceRegistrationData> result = queryBuilder
+                .registrationData(ClaraFilters.servicesByDescription(".*[Cc]alculate.*"))
+                .syncRun(3, TimeUnit.SECONDS);
+        Set<ServiceName> expected = data.services("E1", "E2", "E3", "H1", "H2");
+
+        assertThat(names(result), is(expected));
+    }
+
+
+    @Test
+    public void getRegistrationOfMissingDpes() throws Exception {
+        Set<DpeRegistrationData> result = queryBuilder
+                .registrationData(ClaraFilters.dpesByHost("10.2.9.3"))
+                .syncRun(3, TimeUnit.SECONDS);
+
+        assertThat(result, is(empty()));
+    }
+
+
+    @Test
+    public void getRegistrationOfMissingContainers() throws Exception {
+        Set<ContainerRegistrationData> result = queryBuilder
+                .registrationData(ClaraFilters.containersByName("Z"))
+                .syncRun(3, TimeUnit.SECONDS);
+
+        assertThat(result, is(empty()));
+    }
+
+
+    @Test
+    public void getRegistrationOfMissingServices() throws Exception {
+        Set<ServiceRegistrationData> result = queryBuilder
+                .registrationData(ClaraFilters.servicesByAuthor("CJ"))
+                .syncRun(3, TimeUnit.SECONDS);
+
+        assertThat(result, is(empty()));
+    }
+
+
+    @Test
+    public void getRegistrationOfDpeByName() throws Exception {
+        Optional<DpeRegistrationData> result = queryBuilder
+                .registrationData(new DpeName("10.2.9.1_java"))
+                .syncRun(3, TimeUnit.SECONDS);
+        DpeName expected = data.dpe("dpeJ1");
+
+        assertThat(result.get().name(), is(expected));
+    }
+
+
+    @Test
+    public void getRegistrationOfContainerByName() throws Exception {
+        Optional<ContainerRegistrationData> result = queryBuilder
+                .registrationData(new ContainerName("10.2.9.1_cpp:C"))
+                .syncRun(3, TimeUnit.SECONDS);
+        ContainerName expected = data.cont("contCC1");
+
+        assertThat(result.get().name(), is(expected));
+    }
+
+
+    @Test
+    public void getRegistrationOfServiceByName() throws Exception {
+        Optional<ServiceRegistrationData> result = queryBuilder
+                .registrationData(new ServiceName("10.2.9.1_java:B:H"))
+                .syncRun(3, TimeUnit.SECONDS);
+        ServiceName expected = data.service("H1");
+
+        assertThat(result.get().name(), is(expected));
+    }
+
+
+    @Test
+    public void getRegistrationOfMissingDpeByName() throws Exception {
+        Optional<DpeRegistrationData> result = queryBuilder
+                .registrationData(new DpeName("10.2.9.1_python"))
+                .syncRun(3, TimeUnit.SECONDS);
+
+        assertThat(result.isPresent(), is(false));
+    }
+
+
+    @Test
+    public void getRegistrationOfMissingContainerByName() throws Exception {
+        Optional<ContainerRegistrationData> result = queryBuilder
+                .registrationData(new ContainerName("10.2.9.1_cpp:B"))
+                .syncRun(3, TimeUnit.SECONDS);
+
+        assertThat(result.isPresent(), is(false));
+    }
+
+
+    @Test
+    public void getRegistrationOfMissingServiceByName() throws Exception {
+        Optional<ServiceRegistrationData> result = queryBuilder
+                .registrationData(new ServiceName("10.2.9.1_java:A:H"))
+                .syncRun(3, TimeUnit.SECONDS);
+
+        assertThat(result.isPresent(), is(false));
+    }
+
+
     private static ClaraBase base() {
         return new ClaraBase(ClaraComponent.dpe(), ClaraComponent.dpe()) {
             @Override

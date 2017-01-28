@@ -253,6 +253,51 @@ public final class ClaraQueries {
 
 
     /**
+     * A query to get the registration data of the registered CLARA components.
+     *
+     * @param <T> The registration data class of the components
+     */
+    public static class RegistrationQuery<T> extends DpeQuery<RegistrationQuery<T>, T, Set<T>> {
+
+        RegistrationQuery(ClaraBase base,
+                          ClaraComponent frontEnd,
+                          ClaraFilter filter,
+                          BiFunction<JSONObject, String, Stream<JSONObject>> parseQuery,
+                          Function<JSONObject, T> parseData) {
+            super(base, frontEnd, filter, parseQuery, parseData, ClaraConstants.REGISTRATION_KEY);
+        }
+
+        @Override
+        protected Set<T> collect(Stream<xMsgRegRecord> regData, long timeout) {
+            return query(regData, timeout).collect(Collectors.toSet());
+        }
+    }
+
+
+    /**
+     * A query to get the registration data of a specific CLARA component.
+     *
+     * @param <T> The registration data class of the component
+     */
+    public static class RegistrationData<T>
+            extends DpeQuery<RegistrationData<T>, T, Optional<T>> {
+
+        RegistrationData(ClaraBase base,
+                         ClaraComponent frontEnd,
+                         ClaraFilter filter,
+                         BiFunction<JSONObject, String, Stream<JSONObject>> parseQuery,
+                         Function<JSONObject, T> parseData) {
+            super(base, frontEnd, filter, parseQuery, parseData, ClaraConstants.REGISTRATION_KEY);
+        }
+
+        @Override
+        protected Optional<T> collect(Stream<xMsgRegRecord> regData, long timeout) {
+            return query(regData, timeout).findFirst();
+        }
+    }
+
+
+    /**
      * Builds a request to query the CLARA registration and runtime database.
      */
     public static class ClaraQueryBuilder {
@@ -331,6 +376,82 @@ public final class ClaraQueries {
         public DiscoveryQuery<ServiceName> discover(ServiceName name) {
             return new DiscoveryQuery<>(base, frontEnd, ClaraFilters.service(name),
                                         JsonUtils::serviceStream, ServiceName::new);
+        }
+
+
+        /**
+         * Creates a query to get the registration data of the selected DPEs.
+         *
+         * @param filter a filter to select DPEs
+         * @return the query to get the registration data of the registered DPEs
+         *         that match the filter
+         */
+        public RegistrationQuery<DpeRegistrationData> registrationData(DpeFilter filter) {
+            return new RegistrationQuery<>(base, frontEnd, filter,
+                                           JsonUtils::dpeStream, DpeRegistrationData::new);
+        }
+
+
+        /**
+         * Creates a query to get the registration data of the selected containers.
+         *
+         * @param filter a filter to select containers
+         * @return the query to get the registration data of the registered containers
+         *         that match the filter
+         */
+        public RegistrationQuery<ContainerRegistrationData>
+                registrationData(ContainerFilter filter) {
+            return new RegistrationQuery<>(base, frontEnd, filter,
+                                           JsonUtils::containerStream,
+                                           ContainerRegistrationData::new);
+        }
+
+        /**
+         * Creates a query to get the registration data of the selected services.
+         *
+         * @param filter a filter to select services
+         * @return the query to get the registration data of the registered services
+         *         that match the filter
+         */
+        public RegistrationQuery<ServiceRegistrationData> registrationData(ServiceFilter filter) {
+            return new RegistrationQuery<>(base, frontEnd, filter,
+                                           JsonUtils::serviceStream,
+                                           ServiceRegistrationData::new);
+        }
+
+        /**
+         * Creates a query to get the registration data of a specific DPE.
+         *
+         * @param name the name of the selected DPE
+         * @return the query to get the registration data of the given DPE
+         */
+        public RegistrationData<DpeRegistrationData> registrationData(DpeName name) {
+            return new RegistrationData<>(base, frontEnd, ClaraFilters.dpe(name),
+                                          JsonUtils::dpeStream, DpeRegistrationData::new);
+        }
+
+        /**
+         * Creates a query to get the registration data of a specific container.
+         *
+         * @param name the name of the selected container
+         * @return the query to get the registration data of the given container
+         */
+        public RegistrationData<ContainerRegistrationData> registrationData(ContainerName name) {
+            return new RegistrationData<>(base, frontEnd, ClaraFilters.container(name),
+                                          JsonUtils::containerStream,
+                                          ContainerRegistrationData::new);
+        }
+
+        /**
+         * Creates a query to get the registration data of a specific service.
+         *
+         * @param name the name of the selected service
+         * @return the query to get the registration data of the given service
+         */
+        public RegistrationData<ServiceRegistrationData> registrationData(ServiceName name) {
+            return new RegistrationData<>(base, frontEnd, ClaraFilters.service(name),
+                                          JsonUtils::serviceStream,
+                                          ServiceRegistrationData::new);
         }
     }
 }
