@@ -24,14 +24,25 @@ package org.jlab.clara.base;
 
 import org.jlab.clara.base.core.ClaraBase;
 import org.jlab.clara.base.core.ClaraComponent;
+import org.jlab.clara.base.core.ClaraConstants;
+import org.jlab.clara.base.core.MessageUtil;
 import org.jlab.clara.base.error.ClaraException;
+import org.jlab.clara.util.report.JsonUtils;
+import org.jlab.coda.xmsg.core.xMsgMessage;
+import org.jlab.coda.xmsg.core.xMsgTopic;
+import org.jlab.coda.xmsg.data.xMsgMimeType;
 import org.jlab.coda.xmsg.data.xMsgRegRecord;
 import org.jlab.coda.xmsg.excp.xMsgException;
+import org.jlab.coda.xmsg.net.xMsgProxyAddress;
+import org.json.JSONObject;
 
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.BiFunction;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -92,7 +103,7 @@ public final class ClaraQueries {
             } catch (xMsgException e) {
                 throw new ClaraException("Cannot send query", e);
             } catch (WrappedException e) {
-                throw new ClaraException("Canend query ", e.cause);
+                throw new ClaraException("Cannot send query ", e.cause);
             }
         }
 
@@ -107,6 +118,79 @@ public final class ClaraQueries {
         @SuppressWarnings("unchecked")
         protected D self() {
             return (D) this;
+        }
+    }
+
+
+    abstract static class DpeQuery<D extends DpeQuery<D, T, R>, T, R>
+            extends BaseQuery<D, R> {
+
+        private final BiFunction<JSONObject, String, Stream<JSONObject>> parseQuery;
+        private final Function<JSONObject, T> parseData;
+
+        private final String regKey;
+        private final String dataKey;
+
+        protected DpeQuery(ClaraBase base,
+                           ClaraComponent frontEnd,
+                           ClaraFilter filter,
+                           BiFunction<JSONObject, String, Stream<JSONObject>> parseQuery,
+                           Function<JSONObject, T> parseData,
+                           String dataKey) {
+            super(base, frontEnd, filter);
+            this.parseQuery = parseQuery;
+            this.parseData = parseData;
+            this.regKey = ClaraConstants.REGISTRATION_KEY;
+            this.dataKey = dataKey;
+        }
+
+        protected Stream<T> query(Stream<xMsgRegRecord> regData, long timeout) {
+            return dpeNames(regData)
+                    .flatMap(d -> queryDpe(d, timeout))
+                    .map(parseData);
+        }
+
+        private Stream<DpeName> dpeNames(Stream<xMsgRegRecord> record) {
+            return record.map(xMsgRegRecord::name)
+                         .map(ClaraUtil::getDpeName)
+                         .distinct()
+                         .map(DpeName::new);
+        }
+
+        private Stream<JSONObject> queryDpe(DpeName dpe, long timeout) {
+            try {
+                xMsgProxyAddress address = dpe.address();
+                xMsgMessage xmsg = msg(dpe);
+                xMsgMessage response = base.syncPublish(address, xmsg, timeout);
+                String mimeType = response.getMimeType();
+                if (mimeType.equals(xMsgMimeType.STRING)) {
+                    String data = new String(response.getData());
+                    return filterQuery(new JSONObject(data));
+                }
+                return Stream.empty();
+            } catch (TimeoutException | xMsgException e) {
+                throw new WrappedException(e);
+            }
+        }
+
+        private xMsgMessage msg(DpeName dpe) {
+            xMsgTopic topic = xMsgTopic.build("dpe", dpe.canonicalName());
+            return MessageUtil.buildRequest(topic, ClaraConstants.REPORT_JSON);
+        }
+
+        private Stream<JSONObject> filterQuery(JSONObject report) {
+            if (!filter.useDpe()) {
+                return parseQuery.apply(report, dataKey);
+            }
+            Stream<JSONObject> regData = parseQuery.apply(report, regKey)
+                                                   .filter(filter.filter());
+            if (regData.equals(dataKey)) {
+                return regData;
+            }
+            Set<String> names = regData.map(o -> o.getString("name"))
+                                       .collect(Collectors.toSet());
+            return parseQuery.apply(report, dataKey)
+                             .filter(o -> names.contains(o.getString("name")));
         }
     }
 
