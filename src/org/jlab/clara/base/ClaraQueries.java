@@ -196,6 +196,63 @@ public final class ClaraQueries {
 
 
     /**
+     * A query to get the names of the registered CLARA components.
+     *
+     * @param <T> The name class of the components
+     */
+    public static class CanonicalNameQuery<T> extends DpeQuery<CanonicalNameQuery<T>, T, Set<T>> {
+
+        private final Function<String, T> parseReg;
+
+        CanonicalNameQuery(ClaraBase base,
+                           ClaraComponent frontEnd,
+                           ClaraFilter filter,
+                           BiFunction<JSONObject, String, Stream<JSONObject>> parseQuery,
+                           Function<String, T> parseData) {
+            super(base, frontEnd, filter,
+                  parseQuery, j -> parseData.apply(j.getString("name")),
+                  ClaraConstants.REGISTRATION_KEY);
+            this.parseReg = parseData;
+        }
+
+        @Override
+        protected Set<T> collect(Stream<xMsgRegRecord> regData, long timeout) {
+            if (filter.useDpe()) {
+                return query(regData, timeout).collect(Collectors.toSet());
+            }
+            return regData.map(xMsgRegRecord::name).map(parseReg).collect(Collectors.toSet());
+        }
+    }
+
+
+    /**
+     * A query to check if a CLARA component is registered.
+     *
+     * @param <T> The name class of the component
+     */
+    public static class DiscoveryQuery<T> extends DpeQuery<DiscoveryQuery<T>, T, Boolean> {
+
+        private final Function<String, T> parseReg;
+
+        DiscoveryQuery(ClaraBase base,
+                       ClaraComponent frontEnd,
+                       ClaraFilter filter,
+                       BiFunction<JSONObject, String, Stream<JSONObject>> parseQuery,
+                       Function<String, T> parseData) {
+            super(base, frontEnd, filter,
+                  parseQuery, j -> parseData.apply(j.getString("name")),
+                  ClaraConstants.REGISTRATION_KEY);
+            this.parseReg = parseData;
+        }
+
+        @Override
+        protected Boolean collect(Stream<xMsgRegRecord> regData, long timeout) {
+            return regData.map(xMsgRegRecord::name).map(parseReg).findFirst().isPresent();
+        }
+    }
+
+
+    /**
      * Builds a request to query the CLARA registration and runtime database.
      */
     public static class ClaraQueryBuilder {
@@ -206,6 +263,74 @@ public final class ClaraQueries {
         ClaraQueryBuilder(ClaraBase base, ClaraComponent frontEnd) {
             this.base = base;
             this.frontEnd = frontEnd;
+        }
+
+        /**
+         * Creates a query to get the names of the selected DPEs.
+         *
+         * @param filter a filter to select DPEs
+         * @return the query to get the names of the registered DPEs that match the filter
+         */
+        public CanonicalNameQuery<DpeName> canonicalNames(DpeFilter filter) {
+            return new CanonicalNameQuery<>(base, frontEnd, filter,
+                                            JsonUtils::dpeStream, DpeName::new);
+        }
+
+        /**
+         * Creates a query to get the names of the selected containers.
+         *
+         * @param filter a filter to select containers
+         * @return the query to get the names of the registered containers that match the filter
+         */
+        public CanonicalNameQuery<ContainerName> canonicalNames(ContainerFilter filter) {
+            return new CanonicalNameQuery<>(base, frontEnd, filter,
+                                            JsonUtils::containerStream, ContainerName::new);
+        }
+
+        /**
+         * Creates a query to get the names of the selected services.
+         *
+         * @param filter a filter to select services
+         * @return the query to get the names of the registered services that match the filter
+         */
+        public CanonicalNameQuery<ServiceName> canonicalNames(ServiceFilter filter) {
+            return new CanonicalNameQuery<>(base, frontEnd, filter,
+                                            JsonUtils::serviceStream, ServiceName::new);
+        }
+
+        /**
+         * Creates a query to check if the given DPE is registered.
+         *
+         * @param name the name of the selected DPE
+         * @return the query to check if the DPE is registered
+         */
+        public DiscoveryQuery<DpeName> discover(DpeName name) {
+            return new DiscoveryQuery<>(base, frontEnd, ClaraFilters.dpe(name),
+                                        JsonUtils::dpeStream, DpeName::new);
+        }
+
+
+        /**
+         * Creates a query to check if the given container is registered.
+         *
+         * @param name the name of the selected container
+         * @return the query to check if the container is registered
+         */
+        public DiscoveryQuery<ContainerName> discover(ContainerName name) {
+            return new DiscoveryQuery<>(base, frontEnd, ClaraFilters.container(name),
+                                        JsonUtils::containerStream, ContainerName::new);
+        }
+
+
+        /**
+         * Creates a query to check if the given service is registered.
+         *
+         * @param name the name of the selected service
+         * @return the query to check if the service is registered
+         */
+        public DiscoveryQuery<ServiceName> discover(ServiceName name) {
+            return new DiscoveryQuery<>(base, frontEnd, ClaraFilters.service(name),
+                                        JsonUtils::serviceStream, ServiceName::new);
         }
     }
 }

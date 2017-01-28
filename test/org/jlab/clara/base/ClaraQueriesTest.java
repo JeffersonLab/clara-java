@@ -262,6 +262,265 @@ public class ClaraQueriesTest {
     }
 
 
+    @Test
+    public void getNamesOfAllDpes() throws Exception {
+        Set<DpeName> result = queryBuilder.canonicalNames(ClaraFilters.allDpes())
+                                          .syncRun(3, TimeUnit.SECONDS);
+        Set<DpeName> expected = data.dpes("dpeJ1", "dpeJ2", "dpeC1", "dpeC2");
+
+        assertThat(result, is(expected));
+    }
+
+
+    @Test
+    public void getNamesOfAllContainers() throws Exception {
+        Set<ContainerName> result = queryBuilder.canonicalNames(ClaraFilters.allContainers())
+                                                .syncRun(3, TimeUnit.SECONDS);
+        Set<ContainerName> expected = data.containers("contAJ1", "contAJ2", "contAC1", "contAC2",
+                                                      "contBJ1", "contCJ1", "contCC1");
+
+        assertThat(result, is(expected));
+    }
+
+
+    @Test
+    public void getNamesOfAllServices() throws Exception {
+        Set<ServiceName> result = queryBuilder.canonicalNames(ClaraFilters.allServices())
+                                                .syncRun(3, TimeUnit.SECONDS);
+        Set<ServiceName> expected = data.services("E1", "E2", "E3",
+                                                  "F1", "F2", "G1", "H1", "H2",
+                                                  "M1", "M2", "N1", "N2");
+        assertThat(result, is(expected));
+    }
+
+
+    @Test
+    public void getNamesOfDpesByHost() throws Exception {
+        Set<DpeName> result = queryBuilder.canonicalNames(ClaraFilters.dpesByHost("10.2.9.1"))
+                                          .syncRun(3, TimeUnit.SECONDS);
+        Set<DpeName> expected = data.dpes("dpeJ1", "dpeC1");
+
+        assertThat(result, is(expected));
+    }
+
+
+    @Test
+    public void getNamesOfDpesByLanguage() throws Exception {
+        ClaraLang lang = ClaraLang.JAVA;
+        Set<DpeName> result = queryBuilder.canonicalNames(ClaraFilters.dpesByLanguage(lang))
+                                          .syncRun(3, TimeUnit.SECONDS);
+        Set<DpeName> expected = data.dpes("dpeJ1", "dpeJ2");
+
+        assertThat(result, is(expected));
+    }
+
+
+    @Test
+    public void getNamesOfContainersByHost() throws Exception {
+        Set<ContainerName> result = queryBuilder
+                .canonicalNames(ClaraFilters.containersByHost("10.2.9.1"))
+                .syncRun(3, TimeUnit.SECONDS);
+        Set<ContainerName> expected = data.containers("contAJ1", "contAC1",
+                                                      "contBJ1", "contCJ1", "contCC1");
+
+        assertThat(result, is(expected));
+    }
+
+
+    @Test
+    public void getNamesOfContainersByDpe() throws Exception {
+        Set<ContainerName> result = queryBuilder
+                .canonicalNames(ClaraFilters.containersByDpe(data.dpe("dpeJ1")))
+                .syncRun(3, TimeUnit.SECONDS);
+        Set<ContainerName> expected = data.containers("contAJ1", "contBJ1", "contCJ1");
+
+        assertThat(result, is(expected));
+    }
+
+
+    @Test
+    public void getNamesOfContainersByLanguage() throws Exception {
+        Set<ContainerName> result = queryBuilder
+                .canonicalNames(ClaraFilters.containersByLanguage(ClaraLang.CPP))
+                .syncRun(3, TimeUnit.SECONDS);
+        Set<ContainerName> expected = data.containers("contAC1", "contAC2", "contCC1");
+
+        assertThat(result, is(expected));
+    }
+
+
+    @Test
+    public void getNamesOfContainersByName() throws Exception {
+        Set<ContainerName> result = queryBuilder
+                .canonicalNames(ClaraFilters.containersByName("A"))
+                .syncRun(3, TimeUnit.SECONDS);
+        Set<ContainerName> expected = data.containers("contAJ1", "contAJ2", "contAC1", "contAC2");
+
+        assertThat(result, is(expected));
+    }
+
+
+    @Test
+    public void getNamesOfServicesByHost() throws Exception {
+        Set<ServiceName> result = queryBuilder
+                .canonicalNames(ClaraFilters.servicesByHost("10.2.9.1"))
+                .syncRun(3, TimeUnit.SECONDS);
+        Set<ServiceName> expected = data.services("E1", "E3", "F1", "G1", "H1", "H2",
+                                                  "M1", "N1", "N2");
+
+        assertThat(result, is(expected));
+    }
+
+
+    @Test
+    public void getNamesOfServicesByDpe() throws Exception {
+        Set<ServiceName> result = queryBuilder
+                .canonicalNames(ClaraFilters.servicesByDpe(data.dpe("dpeC1")))
+                .syncRun(3, TimeUnit.SECONDS);
+        Set<ServiceName> expected = data.services("M1", "N1", "N2");
+
+        assertThat(result, is(expected));
+    }
+
+
+    @Test
+    public void getNamesOfServicesByContainer() throws Exception {
+        Set<ServiceName> result = queryBuilder
+                .canonicalNames(ClaraFilters.servicesByContainer(data.cont("contAJ1")))
+                .syncRun(3, TimeUnit.SECONDS);
+        Set<ServiceName> expected = data.services("E1", "F1", "G1");
+
+        assertThat(result, is(expected));
+    }
+
+
+    @Test
+    public void getNamesOfServicesByLanguage() throws Exception {
+        Set<ServiceName> result = queryBuilder
+                .canonicalNames(ClaraFilters.servicesByLanguage(ClaraLang.CPP))
+                .syncRun(3, TimeUnit.SECONDS);
+        Set<ServiceName> expected = data.services("M1", "M2", "N1", "N2");
+
+        assertThat(result, is(expected));
+    }
+
+
+    @Test
+    public void getNamesOfServicesByName() throws Exception {
+        Set<ServiceName> result = queryBuilder
+                .canonicalNames(ClaraFilters.servicesByName("E"))
+                .syncRun(3, TimeUnit.SECONDS);
+        Set<ServiceName> expected = data.services("E1", "E2", "E3");
+
+        assertThat(result, is(expected));
+    }
+
+
+    @Test
+    public void getNamesOfServicesByAuthor() throws Exception {
+        Set<ServiceName> result = queryBuilder
+                .canonicalNames(ClaraFilters.servicesByAuthor("Trevor"))
+                .syncRun(3, TimeUnit.SECONDS);
+        Set<ServiceName> expected = data.services("E1", "E2", "E3");
+
+        assertThat(result, is(expected));
+    }
+
+
+    @Test
+    public void getNamesOfServicesByDescription() throws Exception {
+        Set<ServiceName> result = queryBuilder
+                .canonicalNames(ClaraFilters.servicesByDescription(".*[Cc]alculate.*"))
+                .syncRun(3, TimeUnit.SECONDS);
+        Set<ServiceName> expected = data.services("E1", "E2", "E3", "H1", "H2");
+
+        assertThat(result, is(expected));
+    }
+
+
+    @Test
+    public void getNamesOfMissingDpes() throws Exception {
+        Set<DpeName> result = queryBuilder
+                .canonicalNames(ClaraFilters.dpesByHost("10.2.9.3"))
+                .syncRun(3, TimeUnit.SECONDS);
+
+        assertThat(result, is(empty()));
+    }
+
+
+    @Test
+    public void getNamesOfMissingContainers() throws Exception {
+        Set<ContainerName> result = queryBuilder
+                .canonicalNames(ClaraFilters.containersByName("Z"))
+                .syncRun(3, TimeUnit.SECONDS);
+
+        assertThat(result, is(empty()));
+    }
+
+
+    @Test
+    public void getNamesOfMissingServices() throws Exception {
+        Set<ServiceName> result = queryBuilder
+                .canonicalNames(ClaraFilters.servicesByAuthor("CJ"))
+                .syncRun(3, TimeUnit.SECONDS);
+
+        assertThat(result, is(empty()));
+    }
+
+
+    @Test
+    public void discoverRegisteredDpe() throws Exception {
+        Boolean result = queryBuilder.discover(new DpeName("10.2.9.1_java"))
+                                     .syncRun(3, TimeUnit.SECONDS);
+
+        assertThat(result, is(true));
+    }
+
+
+    @Test
+    public void discoverRegisteredContainer() throws Exception {
+        Boolean result = queryBuilder.discover(new ContainerName("10.2.9.1_cpp:C"))
+                                     .syncRun(3, TimeUnit.SECONDS);
+
+        assertThat(result, is(true));
+    }
+
+
+    @Test
+    public void discoverRegisteredService() throws Exception {
+        Boolean result = queryBuilder.discover(new ServiceName("10.2.9.1_java:B:H"))
+                                     .syncRun(3, TimeUnit.SECONDS);
+
+        assertThat(result, is(true));
+    }
+
+
+    @Test
+    public void discoverMissingDpe() throws Exception {
+        Boolean result = queryBuilder.discover(new DpeName("10.2.9.1_python"))
+                                     .syncRun(3, TimeUnit.SECONDS);
+
+        assertThat(result, is(false));
+    }
+
+
+    @Test
+    public void discoverMissingContainer() throws Exception {
+        Boolean result = queryBuilder.discover(new ContainerName("10.2.9.1_cpp:B"))
+                                     .syncRun(3, TimeUnit.SECONDS);
+
+        assertThat(result, is(false));
+    }
+
+
+    @Test
+    public void discoverMissingService() throws Exception {
+        Boolean result = queryBuilder.discover(new ServiceName("10.2.9.1_java:A:H"))
+                                     .syncRun(3, TimeUnit.SECONDS);
+
+        assertThat(result, is(false));
+    }
+
 
     private static ClaraBase base() {
         return new ClaraBase(ClaraComponent.dpe(), ClaraComponent.dpe()) {
