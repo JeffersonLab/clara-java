@@ -298,6 +298,52 @@ public final class ClaraQueries {
 
 
     /**
+     * A query to get the runtime data of the registered CLARA components.
+     *
+     * @param <T> The runtime data class of the components
+     */
+    public static final class RuntimeQuery<T>
+            extends DpeQuery<RuntimeQuery<T>, T, Set<T>> {
+
+        RuntimeQuery(ClaraBase base,
+                     ClaraComponent frontEnd,
+                     ClaraFilter filter,
+                     BiFunction<JSONObject, String, Stream<JSONObject>> parseQuery,
+                     Function<JSONObject, T> parseData) {
+            super(base, frontEnd, filter, parseQuery, parseData, ClaraConstants.RUNTIME_KEY);
+        }
+
+        @Override
+        protected Set<T> collect(Stream<xMsgRegRecord> regData, long timeout) {
+            return query(regData, timeout).collect(Collectors.toSet());
+        }
+    }
+
+
+    /**
+     * A query to get the runtime data of a specific CLARA component.
+     *
+     * @param <T> The runtime data class of the component
+     */
+    public static final class RuntimeData<T>
+            extends DpeQuery<RuntimeData<T>, T, Optional<T>> {
+
+        RuntimeData(ClaraBase base,
+                    ClaraComponent frontEnd,
+                    ClaraFilter filter,
+                    BiFunction<JSONObject, String, Stream<JSONObject>> parseQuery,
+                    Function<JSONObject, T> parseData) {
+            super(base, frontEnd, filter, parseQuery, parseData, ClaraConstants.RUNTIME_KEY);
+        }
+
+        @Override
+        protected Optional<T> collect(Stream<xMsgRegRecord> regData, long timeout) {
+            return query(regData, timeout).findFirst();
+        }
+    }
+
+
+    /**
      * Builds a request to query the CLARA registration and runtime database.
      */
     public static class ClaraQueryBuilder {
@@ -452,6 +498,80 @@ public final class ClaraQueries {
             return new RegistrationData<>(base, frontEnd, ClaraFilters.service(name),
                                           JsonUtils::serviceStream,
                                           ServiceRegistrationData::new);
+        }
+
+
+        /**
+         * Creates a query to get the runtime data of the selected DPEs.
+         *
+         * @param filter a filter to select DPEs
+         * @return the query to get the runtime data of the registered DPEs
+         *         that match the filter
+         */
+        public RuntimeQuery<DpeRuntimeData> runtimeData(DpeFilter filter) {
+            return new RuntimeQuery<>(base, frontEnd, filter,
+                                      JsonUtils::dpeStream, DpeRuntimeData::new);
+        }
+
+        /**
+         * Creates a query to get the runtime data of the selected containers.
+         *
+         * @param filter a filter to select containers
+         * @return the query to get the runtime data of the registered containers
+         *         that match the filter
+         */
+        public RuntimeQuery<ContainerRuntimeData> runtimeData(ContainerFilter filter) {
+            return new RuntimeQuery<>(base, frontEnd, filter,
+                                      JsonUtils::containerStream,
+                                      ContainerRuntimeData::new);
+        }
+
+        /**
+         * Creates a query to get the runtime data of the selected services.
+         *
+         * @param filter a filter to select services
+         * @return the query to get the runtime data of the registered services
+         *         that match the filter
+         */
+        public RuntimeQuery<ServiceRuntimeData> runtimeData(ServiceFilter filter) {
+            return new RuntimeQuery<>(base, frontEnd, filter,
+                                      JsonUtils::serviceStream,
+                                      ServiceRuntimeData::new);
+        }
+
+        /**
+         * Creates a query to get the runtime data of a specific DPE.
+         *
+         * @param name the name of the selected DPE
+         * @return the query to get the runtime data of the given DPE
+         */
+        public RuntimeData<DpeRuntimeData> runtimeData(DpeName name) {
+            return new RuntimeData<>(base, frontEnd, ClaraFilters.dpe(name),
+                                     JsonUtils::dpeStream, DpeRuntimeData::new);
+        }
+
+        /**
+         * Creates a query to get the runtime data of a specific container.
+         *
+         * @param name the name of the selected container
+         * @return the query to get the runtime data of the given container
+         */
+        public RuntimeData<ContainerRuntimeData> runtimeData(ContainerName name) {
+            return new RuntimeData<>(base, frontEnd, ClaraFilters.container(name),
+                                     JsonUtils::containerStream,
+                                     ContainerRuntimeData::new);
+        }
+
+        /**
+         * Creates a query to get the runtime data of a specific service.
+         *
+         * @param name the name of the selected service
+         * @return the query to get the runtime data of the given service
+         */
+        public RuntimeData<ServiceRuntimeData> runtimeData(ServiceName name) {
+            return new RuntimeData<>(base, frontEnd, ClaraFilters.service(name),
+                                     JsonUtils::serviceStream,
+                                     ServiceRuntimeData::new);
         }
     }
 }
