@@ -32,12 +32,10 @@ import org.jlab.coda.xmsg.core.xMsgUtil;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.text.Format;
-import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -53,6 +51,9 @@ import java.util.regex.Pattern;
  */
 @ParametersAreNonnullByDefault
 public final class ClaraUtil {
+
+    private static final DateTimeFormatter FORMATTER =
+            DateTimeFormatter.ofPattern(ClaraConstants.DATE_FORMAT);
 
     /**
      * Regex to validate a full canonical name.
@@ -335,35 +336,17 @@ public final class ClaraUtil {
      * Gets the current time and returns string representation of it.
      * @return string representing the current time.
      */
-    public static String getCurrentTimeInH() {
-        Format formatter = new SimpleDateFormat("HH:mm:ss MM/dd");
-        return formatter.format(new Date());
-    }
-
-    /**
-     * Gets the current time and returns string representation of it.
-     * @return string representing the current time.
-     */
     public static String getCurrentTime() {
-        Format formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        return formatter.format(new Date());
+        return LocalDateTime.now().format(FORMATTER);
     }
 
     /**
      * Gets the current time and returns string representation of it.
      * @return string representing the current time.
      */
-    public static String getCurrentTime(String format) {
-        Format formatter = new SimpleDateFormat(format);
-        return formatter.format(new Date());
-    }
-
-    /**
-     * Current time in milli-seconds.
-     * @return current time in ms.
-     */
-    public static long getCurrentTimeInMs() {
-        return new GregorianCalendar().getTimeInMillis();
+    public static String getCurrentTime(String pattern) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
+        return LocalDateTime.now().format(formatter);
     }
 
     public static void sleep(long millis) {

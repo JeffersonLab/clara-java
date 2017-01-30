@@ -72,6 +72,8 @@ public final class ClaraConstants {
 
     public static final String SET_SESSION = "setSession";
 
+    public static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
+
     public static final String REPORT_REGISTRATION = "reportRegistration";
     public static final String REPORT_RUNTIME = "reportRuntime";
 

@@ -22,19 +22,20 @@
 
 package org.jlab.clara.sys;
 
-import java.text.Format;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 final class Logging {
 
     private static final Object LOCK = new Object();
-    private static final Format FORMATTER = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    private static final DateTimeFormatter FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
 
     private Logging() { }
 
     static String getCurrentTime() {
-        return FORMATTER.format(new Date());
+        return FORMATTER.format(LocalDateTime.now());
     }
 
     static void info(String format, Object... args) {
