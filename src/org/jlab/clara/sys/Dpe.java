@@ -197,6 +197,9 @@ public final class Dpe extends AbstractActor {
 
         /**
          * Uses the given host for the local address.
+         *
+         * @param host the local address for the DPE
+         * @return this builder, so methods can be chained
          */
         public Builder withHost(String host) {
             localAddress = new xMsgProxyAddress(host, localAddress.pubPort());
@@ -208,6 +211,9 @@ public final class Dpe extends AbstractActor {
 
         /**
          * Uses the given port for the local address.
+         *
+         * @param port the local port for the DPE
+         * @return this builder, so methods can be chained
          */
         public Builder withPort(int port) {
             localAddress = new xMsgProxyAddress(localAddress.host(), port);
@@ -219,6 +225,9 @@ public final class Dpe extends AbstractActor {
 
         /**
          * Sets a session for this DPE.
+         *
+         * @param id the session ID for the DPE
+         * @return this builder, so methods can be chained
          */
         public Builder withSession(String id) {
             Objects.requireNonNull(id, "id parameter is null");
@@ -228,6 +237,10 @@ public final class Dpe extends AbstractActor {
 
         /**
          * Sets the interval of time between publishing reports.
+         *
+         * @param interval the report interval for the DPE
+         * @param unit the time unit for the report interval
+         * @return this builder, so methods can be chained
          */
         public Builder withReportPeriod(long interval, TimeUnit unit) {
             if (interval <= 0) {
@@ -239,6 +252,9 @@ public final class Dpe extends AbstractActor {
 
         /**
          * Sets the size of the thread-pool that will process requests.
+         *
+         * @param poolSize the size of the thread-pool
+         * @return this builder, so methods can be chained
          */
         public Builder withPoolSize(int poolSize) {
             if (poolSize <= 0) {
@@ -250,6 +266,9 @@ public final class Dpe extends AbstractActor {
 
         /**
          * Sets the number of cores that a service can use in parallel.
+         *
+         * @param maxCores the maximum number of cores for a service
+         * @return this builder, so methods can be chained
          */
         public Builder withMaxCores(int maxCores) {
             if (maxCores <= 0) {
@@ -262,6 +281,9 @@ public final class Dpe extends AbstractActor {
 
         /**
          * Sets a description for this DPE.
+         *
+         * @param description the description of the DPE
+         * @return this builder, so methods can be chained
          */
         public Builder withDescription(String description) {
             Objects.requireNonNull(description, "description parameter is null");
@@ -271,6 +293,8 @@ public final class Dpe extends AbstractActor {
 
         /**
          * Creates the DPE.
+         *
+         * @return a new DPE
          */
         public Dpe build() {
             DpeConfig config = new DpeConfig(poolSize, maxCores, reportPeriod);
