@@ -30,9 +30,7 @@ import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.sys.DpeOptionsParser.DpeOptionsException;
 import org.jlab.clara.sys.RequestParser.RequestException;
 import org.jlab.clara.util.report.DpeReport;
-import org.jlab.clara.util.report.JinFluxReportBuilder;
 import org.jlab.clara.util.report.JsonReportBuilder;
-import org.jlab.coda.jinflux.JinFluxException;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgConnection;
 import org.jlab.coda.xmsg.core.xMsgConnectionPool;
@@ -647,7 +645,6 @@ public final class Dpe extends AbstractActor {
 
         private final DpeReport myReport;
         private final JsonReportBuilder myReportBuilder = new JsonReportBuilder();
-        private final JinFluxReportBuilder myFluxReportBuilder;
 
         private final ScheduledExecutorService scheduledPingService;
         private final AtomicBoolean isReporting = new AtomicBoolean();
@@ -657,19 +654,9 @@ public final class Dpe extends AbstractActor {
         ReportService(long periodMillis, String session) {
             myReport = new DpeReport(base, session);
             myReport.setPoolSize(base.getPoolSize());
-            myFluxReportBuilder = fluxReport("claraweb.jlab.org", "clara", session);
             scheduledPingService = Executors.newSingleThreadScheduledExecutor();
             reportPeriod = periodMillis;
             this.session = session;
-        }
-
-        private JinFluxReportBuilder fluxReport(String node, String name, String session) {
-            try {
-                return new JinFluxReportBuilder(node, name, session);
-            } catch (JinFluxException e) {
-                e.printStackTrace();
-                return null;
-            }
         }
 
         public void start() {
@@ -710,10 +697,6 @@ public final class Dpe extends AbstractActor {
             return myReportBuilder.generateReport(myReport);
         }
 
-        public String jinFluxReport() {
-            return myFluxReportBuilder.generateReport(myReport);
-        }
-
         private xMsgMessage aliveMessage() {
             xMsgTopic topic = xMsgTopic.build(ClaraConstants.DPE_ALIVE, session, base.getName());
             return MessageUtil.buildRequest(topic, aliveReport());
@@ -733,9 +716,6 @@ public final class Dpe extends AbstractActor {
                     while (isReporting.get()) {
                         base.send(con, aliveMessage());
                         base.send(con, jsonMessage());
-                        // @todo report to influxDB database 11.18.16.
-                        // THis is temporary solution and must be removed.
-                        jinFluxReport();
                         xMsgUtil.sleep(reportPeriod);
                     }
                 } catch (xMsgException e) {
