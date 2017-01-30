@@ -23,7 +23,6 @@
 package org.jlab.clara.base;
 
 import org.jlab.clara.base.core.ClaraConstants;
-import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.engine.EngineStatus;
 import org.jlab.coda.xmsg.core.xMsgConstants;
@@ -33,12 +32,10 @@ import org.jlab.coda.xmsg.core.xMsgUtil;
 import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.text.Format;
-import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
-import java.util.GregorianCalendar;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -54,6 +51,9 @@ import java.util.regex.Pattern;
  */
 @ParametersAreNonnullByDefault
 public final class ClaraUtil {
+
+    private static final DateTimeFormatter FORMATTER =
+            DateTimeFormatter.ofPattern(ClaraConstants.DATE_FORMAT);
 
     /**
      * Regex to validate a full canonical name.
@@ -135,29 +135,29 @@ public final class ClaraUtil {
     }
 
 
-    public static String getDpeName(String canonicalName) throws ClaraException {
+    public static String getDpeName(String canonicalName) {
         if (!isCanonicalName(canonicalName)) {
-            throw new ClaraException("Clara-Error: not a canonical name");
+            throw new IllegalArgumentException("Not a canonical name: " + canonicalName);
         }
         xMsgTopic topic = xMsgTopic.wrap(canonicalName);
         return topic.domain();
     }
 
-    public static String getContainerName(String canonicalName) throws ClaraException {
+    public static String getContainerName(String canonicalName) {
         if (!isCanonicalName(canonicalName)) {
-            throw new ClaraException("Clara-Error: not a canonical name");
+            throw new IllegalArgumentException("Not a canonical name: " + canonicalName);
         }
         xMsgTopic topic = xMsgTopic.wrap(canonicalName);
         return topic.subject();
     }
 
-    public static String getContainerCanonicalName(String canonicalName) throws ClaraException {
+    public static String getContainerCanonicalName(String canonicalName) {
         if (!isCanonicalName(canonicalName)) {
-            throw new ClaraException("Clara-Error: not a canonical name");
+            throw new IllegalArgumentException("Not a canonical name: " + canonicalName);
         }
         int firstSep = canonicalName.indexOf(xMsgConstants.TOPIC_SEP);
         if (firstSep < 0) {
-            throw new ClaraException("Clara-Error: not a container or service name");
+            throw new IllegalArgumentException("Not a container name: " + canonicalName);
         }
         int secondSep = canonicalName.indexOf(xMsgConstants.TOPIC_SEP, firstSep + 1);
         if (secondSep < 0) {
@@ -166,17 +166,17 @@ public final class ClaraUtil {
         return canonicalName.substring(0, secondSep);
     }
 
-    public static String getEngineName(String canonicalName) throws ClaraException {
+    public static String getEngineName(String canonicalName) {
         if (!isCanonicalName(canonicalName)) {
-            throw new ClaraException("Clara-Error: not a canonical name");
+            throw new IllegalArgumentException("Not a canonical name: " + canonicalName);
         }
         xMsgTopic topic = xMsgTopic.wrap(canonicalName);
         return topic.type();
     }
 
-    public static String getDpeHost(String canonicalName) throws ClaraException {
+    public static String getDpeHost(String canonicalName) {
         if (!isCanonicalName(canonicalName)) {
-            throw new ClaraException("Clara-Error: not a canonical name");
+            throw new IllegalArgumentException("Not a canonical name: " + canonicalName);
         }
         int portSep = canonicalName.indexOf(ClaraConstants.PORT_SEP);
         if (portSep > 0) {
@@ -187,9 +187,9 @@ public final class ClaraUtil {
         }
     }
 
-    public static int getDpePort(String canonicalName) throws ClaraException {
+    public static int getDpePort(String canonicalName) {
         if (!isCanonicalName(canonicalName)) {
-            throw new ClaraException("Clara-Error: not a canonical name");
+            throw new IllegalArgumentException("Not a canonical name: " + canonicalName);
         }
         int portSep = canonicalName.indexOf(ClaraConstants.PORT_SEP);
         int langSep = canonicalName.indexOf(ClaraConstants.LANG_SEP);
@@ -201,9 +201,9 @@ public final class ClaraUtil {
         }
     }
 
-    public static String getDpeLang(String canonicalName) throws ClaraException {
+    public static String getDpeLang(String canonicalName) {
         if (!isCanonicalName(canonicalName)) {
-            throw new ClaraException("Clara-Error: not a canonical name");
+            throw new IllegalArgumentException("Not a canonical name: " + canonicalName);
         }
         String dpeName = getDpeName(canonicalName);
         return dpeName.substring(dpeName.indexOf(ClaraConstants.LANG_SEP) + 1);
@@ -336,35 +336,17 @@ public final class ClaraUtil {
      * Gets the current time and returns string representation of it.
      * @return string representing the current time.
      */
-    public static String getCurrentTimeInH() {
-        Format formatter = new SimpleDateFormat("HH:mm:ss MM/dd");
-        return formatter.format(new Date());
-    }
-
-    /**
-     * Gets the current time and returns string representation of it.
-     * @return string representing the current time.
-     */
     public static String getCurrentTime() {
-        Format formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        return formatter.format(new Date());
+        return LocalDateTime.now().format(FORMATTER);
     }
 
     /**
      * Gets the current time and returns string representation of it.
      * @return string representing the current time.
      */
-    public static String getCurrentTime(String format) {
-        Format formatter = new SimpleDateFormat(format);
-        return formatter.format(new Date());
-    }
-
-    /**
-     * Current time in milli-seconds.
-     * @return current time in ms.
-     */
-    public static long getCurrentTimeInMs() {
-        return new GregorianCalendar().getTimeInMillis();
+    public static String getCurrentTime(String pattern) {
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
+        return LocalDateTime.now().format(formatter);
     }
 
     public static void sleep(long millis) {

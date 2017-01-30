@@ -23,7 +23,6 @@
 package org.jlab.clara.base;
 
 import org.jlab.clara.base.core.ClaraConstants;
-import org.jlab.clara.base.error.ClaraException;
 
 /**
  * The name of a Clara DPE.
@@ -71,15 +70,11 @@ public class DpeName implements ClaraName {
         if (!ClaraUtil.isCanonicalName(canonicalName)) {
             throw new IllegalArgumentException("Invalid canonical name: " + canonicalName);
         }
-        try {
-            String host = ClaraUtil.getDpeHost(canonicalName);
-            int port = ClaraUtil.getDpePort(canonicalName);
-            address = new ClaraAddress(host, port);
-            language = ClaraLang.fromString(ClaraUtil.getDpeLang(canonicalName));
-            name = canonicalName;
-        } catch (ClaraException e) {
-            throw new IllegalArgumentException("Invalid canonical name: " + canonicalName, e);
-        }
+        String host = ClaraUtil.getDpeHost(canonicalName);
+        int port = ClaraUtil.getDpePort(canonicalName);
+        this.address = new ClaraAddress(host, port);
+        this.language = ClaraLang.fromString(ClaraUtil.getDpeLang(canonicalName));
+        this.name = canonicalName;
     }
 
     @Override

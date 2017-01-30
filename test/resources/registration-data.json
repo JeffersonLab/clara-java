@@ -1,0 +1,74 @@
+{
+  "DPERegistration": {
+    "name": "10.1.1.10_java",
+    "language": "java",
+    "start_time": "2015-06-20 12:30:00",
+    "clara_home": "/home/user/clara",
+    "n_cores": 8,
+    "memory_size": 1908932608,
+    "containers": [
+      {
+        "name": "10.1.1.10_java:trevor",
+        "language": "java",
+        "start_time": "2015-06-20 12:30:30",
+        "author": "Trevor",
+        "services": [
+          {
+            "name": "10.1.1.10_java:franklin:Engine1",
+            "class_name": "org.jlab.clara.examples.Engine1",
+            "language": "java",
+            "pool_size": 4,
+            "start_time": "2015-06-20 12:30:50",
+            "author": "Trevor",
+            "version": "1.1",
+            "description": "Some long description of what it does."
+          },
+          {
+            "name": "10.1.1.10_java:franklin:Engine2",
+            "class_name": "org.jlab.clara.examples.Engine2",
+            "language": "java",
+            "pool_size": 4,
+            "start_time": "2015-06-20 12:40:00",
+            "author": "Trevor",
+            "version": "1.0",
+            "description": "Some description of what it does."
+          }
+        ]
+      },
+      {
+        "name": "10.1.1.10_java:franklin",
+        "language": "java",
+        "start_time": "2015-06-20 12:32:30",
+        "author": "Franklin",
+        "services": [
+          {
+            "name": "10.1.1.10_java:franklin:Engine2",
+            "class_name": "org.jlab.clara.examples.Engine2",
+            "language": "java",
+            "pool_size": 2,
+            "start_time": "2015-06-20 12:33:00",
+            "author": "Trevor",
+            "version": "1.0",
+            "description": "Some description of what it does."
+          },
+          {
+            "name": "10.1.1.10_java:franklin:Engine3",
+            "class_name": "org.jlab.clara.examples.Engine3",
+            "language": "java",
+            "pool_size": 2,
+            "start_time": "2015-06-20 12:33:30",
+            "author": "Franklin",
+            "version": "1.2",
+            "description": "Some description of what it does."
+          }
+        ]
+      },
+      {
+        "name": "10.1.1.10_java:michael",
+        "start_time": "2015-06-20 12:34:00",
+        "author": "Michael",
+        "services": []
+      }
+    ]
+  }
+}

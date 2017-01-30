@@ -23,6 +23,7 @@
 package org.jlab.clara.util.report;
 
 import org.jlab.clara.base.ClaraUtil;
+import org.jlab.clara.base.core.ClaraConstants;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -37,7 +38,8 @@ public class JsonReportBuilder implements ExternalReport {
         String snapshotTime = ClaraUtil.getCurrentTime();
 
         JSONObject dpeRuntime = new JSONObject();
-        dpeRuntime.put("hostname", dpeData.getHost());
+        dpeRuntime.put("hostname", dpeData.getHost()); // keep it to not break existing clients
+        dpeRuntime.put("name", dpeData.getHost());
         dpeRuntime.put("snapshot_time", snapshotTime);
         dpeRuntime.put("cpu_usage", dpeData.getCpuUsage());
         dpeRuntime.put("memory_usage", dpeData.getMemoryUsage());
@@ -79,7 +81,8 @@ public class JsonReportBuilder implements ExternalReport {
         dpeRuntime.put("containers", containersRuntimeArray);
 
         JSONObject dpeRegistration = new JSONObject();
-        dpeRegistration.put("hostname", dpeData.getHost());
+        dpeRegistration.put("hostname", dpeData.getHost()); // keep it to not break existing clients
+        dpeRegistration.put("name", dpeData.getHost());
         dpeRegistration.put("language", dpeData.getLang());
         dpeRegistration.put("clara_home", dpeData.getClaraHome());
         dpeRegistration.put("n_cores", dpeData.getCoreCount());
@@ -117,8 +120,8 @@ public class JsonReportBuilder implements ExternalReport {
         dpeRegistration.put("containers", containersRegistrationArray);
 
         JSONObject dpeJsonData = new JSONObject();
-        dpeJsonData.put("DPERuntime", dpeRuntime);
-        dpeJsonData.put("DPERegistration", dpeRegistration);
+        dpeJsonData.put(ClaraConstants.RUNTIME_KEY, dpeRuntime);
+        dpeJsonData.put(ClaraConstants.REGISTRATION_KEY, dpeRegistration);
 
         return dpeJsonData.toString();
     }

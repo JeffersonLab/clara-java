@@ -22,7 +22,6 @@
 
 package org.jlab.clara.base;
 
-import org.jlab.clara.base.error.ClaraException;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 
 public class ContainerName implements ClaraName {
@@ -63,14 +62,9 @@ public class ContainerName implements ClaraName {
         if (!ClaraUtil.isContainerName(canonicalName)) {
             throw new IllegalArgumentException("Invalid container name: " + canonicalName);
         }
-        try {
-            this.dpe = new DpeName(ClaraUtil.getDpeName(canonicalName));
-            this.name = ClaraUtil.getContainerName(canonicalName);
-            this.canonicalName = canonicalName;
-        } catch (ClaraException e) {
-            // TODO Auto-generated catch block
-            throw new IllegalArgumentException("Invalid container name: " + canonicalName);
-        }
+        this.dpe = new DpeName(ClaraUtil.getDpeName(canonicalName));
+        this.name = ClaraUtil.getContainerName(canonicalName);
+        this.canonicalName = canonicalName;
     }
 
     @Override

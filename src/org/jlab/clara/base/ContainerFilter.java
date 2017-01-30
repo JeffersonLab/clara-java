@@ -1,5 +1,5 @@
 /*
- *   Copyright (c) 2016.  Jefferson Lab (JLab). All rights reserved. Permission
+ *   Copyright (c) 2017.  Jefferson Lab (JLab). All rights reserved. Permission
  *   to use, copy, modify, and distribute  this software and its documentation for
  *   educational, research, and not-for-profit purposes, without fee and without a
  *   signed licensing agreement.
@@ -20,39 +20,17 @@
  *   Department of Experimental Nuclear Physics, Jefferson Lab.
  */
 
-package org.jlab.clara.sys;
+package org.jlab.clara.base;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
+import org.jlab.coda.xmsg.data.xMsgRegQuery;
 
-final class Logging {
+/**
+ * A filter to select containers.
+ * Use the {@link ClaraFilters} factory to choose one of the filters.
+ */
+public final class ContainerFilter extends ClaraFilter {
 
-    private static final Object LOCK = new Object();
-    private static final DateTimeFormatter FORMATTER =
-            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
-
-    private Logging() { }
-
-    static String getCurrentTime() {
-        return FORMATTER.format(LocalDateTime.now());
-    }
-
-    static void info(String format, Object... args) {
-        String currentTime = getCurrentTime();
-        synchronized (LOCK) {
-            System.out.printf("%s: ", currentTime);
-            System.out.printf(format, args);
-            System.out.println();
-        }
-    }
-
-    static void error(String format, Object... args) {
-        String currentTime = getCurrentTime();
-        synchronized (LOCK) {
-            System.err.printf("%s: ", currentTime);
-            System.err.printf(format, args);
-            System.err.println();
-        }
+    ContainerFilter(xMsgRegQuery query) {
+        super(query, TYPE_CONTAINER);
     }
 }

@@ -28,6 +28,7 @@ import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
 
 import org.jlab.clara.base.BaseOrchestrator;
+import org.jlab.clara.base.ClaraFilters;
 import org.jlab.clara.base.ClaraLang;
 import org.jlab.clara.base.ClaraUtil;
 import org.jlab.clara.base.Composition;
@@ -345,9 +346,9 @@ public class OrInteractive extends BaseOrchestrator {
         if (dpeHost.isEmpty()) {
             dpeHost = defaultHost;
         }
-        for (String name : getContainerNames(dpeHost)) {
-            System.out.println(name);
-        }
+        query().canonicalNames(ClaraFilters.containersByHost(dpeHost))
+               .syncRun(5, TimeUnit.SECONDS)
+               .forEach(System.out::println);
     }
 
     private void printHelp() {

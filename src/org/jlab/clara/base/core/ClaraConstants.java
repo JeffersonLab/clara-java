@@ -72,8 +72,14 @@ public final class ClaraConstants {
 
     public static final String SET_SESSION = "setSession";
 
+    public static final String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
+
     public static final String REPORT_REGISTRATION = "reportRegistration";
     public static final String REPORT_RUNTIME = "reportRuntime";
+    public static final String REPORT_JSON = "reportJson";
+
+    public static final String REGISTRATION_KEY = "DPERegistration";
+    public static final String RUNTIME_KEY = "DPERuntime";
 
     public static final String SHARED_MEMORY_KEY = "clara/shmkey";
 
