@@ -97,6 +97,13 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 }
 
 
+test {
+    testLogging {
+        exceptionFormat = 'full'
+    }
+}
+
+
 artifacts {
     archives javadocJar
     archives sourcesJar
