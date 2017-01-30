@@ -194,7 +194,7 @@ __Notes__: `<session>` is optional.
 ```json
 {
   "DPERegistration": {
-    "hostname": "10.1.1.10_java",
+    "name": "10.1.1.10_java",
     "language": "java",
     "start_time": "2015-06-20 12:30:00",
     "clara_home": "/home/user/clara",
@@ -245,7 +245,7 @@ __Notes__: `<session>` is optional.
 ```json
 {
   "DPERuntime": {
-    "hostname": "10.1.1.10_java",
+    "name": "10.1.1.10_java",
     "snapshot_time": "2015-06-20 12:35:00",
     "cpu_usage" : 45.2,
     "memory_usage" : 631222786,
