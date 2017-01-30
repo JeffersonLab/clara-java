@@ -9,6 +9,10 @@ cache:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
 
+env:
+  global:
+    - CLARA_HOME=$HOME/clara-home
+
 matrix:
   include:
     - os: linux
