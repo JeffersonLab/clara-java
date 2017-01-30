@@ -76,6 +76,7 @@ public final class ClaraConstants {
 
     public static final String REPORT_REGISTRATION = "reportRegistration";
     public static final String REPORT_RUNTIME = "reportRuntime";
+    public static final String REPORT_JSON = "reportJson";
 
     public static final String REGISTRATION_KEY = "DPERegistration";
     public static final String RUNTIME_KEY = "DPERuntime";
