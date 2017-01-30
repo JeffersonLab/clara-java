@@ -7,4 +7,9 @@
 <suppressions>
   <suppress checks="." files="org[\\/]jlab[\\/]clara[\\/]claraol"/>
   <suppress checks="." files="org[\\/]jlab[\\/]clara[\\/]sys[\\/]ccc"/>
+  <!-- ignore Javadoc -->
+  <suppress checks="Javadoc.*" files="org[\\/]jlab[\\/]clara[\\/]base[\\/]core"/>
+  <suppress checks="Javadoc.*" files="org[\\/]jlab[\\/]clara[\\/]cli"/>
+  <suppress checks="Javadoc.*" files="org[\\/]jlab[\\/]clara[\\/]util"/>
+  <suppress checks="Javadoc.*" files=".*Test\.java"/>
 </suppressions>
