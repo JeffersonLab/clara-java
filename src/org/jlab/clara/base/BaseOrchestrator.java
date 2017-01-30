@@ -22,6 +22,7 @@
 
 package org.jlab.clara.base;
 
+import org.jlab.clara.base.ClaraQueries.ClaraQueryBuilder;
 import org.jlab.clara.base.ClaraRequests.DeployContainerRequest;
 import org.jlab.clara.base.ClaraRequests.DeployServiceRequest;
 import org.jlab.clara.base.ClaraRequests.ExitRequest;
@@ -39,9 +40,6 @@ import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgSubscription;
 import org.jlab.coda.xmsg.core.xMsgTopic;
-import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
-import org.jlab.coda.xmsg.data.xMsgRegQuery;
-import org.jlab.coda.xmsg.data.xMsgRegRecord;
 import org.jlab.coda.xmsg.excp.xMsgException;
 
 import javax.annotation.ParametersAreNonnullByDefault;
@@ -53,7 +51,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeoutException;
-import java.util.stream.Collectors;
 
 
 /**
@@ -372,80 +369,20 @@ public class BaseOrchestrator {
     }
 
 
-
     /**
-     * Uses a default registrar service address (defined at the
-     * constructor) to ask the Set of registered DPEs.
+     * Returns a query builder to query the registration/runtime database to
+     * discover registered components or obtain the registration/runtime
+     * information.
+     * <p>
+     * To create the query use a {@link ClaraFilter} to filter which components
+     * should be selected, or a {@link ClaraName} for a specific component.
      *
-     * @return Set of DPE names: String
-     * @throws ClaraException
-     * @throws xMsgException
+     * @return a builder to create the desired query
      */
-    public Set<String> getDpeNames() throws ClaraException, xMsgException {
-        xMsgTopic topic = xMsgTopic.build(ClaraConstants.DPE);
-        return base.discover(xMsgRegQuery.subscribers(topic))
-                   .stream()
-                   .map(xMsgRegRecord::name)
-                   .collect(Collectors.toSet());
+    public ClaraQueryBuilder query() {
+        return new ClaraQueryBuilder(base, base.getFrontEnd());
     }
 
-    /**
-     * Returns the names of all service containers of a particular DPE.
-     * Request goes to the default registrar service, defined at the constructor.
-     *
-     * @param dpeName canonical name of a DPE
-     * @return Set of container names of a DPE
-     * @throws ClaraException
-     * @throws xMsgException
-     */
-    public Set<String> getContainerNames(String dpeName) throws ClaraException, xMsgException {
-        xMsgTopic topic = xMsgTopic.build(ClaraConstants.CONTAINER, dpeName);
-        return base.discover(xMsgRegQuery.subscribers(topic))
-                   .stream()
-                   .map(xMsgRegRecord::name)
-                   .collect(Collectors.toSet());
-    }
-
-    /**
-     * Returns service engine names of a particular container of a particular DPE.
-     * Request goes to the default registrar service, defined at the constructor.
-     *
-     * @param dpeName  canonical name of a DPE
-     * @param containerName canonical name of a container
-     * @return Set of service engine names
-     * @throws ClaraException
-     * @throws xMsgException
-     */
-    public Set<String> getEngineNames(String dpeName, String containerName)
-            throws ClaraException, xMsgException {
-        xMsgTopic topic = xMsgTopic.build(dpeName, containerName);
-        return base.discover(xMsgRegQuery.subscribers(topic))
-                   .stream()
-                   .map(xMsgRegRecord::name)
-                   .collect(Collectors.toSet());
-    }
-
-    /**
-     * Returns the registration information of a selected Clara actor.
-     * The actor can be a DPE, a container or a service.
-     *
-     * @param canonicalName the name of the actor
-     * @return Set of {@link org.jlab.coda.xmsg.data.xMsgR.xMsgRegistration} objects
-     */
-    public Set<xMsgRegRecord> getRegistrationInfo(String canonicalName)
-            throws ClaraException, xMsgException {
-        xMsgTopic topic = xMsgTopic.wrap(canonicalName);
-        return base.discover(xMsgRegQuery.subscribers(topic));
-    }
-
-
-    public String meta2Json(xMsgMeta meta) throws ClaraException {
-        throw new UnsupportedOperationException("Not implemented yet");
-    }
-
-    public String reg2Json(xMsgRegRecord regData) throws ClaraException {
-        throw new UnsupportedOperationException("Not implemented yet");
-    }
 
     /**
      * Returns this orchestrator name.
