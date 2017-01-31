@@ -66,7 +66,7 @@ public class OrInteractive extends BaseOrchestrator {
     private final String defaultHost;
     private final String defaultContainer;
 
-    public OrInteractive() throws Exception {
+    OrInteractive() throws Exception {
         super();
         defaultHost = ClaraUtil.localhost();
         defaultContainer = System.getenv("USER");
@@ -124,7 +124,7 @@ public class OrInteractive extends BaseOrchestrator {
         }
     }
 
-    public void read(String appFile, boolean bluster) throws Exception {
+    void read(String appFile, boolean bluster) throws Exception {
         // read xml file and get deployment details
         Document doc = ApplicationParser.getXMLDocument(appFile);
 
@@ -143,7 +143,7 @@ public class OrInteractive extends BaseOrchestrator {
         }
     }
 
-    public void interactive() throws Exception {
+    void interactive() throws Exception {
         Scanner scanner = new Scanner(System.in);
         while (true) {
             try {
