@@ -80,11 +80,10 @@ public final class ApplicationParser {
         return doc;
     }
 
-    // CHECKSTYLE.OFF: JavadocStyle
     /**
      * Parser for the XML having a structure:
      * <pre>
-     * {@code
+     * {@literal
      * <containerTag>
      *   <tag>value</tag>
      *   .....
@@ -104,7 +103,6 @@ public final class ApplicationParser {
      * @param tags         tag names
      * @return list of list of tag value pairs
      */
-    // CHECKSTYLE.ON: JavadocStyle
     public static List<XMLContainer> parseXML(Document doc,
                                               String containerTag,
                                               String[] tags) {

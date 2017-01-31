@@ -135,13 +135,11 @@ public final class DataUtil {
 
     public abstract static class EngineDataAccessor {
 
-        // CHECKSTYLE.OFF: StaticVariableName
-        private static volatile EngineDataAccessor DEFAULT;
-        // CHECKSTYLE.ON: StaticVariableName
+        private static volatile EngineDataAccessor defaultAccessor;
 
         public static EngineDataAccessor getDefault() {
             new EngineData(); // Load the accessor
-            EngineDataAccessor a = DEFAULT;
+            EngineDataAccessor a = defaultAccessor;
             if (a == null) {
                 throw new IllegalStateException("EngineDataAccessor should not be null");
             }
@@ -149,10 +147,10 @@ public final class DataUtil {
         }
 
         public static void setDefault(EngineDataAccessor accessor) {
-            if (DEFAULT != null) {
+            if (defaultAccessor != null) {
                 throw new IllegalStateException("EngineDataAccessor should be null");
             }
-            DEFAULT = accessor;
+            defaultAccessor = accessor;
         }
 
         protected abstract xMsgMeta.Builder getMetadata(EngineData data);

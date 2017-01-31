@@ -35,9 +35,8 @@ final class SharedMemory {
           key = <sender-service>:<communication-id>,
           value = EngineData object
     */
-    // CHECKSTYLE.OFF: ConstantName
-    private static final Map<String, Map<String, EngineData>> sharedData =
-            new ConcurrentHashMap<>();
+    private static final Map<String, Map<String, EngineData>>
+            sharedData = new ConcurrentHashMap<>(); // NOT CONSTANT
 
     private SharedMemory() {
     }
