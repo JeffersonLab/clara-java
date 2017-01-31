@@ -45,7 +45,7 @@ import java.util.Set;
 public class ClaraSubscriptions {
 
     /**
-     * Starts and stops a Clara subscription.
+     * Starts and stops a CLARA subscription.
      *
      * @param <D> The specific subclass
      * @param <C> The user callback

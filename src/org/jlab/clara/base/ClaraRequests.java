@@ -50,7 +50,7 @@ public final class ClaraRequests {
     private ClaraRequests() { }
 
     /**
-     * A request to a Clara component.
+     * A request to a CLARA component.
      *
      * @param <D> The specific subclass
      * @param <T> The type returned when a result is expected
@@ -160,7 +160,7 @@ public final class ClaraRequests {
     }
 
     /**
-     * Base class to deploy a Clara component.
+     * Base class to deploy a CLARA component.
      * Each subclass presents the optional fields specific to each component.
      */
     abstract static class DeployRequest<D extends DeployRequest<D>>
@@ -261,7 +261,7 @@ public final class ClaraRequests {
     }
 
     /**
-     * A request to stop a running Clara component.
+     * A request to stop a running CLARA component.
      */
     public static class ExitRequest extends DataRequest<ExitRequest> {
 

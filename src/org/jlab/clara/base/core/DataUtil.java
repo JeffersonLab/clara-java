@@ -125,11 +125,11 @@ public final class DataUtil {
                     Object userData = dt.serializer().read(bb);
                     return DATA_ACCESSOR.build(userData, metadata);
                 } catch (ClaraException e) {
-                    throw new ClaraException("Clara-Error: Could not deserialize " + mimeType, e);
+                    throw new ClaraException("CLARA-Error: Could not deserialize " + mimeType, e);
                 }
             }
         }
-        throw new ClaraException("Clara-Error: Unsupported mime-type = " + mimeType);
+        throw new ClaraException("CLARA-Error: Unsupported mime-type = " + mimeType);
     }
 
 

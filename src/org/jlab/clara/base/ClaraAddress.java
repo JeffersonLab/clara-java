@@ -25,7 +25,7 @@ package org.jlab.clara.base;
 import org.jlab.coda.xmsg.net.xMsgProxyAddress;
 
 /**
- * The address where a Clara component is listening messages.
+ * The address where a CLARA component is listening messages.
  */
 public class ClaraAddress extends xMsgProxyAddress {
 

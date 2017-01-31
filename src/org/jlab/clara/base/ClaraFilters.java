@@ -27,7 +27,7 @@ import org.jlab.coda.xmsg.data.xMsgRegQuery;
 import org.jlab.coda.xmsg.data.xMsgRegRecord;
 
 /**
- * The standard filters to select Clara DPEs, containers or services.
+ * The standard filters to select CLARA DPEs, containers or services.
  */
 public final class ClaraFilters {
 

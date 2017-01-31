@@ -43,7 +43,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Extra helper methods for Clara orchestrator and services.
+ * Extra helper methods for CLARA orchestrator and services.
  *
  * @author gurjyan
  * @version 4.x
@@ -72,7 +72,7 @@ public final class ClaraUtil {
     }
 
     /**
-     * Checks if the given name is a proper Clara canonical name.
+     * Checks if the given name is a proper CLARA canonical name.
      * <p>
      * A canonical name should have any of the following structures:
      * <pre>

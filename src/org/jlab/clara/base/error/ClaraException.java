@@ -23,7 +23,7 @@
 package org.jlab.clara.base.error;
 
 /**
- * Base class for Clara exceptions.
+ * Base class for CLARA exceptions.
  */
 public class ClaraException extends Exception {
 

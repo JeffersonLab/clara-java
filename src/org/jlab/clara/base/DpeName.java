@@ -25,7 +25,7 @@ package org.jlab.clara.base;
 import org.jlab.clara.base.core.ClaraConstants;
 
 /**
- * The name of a Clara DPE.
+ * The name of a CLARA DPE.
  * <p>
  * The canonical name for a DPE has the following structure:
  * <pre>
