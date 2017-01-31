@@ -43,7 +43,7 @@ import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
 /**
- *  Clara base class providing methods build services,
+ *  CLARA base class providing methods build services,
  *  service container and orchestrator.
  *
  * @author gurjyan
@@ -59,7 +59,7 @@ public abstract class ClaraBase extends xMsg {
     private ClaraComponent frontEnd;
 
     /**
-     * A Clara component that can send and receives messages.
+     * A CLARA component that can send and receives messages.
      *
      * @param me        definition of the component
      * @param frontEnd  definition of the front-end
@@ -87,10 +87,10 @@ public abstract class ClaraBase extends xMsg {
                         .build();
     }
 
-    // abstract methods to start Clara component
+    // abstract methods to start CLARA component
     public abstract void start() throws ClaraException;
 
-    // abstract method to gracefully end Clara component
+    // abstract method to gracefully end CLARA component
     protected abstract void end();
 
     @Override
@@ -321,7 +321,7 @@ public abstract class ClaraBase extends xMsg {
     }
 
     /**
-     * Retrieves Clara actor registration information from the xMsg registrar service.
+     * Retrieves CLARA actor registration information from the xMsg registrar service.
      *
      * @param regHost registrar server host
      * @param regPort registrar server port
@@ -337,7 +337,7 @@ public abstract class ClaraBase extends xMsg {
     }
 
     /**
-     * Retrieves Clara actor registration information from the xMsg registrar service,
+     * Retrieves CLARA actor registration information from the xMsg registrar service,
      * assuming registrar is running using the default port.
      *
      * @param regHost registrar server host
@@ -353,7 +353,7 @@ public abstract class ClaraBase extends xMsg {
     }
 
     /**
-     * Retrieves Clara actor registration information from the xMsg registrar service,
+     * Retrieves CLARA actor registration information from the xMsg registrar service,
      * assuming registrar is running on a local host, using the default port.
      *
      * @param topic the canonical name of an actor: {@link org.jlab.coda.xmsg.core.xMsgTopic}
@@ -404,7 +404,7 @@ public abstract class ClaraBase extends xMsg {
     }
 
     /**
-     * Sets a DPE Clara component as a front-end.
+     * Sets a DPE CLARA component as a front-end.
      *
      * @param frontEnd {@link org.jlab.clara.base.core.ClaraComponent} object
      */

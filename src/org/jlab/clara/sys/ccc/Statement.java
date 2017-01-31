@@ -36,7 +36,7 @@ import java.util.StringTokenizer;
 
 /**
  * <p>
- * This class presents routing schema for a service, result of the Clara composition
+ * This class presents routing schema for a service, result of the CLARA composition
  * compiler, parsing routing statements of a composition.
  * <p>
  * Contains Map that has keys = input service names, data from which are required

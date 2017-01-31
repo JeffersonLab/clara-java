@@ -29,7 +29,7 @@ import org.jlab.clara.engine.EngineDataType;
 import java.util.Set;
 
 /**
- * Clara dynamic class loader.
+ * CLARA dynamic class loader.
  *
  * @author gurjyan
  * @version 4.x

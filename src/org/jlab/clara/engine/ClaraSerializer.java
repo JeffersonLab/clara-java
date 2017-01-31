@@ -37,6 +37,7 @@ public interface ClaraSerializer {
      *
      * @param data the user object stored on the {@link EngineData}
      * @throws ClaraException if the data could not be serialized
+     * @return the serialized user object
      */
     ByteBuffer write(Object data) throws ClaraException;
 
@@ -45,6 +46,7 @@ public interface ClaraSerializer {
      *
      * @param buffer the serialized data
      * @throws ClaraException if the data could not be deserialized
+     * @return the user-object
      */
     Object read(ByteBuffer buffer) throws ClaraException;
 }

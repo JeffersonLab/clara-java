@@ -23,7 +23,7 @@
 package org.jlab.clara.base.core;
 
 /**
- * Clara internal constants.
+ * CLARA internal constants.
  *
  * @author gurjyan
  * @version 4.x

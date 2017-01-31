@@ -24,6 +24,20 @@ package org.jlab.clara.base;
 
 import org.jlab.coda.xmsg.core.xMsgConstants;
 
+/**
+ * Unique identifier of a CLARA container.
+ * <p>
+ * The canonical name for a container has the following structure:
+ * <pre>
+ * {@literal <dpe_canonical_name>:<container_name>}
+ * </pre>
+ * Example:
+ * <pre>
+ * {@literal 10.1.1.1_java:master}
+ * </pre>
+ *
+ * @see DpeName
+ */
 public class ContainerName implements ClaraName {
 
     private final DpeName dpe;
@@ -87,6 +101,11 @@ public class ContainerName implements ClaraName {
         return dpe.language();
     }
 
+    /**
+     * Gets the canonical name of the DPE for this container.
+     *
+     * @return the DPE name
+     */
     public DpeName dpe() {
         return dpe;
     }

@@ -42,12 +42,15 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+/**
+ * Requests to running CLARA components.
+ */
 public final class ClaraRequests {
 
     private ClaraRequests() { }
 
     /**
-     * A request to a Clara component.
+     * A request to a CLARA component.
      *
      * @param <D> The specific subclass
      * @param <T> The type returned when a result is expected
@@ -157,7 +160,7 @@ public final class ClaraRequests {
     }
 
     /**
-     * Base class to deploy a Clara component.
+     * Base class to deploy a CLARA component.
      * Each subclass presents the optional fields specific to each component.
      */
     abstract static class DeployRequest<D extends DeployRequest<D>>
@@ -175,6 +178,7 @@ public final class ClaraRequests {
          * The pool size sets how many parallel requests can be processed
          * by the component.
          *
+         * @param poolSize the poolSize for the component
          * @return this object, so methods can be chained
          */
         public D withPoolsize(int poolSize) {
@@ -186,6 +190,7 @@ public final class ClaraRequests {
          * Defines a description for the started component.
          * The description will be used when the component is registered.
          *
+         * @param description a description for the component
          * @return this object, so methods can be chained
          */
         public D withDescription(String description) {
@@ -235,6 +240,7 @@ public final class ClaraRequests {
         /**
          * Defines an initial state for the started service.
          *
+         * @param initialState the initial state for the service
          * @return this object, so methods can be chained
          */
         public DeployServiceRequest withInitialState(String initialState) {
@@ -255,7 +261,7 @@ public final class ClaraRequests {
     }
 
     /**
-     * A request to stop a running Clara component.
+     * A request to stop a running CLARA component.
      */
     public static class ExitRequest extends DataRequest<ExitRequest> {
 
