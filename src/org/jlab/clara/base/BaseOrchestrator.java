@@ -65,7 +65,7 @@ public class BaseOrchestrator {
      * Creates a new orchestrator.
      * Uses a random name and the local node as front-end.
      *
-     * @throws UncheckedIOException if localhost could not be obtained
+     * @throws java.io.UncheckedIOException if localhost could not be obtained
      */
     public BaseOrchestrator() {
         this(xMsgConstants.DEFAULT_POOL_SIZE);
@@ -76,7 +76,7 @@ public class BaseOrchestrator {
      * Uses a random name and receives the location of the front-end.
      *
      * @param subPoolSize set the size of the pool for processing subscriptions on background
-     * @throws UncheckedIOException if localhost could not be obtained
+     * @throws java.io.UncheckedIOException if localhost could not be obtained
      */
     public BaseOrchestrator(int subPoolSize) {
         this(getUniqueName(),
@@ -89,7 +89,7 @@ public class BaseOrchestrator {
      * Uses a random name and receives the location of the front-end.
      *
      * @param frontEnd use this front-end for communication with the Clara cloud
-     * @throws UncheckedIOException if localhost could not be obtained
+     * @throws java.io.UncheckedIOException if localhost could not be obtained
      */
     public BaseOrchestrator(DpeName frontEnd) {
         this(getUniqueName(), frontEnd, xMsgConstants.DEFAULT_POOL_SIZE);
@@ -173,12 +173,26 @@ public class BaseOrchestrator {
     }
 
 
+    /**
+     * Creates a request to start the given container.
+     *
+     * @param container the container to start
+     * @return the request to start the container
+     */
     public DeployContainerRequest deploy(ContainerName container) {
         String dpeName = ClaraUtil.getDpeName(container.canonicalName());
         ClaraComponent targetDpe = ClaraComponent.dpe(dpeName);
         return new DeployContainerRequest(base, targetDpe, container);
     }
 
+    /**
+     * Creates a request to start the given service engine.
+     *
+     * @param service the service to start
+     * @param classPath the path to the engine class that needs to be loaded
+     *        to create the engine
+     * @return the request to start the service
+     */
     public DeployServiceRequest deploy(ServiceName service, String classPath) {
         String dpeName = ClaraUtil.getDpeName(service.canonicalName());
         ClaraComponent targetDpe = ClaraComponent.dpe(dpeName);
@@ -186,17 +200,35 @@ public class BaseOrchestrator {
     }
 
 
+    /**
+     * Creates a request to stop the given DPE.
+     *
+     * @param dpe the DPE to stop
+     * @return the request to stop the DPE
+     */
     public ExitRequest exit(DpeName dpe) {
         ClaraComponent targetDpe = ClaraComponent.dpe(dpe.canonicalName());
         return new ExitRequest(base, targetDpe, dpe);
     }
 
+    /**
+     * Creates a request to stop the given container.
+     *
+     * @param container the container to stop
+     * @return the request to stop the container
+     */
     public ExitRequest exit(ContainerName container) {
         String dpeName = ClaraUtil.getDpeName(container.canonicalName());
         ClaraComponent targetDpe = ClaraComponent.dpe(dpeName);
         return new ExitRequest(base, targetDpe, container);
     }
 
+    /**
+     * Creates a request to stop the given service.
+     *
+     * @param service the service to stop
+     * @return the request to stop the service
+     */
     public ExitRequest exit(ServiceName service) {
         String dpeName = ClaraUtil.getDpeName(service.canonicalName());
         ClaraComponent targetDpe = ClaraComponent.dpe(dpeName);
@@ -251,6 +283,7 @@ public class BaseOrchestrator {
      * report is received.
      *
      * @param service the service to be listened
+     * @return a builder to select a service subscription
      */
     public ServiceSubscriptionBuilder listen(ClaraName service) {
         return new ServiceSubscriptionBuilder(base, subscriptions, dataTypes,
@@ -262,6 +295,8 @@ public class BaseOrchestrator {
      * Returns a subscription builder to select what type of global reports by
      * the front-end shall be listened, and what action should be called when a
      * report is received.
+     *
+     * @return a builder to select a global subscription
      */
     public GlobalSubscriptionBuilder listen() {
         return new GlobalSubscriptionBuilder(base, subscriptions, base.getFrontEnd());
@@ -273,8 +308,9 @@ public class BaseOrchestrator {
      * discover registered components or obtain the registration/runtime
      * information.
      * <p>
-     * To create the query use a {@link ClaraFilter} to filter which components
-     * should be selected, or a {@link ClaraName} for a specific component.
+     * To create the query use a filter from {@link ClaraFilters} to filter
+     * which components should be selected, or a {@link ClaraName} for a
+     * specific component.
      *
      * @return a builder to create the desired query
      */
@@ -285,6 +321,8 @@ public class BaseOrchestrator {
 
     /**
      * Returns this orchestrator name.
+     *
+     * @return the name of the orchestrator
      */
     public String getName() {
         return base.getName();

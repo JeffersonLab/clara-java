@@ -42,6 +42,9 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+/**
+ * Requests to running CLARA components.
+ */
 public final class ClaraRequests {
 
     private ClaraRequests() { }
@@ -175,6 +178,7 @@ public final class ClaraRequests {
          * The pool size sets how many parallel requests can be processed
          * by the component.
          *
+         * @param poolSize the poolSize for the component
          * @return this object, so methods can be chained
          */
         public D withPoolsize(int poolSize) {
@@ -186,6 +190,7 @@ public final class ClaraRequests {
          * Defines a description for the started component.
          * The description will be used when the component is registered.
          *
+         * @param description a description for the component
          * @return this object, so methods can be chained
          */
         public D withDescription(String description) {
@@ -235,6 +240,7 @@ public final class ClaraRequests {
         /**
          * Defines an initial state for the started service.
          *
+         * @param initialState the initial state for the service
          * @return this object, so methods can be chained
          */
         public DeployServiceRequest withInitialState(String initialState) {

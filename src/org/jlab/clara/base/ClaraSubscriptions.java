@@ -39,6 +39,9 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Subscriptions for running CLARA components.
+ */
 public class ClaraSubscriptions {
 
     /**
@@ -72,6 +75,9 @@ public class ClaraSubscriptions {
          * Every time a report is received, the provided callback will be executed.
          * The messages are received sequentially, but the callback may run
          * in extra background threads, so it must be thread-safe.
+         *
+         * @param callback the callback to be executed for every received message
+         * @throws ClaraException if the subscription failed to start
          */
         public void start(C callback) throws ClaraException {
             String key = frontEnd.getDpeHost() + ClaraConstants.MAPKEY_SEP + topic;
@@ -100,6 +106,9 @@ public class ClaraSubscriptions {
     }
 
 
+    /**
+     * A subscription to listen for service reports (data, done, status).
+     */
     public static class ServiceSubscription
             extends BaseSubscription<ServiceSubscription, EngineCallback> {
 
@@ -114,11 +123,25 @@ public class ClaraSubscriptions {
             this.dataTypes = dataTypes;
         }
 
+        /**
+         * Overwrites the data types used for deserializing the data from the
+         * service.
+         *
+         * @param dataTypes the custom data-type of the service reports
+         * @return this object, so methods can be chained
+         */
         public ServiceSubscription withDataTypes(Set<EngineDataType> dataTypes) {
             this.dataTypes = dataTypes;
             return this;
         }
 
+        /**
+         * Overwrites the data types used for deserializing the data from the
+         * service.
+         *
+         * @param dataTypes the custom data-type of the service reports
+         * @return this object, so methods can be chained
+         */
         public ServiceSubscription withDataTypes(EngineDataType... dataTypes) {
             Set<EngineDataType> newTypes = new HashSet<>();
             Collections.addAll(newTypes, dataTypes);
@@ -140,6 +163,9 @@ public class ClaraSubscriptions {
     }
 
 
+    /**
+     * A subscription to listen for JSON reports from the DPEs.
+     */
     public static class JsonReportSubscription
             extends BaseSubscription<JsonReportSubscription, GenericCallback> {
 
@@ -169,6 +195,9 @@ public class ClaraSubscriptions {
     }
 
 
+    /**
+     * Builds a subscription to listen the different CLARA service reports.
+     */
     public static class ServiceSubscriptionBuilder {
         private final ClaraBase base;
         private final Map<String, xMsgSubscription> subscriptions;
@@ -195,6 +224,7 @@ public class ClaraSubscriptions {
          * on error or warning.
          *
          * @param status the status to be listened
+         * @return a service subscription to listen the given status
          */
         public ServiceSubscription status(EngineStatus status) {
             return new ServiceSubscription(base, subscriptions, dataTypes, frontEnd,
@@ -207,6 +237,8 @@ public class ClaraSubscriptions {
          * Services will publish "done" reports if they are configured to do so
          * with a given event count. The messages will not contain the full
          * output result of the service, but just a few stats about the execution.
+         *
+         * @return a service subscription to listen "done" reports
          */
         public ServiceSubscription done() {
             return new ServiceSubscription(base, subscriptions, dataTypes, frontEnd,
@@ -219,6 +251,8 @@ public class ClaraSubscriptions {
          * Services will publish "data" reports if they are configured to do so
          * with a given event count. The messages will contain the full
          * output result of the service.
+         *
+         * @return a service subscription to listen data reports
          */
         public ServiceSubscription data() {
             return new ServiceSubscription(base, subscriptions, dataTypes, frontEnd,
@@ -231,6 +265,9 @@ public class ClaraSubscriptions {
     }
 
 
+    /**
+     * Builds a subscription to listen the different CLARA DPE reports.
+     */
     public static class GlobalSubscriptionBuilder {
         private final ClaraBase base;
         private final Map<String, xMsgSubscription> subscriptions;
@@ -247,6 +284,8 @@ public class ClaraSubscriptions {
         /**
          * A subscription to the periodic alive message reported by
          * all running DPEs.
+         *
+         * @return a subscription to listen DPE alive reports
          */
         public JsonReportSubscription aliveDpes() {
             xMsgTopic topic = MessageUtil.buildTopic(ClaraConstants.DPE_ALIVE, "");
@@ -258,6 +297,9 @@ public class ClaraSubscriptions {
          * the running DPEs with the given session.
          * <p>
          * If the session is empty, only DPEs with no session will be listened.
+         *
+         * @param session the session to select with DPEs to monitor
+         * @return a subscription to listen DPE alive reports
          */
         public JsonReportSubscription aliveDpes(String session) {
             if (session == null) {
