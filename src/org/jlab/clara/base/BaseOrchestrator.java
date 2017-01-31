@@ -130,25 +130,21 @@ public class BaseOrchestrator {
      * It can be overridden to return a mock for testing purposes.
      */
     ClaraBase getClaraBase(String name, DpeName frontEnd, int poolSize) {
-        try {
-            String localhost = ClaraUtil.localhost();
-            ClaraComponent o = ClaraComponent.orchestrator(name, localhost, poolSize, "");
-            ClaraComponent fe = ClaraComponent.dpe(frontEnd.canonicalName());
-            ClaraBase b = new ClaraBase(o, fe) {
-                @Override
-                public void start() {
-                    // Nothing
-                }
+        String localhost = ClaraUtil.localhost();
+        ClaraComponent o = ClaraComponent.orchestrator(name, localhost, poolSize, "");
+        ClaraComponent fe = ClaraComponent.dpe(frontEnd.canonicalName());
+        ClaraBase b = new ClaraBase(o, fe) {
+            @Override
+            public void start() {
+                // Nothing
+            }
 
-                @Override
-                protected void end() {
-                    // Nothing
-                }
-            };
-            return b;
-        } catch (ClaraException e) {
-            throw new IllegalArgumentException("Invalid front-end: " + frontEnd);
-        }
+            @Override
+            protected void end() {
+                // Nothing
+            }
+        };
+        return b;
     }
 
     /**
@@ -255,33 +251,31 @@ public class BaseOrchestrator {
         base.send(base.getFrontEnd(), MessageUtil.buildRequest(topic, data));
     }
 
-    public DeployContainerRequest deploy(ContainerName container)
-            throws ClaraException {
+    public DeployContainerRequest deploy(ContainerName container) {
         String dpeName = ClaraUtil.getDpeName(container.canonicalName());
         ClaraComponent targetDpe = ClaraComponent.dpe(dpeName);
         return new DeployContainerRequest(base, targetDpe, container);
     }
 
-    public DeployServiceRequest deploy(ServiceName service, String classPath)
-            throws ClaraException {
+    public DeployServiceRequest deploy(ServiceName service, String classPath) {
         String dpeName = ClaraUtil.getDpeName(service.canonicalName());
         ClaraComponent targetDpe = ClaraComponent.dpe(dpeName);
         return new DeployServiceRequest(base, targetDpe, service, classPath);
     }
 
 
-    public ExitRequest exit(DpeName dpe) throws ClaraException {
+    public ExitRequest exit(DpeName dpe) {
         ClaraComponent targetDpe = ClaraComponent.dpe(dpe.canonicalName());
         return new ExitRequest(base, targetDpe, dpe);
     }
 
-    public ExitRequest exit(ContainerName container) throws ClaraException {
+    public ExitRequest exit(ContainerName container) {
         String dpeName = ClaraUtil.getDpeName(container.canonicalName());
         ClaraComponent targetDpe = ClaraComponent.dpe(dpeName);
         return new ExitRequest(base, targetDpe, container);
     }
 
-    public ExitRequest exit(ServiceName service) throws ClaraException {
+    public ExitRequest exit(ServiceName service) {
         String dpeName = ClaraUtil.getDpeName(service.canonicalName());
         ClaraComponent targetDpe = ClaraComponent.dpe(dpeName);
         return new ExitRequest(base, targetDpe, service);
@@ -312,7 +306,7 @@ public class BaseOrchestrator {
      * @return a builder to choose how to configure the service
      *         (with data, with report frequency, etc)
      */
-    public ServiceConfigRequestBuilder configure(ServiceName service) throws ClaraException {
+    public ServiceConfigRequestBuilder configure(ServiceName service) {
         String dpeName = ClaraUtil.getDpeName(service.canonicalName());
         ClaraComponent targetDpe = ClaraComponent.dpe(dpeName);
         return new ServiceConfigRequestBuilder(base, targetDpe, service, dataTypes);
@@ -326,7 +320,7 @@ public class BaseOrchestrator {
      * @return a builder to setup the execution request
      *         (with data, data types, etc)
      */
-    public ServiceExecuteRequestBuilder execute(ServiceName service) throws ClaraException {
+    public ServiceExecuteRequestBuilder execute(ServiceName service) {
         String dpeName = ClaraUtil.getDpeName(service.canonicalName());
         ClaraComponent targetDpe = ClaraComponent.dpe(dpeName);
         return new ServiceExecuteRequestBuilder(base, targetDpe, service, dataTypes);
@@ -339,7 +333,7 @@ public class BaseOrchestrator {
      * @return a builder to to configure the execute request
      *         (with data, data types, etc)
      */
-    public ServiceExecuteRequestBuilder execute(Composition composition) throws ClaraException {
+    public ServiceExecuteRequestBuilder execute(Composition composition) {
         String dpeName = ClaraUtil.getDpeName(composition.firstService());
         ClaraComponent targetDpe = ClaraComponent.dpe(dpeName);
         return new ServiceExecuteRequestBuilder(base, targetDpe, composition, dataTypes);

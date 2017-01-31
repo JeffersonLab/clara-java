@@ -544,11 +544,7 @@ public final class ClaraRequests {
 
 
     private static ClaraComponent getDpeComponent(ClaraName claraName) {
-        try {
-            return ClaraComponent.dpe(ClaraUtil.getDpeName(claraName.canonicalName()));
-        } catch (ClaraException e) {
-            throw new IllegalArgumentException("Invalid Clara name: " + claraName);
-        }
+        return ClaraComponent.dpe(ClaraUtil.getDpeName(claraName.canonicalName()));
     }
 
     private static String getDpeTopic(ClaraName claraName) {

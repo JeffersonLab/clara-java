@@ -23,7 +23,6 @@
 package org.jlab.clara.base.core;
 
 import org.jlab.clara.base.ClaraUtil;
-import org.jlab.clara.base.error.ClaraException;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.net.xMsgProxyAddress;
@@ -266,12 +265,10 @@ public final class ClaraComponent {
      * @param canonicalName The canonical name of a component
      * @param description textual description of the DPE
      * @return the DPE component
-     * @throws ClaraException
      */
-    public static ClaraComponent dpe(String canonicalName, String description)
-            throws ClaraException {
+    public static ClaraComponent dpe(String canonicalName, String description) {
         if (!ClaraUtil.isCanonicalName(canonicalName)) {
-            throw new ClaraException("Clara-Error: not a canonical name.");
+            throw new IllegalArgumentException("Not a canonical name: " + canonicalName);
         }
         return dpe(ClaraUtil.getDpeHost(canonicalName),
                    ClaraUtil.getDpePort(canonicalName),
@@ -286,9 +283,8 @@ public final class ClaraComponent {
      *
      * @param canonicalName The canonical name of a component
      * @return the DPE component
-     * @throws ClaraException
      */
-    public static ClaraComponent dpe(String canonicalName) throws ClaraException {
+    public static ClaraComponent dpe(String canonicalName) {
         return dpe(canonicalName, ClaraConstants.UNDEFINED);
     }
 
@@ -380,10 +376,9 @@ public final class ClaraComponent {
      * @param description textual description of the container
      * @return the container component
      */
-    public static ClaraComponent container(String containerCanonicalName, String description)
-            throws ClaraException {
+    public static ClaraComponent container(String containerCanonicalName, String description) {
         if (!ClaraUtil.isCanonicalName(containerCanonicalName)) {
-            throw new ClaraException("Clara-Error: not a canonical name.");
+            throw new IllegalArgumentException("Not a canonical name: " + containerCanonicalName);
         }
         return container(ClaraUtil.getDpeHost(containerCanonicalName),
                          ClaraUtil.getDpePort(containerCanonicalName),
@@ -400,8 +395,7 @@ public final class ClaraComponent {
      * @param containerCanonicalName the canonical name of the container
      * @return the container component
      */
-    public static ClaraComponent container(String containerCanonicalName)
-            throws ClaraException {
+    public static ClaraComponent container(String containerCanonicalName) {
         return container(containerCanonicalName, ClaraConstants.UNDEFINED);
     }
 
@@ -512,9 +506,9 @@ public final class ClaraComponent {
      *
      * @return the service component
      */
-    public static ClaraComponent service(String serviceCanonicalName) throws ClaraException {
+    public static ClaraComponent service(String serviceCanonicalName) {
         if (!ClaraUtil.isCanonicalName(serviceCanonicalName)) {
-            throw new ClaraException("Clara-Error: not a canonical name.");
+            throw new IllegalArgumentException("Not a canonical name: " + serviceCanonicalName);
         }
         return service(ClaraUtil.getDpeHost(serviceCanonicalName),
                        ClaraUtil.getDpePort(serviceCanonicalName),
