@@ -175,6 +175,8 @@ public class EngineDataType {
 
     /**
      * Returns the name of this data type.
+     *
+     * @return the mime-type string
      */
     public String mimeType() {
         return mimeType;
@@ -182,6 +184,8 @@ public class EngineDataType {
 
     /**
      * Returns the serializer of this data type.
+     *
+     * @return the serializer object
      */
     public ClaraSerializer serializer() {
         return serializer;

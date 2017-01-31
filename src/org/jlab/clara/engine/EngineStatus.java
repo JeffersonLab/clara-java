@@ -30,7 +30,12 @@ package org.jlab.clara.engine;
  * @since 2/27/15
  */
 public enum EngineStatus {
+    /** Status for information data. */
     INFO,
+
+    /** Status for warning data. */
     WARNING,
+
+    /** Status for error data. */
     ERROR
 }

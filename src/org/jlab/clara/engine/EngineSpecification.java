@@ -40,6 +40,8 @@ public class EngineSpecification {
      * Reports any problem parsing the service specification file.
      */
     public static class ParseException extends RuntimeException {
+
+        // CHECKSTYLE.OFF: Javadoc
         public ParseException() {
         }
 
@@ -54,6 +56,7 @@ public class EngineSpecification {
         public ParseException(String message, Throwable cause) {
             super(message, cause);
         }
+        // CHECKSTYLE.ON: Javadoc
     }
 
     private String name;
@@ -92,6 +95,8 @@ public class EngineSpecification {
      * </pre>
      * will search for the file
      * <code>std/services/Simple.yaml</code> in the CLASSPATH.
+     *
+     * @param c the engine class
      */
     public EngineSpecification(Class<?> c) {
         this(c.getName());
@@ -107,6 +112,8 @@ public class EngineSpecification {
      * </pre>
      * will search for the file
      * <code>std/services/convertors/EvioToEvioReader.yaml</code> in the CLASSPATH.
+     *
+     * @param engine the engine classpath
      */
     @SuppressWarnings("unchecked")
     public EngineSpecification(String engine) {
@@ -168,36 +175,57 @@ public class EngineSpecification {
     }
 
 
+    /**
+     * @return the name of the engine
+     */
     public String name() {
         return name;
     }
 
 
+    /**
+     * @return the classpath of the engine
+     */
     public String engine() {
         return engine;
     }
 
 
+    /**
+     * @return the type of the engine (java, cpp, python)
+     */
     public String type() {
         return type;
     }
 
 
+    /**
+     * @return the name of the author of the engine
+     */
     public String author() {
         return author;
     }
 
 
+    /**
+     * @return the email of the author of the engine
+     */
     public String email() {
         return email;
     }
 
 
+    /**
+     * @return the version of the engine
+     */
     public String version() {
         return version;
     }
 
 
+    /**
+     * @return the description of the engine
+     */
     public String description() {
         return description;
     }
