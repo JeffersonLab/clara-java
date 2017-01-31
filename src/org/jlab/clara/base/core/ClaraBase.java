@@ -39,6 +39,7 @@ import org.jlab.coda.xmsg.excp.xMsgException;
 import org.jlab.coda.xmsg.net.xMsgRegAddress;
 
 import java.io.IOException;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
@@ -68,10 +69,7 @@ public abstract class ClaraBase extends xMsg {
         super(me.getCanonicalName(), setup(me, frontEnd));
         this.me = me;
         this.frontEnd = frontEnd;
-        this.claraHome = System.getenv("CLARA_HOME");
-        if (claraHome == null) {
-            throw new IllegalStateException("CLARA_HOME environmental variable is not defined.");
-        }
+        this.claraHome = Optional.ofNullable(System.getenv("CLARA_HOME")).orElse("");
     }
 
     private static xMsgSetup setup(ClaraComponent me, ClaraComponent frontEnd) {
