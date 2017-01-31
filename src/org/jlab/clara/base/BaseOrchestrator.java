@@ -30,27 +30,19 @@ import org.jlab.clara.base.ClaraRequests.ServiceConfigRequestBuilder;
 import org.jlab.clara.base.ClaraRequests.ServiceExecuteRequestBuilder;
 import org.jlab.clara.base.ClaraSubscriptions.GlobalSubscriptionBuilder;
 import org.jlab.clara.base.ClaraSubscriptions.ServiceSubscriptionBuilder;
-import org.jlab.clara.base.core.ClaraConstants;
 import org.jlab.clara.base.core.ClaraBase;
 import org.jlab.clara.base.core.ClaraComponent;
-import org.jlab.clara.base.core.MessageUtil;
-import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineDataType;
 import org.jlab.coda.xmsg.core.xMsgConstants;
-import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgSubscription;
-import org.jlab.coda.xmsg.core.xMsgTopic;
-import org.jlab.coda.xmsg.excp.xMsgException;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-import java.io.IOException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-import java.util.concurrent.TimeoutException;
 
 
 /**
@@ -181,76 +173,6 @@ public class BaseOrchestrator {
     }
 
 
-    /**
-     * Tells a Clara DPE component to consider the passed Clara component as a front end.
-     * This method is used at run-time to define/redefine front end DPE.
-     *
-     * @param dpe receiver DPE
-     * @param frontEnd info about the front end DPE
-     */
-    public void setFrontEnd(ClaraComponent dpe, ClaraComponent frontEnd)
-            throws IOException, xMsgException {
-
-        xMsgTopic topic = MessageUtil.buildTopic(ClaraConstants.DPE,
-                                                 base.getFrontEnd().getCanonicalName());
-
-        String data = MessageUtil.buildData(ClaraConstants.SET_FRONT_END_REMOTE,
-                                            dpe.getDpeHost(),
-                                            dpe.getDpePort(),
-                                            dpe.getDpeLang(),
-                                            frontEnd.getDpeHost(),
-                                            frontEnd.getDpePort(),
-                                            frontEnd.getDpeLang());
-        base.send(base.getFrontEnd(), MessageUtil.buildRequest(topic, data));
-    }
-
-    /**
-     * Sends a message to the front-end DPE asking to start a DPE. The new DPE info,
-     * such as where DPE should start, on what port, language, pool size, etc, is defined
-     * in ClaraComponent object. Note that front end is set/defined by the user from one
-     * of the cloud DPEs.
-     *
-     * @param comp    DPE that must be started
-     * @param regHost registration service host that future DPE will use to register it's components
-     * @param regPort registration service port number
-     * @throws ClaraException
-     * @throws xMsgException
-     * @throws IOException
-     * @throws TimeoutException
-     */
-    public void deployDpe(ClaraComponent comp, String regHost, int regPort)
-            throws ClaraException, xMsgException, IOException, TimeoutException {
-        if (comp.isDpe()) {
-            xMsgTopic topic = MessageUtil.buildTopic(ClaraConstants.DPE,
-                                                     base.getFrontEnd().getCanonicalName());
-
-            String data = MessageUtil.buildData(ClaraConstants.START_DPE,
-                    comp.getDpeHost(),
-                    comp.getDpePort(),
-                    comp.getDpeLang(),
-                    comp.getSubscriptionPoolSize(),
-                    regHost, regPort,
-                    comp.getDescription());
-            base.send(base.getFrontEnd(), MessageUtil.buildRequest(topic, data));
-        }
-    }
-
-    /**
-     * Requests a DPE to exit.
-     * The request is sent to a running DPE of the given language.
-     * If no DPE is running in the node, the message is lost.
-     *
-     * @throws ClaraException if the request could not be sent
-     */
-    public void exitFrontEnd()
-            throws ClaraException, xMsgException, IOException, TimeoutException {
-        xMsgTopic topic = MessageUtil.buildTopic(ClaraConstants.DPE,
-                                                 base.getFrontEnd().getCanonicalName());
-
-        String data = ClaraConstants.STOP_DPE;
-        base.send(base.getFrontEnd(), MessageUtil.buildRequest(topic, data));
-    }
-
     public DeployContainerRequest deploy(ContainerName container) {
         String dpeName = ClaraUtil.getDpeName(container.canonicalName());
         ClaraComponent targetDpe = ClaraComponent.dpe(dpeName);
@@ -281,23 +203,6 @@ public class BaseOrchestrator {
         return new ExitRequest(base, targetDpe, service);
     }
 
-
-    /**
-     * Pings a DPE. This is a sync request.
-     *
-     * @param dpe a DPE
-     * @param timeout sync request timeout
-     * @return message {@link org.jlab.coda.xmsg.core.xMsgMessage}
-     *         indicating the status of the sync operation.
-     * @throws ClaraException
-     * @throws xMsgException
-     * @throws IOException
-     * @throws TimeoutException
-     */
-    public xMsgMessage pingDpe(ClaraComponent dpe, int timeout)
-            throws ClaraException, xMsgException, IOException, TimeoutException {
-        return base.pingDpe(dpe, timeout);
-    }
 
     /**
      * Returns a request builder to configure the given service.
