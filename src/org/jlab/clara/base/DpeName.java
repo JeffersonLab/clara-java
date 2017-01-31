@@ -26,6 +26,16 @@ import org.jlab.clara.base.core.ClaraConstants;
 
 /**
  * The name of a Clara DPE.
+ * <p>
+ * The canonical name for a DPE has the following structure:
+ * <pre>
+ * {@literal <host_address>_<language>}
+ * {@literal <host_address>%<port>_<language>}
+ * </pre>
+ * Example:
+ * <pre>
+ * {@literal 10.1.1.1_java}
+ * </pre>
  */
 public class DpeName implements ClaraName {
 

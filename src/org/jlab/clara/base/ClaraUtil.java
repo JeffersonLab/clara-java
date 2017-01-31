@@ -82,6 +82,7 @@ public final class ClaraUtil {
      * </pre>
      *
      * @param name the name to be checked
+     * @return true if the string is a CLARA canonical name, false if not
      */
     public static boolean isCanonicalName(String name) {
         Matcher matcher = CANONICAL_NAME_PATTERN.matcher(name);
@@ -97,6 +98,7 @@ public final class ClaraUtil {
      * </pre>
      *
      * @param name the name to be checked
+     * @return true if the string is a DPE canonical name, false if not
      */
     public static boolean isDpeName(String name) {
         Matcher matcher = CANONICAL_NAME_PATTERN.matcher(name);
@@ -112,6 +114,7 @@ public final class ClaraUtil {
      * </pre>
      *
      * @param name the name to be checked
+     * @return true if the string is a container canonical name, false if not
      */
     public static boolean isContainerName(String name) {
         Matcher matcher = CANONICAL_NAME_PATTERN.matcher(name);
@@ -127,6 +130,7 @@ public final class ClaraUtil {
      * </pre>
      *
      * @param name the name to be checked
+     * @return true if the string is a service canonical name, false if not
      */
     public static boolean isServiceName(String name) {
         Matcher matcher = CANONICAL_NAME_PATTERN.matcher(name);
@@ -134,6 +138,12 @@ public final class ClaraUtil {
     }
 
 
+    /**
+     * Gets the DPE name from the given CLARA canonical name.
+     *
+     * @param canonicalName a CLARA canonical name
+     * @return the DPE name
+     */
     public static String getDpeName(String canonicalName) {
         if (!isCanonicalName(canonicalName)) {
             throw new IllegalArgumentException("Not a canonical name: " + canonicalName);
@@ -142,6 +152,14 @@ public final class ClaraUtil {
         return topic.domain();
     }
 
+    /**
+     * Gets the container name from the given CLARA canonical name.
+     * This returns just the container name part, without the DPE name
+     * (i.e. not a container canonical name).
+     *
+     * @param canonicalName a CLARA canonical name with a container part
+     * @return the container name
+     */
     public static String getContainerName(String canonicalName) {
         if (!isCanonicalName(canonicalName)) {
             throw new IllegalArgumentException("Not a canonical name: " + canonicalName);
@@ -150,6 +168,13 @@ public final class ClaraUtil {
         return topic.subject();
     }
 
+    /**
+     * Gets the container canonical name from the given CLARA canonical name.
+     * This returns the full canonical name, including the DPE name.
+     *
+     * @param canonicalName a CLARA canonical name with a container part
+     * @return the container canonical name
+     */
     public static String getContainerCanonicalName(String canonicalName) {
         if (!isCanonicalName(canonicalName)) {
             throw new IllegalArgumentException("Not a canonical name: " + canonicalName);
@@ -165,6 +190,14 @@ public final class ClaraUtil {
         return canonicalName.substring(0, secondSep);
     }
 
+    /**
+     * Gets the service engine name from the given CLARA canonical name.
+     * This returns just the engine name part, without the container and DPE
+     * names (i.e. not a service canonical name).
+     *
+     * @param canonicalName a service canonical name
+     * @return the container name
+     */
     public static String getEngineName(String canonicalName) {
         if (!isCanonicalName(canonicalName)) {
             throw new IllegalArgumentException("Not a canonical name: " + canonicalName);
@@ -173,6 +206,12 @@ public final class ClaraUtil {
         return topic.type();
     }
 
+    /**
+     * Gets the DPE host address from the given CLARA canonical name.
+     *
+     * @param canonicalName a CLARA canonical name
+     * @return the DPE host address
+     */
     public static String getDpeHost(String canonicalName) {
         if (!isCanonicalName(canonicalName)) {
             throw new IllegalArgumentException("Not a canonical name: " + canonicalName);
@@ -186,6 +225,12 @@ public final class ClaraUtil {
         }
     }
 
+    /**
+     * Gets the DPE port from the given CLARA canonical name.
+     *
+     * @param canonicalName a CLARA canonical name
+     * @return the DPE port or the default port if not set in the name
+     */
     public static int getDpePort(String canonicalName) {
         if (!isCanonicalName(canonicalName)) {
             throw new IllegalArgumentException("Not a canonical name: " + canonicalName);
@@ -200,6 +245,12 @@ public final class ClaraUtil {
         }
     }
 
+    /**
+     * Gets the DPE language from the given CLARA canonical name.
+     *
+     * @param canonicalName a CLARA canonical name
+     * @return the DPE language
+     */
     public static String getDpeLang(String canonicalName) {
         if (!isCanonicalName(canonicalName)) {
             throw new IllegalArgumentException("Not a canonical name: " + canonicalName);
@@ -208,6 +259,12 @@ public final class ClaraUtil {
         return dpeName.substring(dpeName.indexOf(ClaraConstants.LANG_SEP) + 1);
     }
 
+    /**
+     * Gets the default DPE port for the given language.
+     *
+     * @param lang a supported CLARA language
+     * @return the default port for a DPE of the given language
+     */
     public static int getDefaultPort(String lang) {
         return getPort(lang, 0);
     }
@@ -318,6 +375,11 @@ public final class ClaraUtil {
         return true;
     }
 
+    /**
+     * Gets the IPv4 value for the localhost address.
+     *
+     * @return the localhost IP
+     */
     public static String localhost() {
         return xMsgUtil.localhost();
     }
@@ -330,6 +392,15 @@ public final class ClaraUtil {
         return LocalDateTime.now().format(FORMATTER);
     }
 
+    /**
+     * Causes the currently executing thread to sleep for the given number of
+     * milliseconds.
+     * <p>
+     * If any thread interrupts the current thread, this method will return
+     * and the interrupt status will be set.
+     *
+     * @param millis the length of time to sleep in milliseconds
+     */
     public static void sleep(long millis) {
         try {
             Thread.sleep(millis);
@@ -338,6 +409,15 @@ public final class ClaraUtil {
         }
     }
 
+    /**
+     * Causes the currently executing thread to sleep for the given duration of time.
+     * <p>
+     * If any thread interrupts the current thread, this method will return
+     * and the interrupt status will be set.
+     *
+     * @param duration the length of time to sleep
+     * @param unit the time unit for the duration of the sleep
+     */
     public static void sleep(long duration, TimeUnit unit) {
         try {
             unit.sleep(duration);

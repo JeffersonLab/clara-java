@@ -35,16 +35,22 @@ public interface ClaraName {
     /**
      * Returns the specific name of this Clara component.
      * This is the last part of the canonical name.
+     *
+     * @return a string with the name part of the canonical name
      */
     String name();
 
     /**
      * Returns the language of this Clara component.
+     *
+     * @return the language
      */
     ClaraLang language();
 
     /**
      * Returns the address of the proxy used by this Clara component.
+     *
+     * @return the address where the component is listening requests
      */
     ClaraAddress address();
 }

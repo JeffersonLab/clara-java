@@ -24,6 +24,20 @@ package org.jlab.clara.base;
 
 import org.jlab.coda.xmsg.core.xMsgConstants;
 
+/**
+ * Unique identifier of a CLARA service.
+ * <p>
+ * The canonical name for a service has the following structure:
+ * <pre>
+ * {@literal <container_canonical_name>:<engine_name>}
+ * </pre>
+ * Example:
+ * <pre>
+ * {@literal 10.1.1.1_java:master:SqrRoot}
+ * </pre>
+ *
+ * @see ContainerName
+ */
 public class ServiceName implements ClaraName {
 
     private final ContainerName container;
@@ -99,10 +113,20 @@ public class ServiceName implements ClaraName {
         return container.language();
     }
 
+    /**
+     * Gets the canonical name of the DPE for this service.
+     *
+     * @return the DPE name
+     */
     public DpeName dpe() {
         return container.dpe();
     }
 
+    /**
+     * Gets the canonical name of the container for this service.
+     *
+     * @return the container name
+     */
     public ContainerName container() {
         return container;
     }
