@@ -389,8 +389,7 @@ public final class ClaraRequests {
 
         ServiceExecuteRequest(ClaraBase base, ClaraComponent frontEnd,
                               Composition composition,
-                              EngineData data, Set<EngineDataType> dataTypes)
-                throws ClaraException {
+                              EngineData data, Set<EngineDataType> dataTypes) {
             super(base, frontEnd, composition,
                   xMsgMeta.ControlAction.EXECUTE, data, dataTypes);
         }
@@ -537,7 +536,7 @@ public final class ClaraRequests {
          * @param data the input data to execute the service/composition
          * @return a service execute request to be run
          */
-        public ServiceExecuteRequest withData(EngineData data) throws ClaraException {
+        public ServiceExecuteRequest withData(EngineData data) {
             return new ServiceExecuteRequest(base, frontEnd, composition, data, dataTypes);
         }
     }
