@@ -24,7 +24,6 @@ package org.jlab.clara.base;
 
 import org.jlab.clara.base.core.ClaraConstants;
 import org.jlab.clara.engine.EngineDataType;
-import org.jlab.clara.engine.EngineStatus;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.core.xMsgUtil;
@@ -303,15 +302,6 @@ public final class ClaraUtil {
     }
 
 
-    public static Boolean isHostLocal(String hostName) {
-        for (String s : xMsgUtil.getLocalHostIps()) {
-            if (s.equals(hostName)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     /**
      * Checks to see if the service is locally deployed.
      *
@@ -340,15 +330,6 @@ public final class ClaraUtil {
         return LocalDateTime.now().format(FORMATTER);
     }
 
-    /**
-     * Gets the current time and returns string representation of it.
-     * @return string representing the current time.
-     */
-    public static String getCurrentTime(String pattern) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(pattern);
-        return LocalDateTime.now().format(formatter);
-    }
-
     public static void sleep(long millis) {
         try {
             Thread.sleep(millis);
@@ -362,19 +343,6 @@ public final class ClaraUtil {
             unit.sleep(duration);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-        }
-    }
-
-    public static String getStatusText(EngineStatus status) {
-        switch (status) {
-            case INFO:
-                return ClaraConstants.INFO;
-            case WARNING:
-                return ClaraConstants.WARNING;
-            case ERROR:
-                return ClaraConstants.ERROR;
-            default:
-                throw new IllegalStateException("Clara-Error: Unknown status " + status);
         }
     }
 }
