@@ -8,6 +8,6 @@ package org.jlab.clara.cli;
  *         Date 1/10/17
  * @version 3.x
  */
-public interface Fn<I,R> {
+public interface Fn<I, R> {
     R apply(I input);
 }
