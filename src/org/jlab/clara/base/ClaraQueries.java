@@ -184,7 +184,7 @@ public final class ClaraQueries {
             }
             Stream<JSONObject> regData = parseQuery.apply(report, regKey)
                                                    .filter(filter.filter());
-            if (regData.equals(dataKey)) {
+            if (regKey.equals(dataKey)) {
                 return regData;
             }
             Set<String> names = regData.map(o -> o.getString("name"))
