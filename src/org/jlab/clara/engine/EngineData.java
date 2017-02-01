@@ -185,33 +185,6 @@ public class EngineData {
     }
 
     /**
-     * Gets the state of the execution result set by the engine, if any.
-     * <p>
-     * This value will be set only when the data is the result of a engine,
-     * and it is used in composition requests to route the data to the next
-     * service in the composition.
-     *
-     * @return the state set by the engine or empty
-     */
-    public String getEngineState() {
-        return metadata.getSenderState();
-    }
-
-    /**
-     * Sets a state for this data.
-     * Engines should set a state for the result of processing a specific
-     * request, and it should be one of the defined states by the engine.
-     * <p>
-     * States define the flow the output data in a composition request,
-     * where results are routed to the next services based on its state.
-     *
-     * @param state the state for the data
-     */
-    public void setEngineState(String state) {
-        metadata.setSenderState(state);
-    }
-
-    /**
      * Gets the canonical name of the engine that returned this data, if any.
      * <p>
      * This value will be set only when the data is the result of a engine
@@ -276,6 +249,33 @@ public class EngineData {
      */
     public String getComposition() {
         return metadata.getComposition();
+    }
+
+    /**
+     * Gets the state of the execution result set by the engine, if any.
+     * <p>
+     * This value will be set only when the data is the result of a engine,
+     * and it is used in composition requests to route the data to the next
+     * service in the composition.
+     *
+     * @return the state set by the engine or empty
+     */
+    public String getEngineState() {
+        return metadata.getSenderState();
+    }
+
+    /**
+     * Sets a state for this data.
+     * Engines should set a state for the result of processing a specific
+     * request, and it should be one of the defined states by the engine.
+     * <p>
+     * States define the flow the output data in a composition request,
+     * where results are routed to the next services based on its state.
+     *
+     * @param state the state for the data
+     */
+    public void setEngineState(String state) {
+        metadata.setSenderState(state);
     }
 
     /**
