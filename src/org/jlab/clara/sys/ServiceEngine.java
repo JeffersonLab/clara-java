@@ -188,8 +188,10 @@ class ServiceEngine {
 
     private Set<String> getLinks(EngineData inData, EngineData outData) {
         // service-states for conditional routing
-        ServiceState ownerSS = new ServiceState(outData.getEngineName(), outData.getEngineState());
-        ServiceState inputSS = new ServiceState(inData.getEngineName(), inData.getEngineState());
+        ServiceState ownerSS = new ServiceState(outData.getEngineName(),
+                                                outData.getExecutionState());
+        ServiceState inputSS = new ServiceState(inData.getEngineName(),
+                                                inData.getExecutionState());
 
         return compiler.getLinks(ownerSS, inputSS);
     }

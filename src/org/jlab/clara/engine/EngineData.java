@@ -260,7 +260,7 @@ public class EngineData {
      *
      * @return the state set by the engine or empty
      */
-    public String getEngineState() {
+    public String getExecutionState() {
         return metadata.getSenderState();
     }
 
@@ -274,7 +274,7 @@ public class EngineData {
      *
      * @param state the state for the data
      */
-    public void setEngineState(String state) {
+    public void setExecutionState(String state) {
         metadata.setSenderState(state);
     }
 
