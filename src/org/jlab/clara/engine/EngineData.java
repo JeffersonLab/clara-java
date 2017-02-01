@@ -53,6 +53,7 @@ public class EngineData {
     /**
      * Gets the user-data.
      * The value must be cast to its proper Java class.
+     * Use {@link #getMimeType} to get information about the type of the data.
      *
      * @return the user-data or null if not set
      */

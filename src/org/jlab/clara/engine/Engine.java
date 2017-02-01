@@ -38,7 +38,7 @@ public interface Engine {
      *
      * @param input the data to configure the engine with
      * @return an (optional) result and/or status of the configuration request,
-     *         it could be or null or without output data (but not recommended)
+     *         it could be null or without output data (but not recommended)
      */
     EngineData configure(EngineData input);
 
