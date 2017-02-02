@@ -55,6 +55,7 @@ fi
 HOST=$(hostname)
 USER=$(id -un)
 FE_HOST="localhost"
+FE_PORT="8888"
 
 # CLARA_HOME
 
@@ -187,7 +188,7 @@ echo
 # start dpe if it is not already up
 if [ "$9" == "false" ]; then
 $CLARA_HOME/bin/remove-dpe
-$CLARA_HOME/bin/j_dpe --port $port --host $FE_HOST --session $SESSION --max-sockets 5120 --report 5 --max-cores $7 2>&1 | tee $LOG_FILE &
+$CLARA_HOME/bin/j_dpe --port $port --host $HOST --session $SESSION --max-sockets 5120 --report 5 --max-cores $7 2>&1 | tee $LOG_FILE &
 sleep 7
 fi
 

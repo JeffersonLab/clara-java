@@ -77,20 +77,23 @@ echo '        (default: 1440)'
 
 # Default parameter settings
 CL_HOME="undefined"
-IN_DIR="undefined"
 J_HOME="undefined"
 MODE="undefined"
-NODE_NUM="undefined"
-OUT_DIR="undefined"
-PLUGIN="undefined"
-SESSION="undefined"
-THREAD_NUM="undefined"
-SERVICE_YAML="undefined"
-FILE_LIST="undefined"
 FARM_LOADING_ZONE="undefined"
+IN_DIR="$CLARA_HOME/data/in"
+NODE_NUM="undefined"
+OUT_DIR="$CLARA_HOME/data/out"
+PLUGIN="$CLARA_HOME/plugins/clas12"
+THREAD_NUM="36"
+SERVICE_YAML="$PLUGIN/config/services.yaml"
+FILE_LIST="$PLUGIN/config/files.list"
+HOST=$(hostname)
+USER=$(id -un)
+SESSION="$USER"
 
 #farm default parameters
 DESCRIPTION="clara"
+FARM_LOADING_ZONE="undefined"
 FARM_MEMORY="70"
 FARM_TRACK="debug"
 FARM_OS="centos7"
@@ -99,6 +102,9 @@ FARM_DISK_SPACE="3"
 FARM_TIME="1440"
 FARM_DPE_ORC_DELAY="2"
 FARM_FLAVOR="jlab"
+
+
+#farm default parameters
 
 while :
 do
@@ -434,6 +440,8 @@ $CLARA_HOME/bin/remove-dpe $SESSION
 
 # Starting DPEs
 ################# Starting DPE ############
+HOST=$(hostname)
+USER=$(id -un)
 UPPER=8000
 PORT=7000
 dpe_port=0
@@ -459,39 +467,85 @@ export CLARA_HOME
 export CLAS12DIR
 export CLASSPATH="$CLARA_HOME/lib/*:$CLAS12DIR/lib/clas/*:$CLAS12DIR/lib/services/*"
 
+#=====================
 
-LOG_FILE=$CLARA_HOME/log/$HOST
+#LOG_FILE=$CLARA_HOME/log/$HOST
+#
+#echo "-------- Running Conditions ---------------"
+#echo " Start time         = "$(date)
+#echo " Clara distribution = $CLARA_HOME"
+#echo " Plugin directory   = $CLAS12DIR"
+#echo " Log file           = Clara distribution/log/$HOSTNAME-jfe.log"
+#echo " Note               = Running as local Front-End"
+#echo " Threads request    = $THREAD_NUM"
+#echo "------------------------------------------"
+#echo
+#
+#
+#$CLARA_HOME/bin/j_dpe --port $PORT --host $FE_HOST --session $SESSION --max-sockets 5120 --report 5 --max-cores $THREAD_NUM 2>&1 | tee "$LOG_FILE-jfe.log" &
+#
+##$CLARA_HOME/bin/j_dpe --port $PORT --host $FE_HOST --session $SESSION & export dpepid=$!
+#
+################## Starting DPE ############
+#
+#sleep "$FARM_DPE_ORC_DELAY"
+#
+#j="_java"
+#FENAME=$IP%$PORT$j
+#
+## Starting cloud orchestrator
+#if [ "$FARM_LOADING_ZONE" = "undefined" ]; then
+#$CLARA_HOME/bin/j_cloud -f $FENAME -s $SESSION -F -i $IN_DIR -o $OUT_DIR -p $THREAD_NUM -t $THREAD_NUM $SERVICE_YAML $FILE_LIST
+#else
+#$CLARA_HOME/bin/j_cloud -f $FENAME -s $SESSION -F -B -L -i $IN_DIR -o $OUT_DIR -l $FARM_LOADING_ZONE -p $THREAD_NUM -t $THREAD_NUM $SERVICE_YAML $FILE_LIST
+#fi
+#
+#$CLARA_HOME/bin/remove-dpe $SESSION
+#
+#fi
 
-echo "-------- Running Conditions ---------------"
-echo " Start time         = "$(date)
-echo " Clara distribution = $CLARA_HOME"
-echo " Plugin directory   = $CLAS12DIR"
-echo " Log file           = Clara distribution/log/$HOSTNAME-jfe.log"
-echo " Note               = Running as local Front-End"
-echo " Threads request    = $THREAD_NUM"
-echo "------------------------------------------"
+#=====================
+LOG_FILE="$CLARA_HOME/log/$HOST-$USER-$DESCRIPTION-jfe.log"
+printf "  ________   ____         ________   _________    ________\n"
+printf " /        \ |    |       /        | |         \  /        | 4.3.0\n"
+printf "|    |    | |    |      |   _._   | |    |    | |   _._   |\n"
+printf "|    |____| |    |      |    |    | |        /  |    |    |\n"
+printf "|    |    | |    |____  |    |    | |    .   -| |    |    |\n"
+printf "|    |    | |         | |    |    | |    |    | |    |    |\n"
+printf "|________/  |_________| |____|____| |____|____| |____|____|\n"
+echo " "
+echo "----------------------- Running Conditions -------------------"
+echo "  Start time    = "$(date)
+echo "  Log file      = $LOG_FILE"
+echo "  clara_home    = $CLARA_HOME"
+echo "  plugin        = $PLUGIN"
+echo "  input_dir     = $IN_DIR"
+echo "  output_dir    = $OUT_DIR"
+echo "  session       = $SESSION"
+echo "  cores         = $THREAD_NUM"
+echo "  services      = $SERVICE_YAML"
+echo "  files         = $FILE_LIST"
+echo "  description   = $DESCRIPTION"
+echo "  farm_stage    = $FARM_LOADING_ZONE"
+echo "  farm_memory   = $FARM_MEMORY"
+echo "  farm_track    = $FARM_TRACK"
+echo "  farm_os       = $FARM_OS"
+echo "  farm_cpu      = $FARM_CPU"
+echo "  farm_disk     = $FARM_DISK_SPACE"
+echo "  farm_time     = $FARM_TIME"
+echo "  farm_flavor   = $FARM_FLAVOR"
+echo "---------------------------------------------------------------"
 echo
 
-
-$CLARA_HOME/bin/j_dpe --port $PORT --host $FE_HOST --session $SESSION --max-sockets 5120 --report 5 --max-cores $THREAD_NUM 2>&1 | tee "$LOG_FILE-jfe.log" &
-
-#$CLARA_HOME/bin/j_dpe --port $PORT --host $FE_HOST --session $SESSION & export dpepid=$!
-
-################# Starting DPE ############
-
-sleep "$FARM_DPE_ORC_DELAY"
+# start dpe if it is not already up
+$CLARA_HOME/bin/remove-dpe
+$CLARA_HOME/bin/j_dpe --port $PORT --host $HOST --session $SESSION --max-sockets 5120 --report 5 --max-cores $THREAD_NUM 2>&1 | tee $LOG_FILE &
+sleep 7
 
 j="_java"
 FENAME=$IP%$PORT$j
 
 # Starting cloud orchestrator
-if [ "$FARM_LOADING_ZONE" = "undefined" ]; then
-$CLARA_HOME/bin/j_cloud -f $FENAME -s $SESSION -F -i $IN_DIR -o $OUT_DIR -p $THREAD_NUM -t $THREAD_NUM $SERVICE_YAML $FILE_LIST
-else
-$CLARA_HOME/bin/j_cloud -f $FENAME -s $SESSION -F -B -L -i $IN_DIR -o $OUT_DIR -l $FARM_LOADING_ZONE -p $THREAD_NUM -t $THREAD_NUM $SERVICE_YAML $FILE_LIST
+  $CLARA_HOME/bin/j_cloud -f $FENAME -s $SESSION -F -i $IN_DIR -o $OUT_DIR -p $THREAD_NUM -t $THREAD_NUM $SERVICE_YAML $FILE_LIST
 fi
-
-$CLARA_HOME/bin/remove-dpe $SESSION
-
-fi
-
+$CLARA_HOME/bin/remove-dpe
