@@ -329,6 +329,16 @@ public class BaseOrchestrator {
     }
 
 
+    /**
+     * Gets the size of the thread-pool that process subscription callbacks.
+     *
+     * @return the maximum size of the thread-pool
+     */
+    public int getPoolSize() {
+        return base.getPoolSize();
+    }
+
+
     private static String getUniqueName() {
         return UUID.randomUUID().toString();
     }
