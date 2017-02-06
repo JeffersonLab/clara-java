@@ -22,9 +22,9 @@
 
 package org.jlab.clara.sys.ccc;
 
+import org.jlab.clara.base.core.ClaraConstants;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineData;
-import org.jlab.coda.xmsg.core.xMsgConstants;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -66,10 +66,10 @@ public class Statement {
     private Set<String> outputLinks = new LinkedHashSet<>();
 
     // statement string
-    private String statementString = xMsgConstants.UNDEFINED;
+    private String statementString = ClaraConstants.UNDEFINED;
 
     // The name of the service that this statement is relevant to.
-    private String serviceName = xMsgConstants.UNDEFINED;
+    private String serviceName = ClaraConstants.UNDEFINED;
 
 
     public Statement(String statementString, String serviceName) throws ClaraException {

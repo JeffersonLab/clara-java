@@ -22,7 +22,7 @@
 
 package org.jlab.clara.sys;
 
-import org.jlab.coda.xmsg.core.xMsgConstants;
+import org.jlab.clara.base.core.ClaraConstants;
 
 /**
  * <p>
@@ -40,11 +40,9 @@ import org.jlab.coda.xmsg.core.xMsgConstants;
  * @since 2/2/15
  */
 class ServiceStatus {
-    private String name =
-            xMsgConstants.UNDEFINED;
+    private String name = ClaraConstants.UNDEFINED;
 
-    private String description =
-            xMsgConstants.UNDEFINED;
+    private String description = ClaraConstants.UNDEFINED;
 
     private volatile int requestNumber;
 

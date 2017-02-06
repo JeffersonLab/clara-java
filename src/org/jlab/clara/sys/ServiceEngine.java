@@ -62,7 +62,7 @@ class ServiceEngine {
     private final CompositionCompiler compiler;
 
     // Already recorded (previous) composition
-    private String prevComposition = xMsgConstants.UNDEFINED;
+    private String prevComposition = ClaraConstants.UNDEFINED;
 
     // The last execution time
     private long executionTime;
@@ -210,7 +210,7 @@ class ServiceEngine {
         if (outData.getData() == null) {
             if (outData.getStatus() == EngineStatus.ERROR) {
                 outData.setData(EngineDataType.STRING.mimeType(),
-                        xMsgConstants.UNDEFINED);
+                                ClaraConstants.UNDEFINED);
             } else {
                 throw new ClaraException("empty engine result");
             }

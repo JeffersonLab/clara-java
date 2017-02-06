@@ -22,8 +22,8 @@
 
 package org.jlab.clara.sys.ccc;
 
+import org.jlab.clara.base.core.ClaraConstants;
 import org.jlab.clara.base.error.ClaraException;
-import org.jlab.coda.xmsg.core.xMsgConstants;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -56,7 +56,7 @@ public class Condition {
     private Set<ServiceState> orNotStates = new LinkedHashSet<>();
 
     // The name of the service that this condition is relevant to.
-    private String serviceName = xMsgConstants.UNDEFINED;
+    private String serviceName = ClaraConstants.UNDEFINED;
 
     public Condition(String conditionString, String serviceName) throws ClaraException {
         this.serviceName = serviceName;

@@ -89,7 +89,7 @@ class Service extends AbstractActor {
         sysReport = new ServiceReport(comp, userEngine);
 
         // Creating thread pool
-        executionPool = xMsgUtil.newFixedThreadPool(comp.getSubscriptionPoolSize(), name);
+        executionPool = xMsgUtil.newThreadPool(comp.getSubscriptionPoolSize(), name);
 
         // Creating service object pool
         enginePool = new ServiceEngine[comp.getSubscriptionPoolSize()];
