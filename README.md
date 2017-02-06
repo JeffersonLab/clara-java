@@ -6,6 +6,12 @@ Big Data processing.
 [![Build Status](https://travis-ci.org/JeffersonLab/clara-java.svg?branch=master)](https://travis-ci.org/JeffersonLab/clara-java)
 [![Javadoc](https://img.shields.io/badge/javadoc-4.3--SNAPSHOT-blue.svg?style=flat)](https://claraweb.jlab.org/clara/api/java/)
 
+
+## Documentation
+
+The reference documentation is available at <http:://claraweb.org>.
+
+
 ## Build notes
 
 CLARA requires the Java 8 JDK.
