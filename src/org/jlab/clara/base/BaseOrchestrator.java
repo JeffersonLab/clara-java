@@ -330,6 +330,16 @@ public class BaseOrchestrator {
 
 
     /**
+     * Returns the front-end used by this orchestrator.
+     *
+     * @return the name of the front-end DPE
+     */
+    public DpeName getFrontEnd() {
+        return new DpeName(base.getFrontEnd().getCanonicalName());
+    }
+
+
+    /**
      * Gets the size of the thread-pool that process subscription callbacks.
      *
      * @return the maximum size of the thread-pool
