@@ -85,13 +85,13 @@ public class OrInteractive extends BaseOrchestrator {
                 System.exit(0);
             }
 
-            OrInteractive or = new OrInteractive();
-            if (options.has(fileSpec)) {
-                or.read(options.valueOf(fileSpec), options.has("b"));
-            } else {
-                or.interactive();
+            try (OrInteractive or = new OrInteractive()) {
+                if (options.has(fileSpec)) {
+                    or.read(options.valueOf(fileSpec), options.has("b"));
+                } else {
+                    or.interactive();
+                }
             }
-            System.exit(0);
         } catch (OptionException | UserInputException e) {
             System.err.println(e.getMessage());
             System.exit(1);

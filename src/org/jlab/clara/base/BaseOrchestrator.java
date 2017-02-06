@@ -49,7 +49,7 @@ import java.util.UUID;
  * Base class for orchestration of applications.
  */
 @ParametersAreNonnullByDefault
-public class BaseOrchestrator {
+public class BaseOrchestrator implements AutoCloseable {
 
     //Set of user defined data types, that provide data specific serialization routines.
     private final Set<EngineDataType> dataTypes = new HashSet<>();
@@ -147,6 +147,16 @@ public class BaseOrchestrator {
      */
     Map<String, xMsgSubscription> getSubscriptions() {
         return subscriptions;
+    }
+
+
+    /**
+     * Unsubscribes all running subscriptions,
+     * terminates all running callbacks and closes all connections.
+     */
+    @Override
+    public void close() {
+        base.close();
     }
 
 
