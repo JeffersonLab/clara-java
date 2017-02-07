@@ -9,6 +9,7 @@ import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.data.xMsgR.xMsgRegistration;
 import org.jlab.coda.xmsg.excp.xMsgException;
+import org.jlab.coda.xmsg.net.xMsgContext;
 import org.jlab.coda.xmsg.net.xMsgProxyAddress;
 import org.jlab.coda.xmsg.net.xMsgRegAddress;
 import org.jlab.coda.xmsg.net.xMsgSocketFactory;
@@ -21,7 +22,6 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.zeromq.ZContext;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -67,7 +67,7 @@ public class ClaraQueriesTest {
         private static final String DATE = LocalDateTime.now()
                 .format(DateTimeFormatter.ofPattern(ClaraConstants.DATE_FORMAT));
 
-        private final ZContext context;
+        private final xMsgContext context;
         private final xMsgRegistrar server;
         private final xMsgRegDriver driver;
 
@@ -78,7 +78,7 @@ public class ClaraQueriesTest {
         TestData() throws xMsgException {
 
             xMsgRegAddress addr = new xMsgRegAddress("localhost", 7775);
-            context = new ZContext();
+            context = xMsgContext.newContext();
             server = new xMsgRegistrar(context, addr);
             driver = new xMsgRegDriver(addr, new xMsgSocketFactory(context.getContext()));
 

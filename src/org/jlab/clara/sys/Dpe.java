@@ -103,8 +103,8 @@ public final class Dpe extends AbstractActor {
             }
 
             // config ZMQ context
-            xMsgContext.setIOThreads(options.ioThreads());
-            xMsgContext.setMaxSockets(options.maxSockets());
+            xMsgContext.getInstance().setIOThreads(options.ioThreads());
+            xMsgContext.getInstance().setMaxSockets(options.maxSockets());
 
             // start a dpe
             Dpe dpe = new Dpe(options.isFrontEnd(), options.localAddress(), options.frontEnd(),
