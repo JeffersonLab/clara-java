@@ -142,8 +142,7 @@ public class BaseOrchestrator implements AutoCloseable {
     /**
      * Returns the map of subscriptions for testing purposes.
      *
-     * @return {@link org.jlab.coda.xmsg.core.xMsgSubscription} objects
-     *          mapped by the key = Key = Clara_component_canonical_name # topic_of_subscription
+     * @return the map of running subscriptions
      */
     Map<String, xMsgSubscription> getSubscriptions() {
         return subscriptions;
@@ -162,10 +161,8 @@ public class BaseOrchestrator implements AutoCloseable {
 
     /**
      * Registers the necessary data-types to communicate data to services.
-     * {@link org.jlab.clara.engine.EngineDataType} object contains user
-     * provided data serialization routine
      *
-     * @param dataTypes service engine data types
+     * @param dataTypes the required engine data types
      */
     public void registerDataTypes(EngineDataType... dataTypes) {
         Collections.addAll(this.dataTypes, dataTypes);
@@ -173,10 +170,8 @@ public class BaseOrchestrator implements AutoCloseable {
 
     /**
      * Registers the necessary data-types to communicate data to services.
-     * {@link org.jlab.clara.engine.EngineData} object contains user
-     * provided data serialization routine
      *
-     * @param dataTypes set of {@link org.jlab.clara.engine.EngineDataType} objects
+     * @param dataTypes the required engine data types
      */
     public void registerDataTypes(Set<EngineDataType> dataTypes) {
         this.dataTypes.addAll(dataTypes);

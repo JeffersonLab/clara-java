@@ -265,7 +265,7 @@ public class EngineData {
     }
 
     /**
-     * Sets a state for this data.
+     * Sets an execution state for this data.
      * Engines should set a state for the result of processing a specific
      * request, and it should be one of the defined states by the engine.
      * <p>
