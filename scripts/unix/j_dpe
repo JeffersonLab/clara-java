@@ -3,6 +3,7 @@
 # date 1.13.17
 
 
+
 if [ -z "${CLARA_HOME}" ]; then
     echo "Error: \$CLARA_HOME is not defined."
     exit 1

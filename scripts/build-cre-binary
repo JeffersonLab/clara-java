@@ -2,6 +2,7 @@
 # author Vardan Gyurjyan
 # date 1.13.17
 
+
 rm -rf $CLARA_HOME/plugins/clas12/bin
 rm -rf $CLARA_HOME/plugins/clas12/etc
 rm -rf $CLARA_HOME/plugins/clas12/log

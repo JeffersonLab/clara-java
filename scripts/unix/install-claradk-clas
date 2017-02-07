@@ -2,6 +2,7 @@
 # author Vardan Gyurjyan
 # date 1.13.17
 
+
 if ! [ -n "$CLARA_HOME" ]; then
     echo "CLARA_HOME environmental variable is not defined. Exiting..."
     exit

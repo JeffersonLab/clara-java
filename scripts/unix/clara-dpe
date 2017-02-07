@@ -3,6 +3,7 @@
 # date 1.13.17
 # Note: this allows running 2 DPEs in a same node
 
+
 if [ -z ${1+x} ]; then
 echo "Usage:"
 echo "clara-dpe <session> [<clara-home> <plugin-dir> <fe-host>]"

@@ -1,6 +1,7 @@
 #!/bin/sh
 # date 1.13.17
 
+
 if [ -n "${JAVA_HOME}" ]; then
     java_bin="${JAVA_HOME}/bin/java"
 else

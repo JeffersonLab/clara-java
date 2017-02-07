@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
 
+
 # date 1.13.17
 
 TEST_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -56,11 +57,11 @@ else
     java_bin=java
 fi
 
-LOG_FILE=$CLARA_HOME/log/$HOST
+#LOG_FILE=$CLARA_HOME/log/$HOST
 
 MAIN=org.jlab.clas.std.orchestrators.CloudOrchestrator
 
-"${java_bin}" -cp $CLASSPATH $MAIN "$@" 2>&1 | tee "$LOG_FILE-co.log"
+"${java_bin}" -cp $CLASSPATH $MAIN "$@"
 
 # Cleanup after we done
 #remove-dpe

@@ -2,6 +2,7 @@
 # author vhg
 # date 1.13.17
 
+
 if [ -z ${1+x} ]; then
 echo "Usage:"
 echo "clara-orchestrator <session> [<threads-number> <clara-home> <plugin-dir> <in-dir> <out-dir>]"

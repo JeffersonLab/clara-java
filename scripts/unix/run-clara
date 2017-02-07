@@ -2,6 +2,7 @@
 # author Vardan Gyurjyan
 # date 1.13.17
 
+
 unset CCDB_DATABASE
 
 function display_help {

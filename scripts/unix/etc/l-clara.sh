@@ -172,7 +172,8 @@ done
 echo "$port"
 fi
 
-LOG_FILE="$CLARA_HOME/log/$HOST-$USER-$6-jfe.log"
+LOG_FILE_DPE="$CLARA_HOME/log/$HOST-$USER-$6-jfe.log"
+LOG_FILE_ORC="$CLARA_HOME/log/$HOST-$USER-$6-co.log"
 
 echo "-------- Running Conditions ---------------"
 echo " Start time         = "$(date)
@@ -188,7 +189,7 @@ echo
 # start dpe if it is not already up
 if [ "$9" == "false" ]; then
 $CLARA_HOME/bin/remove-dpe
-$CLARA_HOME/bin/j_dpe --port $port --host $HOST --session $SESSION --max-sockets 5120 --report 5 --max-cores $7 2>&1 | tee $LOG_FILE &
+$CLARA_HOME/bin/j_dpe --port $port --host $HOST --session $SESSION --max-sockets 5120 --report 5 --max-cores $7 2>&1 | tee $LOG_FILE_DPE &
 sleep 7
 fi
 
@@ -196,5 +197,5 @@ j="_java"
 FENAME=$IP%$port$j
 
 # Starting cloud orchestrator
-  $CLARA_HOME/bin/j_cloud -f $FENAME -s $SESSION -F -i $IN_DIR -o $OUT_DIR -p $7 -t $7 $SERVICE_YAML $FILE_LIST
+  $CLARA_HOME/bin/j_cloud $LOG_FILE -f $FENAME -s $SESSION -F -i $IN_DIR -o $OUT_DIR -p $7 -t $7 $SERVICE_YAML $FILE_LIST 2>&1 | tee $LOG_FILE_ORC
 fi
