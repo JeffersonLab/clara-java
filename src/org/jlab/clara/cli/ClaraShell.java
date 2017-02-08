@@ -67,6 +67,7 @@ public class ClaraShell {
 
     private static Map<String, Command> initCommands(Terminal terminal) {
         Map<String, Command> commands = new HashMap<>();
+        addCommand(commands, new HelpCommand(terminal));
         return commands;
     }
 
