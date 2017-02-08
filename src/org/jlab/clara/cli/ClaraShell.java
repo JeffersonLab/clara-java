@@ -25,6 +25,8 @@ package org.jlab.clara.cli;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UncheckedIOException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.jline.reader.EndOfFileException;
 import org.jline.reader.LineReader;
@@ -35,6 +37,7 @@ import org.jline.terminal.TerminalBuilder;
 
 public class ClaraShell {
 
+    private final Map<String, Command> commands;
     private final Terminal terminal;
     private final LineReader reader;
 
@@ -46,6 +49,7 @@ public class ClaraShell {
     public ClaraShell() {
         try {
             terminal = TerminalBuilder.builder().build();
+            commands = initCommands(terminal);
             reader = LineReaderBuilder.builder()
                     .terminal(terminal)
                     .build();
@@ -54,13 +58,29 @@ public class ClaraShell {
         }
     }
 
+    private static Map<String, Command> initCommands(Terminal terminal) {
+        Map<String, Command> commands = new HashMap<>();
+        return commands;
+    }
+
+    private static void addCommand(Map<String, Command> commands, Command command) {
+        commands.put(command.getName(), command);
+    }
+
     public void run() {
         try {
             printWelcomeMessage();
             PrintWriter out = new PrintWriter(System.out);
             String line;
             while ((line = readLine("")) != null) {
-                System.out.println(line);
+                String[] splited = line.split(" ");
+                String commandName = splited[0];
+                Command command = commands.get(commandName);
+                if (command == null) {
+                    terminal.writer().println("Invalid command");
+                } else {
+                    command.execute(splited);
+                }
                 out.flush();
             }
         } catch (EndOfFileException e) {
