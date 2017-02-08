@@ -172,13 +172,14 @@ done
 echo "$port"
 fi
 
-LOG_FILE="$CLARA_HOME/log/$HOST-$USER-$6-jfe.log"
+LOG_FILE_DPE="$CLARA_HOME/log/$HOST-$USER-$6-jfe.log"
+LOG_FILE_ORC="$CLARA_HOME/log/$HOST-$USER-$6-co.log"
 
 echo "-------- Running Conditions ---------------"
 echo " Start time         = "$(date)
 echo " Clara distribution = $CLARA_HOME"
 echo " Plugin directory   = $5"
-echo " Log file           = $LOG_FILE"
+echo " Log file           = $LOG_FILE_DPE"
 echo " Note               = Running as local Front-End"
 echo " Threads request    = $7"
 echo "------------------------------------------"
@@ -186,7 +187,7 @@ echo
 
 # start dpe if it is not already up
 $CLARA_HOME/bin/remove-dpe
-$CLARA_HOME/bin/j_dpe --port $port --host $HOST --session $SESSION --max-sockets 5120 --report 5 --max-cores $7 2>&1 | tee $LOG_FILE &
+$CLARA_HOME/bin/j_dpe --port $port --host $HOST --session $SESSION --max-sockets 5120 --report 5 --max-cores $7 2>&1 | tee $LOG_FILE_DPE &
 sleep 20
 
 j="_java"
@@ -194,9 +195,9 @@ FENAME=$IP%$port$j
 
 # Starting cloud orchestrator
 if [ "$9" = "undefined" ]; then
-  $CLARA_HOME/bin/j_cloud -f $FENAME -s $SESSION -F -i $IN_DIR -o $OUT_DIR -p $7 -t $7 $SERVICE_YAML $FILE_LIST
+  $CLARA_HOME/bin/j_cloud -f $FENAME -s $SESSION -F -i $IN_DIR -o $OUT_DIR -p $7 -t $7 $SERVICE_YAML $FILE_LIST 2>&1 | tee $LOG_FILE_ORC
 else
-   $CLARA_HOME/bin/j_cloud -f $FENAME -s $SESSION -F -B -L -i $IN_DIR -o $OUT_DIR -l $5 -p $7 -t $7 $SERVICE_YAML $FILE_LIST
+   $CLARA_HOME/bin/j_cloud -f $FENAME -s $SESSION -F -B -L -i $IN_DIR -o $OUT_DIR -l $5 -p $7 -t $7 $SERVICE_YAML $FILE_LIST 2>&1 | tee $LOG_FILE_ORC
 fi
 
 fi

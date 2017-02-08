@@ -2,6 +2,7 @@
 # author Vardan Gyurjyan
 # date 1.13.17
 
+export CLARA_HOME=/Users/gurjyan/Testbed/clara/clara-cre
 
 if ! [ -n "$CLARA_HOME" ]; then
     echo "CLARA_HOME environmental variable is not defined. Exiting..."
@@ -122,7 +123,7 @@ mkdir $CLARA_HOME/data
 mkdir $CLARA_HOME/data/in
 mkdir $CLARA_HOME/data/out
 
-cp ~/group/da/vhg/data/* $CLARA_HOME/data/in/
+cp /group/da/vhg/data/* $CLARA_HOME/data/in/
 
 echo "Installing jre ..."
 cd $CLARA_HOME/jre

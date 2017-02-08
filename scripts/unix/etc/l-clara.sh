@@ -179,7 +179,7 @@ echo "-------- Running Conditions ---------------"
 echo " Start time         = "$(date)
 echo " Clara distribution = $CLARA_HOME"
 echo " Plugin directory   = $PLUGIN"
-echo " Log file           = $LOG_FILE"
+echo " Log file           = $LOG_FILE_DPE"
 echo " Note               = Running as local Front-End"
 echo " Threads request    = $7"
 echo " DPE is up          = $9"
