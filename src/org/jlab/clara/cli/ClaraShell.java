@@ -80,12 +80,12 @@ public class ClaraShell {
 
     private void printWelcomeMessage() {
         System.out.println();
-        System.out.println(" ██████╗██╗      █████╗ ██████╗  █████╗ ");
-        System.out.println("██╔════╝██║     ██╔══██╗██╔══██╗██╔══██╗ 4.3.0");
-        System.out.println("██║     ██║     ███████║██████╔╝███████║");
-        System.out.println("██║     ██║     ██╔══██║██╔══██╗██╔══██║");
-        System.out.println("╚██████╗███████╗██║  ██║██║  ██║██║  ██║");
-        System.out.println(" ╚═════╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝");
+        System.out.println("   ██████╗██╗      █████╗ ██████╗  █████╗ ");
+        System.out.println("  ██╔════╝██║     ██╔══██╗██╔══██╗██╔══██╗ 4.3.0");
+        System.out.println("  ██║     ██║     ███████║██████╔╝███████║");
+        System.out.println("  ██║     ██║     ██╔══██║██╔══██╗██╔══██║");
+        System.out.println("  ╚██████╗███████╗██║  ██║██║  ██║██║  ██║");
+        System.out.println("   ╚═════╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝");
         System.out.println();
     }
 
