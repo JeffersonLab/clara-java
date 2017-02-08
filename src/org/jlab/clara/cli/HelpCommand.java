@@ -22,23 +22,37 @@
 
 package org.jlab.clara.cli;
 
+import java.util.Map;
+
 import org.jline.terminal.Terminal;
 
 public class HelpCommand extends Command {
 
-    public HelpCommand(Terminal terminal) {
+    private final Map<String, Command> commands;
+
+    public HelpCommand(Terminal terminal, Map<String, Command> commands) {
         super(terminal, "help", "Display help information about CLARA shell");
+        this.commands = commands;
     }
 
     @Override
     public void execute(String[] args) {
-        // String[] aux = Arrays.copyOfRange(args, 1, args.length);
-        terminal.writer().println("Commands:");
-        terminal.writer().println("         set         Parameter settings");
-        terminal.writer().println("         edit        Edit data processing conditions");
-        terminal.writer().println("         run         Start data processing");
-        terminal.writer().println("         monitor     Monitor data processing");
-        terminal.writer().println("         reset       Description");
-        terminal.writer().println("Use help <command>");
+        //String[] aux = Arrays.copyOfRange(args, 1, args.length);
+        if (args.length == 1) {
+            terminal.writer().println("Commands:\n");
+            printCommand("set");
+            printCommand("edit");
+            printCommand("run");
+            printCommand("monitor");
+            printCommand("reset");
+            terminal.writer().println("\nUse help <command> for details about each command.");
+
+        }
+    }
+
+    private void printCommand(String name) {
+        Command command = commands.get(name);
+        terminal.writer().printf("   %-14s", command.getName());
+        terminal.writer().printf("%s\n", command.getDescription());
     }
 }
