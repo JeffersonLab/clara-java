@@ -22,6 +22,7 @@
 
 package org.jlab.clara.base.core;
 
+// CHECKSTYLE.OFF: ParameterNumber
 import org.jlab.clara.base.ClaraUtil;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgTopic;
