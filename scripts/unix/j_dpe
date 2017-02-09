@@ -2,7 +2,7 @@
 # author Vardan Gyurjyan
 # date 1.13.17
 
-MALLOC_ARENA_MAX=1; export MALlOC_ARENA_MAX
+MALLOC_ARENA_MAX=1; export MALLOC_ARENA_MAX
 
 if [ -z "${CLARA_HOME}" ]; then
     echo "Error: \$CLARA_HOME is not defined."
