@@ -43,6 +43,7 @@ import org.jline.terminal.TerminalBuilder;
 
 public class ClaraShell {
 
+    private final RunConfig runConfig;
     private final Map<String, Command> commands;
     private final Terminal terminal;
     private final LineReader reader;
@@ -54,8 +55,9 @@ public class ClaraShell {
 
     public ClaraShell() {
         try {
-            terminal = TerminalBuilder.builder().build();
-            commands = initCommands(terminal);
+            runConfig = new RunConfig();
+            terminal = TerminalBuilder.builder().system(true).build();
+            commands = initCommands(terminal, runConfig);
             reader = LineReaderBuilder.builder()
                     .completer(initCompleter(commands))
                     .terminal(terminal)
@@ -65,12 +67,12 @@ public class ClaraShell {
         }
     }
 
-    private static Map<String, Command> initCommands(Terminal terminal) {
+    private static Map<String, Command> initCommands(Terminal terminal, RunConfig runConfig) {
         Map<String, Command> commands = new HashMap<>();
         addCommand(commands, new HelpCommand(terminal, commands));
         addCommand(commands, new SetCommand(terminal));
         addCommand(commands, new EditCommand(terminal));
-        addCommand(commands, new RunCommand(terminal));
+        addCommand(commands, new RunCommand(terminal, runConfig));
         addCommand(commands, new MonitorCommand(terminal));
         addCommand(commands, new ResetCommand(terminal));
         return commands;

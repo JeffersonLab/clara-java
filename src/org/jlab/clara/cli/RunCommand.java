@@ -26,8 +26,11 @@ import org.jline.terminal.Terminal;
 
 public class RunCommand extends Command {
 
-    public RunCommand(Terminal terminal) {
+    private final RunConfig runConfig;
+
+    public RunCommand(Terminal terminal, RunConfig runConfig) {
         super(terminal, "run", "Start data processing");
+        this.runConfig = runConfig;
     }
 
     @Override
