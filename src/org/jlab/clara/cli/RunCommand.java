@@ -32,6 +32,15 @@ public class RunCommand extends Command {
 
     @Override
     public void execute(String[] args) {
-        terminal.writer().println("Running command " + getName());
+
+        if (args.length == 1) {
+            terminal.writer().println("Missing arguments.");
+        } else if ("local".equals(args[1])) {
+            terminal.writer().println("running run local.");
+        } else if ("farm".equals(args[1])) {
+            terminal.writer().println("running run farm.");
+        } else {
+            terminal.writer().println("Invalid command: " + args[1]);
+        }
     }
 }
