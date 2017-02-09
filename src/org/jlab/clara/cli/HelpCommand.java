@@ -46,7 +46,8 @@ public class HelpCommand extends Command {
             printCommand("monitor");
             printCommand("reset");
             terminal.writer().println("\nUse help <command> for details about each command.");
-
+        } else {
+            commands.get(args[1]).showFullHelp();
         }
     }
 

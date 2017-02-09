@@ -22,12 +22,23 @@
 
 package org.jlab.clara.cli;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.jline.terminal.Terminal;
 
 public class EditCommand extends Command {
 
+    private Map<String, Argument> arguments;
+
     public EditCommand(Terminal terminal) {
         super(terminal, "edit", "Edit data processing conditions");
+        arguments = new HashMap<>();
+        arguments.put("composition", new Argument("composition",
+                "Edit application service-based composition.", "file"));
+        arguments.put("files", new Argument("files",
+                "Edit input file list.", "file"));
+        super.setArguments(arguments);
     }
 
     @Override

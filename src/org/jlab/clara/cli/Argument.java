@@ -22,28 +22,27 @@
 
 package org.jlab.clara.cli;
 
-import java.util.HashMap;
-import java.util.Map;
+public class Argument {
 
-import org.jline.terminal.Terminal;
+    private final String name;
+    private final String description;
+    private final String file;
 
-public class MonitorCommand extends Command {
-
-    private Map<String, Argument> arguments;
-
-    public MonitorCommand(Terminal terminal) {
-        super(terminal, "monitor", "Monitor data processing");
-        arguments = new HashMap<>();
-        arguments.put("composition", new Argument("composition",
-                "Show application service-based composition.", "file"));
-        arguments.put("files", new Argument("files",
-                "Show input file list.", "file"));
-        super.setArguments(arguments);
+    public Argument(String name, String description, String file) {
+        this.name = name;
+        this.description = description;
+        this.file = file;
     }
 
-    @Override
-    public void execute(String[] args) {
-        terminal.writer().println("Running command " + getName());
+    public String getName() {
+        return name;
     }
 
+    public String getDescription() {
+        return description;
+    }
+
+    public String getFile() {
+        return file;
+    }
 }

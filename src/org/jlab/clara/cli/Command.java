@@ -22,6 +22,8 @@
 
 package org.jlab.clara.cli;
 
+import java.util.Map;
+
 import org.jline.terminal.Terminal;
 
 public abstract class Command {
@@ -29,6 +31,7 @@ public abstract class Command {
     private final String name;
     private final String description;
     protected final Terminal terminal;
+    private Map<String, Argument> arguments;
 
     public Command(Terminal terminal, String name, String description) {
         this.name = name;
@@ -38,11 +41,28 @@ public abstract class Command {
 
     public abstract void execute(String[] args);
 
+    public void setArguments(Map<String, Argument> arguments) {
+        this.arguments = arguments;
+    }
+
     public String getName() {
         return name;
     }
 
     public String getDescription() {
         return description;
+    }
+
+    public Map<String, Argument> getArguments() {
+        return arguments;
+    }
+
+    public void showFullHelp() {
+        terminal.writer().println("Commands:\n");
+        for (Argument aux: arguments.values()) {
+            terminal.writer().printf("   %s %-15s", name, aux.getName());
+            terminal.writer().printf("   %s\n", aux.getDescription());
+
+        }
     }
 }
