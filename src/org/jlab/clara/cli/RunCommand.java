@@ -22,6 +22,12 @@
 
 package org.jlab.clara.cli;
 
+import java.io.IOException;
+
+import org.apache.commons.exec.CommandLine;
+import org.apache.commons.exec.DefaultExecutor;
+import org.apache.commons.exec.ExecuteException;
+import org.apache.commons.exec.PumpStreamHandler;
 import org.jline.terminal.Terminal;
 
 public class RunCommand extends Command {
@@ -39,11 +45,34 @@ public class RunCommand extends Command {
         if (args.length == 1) {
             terminal.writer().println("Missing arguments.");
         } else if ("local".equals(args[1])) {
-            terminal.writer().println("running run local.");
+            runLocal();
         } else if ("farm".equals(args[1])) {
             terminal.writer().println("running run farm.");
         } else {
             terminal.writer().println("Invalid command: " + args[1]);
+        }
+
+    }
+
+    private void runLocal() {
+        CommandLine cmdLine = new CommandLine("java");
+        cmdLine.addArgument("-cp");
+        cmdLine.addArgument(System.getProperty("java.class.path"));
+        cmdLine.addArgument(runConfig.getOrchestrator());
+        cmdLine.addArgument("-F");
+        cmdLine.addArgument(runConfig.getConfigFile());
+        cmdLine.addArgument(runConfig.getFilesList());
+
+        DefaultExecutor executor = new DefaultExecutor();
+        PumpStreamHandler streamHandler = new PumpStreamHandler(terminal.output());
+        executor.setStreamHandler(streamHandler);
+
+        try {
+            executor.execute(cmdLine);
+        } catch (ExecuteException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
