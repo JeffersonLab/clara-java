@@ -124,10 +124,9 @@ public abstract class ClaraBase extends xMsg {
      *
      * @throws ClaraException if a connection could not be created or connected
      */
-    public void cacheConnection() throws ClaraException {
+    public void cacheLocalConnection() throws ClaraException {
         try {
-            xMsgConnection connection = getConnection();
-            connection.close();
+            cacheConnection();
         } catch (xMsgException e) {
             throw new ClaraException("could not connect to local proxy", e);
         }

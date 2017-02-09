@@ -107,7 +107,7 @@ class Service extends AbstractActor {
 
     @Override
     void initialize() throws ClaraException {
-        base.cacheConnection();
+        base.cacheLocalConnection();
 
         // start the engines
         try {

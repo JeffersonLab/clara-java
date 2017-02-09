@@ -54,7 +54,7 @@ class ServiceActor {
     }
 
     public void start() throws ClaraException {
-        base.cacheConnection();
+        base.cacheLocalConnection();
     }
 
     public void send(xMsgMessage msg) throws ClaraException {

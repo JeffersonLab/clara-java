@@ -427,7 +427,7 @@ public final class Dpe extends AbstractActor {
     }
 
     private void cacheConnections() throws ClaraException {
-        base.cacheConnection();
+        base.cacheLocalConnection();
 
         int createdConnections = IntStream.range(0, maxCores)
                 .parallel()
@@ -440,7 +440,8 @@ public final class Dpe extends AbstractActor {
     }
 
     private int cacheLocalConnection() {
-        try (xMsgConnection con = servicesConnectionPool.getConnection()) {
+        try {
+            servicesConnectionPool.cacheConnection();
             return 1;
         } catch (xMsgException e) {
             return 0;
