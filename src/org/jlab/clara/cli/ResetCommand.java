@@ -28,6 +28,12 @@ public class ResetCommand extends Command {
 
     public ResetCommand(Terminal terminal) {
         super(terminal, "reset", "");
+        setArguments();
+    }
+
+    private void setArguments() {
+        arguments.put("dpe", new Argument("dpe", "", ""));
+        arguments.put("param", new Argument("param", "", ""));
     }
 
     @Override

@@ -31,12 +31,16 @@ public class EditCommand extends Command {
 
     public EditCommand(Terminal terminal, RunConfig runConfig) {
         super(terminal, "edit", "Edit data processing conditions");
+        this.runConfig = runConfig;
+        this.editor = CommandUtils.getEditor();
+        setArguments();
+    }
+
+    private void setArguments() {
         arguments.put("composition", new Argument("composition",
                 "Edit application service-based composition.", this::editConfigFile));
         arguments.put("files", new Argument("files",
                 "Edit input file list.", this::editFilesList));
-        this.runConfig = runConfig;
-        this.editor = CommandUtils.getEditor();
     }
 
     @Override

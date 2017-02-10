@@ -29,10 +29,22 @@ public class MonitorCommand extends Command {
 
     public MonitorCommand(Terminal terminal) {
         super(terminal, "monitor", "Monitor data processing");
+        setArguments();
+    }
+
+    private void setArguments() {
         arguments.put("composition", new Argument("composition",
                 "Show application service-based composition.", "file"));
         arguments.put("files", new Argument("files",
                 "Show input file list.", "file"));
+        arguments.put("idir", new Argument("idir", "", ""));
+        arguments.put("odir", new Argument("odir", "", ""));
+        arguments.put("params", new Argument("params", "", ""));
+        arguments.put("logdir", new Argument("logdir", "", ""));
+        arguments.put("logdpe", new Argument("logdpe", "", ""));
+        arguments.put("logco", new Argument("logco", "", ""));
+        arguments.put("jjobstat", new Argument("jjobstat", "", ""));
+        arguments.put("pjobstat", new Argument("pjobstat", "", ""));
     }
 
     @Override

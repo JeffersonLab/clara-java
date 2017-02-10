@@ -37,6 +37,12 @@ public class RunCommand extends Command {
     public RunCommand(Terminal terminal, RunConfig runConfig) {
         super(terminal, "run", "Start data processing");
         this.runConfig = runConfig;
+        setArguments();
+    }
+
+    private void setArguments() {
+        arguments.put("local", new Argument("local", "", ""));
+        arguments.put("farm", new Argument("farm", "", ""));
     }
 
     @Override

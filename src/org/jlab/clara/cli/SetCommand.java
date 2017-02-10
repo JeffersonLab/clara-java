@@ -28,6 +28,26 @@ public class SetCommand extends Command {
 
     public SetCommand(Terminal terminal) {
         super(terminal, "set", "Parameter settings");
+        setArguments();
+    }
+
+    private void setArguments() {
+        arguments.put("description", new Argument("description", "", ""));
+        arguments.put("plugin", new Argument("plugin", "", ""));
+        arguments.put("session", new Argument("session", "", ""));
+        arguments.put("inputDir", new Argument("inputDir", "", ""));
+        arguments.put("outputDir", new Argument("outputDir", "", ""));
+        arguments.put("threads", new Argument("threads", "", ""));
+        arguments.put("fileList", new Argument("fileList", "", ""));
+        arguments.put("yaml", new Argument("yaml", "", ""));
+        arguments.put("farmFlavor", new Argument("farmFlavor", "", ""));
+        arguments.put("farmLoadingZone", new Argument("farmLoadingZone", "", ""));
+        arguments.put("farmMemory", new Argument("farmMemory", "", ""));
+        arguments.put("farmTrack", new Argument("farmTrack", "", ""));
+        arguments.put("farmOS", new Argument("farmOS", "", ""));
+        arguments.put("farmCPU", new Argument("farmCPU", "", ""));
+        arguments.put("farmDisk", new Argument("farmDisk", "", ""));
+        arguments.put("farmTime", new Argument("farmTime", "", ""));
     }
 
     @Override
