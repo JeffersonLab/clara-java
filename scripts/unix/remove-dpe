@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
 # date 1.13.17
 
+a=`ps -ef | grep 'port '$1 | grep -v grep | grep $USER | awk '{print $2}'`
 
-
-a=`ps -ef | grep j_cloud | grep -v grep | grep $USER | awk '{print $2}'`
 if ! [ -z "$a" ]; then
 for f in $a;
 do
@@ -11,27 +10,4 @@ kill -9 $f
 done
 fi
 
-a=`ps -ef | grep CloudOrchestrator | grep -v grep | grep $USER | awk '{print $2}'`
-if ! [ -z "$a" ]; then
-for f in $a;
-do
-kill -9 $f
-done
-fi
-
-a=`ps -ef | grep j_dpe | grep -v grep | grep $USER | awk '{print $2}'`
-if ! [ -z "$a" ]; then
-for f in $a;
-do
-kill -9 $f
-done
-fi
-
-a=`ps -ef | grep Dpe | grep -v grep | grep $USER | awk '{print $2}'`
-if ! [ -z "$a" ]; then
-for f in $a;
-do
-kill -9 $f
-done
-fi
 

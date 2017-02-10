@@ -9,9 +9,20 @@ if ! [ -n "$CLARA_HOME" ]; then
     exit
 fi
 
+DPE_PORT=
+IP=127.0.0.1
+lang="_java"
+FENAME=
+
 
 unset CCDB_DATABASE
 
+
+set -o errexit -o nounset -o pipefail
+
+
+######################################################################################################################
+function print_logo {
 printf "  ________   ____         ________   _________    ________\n"
 printf " /        \ |    |       /        | |         \  /        | 4.3.0\n"
 printf "|    |    | |    |      |   _._   | |    |    | |   _._   |\n"
@@ -19,15 +30,21 @@ printf "|    |____| |    |      |    |    | |        /  |    |    |\n"
 printf "|    |    | |    |____  |    |    | |    .   -| |    |    |\n"
 printf "|    |    | |         | |    |    | |    |    | |    |    |\n"
 printf "|________/  |_________| |____|____| |____|____| |____|____|\n"
-
-set -o errexit -o nounset -o pipefail
+}
 
 ######################################################################################################################
-command_exists () {
+# trap ctrl-c and call ctrl_c()
+trap ctrl_c INT
+function ctrl_c() {
+        remove-dpe $DPE_PORT
+}
+
+######################################################################################################################
+function command_exists () {
     type "$1" &> /dev/null ;
 }
 
-
+######################################################################################################################
 function display_options_help {
 echo
 echo '                    Customization Options'
@@ -236,6 +253,51 @@ echo "  farm_flavor   = $FARM_FLAVOR"
 }
 
 ######################################################################################################################
+function define_dpe_port {
+DPE_PORT=7000
+dpe_port=0
+while  [ $dpe_port == 0 ]
+do
+dpe_port=0
+exec 6<>/dev/tcp/127.0.0.1/$DPE_PORT || dpe_port=1
+if [ $dpe_port == 0 ]; then
+let "DPE_PORT=DPE_PORT+10"
+else break
+fi
+done
+echo "$DPE_PORT"
+}
+
+######################################################################################################################
+function define_host_ip {
+OS="`uname`"
+case $OS in
+  'Linux')
+  IP=$(host `hostname` | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b")
+  if [ -z "$IP" ]; then
+    IP=127.0.0.1
+  fi
+   ;;
+  'WindowsNT')
+    OS='Windows'
+    ;;
+  'Darwin')
+  IP=$(ipconfig getifaddr en0)
+  if [ -z "$IP" ]; then
+    IP=$(ipconfig getifaddr en1)
+  fi
+
+  if [ -z "$IP" ]; then
+    IP=127.0.0.1
+  fi
+    ;;
+  *)
+  ;;
+esac
+
+}
+
+######################################################################################################################
 function set_default_parameters {
 IN_DIR="$CLARA_HOME/data/in"
 NODE_NUM="undefined"
@@ -308,7 +370,8 @@ echo
 
 a="setenv CLARA_HOME $CLARA_HOME"
 b="$a ; $CLARA_HOME/bin/remove-dpe"
-rcCmd="$b ; $CLARA_HOME/bin/etc/f-clara.sh $IN_DIR $OUT_DIR $SERVICE_YAML $FILE_LIST $PLUGIN $DESCRIPTION $FARM_CPU $SESSION $FARM_LOADING_ZONE
+#rcCmd="$b ; $CLARA_HOME/bin/etc/f-clara.sh $IN_DIR $OUT_DIR $SERVICE_YAML $FILE_LIST $PLUGIN $DESCRIPTION $FARM_CPU $SESSION $FARM_LOADING_ZONE $DPE_PORT
+rcCmd="$a ; $CLARA_HOME/bin/etc/f-clara.sh $IN_DIR $OUT_DIR $SERVICE_YAML $FILE_LIST $PLUGIN $DESCRIPTION $FARM_CPU $SESSION $FARM_LOADING_ZONE $DPE_PORT
 "
 
 # Create orchestrator job submission script
@@ -553,7 +616,19 @@ local val2="$3"
       run)
       if ! [ -z "$val1" ]; then
 	   if [ "$val1" == "local" ]; then
-	     $CLARA_HOME/bin/etc/l-clara.sh $IN_DIR $OUT_DIR $SERVICE_YAML $FILE_LIST $PLUGIN $DESCRIPTION $THREAD_NUM $SESSION $DPE_UP
+
+	    if [ "$DPE_UP" == "false" ]; then
+	      # define private clara port
+          define_dpe_port
+
+          # define this host IP
+          define_host_ip
+
+          # define local DPE name
+          FENAME=$IP%$DPE_PORT$lang
+        fi
+
+	     $CLARA_HOME/bin/etc/l-clara.sh $IN_DIR $OUT_DIR $SERVICE_YAML $FILE_LIST $PLUGIN $DESCRIPTION $THREAD_NUM $SESSION $DPE_UP $DPE_PORT
 	     DPE_UP="true"
 	   elif [ "$val1" == "farm" ]; then
 	      run_farm
@@ -571,7 +646,7 @@ local val2="$3"
 	     set_default_parameters
 	   elif [ "$val1" == "dpe" ]; then
       DPE_UP="false"
-      $CLARA_HOME/bin/remove-dpe
+      $CLARA_HOME/bin/remove-dpe $DPE_PORT
 	   elif [ "$val1" == "-h" ]; then
 	     display_reset_help
 	   else
@@ -582,7 +657,7 @@ local val2="$3"
 
       exit )
 	  printf "bye... \n"
-	  $CLARA_HOME/bin/remove-dpe
+	  $CLARA_HOME/bin/remove-dpe $DPE_PORT
 	  exit
 	  ;;
 
@@ -688,6 +763,10 @@ function main_loop() {
 }
 
 # ------- program start----------------
+
 # define defaults before the loop
 set_default_parameters
+
+print_logo
+
 main_loop

@@ -9,7 +9,7 @@
 # $7  : THREAD_NUM
 # $8  : SESSION
 # $9  : DPE_UP
-
+# shift; $9 : DPE_PORT
 
 ######################################################################################################################
 function in_files_exists {
@@ -116,20 +116,6 @@ else
 OUT_DIR="$2"
 fi
 
-# User service plugin
-if [ "$5" == "undefined" ]; then
-PLUGIN="$CLARA_HOME/plugins/clas12"
-else
-PLUGIN="$5"
-fi
-
-# Data processing session
-if [ "$8" == "undefined" ]; then
-SESSION="$USER"
-else
-SESSION="$8"
-fi
-
 # Composition yaml file
 if [ "$3" == "undefined" ]; then
 SERVICE_YAML="$PLUGIN/config/services.yaml"
@@ -144,6 +130,29 @@ else
 FILE_LIST="$4"
 fi
 
+# User service plugin
+if [ "$5" == "undefined" ]; then
+PLUGIN="$CLARA_HOME/plugins/clas12"
+else
+PLUGIN="$5"
+fi
+
+DESCRIPTION=$6
+
+THREAD_NUM=$7
+
+# Data processing session
+if [ "$8" == "undefined" ]; then
+SESSION="$USER"
+else
+SESSION="$8"
+fi
+
+DPE_UP=$9
+
+shift
+DPE_PORT=$9
+
 export JAVA_HOME="$J_HOME"
 export PATH=$PATH:$JAVA_HOME/bin:$CLARA_HOME/bin
 export CLAS12DIR="$PLUGIN"
@@ -152,28 +161,28 @@ export CLASSPATH="$CLARA_HOME/lib/*:$PLUGIN/lib/clas/*:$PLUGIN/lib/services/*"
 
 #------------- running -------------------------------------
 
-port=7000
-dpe_port=0
+#port=7000
+#dpe_port=0
 
 if [ in_files_exists ]
  then
 
 # Starting DPEs
-if [ "$9" == "false" ]; then
-while  [ $dpe_port == 0 ]
-do
-dpe_port=0
-exec 6<>/dev/tcp/127.0.0.1/$port || dpe_port=1
-if [ $dpe_port == 0 ]; then
-let "port=port+10"
-else break
-fi
-done
-echo "$port"
-fi
+#if [ "$9" == "false" ]; then
+#while  [ $dpe_port == 0 ]
+#do
+#dpe_port=0
+#exec 6<>/dev/tcp/127.0.0.1/$port || dpe_port=1
+#if [ $dpe_port == 0 ]; then
+#let "port=port+10"
+#else break
+#fi
+#done
+#echo "$port"
+#fi
 
-LOG_FILE_DPE="$CLARA_HOME/log/$HOST-$USER-$6-jfe.log"
-LOG_FILE_ORC="$CLARA_HOME/log/$HOST-$USER-$6-co.log"
+LOG_FILE_DPE="$CLARA_HOME/log/$HOST-$USER-$DESCRIPTION-jfe.log"
+LOG_FILE_ORC="$CLARA_HOME/log/$HOST-$USER-$DESCRIPTION-co.log"
 
 echo "-------- Running Conditions ---------------"
 echo " Start time         = "$(date)
@@ -181,21 +190,21 @@ echo " Clara distribution = $CLARA_HOME"
 echo " Plugin directory   = $PLUGIN"
 echo " Log file           = $LOG_FILE_DPE"
 echo " Note               = Running as local Front-End"
-echo " Threads request    = $7"
-echo " DPE is up          = $9"
+echo " Threads request    = $THREAD_NUM"
+echo " DPE is up          = $DPE_UP"
 echo "------------------------------------------"
 echo
 
 # start dpe if it is not already up
-if [ "$9" == "false" ]; then
-$CLARA_HOME/bin/remove-dpe
-$CLARA_HOME/bin/j_dpe --port $port --host $HOST --session $SESSION --max-sockets 5120 --report 5 --max-cores $7 2>&1 | tee $LOG_FILE_DPE &
+if [ "$DPE_UP" == "false" ]; then
+#$CLARA_HOME/bin/remove-dpe
+$CLARA_HOME/bin/j_dpe --port $DPE_PORT --host $HOST --session $SESSION --max-sockets 5120 --report 5 --max-cores $THREAD_NUM 2>&1 | tee $LOG_FILE_DPE &
 sleep 7
 fi
 
 j="_java"
-FENAME=$IP%$port$j
+FENAME=$IP%$DPE_PORT$j
 
 # Starting cloud orchestrator
-  $CLARA_HOME/bin/j_cloud $LOG_FILE -f $FENAME -s $SESSION -F -i $IN_DIR -o $OUT_DIR -p $7 -t $7 $SERVICE_YAML $FILE_LIST 2>&1 | tee $LOG_FILE_ORC
+  $CLARA_HOME/bin/j_cloud $LOG_FILE -f $FENAME -s $SESSION -F -i $IN_DIR -o $OUT_DIR -p $THREAD_NUM -t $THREAD_NUM $SERVICE_YAML $FILE_LIST 2>&1 | tee $LOG_FILE_ORC
 fi

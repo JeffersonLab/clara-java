@@ -91,6 +91,7 @@ FILE_LIST="$PLUGIN/config/files.list"
 HOST=$(hostname)
 USER=$(id -un)
 SESSION="$USER"
+PORT=7000
 
 #farm default parameters
 DESCRIPTION="clara"
@@ -104,6 +105,11 @@ FARM_TIME="1440"
 FARM_DPE_ORC_DELAY="2"
 FARM_FLAVOR="jlab"
 
+# trap ctrl-c and call ctrl_c()
+trap ctrl_c INT
+function ctrl_c() {
+        remove-dpe $PORT
+}
 
 #farm default parameters
 
@@ -436,15 +442,9 @@ if [ "$MODE" == "sqlite" ]; then
 export CCDB_DATABASE="etc/data/database/clas12database.sqlite"
 fi
 
-# reset dangling DPEs
-$CLARA_HOME/bin/remove-dpe $SESSION
-
 # Starting DPEs
 ################# Starting DPE ############
-HOST=$(hostname)
-USER=$(id -un)
-UPPER=8000
-PORT=7000
+
 dpe_port=0
 while  [ $dpe_port == 0 ]
 do
@@ -505,7 +505,7 @@ echo "---------------------------------------------------------------"
 echo
 
 # start dpe if it is not already up
-$CLARA_HOME/bin/remove-dpe
+$CLARA_HOME/bin/remove-dpe $PORT
 $CLARA_HOME/bin/j_dpe --port $PORT --host $HOST --session $SESSION --max-sockets 5120 --report 5 --max-cores $THREAD_NUM 2>&1 | tee $LOG_FILE_DPE &
 sleep 7
 
@@ -515,4 +515,4 @@ FENAME=$IP%$PORT$j
 # Starting cloud orchestrator
   $CLARA_HOME/bin/j_cloud -f $FENAME -s $SESSION -F -i $IN_DIR -o $OUT_DIR -p $THREAD_NUM -t $THREAD_NUM $SERVICE_YAML $FILE_LIST 2>&1 | tee $LOG_FILE_ORC
 fi
-$CLARA_HOME/bin/remove-dpe
+$CLARA_HOME/bin/remove-dpe $PORT
