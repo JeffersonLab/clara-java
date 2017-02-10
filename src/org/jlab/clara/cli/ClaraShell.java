@@ -103,6 +103,8 @@ public class ClaraShell {
                 if (command == null) {
                     if ("exit".equals(commandName)) {
                         break;
+                    } else if ("".equals(line)) {
+                        continue;
                     }
                     terminal.writer().println("Invalid command");
                 } else {
