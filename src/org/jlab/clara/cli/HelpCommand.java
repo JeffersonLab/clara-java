@@ -22,7 +22,7 @@
 
 package org.jlab.clara.cli;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.jline.terminal.Terminal;
@@ -34,7 +34,7 @@ public class HelpCommand extends Command {
 
     public HelpCommand(Terminal terminal, Map<String, Command> commands) {
         super(terminal, "help", "Display help information about CLARA shell");
-        this.arguments = new HashMap<>();
+        this.arguments = new LinkedHashMap<>();
         this.commands = commands;
         commToArg(commands, arguments);
         super.setArguments(arguments);
@@ -45,11 +45,9 @@ public class HelpCommand extends Command {
         //String[] aux = Arrays.copyOfRange(args, 1, args.length);
         if (args.length == 1) {
             terminal.writer().println("Commands:\n");
-            printCommand("set");
-            printCommand("edit");
-            printCommand("run");
-            printCommand("monitor");
-            printCommand("reset");
+            arguments.values().stream()
+                     .map(Argument::getName)
+                     .forEach(this::printCommand);
             terminal.writer().println("\nUse help <command> for details about each command.");
         } else {
             commands.get(args[1]).showFullHelp();

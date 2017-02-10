@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UncheckedIOException;
 import java.util.Arrays;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -68,7 +68,7 @@ public class ClaraShell {
     }
 
     private static Map<String, Command> initCommands(Terminal terminal, RunConfig runConfig) {
-        Map<String, Command> commands = new HashMap<>();
+        Map<String, Command> commands = new LinkedHashMap<>();
         addCommand(commands, new SetCommand(terminal));
         addCommand(commands, new EditCommand(terminal, runConfig));
         addCommand(commands, new RunCommand(terminal, runConfig));

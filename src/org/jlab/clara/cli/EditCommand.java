@@ -22,7 +22,7 @@
 
 package org.jlab.clara.cli;
 
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.jline.terminal.Terminal;
@@ -35,7 +35,7 @@ public class EditCommand extends Command {
 
     public EditCommand(Terminal terminal, RunConfig runConfig) {
         super(terminal, "edit", "Edit data processing conditions");
-        arguments = new HashMap<>();
+        arguments = new LinkedHashMap<>();
         arguments.put("composition", new Argument("composition",
                 "Edit application service-based composition.", this::editConfigFile));
         arguments.put("files", new Argument("files",
