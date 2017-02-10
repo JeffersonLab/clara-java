@@ -71,7 +71,7 @@ public class ClaraShell {
         Map<String, Command> commands = new HashMap<>();
         addCommand(commands, new HelpCommand(terminal, commands));
         addCommand(commands, new SetCommand(terminal));
-        addCommand(commands, new EditCommand(terminal));
+        addCommand(commands, new EditCommand(terminal, runConfig));
         addCommand(commands, new RunCommand(terminal, runConfig));
         addCommand(commands, new MonitorCommand(terminal));
         addCommand(commands, new ResetCommand(terminal));

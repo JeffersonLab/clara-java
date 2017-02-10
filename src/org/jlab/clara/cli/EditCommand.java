@@ -29,20 +29,42 @@ import org.jline.terminal.Terminal;
 
 public class EditCommand extends Command {
 
-    private Map<String, Argument> arguments;
+    private final Map<String, Argument> arguments;
+    private final RunConfig runConfig;
+    private final String editor;
 
-    public EditCommand(Terminal terminal) {
+    public EditCommand(Terminal terminal, RunConfig runConfig) {
         super(terminal, "edit", "Edit data processing conditions");
         arguments = new HashMap<>();
         arguments.put("composition", new Argument("composition",
-                "Edit application service-based composition.", "file"));
+                "Edit application service-based composition.", this::editConfigFile));
         arguments.put("files", new Argument("files",
-                "Edit input file list.", "file"));
+                "Edit input file list.", this::editFilesList));
         super.setArguments(arguments);
+        this.runConfig = runConfig;
+        this.editor = CommandUtils.getEditor();
     }
 
     @Override
     public void execute(String[] args) {
-        terminal.writer().println("Running command " + getName());
+        if (args.length >= 2) {
+            String subCommandName = args[1];
+            Argument subCommand = arguments.get(subCommandName);
+            if (subCommand != null) {
+                subCommand.getAction().accept(null);
+            } else {
+                terminal.writer().println("Invalid argument.");
+            }
+        } else {
+            terminal.writer().println("Missing argument.");
+        }
+    }
+
+    private void editConfigFile(String[] args) {
+        CommandUtils.runProcess(editor, runConfig.getConfigFile());
+    }
+
+    private void editFilesList(String[] args) {
+        CommandUtils.runProcess(editor, runConfig.getFilesList());
     }
 }
