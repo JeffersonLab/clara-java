@@ -32,6 +32,8 @@ public class RunConfig {
     private String localHost;
     private String configFile;
     private String filesList;
+    private String inputDir;
+    private String outputDir;
     private boolean useFrontEnd;
     private String session;
     private int maxNodes;
@@ -43,6 +45,8 @@ public class RunConfig {
         this.localHost = xMsgUtil.localhost();
         this.configFile = defaultConfigFile(claraHome);
         this.filesList = defaultFileList(claraHome);
+        this.inputDir = Paths.get(claraHome, "data", "input").toString();
+        this.outputDir = Paths.get(claraHome, "data", "output").toString();
         this.useFrontEnd = true;
         this.session = "";
         this.maxNodes = 1;
@@ -91,6 +95,22 @@ public class RunConfig {
 
     public void setFilesList(String filesList) {
         this.filesList = filesList;
+    }
+
+    public String getInputDir() {
+        return inputDir;
+    }
+
+    public void setInputDir(String inputDir) {
+        this.inputDir = inputDir;
+    }
+
+    public String getOutputDir() {
+        return outputDir;
+    }
+
+    public void setOutputDir(String outputDir) {
+        this.outputDir = outputDir;
     }
 
     public boolean isUseFrontEnd() {
