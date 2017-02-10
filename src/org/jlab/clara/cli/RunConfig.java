@@ -37,7 +37,7 @@ public class RunConfig {
     private int maxNodes;
     private int maxThreads;
 
-    public RunConfig () {
+    public RunConfig() {
         String claraHome = claraHome();
         this.orchestrator = "org.jlab.clas.std.orchestrators.CloudOrchestrator";
         this.localHost = xMsgUtil.localhost();
@@ -80,6 +80,7 @@ public class RunConfig {
     public String getFilesList() {
         return filesList;
     }
+
     public boolean isUseFrontEnd() {
         return useFrontEnd;
     }
