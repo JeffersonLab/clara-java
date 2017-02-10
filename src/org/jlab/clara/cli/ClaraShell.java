@@ -25,7 +25,6 @@ package org.jlab.clara.cli;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UncheckedIOException;
-import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -36,8 +35,7 @@ import org.jline.reader.EndOfFileException;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.reader.UserInterruptException;
-import org.jline.reader.impl.completer.ArgumentCompleter;
-import org.jline.reader.impl.completer.StringsCompleter;
+import org.jline.reader.impl.completer.AggregateCompleter;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 
@@ -83,12 +81,11 @@ public class ClaraShell {
     }
 
     private static Completer initCompleter(Map<String, Command> commands) {
-        List<String> names = commands.values()
-                                     .stream()
-                                     .map(Command::getName)
-                                     .collect(Collectors.toList());
-        List<Completer> completors = Arrays.asList(new StringsCompleter(names));
-        return new ArgumentCompleter(completors);
+        List<Completer> completers = commands.values()
+                .stream()
+                .map(Command::getCompleter)
+                .collect(Collectors.toList());
+        return new AggregateCompleter(completers);
     }
 
     public void run() {

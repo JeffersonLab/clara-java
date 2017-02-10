@@ -22,6 +22,9 @@
 
 package org.jlab.clara.cli;
 
+import org.jline.reader.Completer;
+import org.jline.reader.impl.completer.ArgumentCompleter;
+import org.jline.reader.impl.completer.StringsCompleter;
 import org.jline.terminal.Terminal;
 
 public class EditCommand extends Command {
@@ -64,5 +67,12 @@ public class EditCommand extends Command {
 
     private void editFilesList(String[] args) {
         CommandUtils.runProcess(editor, runConfig.getFilesList());
+    }
+
+    @Override
+    public Completer getCompleter() {
+        StringsCompleter command = new StringsCompleter(getName());
+        StringsCompleter subCommands = new StringsCompleter("composition", "files");
+        return new ArgumentCompleter(command, subCommands);
     }
 }

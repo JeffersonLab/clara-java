@@ -22,7 +22,9 @@
 
 package org.jlab.clara.cli;
 
-
+import org.jline.reader.Completer;
+import org.jline.reader.impl.completer.ArgumentCompleter;
+import org.jline.reader.impl.completer.StringsCompleter;
 import org.jline.terminal.Terminal;
 
 public class MonitorCommand extends Command {
@@ -52,4 +54,10 @@ public class MonitorCommand extends Command {
         terminal.writer().println("Running command " + getName());
     }
 
+    @Override
+    public Completer getCompleter() {
+        Completer command = new StringsCompleter(getName());
+        Completer subCommands = argumentsCompleter();
+        return new ArgumentCompleter(command, subCommands);
+    }
 }

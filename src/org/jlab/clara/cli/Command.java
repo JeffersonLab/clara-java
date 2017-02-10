@@ -23,8 +23,12 @@
 package org.jlab.clara.cli;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
+import org.jline.reader.Completer;
+import org.jline.reader.impl.completer.StringsCompleter;
 import org.jline.terminal.Terminal;
 
 public abstract class Command {
@@ -43,6 +47,8 @@ public abstract class Command {
 
     public abstract void execute(String[] args);
 
+    public abstract Completer getCompleter();
+
     public String getName() {
         return name;
     }
@@ -58,5 +64,13 @@ public abstract class Command {
             terminal.writer().printf("   %s\n", aux.getDescription());
 
         }
+    }
+
+    protected Completer argumentsCompleter() {
+        List<String> names = arguments.values()
+                .stream()
+                .map(Argument::getName)
+                .collect(Collectors.toList());
+        return new StringsCompleter(names);
     }
 }
