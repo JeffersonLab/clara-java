@@ -30,7 +30,7 @@ final class CommandUtils {
     private CommandUtils() { }
 
     public static String getEditor() {
-        return Optional.ofNullable(System.getenv("EDITOR")).orElse("/usr/bin/nano");
+        return Optional.ofNullable(System.getenv("EDITOR")).orElse("nano");
     }
 
     public static void runProcess(String... command) {
