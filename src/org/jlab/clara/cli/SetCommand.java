@@ -22,6 +22,9 @@
 
 package org.jlab.clara.cli;
 
+import java.util.function.Consumer;
+import java.util.function.Function;
+
 import org.jline.reader.Completer;
 import org.jline.reader.impl.completer.ArgumentCompleter;
 import org.jline.reader.impl.completer.StringsCompleter;
@@ -29,33 +32,65 @@ import org.jline.terminal.Terminal;
 
 public class SetCommand extends Command {
 
-    public SetCommand(Terminal terminal) {
+    private final RunConfig runConfig;
+
+    public SetCommand(Terminal terminal, RunConfig runConfig) {
         super(terminal, "set", "Parameter settings");
+        this.runConfig = runConfig;
         setArguments();
     }
 
     private void setArguments() {
-        arguments.put("description", new Argument("description", "", ""));
-        arguments.put("plugin", new Argument("plugin", "", ""));
-        arguments.put("session", new Argument("session", "", ""));
-        arguments.put("inputDir", new Argument("inputDir", "", ""));
-        arguments.put("outputDir", new Argument("outputDir", "", ""));
-        arguments.put("threads", new Argument("threads", "", ""));
-        arguments.put("fileList", new Argument("fileList", "", ""));
-        arguments.put("yaml", new Argument("yaml", "", ""));
-        arguments.put("farmFlavor", new Argument("farmFlavor", "", ""));
-        arguments.put("farmLoadingZone", new Argument("farmLoadingZone", "", ""));
-        arguments.put("farmMemory", new Argument("farmMemory", "", ""));
-        arguments.put("farmTrack", new Argument("farmTrack", "", ""));
-        arguments.put("farmOS", new Argument("farmOS", "", ""));
-        arguments.put("farmCPU", new Argument("farmCPU", "", ""));
-        arguments.put("farmDisk", new Argument("farmDisk", "", ""));
-        arguments.put("farmTime", new Argument("farmTime", "", ""));
+        newArg("description", "", null);
+        newArg("plugin", "", null);
+        newArg("session", "", runConfig::setSession);
+        newArg("inputDir", "", runConfig::setInputDir);
+        newArg("outputDir", "", runConfig::setOutputDir);
+        newArg("threads", "", runConfig::setMaxThreads, Integer::parseInt);
+        newArg("fileList", "", runConfig::setFilesList);
+        newArg("yaml", "", runConfig::setConfigFile);
+        newArg("farmFlavor", "", null);
+        newArg("farmLoadingZone", "", null);
+        newArg("farmMemory", "", null);
+        newArg("farmTrack", "", null);
+        newArg("farmOS", "", null);
+        newArg("farmCPU", "", null);
+        newArg("farmDisk", "", null);
+        newArg("farmTime", "", null);
+    }
+
+    private <T> void newArg(String name, String description, Consumer<String> action) {
+        newArg(name, description, action, a -> a);
+    }
+
+    private <T> void newArg(String name,
+                        String description,
+                        Consumer<T> action,
+                        Function<String, T> parser) {
+        Consumer<String[]> commandAction = args -> {
+            T val = parser.apply(args[2]);
+            action.accept(val);
+        };
+        arguments.put(name, new Argument(name, description, commandAction));
     }
 
     @Override
     public void execute(String[] args) {
-        terminal.writer().println("Running command " + getName());
+        if (args.length >= 3) {
+            String subCommandName = args[1];
+            Argument subCommand = arguments.get(subCommandName);
+            if (subCommand != null) {
+                try {
+                    subCommand.getAction().accept(args);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else {
+                terminal.writer().println("Invalid argument.");
+            }
+        } else {
+            terminal.writer().println("Missing argument.");
+        }
     }
 
     @Override
