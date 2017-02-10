@@ -29,6 +29,10 @@ final class CommandUtils {
 
     private CommandUtils() { }
 
+    public static String getEditor() {
+        return Optional.ofNullable(System.getenv("EDITOR")).orElse("/usr/bin/nano");
+    }
+
     public static void runProcess(String... command) {
         ProcessBuilder builder = new ProcessBuilder(command);
         builder.redirectInput(ProcessBuilder.Redirect.INHERIT);
