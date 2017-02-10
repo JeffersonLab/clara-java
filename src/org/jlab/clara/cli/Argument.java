@@ -22,16 +22,27 @@
 
 package org.jlab.clara.cli;
 
+import java.util.function.Consumer;
+
 public class Argument {
 
     private final String name;
     private final String description;
     private final String file;
+    private final Consumer<String[]> action;
 
     public Argument(String name, String description, String file) {
         this.name = name;
         this.description = description;
         this.file = file;
+        this.action = args -> { };
+    }
+
+    public Argument(String name, String description, Consumer<String[]> action) {
+        this.name = name;
+        this.description = description;
+        this.file = "";
+        this.action = action;
     }
 
     public String getName() {
@@ -44,5 +55,9 @@ public class Argument {
 
     public String getFile() {
         return file;
+    }
+
+    public Consumer<String[]> getAction() {
+        return action;
     }
 }
