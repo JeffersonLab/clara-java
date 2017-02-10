@@ -101,6 +101,9 @@ public class ClaraShell {
                 String commandName = splited[0];
                 Command command = commands.get(commandName);
                 if (command == null) {
+                    if ("exit".equals(commandName)) {
+                        break;
+                    }
                     terminal.writer().println("Invalid command");
                 } else {
                     command.execute(splited);
