@@ -22,23 +22,17 @@
 
 package org.jlab.clara.cli;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 import org.jline.terminal.Terminal;
 
 public class MonitorCommand extends Command {
 
-    private Map<String, Argument> arguments;
-
     public MonitorCommand(Terminal terminal) {
         super(terminal, "monitor", "Monitor data processing");
-        arguments = new LinkedHashMap<>();
         arguments.put("composition", new Argument("composition",
                 "Show application service-based composition.", "file"));
         arguments.put("files", new Argument("files",
                 "Show input file list.", "file"));
-        super.setArguments(arguments);
     }
 
     @Override

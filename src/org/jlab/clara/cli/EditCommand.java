@@ -22,25 +22,19 @@
 
 package org.jlab.clara.cli;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import org.jline.terminal.Terminal;
 
 public class EditCommand extends Command {
 
-    private final Map<String, Argument> arguments;
     private final RunConfig runConfig;
     private final String editor;
 
     public EditCommand(Terminal terminal, RunConfig runConfig) {
         super(terminal, "edit", "Edit data processing conditions");
-        arguments = new LinkedHashMap<>();
         arguments.put("composition", new Argument("composition",
                 "Edit application service-based composition.", this::editConfigFile));
         arguments.put("files", new Argument("files",
                 "Edit input file list.", this::editFilesList));
-        super.setArguments(arguments);
         this.runConfig = runConfig;
         this.editor = CommandUtils.getEditor();
     }

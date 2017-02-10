@@ -22,6 +22,7 @@
 
 package org.jlab.clara.cli;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.jline.terminal.Terminal;
@@ -31,19 +32,16 @@ public abstract class Command {
     private final String name;
     private final String description;
     protected final Terminal terminal;
-    private Map<String, Argument> arguments;
+    protected Map<String, Argument> arguments;
 
     public Command(Terminal terminal, String name, String description) {
         this.name = name;
         this.description = description;
         this.terminal = terminal;
+        this.arguments = new LinkedHashMap<>();
     }
 
     public abstract void execute(String[] args);
-
-    public void setArguments(Map<String, Argument> arguments) {
-        this.arguments = arguments;
-    }
 
     public String getName() {
         return name;
@@ -51,10 +49,6 @@ public abstract class Command {
 
     public String getDescription() {
         return description;
-    }
-
-    public Map<String, Argument> getArguments() {
-        return arguments;
     }
 
     public void showFullHelp() {
