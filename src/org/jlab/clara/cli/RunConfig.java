@@ -73,12 +73,24 @@ public class RunConfig {
         return localHost;
     }
 
+    public void setLocalHost(String localHost) {
+        this.localHost = localHost;
+    }
+
     public String getConfigFile() {
         return configFile;
     }
 
+    public void setConfigFile(String configFile) {
+        this.configFile = configFile;
+    }
+
     public String getFilesList() {
         return filesList;
+    }
+
+    public void setFilesList(String filesList) {
+        this.filesList = filesList;
     }
 
     public boolean isUseFrontEnd() {
@@ -89,11 +101,23 @@ public class RunConfig {
         return session;
     }
 
+    public void setSession(String session) {
+        this.session = session;
+    }
+
     public int getMaxNodes() {
         return maxNodes;
     }
 
+    public void setMaxNodes(int maxNodes) {
+        this.maxNodes = maxNodes;
+    }
+
     public int getMaxThreads() {
         return maxThreads;
+    }
+
+    public void setMaxThreads(int maxThreads) {
+        this.maxThreads = maxThreads;
     }
 }
