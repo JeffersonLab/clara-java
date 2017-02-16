@@ -3,7 +3,7 @@
 
 # date 1.13.17
 
-MALLOC_ARENA_MAX=1; export MALLOC_ARENA_MAX
+MALLOC_ARENA_MAX=2; export MALLOC_ARENA_MAX
 
 TEST_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 

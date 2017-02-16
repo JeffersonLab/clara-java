@@ -3,8 +3,30 @@
 # date 1.13.17
 
 
+if ! [ -n "$CLARA_HOME" ]; then
+    echo "CLARA_HOME is not defined. Exiting..."
+    exit
+fi
+
+DPE_PORT=
+IP=127.0.0.1
+lang="_java"
+FENAME=
+
 unset CCDB_DATABASE
 
+######################################################################################################################
+function print_logo {
+printf "  ________   ____         ________   _________    ________\n"
+printf " /        \ |    |       /        | |         \  /        | 4.3.0\n"
+printf "|    |    | |    |      |   _._   | |    |    | |   _._   |\n"
+printf "|    |____| |    |      |    |    | |        /  |    |    |\n"
+printf "|    |    | |    |____  |    |    | |    .   -| |    |    |\n"
+printf "|    |    | |         | |    |    | |    |    | |    |    |\n"
+printf "|________/  |_________| |____|____| |____|____| |____|____|\n"
+}
+
+######################################################################################################################
 function display_help {
 echo
 echo 'Usage: run-clara [option <operand>]'
@@ -12,11 +34,6 @@ echo
 echo '  [-h | --help]'
 echo '        Usage instructions'
 echo
-echo '  [-j | --java_home <java_home>]'
-echo '        JDK/JRE installation directory. (default: $JAVA_HOME)'
-echo
-echo '  [-c | --clara_home <clara_home>]'
-echo '        CLARA installation directory. (default: $CLARA_HOME)'
 echo '  [-d | --description <description>]'
 echo '        A single string (no spaces) describing data processing.'
 echo
@@ -37,8 +54,6 @@ echo '  [-o | --output_dir <outputDir>]'
 echo '        The output directory where processed files will be saved.'
 echo '        (default: $CLARA_HOME/data/out)'
 echo
-#echo '  [-n | --nodes <maxNodes>]'
-#echo '        The maximum number of processing nodes to be used. Farm mode only. (default: 1)'
 echo
 echo '  [-t | --threads <maxThreads>]'
 echo '        The maximum number of processing threads to be used per node. In case value = auto t=local-node processor count.'
@@ -76,22 +91,81 @@ echo '        Farm job wall time request (in min).'
 echo '        (default: 1440)'
 }
 
-# Default parameter settings
-CL_HOME="undefined"
-J_HOME="undefined"
-MODE="undefined"
-FARM_LOADING_ZONE="undefined"
+######################################################################################################################
+function list_parameters {
+echo
+echo '             Data processing parameters'
+echo "--------------------------------------------------------"
+echo
+echo "  clara_home    = $CLARA_HOME"
+echo "  plugin        = $PLUGIN"
+echo "  input_dir     = $IN_DIR"
+echo "  output_dir    = $OUT_DIR"
+echo "  session       = $SESSION"
+echo "  cores         = $THREAD_NUM"
+echo "  services      = $SERVICE_YAML"
+echo "  files         = $FILE_LIST"
+echo "  description   = $DESCRIPTION"
+echo "  farm_stage    = $FARM_LOADING_ZONE"
+echo "  farm_memory   = $FARM_MEMORY"
+echo "  farm_track    = $FARM_TRACK"
+echo "  farm_os       = $FARM_OS"
+echo "  farm_cpu      = $FARM_CPU"
+echo "  farm_disk     = $FARM_DISK_SPACE"
+echo "  farm_time     = $FARM_TIME"
+echo "  farm_flavor   = $FARM_FLAVOR"
+}
+
+######################################################################################################################
+# trap ctrl-c and call ctrl_c()
+trap ctrl_c INT
+function ctrl_c() {
+echo "info: removing DPE at port = $DPE_PORT"
+        $CLARA_HOME/bin/remove-dpe $DPE_PORT
+}
+
+######################################################################################################################
+function define_dpe_port {
+DPE_PORT=7002
+dpe_port=0
+while  [ $dpe_port == 0 ]
+do
+dpe_port=0
+exec 6<>/dev/tcp/127.0.0.1/$DPE_PORT || dpe_port=1
+if [ $dpe_port == 0 ]; then
+let "DPE_PORT=DPE_PORT+10"
+else break
+fi
+done
+let "DPE_PORT=DPE_PORT-2"
+echo "$DPE_PORT"
+}
+
+######################################################################################################################
+function define_host_ip {
+local _ip _line
+    while IFS=$': \t' read -a _line ;do
+        [ -z "${_line%inet}" ] &&
+           _ip=${_line[${#_line[1]}>4?1:2]} &&
+           [ "${_ip#127.0.0.1}" ] && IP=$_ip && return 0
+      done< <(LANG=C /sbin/ifconfig)
+}
+
+######################################################################################################################
+function set_default_parameters {
 IN_DIR="$CLARA_HOME/data/in"
 NODE_NUM="undefined"
 OUT_DIR="$CLARA_HOME/data/out"
 PLUGIN="$CLARA_HOME/plugins/clas12"
-THREAD_NUM="36"
+THREAD_NUM="2"
 SERVICE_YAML="$PLUGIN/config/services.yaml"
 FILE_LIST="$PLUGIN/config/files.list"
+DPE_UP="false"
 HOST=$(hostname)
 USER=$(id -un)
+FE_HOST="localhost"
 SESSION="$USER"
-PORT=7000
+MODE="local"
 
 #farm default parameters
 DESCRIPTION="clara"
@@ -105,22 +179,120 @@ FARM_TIME="1440"
 FARM_DPE_ORC_DELAY="2"
 FARM_FLAVOR="jlab"
 
-# trap ctrl-c and call ctrl_c()
-trap ctrl_c INT
-function ctrl_c() {
-        remove-dpe $PORT
 }
 
-#farm default parameters
+######################################################################################################################
+function run_farm {
+
+# Farm specific local staging directory
+{ if [ "$FARM_LOADING_ZONE" == "undefined" ]; then
+if [ "$FARM_FLAVOR" == "jlab" ]; then
+FARM_LOADING_ZONE="/scratch/pbs"
+fi
+fi
+}
+
+if [ "$PLUGIN" == "undefined" ]; then
+PLUGIN="$CLARA_HOME/plugins/clas12"
+fi
+
+echo "-------- Farm Running Conditions ---------------"
+if [ "$FARM_FLAVOR" == "jlab" ]; then
+{
+echo " Project            = clas12"
+echo " Job name           = rec-$USER-$DESCRIPTION"
+echo " Memory request     = $FARM_MEMORY GB"
+echo " Track              = $FARM_TRACK"
+echo " OS request         = $FARM_OS"
+echo " Core request       = $FARM_CPU"
+echo " Disk space request = $FARM_DISK_SPACE GB"
+echo " Wall time request  = $FARM_TIME"
+echo " Data staging area  = $FARM_LOADING_ZONE"
+}
+else {
+echo " Project            = clas12"
+echo " Job name           = rec-$USER-$DESCRIPTION"
+#echo " Memory request     = $FARM_MEMORY GB"
+#echo " Track              = $FARM_TRACK"
+#echo " OS request         = $FARM_OS"
+echo " Core request       = $FARM_CPU"
+echo " Disk space request = 3145728 KB"
+echo " Wall time request  = 24:00:00"
+}
+fi
+echo "------------------------------------------"
+echo
+
+a="setenv CLARA_HOME $CLARA_HOME"
+b="$a ; $CLARA_HOME/bin/remove-dpe"
+rcCmd="$a ; $CLARA_HOME/bin/etc/f-clara.sh $IN_DIR $OUT_DIR $SERVICE_YAML $FILE_LIST $PLUGIN $DESCRIPTION $FARM_CPU $SESSION $FARM_LOADING_ZONE"
+
+# Create orchestrator job submission script
+# ------------- JLAB auger script creation and submission ------------
+if [ "$FARM_FLAVOR" == "jlab" ]; then
+{
+echo "PROJECT: clas12"
+echo "JOBNAME: rec-$USER-$DESCRIPTION"
+echo "MEMORY: $FARM_MEMORY GB"
+echo "TRACK: $FARM_TRACK"
+echo "OS: $FARM_OS"
+echo "CPU: $FARM_CPU"
+echo "DISK_SPACE: $FARM_DISK_SPACE GB"
+echo "TIME: $FARM_TIME"
+
+echo "COMMAND: $rcCmd"
+
+} > $PLUGIN/config/clara_p.jsub
+sleep 3
+
+# Submit auger job request
+if command_exists jsub
+ then
+    jsub $PLUGIN/config/clara_p.jsub
+ else
+    echo " Error: can not run farm job from this node = $HOST"
+fi
+
+# ------------------------------------------------------------
+else
+# ------------- PBS script creation and submission -----------
+{
+echo "#!/bin/csh"
+echo "#PBS -N rec-$USER-$DESCRIPTION"
+#echo "#PBS -q $FARM_TRACK"
+echo "#PBS -A clas12"
+#echo "#PBS -M gurjyan@jlab.org"
+echo "#PBS -S /bin/csh"
+echo "#PBS -l nodes=1:ppn=$FARM_CPU"
+#echo "#PBS -l arch=$FARM_OS"
+echo "#PBS -l file=3145728kb"
+echo "#PBS -l walltime=24:00:00"
+
+echo $rcCmd
+
+} > $PLUGIN/config/clara_p.pbs
+sleep 3
+
+# Submit auger job request
+if command_exists qsub
+ then
+    qsub $PLUGIN/config/clara_p.pbs
+ else
+    echo " Error: can not run farm job from this node = $HOST"
+fi
+fi
+}
+
+
+
+# main program
+set_default_parameters
+
+print_logo
 
 while :
 do
     case "$1" in
-      -c | --clara-home)
-	  CL_HOME="$2"
-	  export CLARA_HOME="$CL_HOME"
-	  shift 2
-	  ;;
       -d | --description)
 	  DESCRIPTION="$2"
 	  shift 2
@@ -137,10 +309,6 @@ do
 	  IN_DIR="$2"
 	  shift 2
 	  ;;
-      -j | --java-home)
-	  J_HOME="$2"
-	  shift 2
-	  ;;
       -m | --mode)
       {
       if [ "$2" == "farm" ] || [ "$2" == "sqlite" ] ; then
@@ -149,10 +317,6 @@ do
 	  }
 	  shift 2
 	  ;;
-#      -n | --nodes)
-#	  NODE_NUM="$2"
-#	  shift 2
-#	  ;;
       -o | --output-dir)
 	  OUT_DIR="$2"
 	  shift 2
@@ -221,298 +385,24 @@ do
     esac
 done
 
+list_parameters
 
-# CLARA_HOME
-if [ "$CL_HOME" == "undefined" ]; then
-
-if ! [ -n "$CLARA_HOME" ]; then
-    echo "CLARA_HOME is not defined. Exiting..."
-    exit
-fi
-
-CL_HOME=$CLARA_HOME
-
-fi
-
-# Input data directory
-if [ "$IN_DIR" == "undefined" ]; then
-IN_DIR="$CLARA_HOME/data/in"
-fi
-
-# JAVA_HOME
-if [ "$J_HOME" == "undefined" ]; then
-
-OS="`uname`"
-case $OS in
-  'Linux')
-IP=$(host `hostname` | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b")
-  if [ -z "$IP" ]; then
-  IP=127.0.0.1
-  fi
-
-    MACHINE_TYPE=`uname -m`
-    if [ ${MACHINE_TYPE} == 'x86_64' ]; then
-
-  J_HOME=$CLARA_HOME/jre/linux-64/jre1.8.0_112
-else
-  J_HOME=$CLARA_HOME/jre/linux-i586/jre1.8.0_112
-fi
-    ;;
-  'WindowsNT')
-    OS='Windows'
-    ;;
-  'Darwin')
-
-  IP=$(ipconfig getifaddr en0)
-  if [ -z "$IP" ]; then
-  IP=$(ipconfig getifaddr en1)
-  fi
-
-if [ -z "$IP" ]; then
- IP=127.0.0.1
-fi
-
-  J_HOME=$CLARA_HOME/jre/macosx-64/jre1.8.0_112.jre/Contents/Home
-    ;;
-  *) ;;
-esac
-fi
-
-# Running mode
-if [ "$MODE" == "undefined" ]; then
-MODE=local
-fi
-
-# Number of nodes in case of farm deployment
-if [ "$NODE_NUM" == "undefined" ]; then
-NODE_NUM=1
-fi
-
-# Output directory
-if [ "$OUT_DIR" == "undefined" ]; then
-OUT_DIR="$CLARA_HOME/data/out"
-fi
-
-# User service plugin
-if [ "$PLUGIN" == "undefined" ]; then
-PLUGIN="$CLARA_HOME/plugins/clas12"
-fi
-
-# Data processing session
-if [ "$SESSION" == "undefined" ]; then
-SESSION="$USER"
-fi
-
-# Number of parallel threads
-if [ "$THREAD_NUM" == "undefined" ]; then
-if [ "$MODE" = "farm" ]; then
-THREAD_NUM=72
-else
-THREAD_NUM=2
-fi
-fi
-
-export JAVA_HOME="$J_HOME"
-export CLARA_HOME="$CL_HOME"
-export CLAS12DIR="$PLUGIN"
-#export CCDB_DATABASE="etc/data/database/clas12database.sqlite"
-export PATH=$PATH:$JAVA_HOME/bin:$CLARA_HOME/bin
-export CLASSPATH="$CLARA_HOME/lib/*:$CLAS12DIR/lib/clas/*:$CLAS12DIR/lib/services/*"
-
-# Composition yaml file
-if [ "$SERVICE_YAML" == "undefined" ]; then
-SERVICE_YAML="$CLAS12DIR/config/services.yaml"
-fi
-
-# List of files to be processed
-if [ "$FILE_LIST" == "undefined" ]; then
-FILE_LIST="$CLAS12DIR/config/files.list"
-fi
-
+# ----------------- farm deployment ----------------------
 if [ "$MODE" == "farm" ]; then
-# ----------------- Farm deployment ----------------------
-echo ' Note: CLARA distribution and data input/output directories must be visible to farm nodes.'
-
-#rcCmd="COMMAND: setenv CLARA_HOME "$CL_HOME"; "$CLARA_HOME"/bin/run-clara -c "$CLARA_HOME" -i "$IN_DIR" -j "$JAVA_HOME" -m local_2 -o "$OUT_DIR" -p "$CLAS12DIR" -s "$SESSION" -t "$THREAD_NUM" -y "$SERVICE_YAML" -f "$FILE_LIST""
-
-# Farm specific local staging directory
-if [ "$FARM_LOADING_ZONE" == "undefined" ]; then
-if [ "$FARM_FLAVOR" == "jlab" ]; then
-FARM_LOADING_ZONE="/scratch/pbs"
-fi
-fi
-
-if [ "$FARM_LOADING_ZONE" == "undefined" ]; then
-rcCmd="setenv CLARA_HOME "$CL_HOME"; $CLARA_HOME/bin/run-clara -i "$IN_DIR" -o "$OUT_DIR" -s "$SESSION" -t "$THREAD_NUM" -y "$SERVICE_YAML" -f "$FILE_LIST" -fdod "20""
-else
-rcCmd="setenv CLARA_HOME "$CL_HOME"; $CLARA_HOME/bin/run-clara -i "$IN_DIR" -o "$OUT_DIR" -l "$FARM_LOADING_ZONE" -s "$SESSION" -t "$THREAD_NUM" -y "$SERVICE_YAML" -f "$FILE_LIST" -fdod "20""
-fi
-rdpCmd="setenv CLARA_HOME="$CL_HOME"; "$CLARA_HOME"/bin/clara-dpe  "$SESSION" "$CLARA_HOME" "$CLAS12DIR""
-
-# Create orchestrator job submission script
-# ------------- JLAB auger script creation and submission ------------
-if [ "$FARM_FLAVOR" == "jlab" ]; then
-{
-echo "PROJECT: clas12"
-echo "JOBNAME: rec_$USER_$DESCRIPTION"
-echo "MEMORY: $FARM_MEMORY GB"
-echo "TRACK: $FARM_TRACK"
-echo "OS: $FARM_OS"
-echo "CPU: $FARM_CPU"
-echo "DISK_SPACE: $FARM_DISK_SPACE GB"
-echo "TIME: $FARM_TIME"
-
-echo "COMMAND: $rcCmd"
-
-} > $CLAS12DIR/config/clara_p.jsub
-sleep 3
-
-# Submit auger job request
-jsub $CLAS12DIR/config/clara_p.jsub
-
-# Create dpe job submission script
-{
-echo "PROJECT: clas12"
-echo "JOBNAME: rec_$USER_$DESCRIPTION"
-echo "MEMORY: $FARM_MEMORY GB"
-echo "TRACK: $FARM_TRACK"
-echo "OS: $FARM_OS"
-echo "CPU: $FARM_CPU"
-echo "DISK_SPACE: $FARM_DISK_SPACE GB"
-echo "TIME: $FARM_TIME"
-
-echo "COMMAND: $rdpCmd"
-
-} > $CLAS12DIR/config/clara_d.jsub
-
-for ((i = 1; i < $NODE_NUM; i++)); do
-jsub $CLAS12DIR/config/clara_d.jsub
-done
-# ------------------------------------------------------------
-else
-# ------------- PBS script creation and submission -----------
-{
-echo "#!/bin/csh"
-echo "#PBS -N rec_$USER_$DESCRIPTION"
-#echo "#PBS -q $FARM_TRACK"
-echo "#PBS -A clas12"
-#echo "#PBS -M gurjyan@jlab.org"
-echo "#PBS -S /bin/csh"
-echo "#PBS -l nodes=1:ppn=$FARM_CPU"
-#echo "#PBS -l arch=$FARM_OS"
-echo "#PBS -l file=3145728kb"
-echo "#PBS -l walltime=24:00:00"
-
-echo $rcCmd
-
-} > $CLAS12DIR/config/clara_p.pbs
-sleep 3
-
-# Submit auger job request
-qsub $CLAS12DIR/config/clara_p.pbs
-
-# Create dpe job submission script
-{
-echo "#!/bin/csh"
-echo "#PBS -N rec_$USER_$DESCRIPTION"
-#echo "#PBS -q $FARM_TRACK"
-echo "#PBS -A clas12"
-#echo "#PBS -M gurjyan@jlab.org"
-echo "#PBS -S /bin/csh"
-echo "#PBS -l nodes=1:ppn=$FARM_CPU"
-#echo "#PBS -l arch=$FARM_OS"
-echo "#PBS -l file=3145728kb"
-echo "#PBS -l walltime=24:00:00"
-
-echo $rdpCmd
-
-} > $CLAS12DIR/config/clara_d.pbs
-
-for ((i = 1; i < $NODE_NUM; i++)); do
-qsub $CLAS12DIR/config/clara_d.pbs
-done
-
-# ------------------------------------------------------------
-fi
+    run_farm
 
 # ----------------- Local deployment ----------------------
 else
+	      # define private clara port
+          define_dpe_port
 
-if [ "$MODE" == "sqlite" ]; then
-export CCDB_DATABASE="etc/data/database/clas12database.sqlite"
+          # define this host IP
+          define_host_ip
+
+          # define local DPE name
+          FENAME=$IP%$DPE_PORT$lang
+
+	     $CLARA_HOME/bin/etc/l-clara.sh $IN_DIR $OUT_DIR $SERVICE_YAML $FILE_LIST $PLUGIN $DESCRIPTION $THREAD_NUM $SESSION $DPE_UP $DPE_PORT $FENAME
+
 fi
-
-# Starting DPEs
-################# Starting DPE ############
-
-dpe_port=0
-while  [ $dpe_port == 0 ]
-do
-dpe_port=0
-exec 6<>/dev/tcp/127.0.0.1/$PORT || dpe_port=1
-if [ $dpe_port == 0 ]; then
-let "PORT=PORT+10"
-else break
-fi
-done
-echo "$PORT"
-
-
-if ! [ -z ${2+x} ]; then CLARA_HOME=$2; fi
-if ! [ -z ${3+x} ]; then CLAS12DIR=$3; fi
-if [ -z ${4+x} ]; then FE_HOST="localhost" ; else FE_HOST=$4; fi
-
-echo $FE_HOST
-
-export CLARA_HOME
-export CLAS12DIR
-export CLASSPATH="$CLARA_HOME/lib/*:$CLAS12DIR/lib/clas/*:$CLAS12DIR/lib/services/*"
-
-
-#=====================
-LOG_FILE_DPE="$CLARA_HOME/log/$HOST-$USER-$DESCRIPTION-jfe.log"
-LOG_FILE_ORC="$CLARA_HOME/log/$HOST-$USER-$DESCRIPTION-co.log"
-
-printf "  ________   ____         ________   _________    ________\n"
-printf " /        \ |    |       /        | |         \  /        | 4.3.0\n"
-printf "|    |    | |    |      |   _._   | |    |    | |   _._   |\n"
-printf "|    |____| |    |      |    |    | |        /  |    |    |\n"
-printf "|    |    | |    |____  |    |    | |    .   -| |    |    |\n"
-printf "|    |    | |         | |    |    | |    |    | |    |    |\n"
-printf "|________/  |_________| |____|____| |____|____| |____|____|\n"
-echo " "
-echo "----------------------- Running Conditions -------------------"
-echo "  Start time    = "$(date)
-echo "  Log file      = $LOG_FILE_DPE"
-echo "  clara_home    = $CLARA_HOME"
-echo "  plugin        = $PLUGIN"
-echo "  input_dir     = $IN_DIR"
-echo "  output_dir    = $OUT_DIR"
-echo "  session       = $SESSION"
-echo "  cores         = $THREAD_NUM"
-echo "  services      = $SERVICE_YAML"
-echo "  files         = $FILE_LIST"
-echo "  description   = $DESCRIPTION"
-echo "  farm_stage    = $FARM_LOADING_ZONE"
-echo "  farm_memory   = $FARM_MEMORY"
-echo "  farm_track    = $FARM_TRACK"
-echo "  farm_os       = $FARM_OS"
-echo "  farm_cpu      = $FARM_CPU"
-echo "  farm_disk     = $FARM_DISK_SPACE"
-echo "  farm_time     = $FARM_TIME"
-echo "  farm_flavor   = $FARM_FLAVOR"
-echo "---------------------------------------------------------------"
-echo
-
-# start dpe if it is not already up
-$CLARA_HOME/bin/remove-dpe $PORT
-$CLARA_HOME/bin/j_dpe --port $PORT --host $HOST --session $SESSION --max-sockets 5120 --report 5 --max-cores $THREAD_NUM 2>&1 | tee $LOG_FILE_DPE &
-sleep 7
-
-j="_java"
-FENAME=$IP%$PORT$j
-
-# Starting cloud orchestrator
-  $CLARA_HOME/bin/j_cloud -f $FENAME -s $SESSION -F -i $IN_DIR -o $OUT_DIR -p $THREAD_NUM -t $THREAD_NUM $SERVICE_YAML $FILE_LIST 2>&1 | tee $LOG_FILE_ORC
-fi
-$CLARA_HOME/bin/remove-dpe $PORT
+$CLARA_HOME/bin/remove-dpe $DPE_PORT

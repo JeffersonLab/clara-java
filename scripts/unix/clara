@@ -14,12 +14,9 @@ IP=127.0.0.1
 lang="_java"
 FENAME=
 
-
 unset CCDB_DATABASE
 
-
 set -o errexit -o nounset -o pipefail
-
 
 ######################################################################################################################
 function print_logo {
@@ -36,7 +33,8 @@ printf "|________/  |_________| |____|____| |____|____| |____|____|\n"
 # trap ctrl-c and call ctrl_c()
 trap ctrl_c INT
 function ctrl_c() {
-        remove-dpe $DPE_PORT
+echo "info: removing DPE at port = $DPE_PORT"
+        $CLARA_HOME/bin/remove-dpe $DPE_PORT
 }
 
 ######################################################################################################################
@@ -254,7 +252,7 @@ echo "  farm_flavor   = $FARM_FLAVOR"
 
 ######################################################################################################################
 function define_dpe_port {
-DPE_PORT=7000
+DPE_PORT=7002
 dpe_port=0
 while  [ $dpe_port == 0 ]
 do
@@ -265,36 +263,18 @@ let "DPE_PORT=DPE_PORT+10"
 else break
 fi
 done
+let "DPE_PORT=DPE_PORT-2"
 echo "$DPE_PORT"
 }
 
 ######################################################################################################################
 function define_host_ip {
-OS="`uname`"
-case $OS in
-  'Linux')
-  IP=$(host `hostname` | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b")
-  if [ -z "$IP" ]; then
-    IP=127.0.0.1
-  fi
-   ;;
-  'WindowsNT')
-    OS='Windows'
-    ;;
-  'Darwin')
-  IP=$(ipconfig getifaddr en0)
-  if [ -z "$IP" ]; then
-    IP=$(ipconfig getifaddr en1)
-  fi
-
-  if [ -z "$IP" ]; then
-    IP=127.0.0.1
-  fi
-    ;;
-  *)
-  ;;
-esac
-
+local _ip _line
+    while IFS=$': \t' read -a _line ;do
+        [ -z "${_line%inet}" ] &&
+           _ip=${_line[${#_line[1]}>4?1:2]} &&
+           [ "${_ip#127.0.0.1}" ] && IP=$_ip && return 0
+      done< <(LANG=C /sbin/ifconfig)
 }
 
 ######################################################################################################################
@@ -370,9 +350,7 @@ echo
 
 a="setenv CLARA_HOME $CLARA_HOME"
 b="$a ; $CLARA_HOME/bin/remove-dpe"
-#rcCmd="$b ; $CLARA_HOME/bin/etc/f-clara.sh $IN_DIR $OUT_DIR $SERVICE_YAML $FILE_LIST $PLUGIN $DESCRIPTION $FARM_CPU $SESSION $FARM_LOADING_ZONE $DPE_PORT
-rcCmd="$a ; $CLARA_HOME/bin/etc/f-clara.sh $IN_DIR $OUT_DIR $SERVICE_YAML $FILE_LIST $PLUGIN $DESCRIPTION $FARM_CPU $SESSION $FARM_LOADING_ZONE $DPE_PORT
-"
+rcCmd="$a ; $CLARA_HOME/bin/etc/f-clara.sh $IN_DIR $OUT_DIR $SERVICE_YAML $FILE_LIST $PLUGIN $DESCRIPTION $FARM_CPU $SESSION $FARM_LOADING_ZONE"
 
 # Create orchestrator job submission script
 # ------------- JLAB auger script creation and submission ------------
@@ -628,7 +606,7 @@ local val2="$3"
           FENAME=$IP%$DPE_PORT$lang
         fi
 
-	     $CLARA_HOME/bin/etc/l-clara.sh $IN_DIR $OUT_DIR $SERVICE_YAML $FILE_LIST $PLUGIN $DESCRIPTION $THREAD_NUM $SESSION $DPE_UP $DPE_PORT
+	     $CLARA_HOME/bin/etc/l-clara.sh $IN_DIR $OUT_DIR $SERVICE_YAML $FILE_LIST $PLUGIN $DESCRIPTION $THREAD_NUM $SESSION $DPE_UP $DPE_PORT $FENAME
 	     DPE_UP="true"
 	   elif [ "$val1" == "farm" ]; then
 	      run_farm

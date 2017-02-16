@@ -10,6 +10,15 @@
 # $8  : SESSION
 # $9  : DPE_UP
 # shift; $9 : DPE_PORT
+# shift; $9 : FENAME
+
+######################################################################################################################
+# trap ctrl-c and call ctrl_c()
+trap ctrl_c INT
+function ctrl_c() {
+echo "info: removing DPE at port = $DPE_PORT"
+        $CLARA_HOME/bin/remove-dpe $DPE_PORT
+}
 
 ######################################################################################################################
 function in_files_exists {
@@ -22,40 +31,12 @@ while IFS='' read -r line || [[ -n "$line" ]]; do
  fi
 done < "$FILE_LIST"
 }
-######################################################################################################################
-function is_port_free {
-local x=
 
- x=`nc -vz 127.0.0.1 $1`
-
-if [ $OS == "Linux" ]
-then
- if ! [ -z "$x" ]
-  then
-   return 0
- else
-   return 1
- fi
-
-elif [ $OS == "Darwin" ]
-then
-
-  if [[ $x == *"succeeded"* ]]
-    then
-     return 0
-  elif [[ $x == *"refused"* ]]
-    then
-    return 1
-   fi
-fi
- }
 ######################################################################################################################
 
 # -------------------- preparation ---------------------------------
 HOST=$(hostname)
 USER=$(id -un)
-FE_HOST="localhost"
-FE_PORT="8888"
 
 # CLARA_HOME
 
@@ -64,16 +45,10 @@ if ! [ -n "$CLARA_HOME" ]; then
     exit
 fi
 
-
 # JAVA_HOME
 OS="`uname`"
 case $OS in
   'Linux')
-IP=$(host `hostname` | grep -oE "\b([0-9]{1,3}\.){3}[0-9]{1,3}\b")
-  if [ -z "$IP" ]; then
-  IP=127.0.0.1
-  fi
-
     MACHINE_TYPE=`uname -m`
     if [ ${MACHINE_TYPE} == 'x86_64' ]; then
 
@@ -86,11 +61,6 @@ fi
     OS='Windows'
     ;;
   'Darwin')
-
-  IP=$(ipconfig getifaddr en0)
-  if [ -z "$IP" ]; then
-  IP=$(ipconfig getifaddr en1)
-  fi
 
 if [ -z "$IP" ]; then
  IP=127.0.0.1
@@ -153,6 +123,9 @@ DPE_UP=$9
 shift
 DPE_PORT=$9
 
+shift
+FENAME=$9
+
 export JAVA_HOME="$J_HOME"
 export PATH=$PATH:$JAVA_HOME/bin:$CLARA_HOME/bin
 export CLAS12DIR="$PLUGIN"
@@ -161,25 +134,8 @@ export CLASSPATH="$CLARA_HOME/lib/*:$PLUGIN/lib/clas/*:$PLUGIN/lib/services/*"
 
 #------------- running -------------------------------------
 
-#port=7000
-#dpe_port=0
-
 if [ in_files_exists ]
  then
-
-# Starting DPEs
-#if [ "$9" == "false" ]; then
-#while  [ $dpe_port == 0 ]
-#do
-#dpe_port=0
-#exec 6<>/dev/tcp/127.0.0.1/$port || dpe_port=1
-#if [ $dpe_port == 0 ]; then
-#let "port=port+10"
-#else break
-#fi
-#done
-#echo "$port"
-#fi
 
 LOG_FILE_DPE="$CLARA_HOME/log/$HOST-$USER-$DESCRIPTION-jfe.log"
 LOG_FILE_ORC="$CLARA_HOME/log/$HOST-$USER-$DESCRIPTION-co.log"
@@ -202,9 +158,6 @@ $CLARA_HOME/bin/j_dpe --port $DPE_PORT --host $HOST --session $SESSION --max-soc
 sleep 7
 fi
 
-j="_java"
-FENAME=$IP%$DPE_PORT$j
-
 # Starting cloud orchestrator
-  $CLARA_HOME/bin/j_cloud $LOG_FILE -f $FENAME -s $SESSION -F -i $IN_DIR -o $OUT_DIR -p $THREAD_NUM -t $THREAD_NUM $SERVICE_YAML $FILE_LIST 2>&1 | tee $LOG_FILE_ORC
+  $CLARA_HOME/bin/j_cloud -f $FENAME -s $SESSION -F -i $IN_DIR -o $OUT_DIR -p $THREAD_NUM -t $THREAD_NUM $SERVICE_YAML $FILE_LIST 2>&1 | tee $LOG_FILE_ORC
 fi
