@@ -67,7 +67,7 @@ public class Argument {
     }
 
     public Completer getCompleter() {
-       return completer;
+        return completer;
     }
 
     public void setCompleter(Completer completer) {
