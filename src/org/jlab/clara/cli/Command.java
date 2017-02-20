@@ -47,14 +47,22 @@ public abstract class Command {
 
     public abstract void execute(String[] args);
 
-    public abstract Completer getCompleter();
-
     public String getName() {
         return name;
     }
 
     public String getDescription() {
         return description;
+    }
+
+    protected abstract Completer getCompleter();
+
+    protected Completer argumentsCompleter() {
+        List<String> names = arguments.values()
+                .stream()
+                .map(Argument::getName)
+                .collect(Collectors.toList());
+        return new StringsCompleter(names);
     }
 
     public void showFullHelp() {
@@ -64,13 +72,5 @@ public abstract class Command {
             terminal.writer().printf("   %s\n", aux.getDescription());
 
         }
-    }
-
-    protected Completer argumentsCompleter() {
-        List<String> names = arguments.values()
-                .stream()
-                .map(Argument::getName)
-                .collect(Collectors.toList());
-        return new StringsCompleter(names);
     }
 }
