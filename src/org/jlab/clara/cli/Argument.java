@@ -24,12 +24,17 @@ package org.jlab.clara.cli;
 
 import java.util.function.Consumer;
 
+import org.jline.reader.Completer;
+import org.jline.reader.impl.completer.NullCompleter;
+
 public class Argument {
 
     private final String name;
     private final String description;
     private final String file;
     private final Consumer<String[]> action;
+
+    private Completer completer = NullCompleter.INSTANCE;
 
     public Argument(String name, String description, String file) {
         this.name = name;
@@ -59,5 +64,9 @@ public class Argument {
 
     public Consumer<String[]> getAction() {
         return action;
+    }
+
+    public Completer getCompleter() {
+       return completer;
     }
 }

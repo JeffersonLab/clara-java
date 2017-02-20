@@ -28,6 +28,8 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.jline.reader.Completer;
+import org.jline.reader.impl.completer.AggregateCompleter;
+import org.jline.reader.impl.completer.ArgumentCompleter;
 import org.jline.reader.impl.completer.StringsCompleter;
 import org.jline.terminal.Terminal;
 
@@ -56,17 +58,17 @@ public abstract class Command {
     }
 
     protected Completer getCompleter() {
-        Completer command = new StringsCompleter(getName());
-        Completer subCommands = argumentsCompleter();
-        return new ArgumentCompleter(command, subCommands);
+        List<Completer> completers = arguments.values()
+                .stream()
+                .map(this::getCompleter)
+                .collect(Collectors.toList());
+        return new AggregateCompleter(completers);
     }
 
-    protected Completer argumentsCompleter() {
-        List<String> names = arguments.values()
-                .stream()
-                .map(Argument::getName)
-                .collect(Collectors.toList());
-        return new StringsCompleter(names);
+    private Completer getCompleter(Argument arg) {
+        Completer command = new StringsCompleter(getName());
+        Completer subCommand = new StringsCompleter(arg.getName());
+        return new ArgumentCompleter(command, subCommand, arg.getCompleter());
     }
 
     public void showFullHelp() {
