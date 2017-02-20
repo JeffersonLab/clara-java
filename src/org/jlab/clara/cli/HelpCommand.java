@@ -24,9 +24,6 @@ package org.jlab.clara.cli;
 
 import java.util.Map;
 
-import org.jline.reader.Completer;
-import org.jline.reader.impl.completer.ArgumentCompleter;
-import org.jline.reader.impl.completer.StringsCompleter;
 import org.jline.terminal.Terminal;
 
 public class HelpCommand extends Command {
@@ -64,12 +61,5 @@ public class HelpCommand extends Command {
                 .filter(c -> !c.getName().equals("help"))
                 .map(c -> new Argument(c.getName(), c.getDescription(), ""))
                 .forEach(a -> arguments.put(a.getName(), a));
-    }
-
-    @Override
-    public Completer getCompleter() {
-        Completer command = new StringsCompleter(getName());
-        Completer subCommands = argumentsCompleter();
-        return new ArgumentCompleter(command, subCommands);
     }
 }

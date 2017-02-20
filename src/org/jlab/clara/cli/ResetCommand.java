@@ -22,9 +22,6 @@
 
 package org.jlab.clara.cli;
 
-import org.jline.reader.Completer;
-import org.jline.reader.impl.completer.ArgumentCompleter;
-import org.jline.reader.impl.completer.StringsCompleter;
 import org.jline.terminal.Terminal;
 
 public class ResetCommand extends Command {
@@ -42,12 +39,5 @@ public class ResetCommand extends Command {
     @Override
     public void execute(String[] args) {
         terminal.writer().println("Running command " + getName());
-    }
-
-    @Override
-    public Completer getCompleter() {
-        Completer command = new StringsCompleter(getName());
-        Completer subCommands = argumentsCompleter();
-        return new ArgumentCompleter(command, subCommands);
     }
 }

@@ -28,9 +28,6 @@ import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.ExecuteException;
 import org.apache.commons.exec.PumpStreamHandler;
-import org.jline.reader.Completer;
-import org.jline.reader.impl.completer.ArgumentCompleter;
-import org.jline.reader.impl.completer.StringsCompleter;
 import org.jline.terminal.Terminal;
 
 public class RunCommand extends Command {
@@ -83,12 +80,5 @@ public class RunCommand extends Command {
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    @Override
-    public Completer getCompleter() {
-        Completer command = new StringsCompleter(getName());
-        Completer subCommands = argumentsCompleter();
-        return new ArgumentCompleter(command, subCommands);
     }
 }

@@ -55,7 +55,11 @@ public abstract class Command {
         return description;
     }
 
-    protected abstract Completer getCompleter();
+    protected Completer getCompleter() {
+        Completer command = new StringsCompleter(getName());
+        Completer subCommands = argumentsCompleter();
+        return new ArgumentCompleter(command, subCommands);
+    }
 
     protected Completer argumentsCompleter() {
         List<String> names = arguments.values()

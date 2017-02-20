@@ -25,9 +25,6 @@ package org.jlab.clara.cli;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
-import org.jline.reader.Completer;
-import org.jline.reader.impl.completer.ArgumentCompleter;
-import org.jline.reader.impl.completer.StringsCompleter;
 import org.jline.terminal.Terminal;
 
 public class SetCommand extends Command {
@@ -91,12 +88,5 @@ public class SetCommand extends Command {
         } else {
             terminal.writer().println("Missing argument.");
         }
-    }
-
-    @Override
-    public Completer getCompleter() {
-        Completer command = new StringsCompleter(getName());
-        Completer subCommands = argumentsCompleter();
-        return new ArgumentCompleter(command, subCommands);
     }
 }
