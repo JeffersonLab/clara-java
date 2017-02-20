@@ -69,4 +69,8 @@ public class Argument {
     public Completer getCompleter() {
        return completer;
     }
+
+    public void setCompleter(Completer completer) {
+        this.completer = completer;
+    }
 }

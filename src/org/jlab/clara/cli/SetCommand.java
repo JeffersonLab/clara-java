@@ -25,6 +25,9 @@ package org.jlab.clara.cli;
 import java.util.function.Consumer;
 import java.util.function.Function;
 
+import org.jline.reader.Completer;
+import org.jline.reader.impl.completer.FileNameCompleter;
+
 import org.jline.terminal.Terminal;
 
 public class SetCommand extends Command {
@@ -35,6 +38,7 @@ public class SetCommand extends Command {
         super(terminal, "set", "Parameter settings");
         this.runConfig = runConfig;
         setArguments();
+        setCompleters();
     }
 
     private void setArguments() {
@@ -54,6 +58,14 @@ public class SetCommand extends Command {
         newArg("farmCPU", "", null);
         newArg("farmDisk", "", null);
         newArg("farmTime", "", null);
+    }
+
+    private void setCompleters() {
+        Completer fileCompleter = new FileNameCompleter();
+        arguments.get("fileList").setCompleter(fileCompleter);
+        arguments.get("yaml").setCompleter(fileCompleter);
+        arguments.get("inputDir").setCompleter(fileCompleter);
+        arguments.get("outputDir").setCompleter(fileCompleter);
     }
 
     private <T> void newArg(String name, String description, Consumer<String> action) {
