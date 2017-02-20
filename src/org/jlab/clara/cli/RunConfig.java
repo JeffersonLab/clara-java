@@ -22,6 +22,8 @@
 
 package org.jlab.clara.cli;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.jlab.coda.xmsg.core.xMsgUtil;
@@ -86,6 +88,7 @@ public class RunConfig {
     }
 
     public void setConfigFile(String configFile) {
+        validateFile(configFile);
         this.configFile = configFile;
     }
 
@@ -94,6 +97,7 @@ public class RunConfig {
     }
 
     public void setFilesList(String filesList) {
+        validateFile(filesList);
         this.filesList = filesList;
     }
 
@@ -102,6 +106,7 @@ public class RunConfig {
     }
 
     public void setInputDir(String inputDir) {
+        validateDirectory(inputDir);
         this.inputDir = inputDir;
     }
 
@@ -110,6 +115,7 @@ public class RunConfig {
     }
 
     public void setOutputDir(String outputDir) {
+        validateDirectory(outputDir);
         this.outputDir = outputDir;
     }
 
@@ -138,6 +144,35 @@ public class RunConfig {
     }
 
     public void setMaxThreads(int maxThreads) {
+        if (maxThreads <= 0) {
+            throw new IllegalArgumentException("invalid number of threads");
+        }
         this.maxThreads = maxThreads;
+    }
+
+    private static void validateFile(String file) {
+        if (file.isEmpty()) {
+            throw new IllegalArgumentException("empty argument");
+        }
+        Path path = Paths.get(file);
+        if (!Files.exists(path)) {
+            throw new IllegalArgumentException("file does not exist");
+        }
+        if (!Files.isRegularFile(path)) {
+            throw new IllegalArgumentException("file is not a regular file");
+        }
+    }
+
+    private static void validateDirectory(String dir) {
+        if (dir.isEmpty()) {
+            throw new IllegalArgumentException("empty argument");
+        }
+        Path path = Paths.get(dir);
+        if (!Files.exists(path)) {
+            throw new IllegalArgumentException("directory does not exist");
+        }
+        if (!Files.isDirectory(path)) {
+            throw new IllegalArgumentException("directory should be a directory");
+        }
     }
 }

@@ -7,6 +7,11 @@ import org.junit.Test;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+
 import org.jline.terminal.TerminalBuilder;
 
 public class SetCommandTest {
@@ -36,16 +41,20 @@ public class SetCommandTest {
 
     @Test
     public void testSetYaml() throws Exception {
-        command.execute(new String[]{"set", "yaml", "/home/user/services.yaml"});
+        String userFile = createTempFile("yaml");
 
-        assertThat(config.getConfigFile(), is("/home/user/services.yaml"));
+        command.execute(new String[]{"set", "yaml", userFile});
+
+        assertThat(config.getConfigFile(), is(userFile));
     }
 
     @Test
     public void testSetFileList() throws Exception {
-        command.execute(new String[]{"set", "fileList", "/home/user/files.list"});
+        String userFile = createTempFile("fileList");
 
-        assertThat(config.getFilesList(), is("/home/user/files.list"));
+        command.execute(new String[]{"set", "fileList", userFile});
+
+        assertThat(config.getFilesList(), is(userFile));
     }
 
     @Test
@@ -57,15 +66,31 @@ public class SetCommandTest {
 
     @Test
     public void testSetInputDir() throws Exception {
-        command.execute(new String[]{"set", "inputDir", "/home/user/inputDir"});
+        String userDir = createTempDir("input");
 
-        assertThat(config.getInputDir(), is("/home/user/inputDir"));
+        command.execute(new String[]{"set", "inputDir", userDir});
+
+        assertThat(config.getInputDir(), is(userDir));
     }
 
     @Test
     public void testSetOutputDir() throws Exception {
-        command.execute(new String[]{"set", "outputDir", "/home/user/outputDir"});
+        String userDir = createTempDir("output");
 
-        assertThat(config.getOutputDir(), is("/home/user/outputDir"));
+        command.execute(new String[]{"set", "outputDir", userDir});
+
+        assertThat(config.getOutputDir(), is(userDir));
+    }
+
+    private static String createTempDir(String prefix) throws IOException {
+        Path tmpDir = Files.createTempDirectory(prefix);
+        tmpDir.toFile().deleteOnExit();
+        return tmpDir.toString();
+    }
+
+    private static String createTempFile(String prefix) throws IOException {
+        File tmpFile = File.createTempFile(prefix, "");
+        tmpFile.deleteOnExit();
+        return tmpFile.toString();
     }
 }
