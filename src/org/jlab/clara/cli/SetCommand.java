@@ -77,7 +77,12 @@ public class SetCommand extends Command {
                         Consumer<T> action,
                         Function<String, T> parser) {
         Consumer<String[]> commandAction = args -> {
-            T val = parser.apply(args[2]);
+            T val;
+            try {
+                val = parser.apply(args[2]);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("invalid argument", e);
+            }
             action.accept(val);
         };
         arguments.put(name, new Argument(name, description, commandAction));
@@ -91,6 +96,8 @@ public class SetCommand extends Command {
             if (subCommand != null) {
                 try {
                     subCommand.getAction().accept(args);
+                } catch (IllegalArgumentException e) {
+                    terminal.writer().println("Error: " + e.getMessage());
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
