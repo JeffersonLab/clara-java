@@ -42,22 +42,24 @@ public class SetCommand extends Command {
     }
 
     private void setArguments() {
-        newArg("description", "", null);
-        newArg("plugin", "", null);
-        newArg("session", "", runConfig::setSession);
-        newArg("inputDir", "", runConfig::setInputDir);
-        newArg("outputDir", "", runConfig::setOutputDir);
-        newArg("threads", "", runConfig::setMaxThreads, Integer::parseInt);
-        newArg("fileList", "", runConfig::setFilesList);
-        newArg("yaml", "", runConfig::setConfigFile);
-        newArg("farmFlavor", "", runConfig::setFarmFlavor);
-        newArg("farmLoadingZone", "", runConfig::setFarmLoadingZone);
-        newArg("farmMemory", "", runConfig::setFarmMemory, Integer::parseInt);
-        newArg("farmTrack", "", runConfig::setFarmTrack);
-        newArg("farmOS", "", runConfig::setFarmOS);
-        newArg("farmCPU", "", runConfig::setFarmCPU, Integer::parseInt);
-        newArg("farmDisk", "", runConfig::setFarmDisk, Integer::parseInt);
-        newArg("farmTime", "", runConfig::setFarmTime, Integer::parseInt);
+        // CHECKSTYLE.OFF: LineLength
+        newArg("description", "A single string (no spaces) describing a data processing", null);
+        newArg("plugin", "Plugin installation directory. (Default: $CLARA_HOME/plugins/clas12)", null);
+        newArg("session", "The data processing session. (Default: $USER)", runConfig::setSession);
+        newArg("inputDir", "The input directory where the files to be processed are located. (Default: $CLARA_HOME/data/in)", runConfig::setInputDir);
+        newArg("outputDir", "The output directory where processed files will be saved. (Default: $CLARA_HOME/data/out)", runConfig::setOutputDir);
+        newArg("threads", "The maximum number of processing threads to be used per node. In case value = auto all system cores will be used. (Default: 2)", runConfig::setMaxThreads, Integer::parseInt);
+        newArg("fileList", "Full path to the file containing the names of data-files to be processed. Note: actual files are located in the inputDir. (Default: $CLARA_HOME/plugins/clas12/config/files.list)", runConfig::setFilesList);
+        newArg("yaml", "Full path to the file describing application service composition. (Default: $CLARA_HOME/plugins/clas12/config/services.yaml)", runConfig::setConfigFile);
+        newArg("farmFlavor", "Farm batch system. Accepts pbs and jlab. (Default jlab)", runConfig::setFarmFlavor);
+        newArg("farmLoadingZone", "Will stage input data set into the farm local directory. (Default /scratch/pbs)", runConfig::setFarmLoadingZone);
+        newArg("farmMemory", "Farm job memory request (in GB). (Default: 70)", runConfig::setFarmMemory, Integer::parseInt);
+        newArg("farmTrack", "Farm job track. (Default: debug)", runConfig::setFarmTrack);
+        newArg("farmOS", "Farm resource OS. (Default: centos7)", runConfig::setFarmOS);
+        newArg("farmCPU", "Farm resource core number request. (Ddefault: 72)", runConfig::setFarmCPU, Integer::parseInt);
+        newArg("farmDisk", "Farm job disk space request (in GB). (Default: 3)", runConfig::setFarmDisk, Integer::parseInt);
+        newArg("farmTime", "Farm job wall time request (in min). (Default: 1440)", runConfig::setFarmTime, Integer::parseInt);
+        // CHECKSTYLE.ON: LineLength
     }
 
     private void setCompleters() {
