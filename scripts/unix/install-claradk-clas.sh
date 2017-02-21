@@ -71,7 +71,7 @@ mkdir $CLARA_HOME/jre
 OS="`uname`"
 case $OS in
   'Linux')
-  wget https://userweb.jlab.org/~gavalian/software/coatjava/"$PLUGIN".tar.gz
+  wget http:/clasweb.jlab.org/clas12offline/distribution/coatjava/"$PLUGIN".tar.gz
       MACHINE_TYPE=`uname -m`
       if [ ${MACHINE_TYPE} == 'x86_64' ]; then
     wget https://userweb.jlab.org/~gurjyan/clara-cre/linux-64.tar.gz
@@ -85,7 +85,7 @@ case $OS in
 #    OS='Windows'
 #    ;;
   'Darwin')
- curl "https://userweb.jlab.org/~gavalian/software/coatjava/"$PLUGIN".tar.gz" -o "$PLUGIN".tar.gz
+ curl "http:/clasweb.jlab.org/clas12offline/distribution/coatjava/"$PLUGIN".tar.gz" -o "$PLUGIN".tar.gz
  curl "https://userweb.jlab.org/~gurjyan/clara-cre/macosx-64.tar.gz" -o macosx-64.tar.gz
     mv macosx-64.tar.gz $CLARA_HOME/jre
     ;;

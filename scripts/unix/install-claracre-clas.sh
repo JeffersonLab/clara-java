@@ -33,7 +33,7 @@ case $OS in
   fi
 
     wget https://userweb.jlab.org/~gurjyan/clara-cre/clara-cre.tar.gz
-    wget https://userweb.jlab.org/~gavalian/software/coatjava/"$PLUGIN".tar.gz
+    wget http:/clasweb.jlab.org/clas12offline/distribution/coatjava/"$PLUGIN".tar.gz
 
 
     MACHINE_TYPE=`uname -m`
@@ -54,7 +54,7 @@ case $OS in
     fi
 
  curl "https://userweb.jlab.org/~gurjyan/clara-cre/clara-cre.tar.gz" -o clara-cre.tar.gz
- curl "https://userweb.jlab.org/~gavalian/software/coatjava/"$PLUGIN".tar.gz" -o "$PLUGIN".tar.gz
+ curl "http:/clasweb.jlab.org/clas12offline/distribution/coatjava/"$PLUGIN".tar.gz" -o "$PLUGIN".tar.gz
 
  curl "https://userweb.jlab.org/~gurjyan/clara-cre/macosx-64.tar.gz" -o macosx-64.tar.gz
     ;;
