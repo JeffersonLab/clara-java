@@ -23,6 +23,7 @@
 package org.jlab.clara.cli;
 
 import java.util.LinkedHashMap;
+import java.util.StringTokenizer;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -74,9 +75,32 @@ public abstract class Command {
     public void showFullHelp() {
         terminal.writer().println("Commands:\n");
         for (Argument aux: arguments.values()) {
-            terminal.writer().printf("   %s %-15s", name, aux.getName());
-            terminal.writer().printf("   %s\n", aux.getDescription());
+            terminal.writer().printf("  %s %s\n", name, aux.getName());
+            String description = aux.getDescription();
+            if (description.length() > 72) {
+                terminal.writer().printf("    %s\n", splitLine(description, 72));
+            } else {
+                terminal.writer().printf("    %s\n", aux.getDescription());
+            }
+            terminal.writer().println();
 
         }
+    }
+
+    public String splitLine(String input, int maxLineLength) {
+        StringTokenizer tok = new StringTokenizer(input, " ");
+        StringBuilder output = new StringBuilder(input.length());
+        int lineLen = 0;
+        while (tok.hasMoreTokens()) {
+            String word = tok.nextToken() + " ";
+
+            if (lineLen + word.length() > maxLineLength) {
+                output.append("\n    ");
+                lineLen = 0;
+            }
+            output.append(word);
+            lineLen += word.length();
+        }
+        return output.toString();
     }
 }
