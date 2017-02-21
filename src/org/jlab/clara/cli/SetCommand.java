@@ -27,7 +27,7 @@ import java.util.function.Function;
 
 import org.jline.reader.Completer;
 import org.jline.reader.impl.completer.FileNameCompleter;
-
+import org.jline.reader.impl.completer.StringsCompleter;
 import org.jline.terminal.Terminal;
 
 public class SetCommand extends Command {
@@ -50,14 +50,14 @@ public class SetCommand extends Command {
         newArg("threads", "", runConfig::setMaxThreads, Integer::parseInt);
         newArg("fileList", "", runConfig::setFilesList);
         newArg("yaml", "", runConfig::setConfigFile);
-        newArg("farmFlavor", "", null);
-        newArg("farmLoadingZone", "", null);
-        newArg("farmMemory", "", null);
-        newArg("farmTrack", "", null);
-        newArg("farmOS", "", null);
-        newArg("farmCPU", "", null);
-        newArg("farmDisk", "", null);
-        newArg("farmTime", "", null);
+        newArg("farmFlavor", "", runConfig::setFarmFlavor);
+        newArg("farmLoadingZone", "", runConfig::setFarmLoadingZone);
+        newArg("farmMemory", "", runConfig::setFarmMemory, Integer::parseInt);
+        newArg("farmTrack", "", runConfig::setFarmTrack);
+        newArg("farmOS", "", runConfig::setFarmOS);
+        newArg("farmCPU", "", runConfig::setFarmCPU, Integer::parseInt);
+        newArg("farmDisk", "", runConfig::setFarmDisk, Integer::parseInt);
+        newArg("farmTime", "", runConfig::setFarmTime, Integer::parseInt);
     }
 
     private void setCompleters() {
@@ -66,6 +66,7 @@ public class SetCommand extends Command {
         arguments.get("yaml").setCompleter(fileCompleter);
         arguments.get("inputDir").setCompleter(fileCompleter);
         arguments.get("outputDir").setCompleter(fileCompleter);
+        arguments.get("farmFlavor").setCompleter(new StringsCompleter("dps", "jlab"));
     }
 
     private <T> void newArg(String name, String description, Consumer<String> action) {
