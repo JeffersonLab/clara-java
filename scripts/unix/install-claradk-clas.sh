@@ -85,7 +85,7 @@ case $OS in
 #    OS='Windows'
 #    ;;
   'Darwin')
- curl "http:/clasweb.jlab.org/clas12offline/distribution/coatjava/"$PLUGIN".tar.gz" -o "$PLUGIN".tar.gz
+ curl "http://clasweb.jlab.org/clas12offline/distribution/coatjava/"$PLUGIN".tar.gz" -o "$PLUGIN".tar.gz
  curl "https://userweb.jlab.org/~gurjyan/clara-cre/macosx-64.tar.gz" -o macosx-64.tar.gz
     mv macosx-64.tar.gz $CLARA_HOME/jre
     ;;
