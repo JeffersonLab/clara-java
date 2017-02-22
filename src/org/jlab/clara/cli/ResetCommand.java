@@ -26,8 +26,11 @@ import org.jline.terminal.Terminal;
 
 public class ResetCommand extends Command {
 
-    public ResetCommand(Terminal terminal) {
-        super(terminal, "reset", "");
+    private final RunConfig runConfig;
+
+    public ResetCommand(Terminal terminal, RunConfig runConfig) {
+        super(terminal, "reset", "Reset values");
+        this.runConfig = runConfig;
         setArguments();
     }
 
@@ -38,6 +41,15 @@ public class ResetCommand extends Command {
 
     @Override
     public void execute(String[] args) {
-        terminal.writer().println("Running command " + getName());
+
+        if (args.length == 1) {
+            terminal.writer().println("Missing arguments.");
+        } else if ("param".equals(args[1])) {
+            runConfig.setDefaults();
+        } else if ("dpe".equals(args[1])) {
+            terminal.writer().println("Not implemented.");
+        } else {
+            terminal.writer().println("Invalid command.");
+        }
     }
 }

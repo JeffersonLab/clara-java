@@ -71,7 +71,7 @@ public class ClaraShell {
         addCommand(commands, new EditCommand(terminal, runConfig));
         addCommand(commands, new RunCommand(terminal, runConfig));
         addCommand(commands, new MonitorCommand(terminal));
-        addCommand(commands, new ResetCommand(terminal));
+        addCommand(commands, new ResetCommand(terminal, runConfig));
         addCommand(commands, new HelpCommand(terminal, commands));
         return commands;
     }

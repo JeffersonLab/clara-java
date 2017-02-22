@@ -50,6 +50,10 @@ public class RunConfig {
     private int farmTime;
 
     public RunConfig() {
+        setDefaults();
+    }
+
+    public void setDefaults() {
         String claraHome = claraHome();
         this.orchestrator = "org.jlab.clas.std.orchestrators.CloudOrchestrator";
         this.localHost = xMsgUtil.localhost();
