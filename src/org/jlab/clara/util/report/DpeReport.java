@@ -23,12 +23,11 @@
 package org.jlab.clara.util.report;
 
 import org.jlab.clara.base.core.ClaraBase;
+import org.json.JSONObject;
 
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-
-import static org.jlab.clara.base.core.ClaraConstants.DATA_SEP;
 
 /**
  * @author gurjyan
@@ -56,7 +55,15 @@ public class DpeReport extends BaseReport {
         this.coreCount = Runtime.getRuntime().availableProcessors();
         this.memorySize = Runtime.getRuntime().maxMemory();
 
-        this.aliveData = name + DATA_SEP + coreCount + DATA_SEP + claraHome;
+        this.aliveData = aliveData();
+    }
+
+    private String aliveData() {
+        JSONObject data =  new JSONObject();
+        data.put("name", name);
+        data.put("n_cores", coreCount);
+        data.put("clara_home", claraHome);
+        return data.toString();
     }
 
     public String getHost() {
