@@ -25,6 +25,8 @@ package org.jlab.clara.std.cli;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UncheckedIOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,10 +34,12 @@ import java.util.stream.Collectors;
 
 import org.jline.reader.Completer;
 import org.jline.reader.EndOfFileException;
+import org.jline.reader.History;
 import org.jline.reader.LineReader;
 import org.jline.reader.LineReaderBuilder;
 import org.jline.reader.UserInterruptException;
 import org.jline.reader.impl.completer.AggregateCompleter;
+import org.jline.reader.impl.history.DefaultHistory;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 
@@ -44,11 +48,14 @@ import org.jline.terminal.TerminalBuilder;
  */
 public class ClaraShell {
 
+    private static final String HISTORY_NAME = ".clara_history";
     private final RunConfig runConfig;
     private final Map<String, Command> commands;
     private final Terminal terminal;
     private final LineReader reader;
     private final CommandRunner commandRunner;
+    private final History history;
+
 
     public static void main(String[] args) {
         ClaraShell shell = new ClaraShell();
@@ -69,6 +76,9 @@ public class ClaraShell {
                     .completer(initCompleter(commands))
                     .terminal(terminal)
                     .build();
+            history = new DefaultHistory(reader);
+            reader.setVariable(LineReader.HISTORY_FILE, getPath());
+            history.load();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -98,6 +108,10 @@ public class ClaraShell {
         return new AggregateCompleter(completers);
     }
 
+    private Path getPath() {
+        return Paths.get(RunConfig.claraHome(), HISTORY_NAME);
+    }
+
     /**
      * Runs the shell accepting user commands.
      */
@@ -118,6 +132,7 @@ public class ClaraShell {
             throw new UncheckedIOException(e);
         } finally {
             try {
+                history.save();
                 terminal.close();
             } catch (IOException e) {
                 e.printStackTrace();
