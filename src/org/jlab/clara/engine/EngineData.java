@@ -73,6 +73,29 @@ public class EngineData {
     }
 
     /**
+     * Sets a new string data for this object.
+     *
+     * @param data the string with the user-data
+     */
+    public void setData(String data) {
+        setData(EngineDataType.STRING.mimeType(), data);
+    }
+
+    /**
+     * Sets a new user-data for this object.
+     * <p>
+     * The Java class of the user-data must correspond to the given
+     * {@link EngineDataType dataType}, which must also be supported by the
+     * orchestrator or engine, to serialize the data if necessary.
+     *
+     * @param dataType the CLARA data-type for the user-data
+     * @param data the object with the user-data
+     */
+    public void setData(EngineDataType dataType, Object data) {
+        setData(dataType.mimeType(), data);
+    }
+
+    /**
      * Sets a new user-data for this object.
      * <p>
      * The mime-type string and the Java class of the user-data
