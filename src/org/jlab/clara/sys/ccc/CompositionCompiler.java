@@ -25,10 +25,6 @@ package org.jlab.clara.sys.ccc;
 
 import org.jlab.clara.base.error.ClaraException;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -139,42 +135,6 @@ public class CompositionCompiler {
      */
     public CompositionCompiler(String service){
         myServiceName = service;
-    }
-
-    public static void main(String[] args) {
-        // composition description file
-        String df = "/Users/gurjyan/Devel/Clara/java/Clara-java-v4.3/src/org/jlab/clara/examples/scratch/example1.cmp";
-
-        CompositionCompiler compiler = new CompositionCompiler("10.10.10.1_java:C:S3");
-
-        try {
-            String t = new String(Files.readAllBytes(Paths.get(df)), StandardCharsets.UTF_8);
-            compiler.compile(t);
-
-            for (Instruction instruction : compiler.getInstructions()) {
-                System.out.println(instruction);
-            }
-
-            for (String s : compiler.getUnconditionalLinks()) {
-                System.out.println(s);
-            }
-
-        } catch (IOException | ClaraException e) {
-            e.printStackTrace();
-        }
-//        CCompiler cc = new CCompiler("10.10.10.1_java:C:S3");
-//        String composition = "10.10.10.1_java:C:S1+"
-//                + "10.10.10.1_java:C:S3+"
-//                + "10.10.10.1_java:C:S1;";
-//        try {
-//            cc.compile(composition);
-//        } catch (ClaraException e) {
-//            e.printStackTrace();
-//        }
-//
-//        for(String s:cc.getUnconditionalLinks()){
-//            System.err.println("DDD "+s);
-//        }
     }
 
 
@@ -519,4 +479,3 @@ public class CompositionCompiler {
         return outputs;
     }
 }
-
