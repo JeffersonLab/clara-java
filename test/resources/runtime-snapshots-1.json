@@ -1,0 +1,51 @@
+{
+  "DPERuntime": {
+    "name": "10.1.1.10_java",
+    "snapshot_time": "2015-06-20 12:35:00",
+    "cpu_usage": 45.2,
+    "memory_usage": 631222786,
+    "load": 2.3879,
+    "containers": [
+      {
+        "name": "10.1.1.10_java:trevor",
+        "snapshot_time": "2015-06-20 12:35:00",
+        "n_requests": 3500,
+        "services": [
+          {
+            "name": "10.1.1.10_java:trevor:Engine1",
+            "snapshot_time": "2015-06-20 12:35:00",
+            "n_requests": 1000,
+            "n_failures": 0,
+            "shm_reads": 1000,
+            "shm_writes": 1000,
+            "bytes_recv": 0,
+            "bytes_sent": 0,
+            "exec_time": 243235243543
+          },
+          {
+            "name": "10.1.1.10_java:trevor:Engine2",
+            "snapshot_time": "2015-06-20 12:35:00",
+            "n_requests": 500,
+            "n_failures": 10,
+            "shm_reads": 500,
+            "shm_writes": 490,
+            "bytes_recv": 0,
+            "bytes_sent": 0,
+            "exec_time": 129735841127
+          },
+          {
+            "name": "10.1.1.10_java:trevor:Engine3",
+            "snapshot_time": "2015-06-20 12:35:00",
+            "n_requests": 2000,
+            "n_failures": 200,
+            "shm_reads": 1800,
+            "shm_writes": 1800,
+            "bytes_recv": 100,
+            "bytes_sent": 330,
+            "exec_time": 243235242145
+          }
+        ]
+      }
+    ]
+  }
+}
