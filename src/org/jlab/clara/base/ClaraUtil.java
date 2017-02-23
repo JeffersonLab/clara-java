@@ -269,6 +269,16 @@ public final class ClaraUtil {
         return getPort(lang.toString(), 0);
     }
 
+    /**
+     * Gets the default DPE port for the given language.
+     *
+     * @param lang a supported CLARA language
+     * @return the default port for a DPE of the given language
+     */
+    public static int getDefaultPort(String lang) {
+        return getPort(lang, 0);
+    }
+
     private static int getPort(String fullName, int index) {
         switch (fullName.charAt(index)) {
             case 'j': case 'J':
