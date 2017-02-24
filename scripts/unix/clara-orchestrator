@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+if [ -z "${CLARA_HOME}" ]; then
+    echo "Error: \$CLARA_HOME is not defined."
+    exit 1
+fi
+
+if [ -z "${CLASSPATH}" ]; then
+    CLASSPATH="${CLARA_HOME}/lib/*"
+    export CLASSPATH
+fi
+
+if [ -n "${JAVA_OPTS}" ]; then
+    jvm_options=("${JAVA_OPTS}")
+else
+    jvm_options=(-Xms1024m -Xmx2048m -XX:+UseNUMA -XX:+UseBiasedLocking)
+fi
+
+if [ -n "${JAVA_HOME}" ]; then
+    java_bin="${JAVA_HOME}/bin/java"
+else
+    java_bin=java
+fi
+
+orchestrator=org.jlab.clara.std.orchestrators.GenericOrchestrator
+"${java_bin}" "${jvm_options[@]}" ${orchestrator} "$@"

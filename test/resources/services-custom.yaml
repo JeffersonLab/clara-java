@@ -1,0 +1,33 @@
+---
+io-services:
+  reader:
+    class: org.jlab.clas12.convertors.CustomReader
+    name: CustomReader
+  writer:
+    class: org.jlab.clas12.convertors.CustomWriter
+    name: CustomWriter
+    lang: cpp
+
+services:
+  - class: org.jlab.clas12.services.ECReconstruction
+    name: ECReconstruction
+  - class: org.jlab.clas12.services.SeedFinder
+    name: SeedFinder
+  - class: org.jlab.clas12.services.HeaderFilter
+    name: HeaderFilter
+    lang: cpp
+  - class: org.jlab.clas12.services.FTOFReconstruction
+    name: FTOFReconstruction
+
+mime-types:
+  - binary/data-evio
+  - binary/data-hipo
+
+configuration:
+  magnet:
+    torus: 10.75
+    solenoid: 0.5
+  ccdb:
+    run: 10
+    variation: custom
+  kalman: true

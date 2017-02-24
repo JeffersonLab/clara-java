@@ -1,0 +1,9 @@
+---
+container: default
+services:
+  - class: org.jlab.clas12.ec.services.ECReconstruction
+    name: ECReconstruction
+  - class: org.clas12.services.tracking.SeedFinder
+    container: simple
+  - class: org.jlab.clas12.ftof.services.FTOFReconstruction
+    name: FTOFReconstruction
