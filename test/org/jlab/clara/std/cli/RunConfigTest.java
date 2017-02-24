@@ -1,4 +1,4 @@
-package org.jlab.clara.cli;
+package org.jlab.clara.std.cli;
 
 import java.io.File;
 

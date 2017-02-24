@@ -1,4 +1,4 @@
-package org.jlab.clara.cli;
+package org.jlab.clara.std.cli;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -11,7 +11,7 @@ import org.jlab.clara.base.DpeRuntimeData;
 import org.jlab.clara.base.ServiceName;
 import org.jlab.clara.base.ServiceRuntimeData;
 
-public class Benchmark {
+class Benchmark {
 
     private double cpuUsageSum = 0;
     private long memoryUsageSum = 0;

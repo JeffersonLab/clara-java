@@ -20,7 +20,7 @@
  *   Department of Experimental Nuclear Physics, Jefferson Lab.
  */
 
-package org.jlab.clara.cli;
+package org.jlab.clara.std.cli;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -28,7 +28,7 @@ import java.nio.file.Paths;
 
 import org.jlab.coda.xmsg.core.xMsgUtil;
 
-public class RunConfig {
+class RunConfig {
 
     private String orchestrator;
     private String localHost;
@@ -49,7 +49,7 @@ public class RunConfig {
     private int farmDisk;
     private int farmTime;
 
-    public RunConfig() {
+    RunConfig() {
         setDefaults();
     }
 

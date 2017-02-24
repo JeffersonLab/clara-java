@@ -20,7 +20,7 @@
  *   Department of Experimental Nuclear Physics, Jefferson Lab.
  */
 
-package org.jlab.clara.cli;
+package org.jlab.clara.std.cli;
 
 import java.io.IOException;
 
@@ -30,11 +30,11 @@ import org.apache.commons.exec.ExecuteException;
 import org.apache.commons.exec.PumpStreamHandler;
 import org.jline.terminal.Terminal;
 
-public class RunCommand extends Command {
+class RunCommand extends Command {
 
     private final RunConfig runConfig;
 
-    public RunCommand(Terminal terminal, RunConfig runConfig) {
+    RunCommand(Terminal terminal, RunConfig runConfig) {
         super(terminal, "run", "Start data processing");
         this.runConfig = runConfig;
         setArguments();

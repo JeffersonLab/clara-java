@@ -20,7 +20,7 @@
  *   Department of Experimental Nuclear Physics, Jefferson Lab.
  */
 
-package org.jlab.clara.cli;
+package org.jlab.clara.std.cli;
 
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -30,11 +30,11 @@ import org.jline.reader.impl.completer.FileNameCompleter;
 import org.jline.reader.impl.completer.StringsCompleter;
 import org.jline.terminal.Terminal;
 
-public class SetCommand extends Command {
+class SetCommand extends Command {
 
     private final RunConfig runConfig;
 
-    public SetCommand(Terminal terminal, RunConfig runConfig) {
+    SetCommand(Terminal terminal, RunConfig runConfig) {
         super(terminal, "set", "Parameter settings");
         this.runConfig = runConfig;
         setArguments();

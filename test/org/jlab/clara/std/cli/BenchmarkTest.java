@@ -1,4 +1,4 @@
-package org.jlab.clara.cli;
+package org.jlab.clara.std.cli;
 
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.containsInAnyOrder;

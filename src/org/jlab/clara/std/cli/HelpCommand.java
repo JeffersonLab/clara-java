@@ -20,17 +20,17 @@
  *   Department of Experimental Nuclear Physics, Jefferson Lab.
  */
 
-package org.jlab.clara.cli;
+package org.jlab.clara.std.cli;
 
 import java.util.Map;
 
 import org.jline.terminal.Terminal;
 
-public class HelpCommand extends Command {
+class HelpCommand extends Command {
 
     private final Map<String, Command> commands;
 
-    public HelpCommand(Terminal terminal, Map<String, Command> commands) {
+    HelpCommand(Terminal terminal, Map<String, Command> commands) {
         super(terminal, "help", "Display help information about CLARA shell");
         this.commands = commands;
         commToArg(commands, arguments);

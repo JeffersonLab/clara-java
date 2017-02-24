@@ -1,12 +1,12 @@
-package org.jlab.clara.cli;
+package org.jlab.clara.std.cli;
 
 import org.jline.terminal.Terminal;
 
-public class ShowCommand extends Command {
+class ShowCommand extends Command {
 
     private final RunConfig runConfig;
 
-    public ShowCommand(Terminal terminal, RunConfig runConfig) {
+    ShowCommand(Terminal terminal, RunConfig runConfig) {
         super(terminal, "show", "Show values");
         this.runConfig = runConfig;
         setArguments();

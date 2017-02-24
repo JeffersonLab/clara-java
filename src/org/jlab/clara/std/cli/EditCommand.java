@@ -20,19 +20,19 @@
  *   Department of Experimental Nuclear Physics, Jefferson Lab.
  */
 
-package org.jlab.clara.cli;
+package org.jlab.clara.std.cli;
 
 import org.jline.reader.Completer;
 import org.jline.reader.impl.completer.ArgumentCompleter;
 import org.jline.reader.impl.completer.StringsCompleter;
 import org.jline.terminal.Terminal;
 
-public class EditCommand extends Command {
+class EditCommand extends Command {
 
     private final RunConfig runConfig;
     private final String editor;
 
-    public EditCommand(Terminal terminal, RunConfig runConfig) {
+    EditCommand(Terminal terminal, RunConfig runConfig) {
         super(terminal, "edit", "Edit data processing conditions");
         this.runConfig = runConfig;
         this.editor = CommandUtils.getEditor();

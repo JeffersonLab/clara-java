@@ -20,14 +20,14 @@
  *   Department of Experimental Nuclear Physics, Jefferson Lab.
  */
 
-package org.jlab.clara.cli;
+package org.jlab.clara.std.cli;
 
 import java.util.function.Consumer;
 
 import org.jline.reader.Completer;
 import org.jline.reader.impl.completer.NullCompleter;
 
-public class Argument {
+class Argument {
 
     private final String name;
     private final String description;
@@ -36,14 +36,14 @@ public class Argument {
 
     private Completer completer = NullCompleter.INSTANCE;
 
-    public Argument(String name, String description, String file) {
+    Argument(String name, String description, String file) {
         this.name = name;
         this.description = description;
         this.file = file;
         this.action = args -> { };
     }
 
-    public Argument(String name, String description, Consumer<String[]> action) {
+    Argument(String name, String description, Consumer<String[]> action) {
         this.name = name;
         this.description = description;
         this.file = "";

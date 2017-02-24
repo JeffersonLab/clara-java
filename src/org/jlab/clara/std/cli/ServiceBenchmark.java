@@ -1,9 +1,9 @@
-package org.jlab.clara.cli;
+package org.jlab.clara.std.cli;
 
 import org.jlab.clara.base.ServiceName;
 import org.jlab.clara.base.ServiceRuntimeData;
 
-public class ServiceBenchmark {
+class ServiceBenchmark {
 
     private final ServiceName name;
     private final long numRequest;
@@ -14,7 +14,7 @@ public class ServiceBenchmark {
     private final long bytesSent;
     private final long execTime;
 
-    public ServiceBenchmark(ServiceRuntimeData first, ServiceRuntimeData last) {
+    ServiceBenchmark(ServiceRuntimeData first, ServiceRuntimeData last) {
         this.name = first.name();
         this.numRequest = last.numRequests() - first.numRequests();
         this.numFailures = last.numFailures() - first.numFailures();

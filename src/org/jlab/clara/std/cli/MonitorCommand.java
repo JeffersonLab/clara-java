@@ -20,36 +20,34 @@
  *   Department of Experimental Nuclear Physics, Jefferson Lab.
  */
 
-package org.jlab.clara.cli;
+package org.jlab.clara.std.cli;
 
 import org.jline.terminal.Terminal;
 
-public class ResetCommand extends Command {
+class MonitorCommand extends Command {
 
-    private final RunConfig runConfig;
-
-    public ResetCommand(Terminal terminal, RunConfig runConfig) {
-        super(terminal, "reset", "Reset values");
-        this.runConfig = runConfig;
+    MonitorCommand(Terminal terminal) {
+        super(terminal, "monitor", "Monitor data processing");
         setArguments();
     }
 
     private void setArguments() {
-        arguments.put("dpe", new Argument("dpe", "", ""));
-        arguments.put("param", new Argument("param", "", ""));
+        arguments.put("composition", new Argument("composition",
+                "Show application service-based composition.", "file"));
+        arguments.put("files", new Argument("files",
+                "Show input file list.", "file"));
+        arguments.put("idir", new Argument("idir", "", ""));
+        arguments.put("odir", new Argument("odir", "", ""));
+        arguments.put("params", new Argument("params", "", ""));
+        arguments.put("logdir", new Argument("logdir", "", ""));
+        arguments.put("logdpe", new Argument("logdpe", "", ""));
+        arguments.put("logco", new Argument("logco", "", ""));
+        arguments.put("jjobstat", new Argument("jjobstat", "", ""));
+        arguments.put("pjobstat", new Argument("pjobstat", "", ""));
     }
 
     @Override
     public void execute(String[] args) {
-
-        if (args.length == 1) {
-            terminal.writer().println("Missing arguments.");
-        } else if ("param".equals(args[1])) {
-            runConfig.setDefaults();
-        } else if ("dpe".equals(args[1])) {
-            terminal.writer().println("Not implemented.");
-        } else {
-            terminal.writer().println("Invalid command.");
-        }
+        terminal.writer().println("Running command " + getName());
     }
 }

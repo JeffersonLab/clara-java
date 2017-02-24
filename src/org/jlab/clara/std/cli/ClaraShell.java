@@ -20,7 +20,7 @@
  *   Department of Experimental Nuclear Physics, Jefferson Lab.
  */
 
-package org.jlab.clara.cli;
+package org.jlab.clara.std.cli;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -39,6 +39,9 @@ import org.jline.reader.impl.completer.AggregateCompleter;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
 
+/**
+ * An interactive shell to run CLARA DPEs and orchestrators.
+ */
 public class ClaraShell {
 
     private final RunConfig runConfig;
@@ -51,6 +54,9 @@ public class ClaraShell {
         shell.run();
     }
 
+    /**
+     * Creates a new user-interactive shell.
+     */
     public ClaraShell() {
         try {
             runConfig = new RunConfig();
@@ -89,6 +95,9 @@ public class ClaraShell {
         return new AggregateCompleter(completers);
     }
 
+    /**
+     * Runs the shell accepting user commands.
+     */
     public void run() {
         try {
             printWelcomeMessage();

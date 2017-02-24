@@ -20,7 +20,7 @@
  *   Department of Experimental Nuclear Physics, Jefferson Lab.
  */
 
-package org.jlab.clara.cli;
+package org.jlab.clara.std.cli;
 
 import java.util.LinkedHashMap;
 import java.util.StringTokenizer;
@@ -34,14 +34,14 @@ import org.jline.reader.impl.completer.ArgumentCompleter;
 import org.jline.reader.impl.completer.StringsCompleter;
 import org.jline.terminal.Terminal;
 
-public abstract class Command {
+abstract class Command {
 
     private final String name;
     private final String description;
     protected final Terminal terminal;
     protected Map<String, Argument> arguments;
 
-    public Command(Terminal terminal, String name, String description) {
+    Command(Terminal terminal, String name, String description) {
         this.name = name;
         this.description = description;
         this.terminal = terminal;
