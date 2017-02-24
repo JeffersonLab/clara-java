@@ -36,8 +36,8 @@ import org.jline.terminal.Terminal;
 
 abstract class Command {
 
-    private final String name;
-    private final String description;
+    protected final String name;
+    protected final String description;
     protected final Terminal terminal;
     protected Map<String, Argument> arguments;
 
