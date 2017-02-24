@@ -48,6 +48,7 @@ public class ClaraShell {
     private final Map<String, Command> commands;
     private final Terminal terminal;
     private final LineReader reader;
+    private final CommandRunner commandRunner;
 
     public static void main(String[] args) {
         ClaraShell shell = new ClaraShell();
@@ -62,6 +63,7 @@ public class ClaraShell {
             runConfig = new RunConfig();
             terminal = TerminalBuilder.builder().system(true).build();
             commands = new HashMap<>();
+            commandRunner = new CommandRunner(terminal, commands);
             initCommands();
             reader = LineReaderBuilder.builder()
                     .completer(initCompleter(commands))
@@ -104,19 +106,7 @@ public class ClaraShell {
             PrintWriter out = new PrintWriter(System.out);
             String line;
             while ((line = readLine("")) != null) {
-                String[] splited = line.split(" ");
-                String commandName = splited[0];
-                Command command = commands.get(commandName);
-                if (command == null) {
-                    if ("exit".equals(commandName)) {
-                        break;
-                    } else if ("".equals(line)) {
-                        continue;
-                    }
-                    terminal.writer().println("Invalid command");
-                } else {
-                    command.execute(splited);
-                }
+                commandRunner.execute(line);
                 out.flush();
             }
         } catch (EndOfFileException e) {
