@@ -25,7 +25,7 @@ package org.jlab.clara.std.cli;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UncheckedIOException;
-import java.util.LinkedHashMap;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -61,7 +61,8 @@ public class ClaraShell {
         try {
             runConfig = new RunConfig();
             terminal = TerminalBuilder.builder().system(true).build();
-            commands = initCommands(terminal, runConfig);
+            commands = new HashMap<>();
+            initCommands();
             reader = LineReaderBuilder.builder()
                     .completer(initCompleter(commands))
                     .terminal(terminal)
@@ -71,8 +72,7 @@ public class ClaraShell {
         }
     }
 
-    private static Map<String, Command> initCommands(Terminal terminal, RunConfig runConfig) {
-        Map<String, Command> commands = new LinkedHashMap<>();
+    private Map<String, Command> initCommands() {
         addCommand(commands, new SetCommand(terminal, runConfig));
         addCommand(commands, new EditCommand(terminal, runConfig));
         addCommand(commands, new RunCommand(terminal, runConfig));
