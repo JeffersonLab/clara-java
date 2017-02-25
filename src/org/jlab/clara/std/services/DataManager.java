@@ -48,7 +48,7 @@ public class DataManager implements Engine {
     private static final String REQUEST_INPUT_FILE = "input_file";
     private static final String REQUEST_OUTPUT_FILE = "output_file";
 
-    private final String baseDir = System.getenv("CLARA_HOME");
+    private final String baseDir;
 
     private volatile DirectoryPaths directoryPaths;
     private volatile String outputPrefix;
@@ -57,6 +57,16 @@ public class DataManager implements Engine {
      * Creates a new data manager service.
      */
     public DataManager() {
+        this(System.getenv("CLARA_HOME"));
+    }
+
+    /**
+     * Creates a new data manager service.
+     *
+     * @param baseDir the parent for the data directories.
+     */
+    public DataManager(String baseDir) {
+        this.baseDir = baseDir;
         reset();
     }
 
