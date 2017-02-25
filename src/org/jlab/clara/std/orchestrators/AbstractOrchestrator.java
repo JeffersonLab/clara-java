@@ -241,6 +241,8 @@ abstract class AbstractOrchestrator {
 
 
     /**
+     * Deploy and configure services in the node using a worker thread.
+     *
      * @throws RejectedExecutionException
      */
     void executeSetup(WorkerNode node) {
@@ -256,6 +258,8 @@ abstract class AbstractOrchestrator {
 
 
     /**
+     * Deploy and configure services in the node.
+     *
      * @throw OrchestratorError
      */
     void setupNode(WorkerNode node) {

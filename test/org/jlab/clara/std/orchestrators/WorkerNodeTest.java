@@ -30,7 +30,7 @@ public class WorkerNodeTest {
     private CoreOrchestrator orchestrator;
 
     @Captor
-    ArgumentCaptor<DeployInfo> deployCaptor;
+    private ArgumentCaptor<DeployInfo> deployCaptor;
 
     @Captor
     private ArgumentCaptor<DpeName> dpeCaptor;

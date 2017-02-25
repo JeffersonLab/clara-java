@@ -39,8 +39,8 @@ abstract class ClaraFilter {
     private final xMsgRegQuery regQuery;
     private final String type;
 
-    List<Predicate<xMsgRegRecord>> regFilters = new ArrayList<>();
-    List<Predicate<JSONObject>> filters = new ArrayList<>();
+    private List<Predicate<xMsgRegRecord>> regFilters = new ArrayList<>();
+    private List<Predicate<JSONObject>> filters = new ArrayList<>();
 
     ClaraFilter(xMsgRegQuery query, String type) {
         this.regQuery = query;

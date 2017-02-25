@@ -593,8 +593,8 @@ public final class Dpe extends AbstractActor {
 
         Container container = myContainers.get(containerName);
         if (container == null) {
-            throw new RequestException("could not start service = " + serComp +
-                                       ": missing container");
+            String error = "could not start service = %: missing container";
+            throw new RequestException(String.format(error, serComp));
         }
         try {
             container.addService(serComp, base.getFrontEnd(), servicesConnectionPool);
@@ -612,13 +612,13 @@ public final class Dpe extends AbstractActor {
 
         Container container = myContainers.get(containerName);
         if (container == null) {
-            throw new RequestException("could not stop service = " + serviceName +
-                                       ": missing container");
+            String error = "could not stop service = %: missing container";
+            throw new RequestException(String.format(error, serviceName));
         }
         boolean removed = container.removeService(serviceName);
         if (!removed) {
-            throw new RequestException("could not stop service = " + serviceName +
-                                       ": service doesn't exist");
+            String error = "could not stop service = %s: service doesn't exist";
+            throw new RequestException(String.format(error, serviceName));
         }
     }
 
@@ -628,8 +628,8 @@ public final class Dpe extends AbstractActor {
         Container container = myContainers.remove(containerName);
         if (container == null) {
             String canonName = base.getName() + ":" + containerName;
-            throw new RequestException("could not stop container = " + canonName +
-                                       ": container doesn't exist");
+            String error = "could not stop container = %s: container doesn't exist";
+            throw new RequestException(String.format(error, canonName));
         }
         container.stop();
         reportService.removeContainer(container);

@@ -143,7 +143,7 @@ class CoreOrchestrator {
                 if (counter > maxAttempts) {
                     throw new OrchestratorError(reportUndeployed(missingServices));
                 }
-                sleep(2000);
+                sleep(sleepTime);
             }
         }
     }

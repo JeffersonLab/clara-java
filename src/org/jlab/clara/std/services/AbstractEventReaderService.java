@@ -39,7 +39,7 @@ import org.json.JSONObject;
 /**
  * An abstract reader service that reads events from the configured input file.
  *
- * @param <Reader> the class for the user-defined reader of the given data-type.
+ * @param <Reader> the class for the user-defined reader of the given data-type
  */
 public abstract class AbstractEventReaderService<Reader> implements Engine {
 
@@ -72,6 +72,7 @@ public abstract class AbstractEventReaderService<Reader> implements Engine {
     private String fileName = NO_NAME;
     private String openError = NO_FILE;
 
+    /** The reader object. */
     protected Reader reader;
     private final Object readerLock = new Object();
 
@@ -192,8 +193,19 @@ public abstract class AbstractEventReaderService<Reader> implements Engine {
     }
 
 
+    /**
+     * Creates a new reader and opens the given input file.
+     *
+     * @param file the path to the input file
+     * @param opts extra options for the reader
+     * @return a new reader ready to read events from the input file
+     * @throws EventReaderException if the reader could not be created
+     */
     protected abstract Reader createReader(Path file, JSONObject opts) throws EventReaderException;
 
+    /**
+     * Closes the reader and its input file.
+     */
     protected abstract void closeReader();
 
 
@@ -310,12 +322,40 @@ public abstract class AbstractEventReaderService<Reader> implements Engine {
     }
 
 
+    /**
+     * Gets the total number of events that can be read from the input file.
+     *
+     * @return the total number of events in the file
+     * @throws EventReaderException if the file could not be read
+     */
     protected abstract int readEventCount() throws EventReaderException;
 
+    /**
+     * Gets the byte order of the events stored in the input file.
+     *
+     * @return the byte order of the events in the file
+     * @throws EventReaderException if the file could not be read
+     */
     protected abstract ByteOrder readByteOrder() throws EventReaderException;
 
+    /**
+     * Reads an event from the input file.
+     * The event should be a Java object with the same type as the one defined
+     * by the CLARA engine data-type returned by {@link #getDataType()}.
+     *
+     * @param eventNumber the index of the event in the file (starts from zero)
+     * @return the read event as a Java object
+     * @throws EventReaderException if the file could not be read
+     */
     protected abstract Object readEvent(int eventNumber) throws EventReaderException;
 
+    /**
+     * Gets the CLARA engine data-type for the type of the events.
+     * The data-type will be used to serialize the events when the engine data
+     * result needs to be sent to services over the network.
+     *
+     * @return the data-type of the events
+     */
     protected abstract EngineDataType getDataType();
 
 

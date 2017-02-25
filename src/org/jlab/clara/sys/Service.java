@@ -119,7 +119,7 @@ class Service extends AbstractActor {
                 }
             });
         } catch (WrappedException e) {
-            throw e.cause;
+            throw e.getCause();
         }
 
         // subscribe and register

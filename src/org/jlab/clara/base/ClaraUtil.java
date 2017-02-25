@@ -68,6 +68,10 @@ public final class ClaraUtil {
     public static final Pattern CANONICAL_NAME_PATTERN =
             Pattern.compile("^(([^:%_ ]+)(%\\d+)?_(java|python|cpp))(:(\\w+)(:(\\w+))?)?$");
 
+    private static final int CONTAINER_GROUP = 6;
+    private static final int SERVICE_GROUP = 8;
+
+
     private ClaraUtil() {
     }
 
@@ -102,7 +106,7 @@ public final class ClaraUtil {
      */
     public static boolean isDpeName(String name) {
         Matcher matcher = CANONICAL_NAME_PATTERN.matcher(name);
-        return matcher.matches() && matcher.group(5) == null;
+        return matcher.matches() && matcher.group(CONTAINER_GROUP) == null;
     }
 
     /**
@@ -118,7 +122,9 @@ public final class ClaraUtil {
      */
     public static boolean isContainerName(String name) {
         Matcher matcher = CANONICAL_NAME_PATTERN.matcher(name);
-        return matcher.matches() && matcher.group(6) != null && matcher.group(7) == null;
+        return matcher.matches()
+                && matcher.group(CONTAINER_GROUP) != null
+                && matcher.group(SERVICE_GROUP) == null;
     }
 
     /**
@@ -134,7 +140,7 @@ public final class ClaraUtil {
      */
     public static boolean isServiceName(String name) {
         Matcher matcher = CANONICAL_NAME_PATTERN.matcher(name);
-        return matcher.matches() && matcher.group(8) != null;
+        return matcher.matches() && matcher.group(SERVICE_GROUP) != null;
     }
 
 

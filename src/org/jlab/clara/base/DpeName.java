@@ -66,9 +66,9 @@ public class DpeName implements ClaraName {
     public DpeName(String host, int port, ClaraLang lang) {
         address = new ClaraAddress(host, port);
         language = lang;
-        name = host + ClaraConstants.PORT_SEP +
-               port + ClaraConstants.LANG_SEP +
-               lang;
+        name = host + ClaraConstants.PORT_SEP
+             + port + ClaraConstants.LANG_SEP
+             + lang;
     }
 
     /**

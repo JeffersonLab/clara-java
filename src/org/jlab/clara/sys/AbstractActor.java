@@ -37,8 +37,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 abstract class AbstractActor {
 
-    static final AtomicBoolean isShutDown = new AtomicBoolean(); // NOT CONSTANT
-    static final AtomicBoolean isFrontEnd = new AtomicBoolean(); // NOT CONSTANT
+    static final AtomicBoolean isShutDown = new AtomicBoolean(); // SUPPRESS CHECKSTYLE ConstantName
+    static final AtomicBoolean isFrontEnd = new AtomicBoolean(); // SUPPRESS CHECKSTYLE ConstantName
 
     final ClaraBase base;
 
@@ -129,10 +129,16 @@ abstract class AbstractActor {
     }
 
     static class WrappedException extends RuntimeException {
-        ClaraException cause;
+
+        private final ClaraException cause;
 
         WrappedException(ClaraException cause) {
             this.cause = cause;
+        }
+
+        @Override
+        public ClaraException getCause() {
+            return cause;
         }
     }
 

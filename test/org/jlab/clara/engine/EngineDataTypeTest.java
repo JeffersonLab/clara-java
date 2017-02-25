@@ -78,7 +78,7 @@ public class EngineDataTypeTest {
         EngineDataType dt = EngineDataType.ARRAY_SINT32;
         ClaraSerializer s = dt.serializer();
 
-        Integer[] v = new Integer[] { 4, 5, 6 };
+        Integer[] v = new Integer[] {4, 5, 6};
         ByteBuffer b = s.write(v);
         Integer[] d = (Integer[]) s.read(b);
 
@@ -91,7 +91,7 @@ public class EngineDataTypeTest {
         EngineDataType dt = EngineDataType.ARRAY_DOUBLE;
         ClaraSerializer s = dt.serializer();
 
-        Double[] v = new Double[] { 4.1, 5.6 };
+        Double[] v = new Double[] {4.1, 5.6};
         ByteBuffer b = s.write(v);
         Double[] d = (Double[]) s.read(b);
 
@@ -103,8 +103,8 @@ public class EngineDataTypeTest {
         EngineDataType dt = EngineDataType.ARRAY_STRING;
         ClaraSerializer s = dt.serializer();
 
-        String[] v = new String[] { "Ride the Lightning",
-                                    "Master of Puppets", "...And Justice for All"};
+        String[] v = new String[] {"Ride the Lightning",
+                                   "Master of Puppets", "...And Justice for All"};
         ByteBuffer b = s.write(v);
         String[] d = (String[]) s.read(b);
 

@@ -40,8 +40,8 @@ final class AppData {
 
     static final class AppBuilder {
 
-        ApplicationInfo app;
-        Map<ClaraLang, DpeInfo> dpes;
+        private ApplicationInfo app;
+        private Map<ClaraLang, DpeInfo> dpes;
 
         private AppBuilder() {
             app = defaultAppInfo();

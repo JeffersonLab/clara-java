@@ -128,7 +128,7 @@ class WorkerNode {
 
     boolean checkServices() {
         return application.allServices().entrySet().stream()
-                .allMatch(e ->orchestrator.findServices(e.getKey(), e.getValue()));
+                .allMatch(e -> orchestrator.findServices(e.getKey(), e.getValue()));
     }
 
 

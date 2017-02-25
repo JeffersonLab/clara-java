@@ -120,7 +120,7 @@ public class OrchestratorConfigParserTest {
         URL path = getClass().getResource("/resources/services-custom.yaml");
         OrchestratorConfigParser parser = new OrchestratorConfigParser(path.getPath());
 
-        String[] expected = new String[] { "binary/data-evio", "binary/data-hipo" };
+        String[] expected = new String[] {"binary/data-evio", "binary/data-hipo"};
         assertThat(parser.parseDataTypes(), containsInAnyOrder(expected));
     }
 

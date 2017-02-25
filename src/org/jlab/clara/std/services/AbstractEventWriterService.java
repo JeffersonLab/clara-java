@@ -40,7 +40,7 @@ import org.json.JSONObject;
  * An abstract writer service that writes all received events into the
  * configured output file.
  *
- * @param <Writer> the class for the user-defined writer of the given data-type.
+ * @param <Writer> the class for the user-defined writer of the given data-type
  */
 public abstract class AbstractEventWriterService<Writer> implements Engine {
 
@@ -67,6 +67,7 @@ public abstract class AbstractEventWriterService<Writer> implements Engine {
     private String openError = NO_FILE;
     private int eventCounter;
 
+    /** The writer object. */
     protected Writer writer;
     private final Object writerLock = new Object();
 
@@ -180,10 +181,19 @@ public abstract class AbstractEventWriterService<Writer> implements Engine {
     }
 
 
-
-
+    /**
+     * Creates a new writer and opens the given input file.
+     *
+     * @param file the path to the output file
+     * @param opts extra options for the writer
+     * @return a new writer ready to writer events to the output file
+     * @throws EventWriterException if the writer could not be created
+     */
     protected abstract Writer createWriter(Path file, JSONObject opts) throws EventWriterException;
 
+    /**
+     * Closes the writer and its output file.
+     */
     protected abstract void closeWriter();
 
 
@@ -231,8 +241,23 @@ public abstract class AbstractEventWriterService<Writer> implements Engine {
     }
 
 
+    /**
+     * Writes an event to the input file.
+     * The event should be a Java object with the same type as the one defined
+     * by the CLARA engine data-type returned by {@link #getDataType()}.
+     *
+     * @param event the event to be written
+     * @throws EventWriterException if the file could not be read
+     */
     protected abstract void writeEvent(Object event) throws EventWriterException;
 
+    /**
+     * Gets the CLARA engine data-type for the type of the events.
+     * The data-type will be used to deserialize the events when the engine data
+     * is received from services across the network.
+     *
+     * @return the data-type of the events
+     */
     protected abstract EngineDataType getDataType();
 
 

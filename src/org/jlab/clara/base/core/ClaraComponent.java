@@ -70,8 +70,9 @@ public final class ClaraComponent {
         if (dpePort == ClaraUtil.getDefaultPort(dpeLang)) {
             this.dpeCanonicalName = dpeHost + ClaraConstants.LANG_SEP + dpeLang;
         } else {
-            this.dpeCanonicalName = dpeHost + ClaraConstants.PORT_SEP +
-                    Integer.toString(dpePort) + ClaraConstants.LANG_SEP + dpeLang;
+            this.dpeCanonicalName = dpeHost + ClaraConstants.PORT_SEP
+                                  + Integer.toString(dpePort) + ClaraConstants.LANG_SEP
+                                  + dpeLang;
         }
         this.containerName = container;
         this.engineName = engine;

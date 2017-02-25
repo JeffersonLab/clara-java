@@ -53,10 +53,8 @@ public class ClaraSubscriptions {
     abstract static class BaseSubscription<D extends BaseSubscription<D, C>, C> {
 
         final ClaraBase base;
-
-        ClaraComponent frontEnd;
-
-        xMsgTopic topic;
+        final ClaraComponent frontEnd;
+        final xMsgTopic topic;
 
         private Map<String, xMsgSubscription> subscriptions;
 

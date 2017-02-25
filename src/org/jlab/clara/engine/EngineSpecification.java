@@ -176,7 +176,9 @@ public class EngineSpecification {
 
 
     /**
-     * @return the name of the engine
+     * Returns the name of the engine.
+     *
+     * @return the engine name
      */
     public String name() {
         return name;
@@ -184,7 +186,9 @@ public class EngineSpecification {
 
 
     /**
-     * @return the classpath of the engine
+     * Returns the classpath of the engine.
+     *
+     * @return the engine classpath
      */
     public String engine() {
         return engine;
@@ -192,7 +196,9 @@ public class EngineSpecification {
 
 
     /**
-     * @return the type of the engine (java, cpp, python)
+     * Returns the type of the engine (java, cpp, python).
+     *
+     * @return the engine language
      */
     public String type() {
         return type;
@@ -200,7 +206,9 @@ public class EngineSpecification {
 
 
     /**
-     * @return the name of the author of the engine
+     * Returns the name of the author of the engine.
+     *
+     * @return the engine author name
      */
     public String author() {
         return author;
@@ -208,7 +216,9 @@ public class EngineSpecification {
 
 
     /**
-     * @return the email of the author of the engine
+     * Returns the email of the author of the engine.
+     *
+     * @return the engine author email
      */
     public String email() {
         return email;
@@ -216,7 +226,9 @@ public class EngineSpecification {
 
 
     /**
-     * @return the version of the engine
+     * Returns the version of the engine.
+     *
+     * @return the engine version
      */
     public String version() {
         return version;
@@ -224,7 +236,9 @@ public class EngineSpecification {
 
 
     /**
-     * @return the description of the engine
+     * Returns the description of the engine.
+     *
+     * @return the engine description
      */
     public String description() {
         return description;
@@ -233,11 +247,11 @@ public class EngineSpecification {
 
     @Override
     public String toString() {
-        return "NAME:"          + "\n    " + name + "\n\n" +
-               "ENGINE:"        + "\n    " + engine + "\n\n" +
-               "TYPE:"          + "\n    " + type + "\n\n" +
-               "VERSION:"       + "\n    " + version + "\n\n" +
-               "AUTHOR:"        + "\n    " + author + " <" + email + ">\n\n" +
-               "DESCRIPTION:"   + "\n    " + description;
+        return "NAME:"          + "\n    " + name + "\n\n"
+             + "ENGINE:"        + "\n    " + engine + "\n\n"
+             + "TYPE:"          + "\n    " + type + "\n\n"
+             + "VERSION:"       + "\n    " + version + "\n\n"
+             + "AUTHOR:"        + "\n    " + author + " <" + email + ">\n\n"
+             + "DESCRIPTION:"   + "\n    " + description;
     }
 }
