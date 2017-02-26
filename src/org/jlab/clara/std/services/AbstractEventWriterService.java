@@ -29,10 +29,8 @@ import java.nio.file.Paths;
 import java.util.Set;
 
 import org.jlab.clara.base.ClaraUtil;
-import org.jlab.clara.engine.Engine;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.EngineDataType;
-import org.jlab.clara.engine.EngineSpecification;
 import org.jlab.clara.util.FileUtils;
 import org.json.JSONObject;
 
@@ -42,7 +40,7 @@ import org.json.JSONObject;
  *
  * @param <Writer> the class for the user-defined writer of the given data-type
  */
-public abstract class AbstractEventWriterService<Writer> implements Engine {
+public abstract class AbstractEventWriterService<Writer> extends AbstractService {
 
     private static final String CONF_ACTION = "action";
     private static final String CONF_FILENAME = "file";
@@ -56,10 +54,6 @@ public abstract class AbstractEventWriterService<Writer> implements Engine {
 
     private static final String NO_NAME = "";
     private static final String NO_FILE = "No open file";
-
-    // Experimental specification file
-    private final EngineSpecification info = new EngineSpecification(this.getClass());
-    private final String name = info.name();
 
     private String fileName = NO_NAME;
     private boolean skipEvents = false;
@@ -84,32 +78,26 @@ public abstract class AbstractEventWriterService<Writer> implements Engine {
                     if (configData.has(CONF_FILENAME)) {
                         openFile(configData);
                     } else {
-                        String errMsg = "%s config: Missing '%s' parameter: %s%n";
-                        System.err.printf(errMsg, name, CONF_FILENAME, source);
+                        logger.error("config: missing '{}' parameter", CONF_FILENAME);
                     }
                 } else if (action.equals(CONF_ACTION_CLOSE)) {
                     if (configData.has(CONF_FILENAME)) {
                         closeFile(configData);
                     } else {
-                        String errMsg = "%s config: Missing '%s' parameter: %s%n";
-                        System.err.printf(errMsg, name, CONF_FILENAME, source);
+                        logger.error("config: missing '{}' parameter", CONF_FILENAME);
                     }
                 } else if (action.equals(CONF_ACTION_SKIP)) {
                     skipAll();
                 } else {
-                    String errMsg = "%s config: Wrong value of '%s' parameter = '%s'%n";
-                    System.err.printf(errMsg, name, CONF_ACTION, action);
+                    logger.error("config: wrong '{}' parameter value = {}", CONF_ACTION, action);
                 }
             } else {
-                String errMsg = "%s config: Missing '%s' parameter: %s%n";
-                System.err.printf(errMsg, name, CONF_ACTION, source);
+                logger.error("config: missing '{}' parameter", CONF_ACTION);
             }
         } else {
-            String errMsg = "%s config: Wrong mimetype '%s'%n";
-            System.err.printf(errMsg, name, input.getMimeType());
+            logger.error("config: wrong mimetype '{}'", input.getMimeType());
         }
-        long configureTime = System.currentTimeMillis() - startTime;
-        System.out.printf("%s config time: %d [ms]%n", name, configureTime);
+        logger.info("config time: {} [ms]", System.currentTimeMillis() - startTime);
         return null;
     }
 
@@ -120,7 +108,7 @@ public abstract class AbstractEventWriterService<Writer> implements Engine {
                 writeAndClose();
             }
             fileName = configData.getString(CONF_FILENAME);
-            System.out.printf("%s service: Request to open file %s%n", name, fileName);
+            logger.info("request to open file {}", fileName);
             try {
                 File file = new File(fileName);
                 File outputDir = file.getParentFile();
@@ -129,11 +117,9 @@ public abstract class AbstractEventWriterService<Writer> implements Engine {
                 }
                 writer = createWriter(Paths.get(fileName), configData);
                 eventCounter = 0;
-                System.out.printf("%s service: Opened file %s%n", name, fileName);
+                logger.info("opened file {}", fileName);
             } catch (IOException | EventWriterException e) {
-                openError = String.format("Error opening the file %s%n%s",
-                                          fileName, ClaraUtil.reportException(e));
-                System.err.printf("%s service: %s%n", name, openError);
+                logger.error("could not open file {}", fileName, e);
                 fileName = null;
                 eventCounter = 0;
             }
@@ -146,11 +132,11 @@ public abstract class AbstractEventWriterService<Writer> implements Engine {
     private void closeFile(JSONObject data) {
         synchronized (writerLock) {
             fileName = data.getString(CONF_FILENAME);
-            System.out.printf("%s service: Request to close file %s%n", name, fileName);
+            logger.info("request to close file {}", fileName);
             if (writer != null) {
                 writeAndClose();
             } else {
-                System.err.printf("%s service: File %s not open%n", name, fileName);
+                logger.error("file {} not open", fileName);
             }
             openError = NO_FILE;
             fileName = null;
@@ -163,19 +149,19 @@ public abstract class AbstractEventWriterService<Writer> implements Engine {
         if (eventCounter > 0) {
             closeWriter();
         }
-        System.out.printf("%s service: Closed file %s%n", name, fileName);
+        logger.info("closed file {}", fileName);
         writer = null;
     }
 
 
     private void skipAll() {
-        System.out.printf("%s service: Request to skip events%n", name);
+        logger.info("request to skip events");
         synchronized (writerLock) {
             if (writer == null) {
                 skipEvents = true;
-                System.out.printf("%s service: Skipping all events%n", name);
+                logger.info("skipping all events");
             } else {
-                System.err.printf("%s service: A file %s is already open%n", name, fileName);
+                logger.error("file {} is already open", fileName);
             }
         }
     }
@@ -269,26 +255,6 @@ public abstract class AbstractEventWriterService<Writer> implements Engine {
     @Override
     public Set<EngineDataType> getOutputDataTypes() {
         return ClaraUtil.buildDataTypes(EngineDataType.STRING);
-    }
-
-    @Override
-    public Set<String> getStates() {
-        return null;
-    }
-
-    @Override
-    public String getDescription() {
-        return info.description();
-    }
-
-    @Override
-    public String getVersion() {
-        return info.version();
-    }
-
-    @Override
-    public String getAuthor() {
-        return String.format("%s  <%s>", info.author(), info.email());
     }
 
     @Override

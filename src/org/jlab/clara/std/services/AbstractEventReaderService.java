@@ -29,10 +29,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.jlab.clara.base.ClaraUtil;
-import org.jlab.clara.engine.Engine;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.EngineDataType;
-import org.jlab.clara.engine.EngineSpecification;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -41,7 +39,7 @@ import org.json.JSONObject;
  *
  * @param <Reader> the class for the user-defined reader of the given data-type
  */
-public abstract class AbstractEventReaderService<Reader> implements Engine {
+public abstract class AbstractEventReaderService<Reader> extends AbstractService {
 
     private static final String CONF_ACTION = "action";
     private static final String CONF_FILENAME = "file";
@@ -63,11 +61,6 @@ public abstract class AbstractEventReaderService<Reader> implements Engine {
 
     private static final int EOF_NOT_FROM_WRITER = 0;
     private static final int EOF_WAITING_REC = -1;
-
-    // Experimental specification file
-    private final EngineSpecification info = new EngineSpecification(this.getClass());
-    private final String name = info.name();
-
 
     private String fileName = NO_NAME;
     private String openError = NO_FILE;
@@ -97,19 +90,15 @@ public abstract class AbstractEventReaderService<Reader> implements Engine {
                 } else if (action.equals(CONF_ACTION_CLOSE)) {
                     closeFile(data);
                 } else {
-                    String errMsg = "%s config: Wrong value of '%s' parameter = '%s'%n";
-                    System.err.printf(errMsg, name, CONF_ACTION, action);
+                    logger.error("config: wrong '{}' parameter value = {}", CONF_ACTION, action);
                 }
             } else {
-                String errMsg = "%s config: Missing '%s' or '%s' parameters: %s%n";
-                System.err.printf(errMsg, name, CONF_ACTION, CONF_FILENAME, source);
+                logger.error("config: missing '{}' or '{}' parameters", CONF_ACTION, CONF_FILENAME);
             }
         } else {
-            String errMsg = "%s config: Wrong config type '%s'%n";
-            System.err.printf(errMsg, name, input.getMimeType());
+            logger.error("config: wrong mime-type {}", input.getMimeType());
         }
-        long configureTime = System.currentTimeMillis() - startTime;
-        System.out.printf("%s config time: %d [ms]%n", name, configureTime);
+        logger.info("config time: {} [ms]", System.currentTimeMillis() - startTime);
         return null;
     }
 
@@ -120,15 +109,13 @@ public abstract class AbstractEventReaderService<Reader> implements Engine {
                 closeFile();
             }
             fileName = configData.getString(CONF_FILENAME);
-            System.out.printf("%s service: Request to open file %s%n", name, fileName);
+            logger.info("request to open file {}", fileName);
             try {
                 reader = createReader(Paths.get(fileName), configData);
                 setLimits(configData);
-                System.out.printf("%s service: Opened file %s%n", name, fileName);
+                logger.info("opened file {}", fileName);
             } catch (EventReaderException e) {
-                openError = String.format("Error opening the file %s%n%s",
-                        fileName, ClaraUtil.reportException(e));
-                System.err.printf("%s service: %s%n", name, openError);
+                logger.error("could not open file {}", fileName, e);
                 fileName = null;
             }
         }
@@ -139,14 +126,14 @@ public abstract class AbstractEventReaderService<Reader> implements Engine {
         eventCount = readEventCount();
         int skipEvents = getValue(configData, CONF_EVENTS_SKIP, 0, 0, eventCount);
         if (skipEvents != 0) {
-            System.out.printf("%s config: set to skip first %d events%n", name, skipEvents);
+            logger.info("config: skip first {} events", skipEvents);
         }
         currentEvent = skipEvents;
 
         int remEvents = eventCount - skipEvents;
         int maxEvents = getValue(configData, CONF_EVENTS_MAX, remEvents, 0, remEvents);
         if (maxEvents != remEvents) {
-            System.out.printf("%s config: set to read %d events%n", name, maxEvents);
+            logger.info("config: read {} events%n", maxEvents);
         }
         lastEvent = skipEvents + maxEvents;
 
@@ -162,9 +149,9 @@ public abstract class AbstractEventReaderService<Reader> implements Engine {
                 if (value >= minVal && value <= maxVal) {
                     return value;
                 }
-                System.err.printf("%s config: invalid value for '%s': %d%n", name, key, value);
+                logger.error("config: invalid value for '{}': {}", key, value);
             } catch (JSONException e) {
-                System.err.printf("%s config: %s%n", name, e.getMessage());
+                logger.error("config: {}", e.getMessage());
             }
         }
         return defVal;
@@ -174,11 +161,11 @@ public abstract class AbstractEventReaderService<Reader> implements Engine {
     private void closeFile(JSONObject configData) {
         synchronized (readerLock) {
             fileName = configData.getString(CONF_FILENAME);
-            System.out.printf("%s service: Request to close file %s%n", name, fileName);
+            logger.info("request to close file {}", fileName);
             if (reader != null) {
                 closeFile();
             } else {
-                System.err.printf("%s service: File %s not open%n", name, fileName);
+                logger.error("file {} not open", fileName);
             }
             openError = NO_FILE;
             fileName = null;
@@ -189,7 +176,7 @@ public abstract class AbstractEventReaderService<Reader> implements Engine {
     private void closeFile() {
         closeReader();
         reader = null;
-        System.out.printf("%s service: Closed file %s%n", name, fileName);
+        logger.info("closed file {}", fileName);
     }
 
 
@@ -219,10 +206,10 @@ public abstract class AbstractEventReaderService<Reader> implements Engine {
             if (request.equals(REQUEST_NEXT) || request.equals(REQUEST_NEXT_REC)) {
                 getNextEvent(input, output);
             } else if (request.equals(REQUEST_ORDER)) {
-                System.out.printf("%s execute request: %s%n", name, REQUEST_ORDER);
+                logger.info("execute request {}", REQUEST_ORDER);
                 getFileByteOrder(output);
             } else if (request.equals(REQUEST_COUNT)) {
-                System.out.printf("%s execute request: %s%n", name, REQUEST_COUNT);
+                logger.info("execute request {}", REQUEST_COUNT);
                 getEventCount(output);
             } else {
                 ServiceUtils.setError(output, String.format("Wrong input data = '%s'", request));
@@ -374,26 +361,6 @@ public abstract class AbstractEventReaderService<Reader> implements Engine {
                 EngineDataType.SFIXED32);
     }
 
-
-    @Override
-    public Set<String> getStates() {
-        return null;
-    }
-
-    @Override
-    public String getDescription() {
-        return info.description();
-    }
-
-    @Override
-    public String getVersion() {
-        return info.version();
-    }
-
-    @Override
-    public String getAuthor() {
-        return String.format("%s  <%s>", info.author(), info.email());
-    }
 
     @Override
     public void reset() {
