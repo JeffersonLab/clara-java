@@ -85,6 +85,7 @@ class SourceCommand extends Command {
 
     @Override
     public void showFullHelp() {
-        terminal.writer().printf("%n%s%n", splitLine(description, 72));
+        terminal.writer().printf("\n  source <file_path>\n");
+        terminal.writer().printf("    %s\n", splitLine(description, 72));
     }
 }
