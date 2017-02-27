@@ -9,18 +9,19 @@ if [ -z "${CLARA_HOME}" ]; then
     exit 1
 fi
 
-if [ -z "${CLASSPATH}" ]; then
-    # Find plugins directory
-    CLASSPATH="${CLARA_HOME}/lib/*"
-    if [ -n "${CLARA_PLUGINS}" ]; then
-        if [ ! -d "${CLARA_PLUGINS}" ]; then
-            echo "Error: \$CLARA_PLUGINS is not a directory."
-            exit 1
-        fi
-        plugins_dir="${CLARA_PLUGINS}"
-    else
-        plugins_dir="${CLARA_HOME}/plugins"
+# Find plugins directory
+if [ -n "${CLARA_PLUGINS}" ]; then
+    if [ ! -d "${CLARA_PLUGINS}" ]; then
+        echo "Error: \$CLARA_PLUGINS is not a directory."
+        exit 1
     fi
+    plugins_dir="${CLARA_PLUGINS}"
+else
+    plugins_dir="${CLARA_HOME}/plugins"
+fi
+
+if [ -z "${CLASSPATH}" ]; then
+    CLASSPATH="${CLARA_HOME}/lib/*"
 
     # Add every plugin
     for plugin in "${plugins_dir}"/*; do
