@@ -41,6 +41,21 @@ if [ -z "${CLASSPATH}" ]; then
     export CLASSPATH
 fi
 
+# set java.library.path
+java_lib_path=
+for plugin in "${plugins_dir}"/*; do
+    if [ -d "${plugin}" ]; then
+        java_lib_path+=":${plugin}/lib"
+
+        # Support subdirectories inside lib/
+        for libdir in "${plugin}"/lib/*; do
+            if [ -d "${libdir}" ]; then
+                java_lib_path+=":${libdir}"
+            fi
+        done
+    fi
+done
+
 if [ -n "${JAVA_OPTS}" ]; then
     jvm_options=("${JAVA_OPTS}")
 else
@@ -53,4 +68,4 @@ else
     java_bin=java
 fi
 
-"${java_bin}" "${jvm_options[@]}" org.jlab.clara.sys.Dpe "$@"
+"${java_bin}" "${jvm_options[@]}" -Djava.library.path="${java_lib_path}" org.jlab.clara.sys.Dpe "$@"
