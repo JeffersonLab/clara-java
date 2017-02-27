@@ -73,7 +73,7 @@ public class ClaraShell implements AutoCloseable {
     public ClaraShell() {
         try {
             runConfig = new RunConfig();
-            terminal = TerminalBuilder.builder().system(true).build();
+            terminal = TerminalBuilder.builder().build();
             commands = new HashMap<>();
             commandRunner = new CommandRunner(terminal, commands);
             initCommands();
