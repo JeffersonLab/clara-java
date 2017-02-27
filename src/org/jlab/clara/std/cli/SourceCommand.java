@@ -22,11 +22,13 @@
 
 package org.jlab.clara.std.cli;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -66,9 +68,12 @@ class SourceCommand extends Command {
                         .filter(line -> !line.isEmpty())
                         .filter(line -> !pattern.matcher(line).matches())
                         .collect(Collectors.toList());
+        } catch (FileNotFoundException | NoSuchFileException e) {
+            System.out.println("Error: invalid file " + e.getMessage());
         } catch (IOException e) {
-            throw new UncheckedIOException("Could not read file " + sourceFile, e);
+            System.out.println("Error: could not read source file " + e.getMessage());
         }
+        return new ArrayList<>();
     }
 
     @Override
