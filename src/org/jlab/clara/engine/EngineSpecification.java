@@ -25,6 +25,8 @@ package org.jlab.clara.engine;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 
 import org.yaml.snakeyaml.Yaml;
@@ -144,8 +146,12 @@ public class EngineSpecification {
 
     private InputStream getSpecStream(String engine) {
         ClassLoader cl = getClass().getClassLoader();
-        String descriptionFile = engine.replaceAll("\\.", File.separator) + ".yaml";
-        return cl.getResourceAsStream(descriptionFile);
+        Path resourcePath = Paths.get(engine.replaceAll("\\.", File.separator) + ".yaml");
+        InputStream resource = cl.getResourceAsStream(resourcePath.getFileName().toString());
+        if (resource == null) {
+            resource = cl.getResourceAsStream(resourcePath.toString());
+        }
+        return resource;
     }
 
 
