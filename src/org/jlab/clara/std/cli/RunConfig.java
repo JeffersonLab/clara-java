@@ -75,7 +75,7 @@ class RunConfig {
         this.farmTime = 1440;
     }
 
-    private static String claraHome() {
+    public static String claraHome() {
         String claraHome = System.getenv("CLARA_HOME");
         if (claraHome == null) {
             throw new RuntimeException("Missing CLARA_HOME variable");
