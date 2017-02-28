@@ -23,7 +23,6 @@
 package org.jlab.clara.std.cli;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -117,27 +116,29 @@ public class ClaraShell {
      * Runs the shell accepting user commands.
      */
     public void run() {
-        try {
-            printWelcomeMessage();
-            PrintWriter out = new PrintWriter(System.out);
-            String line;
-            while ((line = readLine("")) != null) {
-                commandRunner.execute(line);
-                out.flush();
-            }
-        } catch (EndOfFileException e) {
-            // ignore
-        } catch (UserInterruptException e) {
-            // ignore
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        } finally {
+        printWelcomeMessage();
+        while (true) {
             try {
-                history.save();
-                terminal.close();
+                String line = readLine("");
+                if (line == null) {
+                    continue;
+                }
+                commandRunner.execute(line);
+            } catch (EndOfFileException e) {
+                break;
+            } catch (UserInterruptException e) {
+                break;
             } catch (IOException e) {
-                e.printStackTrace();
+                throw new UncheckedIOException(e);
+            } finally {
+                terminal.flush();
             }
+        }
+        try {
+            history.save();
+            terminal.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
