@@ -22,7 +22,17 @@
 
 package org.jlab.clara.std.cli;
 
+import org.apache.commons.exec.CommandLine;
+import org.apache.commons.exec.DefaultExecuteResultHandler;
+import org.apache.commons.exec.DefaultExecutor;
+import org.apache.commons.exec.ExecuteException;
+import org.apache.commons.exec.ExecuteWatchdog;
+import org.apache.commons.exec.Executor;
 import org.jlab.clara.base.ClaraUtil;
+import org.jline.terminal.Terminal;
+import org.jline.terminal.Terminal.Signal;
+import org.jline.terminal.Terminal.SignalHandler;
+
 import java.io.IOException;
 import java.util.Optional;
 
@@ -48,6 +58,32 @@ final class CommandUtils {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    public static void runCommand(Terminal terminal, String command, String... args) {
+        CommandLine cmdLine = new CommandLine(command);
+        for (String arg : args) {
+            cmdLine.addArgument(arg);
+        }
+        DefaultExecuteResultHandler resultHandler = new DefaultExecuteResultHandler();
+        ExecuteWatchdog watchdog = new ExecuteWatchdog(ExecuteWatchdog.INFINITE_TIMEOUT);
+        Executor executor = new DefaultExecutor();
+        executor.setWatchdog(watchdog);
+        SignalHandler prevIntHandler = terminal.handle(Signal.INT, s -> {
+            Thread.currentThread().interrupt();
+        });
+        try {
+            executor.execute(cmdLine, resultHandler);
+            resultHandler.waitFor();
+        } catch (ExecuteException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (InterruptedException e) {
+            watchdog.destroyProcess();
+        } finally {
+            terminal.handle(Signal.INT, prevIntHandler);
         }
     }
 
