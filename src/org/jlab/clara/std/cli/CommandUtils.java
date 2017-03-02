@@ -22,6 +22,7 @@
 
 package org.jlab.clara.std.cli;
 
+import org.jlab.clara.base.ClaraUtil;
 import java.io.IOException;
 import java.util.Optional;
 
@@ -48,5 +49,13 @@ final class CommandUtils {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public static Process runDpe(String... command) throws IOException {
+        ProcessBuilder builder = new ProcessBuilder(command);
+        builder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+        Process process = builder.start();
+        ClaraUtil.sleep(2000);
+        return process;
     }
 }
