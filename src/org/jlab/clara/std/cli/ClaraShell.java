@@ -49,13 +49,13 @@ import org.jline.terminal.TerminalBuilder;
 public class ClaraShell {
 
     private static final String HISTORY_NAME = ".clara_history";
-    private final RunConfig runConfig;
-    private final Map<String, Command> commands;
-    private final Terminal terminal;
-    private final LineReader reader;
-    private final CommandRunner commandRunner;
-    private final History history;
 
+    private final RunConfig runConfig;
+    private final Terminal terminal;
+    private final Map<String, Command> commands;
+    private final CommandRunner commandRunner;
+    private final LineReader reader;
+    private final History history;
 
     public static void main(String[] args) {
         ClaraShell shell = new ClaraShell();
@@ -77,8 +77,7 @@ public class ClaraShell {
                     .terminal(terminal)
                     .build();
             history = new DefaultHistory(reader);
-            reader.setVariable(LineReader.HISTORY_FILE, getPath());
-            history.load();
+            loadHistory();
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -108,8 +107,10 @@ public class ClaraShell {
         return new AggregateCompleter(completers);
     }
 
-    private Path getPath() {
-        return Paths.get(RunConfig.claraHome(), HISTORY_NAME);
+    private void loadHistory() {
+        Path histFile = Paths.get(RunConfig.claraHome(), HISTORY_NAME);
+        reader.setVariable(LineReader.HISTORY_FILE, histFile);
+        history.load();
     }
 
     /**

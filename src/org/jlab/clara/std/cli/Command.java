@@ -72,7 +72,7 @@ abstract class Command {
         return new ArgumentCompleter(command, subCommand, arg.getCompleter());
     }
 
-    public void showFullHelp() {
+    protected void showFullHelp() {
         terminal.writer().println("Commands:\n");
         for (Argument aux: arguments.values()) {
             terminal.writer().printf("  %s %s\n", name, aux.getName());
@@ -87,7 +87,7 @@ abstract class Command {
         }
     }
 
-    public String splitLine(String input, int maxLineLength) {
+    protected String splitLine(String input, int maxLineLength) {
         StringTokenizer tok = new StringTokenizer(input, " ");
         StringBuilder output = new StringBuilder(input.length());
         int lineLen = 0;
