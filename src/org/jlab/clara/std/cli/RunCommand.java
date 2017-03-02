@@ -23,6 +23,9 @@
 package org.jlab.clara.std.cli;
 
 import java.io.IOException;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
@@ -33,10 +36,12 @@ import org.jline.terminal.Terminal;
 class RunCommand extends Command {
 
     private final RunConfig runConfig;
+    private final Set<Process> backgroundProcesses;
 
     RunCommand(Terminal terminal, RunConfig runConfig) {
         super(terminal, "run", "Start data processing");
         this.runConfig = runConfig;
+        this.backgroundProcesses = new HashSet<>();
         setArguments();
     }
 
@@ -57,7 +62,6 @@ class RunCommand extends Command {
         } else {
             terminal.writer().println("Invalid command: " + args[1]);
         }
-
     }
 
     private void runLocal() {
@@ -74,11 +78,37 @@ class RunCommand extends Command {
         executor.setStreamHandler(streamHandler);
 
         try {
+            addBackgroundProcess(CommandUtils.runDpe("j_dpe"));
             executor.execute(cmdLine);
         } catch (ExecuteException e) {
             e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void addBackgroundProcess(Process p) {
+        if (p.isAlive()) {
+            backgroundProcesses.add(p);
+        }
+    }
+
+    @Override
+    public void close() {
+        for (Process process : backgroundProcesses) {
+            try {
+                process.destroy();
+                process.waitFor(10, TimeUnit.SECONDS);
+                if (process.isAlive()) {
+                    process.destroyForcibly();
+                    process.waitFor(5, TimeUnit.SECONDS);
+                }
+                process.getOutputStream().flush();
+            } catch (InterruptedException e) {
+                // ignore
+            } catch (IOException e) {
+                // ignore
+            }
         }
     }
 }
