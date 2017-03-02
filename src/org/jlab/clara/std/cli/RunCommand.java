@@ -23,14 +23,12 @@
 package org.jlab.clara.std.cli;
 
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.commons.exec.CommandLine;
-import org.apache.commons.exec.DefaultExecutor;
-import org.apache.commons.exec.ExecuteException;
-import org.apache.commons.exec.PumpStreamHandler;
 import org.jline.terminal.Terminal;
 
 class RunCommand extends Command {
@@ -65,23 +63,18 @@ class RunCommand extends Command {
     }
 
     private void runLocal() {
-        CommandLine cmdLine = new CommandLine("java");
-        cmdLine.addArgument("-cp");
-        cmdLine.addArgument(System.getProperty("java.class.path"));
-        cmdLine.addArgument(runConfig.getOrchestrator());
-        cmdLine.addArgument("-F");
-        cmdLine.addArgument(runConfig.getConfigFile());
-        cmdLine.addArgument(runConfig.getFilesList());
-
-        DefaultExecutor executor = new DefaultExecutor();
-        PumpStreamHandler streamHandler = new PumpStreamHandler(terminal.output());
-        executor.setStreamHandler(streamHandler);
-
         try {
             addBackgroundProcess(CommandUtils.runDpe("j_dpe"));
-            executor.execute(cmdLine);
-        } catch (ExecuteException e) {
-            e.printStackTrace();
+
+            Path orchestrator = Paths.get(RunConfig.claraHome(), "bin", "clara-orchestrator");
+            CommandUtils.runCommand(terminal,
+                    orchestrator.toString(),
+                    "-F",
+                    "-t", Integer.toString(runConfig.getMaxThreads()),
+                    "-i", runConfig.getInputDir(),
+                    "-o", runConfig.getOutputDir(),
+                    runConfig.getConfigFile(),
+                    runConfig.getFilesList());
         } catch (IOException e) {
             e.printStackTrace();
         }
