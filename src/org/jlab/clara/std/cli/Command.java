@@ -34,7 +34,7 @@ import org.jline.reader.impl.completer.ArgumentCompleter;
 import org.jline.reader.impl.completer.StringsCompleter;
 import org.jline.terminal.Terminal;
 
-abstract class Command {
+abstract class Command implements AutoCloseable {
 
     protected final String name;
     protected final String description;
@@ -102,5 +102,10 @@ abstract class Command {
             lineLen += word.length();
         }
         return output.toString();
+    }
+
+    @Override
+    public void close() throws Exception {
+        // nothing
     }
 }

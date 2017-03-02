@@ -45,7 +45,7 @@ import org.jline.terminal.TerminalBuilder;
 /**
  * An interactive shell to run CLARA DPEs and orchestrators.
  */
-public class ClaraShell {
+public class ClaraShell implements AutoCloseable {
 
     private static final String HISTORY_NAME = ".clara_history";
 
@@ -58,6 +58,12 @@ public class ClaraShell {
 
     public static void main(String[] args) {
         ClaraShell shell = new ClaraShell();
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+            @Override
+            public void run() {
+                shell.close();
+            }
+        });
         shell.run();
     }
 
@@ -112,6 +118,23 @@ public class ClaraShell {
         history.load();
     }
 
+    @Override
+    public void close() {
+        for (Command command : commands.values()) {
+            try {
+                command.close();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        try {
+            history.save();
+            terminal.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     /**
      * Runs the shell accepting user commands.
      */
@@ -133,12 +156,6 @@ public class ClaraShell {
             } finally {
                 terminal.flush();
             }
-        }
-        try {
-            history.save();
-            terminal.close();
-        } catch (IOException e) {
-            e.printStackTrace();
         }
     }
 
