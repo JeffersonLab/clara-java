@@ -25,7 +25,6 @@ package org.jlab.clara.std.cli;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
 import org.jlab.coda.xmsg.core.xMsgUtil;
 
 class RunConfig {

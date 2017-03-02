@@ -22,8 +22,22 @@
 
 package org.jlab.clara.std.cli;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.PrintStream;
+import java.nio.file.FileSystems;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.PathMatcher;
+import java.nio.file.Paths;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import org.jline.reader.Completer;
 import org.jline.reader.impl.completer.FileNameCompleter;
@@ -50,6 +64,7 @@ class SetCommand extends Command {
         newArg("outputDir", "The output directory where processed files will be saved. (Default: $CLARA_HOME/data/out)", runConfig::setOutputDir);
         newArg("threads", "The maximum number of processing threads to be used per node. In case value = auto all system cores will be used. (Default: 2)", runConfig::setMaxThreads, Integer::parseInt);
         newArg("fileList", "Full path to the file containing the names of data-files to be processed. Note: actual files are located in the inputDir. (Default: $CLARA_HOME/plugins/clas12/config/files.list)", runConfig::setFilesList);
+        newArg("files", "Set the input files to be processed (Example: /mnt/data/files/*.evio).", this::setFiles);
         newArg("yaml", "Full path to the file describing application service composition. (Default: $CLARA_HOME/plugins/clas12/config/services.yaml)", runConfig::setConfigFile);
         newArg("farmFlavor", "Farm batch system. Accepts pbs and jlab. (Default jlab)", runConfig::setFarmFlavor);
         newArg("farmLoadingZone", "Will stage input data set into the farm local directory. (Default /scratch/pbs)", runConfig::setFarmLoadingZone);
@@ -65,6 +80,7 @@ class SetCommand extends Command {
     private void setCompleters() {
         Completer fileCompleter = new FileNameCompleter();
         arguments.get("fileList").setCompleter(fileCompleter);
+        arguments.get("files").setCompleter(fileCompleter);
         arguments.get("yaml").setCompleter(fileCompleter);
         arguments.get("inputDir").setCompleter(fileCompleter);
         arguments.get("outputDir").setCompleter(fileCompleter);
@@ -111,4 +127,73 @@ class SetCommand extends Command {
             terminal.writer().println("Missing argument.");
         }
     }
+
+    private void setFiles(String files) {
+        try {
+            Path path = Paths.get(expandHome(files));
+            File tempFile = File.createTempFile("temp", "");
+            try (PrintStream printer = new PrintStream(new BufferedOutputStream(
+                    new FileOutputStream(tempFile, false)))) {
+                if (Files.isDirectory(path)) {
+                    int numFiles = listDirectory(printer, path.getParent(), f -> true);
+                    if (numFiles > 0) {
+                        runConfig.setInputDir(path.toString());
+                        runConfig.setFilesList(tempFile.getAbsolutePath());
+                    } else {
+                        System.out.println("Error: empty directory");
+                    }
+                } else if (Files.isRegularFile(path)) {
+                    printer.println(path.getFileName());
+                    runConfig.setInputDir(path.getParent().toString());
+                    runConfig.setFilesList(tempFile.getAbsolutePath());
+                } else if (path.getFileName().toString().contains("*")
+                        && Files.isDirectory(path.getParent())) {
+                    String pattern = path.getFileName().toString();
+                    String glob = "glob:" + pattern;
+                    PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher(glob);
+                    int numFiles = listDirectory(printer, path.getParent(), pathMatcher::matches);
+                    if (numFiles > 0) {
+                        runConfig.setInputDir(path.getParent().toString());
+                        runConfig.setFilesList(tempFile.getAbsolutePath());
+                    } else {
+                        System.out.println("Error: no files matched");
+                    }
+                } else {
+                    System.out.println("Error: invalid path");
+                }
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private String expandHome(String path) {
+        if (path.startsWith("~")) {
+            return newPath(path, "~");
+        } else if (path.startsWith("$HOME")) {
+            return newPath(path, "$HOME");
+        }
+        return path;
+    }
+
+    private String newPath(String path, String replace) {
+        String home = System.getProperty("user.home");
+        path = path.replace(replace, home);
+        return path;
+    }
+
+    private int listDirectory(PrintStream printer, Path directory, Predicate<Path> filter)
+            throws IOException {
+        List<Path> files = Files.list(directory)
+                    .filter(Files::isRegularFile)
+                    .map(Path::getFileName)
+                    .filter(filter)
+                    .sorted()
+                    .collect(Collectors.toList());
+        files.forEach(printer::println);
+        return files.size();
+    }
+
 }
