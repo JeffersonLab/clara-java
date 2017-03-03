@@ -68,14 +68,18 @@ import org.yaml.snakeyaml.Yaml;
  * need to include I/O services in this file. They are controlled by the
  * orchestrators.
  */
-class OrchestratorConfigParser {
+public class OrchestratorConfigParser {
 
     private static final String DEFAULT_CONTAINER = System.getProperty("user.name");
 
     private final JSONObject config;
 
-
-    OrchestratorConfigParser(String configFilePath) {
+    /**
+     * Creates a parser for the given configuration file.
+     *
+     * @param configFilePath the path to the configuration file
+     */
+    public OrchestratorConfigParser(String configFilePath) {
         try (InputStream input = new FileInputStream(configFilePath)) {
             Yaml yaml = new Yaml();
             @SuppressWarnings("unchecked")
@@ -87,11 +91,21 @@ class OrchestratorConfigParser {
     }
 
 
-    public static String getDefaultContainer() {
+    static String getDefaultContainer() {
         return DEFAULT_CONTAINER;
     }
 
 
+    /**
+     * Returns the mime-types required to receive messages from the services.
+     * <p>
+     * The orchestrator will create fake {@link org.jlab.clara.engine.EngineDataType
+     * EngineDataType} objects for each mime-type. These will not deserialize
+     * the user-data contained in the messages, they will be used to access just
+     * the metadata.
+     *
+     * @return the mime-types of the data returned by the services
+     */
     public Set<String> parseDataTypes() {
         Set<String> types = new HashSet<>();
         JSONArray mimeTypes = config.optJSONArray("mime-types");
@@ -108,7 +122,7 @@ class OrchestratorConfigParser {
     }
 
 
-    public Map<String, ServiceInfo> parseInputOutputServices() {
+    Map<String, ServiceInfo> parseInputOutputServices() {
         Map<String, ServiceInfo> services = new HashMap<>();
         JSONObject io = config.optJSONObject("io-services");
         if (io == null) {
@@ -137,7 +151,7 @@ class OrchestratorConfigParser {
     }
 
 
-    public List<ServiceInfo> parseReconstructionChain() {
+    List<ServiceInfo> parseReconstructionChain() {
         List<ServiceInfo> services = new ArrayList<ServiceInfo>();
         JSONArray sl = config.optJSONArray("services");
         if (sl == null) {
@@ -155,7 +169,7 @@ class OrchestratorConfigParser {
     }
 
 
-    public JSONObject parseReconstructionConfig() {
+    JSONObject parseReconstructionConfig() {
         if (config.has("configuration")) {
             return config.getJSONObject("configuration");
         }
@@ -185,19 +199,19 @@ class OrchestratorConfigParser {
     }
 
 
-    public static DpeInfo getDefaultDpeInfo(String hostName) {
+    static DpeInfo getDefaultDpeInfo(String hostName) {
         String dpeIp = hostAddress(hostName);
         DpeName dpeName = new DpeName(dpeIp, ClaraLang.JAVA);
         return new DpeInfo(dpeName, 0, DpeInfo.DEFAULT_CLARA_HOME);
     }
 
 
-    public static DpeName localDpeName() {
+    static DpeName localDpeName() {
         return new DpeName(hostAddress("localhost"), ClaraLang.JAVA);
     }
 
 
-    public static String hostAddress(String host) {
+    static String hostAddress(String host) {
         try {
             return xMsgUtil.toHostAddress(host);
         } catch (UncheckedIOException e) {
@@ -206,7 +220,7 @@ class OrchestratorConfigParser {
     }
 
 
-    public List<String> readInputFiles(String inputFilesList) {
+    List<String> readInputFiles(String inputFilesList) {
         try {
             Pattern pattern = Pattern.compile("^\\s*#.*$");
             return Files.lines(Paths.get(inputFilesList))
