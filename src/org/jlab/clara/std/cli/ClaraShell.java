@@ -152,8 +152,6 @@ public class ClaraShell implements AutoCloseable {
                 break;
             } catch (UserInterruptException e) {
                 break;
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
             } finally {
                 terminal.flush();
             }
@@ -171,7 +169,7 @@ public class ClaraShell implements AutoCloseable {
         System.out.println();
     }
 
-    private String readLine(String promtMessage) throws IOException {
+    private String readLine(String promtMessage) {
         return reader.readLine(promtMessage + "\nclara> ");
     }
 }
