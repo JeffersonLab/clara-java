@@ -29,22 +29,37 @@ import org.yaml.snakeyaml.Yaml;
  * <p>
  * Currently, the user can set:
  * <ul>
- * <li>The list of services in the reconstruction chain
- * <li>The name of the container for the services
- * <li>The list of I/O and reconstruction nodes
- * <li>The list of input files
+ * <li>A default container name and language for the services
+ * <li>The set of I/O services
+ * <li>The list of processing services
+ * <li>The global configuration for all services
  * </ul>
  *
- * The <i>reconstruction services</i> description is provided in a YAML file,
+ * The <i>services</i> description is provided in a YAML file,
  * which format is the following:
  * <pre>
- * container: my-default # Optional: change default container, otherwise it is $USER
+ * container: default # Optional: change default container, otherwise it is $USER
+ * io-services:
+ *   reader:
+ *     class: org.jlab.clas12.ana.ReaderService
+ *     name: ReaderService
+ *   reader:
+ *     class: org.jlab.clas12.ana.WriterService
+ *     name: WriterService
  * services:
- *   - class: org.jlab.clas12.ana.serviceA
- *     name: serviceA
- *   - class: org.jlab.clas12.rec.serviceB
- *     name: serviceB
+ *   - class: org.jlab.clas12.ana.ServiceA
+ *     name: ServiceA
+ *   - class: org.jlab.clas12.rec.ServiceB
+ *     name: ServiceB
  *     container: containerB # Optional: change container for this service
+ *   - class: service_c
+ *     name: ServiceC
+ *     lang: cpp # a C++ service
+ * config:
+ *   param1: "some_string"
+ *   param2:
+ *      key1: 31
+ *      key2: 50
  * </pre>
  * By default, all processing and I/O services will be deployed in a
  * container named as the {@code $USER} running the orchestrator. This can be
@@ -52,15 +67,6 @@ import org.yaml.snakeyaml.Yaml;
  * The container can be overwritten for individual services too. There is no
  * need to include I/O services in this file. They are controlled by the
  * orchestrators.
- * <p>
- * The <i>input files</i> description is just a simple text file with the list
- * of all the input files, one per line:
- * <pre>
- * input-file1.ev
- * input-file2.ev
- * input-file3.ev
- * input-file4.ev
- * </pre>
  */
 class OrchestratorConfigParser {
 
