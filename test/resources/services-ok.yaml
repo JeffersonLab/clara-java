@@ -1,22 +1,15 @@
 ---
+io-services:
+  reader:
+    class: org.jlab.clas12.convertors.EvioToEvioReader
+    name: EvioToEvioReader
+  writer:
+    class: org.jlab.clas12.convertors.EvioToEvioWriter
+    name: EvioToEvioWriter
 services:
   - class: org.jlab.clas12.ec.services.ECReconstruction
     name: ECReconstruction
   - class: org.clas12.services.tracking.SeedFinder
     name: SeedFinder
-  # - class: org.sot.services.driftChamber.ClusterFinderService
-  #   name: ClusterFinderService
-  # - class: org.sot.ric.RoadsInClusters2
-  #   name: RoadsInClusters
-  # - class: org.sot.services.driftChamber.RSegmentFindingService
-  #   name: RSegmentFindingService
-  # - class: org.sot.services.driftChamber.TrackCandidateFindingService
-  #   name: TrackCandidateFindingService
-  # - class: org.sot.services.KalmanFilterService
-  #   name: KalmanFilterService
-  # - class: org.sot.services.ftof.AssociateFTOF
-  #   name: AssociateFTOF
-  # - class: org.sot.services.ParticleIDService
-  #   name: ParticleIDService
   - class: org.jlab.clas12.ftof.services.FTOFReconstruction
     name: FTOFReconstruction
