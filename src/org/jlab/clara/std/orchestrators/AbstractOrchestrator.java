@@ -168,9 +168,9 @@ abstract class AbstractOrchestrator {
     }
 
 
-    abstract void start();
+    protected abstract void start();
 
-    abstract void end();
+    protected abstract void end();
 
 
     private void startRec() {

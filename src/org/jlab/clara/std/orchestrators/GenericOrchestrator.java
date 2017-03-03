@@ -286,7 +286,7 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
 
 
     @Override
-    void start() {
+    protected void start() {
         printStartup();
         Logging.info("Waiting for reconstruction nodes...");
         DpeReportCB dpeCallback = new DpeReportCB(orchestrator, options, setup.application,
@@ -296,14 +296,17 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
 
 
     @Override
-    void end() {
+    protected void end() {
         removeStageDirectories();
         Logging.info("Local  average event processing time = %.2f ms", stats.localAverage());
         Logging.info("Global average event processing time = %.2f ms", stats.globalAverage());
     }
 
 
-    private void printStartup() {
+    /**
+     * Prints a startup message when the orchestrator starts to run.
+     */
+    protected void printStartup() {
         System.out.println("****************************************");
         System.out.println("*          CLARA Orchestrator          *");
         System.out.println("****************************************");
