@@ -15,6 +15,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.jlab.clara.base.ClaraLang;
 import org.jlab.clara.base.DpeName;
@@ -93,6 +94,19 @@ public class OrchestratorConfigParser {
 
     static String getDefaultContainer() {
         return DEFAULT_CONTAINER;
+    }
+
+
+    /**
+     * Returns the languages of all services defined in the application.
+     *
+     * @return a set with the languages of the services
+     */
+    public Set<ClaraLang> parseLanguages() {
+        Stream<ServiceInfo> io = parseInputOutputServices().values().stream();
+        Stream<ServiceInfo> rec = parseReconstructionChain().stream();
+
+        return Stream.concat(io, rec).map(s -> s.lang).collect(Collectors.toSet());
     }
 
 

@@ -107,6 +107,24 @@ public class OrchestratorConfigParserTest {
 
 
     @Test
+    public void parseLanguagesSingleLang() throws Exception {
+        URL path = getClass().getResource("/resources/services-ok.yaml");
+        OrchestratorConfigParser parser = new OrchestratorConfigParser(path.getPath());
+
+        assertThat(parser.parseLanguages(), containsInAnyOrder(ClaraLang.JAVA));
+    }
+
+
+    @Test
+    public void parseLanguagesMultiLang() throws Exception {
+        URL path = getClass().getResource("/resources/services-custom.yaml");
+        OrchestratorConfigParser parser = new OrchestratorConfigParser(path.getPath());
+
+        assertThat(parser.parseLanguages(), containsInAnyOrder(ClaraLang.JAVA, ClaraLang.CPP));
+    }
+
+
+    @Test
     public void parseEmptyMimeTypes() {
         URL path = getClass().getResource("/resources/services-ok.yaml");
         OrchestratorConfigParser parser = new OrchestratorConfigParser(path.getPath());
