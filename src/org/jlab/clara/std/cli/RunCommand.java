@@ -25,7 +25,9 @@ package org.jlab.clara.std.cli;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashSet;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
@@ -36,12 +38,12 @@ import org.jline.terminal.Terminal;
 class RunCommand extends Command {
 
     private final RunConfig runConfig;
-    private final Set<Process> backgroundProcesses;
+    private final Map<ClaraLang, Process> backgroundDpes;
 
     RunCommand(Terminal terminal, RunConfig runConfig) {
         super(terminal, "run", "Start data processing");
         this.runConfig = runConfig;
-        this.backgroundProcesses = new HashSet<>();
+        this.backgroundDpes = new HashMap<>();
         setArguments();
     }
 
@@ -87,29 +89,36 @@ class RunCommand extends Command {
         Set<ClaraLang> languages = parser.parseLanguages();
 
         String javaDpe = Paths.get(RunConfig.claraHome(), "bin", "j_dpe").toString();
-        addBackgroundProcess(ClaraLang.JAVA, CommandUtils.runDpe(javaDpe));
+        addBackgroundDpeProcess(ClaraLang.JAVA, CommandUtils.runDpe(javaDpe));
 
         if (languages.contains(ClaraLang.CPP)) {
             String cppDpe = Paths.get(RunConfig.claraHome(), "bin", "c_dpe").toString();
-            addBackgroundProcess(CommandUtils.runDpe(cppDpe, "--fe-host", "localhost"));
+            addBackgroundDpeProcess(ClaraLang.CPP,
+                                    CommandUtils.runDpe(cppDpe, "--fe-host", "localhost"));
         }
 
         if (languages.contains(ClaraLang.PYTHON)) {
             String cppDpe = Paths.get(RunConfig.claraHome(), "bin", "p_dpe").toString();
-            addBackgroundProcess(CommandUtils.runDpe(cppDpe, "--fe-host", "localhost"));
+            addBackgroundDpeProcess(ClaraLang.PYTHON,
+                                    CommandUtils.runDpe(cppDpe, "--fe-host", "localhost"));
         }
     }
 
-    private void addBackgroundProcess(Process p) {
-        if (p.isAlive()) {
-            backgroundProcesses.add(p);
+    private void addBackgroundDpeProcess(ClaraLang lang, Process dpeProcess) {
+        if (dpeProcess.isAlive()) {
+            backgroundDpes.put(lang, dpeProcess);
         }
     }
 
     @Override
     public void close() {
-        for (Process process : backgroundProcesses) {
+        // kill the DPEs in reverse order (the front-end last)
+        for (ClaraLang lang : Arrays.asList(ClaraLang.PYTHON, ClaraLang.CPP, ClaraLang.JAVA)) {
             try {
+                Process process = backgroundDpes.get(lang);
+                if (process == null) {
+                    continue;
+                }
                 process.destroy();
                 process.waitFor(10, TimeUnit.SECONDS);
                 if (process.isAlive()) {
