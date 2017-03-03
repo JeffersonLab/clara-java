@@ -8,6 +8,18 @@ rm -rf $CLARA_HOME/plugins/clas12/bin
 rm -rf $CLARA_HOME/plugins/clas12/etc
 rm -rf $CLARA_HOME/plugins/clas12/log
 rm -rf $CLARA_HOME/plugins/clas12/scripts
+
+mv $CLARA_HOME/plugins/clas12/lib/services/clasrec-io-*.jar .
+mv $CLARA_HOME/plugins/clas12/lib/clas/clasrec-orchestrators-*.jar .
+
+rm $CLARA_HOME/plugins/clas12/lib/services/*
+rm $CLARA_HOME/plugins/clas12/lib/services/.*.jar
+rm $CLARA_HOME/plugins/clas12/lib/clas/*
+rm $CLARA_HOME/plugins/clas12/lib/clas/.*.jar
+
+mv clasrec-io-*.jar $CLARA_HOME/plugins/clas12/lib/services/.
+mv clasrec-orchestrators-*.jar $CLARA_HOME/plugins/clas12/lib/clas/.
+
 rm $CLARA_HOME/data/out/*
 
 rm -rf $CLARA_HOME/jre
