@@ -29,6 +29,8 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
+import org.jlab.clara.base.ClaraLang;
+import org.jlab.clara.std.orchestrators.OrchestratorConfigParser;
 import org.jline.terminal.Terminal;
 
 class RunCommand extends Command {
@@ -64,7 +66,7 @@ class RunCommand extends Command {
 
     private void runLocal() {
         try {
-            addBackgroundProcess(CommandUtils.runDpe("j_dpe"));
+            startLocalDpes();
 
             Path orchestrator = Paths.get(RunConfig.claraHome(), "bin", "clara-orchestrator");
             CommandUtils.runCommand(terminal,
@@ -77,6 +79,24 @@ class RunCommand extends Command {
                     runConfig.getFilesList());
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void startLocalDpes() throws IOException {
+        OrchestratorConfigParser parser = new OrchestratorConfigParser(runConfig.getConfigFile());
+        Set<ClaraLang> languages = parser.parseLanguages();
+
+        String javaDpe = Paths.get(RunConfig.claraHome(), "bin", "j_dpe").toString();
+        addBackgroundProcess(ClaraLang.JAVA, CommandUtils.runDpe(javaDpe));
+
+        if (languages.contains(ClaraLang.CPP)) {
+            String cppDpe = Paths.get(RunConfig.claraHome(), "bin", "c_dpe").toString();
+            addBackgroundProcess(CommandUtils.runDpe(cppDpe, "--fe-host", "localhost"));
+        }
+
+        if (languages.contains(ClaraLang.PYTHON)) {
+            String cppDpe = Paths.get(RunConfig.claraHome(), "bin", "p_dpe").toString();
+            addBackgroundProcess(CommandUtils.runDpe(cppDpe, "--fe-host", "localhost"));
         }
     }
 
