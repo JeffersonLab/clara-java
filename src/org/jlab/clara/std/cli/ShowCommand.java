@@ -51,23 +51,27 @@ class ShowCommand extends Command {
 
     public void showConfig() {
         terminal.writer().println();
-        terminal.writer().println("orchestrator: " + runConfig.getOrchestrator());
-        terminal.writer().println("localHost: " + runConfig.getLocalHost());
-        terminal.writer().println("configFile: " + runConfig.getConfigFile());
-        terminal.writer().println("filesList: " + runConfig.getFilesList());
-        terminal.writer().println("inputDir: " + runConfig.getInputDir());
-        terminal.writer().println("outputDir: " + runConfig.getOutputDir());
-        terminal.writer().println("useFrontEnd: " + runConfig.isUseFrontEnd());
-        terminal.writer().println("session: " + runConfig.getSession());
-        terminal.writer().println("maxNodes: " + runConfig.getMaxNodes());
-        terminal.writer().println("maxThreads: " + runConfig.getMaxThreads());
-        terminal.writer().println("farmFlavor: " + runConfig.getFarmFlavor());
-        terminal.writer().println("farmLoadingZone: " + runConfig.getFarmLoadingZone());
-        terminal.writer().println("farmMemory: " + runConfig.getFarmMemory());
-        terminal.writer().println("farmTrack: " + runConfig.getFarmTrack());
-        terminal.writer().println("farmOS: " + runConfig.getFarmOS());
-        terminal.writer().println("farmCPU: " + runConfig.getFarmCPU());
-        terminal.writer().println("farmDisk: " + runConfig.getFarmDisk());
-        terminal.writer().println("farmTime: " + runConfig.getFarmTime());
+        printFormat("orchestrator", runConfig.getOrchestrator());
+        printFormat("localhost", runConfig.getLocalHost());
+        printFormat("configFile", runConfig.getConfigFile());
+        printFormat("filesList", runConfig.getFilesList());
+        printFormat("inputDir", runConfig.getInputDir());
+        printFormat("outputDir", runConfig.getOutputDir());
+        printFormat("useFrontEnd", Boolean.toString(runConfig.isUseFrontEnd()));
+        printFormat("session", runConfig.getSession());
+        printFormat("maxNodes", Integer.toString(runConfig.getMaxNodes()));
+        printFormat("maxThreads", Integer.toString(runConfig.getMaxThreads()));
+        printFormat("farmFlavor", runConfig.getFarmFlavor());
+        printFormat("farmLoadingZone", runConfig.getFarmLoadingZone());
+        printFormat("farmMemory", Integer.toString(runConfig.getFarmMemory()));
+        printFormat("farmTrack", runConfig.getFarmTrack());
+        printFormat("farmOS", runConfig.getFarmOS());
+        printFormat("farmCPU", Integer.toString(runConfig.getFarmCPU()));
+        printFormat("farmDisk", Integer.toString(runConfig.getFarmDisk()));
+        printFormat("farmTime", Integer.toString(runConfig.getFarmTime()));
+    }
+
+    private void printFormat(String param, String value) {
+        System.out.printf("%-20s %s\n", param, value);
     }
 }
