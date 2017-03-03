@@ -89,24 +89,22 @@ class RunCommand extends Command {
         Set<ClaraLang> languages = parser.parseLanguages();
 
         String javaDpe = Paths.get(RunConfig.claraHome(), "bin", "j_dpe").toString();
-        addBackgroundDpeProcess(ClaraLang.JAVA, CommandUtils.runDpe(javaDpe));
+        addBackgroundDpeProcess(ClaraLang.JAVA, javaDpe);
 
         if (languages.contains(ClaraLang.CPP)) {
             String cppDpe = Paths.get(RunConfig.claraHome(), "bin", "c_dpe").toString();
-            addBackgroundDpeProcess(ClaraLang.CPP,
-                                    CommandUtils.runDpe(cppDpe, "--fe-host", "localhost"));
+            addBackgroundDpeProcess(ClaraLang.CPP, cppDpe, "--fe-host", "localhost");
         }
 
         if (languages.contains(ClaraLang.PYTHON)) {
             String cppDpe = Paths.get(RunConfig.claraHome(), "bin", "p_dpe").toString();
-            addBackgroundDpeProcess(ClaraLang.PYTHON,
-                                    CommandUtils.runDpe(cppDpe, "--fe-host", "localhost"));
+            addBackgroundDpeProcess(ClaraLang.PYTHON, cppDpe, "--fe-host", "localhost");
         }
     }
 
-    private void addBackgroundDpeProcess(ClaraLang lang, Process dpeProcess) {
-        if (dpeProcess.isAlive()) {
-            backgroundDpes.put(lang, dpeProcess);
+    private void addBackgroundDpeProcess(ClaraLang lang, String... command) throws IOException {
+        if (!backgroundDpes.containsKey(lang)) {
+            backgroundDpes.put(lang, CommandUtils.runDpe(command));
         }
     }
 
