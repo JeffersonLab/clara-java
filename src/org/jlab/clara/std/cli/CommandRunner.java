@@ -22,6 +22,7 @@
 
 package org.jlab.clara.std.cli;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 import org.jline.reader.UserInterruptException;
@@ -41,7 +42,7 @@ class CommandRunner {
         if (line.isEmpty()) {
             return;
         }
-        String[] splited = line.split(" ");
+        String[] splited = removeEmptySpaces(line.split(" "));
         String commandName = splited[0];
         Command command = commands.get(commandName);
         if (command == null) {
@@ -54,4 +55,15 @@ class CommandRunner {
 
         }
     }
+
+    private String[] removeEmptySpaces(String[] list) {
+        ArrayList<String> aux = new ArrayList<String>();
+        for (String el : list) {
+            if (el != null && el.length() > 0) {
+                aux.add(el);
+            }
+        }
+        return aux.toArray(new String[aux.size()]);
+    }
 }
+
