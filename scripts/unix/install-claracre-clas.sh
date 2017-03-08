@@ -92,6 +92,15 @@ cp -r lib/utils $CLARA_HOME/plugins/clas12/lib/
 cp  lib/clas/* $CLARA_HOME/plugins/clas12/lib/clas/.
 cp  lib/services/* $CLARA_HOME/plugins/clas12/lib/services/.
 
+rm -f $CLARA_HOME/plugins/clas12/lib/services/.*.jar
+rm -f $CLARA_HOME/plugins/clas12/lib/clas/.*.jar
+
+rm -f $CLARA_HOME/plugins/clas12/lib/clas/commons-exec*.jar
+rm -f $CLARA_HOME/plugins/clas12/lib/clas/jsap*.jar
+rm -f $CLARA_HOME/plugins/clas12/lib/clas/json*.jar
+rm -f $CLARA_HOME/plugins/clas12/lib/clas/snakeyaml*.jar
+
+
 rm -f $CLARA_HOME/plugins/clas12/bin/clara-rec
 rm -f $CLARA_HOME/plugins/clas12/README
 cp $CLARA_HOME/plugins/clas12/etc/services/reconstruction.yaml $CLARA_HOME/plugins/clas12/config/services.yaml
