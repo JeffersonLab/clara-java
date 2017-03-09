@@ -593,7 +593,7 @@ public final class Dpe extends AbstractActor {
 
         Container container = myContainers.get(containerName);
         if (container == null) {
-            String error = "could not start service = %: missing container";
+            String error = "could not start service = %s: missing container";
             throw new RequestException(String.format(error, serComp));
         }
         try {
@@ -612,7 +612,7 @@ public final class Dpe extends AbstractActor {
 
         Container container = myContainers.get(containerName);
         if (container == null) {
-            String error = "could not stop service = %: missing container";
+            String error = "could not stop service = %s: missing container";
             throw new RequestException(String.format(error, serviceName));
         }
         boolean removed = container.removeService(serviceName);
