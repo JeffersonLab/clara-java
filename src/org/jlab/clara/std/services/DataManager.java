@@ -219,7 +219,7 @@ public class DataManager implements Engine {
     }
 
     private void stageInputFile(FilePaths files, EngineData output) {
-        Path stagePath = files.stagedInputFile.getParent();
+        Path stagePath = FileUtils.getParent(files.stagedInputFile);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try {
             FileUtils.createDirectories(stagePath);
@@ -271,7 +271,7 @@ public class DataManager implements Engine {
     }
 
     private void saveOutputFile(FilePaths files, EngineData output) {
-        Path outputPath = files.outputFile.getParent();
+        Path outputPath = FileUtils.getParent(files.outputFile);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try {
             FileUtils.createDirectories(outputPath);

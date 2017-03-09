@@ -27,12 +27,29 @@ import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 
 public final class FileUtils {
 
     private FileUtils() { }
+
+    public static Path getFileName(Path path) {
+        Path fileName = path.getFileName();
+        if (fileName == null) {
+            throw new IllegalArgumentException("empty path");
+        }
+        return fileName;
+    }
+
+    public static Path getParent(Path path) {
+        Path parent = path.getParent();
+        if (parent == null) {
+            return Paths.get("").toAbsolutePath();
+        }
+        return parent;
+    }
 
     public static void createDirectories(Path dir) throws IOException {
         if (!Files.exists(dir)) {

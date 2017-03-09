@@ -1,5 +1,7 @@
 package org.jlab.clara.std.orchestrators;
 
+import org.jlab.clara.util.FileUtils;
+
 import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -25,11 +27,11 @@ class OrchestratorPaths {
         Path inputPath = Paths.get(inputFile);
         Path outputPath = Paths.get(outputFile);
 
-        String inputName = inputPath.getFileName().toString();
-        String outputName = outputPath.getFileName().toString();
+        String inputName = FileUtils.getFileName(inputPath).toString();
+        String outputName = FileUtils.getFileName(outputPath).toString();
 
-        this.inputDir = getParent(inputPath);
-        this.outputDir = getParent(outputPath);
+        this.inputDir = FileUtils.getParent(inputPath).toString();
+        this.outputDir = FileUtils.getParent(outputPath).toString();
         this.stageDir = STAGE_DIR;
 
         this.allFiles = Arrays.asList(new WorkerFile(inputName, outputName));
@@ -43,15 +45,6 @@ class OrchestratorPaths {
         this.allFiles = inputFiles.stream()
                                   .map(f -> new WorkerFile(f, "out_" + f))
                                   .collect(Collectors.toList());
-    }
-
-    private String getParent(Path file) {
-        Path parent = file.getParent();
-        if (parent == null) {
-            return Paths.get("").toAbsolutePath().toString();
-        } else {
-            return parent.toString();
-        }
     }
 
     String inputFilePath(WorkerFile recFile) {
