@@ -73,7 +73,7 @@ public abstract class AbstractEventReaderService<Reader> extends AbstractService
     private int lastEvent;
     private int eventCount;
 
-    private Set<Integer> processingEvents = new HashSet<Integer>();
+    private Set<Integer> processingEvents = new HashSet<>();
     private int eofRequestCount;
 
 

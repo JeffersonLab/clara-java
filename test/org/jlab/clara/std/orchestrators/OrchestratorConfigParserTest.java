@@ -24,7 +24,7 @@ public class OrchestratorConfigParserTest {
 
     private static final String CONT = OrchestratorConfigParser.getDefaultContainer();
 
-    private final List<ServiceInfo> servicesList = new ArrayList<ServiceInfo>();
+    private final List<ServiceInfo> servicesList = new ArrayList<>();
 
     public OrchestratorConfigParserTest() {
         servicesList.add(service("org.jlab.clas12.ec.services.ECReconstruction",

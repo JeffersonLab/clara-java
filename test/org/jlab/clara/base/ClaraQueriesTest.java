@@ -156,7 +156,7 @@ public class ClaraQueriesTest {
             dpe.registration.getJSONArray("containers").put(regData);
             dpe.runtime.getJSONArray("containers").put(runData);
 
-            containers.put(key, new Data<ContainerName>(name, regData, runData));
+            containers.put(key, new Data<>(name, regData, runData));
         }
 
         private void createService(String key, String contKey, String engine,
@@ -178,7 +178,7 @@ public class ClaraQueriesTest {
             container.registration.getJSONArray("services").put(regData);
             container.runtime.getJSONArray("services").put(runData);
 
-            services.put(key, new Data<ServiceName>(name, regData, runData));
+            services.put(key, new Data<>(name, regData, runData));
         }
 
         void close() {

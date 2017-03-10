@@ -166,7 +166,7 @@ public class OrchestratorConfigParser {
 
 
     List<ServiceInfo> parseReconstructionChain() {
-        List<ServiceInfo> services = new ArrayList<ServiceInfo>();
+        List<ServiceInfo> services = new ArrayList<>();
         JSONArray sl = config.optJSONArray("services");
         if (sl == null) {
             throw error("missing list of services");
