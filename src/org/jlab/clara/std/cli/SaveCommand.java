@@ -87,7 +87,6 @@ class SaveCommand extends Command {
                     return false;
                 default:
                     System.out.println("Invalid answer.");
-                    continue;
             }
         }
 

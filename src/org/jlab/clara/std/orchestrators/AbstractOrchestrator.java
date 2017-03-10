@@ -260,7 +260,7 @@ abstract class AbstractOrchestrator {
     /**
      * Deploy and configure services in the node.
      *
-     * @throw OrchestratorError
+     * @throws OrchestratorError
      */
     void setupNode(WorkerNode node) {
         try {

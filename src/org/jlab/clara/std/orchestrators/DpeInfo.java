@@ -67,8 +67,6 @@ class DpeInfo {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("[").append(name).append(",").append(cores).append("]");
-        return sb.toString();
+        return "[" + name + "," + cores + "]";
     }
 }
