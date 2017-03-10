@@ -58,12 +58,7 @@ public class ClaraShell implements AutoCloseable {
 
     public static void main(String[] args) {
         ClaraShell shell = new ClaraShell();
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-            @Override
-            public void run() {
-                shell.close();
-            }
-        });
+        Runtime.getRuntime().addShutdownHook(new Thread(shell::close));
         shell.run();
     }
 

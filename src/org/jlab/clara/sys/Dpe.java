@@ -110,12 +110,7 @@ public final class Dpe extends AbstractActor {
             Dpe dpe = new Dpe(options.isFrontEnd(), options.localAddress(), options.frontEnd(),
                               options.config(), options.session(), options.description());
 
-            Runtime.getRuntime().addShutdownHook(new Thread() {
-                @Override
-                public void run() {
-                    dpe.stop();
-                }
-            });
+            Runtime.getRuntime().addShutdownHook(new Thread(dpe::stop));
 
             dpe.start();
 
