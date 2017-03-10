@@ -125,18 +125,7 @@ public class BaseOrchestrator implements AutoCloseable {
         String localhost = ClaraUtil.localhost();
         ClaraComponent o = ClaraComponent.orchestrator(name, localhost, poolSize, "");
         ClaraComponent fe = ClaraComponent.dpe(frontEnd.canonicalName());
-        ClaraBase b = new ClaraBase(o, fe) {
-            @Override
-            public void start() {
-                // Nothing
-            }
-
-            @Override
-            protected void end() {
-                // Nothing
-            }
-        };
-        return b;
+        return new ClaraBase(o, fe);
     }
 
     /**

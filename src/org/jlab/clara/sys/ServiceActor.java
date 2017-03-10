@@ -37,15 +37,7 @@ class ServiceActor {
     private final xMsgConnectionPool connectionPool;
 
     ServiceActor(ClaraComponent me, ClaraComponent frontEnd, xMsgConnectionPool connectionPool) {
-        this.base = new ClaraBase(me, frontEnd) {
-
-            @Override
-            public void start() throws ClaraException { }
-
-
-            @Override
-            protected void end() { }
-        };
+        this.base = new ClaraBase(me, frontEnd);
         this.connectionPool = connectionPool;
     }
 

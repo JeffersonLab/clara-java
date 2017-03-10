@@ -50,7 +50,7 @@ import java.util.concurrent.TimeoutException;
  * @author gurjyan
  * @since 4.x
  */
-public abstract class ClaraBase extends xMsg {
+public class ClaraBase extends xMsg {
 
     private final String claraHome;
     // reference to this component description
@@ -85,15 +85,8 @@ public abstract class ClaraBase extends xMsg {
                         .build();
     }
 
-    // abstract methods to start CLARA component
-    public abstract void start() throws ClaraException;
-
-    // abstract method to gracefully end CLARA component
-    protected abstract void end();
-
     @Override
     public void close() {
-        end();
         super.close();
     }
 

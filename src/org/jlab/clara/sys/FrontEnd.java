@@ -52,13 +52,7 @@ class FrontEnd {
             registrar = new xMsgRegistrar(context, ClaraBase.getRegAddress(frontEnd));
 
             // create the xMsg actor
-            base = new ClaraBase(frontEnd, frontEnd) {
-                @Override
-                public void start() { }
-
-                @Override
-                protected void end() { }
-            };
+            base = new ClaraBase(frontEnd, frontEnd);
         } catch (xMsgException e) {
             throw new ClaraException("Could not create front-end", e);
         }

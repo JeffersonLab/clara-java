@@ -4,7 +4,6 @@ import org.jlab.clara.base.core.ClaraBase;
 import org.jlab.clara.base.core.ClaraComponent;
 import org.jlab.clara.base.core.ClaraConstants;
 import org.jlab.clara.base.core.MessageUtil;
-import org.jlab.clara.base.error.ClaraException;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.data.xMsgR.xMsgRegistration;
@@ -1072,12 +1071,6 @@ public class ClaraQueriesTest {
 
     private static ClaraBase base() {
         return new ClaraBase(ClaraComponent.dpe(), ClaraComponent.dpe()) {
-            @Override
-            public void start() throws ClaraException { }
-
-            @Override
-            protected void end() { }
-
             @Override
             public xMsgMessage syncPublish(xMsgProxyAddress address, xMsgMessage msg, long timeout)
                     throws xMsgException, TimeoutException {
