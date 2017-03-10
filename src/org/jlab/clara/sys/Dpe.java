@@ -686,7 +686,7 @@ public final class Dpe extends AbstractActor {
 
         public void start() {
             isReporting.set(true);
-            scheduledPingService.schedule(() -> run(), 5, TimeUnit.SECONDS);
+            scheduledPingService.schedule(this::run, 5, TimeUnit.SECONDS);
         }
 
         public void stop() {

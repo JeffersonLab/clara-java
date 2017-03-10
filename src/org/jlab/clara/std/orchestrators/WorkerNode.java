@@ -120,9 +120,7 @@ class WorkerNode {
         application.getIODeployInfo().forEach(orchestrator::deployService);
         application.getRecDeployInfo().forEach(orchestrator::deployService);
 
-        application.allServices().forEach((d, s) -> {
-            orchestrator.checkServices(d, s);
-        });
+        application.allServices().forEach(orchestrator::checkServices);
     }
 
 
