@@ -57,7 +57,7 @@ class CommandRunner {
     }
 
     private String[] removeEmptySpaces(String[] list) {
-        ArrayList<String> aux = new ArrayList<String>();
+        ArrayList<String> aux = new ArrayList<>();
         for (String el : list) {
             if (el != null && el.length() > 0) {
                 aux.add(el);

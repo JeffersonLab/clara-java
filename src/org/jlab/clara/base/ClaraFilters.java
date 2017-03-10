@@ -360,14 +360,14 @@ public final class ClaraFilters {
 
     private static ServiceFilter services() {
         ServiceFilter filter = new ServiceFilter(xMsgRegQuery.subscribers().all());
-        filter.addRegFilter(r -> isService(r));
+        filter.addRegFilter(ClaraFilters::isService);
         return filter;
     }
 
 
     private static ServiceFilter services(String host) {
         ServiceFilter filter = new ServiceFilter(xMsgRegQuery.subscribers().withHost(host));
-        filter.addRegFilter(r -> isService(r));
+        filter.addRegFilter(ClaraFilters::isService);
         return filter;
     }
 

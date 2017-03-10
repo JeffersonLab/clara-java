@@ -147,7 +147,7 @@ public class ClaraUtilTest {
     private void assertValidNames(String method, String[] names) throws Exception {
         Method m = ClaraUtil.class.getMethod(method, String.class);
         for (String name : names) {
-            assertThat((boolean) m.invoke(null, name), is(true));
+            assertThat(m.invoke(null, name), is(true));
         }
     }
 
@@ -155,7 +155,7 @@ public class ClaraUtilTest {
     private void assertInvalidNames(String method, String[] names) throws Exception {
         Method m = ClaraUtil.class.getMethod(method, String.class);
         for (String name : names) {
-            assertThat((boolean) m.invoke(null, name), is(false));
+            assertThat(m.invoke(null, name), is(false));
         }
     }
 

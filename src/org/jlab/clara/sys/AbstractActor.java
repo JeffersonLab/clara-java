@@ -46,13 +46,7 @@ abstract class AbstractActor {
     private final Object lock = new Object();
 
     AbstractActor(ClaraComponent component, ClaraComponent fe) {
-        this.base = new ClaraBase(component, fe) {
-            @Override
-            public void start() throws ClaraException { }
-
-            @Override
-            protected void end() { }
-        };
+        this.base = new ClaraBase(component, fe);
     }
 
     public void start() throws ClaraException {

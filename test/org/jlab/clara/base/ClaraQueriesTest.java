@@ -4,7 +4,6 @@ import org.jlab.clara.base.core.ClaraBase;
 import org.jlab.clara.base.core.ClaraComponent;
 import org.jlab.clara.base.core.ClaraConstants;
 import org.jlab.clara.base.core.MessageUtil;
-import org.jlab.clara.base.error.ClaraException;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.data.xMsgR.xMsgRegistration;
@@ -156,7 +155,7 @@ public class ClaraQueriesTest {
             dpe.registration.getJSONArray("containers").put(regData);
             dpe.runtime.getJSONArray("containers").put(runData);
 
-            containers.put(key, new Data<ContainerName>(name, regData, runData));
+            containers.put(key, new Data<>(name, regData, runData));
         }
 
         private void createService(String key, String contKey, String engine,
@@ -178,7 +177,7 @@ public class ClaraQueriesTest {
             container.registration.getJSONArray("services").put(regData);
             container.runtime.getJSONArray("services").put(runData);
 
-            services.put(key, new Data<ServiceName>(name, regData, runData));
+            services.put(key, new Data<>(name, regData, runData));
         }
 
         void close() {
@@ -1072,12 +1071,6 @@ public class ClaraQueriesTest {
 
     private static ClaraBase base() {
         return new ClaraBase(ClaraComponent.dpe(), ClaraComponent.dpe()) {
-            @Override
-            public void start() throws ClaraException { }
-
-            @Override
-            protected void end() { }
-
             @Override
             public xMsgMessage syncPublish(xMsgProxyAddress address, xMsgMessage msg, long timeout)
                     throws xMsgException, TimeoutException {

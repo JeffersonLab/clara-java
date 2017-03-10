@@ -22,9 +22,6 @@
 
 package org.jlab.clara.util.report;
 
-/**
- * Created by gurjyan on 10/12/15.
- */
 public enum ReportType {
     INFO("serviceReportInfo"),
     DONE("serviceReportDone"),

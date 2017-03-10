@@ -413,7 +413,7 @@ public class GenericOrchestratorTest {
         DpeReportCBTest(ApplicationInfo application, boolean useFrontEnd, int maxNodes) {
             tasks = Collections.synchronizedList(new ArrayList<>());
             nodes = Collections.synchronizedList(new ArrayList<>());
-            nodeConsumer = node -> nodes.add(node);
+            nodeConsumer = nodes::add;
             callback = new DpeReportCB(orchestrator, options(useFrontEnd, maxNodes),
                                        application, nodeConsumer);
         }

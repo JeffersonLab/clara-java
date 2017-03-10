@@ -24,10 +24,7 @@ public class OrchestratorConfigParserTest {
 
     private static final String CONT = OrchestratorConfigParser.getDefaultContainer();
 
-    private final List<ServiceInfo> servicesList = new ArrayList<ServiceInfo>();
-    private final List<DpeInfo> recNodesList = new ArrayList<DpeInfo>();
-    private final List<DpeInfo> ioNodesList = new ArrayList<DpeInfo>();
-
+    private final List<ServiceInfo> servicesList = new ArrayList<>();
 
     public OrchestratorConfigParserTest() {
         servicesList.add(service("org.jlab.clas12.ec.services.ECReconstruction",
@@ -36,13 +33,6 @@ public class OrchestratorConfigParserTest {
                                  "SeedFinder"));
         servicesList.add(service("org.jlab.clas12.ftof.services.FTOFReconstruction",
                                  "FTOFReconstruction"));
-
-        String servicesDir = "/home/user/services";
-        recNodesList.add(new DpeInfo("10.1.3.1_java", 12, servicesDir));
-        recNodesList.add(new DpeInfo("10.1.3.2_java", 10, servicesDir));
-        recNodesList.add(new DpeInfo("10.1.3.3_java", 12, servicesDir));
-
-        ioNodesList.add(new DpeInfo("10.1.3.254_java", 0, "/home/user/clas12/services"));
     }
 
 

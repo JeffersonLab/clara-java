@@ -52,16 +52,6 @@ public final class CommandDebugger extends ClaraBase {
         super(ClaraComponent.orchestrator("broker", 1, "broker"), ClaraComponent.dpe());
     }
 
-    @Override
-    public void start() throws ClaraException {
-        // nothing
-    }
-
-    @Override
-    protected void end() {
-        // nothing
-    }
-
     private void processFile(String file) {
         Path path = Paths.get(file);
         try (Stream<String> stream = Files.lines(path, Charset.defaultCharset())) {
