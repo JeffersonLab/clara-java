@@ -32,18 +32,20 @@ class MonitorCommand extends Command {
     }
 
     private void setArguments() {
-        arguments.put("composition", new Argument("composition",
-                "Show application service-based composition.", "file"));
-        arguments.put("files", new Argument("files",
-                "Show input file list.", "file"));
-        arguments.put("idir", new Argument("idir", "", ""));
-        arguments.put("odir", new Argument("odir", "", ""));
-        arguments.put("params", new Argument("params", "", ""));
-        arguments.put("logdir", new Argument("logdir", "", ""));
-        arguments.put("logdpe", new Argument("logdpe", "", ""));
-        arguments.put("logco", new Argument("logco", "", ""));
-        arguments.put("jjobstat", new Argument("jjobstat", "", ""));
-        arguments.put("pjobstat", new Argument("pjobstat", "", ""));
+        arguments.put("composition", newArg("composition"));
+        arguments.put("files", newArg("files"));
+        arguments.put("idir", newArg("idir"));
+        arguments.put("odir", newArg("odir"));
+        arguments.put("params", newArg("params"));
+        arguments.put("logdir", newArg("logdir"));
+        arguments.put("logdpe", newArg("logdpe"));
+        arguments.put("logco", newArg("logco"));
+        arguments.put("jjobstat", newArg("jjobstat"));
+        arguments.put("pjobstat", newArg("pjobstat"));
+    }
+
+    private Argument newArg(String name) {
+        return new Argument(name, "", args -> { });
     }
 
     @Override

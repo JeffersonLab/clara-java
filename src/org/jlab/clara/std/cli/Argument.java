@@ -31,22 +31,13 @@ class Argument {
 
     private final String name;
     private final String description;
-    private final String file;
     private final Consumer<String[]> action;
 
     private Completer completer = NullCompleter.INSTANCE;
 
-    Argument(String name, String description, String file) {
-        this.name = name;
-        this.description = description;
-        this.file = file;
-        this.action = args -> { };
-    }
-
     Argument(String name, String description, Consumer<String[]> action) {
         this.name = name;
         this.description = description;
-        this.file = "";
         this.action = action;
     }
 
@@ -56,10 +47,6 @@ class Argument {
 
     public String getDescription() {
         return description;
-    }
-
-    public String getFile() {
-        return file;
     }
 
     public Consumer<String[]> getAction() {

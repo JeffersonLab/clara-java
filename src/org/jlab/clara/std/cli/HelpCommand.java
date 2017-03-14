@@ -59,7 +59,7 @@ class HelpCommand extends Command {
     private void commToArg(Map<String, Command> commands, Map<String, Argument> arguments) {
         commands.values().stream()
                 .filter(c -> !c.getName().equals("help"))
-                .map(c -> new Argument(c.getName(), c.getDescription(), ""))
+                .map(c -> new Argument(c.getName(), c.getDescription(), args -> { }))
                 .forEach(a -> arguments.put(a.getName(), a));
     }
 }
