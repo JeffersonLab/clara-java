@@ -38,16 +38,21 @@ class HelpCommand extends Command {
 
     @Override
     public void execute(String[] args) {
-        //String[] aux = Arrays.copyOfRange(args, 1, args.length);
-        if (args.length == 1) {
+        if (args.length < 2) {
             terminal.writer().println("Commands:\n");
             arguments.values().stream()
                      .map(Argument::getName)
                      .forEach(this::printCommand);
             terminal.writer().println("\nUse help <command> for details about each command.");
-        } else {
-            commands.get(args[1]).showFullHelp();
+            return;
         }
+
+        Command command = commands.get(args[1]);
+        if (command == null) {
+            terminal.writer().println("Invalid command name.");
+            return;
+        }
+        command.showFullHelp();
     }
 
     private void printCommand(String name) {

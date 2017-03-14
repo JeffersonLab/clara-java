@@ -50,14 +50,14 @@ class SourceCommand extends Command {
 
     @Override
     public void execute(String[] args) {
-        if (args.length == 2) {
-            Path path = Paths.get(args[1]);
-            for (String line : readLines(path)) {
-                terminal.writer().println(line);
-                commandRunner.execute(line);
-            }
-        } else {
+        if (args.length < 2) {
             terminal.writer().println("Missing filename argument");
+            return;
+        }
+        Path path = Paths.get(args[1]);
+        for (String line : readLines(path)) {
+            terminal.writer().println(line);
+            commandRunner.execute(line);
         }
     }
 

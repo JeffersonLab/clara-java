@@ -47,23 +47,20 @@ class SaveCommand extends Command {
 
     @Override
     public void execute(String[] args) {
-        if (args.length == 2) {
-            Path path = Paths.get(args[1]);
-            if (Files.exists(path)) {
-                boolean answer = scanAnswer();
-                if (answer) {
-                    writeFile(path);
-                    terminal.writer().println("Config saved in " + path.toFile().getAbsolutePath());
-                } else {
-                    terminal.writer().println("The config was not saved");
-                }
-            } else {
-                writeFile(path);
-                terminal.writer().println("Config saved in " + path.toFile().getAbsolutePath());
-            }
-        } else {
+        if (args.length < 2) {
             terminal.writer().println("Missing filename argument");
+            return;
         }
+        Path path = Paths.get(args[1]);
+        if (Files.exists(path)) {
+            boolean overwrite = scanAnswer();
+            if (!overwrite) {
+                terminal.writer().println("The config was not saved");
+                return;
+            }
+        }
+        writeFile(path);
+        terminal.writer().println("Config saved in " + path.toFile().getAbsolutePath());
     }
 
     private boolean scanAnswer() {

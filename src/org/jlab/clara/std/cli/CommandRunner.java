@@ -50,10 +50,9 @@ class CommandRunner {
                 throw new UserInterruptException("");
             }
             terminal.writer().println("Invalid command");
-        } else {
-            command.execute(splited);
-
+            return;
         }
+        command.execute(splited);
     }
 
     private String[] removeEmptySpaces(String[] list) {
