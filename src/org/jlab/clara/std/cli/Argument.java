@@ -22,7 +22,7 @@
 
 package org.jlab.clara.std.cli;
 
-import java.util.function.Consumer;
+import java.util.function.Function;
 
 import org.jline.reader.Completer;
 import org.jline.reader.impl.completer.NullCompleter;
@@ -31,11 +31,11 @@ class Argument {
 
     private final String name;
     private final String description;
-    private final Consumer<String[]> action;
+    private final Function<String[], Integer> action;
 
     private Completer completer = NullCompleter.INSTANCE;
 
-    Argument(String name, String description, Consumer<String[]> action) {
+    Argument(String name, String description, Function<String[], Integer> action) {
         this.name = name;
         this.description = description;
         this.action = action;
@@ -49,7 +49,7 @@ class Argument {
         return description;
     }
 
-    public Consumer<String[]> getAction() {
+    public Function<String[], Integer> getAction() {
         return action;
     }
 

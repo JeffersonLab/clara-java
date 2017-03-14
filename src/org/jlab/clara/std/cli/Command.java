@@ -36,6 +36,9 @@ import org.jline.terminal.Terminal;
 
 abstract class Command implements AutoCloseable {
 
+    protected static final int EXIT_SUCCESS = 0;
+    protected static final int EXIT_ERROR = 1;
+
     protected final String name;
     protected final String description;
     protected final Terminal terminal;
@@ -50,24 +53,25 @@ abstract class Command implements AutoCloseable {
 
     public abstract void execute(String[] args);
 
-    protected void executeSubcommand(String[] args) {
+    protected int executeSubcommand(String[] args) {
         if (args.length < 2) {
             terminal.writer().println("Error: missing argument.");
-            return;
+            return EXIT_ERROR;
         }
         String subCommandName = args[1];
         Argument subCommand = arguments.get(subCommandName);
         if (subCommand == null) {
             terminal.writer().println("Error: invalid argument.");
-            return;
+            return EXIT_ERROR;
         }
         try {
-            subCommand.getAction().accept(args);
+            return subCommand.getAction().apply(args);
         } catch (IllegalArgumentException e) {
             terminal.writer().println("Error: " + e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
         }
+        return EXIT_ERROR;
     }
 
     public String getName() {

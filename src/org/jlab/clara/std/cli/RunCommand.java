@@ -48,8 +48,8 @@ class RunCommand extends Command {
     }
 
     private void setArguments() {
-        arguments.put("local", new Argument("local", "", args -> { }));
-        arguments.put("farm", new Argument("farm", "", args -> { }));
+        arguments.put("local", new Argument("local", "", args -> 0));
+        arguments.put("farm", new Argument("farm", "", args -> 0));
     }
 
     @Override

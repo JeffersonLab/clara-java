@@ -51,12 +51,12 @@ class EditCommand extends Command {
         executeSubcommand(args);
     }
 
-    private void editConfigFile(String[] args) {
-        CommandUtils.runProcess(editor, runConfig.getConfigFile());
+    private int editConfigFile(String[] args) {
+        return CommandUtils.runProcess(editor, runConfig.getConfigFile());
     }
 
-    private void editFilesList(String[] args) {
-        CommandUtils.runProcess(editor, runConfig.getFilesList());
+    private int editFilesList(String[] args) {
+        return CommandUtils.runProcess(editor, runConfig.getFilesList());
     }
 
     @Override

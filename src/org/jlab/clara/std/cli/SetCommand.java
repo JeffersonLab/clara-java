@@ -95,7 +95,7 @@ class SetCommand extends Command {
                         String description,
                         Consumer<T> action,
                         Function<String, T> parser) {
-        Consumer<String[]> commandAction = args -> {
+        Function<String[], Integer> commandAction = args -> {
             T val;
             try {
                 val = parser.apply(args[2]);
@@ -103,6 +103,7 @@ class SetCommand extends Command {
                 throw new IllegalArgumentException("invalid argument", e);
             }
             action.accept(val);
+            return EXIT_SUCCESS;
         };
         arguments.put(name, new Argument(name, description, commandAction));
     }

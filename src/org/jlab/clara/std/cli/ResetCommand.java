@@ -44,11 +44,13 @@ class ResetCommand extends Command {
         executeSubcommand(args);
     }
 
-    private void resetDpe() {
+    private int resetDpe() {
         terminal.writer().println("Not implemented.");
+        return EXIT_SUCCESS;
     }
 
-    private void resetConfig() {
+    private int resetConfig() {
         runConfig.setDefaults();
+        return EXIT_SUCCESS;
     }
 }

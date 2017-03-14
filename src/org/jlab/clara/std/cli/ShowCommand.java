@@ -44,7 +44,7 @@ class ShowCommand extends Command {
         executeSubcommand(args);
     }
 
-    private void showConfig() {
+    private int showConfig() {
         terminal.writer().println();
         printFormat("orchestrator", runConfig.getOrchestrator());
         printFormat("localhost", runConfig.getLocalHost());
@@ -64,6 +64,7 @@ class ShowCommand extends Command {
         printFormat("farmCPU", Integer.toString(runConfig.getFarmCPU()));
         printFormat("farmDisk", Integer.toString(runConfig.getFarmDisk()));
         printFormat("farmTime", Integer.toString(runConfig.getFarmTime()));
+        return EXIT_SUCCESS;
     }
 
     private void printFormat(String param, String value) {
