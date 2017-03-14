@@ -92,11 +92,11 @@ class SetCommand extends Command {
 
     private void setCompleters() {
         Completer fileCompleter = new FileNameCompleter();
-        arguments.get("fileList").setCompleter(fileCompleter);
-        arguments.get("files").setCompleter(fileCompleter);
-        arguments.get("yaml").setCompleter(fileCompleter);
-        arguments.get("inputDir").setCompleter(fileCompleter);
-        arguments.get("outputDir").setCompleter(fileCompleter);
+        subCommands.get("fileList").setCompleter(fileCompleter);
+        subCommands.get("files").setCompleter(fileCompleter);
+        subCommands.get("yaml").setCompleter(fileCompleter);
+        subCommands.get("inputDir").setCompleter(fileCompleter);
+        subCommands.get("outputDir").setCompleter(fileCompleter);
     }
 
     private <T> void subCmd(String name,
@@ -113,7 +113,7 @@ class SetCommand extends Command {
             action.accept(val);
             return EXIT_SUCCESS;
         };
-        arguments.put(name, new Argument(name, description, commandAction));
+        subCommands.put(name, new SubCommand(name, description, commandAction));
     }
 
     @Override

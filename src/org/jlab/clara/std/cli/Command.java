@@ -42,13 +42,13 @@ abstract class Command implements AutoCloseable {
     protected final String name;
     protected final String description;
     protected final Terminal terminal;
-    protected Map<String, Argument> arguments;
+    protected Map<String, SubCommand> subCommands;
 
     Command(Terminal terminal, String name, String description) {
         this.name = name;
         this.description = description;
         this.terminal = terminal;
-        this.arguments = new LinkedHashMap<>();
+        this.subCommands = new LinkedHashMap<>();
     }
 
     public abstract int execute(String[] args);
@@ -59,7 +59,7 @@ abstract class Command implements AutoCloseable {
             return EXIT_ERROR;
         }
         String subCommandName = args[1];
-        Argument subCommand = arguments.get(subCommandName);
+        SubCommand subCommand = subCommands.get(subCommandName);
         if (subCommand == null) {
             terminal.writer().println("Error: invalid argument.");
             return EXIT_ERROR;
@@ -83,14 +83,14 @@ abstract class Command implements AutoCloseable {
     }
 
     protected Completer getCompleter() {
-        List<Completer> completers = arguments.values()
+        List<Completer> completers = subCommands.values()
                 .stream()
                 .map(this::getCompleter)
                 .collect(Collectors.toList());
         return new AggregateCompleter(completers);
     }
 
-    private Completer getCompleter(Argument arg) {
+    private Completer getCompleter(SubCommand arg) {
         Completer command = new StringsCompleter(getName());
         Completer subCommand = new StringsCompleter(arg.getName());
         return new ArgumentCompleter(command, subCommand, arg.getCompleter());
@@ -98,7 +98,7 @@ abstract class Command implements AutoCloseable {
 
     protected void showFullHelp() {
         terminal.writer().println("Commands:\n");
-        for (Argument aux: arguments.values()) {
+        for (SubCommand aux: subCommands.values()) {
             terminal.writer().printf("  %s %s\n", name, aux.getName());
             String description = aux.getDescription();
             if (description.length() > 72) {

@@ -32,20 +32,20 @@ class MonitorCommand extends Command {
     }
 
     private void setArguments() {
-        arguments.put("composition", newArg("composition"));
-        arguments.put("files", newArg("files"));
-        arguments.put("idir", newArg("idir"));
-        arguments.put("odir", newArg("odir"));
-        arguments.put("params", newArg("params"));
-        arguments.put("logdir", newArg("logdir"));
-        arguments.put("logdpe", newArg("logdpe"));
-        arguments.put("logco", newArg("logco"));
-        arguments.put("jjobstat", newArg("jjobstat"));
-        arguments.put("pjobstat", newArg("pjobstat"));
+        subCommands.put("composition", newArg("composition"));
+        subCommands.put("files", newArg("files"));
+        subCommands.put("idir", newArg("idir"));
+        subCommands.put("odir", newArg("odir"));
+        subCommands.put("params", newArg("params"));
+        subCommands.put("logdir", newArg("logdir"));
+        subCommands.put("logdpe", newArg("logdpe"));
+        subCommands.put("logco", newArg("logco"));
+        subCommands.put("jjobstat", newArg("jjobstat"));
+        subCommands.put("pjobstat", newArg("pjobstat"));
     }
 
-    private Argument newArg(String name) {
-        return new Argument(name, "", args -> 0);
+    private SubCommand newArg(String name) {
+        return new SubCommand(name, "", args -> 0);
     }
 
     @Override

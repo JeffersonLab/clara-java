@@ -33,16 +33,16 @@ class HelpCommand extends Command {
     HelpCommand(Terminal terminal, Map<String, Command> commands) {
         super(terminal, "help", "Display help information about CLARA shell");
         this.commands = commands;
-        commToArg(commands, arguments);
+        addCommands();
     }
 
     @Override
     public int execute(String[] args) {
         if (args.length < 2) {
             terminal.writer().println("Commands:\n");
-            arguments.values().stream()
-                     .map(Argument::getName)
-                     .forEach(this::printCommand);
+            subCommands.values().stream()
+                       .map(SubCommand::getName)
+                       .forEach(this::printCommand);
             terminal.writer().println("\nUse help <command> for details about each command.");
             return EXIT_SUCCESS;
         }
@@ -62,10 +62,10 @@ class HelpCommand extends Command {
         terminal.writer().printf("%s\n", command.getDescription());
     }
 
-    private void commToArg(Map<String, Command> commands, Map<String, Argument> arguments) {
+    private void addCommands() {
         commands.values().stream()
                 .filter(c -> !c.getName().equals("help"))
-                .map(c -> new Argument(c.getName(), c.getDescription(), args -> 0))
-                .forEach(a -> arguments.put(a.getName(), a));
+                .map(c -> new SubCommand(c.getName(), c.getDescription(), args -> 0))
+                .forEach(sc -> subCommands.put(sc.getName(), sc));
     }
 }

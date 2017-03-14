@@ -27,7 +27,7 @@ import java.util.function.Function;
 import org.jline.reader.Completer;
 import org.jline.reader.impl.completer.NullCompleter;
 
-class Argument {
+class SubCommand {
 
     private final String name;
     private final String description;
@@ -35,7 +35,7 @@ class Argument {
 
     private Completer completer = NullCompleter.INSTANCE;
 
-    Argument(String name, String description, Function<String[], Integer> action) {
+    SubCommand(String name, String description, Function<String[], Integer> action) {
         this.name = name;
         this.description = description;
         this.action = action;

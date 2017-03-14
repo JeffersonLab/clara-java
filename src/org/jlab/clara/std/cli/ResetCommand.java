@@ -35,8 +35,8 @@ class ResetCommand extends Command {
     }
 
     private void setArguments() {
-        arguments.put("dpe", new Argument("dpe", "", args -> resetDpe()));
-        arguments.put("param", new Argument("param", "", args -> resetConfig()));
+        subCommands.put("dpe", new SubCommand("dpe", "", args -> resetDpe()));
+        subCommands.put("param", new SubCommand("param", "", args -> resetConfig()));
     }
 
     @Override

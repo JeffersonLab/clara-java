@@ -40,9 +40,9 @@ class EditCommand extends Command {
     }
 
     private void setArguments() {
-        arguments.put("composition", new Argument("composition",
+        subCommands.put("composition", new SubCommand("composition",
                 "Edit application service-based composition.", this::editConfigFile));
-        arguments.put("files", new Argument("files",
+        subCommands.put("files", new SubCommand("files",
                 "Edit input file list.", this::editFilesList));
     }
 
