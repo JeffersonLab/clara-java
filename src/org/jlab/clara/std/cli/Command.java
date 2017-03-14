@@ -50,6 +50,26 @@ abstract class Command implements AutoCloseable {
 
     public abstract void execute(String[] args);
 
+    protected void executeSubcommand(String[] args) {
+        if (args.length < 2) {
+            terminal.writer().println("Error: missing argument.");
+            return;
+        }
+        String subCommandName = args[1];
+        Argument subCommand = arguments.get(subCommandName);
+        if (subCommand == null) {
+            terminal.writer().println("Error: invalid argument.");
+            return;
+        }
+        try {
+            subCommand.getAction().accept(args);
+        } catch (IllegalArgumentException e) {
+            terminal.writer().println("Error: " + e.getMessage());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public String getName() {
         return name;
     }

@@ -35,21 +35,16 @@ class ShowCommand extends Command {
     }
 
     private void setArguments() {
-        arguments.put("config", new Argument("config", "Show parameter values", ""));
+        arguments.put("config",
+                      new Argument("config", "Show parameter values", args -> showConfig()));
     }
 
     @Override
     public void execute(String[] args) {
-        if (args.length == 1) {
-            terminal.writer().println("Missing arguments.");
-        } else if ("config".equals(args[1])) {
-            showConfig();
-        } else {
-            terminal.writer().println("Invalid command: " + args[1]);
-        }
+        executeSubcommand(args);
     }
 
-    public void showConfig() {
+    private void showConfig() {
         terminal.writer().println();
         printFormat("orchestrator", runConfig.getOrchestrator());
         printFormat("localhost", runConfig.getLocalHost());

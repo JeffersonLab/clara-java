@@ -109,23 +109,7 @@ class SetCommand extends Command {
 
     @Override
     public void execute(String[] args) {
-        if (args.length >= 3) {
-            String subCommandName = args[1];
-            Argument subCommand = arguments.get(subCommandName);
-            if (subCommand != null) {
-                try {
-                    subCommand.getAction().accept(args);
-                } catch (IllegalArgumentException e) {
-                    terminal.writer().println("Error: " + e.getMessage());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            } else {
-                terminal.writer().println("Invalid argument.");
-            }
-        } else {
-            terminal.writer().println("Missing argument.");
-        }
+        executeSubcommand(args);
     }
 
     private void setFiles(String files) {

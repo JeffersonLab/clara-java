@@ -48,17 +48,7 @@ class EditCommand extends Command {
 
     @Override
     public void execute(String[] args) {
-        if (args.length >= 2) {
-            String subCommandName = args[1];
-            Argument subCommand = arguments.get(subCommandName);
-            if (subCommand != null) {
-                subCommand.getAction().accept(null);
-            } else {
-                terminal.writer().println("Invalid argument.");
-            }
-        } else {
-            terminal.writer().println("Missing argument.");
-        }
+        executeSubcommand(args);
     }
 
     private void editConfigFile(String[] args) {

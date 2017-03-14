@@ -35,21 +35,20 @@ class ResetCommand extends Command {
     }
 
     private void setArguments() {
-        arguments.put("dpe", new Argument("dpe", "", ""));
-        arguments.put("param", new Argument("param", "", ""));
+        arguments.put("dpe", new Argument("dpe", "", args -> resetDpe()));
+        arguments.put("param", new Argument("param", "", args -> resetConfig()));
     }
 
     @Override
     public void execute(String[] args) {
+        executeSubcommand(args);
+    }
 
-        if (args.length == 1) {
-            terminal.writer().println("Missing arguments.");
-        } else if ("param".equals(args[1])) {
-            runConfig.setDefaults();
-        } else if ("dpe".equals(args[1])) {
-            terminal.writer().println("Not implemented.");
-        } else {
-            terminal.writer().println("Invalid command.");
-        }
+    private void resetDpe() {
+        terminal.writer().println("Not implemented.");
+    }
+
+    private void resetConfig() {
+        runConfig.setDefaults();
     }
 }
