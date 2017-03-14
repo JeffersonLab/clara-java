@@ -44,14 +44,14 @@ final class CommandUtils {
         return Optional.ofNullable(System.getenv("EDITOR")).orElse("nano");
     }
 
-    public static void runProcess(String... command) {
+    public static int runProcess(String... command) {
         ProcessBuilder builder = new ProcessBuilder(command);
         builder.redirectInput(ProcessBuilder.Redirect.INHERIT);
         builder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
         try {
             Process process = builder.start();
             try {
-                process.waitFor();
+                return process.waitFor();
             } catch (InterruptedException e) {
                 process.destroy();
                 Thread.currentThread().interrupt();
@@ -59,9 +59,10 @@ final class CommandUtils {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        return 1;
     }
 
-    public static void runCommand(Terminal terminal, String command, String... args) {
+    public static int runCommand(Terminal terminal, String command, String... args) {
         CommandLine cmdLine = new CommandLine(command);
         for (String arg : args) {
             cmdLine.addArgument(arg);
@@ -76,6 +77,7 @@ final class CommandUtils {
         try {
             executor.execute(cmdLine, resultHandler);
             resultHandler.waitFor();
+            return resultHandler.getExitValue();
         } catch (ExecuteException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -85,6 +87,7 @@ final class CommandUtils {
         } finally {
             terminal.handle(Signal.INT, prevIntHandler);
         }
+        return 1;
     }
 
     public static Process runDpe(String... command) throws IOException {
