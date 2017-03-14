@@ -51,7 +51,7 @@ abstract class Command implements AutoCloseable {
         this.arguments = new LinkedHashMap<>();
     }
 
-    public abstract void execute(String[] args);
+    public abstract int execute(String[] args);
 
     protected int executeSubcommand(String[] args) {
         if (args.length < 2) {

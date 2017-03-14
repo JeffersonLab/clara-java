@@ -37,22 +37,23 @@ class HelpCommand extends Command {
     }
 
     @Override
-    public void execute(String[] args) {
+    public int execute(String[] args) {
         if (args.length < 2) {
             terminal.writer().println("Commands:\n");
             arguments.values().stream()
                      .map(Argument::getName)
                      .forEach(this::printCommand);
             terminal.writer().println("\nUse help <command> for details about each command.");
-            return;
+            return EXIT_SUCCESS;
         }
 
         Command command = commands.get(args[1]);
         if (command == null) {
             terminal.writer().println("Invalid command name.");
-            return;
+            return EXIT_ERROR;
         }
         command.showFullHelp();
+        return EXIT_SUCCESS;
     }
 
     private void printCommand(String name) {

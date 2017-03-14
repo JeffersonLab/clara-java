@@ -47,8 +47,8 @@ class EditCommand extends Command {
     }
 
     @Override
-    public void execute(String[] args) {
-        executeSubcommand(args);
+    public int execute(String[] args) {
+        return executeSubcommand(args);
     }
 
     private int editConfigFile(String[] args) {

@@ -53,25 +53,27 @@ class RunCommand extends Command {
     }
 
     @Override
-    public void execute(String[] args) {
-
+    public int execute(String[] args) {
         if (args.length == 1) {
             terminal.writer().println("Missing arguments.");
+            return EXIT_ERROR;
         } else if ("local".equals(args[1])) {
-            runLocal();
+            return runLocal();
         } else if ("farm".equals(args[1])) {
             terminal.writer().println("running run farm.");
+            return EXIT_SUCCESS;
         } else {
             terminal.writer().println("Invalid command: " + args[1]);
+            return EXIT_ERROR;
         }
     }
 
-    private void runLocal() {
+    private int runLocal() {
         try {
             startLocalDpes();
 
             Path orchestrator = Paths.get(RunConfig.claraHome(), "bin", "clara-orchestrator");
-            CommandUtils.runCommand(terminal,
+            return CommandUtils.runCommand(terminal,
                     orchestrator.toString(),
                     "-F",
                     "-t", Integer.toString(runConfig.getMaxThreads()),
@@ -81,6 +83,7 @@ class RunCommand extends Command {
                     runConfig.getFilesList());
         } catch (IOException e) {
             e.printStackTrace();
+            return EXIT_ERROR;
         }
     }
 

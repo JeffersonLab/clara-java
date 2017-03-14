@@ -38,9 +38,9 @@ class CommandRunner {
         this.commands = commands;
     }
 
-    public void execute(String line) {
+    public int execute(String line) {
         if (line.isEmpty()) {
-            return;
+            return Command.EXIT_SUCCESS;
         }
         String[] splited = removeEmptySpaces(line.split(" "));
         String commandName = splited[0];
@@ -50,9 +50,9 @@ class CommandRunner {
                 throw new UserInterruptException("");
             }
             terminal.writer().println("Invalid command");
-            return;
+            return Command.EXIT_ERROR;
         }
-        command.execute(splited);
+        return command.execute(splited);
     }
 
     private String[] removeEmptySpaces(String[] list) {

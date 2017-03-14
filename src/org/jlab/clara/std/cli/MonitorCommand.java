@@ -49,7 +49,8 @@ class MonitorCommand extends Command {
     }
 
     @Override
-    public void execute(String[] args) {
+    public int execute(String[] args) {
         terminal.writer().println("Running command " + getName());
+        return EXIT_SUCCESS;
     }
 }

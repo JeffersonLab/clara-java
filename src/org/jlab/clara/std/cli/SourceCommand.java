@@ -49,16 +49,17 @@ class SourceCommand extends Command {
     }
 
     @Override
-    public void execute(String[] args) {
+    public int execute(String[] args) {
         if (args.length < 2) {
             terminal.writer().println("Missing filename argument");
-            return;
+            return EXIT_ERROR;
         }
         Path path = Paths.get(args[1]);
         for (String line : readLines(path)) {
             terminal.writer().println(line);
             commandRunner.execute(line);
         }
+        return EXIT_SUCCESS;
     }
 
     private static List<String> readLines(Path sourceFile) {

@@ -40,8 +40,8 @@ class ShowCommand extends Command {
     }
 
     @Override
-    public void execute(String[] args) {
-        executeSubcommand(args);
+    public int execute(String[] args) {
+        return executeSubcommand(args);
     }
 
     private int showConfig() {
