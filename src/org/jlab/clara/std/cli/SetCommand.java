@@ -55,16 +55,39 @@ class SetCommand extends Command {
     }
 
     private void setArguments() {
-        // CHECKSTYLE.OFF: LineLength
-        newArg("plugin", "Plugin installation directory. (Default: $CLARA_HOME/plugins/clas12)", null);
-        newArg("session", "The data processing session. (Default: $USER)", runConfig::setSession);
-        newArg("inputDir", "The input directory where the files to be processed are located. (Default: $CLARA_HOME/data/in)", runConfig::setInputDir);
-        newArg("outputDir", "The output directory where processed files will be saved. (Default: $CLARA_HOME/data/out)", runConfig::setOutputDir);
-        newArg("threads", "The maximum number of processing threads to be used per node. In case value = auto all system cores will be used. (Default: 2)", runConfig::setMaxThreads, Integer::parseInt);
-        newArg("fileList", "Full path to the file containing the names of data-files to be processed. Note: actual files are located in the inputDir. (Default: $CLARA_HOME/plugins/clas12/config/files.list)", runConfig::setFilesList);
-        newArg("files", "Set the input files to be processed (Example: /mnt/data/files/*.evio).", this::setFiles);
-        newArg("yaml", "Full path to the file describing application service composition. (Default: $CLARA_HOME/plugins/clas12/config/services.yaml)", runConfig::setConfigFile);
-        // CHECKSTYLE.ON: LineLength
+        subCmd("yaml",
+                runConfig::setConfigFile, Function.identity(),
+                "Full path to the file describing application service composition. "
+                    + "(default: $CLARA_HOME/plugins/clas12/config/services.yaml)");
+
+        subCmd("files",
+                this::setFiles, Function.identity(),
+                "Set the input files to be processed (Example: /mnt/data/files/*.evio).");
+
+        subCmd("fileList",
+                runConfig::setFilesList, Function.identity(),
+                "Full path to the file containing the names of data-files to be processed. "
+                    + "Note: actual files are located in the inputDir. "
+                    + "(Default: $CLARA_HOME/plugins/clas12/config/files.list)");
+
+        subCmd("inputDir",
+                runConfig::setInputDir, Function.identity(),
+                "The input directory where the files to be processed are located. "
+                    + "(Default: $CLARA_HOME/data/in)");
+
+        subCmd("outputDir",
+                runConfig::setOutputDir, Function.identity(),
+                "The output directory where processed files will be saved. "
+                    + "(Default: $CLARA_HOME/data/out)");
+
+        subCmd("session",
+                runConfig::setSession, Function.identity(),
+                "The data processing session. (Default: $USER)");
+
+        subCmd("threads",
+                runConfig::setMaxThreads, Integer::parseInt,
+                "The maximum number of processing threads to be used per node. "
+                    + "In case value = auto all system cores will be used. (Default: 2)");
     }
 
     private void setCompleters() {
@@ -76,14 +99,10 @@ class SetCommand extends Command {
         arguments.get("outputDir").setCompleter(fileCompleter);
     }
 
-    private <T> void newArg(String name, String description, Consumer<String> action) {
-        newArg(name, description, action, a -> a);
-    }
-
-    private <T> void newArg(String name,
-                        String description,
-                        Consumer<T> action,
-                        Function<String, T> parser) {
+    private <T> void subCmd(String name,
+                            Consumer<T> action,
+                            Function<String, T> parser,
+                            String description) {
         Function<String[], Integer> commandAction = args -> {
             T val;
             try {
