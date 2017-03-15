@@ -46,7 +46,6 @@ class ShowCommand extends Command {
 
     private int showConfig() {
         terminal.writer().println();
-        printFormat("orchestrator", runConfig.getOrchestrator());
         printFormat("localhost", runConfig.getLocalHost());
         printFormat("configFile", runConfig.getConfigFile());
         printFormat("filesList", runConfig.getFilesList());
@@ -56,14 +55,6 @@ class ShowCommand extends Command {
         printFormat("session", runConfig.getSession());
         printFormat("maxNodes", Integer.toString(runConfig.getMaxNodes()));
         printFormat("maxThreads", Integer.toString(runConfig.getMaxThreads()));
-        printFormat("farmFlavor", runConfig.getFarmFlavor());
-        printFormat("farmLoadingZone", runConfig.getFarmLoadingZone());
-        printFormat("farmMemory", Integer.toString(runConfig.getFarmMemory()));
-        printFormat("farmTrack", runConfig.getFarmTrack());
-        printFormat("farmOS", runConfig.getFarmOS());
-        printFormat("farmCPU", Integer.toString(runConfig.getFarmCPU()));
-        printFormat("farmDisk", Integer.toString(runConfig.getFarmDisk()));
-        printFormat("farmTime", Integer.toString(runConfig.getFarmTime()));
         return EXIT_SUCCESS;
     }
 

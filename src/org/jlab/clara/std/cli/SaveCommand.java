@@ -97,14 +97,6 @@ class SaveCommand extends Command {
             printer.println("set outputDir " + runConfig.getOutputDir());
             printer.println("set session " + runConfig.getSession());
             printer.println("set threads " + runConfig.getMaxThreads());
-            printer.println("set farmFlavor " + runConfig.getFarmFlavor());
-            printer.println("set farmLoadingZone " + runConfig.getFarmLoadingZone());
-            printer.println("set farmMemory " + runConfig.getFarmMemory());
-            printer.println("set farmTrack " + runConfig.getFarmTrack());
-            printer.println("set farmOS " + runConfig.getFarmOS());
-            printer.println("set farmCPU " + runConfig.getFarmCPU());
-            printer.println("set farmDisk " + runConfig.getFarmDisk());
-            printer.println("set farmTime " + runConfig.getFarmTime());
         } catch (FileNotFoundException e) {
             terminal.writer().println("Could not create file: " + path);
         }

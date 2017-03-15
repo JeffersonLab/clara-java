@@ -39,14 +39,6 @@ class RunConfig {
     private String session;
     private int maxNodes;
     private int maxThreads;
-    private String farmFlavor;
-    private String farmLoadingZone;
-    private int farmMemory;
-    private String farmTrack;
-    private String farmOS;
-    private int farmCPU;
-    private int farmDisk;
-    private int farmTime;
 
     RunConfig() {
         setDefaults();
@@ -64,14 +56,6 @@ class RunConfig {
         this.session = "";
         this.maxNodes = 1;
         this.maxThreads = Runtime.getRuntime().availableProcessors();
-        this.farmFlavor = "jlab";
-        this.farmLoadingZone = "undefined";
-        this.farmMemory = 70;
-        this.farmTrack = "debug";
-        this.farmOS = "centos7";
-        this.farmCPU = 72;
-        this.farmDisk = 3;
-        this.farmTime = 1440;
     }
 
     public static String claraHome() {
@@ -167,95 +151,6 @@ class RunConfig {
             throw new IllegalArgumentException("invalid number of threads");
         }
         this.maxThreads = maxThreads;
-    }
-
-    public String getFarmFlavor() {
-        return farmFlavor;
-    }
-
-    public void setFarmFlavor(String farmFlavor) {
-        if ("".equals(farmFlavor)) {
-            throw new IllegalArgumentException("empty argument");
-        }
-        if (!"dps".equals(farmFlavor) && !"jlab".equals(farmFlavor)) {
-            throw new IllegalArgumentException("invalid argument");
-        }
-        this.farmFlavor = farmFlavor;
-    }
-
-    public String getFarmLoadingZone() {
-        return farmLoadingZone;
-    }
-
-    public void setFarmLoadingZone(String farmLoadingZone) {
-        validateDirectory(farmLoadingZone);
-        this.farmLoadingZone = farmLoadingZone;
-    }
-
-    public int getFarmMemory() {
-        return farmMemory;
-    }
-
-    public void setFarmMemory(int farmMemory) {
-        if (farmMemory <= 0) {
-            throw new IllegalArgumentException("invalid number");
-        }
-        this.farmMemory = farmMemory;
-    }
-
-    public String getFarmTrack() {
-        return farmTrack;
-    }
-
-    public void setFarmTrack(String farmTrack) {
-        if ("".equals(farmTrack)) {
-            throw new IllegalArgumentException("empty argument");
-        }
-        this.farmTrack = farmTrack;
-    }
-
-    public String getFarmOS() {
-        return farmOS;
-    }
-
-    public void setFarmOS(String farmOS) {
-        if ("".equals(farmOS)) {
-            throw new IllegalArgumentException("empty argument");
-        }
-        this.farmOS = farmOS;
-    }
-
-    public int getFarmCPU() {
-        return farmCPU;
-    }
-
-    public void setFarmCPU(int farmCPU) {
-        if (farmCPU <= 0) {
-            throw new IllegalArgumentException("invalid number");
-        }
-        this.farmCPU = farmCPU;
-    }
-
-    public int getFarmDisk() {
-        return farmDisk;
-    }
-
-    public void setFarmDisk(int farmDisk) {
-        if (farmDisk <= 0) {
-            throw new IllegalArgumentException("invalid number");
-        }
-        this.farmDisk = farmDisk;
-    }
-
-    public int getFarmTime() {
-        return farmTime;
-    }
-
-    public void setFarmTime(int farmTime) {
-        if (farmTime <= 0) {
-            throw new IllegalArgumentException("invalid number");
-        }
-        this.farmTime = farmTime;
     }
 
     private static void validateFile(String file) {

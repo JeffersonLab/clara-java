@@ -41,7 +41,6 @@ import java.util.stream.Collectors;
 
 import org.jline.reader.Completer;
 import org.jline.reader.impl.completer.FileNameCompleter;
-import org.jline.reader.impl.completer.StringsCompleter;
 import org.jline.terminal.Terminal;
 
 class SetCommand extends Command {
@@ -57,7 +56,6 @@ class SetCommand extends Command {
 
     private void setArguments() {
         // CHECKSTYLE.OFF: LineLength
-        newArg("description", "A single string (no spaces) describing a data processing", null);
         newArg("plugin", "Plugin installation directory. (Default: $CLARA_HOME/plugins/clas12)", null);
         newArg("session", "The data processing session. (Default: $USER)", runConfig::setSession);
         newArg("inputDir", "The input directory where the files to be processed are located. (Default: $CLARA_HOME/data/in)", runConfig::setInputDir);
@@ -66,14 +64,6 @@ class SetCommand extends Command {
         newArg("fileList", "Full path to the file containing the names of data-files to be processed. Note: actual files are located in the inputDir. (Default: $CLARA_HOME/plugins/clas12/config/files.list)", runConfig::setFilesList);
         newArg("files", "Set the input files to be processed (Example: /mnt/data/files/*.evio).", this::setFiles);
         newArg("yaml", "Full path to the file describing application service composition. (Default: $CLARA_HOME/plugins/clas12/config/services.yaml)", runConfig::setConfigFile);
-        newArg("farmFlavor", "Farm batch system. Accepts pbs and jlab. (Default jlab)", runConfig::setFarmFlavor);
-        newArg("farmLoadingZone", "Will stage input data set into the farm local directory. (Default /scratch/pbs)", runConfig::setFarmLoadingZone);
-        newArg("farmMemory", "Farm job memory request (in GB). (Default: 70)", runConfig::setFarmMemory, Integer::parseInt);
-        newArg("farmTrack", "Farm job track. (Default: debug)", runConfig::setFarmTrack);
-        newArg("farmOS", "Farm resource OS. (Default: centos7)", runConfig::setFarmOS);
-        newArg("farmCPU", "Farm resource core number request. (Ddefault: 72)", runConfig::setFarmCPU, Integer::parseInt);
-        newArg("farmDisk", "Farm job disk space request (in GB). (Default: 3)", runConfig::setFarmDisk, Integer::parseInt);
-        newArg("farmTime", "Farm job wall time request (in min). (Default: 1440)", runConfig::setFarmTime, Integer::parseInt);
         // CHECKSTYLE.ON: LineLength
     }
 
@@ -84,7 +74,6 @@ class SetCommand extends Command {
         arguments.get("yaml").setCompleter(fileCompleter);
         arguments.get("inputDir").setCompleter(fileCompleter);
         arguments.get("outputDir").setCompleter(fileCompleter);
-        arguments.get("farmFlavor").setCompleter(new StringsCompleter("dps", "jlab"));
     }
 
     private <T> void newArg(String name, String description, Consumer<String> action) {
