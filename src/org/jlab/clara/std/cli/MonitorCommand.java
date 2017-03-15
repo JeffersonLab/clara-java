@@ -45,7 +45,7 @@ class MonitorCommand extends Command {
     }
 
     private SubCommand newArg(String name) {
-        return new SubCommand(name, "", args -> 0);
+        return new SubCommand(name, args -> 0, "");
     }
 
     @Override

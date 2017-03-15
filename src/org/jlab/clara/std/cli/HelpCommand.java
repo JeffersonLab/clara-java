@@ -65,7 +65,7 @@ class HelpCommand extends Command {
     private void addCommands() {
         commands.values().stream()
                 .filter(c -> !c.getName().equals("help"))
-                .map(c -> new SubCommand(c.getName(), c.getDescription(), args -> 0))
+                .map(c -> new SubCommand(c.getName(), args -> 0, c.getDescription()))
                 .forEach(sc -> subCommands.put(sc.getName(), sc));
     }
 }

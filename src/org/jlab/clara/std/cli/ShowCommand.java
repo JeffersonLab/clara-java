@@ -36,7 +36,7 @@ class ShowCommand extends Command {
 
     private void setArguments() {
         subCommands.put("config",
-                new SubCommand("config", "Show parameter values", args -> showConfig()));
+                new SubCommand("config", args -> showConfig(), "Show parameter values"));
     }
 
     @Override

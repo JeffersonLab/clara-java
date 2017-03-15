@@ -113,7 +113,7 @@ class SetCommand extends Command {
             action.accept(val);
             return EXIT_SUCCESS;
         };
-        subCommands.put(name, new SubCommand(name, description, commandAction));
+        subCommands.put(name, new SubCommand(name, commandAction, description));
     }
 
     @Override

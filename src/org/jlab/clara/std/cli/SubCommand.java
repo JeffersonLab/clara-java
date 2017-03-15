@@ -35,7 +35,7 @@ class SubCommand {
 
     private Completer completer = NullCompleter.INSTANCE;
 
-    SubCommand(String name, String description, Function<String[], Integer> action) {
+    SubCommand(String name, Function<String[], Integer> action, String description) {
         this.name = name;
         this.description = description;
         this.action = action;
