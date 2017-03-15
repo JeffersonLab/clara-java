@@ -41,6 +41,7 @@ import java.util.stream.Collectors;
 
 import org.jline.reader.Completer;
 import org.jline.reader.impl.completer.FileNameCompleter;
+import org.jline.reader.impl.completer.NullCompleter;
 import org.jline.terminal.Terminal;
 
 class SetCommand extends Command {
@@ -51,57 +52,55 @@ class SetCommand extends Command {
         super(terminal, "set", "Parameter settings");
         this.runConfig = runConfig;
         setArguments();
-        setCompleters();
     }
 
     private void setArguments() {
         subCmd("yaml",
                 runConfig::setConfigFile, Function.identity(),
+                new FileNameCompleter(),
                 "Full path to the file describing application service composition. "
                     + "(default: $CLARA_HOME/plugins/clas12/config/services.yaml)");
 
         subCmd("files",
                 this::setFiles, Function.identity(),
+                new FileNameCompleter(),
                 "Set the input files to be processed (Example: /mnt/data/files/*.evio).");
 
         subCmd("fileList",
                 runConfig::setFilesList, Function.identity(),
+                new FileNameCompleter(),
                 "Full path to the file containing the names of data-files to be processed. "
                     + "Note: actual files are located in the inputDir. "
                     + "(Default: $CLARA_HOME/plugins/clas12/config/files.list)");
 
         subCmd("inputDir",
                 runConfig::setInputDir, Function.identity(),
+                new FileNameCompleter(),
                 "The input directory where the files to be processed are located. "
                     + "(Default: $CLARA_HOME/data/in)");
 
         subCmd("outputDir",
                 runConfig::setOutputDir, Function.identity(),
+                new FileNameCompleter(),
                 "The output directory where processed files will be saved. "
                     + "(Default: $CLARA_HOME/data/out)");
 
         subCmd("session",
                 runConfig::setSession, Function.identity(),
+                new FileNameCompleter(),
                 "The data processing session. (Default: $USER)");
 
         subCmd("threads",
                 runConfig::setMaxThreads, Integer::parseInt,
+                NullCompleter.INSTANCE,
                 "The maximum number of processing threads to be used per node. "
                     + "In case value = auto all system cores will be used. (Default: 2)");
-    }
-
-    private void setCompleters() {
-        Completer fileCompleter = new FileNameCompleter();
-        subCommands.get("fileList").setCompleter(fileCompleter);
-        subCommands.get("files").setCompleter(fileCompleter);
-        subCommands.get("yaml").setCompleter(fileCompleter);
-        subCommands.get("inputDir").setCompleter(fileCompleter);
-        subCommands.get("outputDir").setCompleter(fileCompleter);
     }
 
     private <T> void subCmd(String name,
                             Consumer<T> action,
                             Function<String, T> parser,
+                            Completer completer,
                             String description) {
         Function<String[], Integer> commandAction = args -> {
             T val;
@@ -113,7 +112,7 @@ class SetCommand extends Command {
             action.accept(val);
             return EXIT_SUCCESS;
         };
-        subCommands.put(name, new SubCommand(name, commandAction, description));
+        subCommands.put(name, new SubCommand(name, commandAction, completer, description));
     }
 
     @Override

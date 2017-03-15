@@ -31,14 +31,25 @@ class SubCommand {
 
     private final String name;
     private final String description;
-    private final Function<String[], Integer> action;
 
-    private Completer completer = NullCompleter.INSTANCE;
+    private final Function<String[], Integer> action;
+    private final Completer completer;
 
     SubCommand(String name, Function<String[], Integer> action, String description) {
         this.name = name;
         this.description = description;
         this.action = action;
+        this.completer = NullCompleter.INSTANCE;
+    }
+
+    SubCommand(String name,
+               Function<String[], Integer> action,
+               Completer completer,
+               String description) {
+        this.name = name;
+        this.description = description;
+        this.action = action;
+        this.completer = completer;
     }
 
     public String getName() {
@@ -55,9 +66,5 @@ class SubCommand {
 
     public Completer getCompleter() {
         return completer;
-    }
-
-    public void setCompleter(Completer completer) {
-        this.completer = completer;
     }
 }
