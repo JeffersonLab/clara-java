@@ -36,6 +36,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 final class CommandUtils {
 
@@ -54,7 +55,7 @@ final class CommandUtils {
             try {
                 return process.waitFor();
             } catch (InterruptedException e) {
-                process.destroy();
+                destroyProcess(process);
                 Thread.currentThread().interrupt();
             }
         } catch (IOException e) {
@@ -84,6 +85,24 @@ final class CommandUtils {
             watchdog.destroyProcess();
         }
         return 1;
+    }
+
+    public static void destroyProcess(Process process) {
+        process.destroy();
+        try {
+            process.waitFor(10, TimeUnit.SECONDS);
+            if (process.isAlive()) {
+                process.destroyForcibly();
+                process.waitFor(5, TimeUnit.SECONDS);
+            }
+        } catch (InterruptedException e) {
+            // ignore
+        }
+        try {
+            process.getOutputStream().flush();
+        } catch (IOException e) {
+            // ignore
+        }
     }
 
     public static Process runDpe(String... command) throws IOException {

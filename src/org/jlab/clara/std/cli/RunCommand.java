@@ -29,7 +29,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 import org.jlab.clara.base.ClaraLang;
 import org.jlab.clara.std.orchestrators.OrchestratorConfigParser;
@@ -114,23 +113,11 @@ class RunCommand extends Command {
     public void close() {
         // kill the DPEs in reverse order (the front-end last)
         for (ClaraLang lang : Arrays.asList(ClaraLang.PYTHON, ClaraLang.CPP, ClaraLang.JAVA)) {
-            try {
-                Process process = backgroundDpes.get(lang);
-                if (process == null) {
-                    continue;
-                }
-                process.destroy();
-                process.waitFor(10, TimeUnit.SECONDS);
-                if (process.isAlive()) {
-                    process.destroyForcibly();
-                    process.waitFor(5, TimeUnit.SECONDS);
-                }
-                process.getOutputStream().flush();
-            } catch (InterruptedException e) {
-                // ignore
-            } catch (IOException e) {
-                // ignore
+            Process process = backgroundDpes.get(lang);
+            if (process == null) {
+                continue;
             }
+            CommandUtils.destroyProcess(process);
         }
     }
 }
