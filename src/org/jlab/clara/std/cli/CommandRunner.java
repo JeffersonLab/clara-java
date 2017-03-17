@@ -27,6 +27,8 @@ import java.util.Map;
 
 import org.jline.reader.EndOfFileException;
 import org.jline.terminal.Terminal;
+import org.jline.terminal.Terminal.Signal;
+import org.jline.terminal.Terminal.SignalHandler;
 
 class CommandRunner {
 
@@ -52,7 +54,15 @@ class CommandRunner {
             terminal.writer().println("Invalid command");
             return Command.EXIT_ERROR;
         }
-        return command.execute(splited);
+        Thread execThread = Thread.currentThread();
+        SignalHandler prevIntHandler = terminal.handle(Signal.INT, s -> {
+            execThread.interrupt();
+        });
+        try {
+            return command.execute(splited);
+        } finally {
+            terminal.handle(Signal.INT, prevIntHandler);
+        }
     }
 
     private String[] removeEmptySpaces(String[] list) {

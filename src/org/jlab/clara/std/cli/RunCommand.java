@@ -73,8 +73,7 @@ class RunCommand extends Command {
             startLocalDpes();
 
             Path orchestrator = Paths.get(RunConfig.claraHome(), "bin", "clara-orchestrator");
-            return CommandUtils.runCommand(terminal,
-                    orchestrator.toString(),
+            return CommandUtils.runCommand(orchestrator.toString(),
                     "-F",
                     "-t", Integer.toString(runConfig.getMaxThreads()),
                     "-i", runConfig.getInputDir(),

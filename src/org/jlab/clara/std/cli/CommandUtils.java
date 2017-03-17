@@ -29,9 +29,6 @@ import org.apache.commons.exec.ExecuteException;
 import org.apache.commons.exec.ExecuteWatchdog;
 import org.apache.commons.exec.Executor;
 import org.jlab.clara.base.ClaraUtil;
-import org.jline.terminal.Terminal;
-import org.jline.terminal.Terminal.Signal;
-import org.jline.terminal.Terminal.SignalHandler;
 
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -66,7 +63,7 @@ final class CommandUtils {
         return 1;
     }
 
-    public static int runCommand(Terminal terminal, String command, String... args) {
+    public static int runCommand(String command, String... args) {
         CommandLine cmdLine = new CommandLine(command);
         for (String arg : args) {
             cmdLine.addArgument(arg);
@@ -75,9 +72,6 @@ final class CommandUtils {
         ExecuteWatchdog watchdog = new ExecuteWatchdog(ExecuteWatchdog.INFINITE_TIMEOUT);
         Executor executor = new DefaultExecutor();
         executor.setWatchdog(watchdog);
-        SignalHandler prevIntHandler = terminal.handle(Signal.INT, s -> {
-            Thread.currentThread().interrupt();
-        });
         try {
             executor.execute(cmdLine, resultHandler);
             resultHandler.waitFor();
@@ -88,8 +82,6 @@ final class CommandUtils {
             e.printStackTrace();
         } catch (InterruptedException e) {
             watchdog.destroyProcess();
-        } finally {
-            terminal.handle(Signal.INT, prevIntHandler);
         }
         return 1;
     }
