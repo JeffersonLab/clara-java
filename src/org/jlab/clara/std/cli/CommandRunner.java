@@ -25,7 +25,7 @@ package org.jlab.clara.std.cli;
 import java.util.ArrayList;
 import java.util.Map;
 
-import org.jline.reader.UserInterruptException;
+import org.jline.reader.EndOfFileException;
 import org.jline.terminal.Terminal;
 
 class CommandRunner {
@@ -47,7 +47,7 @@ class CommandRunner {
         Command command = commands.get(commandName);
         if (command == null) {
             if ("exit".equals(commandName)) {
-                throw new UserInterruptException("");
+                throw new EndOfFileException();
             }
             terminal.writer().println("Invalid command");
             return Command.EXIT_ERROR;
