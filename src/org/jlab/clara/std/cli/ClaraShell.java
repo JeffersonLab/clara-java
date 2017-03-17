@@ -153,6 +153,7 @@ public class ClaraShell implements AutoCloseable {
         running = true;
         while (running) {
             try {
+                Thread.interrupted();
                 String line = readLine("");
                 if (line == null) {
                     continue;
