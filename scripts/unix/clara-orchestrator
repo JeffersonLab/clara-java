@@ -23,4 +23,4 @@ else
 fi
 
 orchestrator=org.jlab.clara.std.orchestrators.GenericOrchestrator
-"${java_bin}" "${jvm_options[@]}" ${orchestrator} "$@"
+exec "${java_bin}" "${jvm_options[@]}" ${orchestrator} "$@"

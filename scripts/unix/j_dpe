@@ -68,4 +68,4 @@ else
     java_bin=java
 fi
 
-"${java_bin}" "${jvm_options[@]}" -Djava.library.path="${java_lib_path}" org.jlab.clara.sys.Dpe "$@"
+exec "${java_bin}" "${jvm_options[@]}" -Djava.library.path="${java_lib_path}" org.jlab.clara.sys.Dpe "$@"

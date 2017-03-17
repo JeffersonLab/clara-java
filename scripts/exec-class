@@ -18,4 +18,4 @@ fi
 class_path=$(cat "${cache_file}")
 
 
-"${java_bin}" -cp "${class_path}" "$@"
+exec "${java_bin}" -cp "${class_path}" "$@"
