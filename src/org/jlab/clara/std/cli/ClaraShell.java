@@ -146,7 +146,7 @@ public class ClaraShell implements AutoCloseable {
             } catch (EndOfFileException e) {
                 break;
             } catch (UserInterruptException e) {
-                break;
+                continue;
             } finally {
                 terminal.flush();
             }
