@@ -133,6 +133,11 @@ def deploySpec = copySpec {
         fileMode 0755
     }
 
+    from ('scripts/lib') {
+        into 'lib/clara'
+        fileMode 0755
+    }
+
     // trick Gradle to "create" empy directories
     def tempDir = "${buildDir}/distributions/clara_home"
 

@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+trap '' INT
+trap 'kill -TERM $pid' TERM 
+
+"$@" &
+pid=$!
+
+wait $pid
+trap - TERM
+wait $pid
+exit $?
