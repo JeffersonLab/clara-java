@@ -56,9 +56,23 @@ public class ClaraShell implements AutoCloseable {
     private final LineReader reader;
     private final History history;
 
+    private volatile boolean running;
+
     public static void main(String[] args) {
         ClaraShell shell = new ClaraShell();
-        Runtime.getRuntime().addShutdownHook(new Thread(shell::close));
+
+        Thread mainThread = Thread.currentThread();
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            shell.stop();
+            try {
+                mainThread.interrupt();
+                mainThread.join(5000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            shell.close();
+        }));
+
         shell.run();
     }
 
@@ -136,7 +150,8 @@ public class ClaraShell implements AutoCloseable {
      */
     public void run() {
         printWelcomeMessage();
-        while (true) {
+        running = true;
+        while (running) {
             try {
                 String line = readLine("");
                 if (line == null) {
@@ -151,6 +166,13 @@ public class ClaraShell implements AutoCloseable {
                 terminal.flush();
             }
         }
+    }
+
+    /**
+     * Programmatically stops the shell main loop.
+     */
+    public void stop() {
+        running = false;
     }
 
     private void printWelcomeMessage() {
