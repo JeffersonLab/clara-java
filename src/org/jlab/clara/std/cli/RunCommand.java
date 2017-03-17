@@ -81,7 +81,7 @@ class RunCommand extends Command {
                     "-o", runConfig.getOutputDir(),
                     runConfig.getConfigFile(),
                     runConfig.getFilesList());
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             return EXIT_ERROR;
         }
