@@ -48,4 +48,4 @@ else
     java_bin=java
 fi
 
-exec "${java_bin}" "${jvm_options[@]}" org.jlab.clara.cli.ClaraShell "$@"
+exec "${java_bin}" "${jvm_options[@]}" org.jlab.clara.std.cli.ClaraShell "$@"
