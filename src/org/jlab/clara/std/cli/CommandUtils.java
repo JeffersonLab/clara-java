@@ -97,6 +97,7 @@ final class CommandUtils {
     public static Process runDpe(String... command) throws IOException {
         ProcessBuilder builder = new ProcessBuilder(wrapCommand(command));
         builder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+        builder.redirectError(ProcessBuilder.Redirect.INHERIT);
         Process process = builder.start();
         ClaraUtil.sleep(2000);
         return process;
