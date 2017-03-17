@@ -100,8 +100,8 @@ class RunCommand extends Command {
         }
 
         if (languages.contains(ClaraLang.PYTHON)) {
-            String cppDpe = Paths.get(RunConfig.claraHome(), "bin", "p_dpe").toString();
-            addBackgroundDpeProcess(ClaraLang.PYTHON, cppDpe, "--fe-host", "localhost");
+            String pyDpe = Paths.get(RunConfig.claraHome(), "bin", "p_dpe").toString();
+            addBackgroundDpeProcess(ClaraLang.PYTHON, pyDpe, "--fe-host", "localhost");
         }
     }
 
