@@ -34,6 +34,10 @@ import org.jline.terminal.Terminal.Signal;
 import org.jline.terminal.Terminal.SignalHandler;
 
 import java.io.IOException;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 final class CommandUtils {
@@ -91,10 +95,22 @@ final class CommandUtils {
     }
 
     public static Process runDpe(String... command) throws IOException {
-        ProcessBuilder builder = new ProcessBuilder(command);
+        ProcessBuilder builder = new ProcessBuilder(wrapCommand(command));
         builder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
         Process process = builder.start();
         ClaraUtil.sleep(2000);
         return process;
+    }
+
+    public static List<String> wrapCommand(String... command) {
+        List<String> wrapperCmd = new ArrayList<>();
+        wrapperCmd.add(commandWrapper());
+        wrapperCmd.addAll(Arrays.asList(command));
+        return wrapperCmd;
+    }
+
+    public static String commandWrapper() {
+        return Optional.ofNullable(System.getenv("CLARA_COMMAND_WRAPPER"))
+                .orElse(Paths.get(RunConfig.claraHome(), "lib", "clara", "cmd-wrapper").toString());
     }
 }
