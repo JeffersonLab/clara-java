@@ -5,10 +5,11 @@ import org.jlab.clara.base.ServiceName;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.List;
 import java.util.Set;
@@ -24,6 +25,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
+@RunWith(MockitoJUnitRunner.class)
 public class WorkerNodeTest {
 
     @Mock
@@ -42,9 +44,7 @@ public class WorkerNodeTest {
 
 
     @Before
-    public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
-
+    public void setUp() {
         doReturn(true).when(orchestrator).findServices(any(), any());
     }
 
@@ -68,7 +68,7 @@ public class WorkerNodeTest {
 
         node.deployServices();
 
-        verify(orchestrator, times(1)).checkServices(dpeCaptor.capture(), namesCaptor.capture());
+        verify(orchestrator, times(1)).checkServices(dpeCaptor.capture(), any());
 
         assertThat(dpeCaptor.getValue(), is(SingleLangData.expectedDpe()));
     }
@@ -80,7 +80,7 @@ public class WorkerNodeTest {
 
         node.deployServices();
 
-        verify(orchestrator, times(1)).checkServices(dpeCaptor.capture(), namesCaptor.capture());
+        verify(orchestrator, times(1)).checkServices(any(), namesCaptor.capture());
 
         assertThat(namesCaptor.getValue(),
                    containsInAnyOrder(SingleLangData.expectedServices()));
@@ -146,7 +146,7 @@ public class WorkerNodeTest {
 
         node.deployServices();
 
-        verify(orchestrator, times(3)).checkServices(dpeCaptor.capture(), namesCaptor.capture());
+        verify(orchestrator, times(3)).checkServices(dpeCaptor.capture(), any());
 
         assertThat(dpeCaptor.getAllValues(),
                    containsInAnyOrder(MultiLangData.expectedDpes()));
@@ -159,7 +159,7 @@ public class WorkerNodeTest {
 
         node.deployServices();
 
-        verify(orchestrator, times(3)).checkServices(dpeCaptor.capture(), namesCaptor.capture());
+        verify(orchestrator, times(3)).checkServices(any(), namesCaptor.capture());
 
         assertThat(flatServices(namesCaptor.getAllValues()),
                    containsInAnyOrder(MultiLangData.expectedServices()));
@@ -187,7 +187,7 @@ public class WorkerNodeTest {
 
         node.checkServices();
 
-        verify(orchestrator, times(3)).findServices(dpeCaptor.capture(), namesCaptor.capture());
+        verify(orchestrator, times(3)).findServices(dpeCaptor.capture(), any());
 
         assertThat(dpeCaptor.getAllValues(),
                    containsInAnyOrder(MultiLangData.expectedDpes()));
@@ -200,7 +200,7 @@ public class WorkerNodeTest {
 
         node.checkServices();
 
-        verify(orchestrator, times(3)).findServices(dpeCaptor.capture(), namesCaptor.capture());
+        verify(orchestrator, times(3)).findServices(any(), namesCaptor.capture());
 
         assertThat(flatServices(namesCaptor.getAllValues()),
                    containsInAnyOrder(MultiLangData.expectedServices()));

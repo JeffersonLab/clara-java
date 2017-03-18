@@ -88,7 +88,7 @@ public class ClaraRequestsTest {
 
     @Test
     public void requestThrowsOnSendFailure() throws Exception {
-        doThrow(new xMsgException("")).when(baseMock)
+        doThrow(xMsgException.class).when(baseMock)
                 .send(any(ClaraComponent.class), any(xMsgMessage.class));
         expectedEx.expect(ClaraException.class);
 
@@ -98,7 +98,7 @@ public class ClaraRequestsTest {
 
     @Test
     public void requestThrowsOnMessageFailure() throws Exception {
-        doThrow(new ClaraException("msg")).when(request).msg();
+        doThrow(ClaraException.class).when(request).msg();
         expectedEx.expect(ClaraException.class);
 
         request.run();
@@ -152,7 +152,7 @@ public class ClaraRequestsTest {
 
     @Test
     public void syncRequestReturnsResponse() throws Exception {
-        when(request.parseData(any(xMsgMessage.class))).thenReturn("test_response");
+        when(request.parseData(any())).thenReturn("test_response");
 
         assertThat(request.syncRun(10, TimeUnit.SECONDS), is("test_response"));
     }
@@ -160,7 +160,7 @@ public class ClaraRequestsTest {
 
     @Test
     public void syncRequestThrowsOnSendFailure() throws Exception {
-        doThrow(new xMsgException("")).when(baseMock)
+        doThrow(xMsgException.class).when(baseMock)
                 .syncSend(any(ClaraComponent.class), any(xMsgMessage.class), anyInt());
         expectedEx.expect(ClaraException.class);
 
@@ -170,7 +170,7 @@ public class ClaraRequestsTest {
 
     @Test
     public void syncRequestThrowsOnMessageFailure() throws Exception {
-        doThrow(new ClaraException("msg")).when(request).msg();
+        doThrow(ClaraException.class).when(request).msg();
         expectedEx.expect(ClaraException.class);
 
         request.syncRun(10, TimeUnit.SECONDS);
@@ -179,7 +179,7 @@ public class ClaraRequestsTest {
 
     @Test
     public void syncRequestThrowsOnResponseFailure() throws Exception {
-        doThrow(new ClaraException("msg")).when(request).parseData(any(xMsgMessage.class));
+        doThrow(ClaraException.class).when(request).parseData(any());
         expectedEx.expect(ClaraException.class);
 
         request.syncRun(10, TimeUnit.SECONDS);
@@ -188,7 +188,7 @@ public class ClaraRequestsTest {
 
     @Test
     public void syncRequestThrowsOnTimeout() throws Exception {
-        doThrow(new TimeoutException("")).when(baseMock)
+        doThrow(TimeoutException.class).when(baseMock)
                 .syncSend(any(ClaraComponent.class), any(xMsgMessage.class), anyInt());
         expectedEx.expect(TimeoutException.class);
 

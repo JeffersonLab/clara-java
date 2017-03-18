@@ -67,10 +67,6 @@ public class ClaraSubscriptionsTest {
         frontEnd = ClaraComponent.dpe("10.2.9.1_java");
         callback = mock(EngineCallback.class);
         subscriptions = new HashMap<>();
-
-        when(baseMock.listen(any(ClaraComponent.class),
-                             any(xMsgTopic.class),
-                             any(xMsgCallBack.class))).thenReturn(mock(xMsgSubscription.class));
     }
 
 
@@ -79,18 +75,18 @@ public class ClaraSubscriptionsTest {
         build("data:10.2.9.96_java:master:Simple").start(callback);
 
         ArgumentCaptor<ClaraComponent> compArg = ArgumentCaptor.forClass(ClaraComponent.class);
-        verify(baseMock).listen(compArg.capture(), any(xMsgTopic.class), any(xMsgCallBack.class));
+        verify(baseMock).listen(compArg.capture(), any(), any());
         assertThat(compArg.getValue().getCanonicalName(), is(frontEnd.getCanonicalName()));
     }
 
 
     @Test
     public void startSubscriptionMatchesTopic() throws Exception {
-        build("data:10.2.9.96_java:master:Simple").start(callback);
+        String topic = "data:10.2.9.96_java:master:Simple";
 
-        verify(baseMock).listen(any(ClaraComponent.class),
-                                eq(xMsgTopic.wrap("data:10.2.9.96_java:master:Simple")),
-                                any(xMsgCallBack.class));
+        build(topic).start(callback);
+
+        verify(baseMock).listen(any(), eq(xMsgTopic.wrap(topic)), any());
     }
 
 
@@ -103,14 +99,13 @@ public class ClaraSubscriptionsTest {
 
         sub.start(callback);
 
-        verify(baseMock).listen(any(ClaraComponent.class), any(xMsgTopic.class), eq(xcb));
+        verify(baseMock).listen(any(), any(), eq(xcb));
     }
 
 
     @Test
     public void startSubscriptionThrowsOnFailure() throws Exception {
-        doThrow(new ClaraException("")).when(baseMock)
-                .listen(any(ClaraComponent.class), any(xMsgTopic.class), any(xMsgCallBack.class));
+        doThrow(ClaraException.class).when(baseMock).listen(any(), any(), any());
         expectedEx.expect(ClaraException.class);
 
         build("data:10.2.9.96_java:master:Simple").start(callback);
@@ -121,9 +116,7 @@ public class ClaraSubscriptionsTest {
     public void startSubscriptionStoresSubscriptionHandler() throws Exception {
         String key = "10.2.9.1#ERROR:10.2.9.96_java:master:Simple";
         xMsgSubscription handler = mock(xMsgSubscription.class);
-        when(baseMock.listen(any(ClaraComponent.class),
-                             any(xMsgTopic.class),
-                             any(xMsgCallBack.class))).thenReturn(handler);
+        when(baseMock.listen(any(), any(), any())).thenReturn(handler);
 
         build("ERROR:10.2.9.96_java:master:Simple").start(callback);
 
@@ -145,7 +138,7 @@ public class ClaraSubscriptionsTest {
         xMsgSubscription handler = mock(xMsgSubscription.class);
         when(baseMock.listen(eq(frontEnd),
                              eq(xMsgTopic.wrap("ERROR:10.2.9.96_java:master:Simple")),
-                             any(xMsgCallBack.class))).thenReturn(handler);
+                             any())).thenReturn(handler);
         build("ERROR:10.2.9.96_java:master:Simple").start(callback);
         build("WARNING:10.2.9.96_java:master:Simple").start(callback);
 
