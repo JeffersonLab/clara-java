@@ -217,21 +217,25 @@ task deploy(type: Copy, overwrite: true, dependsOn: jar) {
 ext.classPathCache = file("${buildDir}/tmp/classpath")
 ext.testClassPathCache = file("${buildDir}/tmp/test_classpath")
 
-task cacheClasspath << {
-    if (!classPathCache.isFile()) {
-        classPathCache.parentFile.mkdirs()
-        classPathCache.createNewFile()
+task cacheClasspath {
+    doLast {
+        if (!classPathCache.isFile()) {
+            classPathCache.parentFile.mkdirs()
+            classPathCache.createNewFile()
+        }
+        classPathCache.write sourceSets.main.runtimeClasspath.asPath
+        testClassPathCache.write sourceSets.test.runtimeClasspath.asPath
     }
-    classPathCache.write sourceSets.main.runtimeClasspath.asPath
-    testClassPathCache.write sourceSets.test.runtimeClasspath.asPath
 }
 cacheClasspath.inputs.files sourceSets.main.runtimeClasspath
 cacheClasspath.inputs.files sourceSets.test.runtimeClasspath
 cacheClasspath.outputs.files classPathCache
 cacheClasspath.outputs.files testClassPathCache
 
-task printClasspath << {
-    println classPathCache.text
+task printClasspath {
+    doLast {
+        println classPathCache.text
+    }
 }
 
 build.dependsOn cacheClasspath
