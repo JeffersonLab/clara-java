@@ -22,7 +22,6 @@
 
 package org.jlab.clara.sys;
 
-import org.jlab.clara.base.ClaraUtil;
 import org.jlab.clara.sys.DpeOptionsParser.DpeOptionsException;
 import org.jlab.coda.xmsg.net.xMsgProxyAddress;
 import org.junit.Before;
@@ -52,16 +51,13 @@ public class DpeOptionsParserTest {
     private static final String SOCKETS_OPT = "--max-sockets";
     private static final String IO_THREADS_OPT = "--io-threads";
 
-    private final String defaultHost;
+    private static final String DEFAULT_HOST = Dpe.DEFAULT_PROXY_HOST;
+
     private DpeOptionsParser parser;
 
     @Rule
     public ExpectedException expectedEx = ExpectedException.none();
 
-
-    public DpeOptionsParserTest() throws Exception {
-        defaultHost = ClaraUtil.localhost();
-    }
 
     @Before
     public void setUp() throws Exception {
@@ -87,7 +83,7 @@ public class DpeOptionsParserTest {
     public void workerUsesDefaultLocalAddress() throws Exception {
         parse(FE_HOST_OPT, "10.2.9.100");
 
-        assertThat(parser.localAddress(), is(proxy(defaultHost)));
+        assertThat(parser.localAddress(), is(proxy(DEFAULT_HOST)));
     }
 
     @Test
@@ -101,7 +97,7 @@ public class DpeOptionsParserTest {
     public void workerReceivesOptionalLocalPort() throws Exception {
         parse(DPE_PORT_OPT, "8500", FE_HOST_OPT, "10.2.9.100");
 
-        assertThat(parser.localAddress(), is(proxy(defaultHost, 8500)));
+        assertThat(parser.localAddress(), is(proxy(DEFAULT_HOST, 8500)));
     }
 
     @Test
@@ -138,8 +134,8 @@ public class DpeOptionsParserTest {
     public void frontEndUsesDefaultLocalAddress() throws Exception {
         parse();
 
-        assertThat(parser.localAddress(), is(proxy(defaultHost)));
-        assertThat(parser.frontEnd(), is(proxy(defaultHost)));
+        assertThat(parser.localAddress(), is(proxy(DEFAULT_HOST)));
+        assertThat(parser.frontEnd(), is(proxy(DEFAULT_HOST)));
     }
 
     @Test
@@ -154,8 +150,8 @@ public class DpeOptionsParserTest {
     public void frontEndReceivesOptionalLocalPort() throws Exception {
         parse(DPE_PORT_OPT, "8500");
 
-        assertThat(parser.localAddress(), is(proxy(defaultHost, 8500)));
-        assertThat(parser.frontEnd(), is(proxy(defaultHost, 8500)));
+        assertThat(parser.localAddress(), is(proxy(DEFAULT_HOST, 8500)));
+        assertThat(parser.frontEnd(), is(proxy(DEFAULT_HOST, 8500)));
     }
 
     @Test

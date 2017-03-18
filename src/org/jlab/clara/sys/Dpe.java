@@ -66,6 +66,7 @@ import java.util.stream.IntStream;
  */
 public final class Dpe extends AbstractActor {
 
+    static final String DEFAULT_PROXY_HOST = ClaraUtil.localhost();
     static final int DEFAULT_PROXY_PORT = ClaraConstants.JAVA_PORT;
 
     static final int DEFAULT_MAX_CORES = Runtime.getRuntime().availableProcessors();

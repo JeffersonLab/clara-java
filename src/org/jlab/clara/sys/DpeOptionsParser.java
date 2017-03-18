@@ -26,7 +26,6 @@ import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
-import org.jlab.clara.base.ClaraUtil;
 import org.jlab.coda.xmsg.net.xMsgProxyAddress;
 
 import java.util.concurrent.TimeUnit;
@@ -98,7 +97,7 @@ class DpeOptionsParser {
             fe = !options.has(feHost) && !options.has(fePort);
 
             // Get local DPE address
-            String localHost = valueOf(dpeHost, ClaraUtil.localhost());
+            String localHost = valueOf(dpeHost, Dpe.DEFAULT_PROXY_HOST);
             int localPort = valueOf(dpePort, Dpe.DEFAULT_PROXY_PORT);
             localAddress = new xMsgProxyAddress(localHost, localPort);
 

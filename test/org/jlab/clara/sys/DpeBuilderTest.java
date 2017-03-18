@@ -22,7 +22,6 @@
 
 package org.jlab.clara.sys;
 
-import org.jlab.clara.base.ClaraUtil;
 import org.jlab.clara.sys.Dpe.Builder;
 import org.jlab.coda.xmsg.net.xMsgProxyAddress;
 import org.junit.Rule;
@@ -38,14 +37,10 @@ import static org.junit.Assert.assertTrue;
 
 public class DpeBuilderTest {
 
-    private final String defaultHost;
+    private static final String DEFAULT_HOST = Dpe.DEFAULT_PROXY_HOST;
 
     @Rule
     public ExpectedException expectedEx = ExpectedException.none();
-
-    public DpeBuilderTest() throws Exception {
-        defaultHost = ClaraUtil.localhost();
-    }
 
     @Test
     public void dpeIsFrontEndByDefault() throws Exception {
@@ -65,7 +60,7 @@ public class DpeBuilderTest {
     public void workerUsesDefaultLocalAddress() throws Exception {
         Builder builder = new Builder("10.2.9.100");
 
-        assertThat(builder.localAddress, is(proxy(defaultHost)));
+        assertThat(builder.localAddress, is(proxy(DEFAULT_HOST)));
     }
 
     @Test
@@ -79,7 +74,7 @@ public class DpeBuilderTest {
     public void workerReceivesOptionalLocalPort() throws Exception {
         Builder builder = new Builder("10.2.9.100").withPort(8500);
 
-        assertThat(builder.localAddress, is(proxy(defaultHost, 8500)));
+        assertThat(builder.localAddress, is(proxy(DEFAULT_HOST, 8500)));
     }
 
     @Test
@@ -108,8 +103,8 @@ public class DpeBuilderTest {
     public void frontEndUsesDefaultLocalAddress() throws Exception {
         Builder builder = new Builder();
 
-        assertThat(builder.localAddress, is(proxy(defaultHost)));
-        assertThat(builder.frontEndAddress, is(proxy(defaultHost)));
+        assertThat(builder.localAddress, is(proxy(DEFAULT_HOST)));
+        assertThat(builder.frontEndAddress, is(proxy(DEFAULT_HOST)));
     }
 
     @Test
@@ -124,8 +119,8 @@ public class DpeBuilderTest {
     public void frontEndReceivesOptionalLocalPort() throws Exception {
         Builder builder = new Builder().withPort(8500);
 
-        assertThat(builder.localAddress, is(proxy(defaultHost, 8500)));
-        assertThat(builder.frontEndAddress, is(proxy(defaultHost, 8500)));
+        assertThat(builder.localAddress, is(proxy(DEFAULT_HOST, 8500)));
+        assertThat(builder.frontEndAddress, is(proxy(DEFAULT_HOST, 8500)));
     }
 
     @Test
