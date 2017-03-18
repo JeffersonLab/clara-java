@@ -19,5 +19,5 @@ matrix:
       jdk: oraclejdk8
 
 script:
-  ./gradlew check
-  ./gradlew integration
+  - ./gradlew check
+  - ./gradlew integration
