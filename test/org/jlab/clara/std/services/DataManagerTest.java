@@ -12,12 +12,14 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.function.Consumer;
 
+import org.jlab.clara.IntegrationTest;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.engine.EngineStatus;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 public class DataManagerTest {
 
@@ -110,6 +112,7 @@ public class DataManagerTest {
     }
 
 
+    @Category(IntegrationTest.class)
     @Test
     public void configReturnsErrorWhenIntputPathExistsAndNotDirectory() throws Exception {
         EngineData config = createJsonRequest(data -> {
@@ -121,6 +124,7 @@ public class DataManagerTest {
     }
 
 
+    @Category(IntegrationTest.class)
     @Test
     public void configReturnsErrorWhenOutputPathExistsAndNotDirectory() throws Exception {
         EngineData config = createJsonRequest(data -> {
@@ -132,6 +136,7 @@ public class DataManagerTest {
     }
 
 
+    @Category(IntegrationTest.class)
     @Test
     public void configReturnsErrorWhenStagePathExistsAndNotDirectory() throws Exception {
         EngineData config = createJsonRequest(data -> {
@@ -174,6 +179,7 @@ public class DataManagerTest {
     }
 
 
+    @Category(IntegrationTest.class)
     @Test
     public void executeCreatesDirectoryBeforeStagingInputFile() throws Exception {
         TestPaths paths = setTestDirectories();
@@ -194,6 +200,7 @@ public class DataManagerTest {
     }
 
 
+    @Category(IntegrationTest.class)
     @Test
     public void executeStagesInputFile() throws Exception {
         TestPaths paths = setTestDirectories();
@@ -211,6 +218,7 @@ public class DataManagerTest {
     }
 
 
+    @Category(IntegrationTest.class)
     @Test
     public void executeStagesInputFileIntoExistingSymlinkDirectory() throws Exception {
         TestPaths paths = setTestDirectories(p -> {
@@ -234,6 +242,7 @@ public class DataManagerTest {
     }
 
 
+    @Category(IntegrationTest.class)
     @Test
     public void executeRemovesStagedInputFile() throws Exception {
         TestPaths paths = setTestDirectories();
@@ -253,6 +262,7 @@ public class DataManagerTest {
     }
 
 
+    @Category(IntegrationTest.class)
     @Test
     public void executeCreatesDirectoryBeforeSavingOutputFile() throws Exception {
         TestPaths paths = setTestDirectories();
@@ -275,6 +285,7 @@ public class DataManagerTest {
     }
 
 
+    @Category(IntegrationTest.class)
     @Test
     public void executeSavesOutputFile() throws Exception {
         TestPaths paths = setTestDirectories();
@@ -297,6 +308,7 @@ public class DataManagerTest {
     }
 
 
+    @Category(IntegrationTest.class)
     @Test
     public void executeSavesOutputFileIntoExistingSymlinkDirectory() throws Exception {
         TestPaths paths = setTestDirectories(p -> {
@@ -323,6 +335,7 @@ public class DataManagerTest {
     }
 
 
+    @Category(IntegrationTest.class)
     @Test
     public void executeClearsStageDirectory() throws Exception {
         TestPaths paths = setTestDirectories();
@@ -343,6 +356,7 @@ public class DataManagerTest {
     }
 
 
+    @Category(IntegrationTest.class)
     @Test
     public void executeClearsNonExistingStageDirectory() throws Exception {
         TestPaths paths = setTestDirectories();
@@ -441,6 +455,7 @@ public class DataManagerTest {
     }
 
 
+    @Category(IntegrationTest.class)
     @Test
     public void executeRemoveStagedInputFailureReturnsError() throws Exception {
         EngineData request = createJsonRequest(data -> {
@@ -453,6 +468,7 @@ public class DataManagerTest {
     }
 
 
+    @Category(IntegrationTest.class)
     @Test
     public void executeSavesOutputFailureReturnsError() throws Exception {
         EngineData request = createJsonRequest(data -> {

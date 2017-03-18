@@ -6,10 +6,12 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import org.jlab.clara.IntegrationTest;
 import org.jlab.clara.base.ClaraLang;
 import org.json.JSONObject;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -20,6 +22,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.hasEntry;
 
 
+@Category(IntegrationTest.class)
 public class OrchestratorConfigParserTest {
 
     private static final String CONT = OrchestratorConfigParser.getDefaultContainer();

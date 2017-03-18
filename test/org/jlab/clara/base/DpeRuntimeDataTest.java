@@ -3,6 +3,7 @@ package org.jlab.clara.base;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -14,9 +15,11 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
 
+import org.jlab.clara.IntegrationTest;
 import org.jlab.clara.base.core.ClaraConstants;
 import org.jlab.clara.util.report.JsonUtils;
 
+@Category(IntegrationTest.class)
 public class DpeRuntimeDataTest {
 
     private final JSONObject json;

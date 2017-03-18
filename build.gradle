@@ -118,8 +118,20 @@ test {
     testLogging {
         exceptionFormat = 'full'
     }
+    useJUnit {
+        excludeCategories 'org.jlab.clara.IntegrationTest'
+    }
 }
 
+task integrationTest(type: Test) {
+    useJUnit {
+        includeCategories 'org.jlab.clara.IntegrationTest'
+    }
+    testLogging {
+        exceptionFormat = 'full'
+    }
+    outputs.upToDateWhen { false }
+}
 
 
 def deploySpec = copySpec {

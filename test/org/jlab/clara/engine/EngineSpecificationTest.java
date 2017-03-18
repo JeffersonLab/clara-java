@@ -24,10 +24,13 @@ package org.jlab.clara.engine;
 
 import static org.junit.Assert.assertEquals;
 
+import org.jlab.clara.IntegrationTest;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 
+@Category(IntegrationTest.class)
 public class EngineSpecificationTest {
 
     @Rule
