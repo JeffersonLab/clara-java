@@ -51,19 +51,19 @@ import static org.mockito.Mockito.when;
 
 public class ClaraRequestsTest {
 
+    private static final ClaraComponent FRONT_END = ClaraComponent.dpe("10.2.9.1_java");
+    private static final String TOPIC = "dpe:10.2.9.6_java";
+
     @Rule
     public ExpectedException expectedEx = ExpectedException.none();
+
     private ClaraBase baseMock;
-    private ClaraComponent frontEnd;
-    private String topic;
     private TestRequest request;
 
     @Before
     public void setUp() throws Exception {
         baseMock = mock(ClaraBase.class);
-        frontEnd = ClaraComponent.dpe("10.2.9.1_java");
-        topic = "dpe:10.2.9.6_java";
-        request = spy(new TestRequest(baseMock, frontEnd, topic));
+        request = spy(new TestRequest(baseMock, FRONT_END, TOPIC));
     }
 
 
@@ -74,7 +74,7 @@ public class ClaraRequestsTest {
         ArgumentCaptor<ClaraComponent> compArg = ArgumentCaptor.forClass(ClaraComponent.class);
         verify(baseMock).send(compArg.capture(), any(xMsgMessage.class));
 
-        assertThat(compArg.getValue().getDpeCanonicalName(), is(frontEnd.getDpeCanonicalName()));
+        assertThat(compArg.getValue().getDpeCanonicalName(), is(FRONT_END.getDpeCanonicalName()));
     }
 
 
@@ -112,7 +112,7 @@ public class ClaraRequestsTest {
         ArgumentCaptor<ClaraComponent> compArg = ArgumentCaptor.forClass(ClaraComponent.class);
         verify(baseMock).syncSend(compArg.capture(), any(xMsgMessage.class), anyInt());
 
-        assertThat(compArg.getValue().getDpeCanonicalName(), is(frontEnd.getDpeCanonicalName()));
+        assertThat(compArg.getValue().getDpeCanonicalName(), is(FRONT_END.getDpeCanonicalName()));
     }
 
 

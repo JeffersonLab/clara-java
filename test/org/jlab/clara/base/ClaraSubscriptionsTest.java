@@ -54,17 +54,18 @@ import static org.mockito.Mockito.when;
 
 public class ClaraSubscriptionsTest {
 
+    private static final ClaraComponent FRONT_END = ClaraComponent.dpe("10.2.9.1_java");
+
     @Rule
     public ExpectedException expectedEx = ExpectedException.none();
+
     private ClaraBase baseMock;
-    private ClaraComponent frontEnd;
     private EngineCallback callback;
     private Map<String, xMsgSubscription> subscriptions;
 
     @Before
     public void setUp() throws Exception {
         baseMock = mock(ClaraBase.class);
-        frontEnd = ClaraComponent.dpe("10.2.9.1_java");
         callback = mock(EngineCallback.class);
         subscriptions = new HashMap<>();
     }
@@ -76,7 +77,7 @@ public class ClaraSubscriptionsTest {
 
         ArgumentCaptor<ClaraComponent> compArg = ArgumentCaptor.forClass(ClaraComponent.class);
         verify(baseMock).listen(compArg.capture(), any(), any());
-        assertThat(compArg.getValue().getCanonicalName(), is(frontEnd.getCanonicalName()));
+        assertThat(compArg.getValue().getCanonicalName(), is(FRONT_END.getCanonicalName()));
     }
 
 
@@ -136,7 +137,7 @@ public class ClaraSubscriptionsTest {
     @Test
     public void stopSubscriptionUsesHandler() throws Exception {
         xMsgSubscription handler = mock(xMsgSubscription.class);
-        when(baseMock.listen(eq(frontEnd),
+        when(baseMock.listen(eq(FRONT_END),
                              eq(xMsgTopic.wrap("ERROR:10.2.9.96_java:master:Simple")),
                              any())).thenReturn(handler);
         build("ERROR:10.2.9.96_java:master:Simple").start(callback);
@@ -161,7 +162,7 @@ public class ClaraSubscriptionsTest {
 
 
     private TestSubscription build(String topic) {
-        return spy(new TestSubscription(baseMock, subscriptions, frontEnd, xMsgTopic.wrap(topic)));
+        return spy(new TestSubscription(baseMock, subscriptions, FRONT_END, xMsgTopic.wrap(topic)));
     }
 
 

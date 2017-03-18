@@ -35,10 +35,10 @@ import static org.hamcrest.Matchers.is;
 
 public class CompositionCompilerTest {
 
-    private String composition = "10.10.10.1_java:C:S1+" +
-                                 "10.10.10.1_java:C:S2+" +
-                                 "10.10.10.1_java:C:S3+" +
-                                 "10.10.10.1_java:C:S4;";
+    private static final String composition = "10.10.10.1_java:C:S1+" +
+                                              "10.10.10.1_java:C:S2+" +
+                                              "10.10.10.1_java:C:S3+" +
+                                              "10.10.10.1_java:C:S4;";
 
     @Test(expected = ClaraException.class)
     public void testInvalidServiceName() throws Exception {

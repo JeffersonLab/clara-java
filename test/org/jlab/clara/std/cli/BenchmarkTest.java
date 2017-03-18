@@ -13,9 +13,9 @@ import org.junit.Test;
 
 public class BenchmarkTest {
 
-    private final ServiceName s1 = new ServiceName("10.1.1.10_java:trevor:Engine1");
-    private final ServiceName s2 = new ServiceName("10.1.1.10_java:trevor:Engine2");
-    private final ServiceName s3 = new ServiceName("10.1.1.10_java:trevor:Engine3");
+    private static final ServiceName S1 = new ServiceName("10.1.1.10_java:trevor:Engine1");
+    private static final ServiceName S2 = new ServiceName("10.1.1.10_java:trevor:Engine2");
+    private static final ServiceName S3 = new ServiceName("10.1.1.10_java:trevor:Engine3");
 
     @Test
     public void getCPUAverageReturnsNaNWithoutRuntimeData() throws Exception {
@@ -96,11 +96,11 @@ public class BenchmarkTest {
 
         Map<ServiceName, ServiceBenchmark> stats = b.getServiceBenchmark();
 
-        assertThat(stats.keySet(), containsInAnyOrder(s1, s2, s3));
+        assertThat(stats.keySet(), containsInAnyOrder(S1, S2, S3));
 
-        assertThat(stats.get(s1).numRequests(), is(1300L - 1000L));
-        assertThat(stats.get(s2).numRequests(), is(800L - 500L));
-        assertThat(stats.get(s3).numRequests(), is(2300L - 2000L));
+        assertThat(stats.get(S1).numRequests(), is(1300L - 1000L));
+        assertThat(stats.get(S2).numRequests(), is(800L - 500L));
+        assertThat(stats.get(S3).numRequests(), is(2300L - 2000L));
     }
 
 }

@@ -46,13 +46,16 @@ import static org.mockito.Mockito.when;
 
 public class BaseOrchestratorTest {
 
+    private static final String FE_HOST = "10.2.9.1_java";
+
+    private static final Composition COMPOSITION =
+            new Composition("10.2.9.96_java:master:E1+10.2.9.96_java:master:E2;");
+
     @Rule
     public ExpectedException expectedEx = ExpectedException.none();
+
     private ClaraBase baseMock;
     private BaseOrchestrator orchestrator;
-    private String feHost = "10.2.9.1_java";
-    private Composition composition =
-            new Composition("10.2.9.96_java:master:E1+10.2.9.96_java:master:E2;");
 
     private BaseRequest<?, ?> request;
     private BaseSubscription<?, ?> subscription;
@@ -62,7 +65,7 @@ public class BaseOrchestratorTest {
         baseMock = mock(ClaraBase.class);
         orchestrator = new OrchestratorMock();
 
-        when(baseMock.getFrontEnd()).thenReturn(ClaraComponent.dpe(feHost));
+        when(baseMock.getFrontEnd()).thenReturn(ClaraComponent.dpe(FE_HOST));
         when(baseMock.getName()).thenReturn("test_orchestrator");
     }
 
@@ -156,7 +159,7 @@ public class BaseOrchestratorTest {
         EngineData data = new EngineData();
         data.setData(EngineDataType.STRING.mimeType(), "example");
 
-        request = orchestrator.execute(composition)
+        request = orchestrator.execute(COMPOSITION)
                               .withData(data)
                               .withDataTypes(EngineDataType.STRING);
 
@@ -288,7 +291,7 @@ public class BaseOrchestratorTest {
 
 
     private void assertSubscription(String topic) throws Exception {
-        assertThat(subscription.frontEnd.getDpeCanonicalName(), is(feHost));
+        assertThat(subscription.frontEnd.getDpeCanonicalName(), is(FE_HOST));
         assertThat(subscription.topic, is(xMsgTopic.wrap(topic)));
     }
 

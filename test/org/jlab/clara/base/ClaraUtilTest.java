@@ -33,7 +33,7 @@ import org.jlab.clara.base.core.ClaraConstants;
 
 public class ClaraUtilTest {
 
-    private String[] goodDpeNames = new String[] {
+    private static String[] goodDpeNames = new String[] {
             "192.168.1.102_java",
             "192.168.1.102_cpp",
             "192.168.1.102_python",
@@ -41,21 +41,21 @@ public class ClaraUtilTest {
             "192.168.1.102%16000_cpp",
             "192.168.1.102%9999_python",
     };
-    private String[] goodContainerNames = new String[] {
+    private static String[] goodContainerNames = new String[] {
             "10.2.58.17_java:master",
             "10.2.58.17_cpp:container1",
             "10.2.58.17_python:User",
             "10.2.58.17%20000_python:User",
             "10.2.58.17_java:best_container",
     };
-    private String[] goodServiceNames = new String[] {
+    private static String[] goodServiceNames = new String[] {
             "129.57.28.27_java:master:SimpleEngine",
             "129.57.28.27_cpp:container1:IntegrationEngine",
             "129.57.28.27_python:User:StatEngine",
             "129.57.28.27%20000_python:User:StatEngine",
     };
 
-    private String[] badDpeNames = new String[] {
+    private static String[] badDpeNames = new String[] {
             "192.168.1.102",
             "192.168.1.102%",
             "192_168_1_102_java",
@@ -65,13 +65,13 @@ public class ClaraUtilTest {
             "192 168 1 102 java",
             " 192.168.1.102_java",
     };
-    private String[] badContainerNames = new String[] {
+    private static String[] badContainerNames = new String[] {
             "10.2.9.9_java:",
             "10.2.9.9_cpp:container:",
             "10.2.9.9_python:long,user",
             "10.2.58.17_python: User",
     };
-    private String[] badServiceNames = new String[] {
+    private static String[] badServiceNames = new String[] {
             "129.57.28.27_java:master:Simple:Engine",
             "129.57.28.27_cpp:container1:Integration...",
             "129.57.28.27_python:User:Stat,Engine",

@@ -38,7 +38,7 @@ public class GenericOrchestratorTest {
     @Before
     public void setup() {
         orchestrator = mock(CoreOrchestrator.class);
-        when(orchestrator.getFrontEnd()).thenReturn(frontEnd.name);
+        when(orchestrator.getFrontEnd()).thenReturn(FRONT_END.name);
     }
 
 
