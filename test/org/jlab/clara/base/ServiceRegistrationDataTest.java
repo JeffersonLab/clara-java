@@ -1,7 +1,6 @@
 package org.jlab.clara.base;
 
 import org.json.JSONObject;
-import org.junit.Before;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.containsString;
@@ -15,16 +14,11 @@ import org.jlab.clara.util.report.JsonUtils;
 public class ServiceRegistrationDataTest {
 
     private final JSONObject json;
-
-    private ServiceRegistrationData data;
+    private final ServiceRegistrationData data;
 
     public ServiceRegistrationDataTest() {
         json = JsonUtils.readJson("/resources/registration-data.json")
                         .getJSONObject(ClaraConstants.REGISTRATION_KEY);
-    }
-
-    @Before
-    public void setup() {
         data = new ServiceRegistrationData(JsonUtils.getService(json, 1, 0));
     }
 

@@ -2,7 +2,6 @@ package org.jlab.clara.base;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Set;
@@ -21,16 +20,11 @@ import org.jlab.clara.util.report.JsonUtils;
 public class DpeRegistrationDataTest {
 
     private final JSONObject json;
-
-    private DpeRegistrationData data;
+    private final DpeRegistrationData data;
 
     public DpeRegistrationDataTest() {
         json = JsonUtils.readJson("/resources/registration-data.json")
                         .getJSONObject(ClaraConstants.REGISTRATION_KEY);
-    }
-
-    @Before
-    public void setup() {
         data = new DpeRegistrationData(json);
     }
 

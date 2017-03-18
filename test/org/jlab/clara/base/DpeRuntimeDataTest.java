@@ -2,7 +2,6 @@ package org.jlab.clara.base;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Set;
@@ -21,15 +20,11 @@ import org.jlab.clara.util.report.JsonUtils;
 public class DpeRuntimeDataTest {
 
     private final JSONObject json;
-    private DpeRuntimeData data;
+    private final DpeRuntimeData data;
 
     public DpeRuntimeDataTest() {
         json = JsonUtils.readJson("/resources/runtime-data.json")
                         .getJSONObject(ClaraConstants.RUNTIME_KEY);
-    }
-
-    @Before
-    public void setup() throws Exception {
         data = new DpeRuntimeData(json);
     }
 

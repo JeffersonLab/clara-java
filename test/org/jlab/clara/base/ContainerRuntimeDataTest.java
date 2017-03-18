@@ -1,7 +1,6 @@
 package org.jlab.clara.base;
 
 import org.json.JSONObject;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.util.Set;
@@ -19,15 +18,11 @@ import org.jlab.clara.util.report.JsonUtils;
 public class ContainerRuntimeDataTest {
 
     private final JSONObject json;
-    private ContainerRuntimeData data;
+    private final ContainerRuntimeData data;
 
     public ContainerRuntimeDataTest() {
         json = JsonUtils.readJson("/resources/runtime-data.json")
                         .getJSONObject(ClaraConstants.RUNTIME_KEY);
-    }
-
-    @Before
-    public void setup() throws Exception {
         data = new ContainerRuntimeData(JsonUtils.getContainer(json, 1));
     }
 
@@ -60,7 +55,8 @@ public class ContainerRuntimeDataTest {
 
     @Test
     public void emptyServices() throws Exception {
-        data = new ContainerRuntimeData(JsonUtils.getContainer(json, 2));
+        JSONObject containerJson = JsonUtils.getContainer(json, 2);
+        ContainerRuntimeData data = new ContainerRuntimeData(containerJson);
 
         assertThat(data.services(), empty());
     }

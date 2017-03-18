@@ -1,7 +1,6 @@
 package org.jlab.clara.base;
 
 import org.json.JSONObject;
-import org.junit.Before;
 import org.junit.Test;
 
 import static org.hamcrest.Matchers.is;
@@ -14,16 +13,11 @@ import org.jlab.clara.util.report.JsonUtils;
 public class ServiceRuntimeDataTest {
 
     private final JSONObject json;
-
-    private ServiceRuntimeData data;
+    private final ServiceRuntimeData data;
 
     public ServiceRuntimeDataTest() {
         json = JsonUtils.readJson("/resources/runtime-data.json")
                         .getJSONObject(ClaraConstants.RUNTIME_KEY);
-    }
-
-    @Before
-    public void setup() {
         data = new ServiceRuntimeData(JsonUtils.getService(json, 1, 0));
     }
 
