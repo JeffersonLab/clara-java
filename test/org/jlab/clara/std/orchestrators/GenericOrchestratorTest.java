@@ -29,8 +29,8 @@ import static org.mockito.Mockito.when;
 
 public class GenericOrchestratorTest {
 
-    private final DpeInfo frontEnd = AppData.dpe("10.1.1.254_java");
-    private final ExecutorService dpeExecutor = Executors.newFixedThreadPool(3);
+    private static final ExecutorService EXECUTOR = Executors.newFixedThreadPool(3);
+    private static final DpeInfo FRONT_END = AppData.dpe("10.1.1.254_java");
 
     private CoreOrchestrator orchestrator;
 
@@ -423,7 +423,7 @@ public class GenericOrchestratorTest {
         }
 
         public void waitCallbacks() throws Exception {
-            dpeExecutor.invokeAll(tasks);
+            EXECUTOR.invokeAll(tasks);
             tasks.clear();
         }
 
