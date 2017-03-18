@@ -1,20 +1,21 @@
 package org.jlab.clara.std.cli;
 
-import org.junit.Before;
-import org.junit.Test;
-
-
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.mockito.Mockito.mock;
+
+import org.jline.terminal.Terminal;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
-import org.jline.terminal.TerminalBuilder;
-
 public class SetCommandTest {
+
+    private static final Terminal TERMINAL = mock(Terminal.class);
 
     private RunConfig config;
     private SetCommand command;
@@ -22,7 +23,7 @@ public class SetCommandTest {
     @Before
     public void setup() throws Exception {
         config = new RunConfig();
-        command = new SetCommand(TerminalBuilder.builder().build(), config);
+        command = new SetCommand(TERMINAL, config);
     }
 
     @Test
