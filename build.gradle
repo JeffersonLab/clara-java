@@ -57,7 +57,7 @@ repositories {
 
 
 dependencies {
-    compile 'org.jlab.coda:xmsg:2.3-SNAPSHOT'
+    compile 'org.jlab.coda:xmsg:2.3'
     compile 'org.yaml:snakeyaml:1.18'
     compile 'org.json:json:20160810'
     compile 'org.jline:jline:3.1.3'
