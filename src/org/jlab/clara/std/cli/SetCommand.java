@@ -39,6 +39,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
+import org.jlab.clara.util.FileUtils;
 import org.jline.reader.Completer;
 import org.jline.reader.impl.completer.FileNameCompleter;
 import org.jline.reader.impl.completer.NullCompleter;
@@ -122,12 +123,12 @@ class SetCommand extends Command {
 
     private void setFiles(String files) {
         try {
-            Path path = Paths.get(expandHome(files));
+            Path path = Paths.get(FileUtils.expandHome(files));
             File tempFile = File.createTempFile("temp", "");
             try (PrintStream printer = new PrintStream(new BufferedOutputStream(
                     new FileOutputStream(tempFile, false)))) {
                 if (Files.isDirectory(path)) {
-                    int numFiles = listDirectory(printer, path.getParent(), f -> true);
+                    int numFiles = listDir(printer, path, f -> true);
                     if (numFiles > 0) {
                         runConfig.setInputDir(path.toString());
                         runConfig.setFilesList(tempFile.getAbsolutePath());
@@ -136,16 +137,16 @@ class SetCommand extends Command {
                     }
                 } else if (Files.isRegularFile(path)) {
                     printer.println(path.getFileName());
-                    runConfig.setInputDir(path.getParent().toString());
+                    runConfig.setInputDir(FileUtils.getParent(path).toString());
                     runConfig.setFilesList(tempFile.getAbsolutePath());
                 } else if (path.getFileName().toString().contains("*")
-                        && Files.isDirectory(path.getParent())) {
+                        && Files.isDirectory(FileUtils.getParent(path))) {
                     String pattern = path.getFileName().toString();
                     String glob = "glob:" + pattern;
-                    PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher(glob);
-                    int numFiles = listDirectory(printer, path.getParent(), pathMatcher::matches);
+                    PathMatcher matcher = FileSystems.getDefault().getPathMatcher(glob);
+                    int numFiles = listDir(printer, FileUtils.getParent(path), matcher::matches);
                     if (numFiles > 0) {
-                        runConfig.setInputDir(path.getParent().toString());
+                        runConfig.setInputDir(FileUtils.getParent(path).toString());
                         runConfig.setFilesList(tempFile.getAbsolutePath());
                     } else {
                         System.out.println("Error: no files matched");
@@ -161,22 +162,7 @@ class SetCommand extends Command {
         }
     }
 
-    private String expandHome(String path) {
-        if (path.startsWith("~")) {
-            return newPath(path, "~");
-        } else if (path.startsWith("$HOME")) {
-            return newPath(path, "$HOME");
-        }
-        return path;
-    }
-
-    private String newPath(String path, String replace) {
-        String home = System.getProperty("user.home");
-        path = path.replace(replace, home);
-        return path;
-    }
-
-    private int listDirectory(PrintStream printer, Path directory, Predicate<Path> filter)
+    private int listDir(PrintStream printer, Path directory, Predicate<Path> filter)
             throws IOException {
         List<Path> files = Files.list(directory)
                     .filter(Files::isRegularFile)
@@ -187,5 +173,4 @@ class SetCommand extends Command {
         files.forEach(printer::println);
         return files.size();
     }
-
 }
