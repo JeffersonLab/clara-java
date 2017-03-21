@@ -1,3 +1,0 @@
-#!/bin/sh
-
-./scripts/exec-class org.jlab.clara.examples.orchestrators.OrInteractive "$@"
