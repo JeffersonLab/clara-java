@@ -1,8 +1,4 @@
 #!/usr/bin/env bash
-# author Vardan Gyurjyan
-# date 1.13.17
-
-MALLOC_ARENA_MAX=2; export MALLOC_ARENA_MAX
 
 if [ -z "${CLARA_HOME}" ]; then
     echo "Error: \$CLARA_HOME is not defined."
