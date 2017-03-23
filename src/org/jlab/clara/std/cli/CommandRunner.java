@@ -23,6 +23,7 @@
 package org.jlab.clara.std.cli;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Map;
 
 import org.jline.reader.EndOfFileException;
@@ -59,7 +60,8 @@ class CommandRunner {
             execThread.interrupt();
         });
         try {
-            return command.execute(splited);
+            String[] cmdArgs = Arrays.copyOfRange(splited, 1, splited.length);
+            return command.execute(cmdArgs);
         } finally {
             terminal.handle(Signal.INT, prevIntHandler);
         }

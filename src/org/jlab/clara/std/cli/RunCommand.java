@@ -52,13 +52,13 @@ class RunCommand extends Command {
 
     @Override
     public int execute(String[] args) {
-        if (args.length == 1) {
+        if (args.length == 0) {
             terminal.writer().println("Missing arguments.");
             return EXIT_ERROR;
-        } else if ("local".equals(args[1])) {
+        } else if ("local".equals(args[0])) {
             return runLocal();
         } else {
-            terminal.writer().println("Invalid command: " + args[1]);
+            terminal.writer().println("Invalid command: " + args[0]);
             return EXIT_ERROR;
         }
     }

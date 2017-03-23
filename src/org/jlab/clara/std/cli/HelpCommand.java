@@ -38,7 +38,7 @@ class HelpCommand extends Command {
 
     @Override
     public int execute(String[] args) {
-        if (args.length < 2) {
+        if (args.length < 1) {
             terminal.writer().println("Commands:\n");
             subCommands.values().stream()
                        .map(SubCommand::getName)
@@ -47,7 +47,7 @@ class HelpCommand extends Command {
             return EXIT_SUCCESS;
         }
 
-        Command command = commands.get(args[1]);
+        Command command = commands.get(args[0]);
         if (command == null) {
             terminal.writer().println("Invalid command name.");
             return EXIT_ERROR;

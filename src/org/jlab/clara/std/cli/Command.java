@@ -23,6 +23,7 @@
 package org.jlab.clara.std.cli;
 
 import java.io.PrintWriter;
+import java.util.Arrays;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,18 +56,19 @@ abstract class Command implements AutoCloseable {
     public abstract int execute(String[] args);
 
     protected int executeSubcommand(String[] args) {
-        if (args.length < 2) {
+        if (args.length < 1) {
             terminal.writer().println("Error: missing argument.");
             return EXIT_ERROR;
         }
-        String subCommandName = args[1];
+        String subCommandName = args[0];
         SubCommand subCommand = subCommands.get(subCommandName);
         if (subCommand == null) {
             terminal.writer().println("Error: invalid argument.");
             return EXIT_ERROR;
         }
         try {
-            return subCommand.getAction().apply(args);
+            String[] cmdArgs = Arrays.copyOfRange(args, 1, args.length);
+            return subCommand.getAction().apply(cmdArgs);
         } catch (IllegalArgumentException e) {
             terminal.writer().println("Error: " + e.getMessage());
         } catch (Exception e) {

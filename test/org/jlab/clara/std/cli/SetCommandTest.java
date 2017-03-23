@@ -35,7 +35,7 @@ public class SetCommandTest {
     @Test
     public void testSetSession() throws Exception {
 
-        command.execute(new String[]{"set", "session", "trevor"});
+        command.execute(new String[]{"session", "trevor"});
 
         assertThat(config.getSession(), is("trevor"));
     }
@@ -44,7 +44,7 @@ public class SetCommandTest {
     public void testSetYaml() throws Exception {
         String userFile = createTempFile("yaml");
 
-        command.execute(new String[]{"set", "yaml", userFile});
+        command.execute(new String[]{"yaml", userFile});
 
         assertThat(config.getConfigFile(), is(userFile));
     }
@@ -53,14 +53,14 @@ public class SetCommandTest {
     public void testSetFileList() throws Exception {
         String userFile = createTempFile("fileList");
 
-        command.execute(new String[]{"set", "fileList", userFile});
+        command.execute(new String[]{"fileList", userFile});
 
         assertThat(config.getFilesList(), is(userFile));
     }
 
     @Test
     public void testSetMaxThreads() throws Exception {
-        command.execute(new String[]{"set", "threads", "5"});
+        command.execute(new String[]{"threads", "5"});
 
         assertThat(config.getMaxThreads(), is(5));
     }
@@ -69,7 +69,7 @@ public class SetCommandTest {
     public void testSetInputDir() throws Exception {
         String userDir = createTempDir("input");
 
-        command.execute(new String[]{"set", "inputDir", userDir});
+        command.execute(new String[]{"inputDir", userDir});
 
         assertThat(config.getInputDir(), is(userDir));
     }
@@ -78,7 +78,7 @@ public class SetCommandTest {
     public void testSetOutputDir() throws Exception {
         String userDir = createTempDir("output");
 
-        command.execute(new String[]{"set", "outputDir", userDir});
+        command.execute(new String[]{"outputDir", userDir});
 
         assertThat(config.getOutputDir(), is(userDir));
     }

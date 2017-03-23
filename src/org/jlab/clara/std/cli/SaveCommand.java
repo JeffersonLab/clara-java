@@ -49,11 +49,11 @@ class SaveCommand extends Command {
 
     @Override
     public int execute(String[] args) {
-        if (args.length < 2) {
+        if (args.length < 1) {
             terminal.writer().println("Missing filename argument");
             return EXIT_ERROR;
         }
-        Path path = Paths.get(args[1]);
+        Path path = Paths.get(args[0]);
         if (Files.exists(path)) {
             boolean overwrite = scanAnswer();
             if (!overwrite) {

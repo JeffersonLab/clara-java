@@ -106,7 +106,7 @@ class SetCommand extends Command {
         Function<String[], Integer> commandAction = args -> {
             T val;
             try {
-                val = parser.apply(args[2]);
+                val = parser.apply(args[0]);
             } catch (Exception e) {
                 throw new IllegalArgumentException("invalid argument", e);
             }
