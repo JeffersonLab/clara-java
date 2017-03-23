@@ -43,12 +43,12 @@ class RunCommand extends BaseCommand {
 
     private static class RunLocal extends AbstractCommand {
 
-        private final Config runConfig;
+        private final Config config;
         private final Map<ClaraLang, Process> backgroundDpes;
 
         RunLocal(Terminal terminal, Config config) {
             super(terminal, "local", "");
-            this.runConfig = config;
+            this.config = config;
             this.backgroundDpes = new HashMap<>();
         }
 
@@ -60,11 +60,11 @@ class RunCommand extends BaseCommand {
                 Path orchestrator = Paths.get(Config.claraHome(), "bin", "clara-orchestrator");
                 return CommandUtils.runProcess(orchestrator.toString(),
                         "-F",
-                        "-t", Integer.toString(runConfig.getMaxThreads()),
-                        "-i", runConfig.getInputDir(),
-                        "-o", runConfig.getOutputDir(),
-                        runConfig.getConfigFile(),
-                        runConfig.getFilesList());
+                        "-t", config.getValue(Config.MAX_THREADS).toString(),
+                        "-i", config.getValue(Config.INPUT_DIR).toString(),
+                        "-o", config.getValue(Config.OUTPUT_DIR).toString(),
+                        config.getValue(Config.SERVICES_FILE).toString(),
+                        config.getValue(Config.FILES_LIST).toString());
             } catch (Exception e) {
                 e.printStackTrace();
                 return EXIT_ERROR;
@@ -72,7 +72,7 @@ class RunCommand extends BaseCommand {
         }
 
         private void startLocalDpes() throws IOException {
-            String configFile = runConfig.getConfigFile();
+            String configFile = config.getValue(Config.SERVICES_FILE).toString();
             OrchestratorConfigParser parser = new OrchestratorConfigParser(configFile);
             Set<ClaraLang> languages = parser.parseLanguages();
 

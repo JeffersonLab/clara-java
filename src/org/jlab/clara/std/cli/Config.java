@@ -23,39 +23,144 @@
 package org.jlab.clara.std.cli;
 
 import java.nio.file.Paths;
-import org.jlab.coda.xmsg.core.xMsgUtil;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.function.BiFunction;
 
-class Config {
+import org.jlab.clara.base.ClaraUtil;
+import org.jline.reader.Completer;
+import org.jline.reader.impl.completer.FileNameCompleter;
 
-    private String orchestrator;
-    private String localHost;
-    private String configFile;
-    private String filesList;
-    private String inputDir;
-    private String outputDir;
-    private boolean useFrontEnd;
-    private String session;
-    private int maxNodes;
-    private int maxThreads;
+/**
+ * Environment configuration for a CLARA shell session.
+ */
+public class Config {
+
+    /**
+     * The variable for the orchestrator configuration file.
+     */
+    public static final String SERVICES_FILE = "servicesFile";
+
+    /**
+     * The variable for the list of input files.
+     */
+    public static final String FILES_LIST = "fileList";
+
+    /**
+     * The variable for the input directory.
+     */
+    public static final String INPUT_DIR = "inputDir";
+
+    /**
+     * The variable for the output directory.
+     */
+    public static final String OUTPUT_DIR = "outputDir";
+
+    /**
+     * The variable for the configuration file of the CLARA orchestrator.
+     */
+    public static final String SESSION = "session";
+
+    /**
+     * The variable for the address of the front-end DPE.
+     */
+    public static final String FRONTEND_HOST = "feHost";
+
+    /**
+     * The variable for the switch to use the front-end DPE or not.
+     */
+    public static final String USE_FRONTEND = "useFE";
+
+    /**
+     * The variable for the number of reconstruction threads.
+     */
+    public static final String MAX_THREADS = "threads";
+
+    /**
+     * The variable for the number of reconstruction nodes.
+     */
+    public static final String MAX_NODES = "numNodes";
+
+    private final Map<String, ConfigVariable> variables;
 
     Config() {
-        setDefaults();
+        variables = initVariables();
     }
 
-    public void setDefaults() {
+    static Map<String, ConfigVariable> initVariables() {
+        Map<String, ConfigVariable> m = new LinkedHashMap<>();
+        defaultVariables().forEach((n, b) -> m.put(n, b.build()));
+        return m;
+    }
+
+    static Map<String, ConfigVariable.Builder> defaultVariables() {
+        Map<String, ConfigVariable.Builder> defaultVariables = new LinkedHashMap<>();
+
+        BiFunction<String, String, ConfigVariable.Builder> addBuilder = (n, d) -> {
+            ConfigVariable.Builder b = ConfigVariable.newBuilder(n, d);
+            defaultVariables.put(n, b);
+            return b;
+        };
         String claraHome = claraHome();
-        this.orchestrator = "org.jlab.clas.std.orchestrators.CloudOrchestrator";
-        this.localHost = xMsgUtil.localhost();
-        this.configFile = defaultConfigFile(claraHome);
-        this.filesList = defaultFileList(claraHome);
-        this.inputDir = Paths.get(claraHome, "data", "input").toString();
-        this.outputDir = Paths.get(claraHome, "data", "output").toString();
-        this.useFrontEnd = true;
-        this.session = "";
-        this.maxNodes = 1;
-        this.maxThreads = Runtime.getRuntime().availableProcessors();
+
+        addBuilder.apply(SERVICES_FILE,
+                "Path to the file describing application service composition.")
+                .withInitialValue(defaultConfigFile(claraHome))
+                .withParser(ConfigParsers::toExistingFile)
+                .withCompleter(fileCompleter());
+
+        addBuilder.apply(FILES_LIST,
+                "Path to the file containing the names of data-files to be processed.")
+                .withInitialValue(defaultFileList(claraHome))
+                .withParser(ConfigParsers::toExistingFile)
+                .withCompleter(fileCompleter());
+
+        addBuilder.apply(INPUT_DIR,
+                "The input directory where the files to be processed are located.")
+                .withInitialValue(Paths.get(claraHome, "data", "input").toString())
+                .withParser(ConfigParsers::toExistingDirectory)
+                .withCompleter(fileCompleter());
+
+        addBuilder.apply(OUTPUT_DIR,
+                "The output directory where processed files will be saved.")
+                .withInitialValue(Paths.get(claraHome, "data", "output").toString())
+                .withParser(ConfigParsers::toDirectory)
+                .withCompleter(fileCompleter());
+
+        addBuilder.apply(SESSION,
+                "The data processing session.")
+                .withInitialValue("")
+                .withParser(ConfigParsers::toStringOrEmpty);
+
+        addBuilder.apply(FRONTEND_HOST,
+                "The IP address to be used by the front-end DPE.")
+                .withInitialValue(ClaraUtil.localhost())
+                .withParser(ConfigParsers::toHostAddress);
+
+        addBuilder.apply(USE_FRONTEND,
+                "Use the front-end DPE for reconstruction.")
+                .withInitialValue(true)
+                .withParser(ConfigParsers::toBoolean);
+
+        addBuilder.apply(MAX_THREADS,
+                "The maximum number of processing threads to be used per node.")
+                .withInitialValue(Runtime.getRuntime().availableProcessors())
+                .withParser(ConfigParsers::toPositiveInteger);
+
+        addBuilder.apply(MAX_NODES,
+                "The maximum number of reconstruction nodes to be used.")
+                .withInitialValue(512)
+                .withParser(ConfigParsers::toPositiveInteger);
+
+        return defaultVariables;
     }
 
+    /**
+     * Gets the value of the CLARA_HOME environment variable.
+     *
+     * @return the value of the environment variable, if set
+     */
     public static String claraHome() {
         String claraHome = System.getenv("CLARA_HOME");
         if (claraHome == null) {
@@ -72,78 +177,64 @@ class Config {
         return Paths.get(claraHome, "plugins", "clas12", "config", "files.list").toString();
     }
 
-    public String getOrchestrator() {
-        return orchestrator;
+    /**
+     * Checks if a variable of the given name exists.
+     *
+     * @param name the variable to check
+     * @return true if there is a variable with the given name, false otherwise
+     */
+    public boolean hasVariable(String name) {
+        return variables.containsKey(name);
     }
 
-    public String getLocalHost() {
-        return localHost;
+    /**
+     * Checks if the given variable has a value.
+     *
+     * @param variable the variable to check
+     * @return true if there is a variable has a value, false otherwise
+     * @throws IllegalArgumentException if the variable does not exist
+     */
+    public boolean hasValue(String variable) {
+        return getVariable(variable).hasValue();
     }
 
-    public void setLocalHost(String localHost) {
-        this.localHost = localHost;
+    /**
+     * Gets the value of the specified variable.
+     *
+     * @param variable the name of the variable
+     * @return the current value of the variable, if set
+     * @throws IllegalArgumentException if the variable does not exist
+     * @throws IllegalStateException if the variable has no value
+     */
+    public Object getValue(String variable) {
+        return getVariable(variable).getValue();
     }
 
-    public String getConfigFile() {
-        return configFile;
+    void setValue(String variable, Object value) {
+        getVariable(variable).setValue(value);
     }
 
-    public void setConfigFile(String configFile) {
-        this.configFile = configFile;
-    }
-
-    public String getFilesList() {
-        return filesList;
-    }
-
-    public void setFilesList(String filesList) {
-        this.filesList = filesList;
-    }
-
-    public String getInputDir() {
-        return inputDir;
-    }
-
-    public void setInputDir(String inputDir) {
-        this.inputDir = inputDir;
-    }
-
-    public String getOutputDir() {
-        return outputDir;
-    }
-
-    public void setOutputDir(String outputDir) {
-        this.outputDir = outputDir;
-    }
-
-    public boolean isUseFrontEnd() {
-        return useFrontEnd;
-    }
-
-    public String getSession() {
-        return session;
-    }
-
-    public void setSession(String session) {
-        this.session = session;
-    }
-
-    public int getMaxNodes() {
-        return maxNodes;
-    }
-
-    public void setMaxNodes(int maxNodes) {
-        this.maxNodes = maxNodes;
-    }
-
-    public int getMaxThreads() {
-        return maxThreads;
-    }
-
-    public void setMaxThreads(int maxThreads) {
-        if (maxThreads <= 0) {
-            throw new IllegalArgumentException("invalid number of threads");
+    void addVariable(ConfigVariable variable) {
+        ConfigVariable prev = variables.putIfAbsent(variable.getName(), variable);
+        if (prev != null) {
+            String msg = String.format("a variable named %s already exists", variable.getName());
+            throw new IllegalArgumentException(msg);
         }
-        this.maxThreads = maxThreads;
+    }
+
+    ConfigVariable getVariable(String name) {
+        ConfigVariable v = variables.get(name);
+        if (v == null) {
+            throw new IllegalArgumentException("no variable named " + name);
+        }
+        return v;
+    }
+
+    Collection<ConfigVariable> getVariables() {
+        return variables.values();
+    }
+
+    private static Completer fileCompleter() {
+        return new FileNameCompleter();
     }
 }

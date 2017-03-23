@@ -95,11 +95,11 @@ class SaveCommand extends AbstractCommand {
 
     private void writeFile(Path path) {
         try (PrintStream printer = new PrintStream(new FileOutputStream(path.toFile(), false))) {
-            printer.println("set filesList " + config.getFilesList());
-            printer.println("set inputDir " + config.getInputDir());
-            printer.println("set outputDir " + config.getOutputDir());
-            printer.println("set session " + config.getSession());
-            printer.println("set threads " + config.getMaxThreads());
+            for (ConfigVariable variable : config.getVariables()) {
+                if (variable.hasValue()) {
+                    printer.printf("set %s %s%n", variable.getName(), variable.getValue());
+                }
+            }
         } catch (FileNotFoundException e) {
             terminal.writer().println("Could not create file: " + path);
         }

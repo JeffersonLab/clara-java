@@ -35,9 +35,9 @@ class EditCommand extends BaseCommand {
         this.config = config;
 
         addArgument("services", "Edit application service-based composition.",
-                c -> c.getConfigFile());
+                c -> c.getValue(Config.SERVICES_FILE).toString());
         addArgument("files", "Edit input file list.",
-                c -> c.getFilesList());
+                c -> c.getValue(Config.FILES_LIST).toString());
     }
 
     void addArgument(String name, String description, Function<Config, String> fileArg) {

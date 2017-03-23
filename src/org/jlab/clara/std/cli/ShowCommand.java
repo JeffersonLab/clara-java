@@ -40,19 +40,22 @@ class ShowCommand extends BaseCommand {
 
     private int showConfig() {
         terminal.writer().println();
-        printFormat("localhost", config.getLocalHost());
-        printFormat("configFile", config.getConfigFile());
-        printFormat("filesList", config.getFilesList());
-        printFormat("inputDir", config.getInputDir());
-        printFormat("outputDir", config.getOutputDir());
-        printFormat("useFrontEnd", Boolean.toString(config.isUseFrontEnd()));
-        printFormat("session", config.getSession());
-        printFormat("maxNodes", Integer.toString(config.getMaxNodes()));
-        printFormat("maxThreads", Integer.toString(config.getMaxThreads()));
+        config.getVariables().forEach(this::printFormat);
         return EXIT_SUCCESS;
     }
 
-    private void printFormat(String param, String value) {
-        System.out.printf("%-20s %s\n", param, value);
+    private void printFormat(ConfigVariable variable) {
+        System.out.printf("%-20s %s\n", variable.getName() + ":", getValue(variable));
+    }
+
+    private String getValue(ConfigVariable variable) {
+        if (!variable.hasValue()) {
+            return "NO VALUE";
+        }
+        Object value = variable.getValue();
+        if (value instanceof Number || value instanceof Boolean) {
+            return value.toString();
+        }
+        return "\"" + value + "\"";
     }
 }

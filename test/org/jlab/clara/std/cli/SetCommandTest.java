@@ -29,7 +29,7 @@ public class SetCommandTest {
     @Test
     public void testDefaultSession() throws Exception {
 
-        assertThat(config.getSession(), is(""));
+        assertThat(config.getValue(Config.SESSION), is(""));
     }
 
     @Test
@@ -37,7 +37,7 @@ public class SetCommandTest {
 
         command.execute(new String[]{"session", "trevor"});
 
-        assertThat(config.getSession(), is("trevor"));
+        assertThat(config.getValue(Config.SESSION), is("trevor"));
     }
 
     @Test
@@ -46,7 +46,7 @@ public class SetCommandTest {
 
         command.execute(new String[]{"servicesFile", userFile});
 
-        assertThat(config.getConfigFile(), is(userFile));
+        assertThat(config.getValue(Config.SERVICES_FILE), is(userFile));
     }
 
     @Test
@@ -55,14 +55,14 @@ public class SetCommandTest {
 
         command.execute(new String[]{"fileList", userFile});
 
-        assertThat(config.getFilesList(), is(userFile));
+        assertThat(config.getValue(Config.FILES_LIST), is(userFile));
     }
 
     @Test
     public void testSetMaxThreads() throws Exception {
         command.execute(new String[]{"threads", "5"});
 
-        assertThat(config.getMaxThreads(), is(5));
+        assertThat((Integer) config.getValue(Config.MAX_THREADS), is(5));
     }
 
     @Test
@@ -71,7 +71,7 @@ public class SetCommandTest {
 
         command.execute(new String[]{"inputDir", userDir});
 
-        assertThat(config.getInputDir(), is(userDir));
+        assertThat(config.getValue(Config.INPUT_DIR), is(userDir));
     }
 
     @Test
@@ -80,7 +80,7 @@ public class SetCommandTest {
 
         command.execute(new String[]{"outputDir", userDir});
 
-        assertThat(config.getOutputDir(), is(userDir));
+        assertThat(config.getValue(Config.OUTPUT_DIR), is(userDir));
     }
 
     private static String createTempDir(String prefix) throws IOException {

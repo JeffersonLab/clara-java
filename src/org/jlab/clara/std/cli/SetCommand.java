@@ -35,7 +35,6 @@ import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
@@ -43,7 +42,6 @@ import org.jlab.clara.util.FileUtils;
 import org.jline.reader.Completer;
 import org.jline.reader.impl.completer.ArgumentCompleter;
 import org.jline.reader.impl.completer.FileNameCompleter;
-import org.jline.reader.impl.completer.NullCompleter;
 import org.jline.reader.impl.completer.StringsCompleter;
 import org.jline.terminal.Terminal;
 
@@ -58,59 +56,28 @@ class SetCommand extends BaseCommand {
     }
 
     private void setArguments() {
-        subCmd("servicesFile",
-                config::setConfigFile, ConfigParsers::toExistingFile,
-                new FileNameCompleter(),
-                "Full path to the file describing application service composition. "
-                    + "(default: $CLARA_HOME/plugins/clas12/config/services.yaml)");
+        config.getVariables().forEach(this::subCmd);
 
         subCmd("files",
-                this::setFiles, Function.identity(),
+                this::setFiles,
                 new FileNameCompleter(),
                 "Set the input files to be processed (Example: /mnt/data/files/*.evio).");
-
-        subCmd("fileList",
-                config::setFilesList, ConfigParsers::toExistingFile,
-                new FileNameCompleter(),
-                "Full path to the file containing the names of data-files to be processed. "
-                    + "Note: actual files are located in the inputDir. "
-                    + "(Default: $CLARA_HOME/plugins/clas12/config/files.list)");
-
-        subCmd("inputDir",
-                config::setInputDir, ConfigParsers::toExistingDirectory,
-                new FileNameCompleter(),
-                "The input directory where the files to be processed are located. "
-                    + "(Default: $CLARA_HOME/data/in)");
-
-        subCmd("outputDir",
-                config::setOutputDir, ConfigParsers::toExistingDirectory,
-                new FileNameCompleter(),
-                "The output directory where processed files will be saved. "
-                    + "(Default: $CLARA_HOME/data/out)");
-
-        subCmd("session",
-                config::setSession, ConfigParsers::toString,
-                new FileNameCompleter(),
-                "The data processing session. (Default: $USER)");
-
-        subCmd("threads",
-                config::setMaxThreads, ConfigParsers::toInteger,
-                NullCompleter.INSTANCE,
-                "The maximum number of processing threads to be used per node. "
-                    + "In case value = auto all system cores will be used. (Default: 2)");
     }
 
-    private <T> void subCmd(String name,
-                            Consumer<T> action,
-                            Function<String, T> parser,
-                            Completer completer,
-                            String description) {
+    private void subCmd(ConfigVariable v) {
+        subCmd(v.getName(), v::setValue, v.getCompleter(), v.getDescription());
+    }
+
+    private void subCmd(String name,
+                        Consumer<String[]> action,
+                        Completer completer,
+                        String description) {
         Command subCmd = new AbstractCommand(terminal, name, description) {
 
             @Override
             public int execute(String[] args) {
                 try {
-                    action.accept(parser.apply(args[0]));
+                    action.accept(args);
                     return EXIT_SUCCESS;
                 } catch (Exception e) {
                     terminal.writer().printf("could not set variable: %s%n", e.getMessage());
@@ -127,24 +94,27 @@ class SetCommand extends BaseCommand {
         addSubCommand(subCmd);
     }
 
-    private void setFiles(String files) {
+    private void setFiles(String[] args) {
+        if (args.length < 1) {
+            throw new IllegalArgumentException("missing argument");
+        }
         try {
-            Path path = Paths.get(FileUtils.expandHome(files));
+            Path path = Paths.get(FileUtils.expandHome(args[0]));
             File tempFile = File.createTempFile("temp", "");
             try (PrintStream printer = new PrintStream(new BufferedOutputStream(
                     new FileOutputStream(tempFile, false)))) {
                 if (Files.isDirectory(path)) {
                     int numFiles = listDir(printer, path, f -> true);
                     if (numFiles > 0) {
-                        config.setInputDir(path.toString());
-                        config.setFilesList(tempFile.getAbsolutePath());
+                        config.setValue(Config.INPUT_DIR, path.toString());
+                        config.setValue(Config.FILES_LIST, tempFile.getAbsolutePath());
                     } else {
                         System.out.println("Error: empty directory");
                     }
                 } else if (Files.isRegularFile(path)) {
                     printer.println(path.getFileName());
-                    config.setInputDir(FileUtils.getParent(path).toString());
-                    config.setFilesList(tempFile.getAbsolutePath());
+                    config.setValue(Config.INPUT_DIR, FileUtils.getParent(path).toString());
+                    config.setValue(Config.FILES_LIST, tempFile.getAbsolutePath());
                 } else if (path.getFileName().toString().contains("*")
                         && Files.isDirectory(FileUtils.getParent(path))) {
                     String pattern = path.getFileName().toString();
@@ -152,8 +122,8 @@ class SetCommand extends BaseCommand {
                     PathMatcher matcher = FileSystems.getDefault().getPathMatcher(glob);
                     int numFiles = listDir(printer, FileUtils.getParent(path), matcher::matches);
                     if (numFiles > 0) {
-                        config.setInputDir(FileUtils.getParent(path).toString());
-                        config.setFilesList(tempFile.getAbsolutePath());
+                        config.setValue(Config.INPUT_DIR, FileUtils.getParent(path).toString());
+                        config.setValue(Config.FILES_LIST, tempFile.getAbsolutePath());
                     } else {
                         System.out.println("Error: no files matched");
                     }
