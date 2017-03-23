@@ -22,8 +22,6 @@
 
 package org.jlab.clara.std.cli;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import org.jlab.coda.xmsg.core.xMsgUtil;
 
@@ -91,7 +89,6 @@ class Config {
     }
 
     public void setConfigFile(String configFile) {
-        validateFile(configFile);
         this.configFile = configFile;
     }
 
@@ -100,7 +97,6 @@ class Config {
     }
 
     public void setFilesList(String filesList) {
-        validateFile(filesList);
         this.filesList = filesList;
     }
 
@@ -109,7 +105,6 @@ class Config {
     }
 
     public void setInputDir(String inputDir) {
-        validateDirectory(inputDir);
         this.inputDir = inputDir;
     }
 
@@ -118,7 +113,6 @@ class Config {
     }
 
     public void setOutputDir(String outputDir) {
-        validateDirectory(outputDir);
         this.outputDir = outputDir;
     }
 
@@ -151,31 +145,5 @@ class Config {
             throw new IllegalArgumentException("invalid number of threads");
         }
         this.maxThreads = maxThreads;
-    }
-
-    private static void validateFile(String file) {
-        if (file.isEmpty()) {
-            throw new IllegalArgumentException("empty argument");
-        }
-        Path path = Paths.get(file);
-        if (!Files.exists(path)) {
-            throw new IllegalArgumentException("file does not exist");
-        }
-        if (!Files.isRegularFile(path)) {
-            throw new IllegalArgumentException("file is not a regular file");
-        }
-    }
-
-    private static void validateDirectory(String dir) {
-        if (dir.isEmpty()) {
-            throw new IllegalArgumentException("empty argument");
-        }
-        Path path = Paths.get(dir);
-        if (!Files.exists(path)) {
-            throw new IllegalArgumentException("directory does not exist");
-        }
-        if (!Files.isDirectory(path)) {
-            throw new IllegalArgumentException("directory should be a directory");
-        }
     }
 }

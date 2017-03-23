@@ -59,7 +59,7 @@ class SetCommand extends BaseCommand {
 
     private void setArguments() {
         subCmd("servicesFile",
-                config::setConfigFile, Function.identity(),
+                config::setConfigFile, ConfigParsers::toExistingFile,
                 new FileNameCompleter(),
                 "Full path to the file describing application service composition. "
                     + "(default: $CLARA_HOME/plugins/clas12/config/services.yaml)");
@@ -70,31 +70,31 @@ class SetCommand extends BaseCommand {
                 "Set the input files to be processed (Example: /mnt/data/files/*.evio).");
 
         subCmd("fileList",
-                config::setFilesList, Function.identity(),
+                config::setFilesList, ConfigParsers::toExistingFile,
                 new FileNameCompleter(),
                 "Full path to the file containing the names of data-files to be processed. "
                     + "Note: actual files are located in the inputDir. "
                     + "(Default: $CLARA_HOME/plugins/clas12/config/files.list)");
 
         subCmd("inputDir",
-                config::setInputDir, Function.identity(),
+                config::setInputDir, ConfigParsers::toExistingDirectory,
                 new FileNameCompleter(),
                 "The input directory where the files to be processed are located. "
                     + "(Default: $CLARA_HOME/data/in)");
 
         subCmd("outputDir",
-                config::setOutputDir, Function.identity(),
+                config::setOutputDir, ConfigParsers::toExistingDirectory,
                 new FileNameCompleter(),
                 "The output directory where processed files will be saved. "
                     + "(Default: $CLARA_HOME/data/out)");
 
         subCmd("session",
-                config::setSession, Function.identity(),
+                config::setSession, ConfigParsers::toString,
                 new FileNameCompleter(),
                 "The data processing session. (Default: $USER)");
 
         subCmd("threads",
-                config::setMaxThreads, Integer::parseInt,
+                config::setMaxThreads, ConfigParsers::toInteger,
                 NullCompleter.INSTANCE,
                 "The maximum number of processing threads to be used per node. "
                     + "In case value = auto all system cores will be used. (Default: 2)");
