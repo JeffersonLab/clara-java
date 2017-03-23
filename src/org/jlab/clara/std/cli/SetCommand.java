@@ -41,11 +41,13 @@ import java.util.stream.Collectors;
 
 import org.jlab.clara.util.FileUtils;
 import org.jline.reader.Completer;
+import org.jline.reader.impl.completer.ArgumentCompleter;
 import org.jline.reader.impl.completer.FileNameCompleter;
 import org.jline.reader.impl.completer.NullCompleter;
+import org.jline.reader.impl.completer.StringsCompleter;
 import org.jline.terminal.Terminal;
 
-class SetCommand extends Command {
+class SetCommand extends BaseCommand {
 
     private final RunConfig runConfig;
 
@@ -103,22 +105,26 @@ class SetCommand extends Command {
                             Function<String, T> parser,
                             Completer completer,
                             String description) {
-        Function<String[], Integer> commandAction = args -> {
-            T val;
-            try {
-                val = parser.apply(args[0]);
-            } catch (Exception e) {
-                throw new IllegalArgumentException("invalid argument", e);
-            }
-            action.accept(val);
-            return EXIT_SUCCESS;
-        };
-        subCommands.put(name, new SubCommand(name, commandAction, completer, description));
-    }
+        Command subCmd = new AbstractCommand(terminal, name, description) {
 
-    @Override
-    public int execute(String[] args) {
-        return executeSubcommand(args);
+            @Override
+            public int execute(String[] args) {
+                try {
+                    action.accept(parser.apply(args[0]));
+                    return EXIT_SUCCESS;
+                } catch (Exception e) {
+                    terminal.writer().printf("could not set variable: %s%n", e.getMessage());
+                    return EXIT_ERROR;
+                }
+            }
+
+            @Override
+            public Completer getCompleter() {
+                return new ArgumentCompleter(new StringsCompleter(name), completer);
+            }
+        };
+
+        addSubCommand(subCmd);
     }
 
     private void setFiles(String files) {

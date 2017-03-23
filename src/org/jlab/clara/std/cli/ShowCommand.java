@@ -24,7 +24,7 @@ package org.jlab.clara.std.cli;
 
 import org.jline.terminal.Terminal;
 
-class ShowCommand extends Command {
+class ShowCommand extends BaseCommand {
 
     private final RunConfig runConfig;
 
@@ -35,13 +35,7 @@ class ShowCommand extends Command {
     }
 
     private void setArguments() {
-        subCommands.put("config",
-                new SubCommand("config", args -> showConfig(), "Show parameter values"));
-    }
-
-    @Override
-    public int execute(String[] args) {
-        return executeSubcommand(args);
+        addSubCommand("config", args -> showConfig(), "Show parameter values");
     }
 
     private int showConfig() {

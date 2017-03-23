@@ -22,12 +22,9 @@
 
 package org.jlab.clara.std.cli;
 
-import org.jline.reader.Completer;
-import org.jline.reader.impl.completer.ArgumentCompleter;
-import org.jline.reader.impl.completer.StringsCompleter;
 import org.jline.terminal.Terminal;
 
-class EditCommand extends Command {
+class EditCommand extends BaseCommand {
 
     private final RunConfig runConfig;
     private final String editor;
@@ -40,15 +37,10 @@ class EditCommand extends Command {
     }
 
     private void setArguments() {
-        subCommands.put("composition", new SubCommand("composition",
-                this::editConfigFile, "Edit application service-based composition."));
-        subCommands.put("files", new SubCommand("files",
-                this::editFilesList, "Edit input file list."));
-    }
-
-    @Override
-    public int execute(String[] args) {
-        return executeSubcommand(args);
+        addSubCommand("composition",
+                this::editConfigFile, "Edit application service-based composition.");
+        addSubCommand("files",
+                this::editFilesList, "Edit input file list.");
     }
 
     private int editConfigFile(String[] args) {
@@ -57,12 +49,5 @@ class EditCommand extends Command {
 
     private int editFilesList(String[] args) {
         return CommandUtils.runProcess(editor, runConfig.getFilesList());
-    }
-
-    @Override
-    public Completer getCompleter() {
-        StringsCompleter command = new StringsCompleter(getName());
-        StringsCompleter subCommands = new StringsCompleter("composition", "files");
-        return new ArgumentCompleter(command, subCommands);
     }
 }

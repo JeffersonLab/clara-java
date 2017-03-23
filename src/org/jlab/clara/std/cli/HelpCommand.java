@@ -26,7 +26,7 @@ import java.util.Map;
 
 import org.jline.terminal.Terminal;
 
-class HelpCommand extends Command {
+class HelpCommand extends BaseCommand {
 
     private final Map<String, Command> commands;
 
@@ -41,7 +41,7 @@ class HelpCommand extends Command {
         if (args.length < 1) {
             terminal.writer().println("Commands:\n");
             subCommands.values().stream()
-                       .map(SubCommand::getName)
+                       .map(Command::getName)
                        .forEach(this::printCommand);
             terminal.writer().println("\nUse help <command> for details about each command.");
             return EXIT_SUCCESS;
@@ -65,7 +65,6 @@ class HelpCommand extends Command {
     private void addCommands() {
         commands.values().stream()
                 .filter(c -> !c.getName().equals("help"))
-                .map(c -> new SubCommand(c.getName(), args -> 0, c.getDescription()))
-                .forEach(sc -> subCommands.put(sc.getName(), sc));
+                .forEach(c -> addSubCommand(c.getName(), args -> 0, c.getDescription()));
     }
 }

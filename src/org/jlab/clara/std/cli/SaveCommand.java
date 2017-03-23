@@ -35,10 +35,11 @@ import org.jlab.clara.base.ClaraUtil;
 import org.jline.reader.Completer;
 import org.jline.reader.impl.completer.ArgumentCompleter;
 import org.jline.reader.impl.completer.FileNameCompleter;
+import org.jline.reader.impl.completer.NullCompleter;
 import org.jline.reader.impl.completer.StringsCompleter;
 import org.jline.terminal.Terminal;
 
-class SaveCommand extends Command {
+class SaveCommand extends AbstractCommand {
 
     private final RunConfig runConfig;
 
@@ -108,7 +109,7 @@ class SaveCommand extends Command {
     public Completer getCompleter() {
         Completer command = new StringsCompleter(getName());
         Completer fileCompleter = new FileNameCompleter();
-        return new ArgumentCompleter(command, fileCompleter);
+        return new ArgumentCompleter(command, fileCompleter, NullCompleter.INSTANCE);
     }
 
     @Override

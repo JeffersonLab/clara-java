@@ -34,7 +34,7 @@ import org.jlab.clara.base.ClaraLang;
 import org.jlab.clara.std.orchestrators.OrchestratorConfigParser;
 import org.jline.terminal.Terminal;
 
-class RunCommand extends Command {
+class RunCommand extends BaseCommand {
 
     private final RunConfig runConfig;
     private final Map<ClaraLang, Process> backgroundDpes;
@@ -47,7 +47,7 @@ class RunCommand extends Command {
     }
 
     private void setArguments() {
-        subCommands.put("local", new SubCommand("local", args -> 0, ""));
+        addSubCommand("local", args -> 0, "");
     }
 
     @Override

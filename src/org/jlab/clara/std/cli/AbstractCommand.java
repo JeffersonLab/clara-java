@@ -22,49 +22,71 @@
 
 package org.jlab.clara.std.cli;
 
-import java.util.function.Function;
-
 import org.jline.reader.Completer;
+import org.jline.reader.impl.completer.ArgumentCompleter;
 import org.jline.reader.impl.completer.NullCompleter;
+import org.jline.reader.impl.completer.StringsCompleter;
+import org.jline.terminal.Terminal;
 
-class SubCommand {
+import java.io.PrintWriter;
 
-    private final String name;
-    private final String description;
+/**
+ * Default class for new shell commands.
+ * The name and a brief description of the command are required.
+ * The command can access to the virtual terminal used by the shell, if needed.
+ */
+public abstract class AbstractCommand implements Command {
 
-    private final Function<String[], Integer> action;
-    private final Completer completer;
+    /**
+     *  The name of the command.
+     */
+    protected final String name;
 
-    SubCommand(String name, Function<String[], Integer> action, String description) {
+    /**
+     * The description of the command.
+     */
+    protected final String description;
+
+    /**
+     * The virtual terminal used by the shell.
+     */
+    protected final Terminal terminal;
+
+    /**
+     * Creates a new command.
+     *
+     * @param terminal the terminal used by the shell
+     * @param name the name of the command
+     * @param description the description of the command
+     */
+    protected AbstractCommand(Terminal terminal, String name, String description) {
         this.name = name;
         this.description = description;
-        this.action = action;
-        this.completer = NullCompleter.INSTANCE;
+        this.terminal = terminal;
     }
 
-    SubCommand(String name,
-               Function<String[], Integer> action,
-               Completer completer,
-               String description) {
-        this.name = name;
-        this.description = description;
-        this.action = action;
-        this.completer = completer;
-    }
-
+    @Override
     public String getName() {
         return name;
     }
 
+    @Override
     public String getDescription() {
         return description;
     }
 
-    public Function<String[], Integer> getAction() {
-        return action;
+    @Override
+    public Completer getCompleter() {
+        return new ArgumentCompleter(new StringsCompleter(name), NullCompleter.INSTANCE);
     }
 
-    public Completer getCompleter() {
-        return completer;
+    @Override
+    public void printHelp(PrintWriter writer) {
+        writer.println(getDescription());
+    }
+
+    @Override
+    public void close() throws Exception {
+        // nothing
     }
 }
