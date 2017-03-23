@@ -161,6 +161,6 @@ public final class CommandUtils {
      */
     public static String commandWrapper() {
         return Optional.ofNullable(System.getenv("CLARA_COMMAND_WRAPPER"))
-                .orElse(Paths.get(RunConfig.claraHome(), "lib", "clara", "cmd-wrapper").toString());
+                .orElse(Paths.get(Config.claraHome(), "lib", "clara", "cmd-wrapper").toString());
     }
 }

@@ -27,7 +27,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import org.jlab.coda.xmsg.core.xMsgUtil;
 
-class RunConfig {
+class Config {
 
     private String orchestrator;
     private String localHost;
@@ -40,7 +40,7 @@ class RunConfig {
     private int maxNodes;
     private int maxThreads;
 
-    RunConfig() {
+    Config() {
         setDefaults();
     }
 

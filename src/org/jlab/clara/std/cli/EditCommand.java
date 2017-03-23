@@ -28,11 +28,11 @@ import java.util.function.Function;
 
 class EditCommand extends BaseCommand {
 
-    private final RunConfig runConfig;
+    private final Config config;
 
-    EditCommand(Terminal terminal, RunConfig runConfig) {
+    EditCommand(Terminal terminal, Config config) {
         super(terminal, "edit", "Edit data processing conditions");
-        this.runConfig = runConfig;
+        this.config = config;
 
         addArgument("services", "Edit application service-based composition.",
                 c -> c.getConfigFile());
@@ -40,9 +40,9 @@ class EditCommand extends BaseCommand {
                 c -> c.getFilesList());
     }
 
-    void addArgument(String name, String description, Function<RunConfig, String> fileArg) {
+    void addArgument(String name, String description, Function<Config, String> fileArg) {
         Function<String[], Integer> action = args -> {
-            return CommandUtils.editFile(fileArg.apply(runConfig).toString());
+            return CommandUtils.editFile(fileArg.apply(config).toString());
         };
         addSubCommand(name, action, description);
     }

@@ -36,19 +36,19 @@ import org.jline.terminal.Terminal;
 
 class RunCommand extends BaseCommand {
 
-    RunCommand(Terminal terminal, RunConfig runConfig) {
+    RunCommand(Terminal terminal, Config config) {
         super(terminal, "run", "Start data processing");
-        addSubCommand(new RunLocal(terminal, runConfig));
+        addSubCommand(new RunLocal(terminal, config));
     }
 
     private static class RunLocal extends AbstractCommand {
 
-        private final RunConfig runConfig;
+        private final Config runConfig;
         private final Map<ClaraLang, Process> backgroundDpes;
 
-        RunLocal(Terminal terminal, RunConfig runConfig) {
+        RunLocal(Terminal terminal, Config config) {
             super(terminal, "local", "");
-            this.runConfig = runConfig;
+            this.runConfig = config;
             this.backgroundDpes = new HashMap<>();
         }
 
@@ -57,7 +57,7 @@ class RunCommand extends BaseCommand {
             try {
                 startLocalDpes();
 
-                Path orchestrator = Paths.get(RunConfig.claraHome(), "bin", "clara-orchestrator");
+                Path orchestrator = Paths.get(Config.claraHome(), "bin", "clara-orchestrator");
                 return CommandUtils.runProcess(orchestrator.toString(),
                         "-F",
                         "-t", Integer.toString(runConfig.getMaxThreads()),
@@ -76,16 +76,16 @@ class RunCommand extends BaseCommand {
             OrchestratorConfigParser parser = new OrchestratorConfigParser(configFile);
             Set<ClaraLang> languages = parser.parseLanguages();
 
-            String javaDpe = Paths.get(RunConfig.claraHome(), "bin", "j_dpe").toString();
+            String javaDpe = Paths.get(Config.claraHome(), "bin", "j_dpe").toString();
             addBackgroundDpeProcess(ClaraLang.JAVA, javaDpe);
 
             if (languages.contains(ClaraLang.CPP)) {
-                String cppDpe = Paths.get(RunConfig.claraHome(), "bin", "c_dpe").toString();
+                String cppDpe = Paths.get(Config.claraHome(), "bin", "c_dpe").toString();
                 addBackgroundDpeProcess(ClaraLang.CPP, cppDpe, "--fe-host", "localhost");
             }
 
             if (languages.contains(ClaraLang.PYTHON)) {
-                String pyDpe = Paths.get(RunConfig.claraHome(), "bin", "p_dpe").toString();
+                String pyDpe = Paths.get(Config.claraHome(), "bin", "p_dpe").toString();
                 addBackgroundDpeProcess(ClaraLang.PYTHON, pyDpe, "--fe-host", "localhost");
             }
         }

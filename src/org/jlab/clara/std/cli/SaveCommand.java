@@ -41,11 +41,11 @@ import org.jline.terminal.Terminal;
 
 class SaveCommand extends AbstractCommand {
 
-    private final RunConfig runConfig;
+    private final Config config;
 
-    SaveCommand(Terminal terminal, RunConfig runConfig) {
+    SaveCommand(Terminal terminal, Config config) {
         super(terminal, "save", "Export configuration to file");
-        this.runConfig = runConfig;
+        this.config = config;
     }
 
     @Override
@@ -95,11 +95,11 @@ class SaveCommand extends AbstractCommand {
 
     private void writeFile(Path path) {
         try (PrintStream printer = new PrintStream(new FileOutputStream(path.toFile(), false))) {
-            printer.println("set filesList " + runConfig.getFilesList());
-            printer.println("set inputDir " + runConfig.getInputDir());
-            printer.println("set outputDir " + runConfig.getOutputDir());
-            printer.println("set session " + runConfig.getSession());
-            printer.println("set threads " + runConfig.getMaxThreads());
+            printer.println("set filesList " + config.getFilesList());
+            printer.println("set inputDir " + config.getInputDir());
+            printer.println("set outputDir " + config.getOutputDir());
+            printer.println("set session " + config.getSession());
+            printer.println("set threads " + config.getMaxThreads());
         } catch (FileNotFoundException e) {
             terminal.writer().println("Could not create file: " + path);
         }

@@ -26,11 +26,11 @@ import org.jline.terminal.Terminal;
 
 class ShowCommand extends BaseCommand {
 
-    private final RunConfig runConfig;
+    private final Config config;
 
-    ShowCommand(Terminal terminal, RunConfig runConfig) {
+    ShowCommand(Terminal terminal, Config config) {
         super(terminal, "show", "Show values");
-        this.runConfig = runConfig;
+        this.config = config;
         setArguments();
     }
 
@@ -40,15 +40,15 @@ class ShowCommand extends BaseCommand {
 
     private int showConfig() {
         terminal.writer().println();
-        printFormat("localhost", runConfig.getLocalHost());
-        printFormat("configFile", runConfig.getConfigFile());
-        printFormat("filesList", runConfig.getFilesList());
-        printFormat("inputDir", runConfig.getInputDir());
-        printFormat("outputDir", runConfig.getOutputDir());
-        printFormat("useFrontEnd", Boolean.toString(runConfig.isUseFrontEnd()));
-        printFormat("session", runConfig.getSession());
-        printFormat("maxNodes", Integer.toString(runConfig.getMaxNodes()));
-        printFormat("maxThreads", Integer.toString(runConfig.getMaxThreads()));
+        printFormat("localhost", config.getLocalHost());
+        printFormat("configFile", config.getConfigFile());
+        printFormat("filesList", config.getFilesList());
+        printFormat("inputDir", config.getInputDir());
+        printFormat("outputDir", config.getOutputDir());
+        printFormat("useFrontEnd", Boolean.toString(config.isUseFrontEnd()));
+        printFormat("session", config.getSession());
+        printFormat("maxNodes", Integer.toString(config.getMaxNodes()));
+        printFormat("maxThreads", Integer.toString(config.getMaxThreads()));
         return EXIT_SUCCESS;
     }
 

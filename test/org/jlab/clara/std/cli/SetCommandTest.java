@@ -17,12 +17,12 @@ public class SetCommandTest {
 
     private static final Terminal TERMINAL = mock(Terminal.class);
 
-    private RunConfig config;
+    private Config config;
     private SetCommand command;
 
     @Before
     public void setup() throws Exception {
-        config = new RunConfig();
+        config = new Config();
         command = new SetCommand(TERMINAL, config);
     }
 

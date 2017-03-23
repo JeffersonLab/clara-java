@@ -49,7 +49,7 @@ public class ClaraShell implements AutoCloseable {
 
     private static final String HISTORY_NAME = ".clara_history";
 
-    private final RunConfig runConfig;
+    private final Config config;
     private final Terminal terminal;
     private final Map<String, Command> commands;
     private final CommandRunner commandRunner;
@@ -81,7 +81,7 @@ public class ClaraShell implements AutoCloseable {
      */
     public ClaraShell() {
         try {
-            runConfig = new RunConfig();
+            config = new Config();
             terminal = TerminalBuilder.builder().build();
             commands = new HashMap<>();
             commandRunner = new CommandRunner(terminal, commands);
@@ -99,11 +99,11 @@ public class ClaraShell implements AutoCloseable {
     }
 
     private Map<String, Command> initCommands() {
-        addCommand(commands, new SetCommand(terminal, runConfig));
-        addCommand(commands, new EditCommand(terminal, runConfig));
-        addCommand(commands, new RunCommand(terminal, runConfig));
-        addCommand(commands, new ShowCommand(terminal, runConfig));
-        addCommand(commands, new SaveCommand(terminal, runConfig));
+        addCommand(commands, new SetCommand(terminal, config));
+        addCommand(commands, new EditCommand(terminal, config));
+        addCommand(commands, new RunCommand(terminal, config));
+        addCommand(commands, new ShowCommand(terminal, config));
+        addCommand(commands, new SaveCommand(terminal, config));
         addCommand(commands, new SourceCommand(terminal, commandRunner));
         addCommand(commands, new HelpCommand(terminal, commands));
         return commands;
@@ -122,7 +122,7 @@ public class ClaraShell implements AutoCloseable {
     }
 
     private void loadHistory() {
-        Path histFile = Paths.get(RunConfig.claraHome(), HISTORY_NAME);
+        Path histFile = Paths.get(Config.claraHome(), HISTORY_NAME);
         reader.setVariable(LineReader.HISTORY_FILE, histFile);
         history.load();
     }
