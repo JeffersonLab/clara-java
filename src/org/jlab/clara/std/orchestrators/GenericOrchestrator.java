@@ -386,7 +386,6 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
         private static final String ARG_USE_FRONTEND  = "useFrontEnd";
         private static final String ARG_STAGE_FILES   = "stageFiles";
         private static final String ARG_BULK_STAGE    = "bulkStage";
-        private static final String ARG_CACHE_DIR     = "cacheDir";
         private static final String ARG_INPUT_DIR     = "inputDir";
         private static final String ARG_OUTPUT_DIR    = "outputDir";
         private static final String ARG_STAGE_DIR     = "stageDir";
@@ -502,13 +501,6 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
             Switch bulkStage = new Switch(ARG_BULK_STAGE)
                     .setShortFlag('B');
             bulkStage.setHelp("Stage all files at once to the local file-system.");
-
-            FlaggedOption tapeDir = new FlaggedOption(ARG_CACHE_DIR)
-                    .setStringParser(JSAP.STRING_PARSER)
-                    .setRequired(false)
-                    .setShortFlag('c')
-                    .setDefault(OrchestratorPaths.CACHE_DIR);
-            tapeDir.setHelp("The tape directory where the files are cached.");
 
             FlaggedOption inputDir = new FlaggedOption(ARG_INPUT_DIR)
                     .setStringParser(JSAP.STRING_PARSER)

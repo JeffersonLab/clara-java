@@ -12,7 +12,6 @@ import java.util.stream.Collectors;
 class OrchestratorPaths {
 
     static final String DATA_DIR = System.getenv("CLARA_HOME") + File.separator + "data";
-    static final String CACHE_DIR = "/mss/hallb/exp/raw";
     static final String INPUT_DIR = DATA_DIR + File.separator + "in";
     static final String OUTPUT_DIR = DATA_DIR + File.separator + "out";
     static final String STAGE_DIR = File.separator + "scratch";
