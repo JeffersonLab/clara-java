@@ -48,7 +48,6 @@ class RunCommand extends Command {
 
     private void setArguments() {
         subCommands.put("local", new SubCommand("local", args -> 0, ""));
-        subCommands.put("farm", new SubCommand("farm", args -> 0, ""));
     }
 
     @Override
@@ -58,9 +57,6 @@ class RunCommand extends Command {
             return EXIT_ERROR;
         } else if ("local".equals(args[1])) {
             return runLocal();
-        } else if ("farm".equals(args[1])) {
-            terminal.writer().println("running run farm.");
-            return EXIT_SUCCESS;
         } else {
             terminal.writer().println("Invalid command: " + args[1]);
             return EXIT_ERROR;
