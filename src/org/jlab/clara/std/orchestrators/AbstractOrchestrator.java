@@ -1,7 +1,6 @@
 package org.jlab.clara.std.orchestrators;
 
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.BlockingQueue;
@@ -331,7 +330,7 @@ abstract class AbstractOrchestrator {
             }
             while (!requestedFiles.isEmpty()) {
                 WorkerFile recFile = requestedFiles.element();
-                Path filePath = Paths.get(paths.inputFilePath(recFile));
+                Path filePath = paths.inputFilePath(recFile);
                 if (filePath.toFile().exists()) {
                     processingQueue.add(recFile);
                     requestedFiles.remove();
@@ -384,11 +383,10 @@ abstract class AbstractOrchestrator {
 
 
     void openFiles(WorkerNode node, WorkerFile recFile) {
-        node.recFile = recFile;
         if (options.stageFiles) {
-            node.setFiles(recFile.inputName);
+            node.setFiles(recFile);
         } else {
-            node.setFiles(paths.inputFilePath(recFile), paths.outputFilePath(recFile));
+            node.setFiles(paths, recFile);
         }
         node.openFiles();
     }
@@ -411,13 +409,13 @@ abstract class AbstractOrchestrator {
         double timePerEvent = recTime / (double) node.totalEvents.get();
         stats.update(node, node.totalEvents.get(), recTime);
         Logging.info("Finished file %s on %s. Average event time = %.2f ms",
-                     node.currentInputFileName, node.name(), timePerEvent);
+                     node.recFile.inputName, node.name(), timePerEvent);
     }
 
 
     void processFinishedFile(WorkerNode node) {
         try {
-            String currentFile = node.currentInputFileName;
+            String currentFile = node.recFile.inputName;
             node.closeFiles();
             if (options.stageFiles) {
                 node.saveOutputFile();

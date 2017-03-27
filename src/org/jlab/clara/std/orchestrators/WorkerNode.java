@@ -1,6 +1,5 @@
 package org.jlab.clara.std.orchestrators;
 
-import java.io.File;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
@@ -39,9 +38,9 @@ class WorkerNode {
 
     volatile WorkerFile recFile;
 
-    volatile String currentInputFileName;
-    volatile String currentInputFile;
-    volatile String currentOutputFile;
+    private volatile String currentInputFileName;
+    private volatile String currentInputFile;
+    private volatile String currentOutputFile;
 
     AtomicInteger currentFileCounter = new AtomicInteger();
     AtomicInteger totalFilesCounter = new AtomicInteger();
@@ -157,9 +156,10 @@ class WorkerNode {
     }
 
 
-    boolean setFiles(String inputFileName) {
+    boolean setFiles(WorkerFile currentFile) {
         try {
-            currentInputFileName = inputFileName;
+            recFile = currentFile;
+            currentInputFileName = currentFile.inputName;
             currentInputFile = NO_NAME;
             currentOutputFile = NO_NAME;
 
@@ -188,10 +188,11 @@ class WorkerNode {
     }
 
 
-    void setFiles(String inputFile, String outputFile) {
-        currentInputFile = inputFile;
-        currentOutputFile = outputFile;
-        currentInputFileName = new File(inputFile).getName();
+    void setFiles(OrchestratorPaths paths, WorkerFile currentFile) {
+        recFile = currentFile;
+        currentInputFile = paths.inputFilePath(currentFile).toString();
+        currentOutputFile = paths.outputFilePath(currentFile).toString();
+        currentInputFileName = currentFile.inputName;
     }
 
 

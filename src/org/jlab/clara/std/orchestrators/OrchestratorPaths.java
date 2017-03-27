@@ -46,20 +46,20 @@ class OrchestratorPaths {
                                   .collect(Collectors.toList());
     }
 
-    String inputFilePath(WorkerFile recFile) {
-        return inputDir + File.separator + recFile.inputName;
+    Path inputFilePath(WorkerFile recFile) {
+        return inputDir.resolve(recFile.inputName);
     }
 
-    String outputFilePath(WorkerFile recFile) {
-        return outputDir + File.separator + recFile.outputName;
+    Path outputFilePath(WorkerFile recFile) {
+        return outputDir.resolve(recFile.outputName);
     }
 
-    String stageInputFilePath(WorkerFile recFile) {
-        return stageDir + File.separator + recFile.inputName;
+    Path stageInputFilePath(WorkerFile recFile) {
+        return stageDir.resolve(recFile.inputName);
     }
 
-    String stageOutputFilePath(WorkerFile recFile) {
-        return stageDir + File.separator + recFile.outputName;
+    Path stageOutputFilePath(WorkerFile recFile) {
+        return stageDir.resolve(recFile.outputName);
     }
 
     int numFiles() {
