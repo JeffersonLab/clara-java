@@ -46,7 +46,7 @@ public final class FileUtils {
     public static Path getParent(Path path) {
         Path parent = path.getParent();
         if (parent == null) {
-            return Paths.get("").toAbsolutePath();
+            return Paths.get(".");
         }
         return parent;
     }

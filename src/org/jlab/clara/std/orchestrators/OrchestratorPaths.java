@@ -16,9 +16,9 @@ class OrchestratorPaths {
     static final String OUTPUT_DIR = DATA_DIR + File.separator + "out";
     static final String STAGE_DIR = File.separator + "scratch";
 
-    final String inputDir;
-    final String outputDir;
-    final String stageDir;
+    final Path inputDir;
+    final Path outputDir;
+    final Path stageDir;
 
     final List<WorkerFile> allFiles;
 
@@ -29,18 +29,18 @@ class OrchestratorPaths {
         String inputName = FileUtils.getFileName(inputPath).toString();
         String outputName = FileUtils.getFileName(outputPath).toString();
 
-        this.inputDir = FileUtils.getParent(inputPath).toString();
-        this.outputDir = FileUtils.getParent(outputPath).toString();
-        this.stageDir = STAGE_DIR;
+        this.inputDir = FileUtils.getParent(inputPath).toAbsolutePath();
+        this.outputDir = FileUtils.getParent(outputPath).toAbsolutePath();
+        this.stageDir = Paths.get(STAGE_DIR).toAbsolutePath();
 
         this.allFiles = Arrays.asList(new WorkerFile(inputName, outputName));
     }
 
     OrchestratorPaths(List<String> inputFiles,
                       String inputDir, String outputDir, String stageDir) {
-        this.inputDir = inputDir;
-        this.outputDir = outputDir;
-        this.stageDir = stageDir;
+        this.inputDir = Paths.get(inputDir).toAbsolutePath();
+        this.outputDir = Paths.get(outputDir).toAbsolutePath();
+        this.stageDir = Paths.get(stageDir).toAbsolutePath();
         this.allFiles = inputFiles.stream()
                                   .map(f -> new WorkerFile(f, "out_" + f))
                                   .collect(Collectors.toList());

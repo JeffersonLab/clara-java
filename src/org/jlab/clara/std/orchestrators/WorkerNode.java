@@ -1,6 +1,7 @@
 package org.jlab.clara.std.orchestrators;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -143,7 +144,7 @@ class WorkerNode {
     }
 
 
-    void setPaths(String inputPath, String outputPath, String stagePath) {
+    void setPaths(Path inputPath, Path outputPath, Path stagePath) {
         try {
             JSONObject data = new JSONObject();
             data.put("input_path", inputPath);
