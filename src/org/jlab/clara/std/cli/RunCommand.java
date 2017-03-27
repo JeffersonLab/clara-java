@@ -36,84 +36,77 @@ import org.jline.terminal.Terminal;
 
 class RunCommand extends BaseCommand {
 
-    private final RunConfig runConfig;
-    private final Map<ClaraLang, Process> backgroundDpes;
-
     RunCommand(Terminal terminal, RunConfig runConfig) {
         super(terminal, "run", "Start data processing");
-        this.runConfig = runConfig;
-        this.backgroundDpes = new HashMap<>();
-        setArguments();
+        addSubCommand(new RunLocal(terminal, runConfig));
     }
 
-    private void setArguments() {
-        addSubCommand("local", args -> 0, "");
-    }
+    private static class RunLocal extends AbstractCommand {
 
-    @Override
-    public int execute(String[] args) {
-        if (args.length == 0) {
-            terminal.writer().println("Missing arguments.");
-            return EXIT_ERROR;
-        } else if ("local".equals(args[0])) {
-            return runLocal();
-        } else {
-            terminal.writer().println("Invalid command: " + args[0]);
-            return EXIT_ERROR;
-        }
-    }
+        private final RunConfig runConfig;
+        private final Map<ClaraLang, Process> backgroundDpes;
 
-    private int runLocal() {
-        try {
-            startLocalDpes();
-
-            Path orchestrator = Paths.get(RunConfig.claraHome(), "bin", "clara-orchestrator");
-            return CommandUtils.runProcess(orchestrator.toString(),
-                    "-F",
-                    "-t", Integer.toString(runConfig.getMaxThreads()),
-                    "-i", runConfig.getInputDir(),
-                    "-o", runConfig.getOutputDir(),
-                    runConfig.getConfigFile(),
-                    runConfig.getFilesList());
-        } catch (Exception e) {
-            e.printStackTrace();
-            return EXIT_ERROR;
-        }
-    }
-
-    private void startLocalDpes() throws IOException {
-        OrchestratorConfigParser parser = new OrchestratorConfigParser(runConfig.getConfigFile());
-        Set<ClaraLang> languages = parser.parseLanguages();
-
-        String javaDpe = Paths.get(RunConfig.claraHome(), "bin", "j_dpe").toString();
-        addBackgroundDpeProcess(ClaraLang.JAVA, javaDpe);
-
-        if (languages.contains(ClaraLang.CPP)) {
-            String cppDpe = Paths.get(RunConfig.claraHome(), "bin", "c_dpe").toString();
-            addBackgroundDpeProcess(ClaraLang.CPP, cppDpe, "--fe-host", "localhost");
+        RunLocal(Terminal terminal, RunConfig runConfig) {
+            super(terminal, "local", "");
+            this.runConfig = runConfig;
+            this.backgroundDpes = new HashMap<>();
         }
 
-        if (languages.contains(ClaraLang.PYTHON)) {
-            String pyDpe = Paths.get(RunConfig.claraHome(), "bin", "p_dpe").toString();
-            addBackgroundDpeProcess(ClaraLang.PYTHON, pyDpe, "--fe-host", "localhost");
-        }
-    }
+        @Override
+        public int execute(String[] args) {
+            try {
+                startLocalDpes();
 
-    private void addBackgroundDpeProcess(ClaraLang lang, String... command) throws IOException {
-        if (!backgroundDpes.containsKey(lang)) {
-            backgroundDpes.put(lang, CommandUtils.runDpe(command));
-        }
-    }
-
-    @Override
-    public void close() {
-        // kill the DPEs in reverse order (the front-end last)
-        for (ClaraLang lang : Arrays.asList(ClaraLang.PYTHON, ClaraLang.CPP, ClaraLang.JAVA)) {
-            Process process = backgroundDpes.get(lang);
-            if (process == null) {
-                continue;
+                Path orchestrator = Paths.get(RunConfig.claraHome(), "bin", "clara-orchestrator");
+                return CommandUtils.runProcess(orchestrator.toString(),
+                        "-F",
+                        "-t", Integer.toString(runConfig.getMaxThreads()),
+                        "-i", runConfig.getInputDir(),
+                        "-o", runConfig.getOutputDir(),
+                        runConfig.getConfigFile(),
+                        runConfig.getFilesList());
+            } catch (Exception e) {
+                e.printStackTrace();
+                return EXIT_ERROR;
             }
-            CommandUtils.destroyProcess(process);
+        }
+
+        private void startLocalDpes() throws IOException {
+            String configFile = runConfig.getConfigFile();
+            OrchestratorConfigParser parser = new OrchestratorConfigParser(configFile);
+            Set<ClaraLang> languages = parser.parseLanguages();
+
+            String javaDpe = Paths.get(RunConfig.claraHome(), "bin", "j_dpe").toString();
+            addBackgroundDpeProcess(ClaraLang.JAVA, javaDpe);
+
+            if (languages.contains(ClaraLang.CPP)) {
+                String cppDpe = Paths.get(RunConfig.claraHome(), "bin", "c_dpe").toString();
+                addBackgroundDpeProcess(ClaraLang.CPP, cppDpe, "--fe-host", "localhost");
+            }
+
+            if (languages.contains(ClaraLang.PYTHON)) {
+                String pyDpe = Paths.get(RunConfig.claraHome(), "bin", "p_dpe").toString();
+                addBackgroundDpeProcess(ClaraLang.PYTHON, pyDpe, "--fe-host", "localhost");
+            }
+        }
+
+        private void addBackgroundDpeProcess(ClaraLang lang, String... command)
+                throws IOException {
+            if (!backgroundDpes.containsKey(lang)) {
+                backgroundDpes.put(lang, CommandUtils.runDpe(command));
+            }
+        }
+
+        @Override
+        public void close() {
+            // kill the DPEs in reverse order (the front-end last)
+            for (ClaraLang lang : Arrays.asList(ClaraLang.PYTHON, ClaraLang.CPP, ClaraLang.JAVA)) {
+                Process process = backgroundDpes.get(lang);
+                if (process == null) {
+                    continue;
+                }
+                CommandUtils.destroyProcess(process);
+            }
         }
     }
 }
