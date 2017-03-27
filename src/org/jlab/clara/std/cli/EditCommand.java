@@ -34,7 +34,7 @@ class EditCommand extends BaseCommand {
         super(terminal, "edit", "Edit data processing conditions");
         this.runConfig = runConfig;
 
-        addArgument("composition", "Edit application service-based composition.",
+        addArgument("services", "Edit application service-based composition.",
                 c -> c.getConfigFile());
         addArgument("files", "Edit input file list.",
                 c -> c.getFilesList());

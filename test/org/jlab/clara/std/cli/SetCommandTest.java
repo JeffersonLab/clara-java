@@ -41,10 +41,10 @@ public class SetCommandTest {
     }
 
     @Test
-    public void testSetYaml() throws Exception {
+    public void testSetServicesFile() throws Exception {
         String userFile = createTempFile("yaml");
 
-        command.execute(new String[]{"yaml", userFile});
+        command.execute(new String[]{"servicesFile", userFile});
 
         assertThat(config.getConfigFile(), is(userFile));
     }

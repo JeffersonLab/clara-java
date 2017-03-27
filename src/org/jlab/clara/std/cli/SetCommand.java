@@ -58,7 +58,7 @@ class SetCommand extends BaseCommand {
     }
 
     private void setArguments() {
-        subCmd("yaml",
+        subCmd("servicesFile",
                 runConfig::setConfigFile, Function.identity(),
                 new FileNameCompleter(),
                 "Full path to the file describing application service composition. "
