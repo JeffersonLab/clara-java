@@ -24,30 +24,26 @@ package org.jlab.clara.std.cli;
 
 import org.jline.terminal.Terminal;
 
+import java.util.function.Function;
+
 class EditCommand extends BaseCommand {
 
     private final RunConfig runConfig;
-    private final String editor;
 
     EditCommand(Terminal terminal, RunConfig runConfig) {
         super(terminal, "edit", "Edit data processing conditions");
         this.runConfig = runConfig;
-        this.editor = CommandUtils.getEditor();
-        setArguments();
+
+        addArgument("composition", "Edit application service-based composition.",
+                c -> c.getConfigFile());
+        addArgument("files", "Edit input file list.",
+                c -> c.getFilesList());
     }
 
-    private void setArguments() {
-        addSubCommand("composition",
-                this::editConfigFile, "Edit application service-based composition.");
-        addSubCommand("files",
-                this::editFilesList, "Edit input file list.");
-    }
-
-    private int editConfigFile(String[] args) {
-        return CommandUtils.runProcess(editor, runConfig.getConfigFile());
-    }
-
-    private int editFilesList(String[] args) {
-        return CommandUtils.runProcess(editor, runConfig.getFilesList());
+    void addArgument(String name, String description, Function<RunConfig, String> fileArg) {
+        Function<String[], Integer> action = args -> {
+            return CommandUtils.editFile(fileArg.apply(runConfig).toString());
+        };
+        addSubCommand(name, action, description);
     }
 }
