@@ -33,6 +33,7 @@ import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import org.jlab.clara.base.ClaraUtil;
 import org.jline.reader.Completer;
 import org.jline.reader.impl.completer.ArgumentCompleter;
 import org.jline.reader.impl.completer.FileNameCompleter;
@@ -86,7 +87,7 @@ class SourceCommand extends Command {
 
     @Override
     public void showFullHelp() {
-        terminal.writer().printf("\n  source <file_path>\n");
-        terminal.writer().printf("    %s\n", splitLine(description, 72));
+        terminal.writer().printf("%n  source <file_path>%n");
+        terminal.writer().printf("%s%n", ClaraUtil.splitIntoLines(description, "    ", 72));
     }
 }

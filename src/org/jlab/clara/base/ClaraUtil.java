@@ -28,7 +28,6 @@ import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.core.xMsgUtil;
 
-import javax.annotation.ParametersAreNonnullByDefault;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.LocalDateTime;
@@ -38,9 +37,12 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.StringTokenizer;
 import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import javax.annotation.ParametersAreNonnullByDefault;
 
 /**
  * Extra helper methods for CLARA orchestrator and services.
@@ -310,6 +312,33 @@ public final class ClaraUtil {
         return set;
     }
 
+    /**
+     * Splits the input string into lines of the given maximum length.
+     * Each line will be prefixed with the specified string.
+     *
+     * @param input the long string to split into lines
+     * @param linePrefix the string to put before each line
+     * @param maxLineLength the maximum line length, including the prefix
+     * @return the text split into lines
+     */
+    public static String splitIntoLines(String input, String linePrefix, int maxLineLength) {
+        StringTokenizer tok = new StringTokenizer(input);
+        StringBuilder output = new StringBuilder();
+        int lineLen = 0;
+        while (tok.hasMoreTokens()) {
+            String word = tok.nextToken() + " ";
+            if (lineLen + word.length() > maxLineLength) {
+                output.append("\n");
+                lineLen = 0;
+            }
+            if (lineLen == 0) {
+                output.append(linePrefix);
+            }
+            output.append(word);
+            lineLen += word.length();
+        }
+        return output.toString();
+    }
 
     /**
      * Returns the stack trace of a exception as a string.

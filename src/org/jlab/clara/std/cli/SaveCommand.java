@@ -30,6 +30,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Scanner;
 
+import org.jlab.clara.base.ClaraUtil;
 import org.jline.reader.Completer;
 import org.jline.reader.impl.completer.ArgumentCompleter;
 import org.jline.reader.impl.completer.FileNameCompleter;
@@ -111,7 +112,7 @@ class SaveCommand extends Command {
 
     @Override
     public void showFullHelp() {
-        terminal.writer().printf("\n  save <file_path>\n");
-        terminal.writer().printf("    %s\n", splitLine(description, 72));
+        terminal.writer().printf("%n  save <file_path>%n");
+        terminal.writer().printf("%s%n", ClaraUtil.splitIntoLines(description, "    ", 72));
     }
 }
