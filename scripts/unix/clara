@@ -310,12 +310,7 @@ FARM_FLAVOR="jlab"
 function run_farm {
 
 # Farm specific local staging directory
-#{ if [ "$FARM_LOADING_ZONE" == "undefined" ]; then
-#if [ "$FARM_FLAVOR" == "jlab" ]; then
-#FARM_LOADING_ZONE="/scratch/pbs"
-#fi
-#fi
-#}
+#
 
 if [ "$PLUGIN" == "undefined" ]; then
 PLUGIN="$CLARA_HOME/plugins/clas12"

@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+MALLOC_ARENA_MAX=1; export MALlOC_ARENA_MAX
+
 if [ -z "${CLARA_HOME}" ]; then
     echo "CLARA_HOME is not defined. Exiting..."
     exit
