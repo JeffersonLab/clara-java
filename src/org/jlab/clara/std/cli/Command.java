@@ -22,6 +22,7 @@
 
 package org.jlab.clara.std.cli;
 
+import java.io.PrintWriter;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -96,12 +97,11 @@ abstract class Command implements AutoCloseable {
         return new ArgumentCompleter(command, subCommand, arg.getCompleter());
     }
 
-    protected void showFullHelp() {
-        terminal.writer().println("Commands:");
-        for (SubCommand aux: subCommands.values()) {
-            terminal.writer().printf("%n  %s %s%n", name, aux.getName());
-            String description = aux.getDescription();
-            terminal.writer().printf("%s%n", ClaraUtil.splitIntoLines(description, "    ", 72));
+    protected void printHelp(PrintWriter writer) {
+        writer.println("Commands:");
+        for (SubCommand cmd: subCommands.values()) {
+            writer.printf("%n  %s %s%n", name, cmd.getName());
+            writer.printf("%s%n", ClaraUtil.splitIntoLines(cmd.getDescription(), "    ", 72));
         }
     }
 

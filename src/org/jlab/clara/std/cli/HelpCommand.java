@@ -52,7 +52,7 @@ class HelpCommand extends Command {
             terminal.writer().println("Invalid command name.");
             return EXIT_ERROR;
         }
-        command.showFullHelp();
+        command.printHelp(terminal.writer());
         return EXIT_SUCCESS;
     }
 

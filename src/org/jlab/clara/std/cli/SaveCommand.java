@@ -25,6 +25,7 @@ package org.jlab.clara.std.cli;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -111,8 +112,8 @@ class SaveCommand extends Command {
     }
 
     @Override
-    public void showFullHelp() {
-        terminal.writer().printf("%n  save <file_path>%n");
-        terminal.writer().printf("%s%n", ClaraUtil.splitIntoLines(description, "    ", 72));
+    public void printHelp(PrintWriter writer) {
+        writer.printf("%n  save <file_path>%n");
+        writer.printf("%s%n", ClaraUtil.splitIntoLines(description, "    ", 72));
     }
 }
