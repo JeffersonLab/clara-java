@@ -99,9 +99,9 @@ public class ClaraShell implements AutoCloseable {
     }
 
     private void initCommands() {
-        addCommand(new SetCommand(terminal, config));
         addCommand(new EditCommand(terminal, config));
         addCommand(new RunCommand(terminal, config));
+        addCommand(new SetCommand(terminal, config));
         addCommand(new ShowCommand(terminal, config));
         addCommand(new SaveCommand(terminal, config));
         addCommand(new SourceCommand(terminal, commandRunner));
