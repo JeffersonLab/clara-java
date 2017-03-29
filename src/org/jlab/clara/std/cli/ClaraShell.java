@@ -92,6 +92,22 @@ public final class ClaraShell implements AutoCloseable {
      */
     public static class Builder {
 
+        private final Terminal terminal;
+
+        /**
+         * Creates a new builder.
+         *
+         * @param termBuilder the builder of the virtual terminal
+         */
+        public Builder(TerminalBuilder termBuilder) {
+            try {
+                this.terminal = termBuilder.build();
+            } catch (IOException e) {
+                throw new UncheckedIOException(e);
+            }
+        }
+
+
         /**
          * Creates the user-interactive CLARA shell instance.
          *
@@ -104,22 +120,18 @@ public final class ClaraShell implements AutoCloseable {
 
 
     private ClaraShell(Builder builder) {
-        try {
-            config = new Config();
-            terminal = TerminalBuilder.builder().build();
-            commands = new HashMap<>();
-            commandRunner = new CommandRunner(terminal, commands);
-            initCommands();
-            reader = LineReaderBuilder.builder()
-                    .completer(initCompleter())
-                    .parser(commandRunner.getParser())
-                    .terminal(terminal)
-                    .build();
-            history = new DefaultHistory(reader);
-            loadHistory();
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
-        }
+        terminal = builder.terminal;
+        config = new Config();
+        commands = new HashMap<>();
+        commandRunner = new CommandRunner(terminal, commands);
+        initCommands();
+        reader = LineReaderBuilder.builder()
+                .completer(initCompleter())
+                .parser(commandRunner.getParser())
+                .terminal(terminal)
+                .build();
+        history = new DefaultHistory(reader);
+        loadHistory();
     }
 
     private void initCommands() {
