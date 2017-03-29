@@ -26,9 +26,11 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.jlab.clara.util.ArgUtils;
@@ -96,6 +98,11 @@ public final class ClaraShell implements AutoCloseable {
         private final Terminal terminal;
         private final Config config;
 
+        private final List<CommandFactory> runSubCommands = new ArrayList<>();
+        private final List<CommandFactory> editSubCommands = new ArrayList<>();
+
+        private final List<CommandFactory> userCommands = new ArrayList<>();
+
         /**
          * Creates a new builder.
          *
@@ -141,6 +148,55 @@ public final class ClaraShell implements AutoCloseable {
             return this;
         }
 
+
+        /**
+         * Adds a new subcommand to the {@code run} builtin command.
+         * This new subcommand cannot have the same name as one of the default
+         * subcommands.
+         *
+         * @param factory the factory to create the subcommand
+         * @return this builder
+         */
+        public Builder withRunSubCommand(CommandFactory factory) {
+            ArgUtils.requireNonNull(factory, "command factory");
+
+            runSubCommands.add(factory);
+            return this;
+        }
+
+        /**
+         * Adds a new subcommand to the {@code edit} builtin command.
+         *
+         * @param name the name of the subcommand
+         * @param description the help description for the command
+         * @param fileArg the path to the text file to be edited
+         * @return this builder
+         */
+        public Builder withEditSubCommand(String name,
+                                          String description,
+                                          Function<Config, String> fileArg) {
+            ArgUtils.requireNonEmpty(name, "name");
+            ArgUtils.requireNonEmpty(description, "description");
+            ArgUtils.requireNonNull(fileArg, "edit subcommand argument");
+
+            editSubCommands.add(EditCommand.newArgument(name, description, fileArg));
+            return this;
+        }
+
+        /**
+         * Adds a new builtin command to the CLARA shell session.
+         * This new command cannot have the same name as one of the default
+         * builtin commands.
+         *
+         * @param factory the factory to create the command
+         * @return this builder
+         */
+        public Builder withBuiltinCommand(CommandFactory factory) {
+            ArgUtils.requireNonNull(factory, "command factory");
+            userCommands.add(factory);
+            return this;
+        }
+
         /**
          * Creates the user-interactive CLARA shell instance.
          *
@@ -157,7 +213,7 @@ public final class ClaraShell implements AutoCloseable {
         config = builder.config;
         commands = new HashMap<>();
         commandRunner = new CommandRunner(terminal, commands);
-        initCommands();
+        initCommands(builder);
         reader = LineReaderBuilder.builder()
                 .completer(initCompleter())
                 .parser(commandRunner.getParser())
@@ -167,14 +223,24 @@ public final class ClaraShell implements AutoCloseable {
         loadHistory();
     }
 
-    private void initCommands() {
-        addCommand(new EditCommand(terminal, config));
-        addCommand(new RunCommand(terminal, config));
+    private void initCommands(Builder builder) {
+        addCommand(initCommand(EditCommand::new, builder.editSubCommands));
+        addCommand(initCommand(RunCommand::new, builder.runSubCommands));
+
+        builder.userCommands.forEach(c -> addCommand(c.create(terminal, config)));
+
         addCommand(new SetCommand(terminal, config));
         addCommand(new ShowCommand(terminal, config));
         addCommand(new SaveCommand(terminal, config));
         addCommand(new SourceCommand(terminal, commandRunner));
         addCommand(new HelpCommand(terminal, commands));
+    }
+
+    private Command initCommand(CommandFactory baseCommand,
+                                List<CommandFactory> userSubCommands) {
+        BaseCommand cmd = (BaseCommand) baseCommand.create(terminal, config);
+        userSubCommands.forEach(c -> cmd.addSubCommand(c.create(terminal, config)));
+        return cmd;
     }
 
     private void addCommand(Command command) {

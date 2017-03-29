@@ -24,36 +24,18 @@ package org.jlab.clara.std.cli;
 
 import org.jline.terminal.Terminal;
 
-import java.util.function.Function;
+/**
+ * A factory for new shell builtin commands.
+ */
+@FunctionalInterface
+public interface CommandFactory {
 
-class EditCommand extends BaseCommand {
-
-    private final Config config;
-
-    EditCommand(Terminal terminal, Config config) {
-        super(terminal, "edit", "Edit data processing conditions");
-        this.config = config;
-
-        addArgument("services", "Edit application service-based composition.",
-                c -> c.getValue(Config.SERVICES_FILE).toString());
-        addArgument("files", "Edit input file list.",
-                c -> c.getValue(Config.FILES_LIST).toString());
-    }
-
-    void addArgument(String name, String description, Function<Config, String> fileArg) {
-        addSubCommand(newArgument(name, description, fileArg).create(terminal, config));
-    }
-
-    static CommandFactory newArgument(String name,
-                                      String description,
-                                      Function<Config, String> fileArg) {
-        return (terminal, config) -> {
-            return new AbstractCommand(terminal, name, description) {
-                @Override
-                public int execute(String[] args) {
-                    return CommandUtils.editFile(fileArg.apply(config).toString());
-                }
-            };
-        };
-    }
+    /**
+     * Creates a new builtin command.
+     *
+     * @param terminal the virtual terminal
+     * @param config the shell configuration
+     * @return the builtin command
+     */
+    Command create(Terminal terminal, Config config);
 }
