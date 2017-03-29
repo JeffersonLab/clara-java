@@ -87,7 +87,7 @@ public class ClaraShell implements AutoCloseable {
             commandRunner = new CommandRunner(terminal, commands);
             initCommands();
             reader = LineReaderBuilder.builder()
-                    .completer(initCompleter(commands))
+                    .completer(initCompleter())
                     .parser(commandRunner.getParser())
                     .terminal(terminal)
                     .build();
@@ -98,22 +98,21 @@ public class ClaraShell implements AutoCloseable {
         }
     }
 
-    private Map<String, Command> initCommands() {
-        addCommand(commands, new SetCommand(terminal, config));
-        addCommand(commands, new EditCommand(terminal, config));
-        addCommand(commands, new RunCommand(terminal, config));
-        addCommand(commands, new ShowCommand(terminal, config));
-        addCommand(commands, new SaveCommand(terminal, config));
-        addCommand(commands, new SourceCommand(terminal, commandRunner));
-        addCommand(commands, new HelpCommand(terminal, commands));
-        return commands;
+    private void initCommands() {
+        addCommand(new SetCommand(terminal, config));
+        addCommand(new EditCommand(terminal, config));
+        addCommand(new RunCommand(terminal, config));
+        addCommand(new ShowCommand(terminal, config));
+        addCommand(new SaveCommand(terminal, config));
+        addCommand(new SourceCommand(terminal, commandRunner));
+        addCommand(new HelpCommand(terminal, commands));
     }
 
-    private static void addCommand(Map<String, Command> commands, Command command) {
+    private void addCommand(Command command) {
         commands.put(command.getName(), command);
     }
 
-    private static Completer initCompleter(Map<String, Command> commands) {
+    private Completer initCompleter() {
         List<Completer> completers = commands.values()
                 .stream()
                 .map(Command::getCompleter)
