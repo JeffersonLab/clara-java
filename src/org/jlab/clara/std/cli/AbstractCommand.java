@@ -52,6 +52,19 @@ public abstract class AbstractCommand implements Command {
      */
     protected final Terminal terminal;
 
+
+    static CommandFactory wrap(String name, String description, String... command) {
+        return (terminal, config) -> {
+            return new AbstractCommand(terminal, name, description) {
+                @Override
+                public int execute(String[] args) {
+                    return CommandUtils.runProcess(command);
+                }
+            };
+        };
+    }
+
+
     /**
      * Creates a new command.
      *

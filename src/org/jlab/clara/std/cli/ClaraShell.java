@@ -148,6 +148,44 @@ public final class ClaraShell implements AutoCloseable {
             return this;
         }
 
+        /**
+         * Adds a new subcommand to the {@code run} builtin command.
+         * This new subcommand cannot have the same name as one of the default
+         * subcommands.
+         *
+         * @param name the name of the subcommand
+         * @param description the help description for the command
+         * @param command the list containing the program and its arguments
+         * @return this builder
+         */
+        public Builder withRunSubCommand(String name, String description, List<String> command) {
+            ArgUtils.requireNonEmpty(name, "name");
+            ArgUtils.requireNonEmpty(description, "description");
+            ArgUtils.requireNonNull(description, "command");
+
+            String[] arrCommand = command.toArray(new String[command.size()]);
+            runSubCommands.add(AbstractCommand.wrap(name, description, arrCommand));
+            return this;
+        }
+
+        /**
+         * Adds a new subcommand to the {@code run} builtin command.
+         * This new subcommand cannot have the same name as one of the default
+         * subcommands.
+         *
+         * @param name the name of the subcommand
+         * @param description the help description for the command
+         * @param command a string array containing the program and its arguments
+         * @return this builder
+         */
+        public Builder withRunSubCommand(String name, String description, String... command) {
+            ArgUtils.requireNonEmpty(name, "name");
+            ArgUtils.requireNonEmpty(description, "description");
+            ArgUtils.requireNonNull(description, "command");
+
+            runSubCommands.add(AbstractCommand.wrap(name, description, command));
+            return this;
+        }
 
         /**
          * Adds a new subcommand to the {@code run} builtin command.
@@ -180,6 +218,45 @@ public final class ClaraShell implements AutoCloseable {
             ArgUtils.requireNonNull(fileArg, "edit subcommand argument");
 
             editSubCommands.add(EditCommand.newArgument(name, description, fileArg));
+            return this;
+        }
+
+        /**
+         * Adds a new builtin command to the CLARA shell session.
+         * This new command cannot have the same name as one of the default
+         * builtin commands.
+         *
+         * @param name the name of the command
+         * @param description the help description for the command
+         * @param command the list containing the program and its arguments
+         * @return this builder
+         */
+        public Builder withBuiltinCommand(String name, String description, List<String> command) {
+            ArgUtils.requireNonEmpty(name, "name");
+            ArgUtils.requireNonEmpty(description, "description");
+            ArgUtils.requireNonNull(description, "command");
+
+            String[] arrCommand = command.toArray(new String[command.size()]);
+            userCommands.add(AbstractCommand.wrap(name, description, arrCommand));
+            return this;
+        }
+
+        /**
+         * Adds a new builtin command to the CLARA shell session.
+         * This new command cannot have the same name as one of the default
+         * builtin commands.
+         *
+         * @param name the name of the command
+         * @param description the help description for the command
+         * @param command a string array containing the program and its arguments
+         * @return this builder
+         */
+        public Builder withBuiltinCommand(String name, String description, String... command) {
+            ArgUtils.requireNonEmpty(name, "name");
+            ArgUtils.requireNonEmpty(description, "description");
+            ArgUtils.requireNonNull(description, "command");
+
+            userCommands.add(AbstractCommand.wrap(name, description, command));
             return this;
         }
 
