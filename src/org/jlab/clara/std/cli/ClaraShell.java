@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.jlab.clara.util.ArgUtils;
 import org.jline.reader.Completer;
 import org.jline.reader.EndOfFileException;
 import org.jline.reader.History;
@@ -93,6 +94,7 @@ public final class ClaraShell implements AutoCloseable {
     public static class Builder {
 
         private final Terminal terminal;
+        private final Config config;
 
         /**
          * Creates a new builder.
@@ -102,11 +104,42 @@ public final class ClaraShell implements AutoCloseable {
         public Builder(TerminalBuilder termBuilder) {
             try {
                 this.terminal = termBuilder.build();
+                this.config = new Config();
             } catch (IOException e) {
                 throw new UncheckedIOException(e);
             }
         }
 
+        /**
+         * Adds a configuration variable to the shell session with the given
+         * default value.
+         *
+         * @param name the name of the variable
+         * @param defaultValue the default value of the variable
+         * @return this builder
+         */
+        public Builder withConfigVariable(String name, Object defaultValue) {
+            ArgUtils.requireNonEmpty(name, "name");
+            ArgUtils.requireNonNull(defaultValue, "value");
+
+            config.setValue(name, defaultValue);
+            return this;
+        }
+
+        /**
+         * Adds a configuration variable to the shell session.
+         * This new variable cannot have the same name as one of the default
+         * configuration variables.
+         *
+         * @param variable the configuration variable
+         * @return this builder
+         */
+        public Builder withConfigVariable(ConfigVariable variable) {
+            ArgUtils.requireNonNull(variable, "variable");
+
+            config.addVariable(variable);
+            return this;
+        }
 
         /**
          * Creates the user-interactive CLARA shell instance.
@@ -121,7 +154,7 @@ public final class ClaraShell implements AutoCloseable {
 
     private ClaraShell(Builder builder) {
         terminal = builder.terminal;
-        config = new Config();
+        config = builder.config;
         commands = new HashMap<>();
         commandRunner = new CommandRunner(terminal, commands);
         initCommands();
