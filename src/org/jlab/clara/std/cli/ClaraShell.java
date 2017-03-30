@@ -88,6 +88,7 @@ public class ClaraShell implements AutoCloseable {
             initCommands();
             reader = LineReaderBuilder.builder()
                     .completer(initCompleter(commands))
+                    .parser(commandRunner.getParser())
                     .terminal(terminal)
                     .build();
             history = new DefaultHistory(reader);

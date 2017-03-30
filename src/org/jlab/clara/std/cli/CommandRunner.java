@@ -22,11 +22,13 @@
 
 package org.jlab.clara.std.cli;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import org.jline.reader.EndOfFileException;
+import org.jline.reader.Parser;
+import org.jline.reader.impl.DefaultParser;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.Terminal.Signal;
 import org.jline.terminal.Terminal.SignalHandler;
@@ -34,10 +36,12 @@ import org.jline.terminal.Terminal.SignalHandler;
 class CommandRunner {
 
     private final Terminal terminal;
+    private final Parser parser;
     private final Map<String, Command> commands;
 
     CommandRunner(Terminal terminal, Map<String, Command> commands) {
         this.terminal = terminal;
+        this.parser = new DefaultParser();
         this.commands = commands;
     }
 
@@ -45,7 +49,7 @@ class CommandRunner {
         if (line.isEmpty()) {
             return Command.EXIT_SUCCESS;
         }
-        String[] splited = removeEmptySpaces(line.split(" "));
+        String[] splited = parseLine(line);
         String commandName = splited[0];
         Command command = commands.get(commandName);
         if (command == null) {
@@ -67,14 +71,13 @@ class CommandRunner {
         }
     }
 
-    private String[] removeEmptySpaces(String[] list) {
-        ArrayList<String> aux = new ArrayList<>();
-        for (String el : list) {
-            if (el != null && el.length() > 0) {
-                aux.add(el);
-            }
-        }
-        return aux.toArray(new String[aux.size()]);
+    private String[] parseLine(String line) {
+        String cmd = line.trim();
+        List<String> parsedCmd = parser.parse(cmd, cmd.length() + 1).words();
+        return parsedCmd.toArray(new String[parsedCmd.size()]);
+    }
+
+    Parser getParser() {
+        return parser;
     }
 }
-
