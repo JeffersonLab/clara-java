@@ -76,6 +76,11 @@ class RunCommand extends BaseCommand {
             OrchestratorConfigParser parser = new OrchestratorConfigParser(configFile);
             Set<ClaraLang> languages = parser.parseLanguages();
 
+            if (checkDpes(languages)) {
+                return;
+            }
+            destroyDpes();
+
             String javaDpe = Paths.get(Config.claraHome(), "bin", "j_dpe").toString();
             addBackgroundDpeProcess(ClaraLang.JAVA, javaDpe);
 
@@ -90,6 +95,19 @@ class RunCommand extends BaseCommand {
             }
         }
 
+        private boolean checkDpes(Set<ClaraLang> languages) {
+            return languages.equals(backgroundDpes.keySet())
+                && languages.stream().allMatch(this::isDpeAlive);
+        }
+
+        private boolean isDpeAlive(ClaraLang lang) {
+            Process process = backgroundDpes.get(lang);
+            if (process == null) {
+                return false;
+            }
+            return process.isAlive();
+        }
+
         private void addBackgroundDpeProcess(ClaraLang lang, String... command)
                 throws IOException {
             if (!backgroundDpes.containsKey(lang)) {
@@ -97,16 +115,20 @@ class RunCommand extends BaseCommand {
             }
         }
 
-        @Override
-        public void close() {
+        private void destroyDpes() {
             // kill the DPEs in reverse order (the front-end last)
             for (ClaraLang lang : Arrays.asList(ClaraLang.PYTHON, ClaraLang.CPP, ClaraLang.JAVA)) {
-                Process process = backgroundDpes.get(lang);
+                Process process = backgroundDpes.remove(lang);
                 if (process == null) {
                     continue;
                 }
                 CommandUtils.destroyProcess(process);
             }
+        }
+
+        @Override
+        public void close() {
+            destroyDpes();
         }
     }
 }
