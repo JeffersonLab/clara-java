@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.jlab.clara.base.ClaraLang;
+import org.jlab.clara.base.DpeName;
 import org.jlab.clara.std.orchestrators.OrchestratorConfigParser;
 import org.jline.terminal.Terminal;
 
@@ -43,8 +44,11 @@ class RunCommand extends BaseCommand {
 
     private static class RunLocal extends AbstractCommand {
 
+        private static final int LOWER_PORT = 7000;
+        private static final int UPPER_PORT = 8000;
+
         private final Config config;
-        private final Map<ClaraLang, Process> backgroundDpes;
+        private final Map<ClaraLang, DpeProcess> backgroundDpes;
 
         RunLocal(Terminal terminal, Config config) {
             super(terminal, "local", "");
@@ -55,11 +59,12 @@ class RunCommand extends BaseCommand {
         @Override
         public int execute(String[] args) {
             try {
-                startLocalDpes();
+                DpeName feDpe = startLocalDpes();
 
                 Path orchestrator = Paths.get(Config.claraHome(), "bin", "clara-orchestrator");
                 int exitStatus = CommandUtils.runProcess(orchestrator.toString(),
                         "-F",
+                        "-f", feDpe.toString(),
                         "-t", config.getValue(Config.MAX_THREADS).toString(),
                         "-i", config.getValue(Config.INPUT_DIR).toString(),
                         "-o", config.getValue(Config.OUTPUT_DIR).toString(),
@@ -77,28 +82,51 @@ class RunCommand extends BaseCommand {
             }
         }
 
-        private void startLocalDpes() throws IOException {
+        private DpeName startLocalDpes() throws IOException {
             String configFile = config.getValue(Config.SERVICES_FILE).toString();
             OrchestratorConfigParser parser = new OrchestratorConfigParser(configFile);
             Set<ClaraLang> languages = parser.parseLanguages();
 
             if (checkDpes(languages)) {
-                return;
+                return backgroundDpes.get(ClaraLang.JAVA).name;
             }
             destroyDpes();
 
+            DpeName feName = new DpeName(findHost(), findPort(), ClaraLang.JAVA);
             String javaDpe = Paths.get(Config.claraHome(), "bin", "j_dpe").toString();
-            addBackgroundDpeProcess(ClaraLang.JAVA, javaDpe);
+            addBackgroundDpeProcess(feName, javaDpe,
+                    "--host", getHost(feName),
+                    "--port", getPort(feName));
 
             if (languages.contains(ClaraLang.CPP)) {
+                DpeName cppName = new DpeName(feName.address().host(), findPort(), ClaraLang.CPP);
                 String cppDpe = Paths.get(Config.claraHome(), "bin", "c_dpe").toString();
-                addBackgroundDpeProcess(ClaraLang.CPP, cppDpe, "--fe-host", "localhost");
+                addBackgroundDpeProcess(cppName, cppDpe,
+                        "--host", getHost(cppName),
+                        "--port", getPort(cppName),
+                        "--fe-host", getHost(feName),
+                        "--fe-port", getPort(feName));
             }
 
             if (languages.contains(ClaraLang.PYTHON)) {
+                DpeName pyName = new DpeName(feName.address().host(), findPort(), ClaraLang.PYTHON);
                 String pyDpe = Paths.get(Config.claraHome(), "bin", "p_dpe").toString();
-                addBackgroundDpeProcess(ClaraLang.PYTHON, pyDpe, "--fe-host", "localhost");
+                addBackgroundDpeProcess(pyName, pyDpe,
+                        "--host", getHost(pyName),
+                        "--port", getPort(pyName),
+                        "--fe-host", getHost(feName),
+                        "--fe-port", getPort(feName));
             }
+
+            return feName;
+        }
+
+        private String findHost() {
+            return config.getValue(Config.FRONTEND_HOST).toString();
+        }
+
+        private int findPort() {
+            return CommandUtils.getAvailableDpePort(LOWER_PORT, UPPER_PORT);
         }
 
         private boolean checkDpes(Set<ClaraLang> languages) {
@@ -107,28 +135,29 @@ class RunCommand extends BaseCommand {
         }
 
         private boolean isDpeAlive(ClaraLang lang) {
-            Process process = backgroundDpes.get(lang);
-            if (process == null) {
+            DpeProcess dpe = backgroundDpes.get(lang);
+            if (dpe == null) {
                 return false;
             }
-            return process.isAlive();
+            return dpe.process.isAlive();
         }
 
-        private void addBackgroundDpeProcess(ClaraLang lang, String... command)
+        private void addBackgroundDpeProcess(DpeName name, String... command)
                 throws IOException {
-            if (!backgroundDpes.containsKey(lang)) {
-                backgroundDpes.put(lang, CommandUtils.runDpe(command));
+            if (!backgroundDpes.containsKey(name.language())) {
+                DpeProcess dpe = new DpeProcess(name, CommandUtils.runDpe(command));
+                backgroundDpes.put(name.language(), dpe);
             }
         }
 
         private void destroyDpes() {
             // kill the DPEs in reverse order (the front-end last)
             for (ClaraLang lang : Arrays.asList(ClaraLang.PYTHON, ClaraLang.CPP, ClaraLang.JAVA)) {
-                Process process = backgroundDpes.remove(lang);
-                if (process == null) {
+                DpeProcess dpe = backgroundDpes.remove(lang);
+                if (dpe == null) {
                     continue;
                 }
-                CommandUtils.destroyProcess(process);
+                CommandUtils.destroyProcess(dpe.process);
             }
         }
 
@@ -136,5 +165,24 @@ class RunCommand extends BaseCommand {
         public void close() {
             destroyDpes();
         }
+    }
+
+    private static class DpeProcess {
+
+        private final DpeName name;
+        private final Process process;
+
+        DpeProcess(DpeName name, Process process) {
+            this.name = name;
+            this.process = process;
+        }
+    }
+
+    private static String getHost(DpeName name) {
+        return name.address().host();
+    }
+
+    private static String getPort(DpeName name) {
+        return Integer.toString(name.address().pubPort());
     }
 }

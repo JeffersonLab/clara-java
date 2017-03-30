@@ -25,6 +25,7 @@ package org.jlab.clara.std.cli;
 import org.jlab.clara.base.ClaraUtil;
 
 import java.io.IOException;
+import java.net.ServerSocket;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -137,6 +138,26 @@ public final class CommandUtils {
         Process process = builder.start();
         ClaraUtil.sleep(2000);
         return process;
+    }
+
+    /**
+     * Finds a free port in the given range to be used by a DPE.
+     *
+     * @param begin the lower port in the range, inclusive
+     * @param end the upper port in the range, exclusive
+     * @return the first available port in the range
+     * @throws IllegalStateException if there are no free ports in the given range
+     */
+    public static Integer getAvailableDpePort(int begin, int end) {
+        for (int port = begin; port < end; port += 10) {
+            try (ServerSocket socket = new ServerSocket(port)) {
+                socket.setReuseAddress(true);
+                return socket.getLocalPort();
+            } catch (IOException e) {
+                continue;
+            }
+        }
+        throw new IllegalStateException("Cannot find an available port");
     }
 
     /**
