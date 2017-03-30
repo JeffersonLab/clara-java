@@ -250,7 +250,8 @@ public class CompositionCompiler {
         // ignore a leading }
         iStmt = CompositionParser.removeFirst(iStmt, "}");
 
-        System.out.println("DDD ----- > statement = "+iStmt);
+
+
         //unconditional routing statement
         try {
             Pattern p = Pattern.compile(RStmt);
@@ -268,6 +269,8 @@ public class CompositionCompiler {
                 instructions.add(ti);
                 b = true;
             } else {
+                System.out.println("DDD ----- > statement = "+iStmt);
+
                 throw new ClaraException("Syntax error in the CLARA routing program. " +
                         "Malformed routing statement");
             }
@@ -302,6 +305,8 @@ public class CompositionCompiler {
             }
             b = true;
         } else {
+            System.out.println("DDD ----- > statement = "+iStmt);
+
             throw new ClaraException("Syntax error in the CLARA routing program. " +
                     "Malformed routing statement");
         }
