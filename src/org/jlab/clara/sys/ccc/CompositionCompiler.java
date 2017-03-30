@@ -250,6 +250,7 @@ public class CompositionCompiler {
         // ignore a leading }
         iStmt = CompositionParser.removeFirst(iStmt, "}");
 
+        System.out.println("DDD ----- > statement = "+iStmt);
         //unconditional routing statement
         try {
             Pattern p = Pattern.compile(RStmt);
