@@ -32,18 +32,58 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
-final class CommandUtils {
+/**
+ * Helpers to run CLI commands.
+ */
+public final class CommandUtils {
 
     private CommandUtils() { }
 
+    /**
+     * Gets the default text editor of the user.
+     * This is the program defined by $EDITOR environment variable.
+     * If the variable is not set, use nano.
+     *
+     * @return the default editor defined by the user
+     */
     public static String getEditor() {
         return Optional.ofNullable(System.getenv("EDITOR")).orElse("nano");
     }
 
+    /**
+     * Opens the given file in the default text editor of the user.
+     *
+     * @param filePath the file to be edited
+     * @return the exit status of the editor program
+     */
+    public static int editFile(String filePath) {
+        return runProcess(getEditor(), filePath);
+    }
+
+    /**
+     * Runs the given CLI program as a subprocess, and waits until it is
+     * finished. The subprocess will be destroyed if the caller thread is
+     * interrupted.
+     *
+     * @param command a string array containing the program and its arguments
+     * @return the exit value of the subprocess
+     */
     public static int runProcess(String... command) {
         ProcessBuilder builder = new ProcessBuilder(command);
         builder.redirectInput(ProcessBuilder.Redirect.INHERIT);
         builder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+        return runProcess(builder);
+    }
+
+    /**
+     * Starts the subprocess defined by the given subprocess builder, and waits
+     * until it is finished. The subprocess will be destroyed if the caller
+     * thread is interrupted.
+     *
+     * @param builder the builder of the subprocess to be run
+     * @return the exit value of the subprocess
+     */
+    public static int runProcess(ProcessBuilder builder) {
         try {
             Process process = builder.start();
             try {
@@ -58,6 +98,11 @@ final class CommandUtils {
         return 1;
     }
 
+    /**
+     * Destroys the given subprocess.
+     *
+     * @param process the subprocess to be destroyed
+     */
     public static void destroyProcess(Process process) {
         process.destroy();
         try {
@@ -76,6 +121,15 @@ final class CommandUtils {
         }
     }
 
+    /**
+     * Starts the given DPE as a background subprocess.
+     * The DPE process will continue running even if the user presses CTRL-C on
+     * the CLARA shell.
+     *
+     * @param command a string array containing the DPE program and its arguments
+     * @return the subprocess that is running the DPE
+     * @throws IOException if the subprocess could not be started
+     */
     public static Process runDpe(String... command) throws IOException {
         ProcessBuilder builder = new ProcessBuilder(wrapCommand(command));
         builder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
@@ -85,6 +139,13 @@ final class CommandUtils {
         return process;
     }
 
+    /**
+     * Wraps the given CLI program into a script that ignores when the user
+     * presses CTRL-C.
+     *
+     * @param command a string array containing the DPE program and its arguments
+     * @return the wrapper program that runs the given command
+     */
     public static List<String> wrapCommand(String... command) {
         List<String> wrapperCmd = new ArrayList<>();
         wrapperCmd.add(commandWrapper());
@@ -92,6 +153,12 @@ final class CommandUtils {
         return wrapperCmd;
     }
 
+    /**
+     * Gets the path to the wrapper script that prevents interrupting a program
+     * with CTRL-C.
+     *
+     * @return the path to the script
+     */
     public static String commandWrapper() {
         return Optional.ofNullable(System.getenv("CLARA_COMMAND_WRAPPER"))
                 .orElse(Paths.get(RunConfig.claraHome(), "lib", "clara", "cmd-wrapper").toString());
