@@ -131,7 +131,7 @@ public final class CommandUtils {
      * @throws IOException if the subprocess could not be started
      */
     public static Process runDpe(String... command) throws IOException {
-        ProcessBuilder builder = new ProcessBuilder(wrapCommand(command));
+        ProcessBuilder builder = new ProcessBuilder(uninterruptibleCommand(command));
         builder.inheritIO();
         Process process = builder.start();
         ClaraUtil.sleep(2000);
@@ -161,24 +161,19 @@ public final class CommandUtils {
     /**
      * Wraps the given CLI program into a script that ignores when the user
      * presses CTRL-C.
+     * The output of the command will be printed to the standard output.
      *
      * @param command a string array containing the DPE program and its arguments
      * @return the wrapper program that runs the given command
      */
-    public static List<String> wrapCommand(String... command) {
+    public static String[] uninterruptibleCommand(String... command) {
         List<String> wrapperCmd = new ArrayList<>();
         wrapperCmd.add(commandWrapper());
         wrapperCmd.addAll(Arrays.asList(command));
-        return wrapperCmd;
+        return wrapperCmd.toArray(new String[wrapperCmd.size()]);
     }
 
-    /**
-     * Gets the path to the wrapper script that prevents interrupting a program
-     * with CTRL-C.
-     *
-     * @return the path to the script
-     */
-    public static String commandWrapper() {
+    private static String commandWrapper() {
         return Optional.ofNullable(System.getenv("CLARA_COMMAND_WRAPPER"))
                 .orElse(Paths.get(Config.claraHome(), "lib", "clara", "cmd-wrapper").toString());
     }
