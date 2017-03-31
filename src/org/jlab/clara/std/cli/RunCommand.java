@@ -37,6 +37,8 @@ import org.jline.terminal.Terminal;
 
 class RunCommand extends BaseCommand {
 
+    private static final String USER = System.getProperty("user.name");
+
     RunCommand(Terminal terminal, Config config) {
         super(terminal, "run", "Start data processing");
         addSubCommand(new RunLocal(terminal, config));
@@ -62,7 +64,8 @@ class RunCommand extends BaseCommand {
                 DpeName feDpe = startLocalDpes();
 
                 Path orchestrator = Paths.get(Config.claraHome(), "bin", "clara-orchestrator");
-                int exitStatus = CommandUtils.runProcess(orchestrator.toString(),
+                int exitStatus = runOrchestrator(feDpe,
+                        orchestrator.toString(),
                         "-F",
                         "-f", feDpe.toString(),
                         "-t", config.getValue(Config.MAX_THREADS).toString(),
@@ -80,6 +83,11 @@ class RunCommand extends BaseCommand {
                 e.printStackTrace();
                 return EXIT_ERROR;
             }
+        }
+
+        private int runOrchestrator(DpeName feName, String... cmd) {
+            String logFile = getLogFile(getHost(feName), "orch");
+            return CommandUtils.runProcess(CommandUtils.uninterruptibleCommand(cmd, logFile));
         }
 
         private DpeName startLocalDpes() throws IOException {
@@ -145,7 +153,8 @@ class RunCommand extends BaseCommand {
         private void addBackgroundDpeProcess(DpeName name, String... command)
                 throws IOException {
             if (!backgroundDpes.containsKey(name.language())) {
-                DpeProcess dpe = new DpeProcess(name, CommandUtils.runDpe(command));
+                String logFile = getLogFile(name);
+                DpeProcess dpe = new DpeProcess(name, CommandUtils.runDpe(command, logFile));
                 backgroundDpes.put(name.language(), dpe);
             }
         }
@@ -184,5 +193,16 @@ class RunCommand extends BaseCommand {
 
     private static String getPort(DpeName name) {
         return Integer.toString(name.address().pubPort());
+    }
+
+    private static String getLogFile(DpeName name) {
+        ClaraLang lang = name.language();
+        String dpeType = lang == ClaraLang.JAVA ? "fe-dpe" : lang + "-dpe";
+        return getLogFile(getHost(name), dpeType);
+    }
+
+    private static String getLogFile(String host, String type) {
+        String logName = String.format("%s-%s-%s.log", host, USER, type);
+        return Paths.get(Config.claraHome(), "log", logName).toString();
     }
 }

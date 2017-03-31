@@ -130,8 +130,27 @@ public final class CommandUtils {
      * @return the subprocess that is running the DPE
      * @throws IOException if the subprocess could not be started
      */
-    public static Process runDpe(String... command) throws IOException {
-        ProcessBuilder builder = new ProcessBuilder(uninterruptibleCommand(command));
+    public static Process runDpe(String[] command) throws IOException {
+        return runDpeInternal(uninterruptibleCommand(command));
+    }
+
+    /**
+     * Starts the given DPE as a background subprocess.
+     * The DPE output will also be logged into the given file.
+     * The DPE process will continue running even if the user presses CTRL-C on
+     * the CLARA shell.
+     *
+     * @param command a string array containing the DPE program and its arguments
+     * @param logFile the path to the DPE log file
+     * @return the subprocess that is running the DPE
+     * @throws IOException if the subprocess could not be started
+     */
+    public static Process runDpe(String[] command, String logFile) throws IOException {
+        return runDpeInternal(uninterruptibleCommand(command, logFile));
+    }
+
+    private static Process runDpeInternal(String[] command) throws IOException {
+        ProcessBuilder builder = new ProcessBuilder(command);
         builder.inheritIO();
         Process process = builder.start();
         ClaraUtil.sleep(2000);
