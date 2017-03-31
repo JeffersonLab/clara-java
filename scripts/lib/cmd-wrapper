@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 
+set -m
+
 trap '' INT
 trap 'kill -TERM $pid' TERM 
 
-perl -MPOSIX -e 'setpgid 0,0; exec @ARGV' "$@" &
+"$@" &
 pid=$!
 
 wait $pid
