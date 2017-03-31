@@ -1,4 +1,5 @@
 #!/bin/sh
 
 export CLARA_COMMAND_WRAPPER=./scripts/lib/cmd-wrapper
+export CLARA_COMMAND_LOGGER=./scripts/lib/cmd-logger
 exec ./scripts/exec-class org.jlab.clara.std.cli.ClaraShell "$@"

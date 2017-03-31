@@ -173,8 +173,31 @@ public final class CommandUtils {
         return wrapperCmd.toArray(new String[wrapperCmd.size()]);
     }
 
+    /**
+     * Wraps the given CLI program into a script that ignores when the user
+     * presses CTRL-C.
+     * The output of the command will be printed to the standard output
+     * and also logged into the given log file.
+     *
+     * @param command a string array containing the DPE program and its arguments
+     * @param logFile the path to the log file
+     * @return the wrapper program that runs the given command
+     */
+    public static String[] uninterruptibleCommand(String[] command, String logFile) {
+        List<String> logCmd = new ArrayList<>();
+        logCmd.add(commandLogger());
+        logCmd.add(logFile);
+        logCmd.addAll(Arrays.asList(command));
+        return logCmd.toArray(new String[logCmd.size()]);
+    }
+
     private static String commandWrapper() {
         return Optional.ofNullable(System.getenv("CLARA_COMMAND_WRAPPER"))
                 .orElse(Paths.get(Config.claraHome(), "lib", "clara", "cmd-wrapper").toString());
+    }
+
+    private static String commandLogger() {
+        return Optional.ofNullable(System.getenv("CLARA_COMMAND_LOGGER"))
+                .orElse(Paths.get(Config.claraHome(), "lib", "clara", "cmd-logger").toString());
     }
 }
