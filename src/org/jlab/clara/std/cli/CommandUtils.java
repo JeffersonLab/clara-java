@@ -71,8 +71,7 @@ public final class CommandUtils {
      */
     public static int runProcess(String... command) {
         ProcessBuilder builder = new ProcessBuilder(command);
-        builder.redirectInput(ProcessBuilder.Redirect.INHERIT);
-        builder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
+        builder.inheritIO();
         return runProcess(builder);
     }
 
@@ -133,8 +132,7 @@ public final class CommandUtils {
      */
     public static Process runDpe(String... command) throws IOException {
         ProcessBuilder builder = new ProcessBuilder(wrapCommand(command));
-        builder.redirectOutput(ProcessBuilder.Redirect.INHERIT);
-        builder.redirectError(ProcessBuilder.Redirect.INHERIT);
+        builder.inheritIO();
         Process process = builder.start();
         ClaraUtil.sleep(2000);
         return process;
