@@ -58,13 +58,19 @@ class RunCommand extends BaseCommand {
                 startLocalDpes();
 
                 Path orchestrator = Paths.get(Config.claraHome(), "bin", "clara-orchestrator");
-                return CommandUtils.runProcess(orchestrator.toString(),
+                int exitStatus = CommandUtils.runProcess(orchestrator.toString(),
                         "-F",
                         "-t", config.getValue(Config.MAX_THREADS).toString(),
                         "-i", config.getValue(Config.INPUT_DIR).toString(),
                         "-o", config.getValue(Config.OUTPUT_DIR).toString(),
                         config.getValue(Config.SERVICES_FILE).toString(),
                         config.getValue(Config.FILES_LIST).toString());
+
+                if (Thread.interrupted()) {
+                    destroyDpes();
+                    Thread.currentThread().interrupt();
+                }
+                return exitStatus;
             } catch (Exception e) {
                 e.printStackTrace();
                 return EXIT_ERROR;
