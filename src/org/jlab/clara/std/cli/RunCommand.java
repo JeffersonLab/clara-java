@@ -40,7 +40,7 @@ class RunCommand extends BaseCommand {
     private static final String USER = System.getProperty("user.name");
 
     RunCommand(Terminal terminal, Config config) {
-        super(terminal, "run", "Start data processing");
+        super(terminal, "run", "Start CLARA data processing.");
         addSubCommand(new RunLocal(terminal, config));
     }
 
@@ -53,7 +53,7 @@ class RunCommand extends BaseCommand {
         private final Map<ClaraLang, DpeProcess> backgroundDpes;
 
         RunLocal(Terminal terminal, Config config) {
-            super(terminal, "local", "");
+            super(terminal, "local", "Run CLARA data processing on the local node.");
             this.config = config;
             this.backgroundDpes = new HashMap<>();
         }

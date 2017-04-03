@@ -104,7 +104,7 @@ class RunFarm extends AbstractCommand {
 
 
     RunFarm(Terminal terminal, Config config) {
-        super(terminal, "farm", "run CLAS reconstruction on a farm");
+        super(terminal, "farm", "Run CLARA data processing on the farm.");
 
         this.config = config;
     }
