@@ -178,6 +178,15 @@ public class Config {
     }
 
     /**
+     * Gets the user name.
+     *
+     * @return the name of the user running the shell.
+     */
+    public static String user() {
+        return System.getProperty("user.name");
+    }
+
+    /**
      * Checks if a variable of the given name exists.
      *
      * @param name the variable to check
