@@ -24,14 +24,18 @@ package org.jlab.clara.std.cli;
 
 import org.jlab.clara.base.ClaraUtil;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 /**
  * Helpers to run CLI commands.
@@ -59,6 +63,19 @@ public final class CommandUtils {
      */
     public static int editFile(String filePath) {
         return runProcess(getEditor(), filePath);
+    }
+
+    /**
+     * Checks if the given program exists in {@code $PATH}.
+     *
+     * @param name the name of the program
+     * @return true if the program was found in {@code $PATH}
+     */
+    public static boolean checkProgram(String name) {
+        return Stream.of(System.getenv("PATH")
+                .split(Pattern.quote(File.pathSeparator)))
+                .map(Paths::get)
+                .anyMatch(path -> Files.exists(path.resolve(name)));
     }
 
     /**
