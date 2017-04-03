@@ -23,6 +23,7 @@
 package org.jlab.clara.std.cli;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -324,7 +325,7 @@ public final class ClaraShell implements AutoCloseable {
      * Runs the shell accepting user commands.
      */
     public void run() {
-        printWelcomeMessage();
+        printWelcomeMessage(terminal.writer());
         running = true;
         while (running) {
             try {
@@ -351,15 +352,15 @@ public final class ClaraShell implements AutoCloseable {
         running = false;
     }
 
-    private void printWelcomeMessage() {
-        System.out.println();
-        System.out.println("   ██████╗██╗      █████╗ ██████╗  █████╗ ");
-        System.out.println("  ██╔════╝██║     ██╔══██╗██╔══██╗██╔══██╗ 4.3.0");
-        System.out.println("  ██║     ██║     ███████║██████╔╝███████║");
-        System.out.println("  ██║     ██║     ██╔══██║██╔══██╗██╔══██║");
-        System.out.println("  ╚██████╗███████╗██║  ██║██║  ██║██║  ██║");
-        System.out.println("   ╚═════╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝");
-        System.out.println();
+    private void printWelcomeMessage(PrintWriter writer) {
+        writer.println();
+        writer.println("   ██████╗██╗      █████╗ ██████╗  █████╗ ");
+        writer.println("  ██╔════╝██║     ██╔══██╗██╔══██╗██╔══██╗ 4.3.0");
+        writer.println("  ██║     ██║     ███████║██████╔╝███████║");
+        writer.println("  ██║     ██║     ██╔══██║██╔══██╗██╔══██║");
+        writer.println("  ╚██████╗███████╗██║  ██║██║  ██║██║  ██║");
+        writer.println("   ╚═════╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝");
+        writer.println();
     }
 
     private String readLine(String promtMessage) {
