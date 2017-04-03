@@ -27,7 +27,7 @@ import java.io.UncheckedIOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -253,7 +253,7 @@ public final class ClaraShell implements AutoCloseable {
     private ClaraShell(Builder builder) {
         terminal = builder.terminal;
         config = builder.config;
-        commands = new HashMap<>();
+        commands = new LinkedHashMap<>();
         commandRunner = new CommandRunner(terminal, commands);
         initCommands(builder);
         reader = LineReaderBuilder.builder()
@@ -266,8 +266,8 @@ public final class ClaraShell implements AutoCloseable {
     }
 
     private void initCommands(Builder builder) {
-        addCommand(initCommand(EditCommand::new, builder.editSubCommands));
         addCommand(initCommand(RunCommand::new, builder.runSubCommands));
+        addCommand(initCommand(EditCommand::new, builder.editSubCommands));
 
         builder.userCommands.forEach(c -> addCommand(c.create(terminal, config)));
 
