@@ -106,13 +106,11 @@ public class Config {
 
         addBuilder.apply(SERVICES_FILE,
                 "Path to the file describing application service composition.")
-                .withInitialValue(defaultConfigFile(claraHome))
                 .withParser(ConfigParsers::toExistingFile)
                 .withCompleter(fileCompleter());
 
         addBuilder.apply(FILES_LIST,
                 "Path to the file containing the names of data-files to be processed.")
-                .withInitialValue(defaultFileList(claraHome))
                 .withParser(ConfigParsers::toExistingFile)
                 .withCompleter(fileCompleter());
 
@@ -167,14 +165,6 @@ public class Config {
             throw new RuntimeException("Missing CLARA_HOME variable");
         }
         return claraHome;
-    }
-
-    private static String defaultConfigFile(String claraHome) {
-        return Paths.get(claraHome, "plugins", "clas12", "config", "services.yaml").toString();
-    }
-
-    private static String defaultFileList(String claraHome) {
-        return Paths.get(claraHome, "plugins", "clas12", "config", "files.list").toString();
     }
 
     /**

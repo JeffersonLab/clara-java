@@ -62,7 +62,11 @@ public final class ClaraShell implements AutoCloseable {
     private volatile boolean running;
 
     public static void main(String[] args) {
-        ClaraShell shell = ClaraShell.newBuilder().build();
+        ClaraShell.Builder builder = ClaraShell.newBuilder();
+        if (RunFarm.hasPlugin()) {
+            RunFarm.register(builder);
+        }
+        ClaraShell shell = builder.build();
 
         Thread mainThread = Thread.currentThread();
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
