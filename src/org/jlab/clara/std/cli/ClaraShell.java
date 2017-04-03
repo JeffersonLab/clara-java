@@ -361,6 +361,8 @@ public final class ClaraShell implements AutoCloseable {
         writer.println("  ╚██████╗███████╗██║  ██║██║  ██║██║  ██║");
         writer.println("   ╚═════╝╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝");
         writer.println();
+        writer.println();
+        writer.println(" Run 'help' to show available commands.");
     }
 
     private String readLine(String promtMessage) {
