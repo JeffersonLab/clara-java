@@ -98,6 +98,7 @@ class RunFarm extends AbstractCommand {
         clasVariables(builder);
         farmVariables(builder);
 
+        builder.withEnvironmentVariable("CLAS12DIR", PLUGIN.toString());
         builder.withRunSubCommand((t, c) -> new RunFarm(t, c));
     }
 
@@ -132,6 +133,7 @@ class RunFarm extends AbstractCommand {
     private void setFarmScript(String path) throws IOException {
         StringBuilder cmd = new StringBuilder();
         cmd.append("setenv CLARA_HOME ").append(Config.claraHome()).append("; ");
+        cmd.append("setenv CLAS12DIR ").append(PLUGIN).append("; ");
         cmd.append(Config.claraHome()).append("/bin/remove-dpe; ");
 
         cmd.append(Config.claraHome()).append("/bin/etc/f-clara");
