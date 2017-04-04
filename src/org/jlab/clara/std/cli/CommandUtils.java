@@ -22,11 +22,8 @@
 
 package org.jlab.clara.std.cli;
 
-import org.jlab.clara.base.ClaraUtil;
-
 import java.io.File;
 import java.io.IOException;
-import java.net.ServerSocket;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -136,62 +133,6 @@ public final class CommandUtils {
         } catch (IOException e) {
             // ignore
         }
-    }
-
-    /**
-     * Starts the given DPE as a background subprocess.
-     * The DPE process will continue running even if the user presses CTRL-C on
-     * the CLARA shell.
-     *
-     * @param command a string array containing the DPE program and its arguments
-     * @return the subprocess that is running the DPE
-     * @throws IOException if the subprocess could not be started
-     */
-    public static Process runDpe(String[] command) throws IOException {
-        return runDpeInternal(uninterruptibleCommand(command));
-    }
-
-    /**
-     * Starts the given DPE as a background subprocess.
-     * The DPE output will also be logged into the given file.
-     * The DPE process will continue running even if the user presses CTRL-C on
-     * the CLARA shell.
-     *
-     * @param command a string array containing the DPE program and its arguments
-     * @param logFile the path to the DPE log file
-     * @return the subprocess that is running the DPE
-     * @throws IOException if the subprocess could not be started
-     */
-    public static Process runDpe(String[] command, String logFile) throws IOException {
-        return runDpeInternal(uninterruptibleCommand(command, logFile));
-    }
-
-    private static Process runDpeInternal(String[] command) throws IOException {
-        ProcessBuilder builder = new ProcessBuilder(command);
-        builder.inheritIO();
-        Process process = builder.start();
-        ClaraUtil.sleep(2000);
-        return process;
-    }
-
-    /**
-     * Finds a free port in the given range to be used by a DPE.
-     *
-     * @param begin the lower port in the range, inclusive
-     * @param end the upper port in the range, exclusive
-     * @return the first available port in the range
-     * @throws IllegalStateException if there are no free ports in the given range
-     */
-    public static Integer getAvailableDpePort(int begin, int end) {
-        for (int port = begin; port < end; port += 10) {
-            try (ServerSocket socket = new ServerSocket(port)) {
-                socket.setReuseAddress(true);
-                return socket.getLocalPort();
-            } catch (IOException e) {
-                continue;
-            }
-        }
-        throw new IllegalStateException("Cannot find an available port");
     }
 
     /**

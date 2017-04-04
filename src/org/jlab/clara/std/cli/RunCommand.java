@@ -23,6 +23,7 @@
 package org.jlab.clara.std.cli;
 
 import java.io.IOException;
+import java.net.ServerSocket;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -31,6 +32,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.jlab.clara.base.ClaraLang;
+import org.jlab.clara.base.ClaraUtil;
 import org.jlab.clara.base.DpeName;
 import org.jlab.clara.std.orchestrators.OrchestratorConfigParser;
 import org.jline.terminal.Terminal;
@@ -87,7 +89,7 @@ class RunCommand extends BaseCommand {
 
         private int runOrchestrator(DpeName feName, String... cmd) {
             String logFile = getLogFile(getHost(feName), "orch");
-            return CommandUtils.runProcess(CommandUtils.uninterruptibleCommand(cmd, logFile));
+            return CommandUtils.runProcess(buildProcess(cmd, logFile));
         }
 
         private DpeName startLocalDpes() throws IOException {
@@ -134,7 +136,15 @@ class RunCommand extends BaseCommand {
         }
 
         private int findPort() {
-            return CommandUtils.getAvailableDpePort(LOWER_PORT, UPPER_PORT);
+            for (int port = LOWER_PORT; port < UPPER_PORT; port += 10) {
+                try (ServerSocket socket = new ServerSocket(port)) {
+                    socket.setReuseAddress(true);
+                    return socket.getLocalPort();
+                } catch (IOException e) {
+                    continue;
+                }
+            }
+            throw new IllegalStateException("Cannot find an available port");
         }
 
         private boolean checkDpes(Set<ClaraLang> languages) {
@@ -154,7 +164,7 @@ class RunCommand extends BaseCommand {
                 throws IOException {
             if (!backgroundDpes.containsKey(name.language())) {
                 String logFile = getLogFile(name);
-                DpeProcess dpe = new DpeProcess(name, CommandUtils.runDpe(command, logFile));
+                DpeProcess dpe = new DpeProcess(name, buildProcess(command, logFile));
                 backgroundDpes.put(name.language(), dpe);
             }
         }
@@ -170,6 +180,13 @@ class RunCommand extends BaseCommand {
             }
         }
 
+        private ProcessBuilder buildProcess(String[] command, String logFile) {
+            String[] wrapper = CommandUtils.uninterruptibleCommand(command, logFile);
+            ProcessBuilder builder = new ProcessBuilder(wrapper);
+            builder.inheritIO();
+            return builder;
+        }
+
         @Override
         public void close() {
             destroyDpes();
@@ -181,9 +198,10 @@ class RunCommand extends BaseCommand {
         private final DpeName name;
         private final Process process;
 
-        DpeProcess(DpeName name, Process process) {
+        DpeProcess(DpeName name, ProcessBuilder builder) throws IOException {
             this.name = name;
-            this.process = process;
+            this.process = builder.start();
+            ClaraUtil.sleep(2000);
         }
     }
 
