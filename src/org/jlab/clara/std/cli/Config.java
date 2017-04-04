@@ -24,11 +24,14 @@ package org.jlab.clara.std.cli;
 
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.BiFunction;
 
 import org.jlab.clara.base.ClaraUtil;
+import org.jlab.clara.util.ArgUtils;
 import org.jline.reader.Completer;
 import org.jline.reader.impl.completer.FileNameCompleter;
 
@@ -83,9 +86,11 @@ public class Config {
     public static final String MAX_NODES = "numNodes";
 
     private final Map<String, ConfigVariable> variables;
+    private final Map<String, String> environment;
 
     Config() {
         variables = initVariables();
+        environment = new HashMap<>();
     }
 
     static Map<String, ConfigVariable> initVariables() {
@@ -231,6 +236,35 @@ public class Config {
 
     Collection<ConfigVariable> getVariables() {
         return variables.values();
+    }
+
+    void setenv(String name, String value) {
+        ArgUtils.requireNonEmpty(name, "name");
+        ArgUtils.requireNonEmpty(value, "value");
+        if (name.equals("CLARA_HOME")) {
+            throw new IllegalArgumentException("cannot override $CLARA_HOME variable");
+        }
+        environment.put(name, value);
+    }
+
+    /**
+     * Returns an unmodifiable string map view of the custom environment
+     * variables set for the shell.
+     * These are extra variables to the system environment, defined when the
+     * shell was created.
+     * <p>
+     * The variables should be added to the inherited environment when starting
+     * a subprocess:
+     * <pre>
+     * ProcessBuilder b = new ProcessBuilder(command);
+     * b.environment().putAll(config.getenv());
+     * b.start()
+     * </pre>
+     *
+     * @return the custom extra environment as a map of variable names to values
+     */
+    public Map<String, String> getenv() {
+        return Collections.unmodifiableMap(environment);
     }
 
     private static Completer fileCompleter() {

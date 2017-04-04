@@ -154,6 +154,22 @@ public final class ClaraShell implements AutoCloseable {
         }
 
         /**
+         * Sets an environment variable for CLARA processes.
+         * The variable will be added to the environment of the DPEs started by
+         * {@code run local}.
+         *
+         * @param name the name of the variable
+         * @param value the value of the variable
+         * @return this builder
+         */
+        public Builder withEnvironmentVariable(String name, String value) {
+            ArgUtils.requireNonEmpty(name, "name");
+            ArgUtils.requireNonNull(value, "value");
+            config.setenv(name, value);
+            return this;
+        }
+
+        /**
          * Adds a new subcommand to the {@code run} builtin command.
          * This new subcommand cannot have the same name as one of the default
          * subcommands.

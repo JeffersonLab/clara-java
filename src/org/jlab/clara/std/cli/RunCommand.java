@@ -183,6 +183,7 @@ class RunCommand extends BaseCommand {
         private ProcessBuilder buildProcess(String[] command, String logFile) {
             String[] wrapper = CommandUtils.uninterruptibleCommand(command, logFile);
             ProcessBuilder builder = new ProcessBuilder(wrapper);
+            builder.environment().putAll(config.getenv());
             builder.inheritIO();
             return builder;
         }
