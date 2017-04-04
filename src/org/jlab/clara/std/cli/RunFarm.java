@@ -75,8 +75,7 @@ class RunFarm extends AbstractCommand {
             .withExpectedValues("jlab", "pbs")
             .withInitialValue("jlab");
 
-        vl.stream().map(ConfigVariable.Builder::build)
-                   .forEach(builder::withConfigVariable);
+        vl.forEach(builder::withConfigVariable);
     }
 
     private static String defaultConfigFile() {

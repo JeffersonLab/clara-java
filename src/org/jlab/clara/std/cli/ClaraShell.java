@@ -143,13 +143,13 @@ public final class ClaraShell implements AutoCloseable {
          * This new variable cannot have the same name as one of the default
          * configuration variables.
          *
-         * @param variable the configuration variable
+         * @param builder the builder of the configuration variable
          * @return this builder
          */
-        public Builder withConfigVariable(ConfigVariable variable) {
-            ArgUtils.requireNonNull(variable, "variable");
+        public Builder withConfigVariable(ConfigVariable.Builder builder) {
+            ArgUtils.requireNonNull(builder, "variable builder");
 
-            config.addVariable(variable);
+            config.addVariable(builder.build());
             return this;
         }
 
