@@ -181,9 +181,14 @@ echo "------------------------------------------"
 echo
 
 # start dpe
+if ["$THREAD_NUM" == "72"]; then
+export JAVA_OPTS="(-Xms40000m -Xmx40000m -XX:+UseNUMA -XX:+UseBiasedLocking)"
+fi
+
 $CLARA_HOME/bin/j_dpe --port $DPE_PORT --host $HOST --session $SESSION --max-sockets 5120 --report 5 --max-cores $THREAD_NUM 2>&1 | tee $LOG_FILE_DPE &
 sleep 20
 
+unset JAVA_OPTS
 
 # Starting cloud orchestrator
 if [ "$FARM_LOADING_ZONE" = "undefined" ]; then
