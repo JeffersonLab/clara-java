@@ -149,6 +149,7 @@ class RunFarm extends AbstractCommand {
         if ((Integer) config.getValue(FARM_CPU) == 72) {
             appendOpt(cmd, "-J", "-Xms40000m -Xmx40000m -XX:+UseNUMA -XX:+UseBiasedLocking");
         }
+        appendOpt(cmd, "-W", 20);
 
         try (PrintStream printer = new PrintStream(new FileOutputStream(path, false))) {
             printer.printf("PROJECT: clas12%n");
