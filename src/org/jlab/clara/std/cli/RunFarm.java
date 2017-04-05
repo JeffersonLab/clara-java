@@ -25,6 +25,8 @@ class RunFarm extends AbstractCommand {
     private static final String FARM_DISK = "farm.disk";
     private static final String FARM_TIME = "farm.time";
     private static final String FARM_FLAVOR = "farm.flavor";
+    private static final String FARM_JAVA_MEMORY = "farm.javaMemory";
+    private static final String FARM_JAVA_OPTIONS = "farm.javaOptions";
 
     static final Path PLUGIN = Paths.get(Config.claraHome(), "plugins", "clas12");
 
@@ -73,6 +75,13 @@ class RunFarm extends AbstractCommand {
         addBuilder.apply(FARM_FLAVOR, "")
             .withExpectedValues("jlab", "pbs")
             .withInitialValue("jlab");
+
+        addBuilder.apply(FARM_JAVA_MEMORY, "Farm JVM memory request (in GB)")
+            .withParser(ConfigParsers::toPositiveInteger)
+            .withInitialValue(40);
+
+        addBuilder.apply(FARM_JAVA_OPTIONS,
+                        "Farm JVM options (overrides " + FARM_JAVA_MEMORY + ")");
 
         vl.forEach(builder::withConfigVariable);
     }
@@ -145,10 +154,7 @@ class RunFarm extends AbstractCommand {
         }
         appendOpt(cmd, "-t", config.getValue(FARM_CPU));
         appendOpt(cmd, "-s", config.getValue(Config.SESSION));
-        // TODO: what about other number of cores
-        if ((Integer) config.getValue(FARM_CPU) == 72) {
-            appendOpt(cmd, "-J", "-Xms40000m -Xmx40000m -XX:+UseNUMA -XX:+UseBiasedLocking");
-        }
+        appendOpt(cmd, "-J", getJVMOptions());
         appendOpt(cmd, "-W", 20);
 
         try (PrintStream printer = new PrintStream(new FileOutputStream(path, false))) {
@@ -162,6 +168,15 @@ class RunFarm extends AbstractCommand {
             printer.printf("TIME: %s%n", config.getValue(FARM_TIME));
             printer.printf("COMMAND: %s%n", cmd.toString());
         }
+    }
+
+    private String getJVMOptions() {
+        if (config.hasValue(FARM_JAVA_OPTIONS)) {
+            return config.getValue(FARM_JAVA_OPTIONS).toString();
+        }
+        int memSize = (Integer) config.getValue(FARM_JAVA_MEMORY);
+        return String.format("-Xms%dg -Xmx%dg -XX:+UseNUMA -XX:+UseBiasedLocking",
+                             memSize, memSize);
     }
 
     private void appendOpt(StringBuilder sb, String opt, Object value) {
