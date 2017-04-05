@@ -11,7 +11,7 @@ if [ -z "${CLASSPATH}" ]; then
 fi
 
 if [ -n "${JAVA_OPTS}" ]; then
-    jvm_options=("${JAVA_OPTS}")
+    jvm_options=(${JAVA_OPTS})
 else
     jvm_options=(-Xms1024m -Xmx2048m -XX:+UseNUMA -XX:+UseBiasedLocking)
 fi

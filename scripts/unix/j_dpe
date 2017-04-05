@@ -54,7 +54,7 @@ for plugin in "${plugins_dir}"/*; do
 done
 
 if [ -n "${JAVA_OPTS}" ]; then
-    jvm_options=("${JAVA_OPTS}")
+    jvm_options=(${JAVA_OPTS})
 else
     jvm_options=(-Xms40000m -Xmx40000m -XX:+UseNUMA -XX:+UseBiasedLocking)
 fi

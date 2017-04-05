@@ -39,7 +39,7 @@ fi
 
 
 if [ -n "${JAVA_OPTS}" ]; then
-    jvm_options=("${JAVA_OPTS}")
+    jvm_options=(${JAVA_OPTS})
 else
     jvm_options=(-Xms512m -Xmx512m -XX:+UseNUMA -XX:+UseBiasedLocking)
 fi
