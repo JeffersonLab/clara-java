@@ -1,0 +1,215 @@
+#!/usr/bin/env bash
+
+if [[ -z "$CLARA_HOME" ]]; then
+    echo "CLARA_HOME is not defined. Exiting..."
+    exit 1
+fi
+
+if [[ -z "$CLAS12DIR" ]]; then
+    export CLAS12DIR="$CLARA_HOME/plugins/clas12"
+fi
+
+set -u
+
+
+##############################################################################
+# Functions
+##############################################################################
+
+function cleanup() {
+    trap - EXIT SIGINT SIGTERM
+
+    local orch_pid dpe_pid
+    orch_pid=$(jobs -p %?orchestrator 2>/dev/null)
+    if [[ -n "$orch_pid" ]]; then
+        echo "Shutting down..."
+        kill -TERM "$orch_pid"
+        wait "$orch_pid"
+    fi
+    dpe_pid=$(jobs -p %?j_dpe 2>/dev/null)
+    if [[ -n "$dpe_pid" ]]; then
+        kill -TERM "$dpe_pid"
+    fi
+
+    # shellcheck disable=SC2046
+    # kill -TERM $(jobs -p)
+    wait
+}
+
+trap cleanup EXIT SIGINT SIGTERM
+
+function define_dpe_port() {
+    fe_port=7002
+    local found_port=0
+    while [ $found_port == 0 ]; do
+        found_port=0
+        eval "exec 6<>/dev/tcp/127.0.0.1/$fe_port" 2> /dev/null || found_port=1
+        if [ $found_port == 0 ]; then
+            let "fe_port=fe_port+10"
+        else break
+        fi
+    done
+    let "fe_port=fe_port-2"
+}
+
+function define_host_ip() {
+    fe_host=127.0.0.1
+    if command -v ip >/dev/null 2>&1; then
+        fe_host=$(ip route get 1 | head -1 | cut -d' ' -f8)
+        return 0
+    fi
+    local ip line
+    while IFS=$': \t' read -r -a line ;do
+        [ -z "${line%inet}" ] &&
+           ip=${line[${#line[1]}>4?1:2]} &&
+           [ "${ip#127.0.0.1}" ] && fe_host=$ip && return 0
+      done< <(LANG=C /sbin/ifconfig)
+}
+
+function get_num_cores() {
+    getconf _NPROCESSORS_ONLN
+}
+
+function in_files_exists() {
+    while IFS='' read -r name || [[ -n "$name" ]]; do
+        if [ ! -f "$input_dir/$name" ]; then
+            echo "Error: The file = $name does not exist";
+            return 0
+        fi
+    done < "$file_list"
+}
+
+
+##############################################################################
+# Get parameters
+##############################################################################
+
+host=$(hostname)
+user=$(id -un)
+
+service_yaml=$CLAS12DIR/config/services.yaml
+file_list=$CLAS12DIR/config/files.list
+input_dir=$CLARA_HOME/data/in
+output_dir=$CLARA_HOME/data/out
+stage_dir=
+report=5
+thread_num=$(get_num_cores)
+session=$user
+description=clara
+wait_dpe=2
+jvm_opts=
+
+while getopts "c:f:i:o:l:t:r:s:d:W:J:" OPTION; do
+    case $OPTION in
+        c)  service_yaml=$OPTARG ;;
+        f)  file_list=$OPTARG ;;
+        i)  input_dir=$OPTARG ;;
+        o)  output_dir=$OPTARG ;;
+        l)  stage_dir=$OPTARG ;;
+        t)  thread_num=$OPTARG ;;
+        r)  report=$OPTARG ;;
+        s)  session=$OPTARG ;;
+        d)  description=$OPTARG ;;
+        W)  wait_dpe=$OPTARG ;;
+        J)  jvm_opts=$OPTARG ;;
+        ?)  exit 1 ;;
+    esac
+done
+
+shift $((OPTIND-1))
+
+
+##############################################################################
+# Packaged Java distribution
+##############################################################################
+
+java_dist=
+case "$(uname)" in
+    "Linux")
+        if [ "$(uname -m)" == "x86_64" ]; then
+            java_dist=$CLARA_HOME/jre/linux-64/jre1.8.0_112/
+        else
+            java_dist=$CLARA_HOME/jre/linux-i586/jre1.8.0_112/
+        fi
+        ;;
+
+    "Darwin")
+        java_dist=$CLARA_HOME/jre/macosx-64/jre1.8.0_112.jre/Contents/Home/
+        ;;
+
+    *)  ;;
+esac
+if [[ -n "$java_dist" && -d "$java_dist" ]]; then
+    export JAVA_HOME="$java_dist"
+fi
+
+
+##############################################################################
+# Run CLARA
+##############################################################################
+
+export MALLOC_ARENA_MAX=2
+export MALLOC_MMAP_THRESHOLD_=131072
+export MALLOC_TRIM_THRESHOLD_=131072
+export MALLOC_TOP_PAD_=131072
+export MALLOC_MMAP_MAX_=65536
+
+define_host_ip
+define_dpe_port
+
+fe_log_file=$CLARA_HOME/log/$host-$user-$description-fe-java.log
+or_log_file=$CLARA_HOME/log/$host-$user-$description-orch.log
+
+echo "========== Running Conditions ==========="
+echo " Start time         = $(date)"
+echo " CLARA distribution = $CLARA_HOME"
+echo " Threads request    = $thread_num"
+echo " Log file           = $fe_log_file"
+echo " Note               = Running as local Front-End"
+echo "========================================="
+echo
+
+# Run front-end
+fe_name="${fe_host}%${fe_port}_java"
+
+fe_args=()
+fe_args+=(--host "$fe_host")
+fe_args+=(--port "$fe_port")
+fe_args+=(--session "$session")
+fe_args+=(--max-cores "$thread_num")
+fe_args+=(--max-sockets 5120)
+fe_args+=(--report "$report")
+
+if [[ -n "$jvm_opts" ]]; then
+    export JAVA_OPTS="$jvm_opts"
+fi
+"$CLARA_HOME"/bin/j_dpe "${fe_args[@]}" 2>&1 | tee "$fe_log_file" &
+unset JAVA_OPTS
+
+sleep "$wait_dpe"
+
+# Run orchestrator
+or_args=()
+or_args+=(-F)
+or_args+=(-f "$fe_name")
+or_args+=(-s "$session")
+or_args+=(-i "$input_dir")
+or_args+=(-o "$output_dir")
+or_args+=(-p "$thread_num")
+or_args+=(-t "$thread_num")
+if [[ -n "$stage_dir" ]]; then
+    or_args+=(-L)
+    or_args+=(-l "$stage_dir")
+fi
+or_args+=("$service_yaml")
+or_args+=("$file_list")
+
+"$CLARA_HOME"/bin/clara-orchestrator "${or_args[@]}" 2>&1 | tee "$or_log_file" &
+main_pid=$!
+
+
+##############################################################################
+# Exit
+##############################################################################
+
+wait "${main_pid}"

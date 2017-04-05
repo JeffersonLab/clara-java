@@ -65,8 +65,7 @@ class RunFarm extends AbstractCommand {
         addBuilder.apply(FARM_OS, "Farm resource OS")
             .withInitialValue("centos7");
 
-        addBuilder.apply(FARM_STAGE, "Local directory to stage reconstruction files")
-            .withInitialValue("undefined");
+        addBuilder.apply(FARM_STAGE, "Local directory to stage reconstruction files");
 
         addBuilder.apply(FARM_TRACK, "Farm job track")
             .withInitialValue("debug");
@@ -136,16 +135,20 @@ class RunFarm extends AbstractCommand {
         cmd.append("setenv CLAS12DIR ").append(PLUGIN).append("; ");
         cmd.append(Config.claraHome()).append("/bin/remove-dpe; ");
 
-        cmd.append(Config.claraHome()).append("/bin/etc/f-clara");
-        cmd.append(" ").append(config.getValue(Config.INPUT_DIR));
-        cmd.append(" ").append(config.getValue(Config.OUTPUT_DIR));
-        cmd.append(" ").append(config.getValue(Config.SERVICES_FILE));
-        cmd.append(" ").append(config.getValue(Config.FILES_LIST));
-        cmd.append(" ").append(PLUGIN);
-        cmd.append(" ").append("clara");
-        cmd.append(" ").append(config.getValue(FARM_CPU));
-        cmd.append(" ").append(config.getValue(Config.SESSION));
-        cmd.append(" ").append(config.getValue(FARM_STAGE));
+        cmd.append(Config.claraHome()).append("/lib/clara/run-farm");
+        appendOpt(cmd, "-c", config.getValue(Config.SERVICES_FILE));
+        appendOpt(cmd, "-f", config.getValue(Config.FILES_LIST));
+        appendOpt(cmd, "-i", config.getValue(Config.INPUT_DIR));
+        appendOpt(cmd, "-o", config.getValue(Config.OUTPUT_DIR));
+        if (config.hasValue(FARM_STAGE)) {
+            appendOpt(cmd, "-l ", config.getValue(FARM_STAGE));
+        }
+        appendOpt(cmd, "-t", config.getValue(FARM_CPU));
+        appendOpt(cmd, "-s", config.getValue(Config.SESSION));
+        // TODO: what about other number of cores
+        if ((Integer) config.getValue(FARM_CPU) == 72) {
+            appendOpt(cmd, "-J", "-Xms40000m -Xmx40000m -XX:+UseNUMA -XX:+UseBiasedLocking");
+        }
 
         try (PrintStream printer = new PrintStream(new FileOutputStream(path, false))) {
             printer.printf("PROJECT: clas12%n");
@@ -158,6 +161,10 @@ class RunFarm extends AbstractCommand {
             printer.printf("TIME: %s%n", config.getValue(FARM_TIME));
             printer.printf("COMMAND: %s%n", cmd.toString());
         }
+    }
+
+    private void appendOpt(StringBuilder sb, String opt, Object value) {
+        sb.append(" ").append(opt).append(" \"").append(value).append("\"");
     }
 
     private String getHost() {
