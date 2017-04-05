@@ -157,7 +157,7 @@ export MALLOC_MMAP_MAX_=65536
 define_host_ip
 define_dpe_port
 
-fe_log_file=$CLARA_HOME/log/$host-$user-$description-fe-java.log
+fe_log_file=$CLARA_HOME/log/$host-$user-$description-fe-dpe.log
 or_log_file=$CLARA_HOME/log/$host-$user-$description-orch.log
 
 echo "========== Running Conditions ==========="
