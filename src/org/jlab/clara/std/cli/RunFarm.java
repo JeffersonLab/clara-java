@@ -86,7 +86,7 @@ class RunFarm extends AbstractCommand {
     }
 
     private static String defaultFarmSubFile() {
-        return PLUGIN.resolve("config/p_clara.jsub").toString();
+        return PLUGIN.resolve("config/clara_p.jsub").toString();
     }
 
     static boolean hasPlugin() {
