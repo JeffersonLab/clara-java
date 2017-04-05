@@ -26,6 +26,14 @@ class RunFarm extends AbstractCommand {
     private static final String FARM_TIME = "farm.time";
     private static final String FARM_FLAVOR = "farm.flavor";
 
+    private static final int DEFAULT_FARM_MEMORY = 70;
+    private static final int DEFAULT_FARM_CORES = 72;
+    private static final int DEFAULT_FARM_DISK_SPACE = 3;
+    private static final int DEFAULT_FARM_TIME = 24 * 60;
+    private static final int DEFAULT_FARM_JVM_MEMORY = 40;
+    private static final String DEFAULT_FARM_OS = "centos7";
+    private static final String DEFAULT_FARM_TRACK = "debug";
+
     static final Path PLUGIN = Paths.get(Config.claraHome(), "plugins", "clas12");
 
     private final Config config;
@@ -48,27 +56,27 @@ class RunFarm extends AbstractCommand {
 
         addBuilder.apply(FARM_CPU, "Farm resource core number request")
             .withParser(ConfigParsers::toPositiveInteger)
-            .withInitialValue(72);
+            .withInitialValue(DEFAULT_FARM_CORES);
 
         addBuilder.apply(FARM_MEMORY, "Farm job memory request (in GB)")
             .withParser(ConfigParsers::toPositiveInteger)
-            .withInitialValue(70);
+            .withInitialValue(DEFAULT_FARM_MEMORY);
 
         addBuilder.apply(FARM_DISK, "Farm job disk space request (in GB)")
             .withParser(ConfigParsers::toPositiveInteger)
-            .withInitialValue(3);
+            .withInitialValue(DEFAULT_FARM_DISK_SPACE);
 
         addBuilder.apply(FARM_TIME, "Farm job wall time request (in min)")
             .withParser(ConfigParsers::toPositiveInteger)
-            .withInitialValue(1440);
+            .withInitialValue(DEFAULT_FARM_TIME);
 
         addBuilder.apply(FARM_OS, "Farm resource OS")
-            .withInitialValue("centos7");
+            .withInitialValue(DEFAULT_FARM_OS);
 
         addBuilder.apply(FARM_STAGE, "Local directory to stage reconstruction files");
 
         addBuilder.apply(FARM_TRACK, "Farm job track")
-            .withInitialValue("debug");
+            .withInitialValue(DEFAULT_FARM_TRACK);
 
         addBuilder.apply(FARM_FLAVOR, "")
             .withExpectedValues("jlab", "pbs")
@@ -165,7 +173,7 @@ class RunFarm extends AbstractCommand {
         if (config.hasValue(Config.JAVA_OPTIONS)) {
             return config.getValue(Config.JAVA_OPTIONS).toString();
         }
-        int memSize = 40;
+        int memSize = DEFAULT_FARM_JVM_MEMORY;
         if (config.hasValue(Config.JAVA_MEMORY)) {
             memSize = (Integer) config.getValue(Config.JAVA_MEMORY);
         }
