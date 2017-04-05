@@ -39,8 +39,6 @@ import org.jline.terminal.Terminal;
 
 class RunCommand extends BaseCommand {
 
-    private static final String USER = System.getProperty("user.name");
-
     RunCommand(Terminal terminal, Config config) {
         super(terminal, "run", "Start CLARA data processing.");
         addSubCommand(new RunLocal(terminal, config));
@@ -88,7 +86,7 @@ class RunCommand extends BaseCommand {
         }
 
         private int runOrchestrator(DpeName feName, String... cmd) {
-            String logFile = getLogFile(getHost(feName), "orch");
+            String logFile = RunUtils.getLogFile(getHost(feName), "orch").toString();
             return CommandUtils.runProcess(buildProcess(cmd, logFile));
         }
 
@@ -163,7 +161,7 @@ class RunCommand extends BaseCommand {
         private void addBackgroundDpeProcess(DpeName name, String... command)
                 throws IOException {
             if (!backgroundDpes.containsKey(name.language())) {
-                String logFile = getLogFile(name);
+                String logFile = RunUtils.getLogFile(name).toString();
                 ProcessBuilder builder = buildProcess(command, logFile);
                 if (name.language() == ClaraLang.JAVA) {
                     String javaOptions = getJVMOptions();
@@ -231,16 +229,5 @@ class RunCommand extends BaseCommand {
 
     private static String getPort(DpeName name) {
         return Integer.toString(name.address().pubPort());
-    }
-
-    private static String getLogFile(DpeName name) {
-        ClaraLang lang = name.language();
-        String dpeType = lang == ClaraLang.JAVA ? "fe-dpe" : lang + "-dpe";
-        return getLogFile(getHost(name), dpeType);
-    }
-
-    private static String getLogFile(String host, String type) {
-        String logName = String.format("%s-%s-%s.log", host, USER, type);
-        return Paths.get(Config.claraHome(), "log", logName).toString();
     }
 }
