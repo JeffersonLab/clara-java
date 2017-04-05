@@ -164,7 +164,14 @@ class RunCommand extends BaseCommand {
                 throws IOException {
             if (!backgroundDpes.containsKey(name.language())) {
                 String logFile = getLogFile(name);
-                DpeProcess dpe = new DpeProcess(name, buildProcess(command, logFile));
+                ProcessBuilder builder = buildProcess(command, logFile);
+                if (name.language() == ClaraLang.JAVA) {
+                    String javaOptions = getJVMOptions();
+                    if (javaOptions != null) {
+                        builder.environment().put("JAVA_OPTS", javaOptions);
+                    }
+                }
+                DpeProcess dpe = new DpeProcess(name, builder);
                 backgroundDpes.put(name.language(), dpe);
             }
         }
@@ -186,6 +193,18 @@ class RunCommand extends BaseCommand {
             builder.environment().putAll(config.getenv());
             builder.inheritIO();
             return builder;
+        }
+
+        private String getJVMOptions() {
+            if (config.hasValue(Config.JAVA_OPTIONS)) {
+                return config.getValue(Config.JAVA_OPTIONS).toString();
+            }
+            if (config.hasValue(Config.JAVA_MEMORY)) {
+                int memSize = (Integer) config.getValue(Config.JAVA_MEMORY);
+                return String.format("-Xms%dg -Xmx%dg -XX:+UseNUMA -XX:+UseBiasedLocking",
+                                     memSize, memSize);
+            }
+            return null;
         }
 
         @Override

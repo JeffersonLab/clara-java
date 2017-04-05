@@ -85,6 +85,16 @@ public class Config {
      */
     public static final String MAX_NODES = "numNodes";
 
+    /**
+     * The variable for the the JVM heap size used by the DPE.
+     */
+    public static final String JAVA_MEMORY = "javaMemory";
+
+    /**
+     * The variable for the JVM options of the Java DPE (overrides {@link JAVA_MEMORY}).
+     */
+    public static final String JAVA_OPTIONS = "javaOptions";
+
     private final Map<String, ConfigVariable> variables;
     private final Map<String, String> environment;
 
@@ -155,6 +165,12 @@ public class Config {
                 "The maximum number of reconstruction nodes to be used.")
                 .withInitialValue(512)
                 .withParser(ConfigParsers::toPositiveInteger);
+
+        addBuilder.apply(JAVA_MEMORY, "DPE JVM memory size (in GB)")
+            .withParser(ConfigParsers::toPositiveInteger);
+
+        addBuilder.apply(JAVA_OPTIONS,
+                        "DPE JVM options (overrides " + JAVA_MEMORY + ")");
 
         return defaultVariables;
     }

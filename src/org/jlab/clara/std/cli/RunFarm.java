@@ -25,8 +25,6 @@ class RunFarm extends AbstractCommand {
     private static final String FARM_DISK = "farm.disk";
     private static final String FARM_TIME = "farm.time";
     private static final String FARM_FLAVOR = "farm.flavor";
-    private static final String FARM_JAVA_MEMORY = "farm.javaMemory";
-    private static final String FARM_JAVA_OPTIONS = "farm.javaOptions";
 
     static final Path PLUGIN = Paths.get(Config.claraHome(), "plugins", "clas12");
 
@@ -75,13 +73,6 @@ class RunFarm extends AbstractCommand {
         addBuilder.apply(FARM_FLAVOR, "")
             .withExpectedValues("jlab", "pbs")
             .withInitialValue("jlab");
-
-        addBuilder.apply(FARM_JAVA_MEMORY, "Farm JVM memory request (in GB)")
-            .withParser(ConfigParsers::toPositiveInteger)
-            .withInitialValue(40);
-
-        addBuilder.apply(FARM_JAVA_OPTIONS,
-                        "Farm JVM options (overrides " + FARM_JAVA_MEMORY + ")");
 
         vl.forEach(builder::withConfigVariable);
     }
@@ -171,10 +162,13 @@ class RunFarm extends AbstractCommand {
     }
 
     private String getJVMOptions() {
-        if (config.hasValue(FARM_JAVA_OPTIONS)) {
-            return config.getValue(FARM_JAVA_OPTIONS).toString();
+        if (config.hasValue(Config.JAVA_OPTIONS)) {
+            return config.getValue(Config.JAVA_OPTIONS).toString();
         }
-        int memSize = (Integer) config.getValue(FARM_JAVA_MEMORY);
+        int memSize = 40;
+        if (config.hasValue(Config.JAVA_MEMORY)) {
+            memSize = (Integer) config.getValue(Config.JAVA_MEMORY);
+        }
         return String.format("-Xms%dg -Xmx%dg -XX:+UseNUMA -XX:+UseBiasedLocking",
                              memSize, memSize);
     }
