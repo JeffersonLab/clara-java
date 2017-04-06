@@ -276,6 +276,35 @@ final class FarmCommands {
     }
 
 
+    static class ShowFarmSub extends AbstractCommand {
+
+        private final Config config;
+
+        ShowFarmSub(Terminal terminal, Config config) {
+            super(terminal, "farmSub", "Show farm job submission file.");
+            this.config = config;
+        }
+
+        @Override
+        public int execute(String[] args) {
+            PrintWriter writer = terminal.writer();
+            String system = config.getValue(FARM_SYSTEM).toString();
+            if (system.equals(JLAB_SYSTEM)) {
+                return showFile(defaultJLabScript());
+            }
+            if (system.equals(PBS_SYSTEM)) {
+                return showFile(defaultPbsScript());
+            }
+            writer.println("Error: invalid farm system = " + system);
+            return EXIT_ERROR;
+        }
+
+        private int showFile(String subFile) {
+            return RunUtils.printFile(terminal, Paths.get(subFile));
+        }
+    }
+
+
     private static String getHost() {
         try {
             return InetAddress.getLocalHost().getHostName();

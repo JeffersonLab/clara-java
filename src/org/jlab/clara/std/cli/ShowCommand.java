@@ -48,6 +48,7 @@ class ShowCommand extends BaseCommand {
         addSubCommand("logOrchestrator", args -> showOrchestratorLog(), "Show orchestrator log.");
         if (FarmCommands.hasPlugin()) {
             addSubCommand(new FarmCommands.ShowFarmStatus(terminal, config));
+            addSubCommand(new FarmCommands.ShowFarmSub(terminal, config));
         }
     }
 
