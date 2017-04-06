@@ -25,6 +25,7 @@ package org.jlab.clara.std.cli;
 import org.jline.terminal.Terminal;
 
 import java.nio.file.Path;
+import java.nio.file.Paths;
 
 class ShowCommand extends BaseCommand {
 
@@ -38,6 +39,8 @@ class ShowCommand extends BaseCommand {
 
     private void setArguments() {
         addSubCommand("config", args -> showConfig(), "Show configuration variables.");
+        addSubCommand("services", args -> showServices(), "Show services YAML.");
+        addSubCommand("files", args -> showFiles(), "Show input files list.");
         addSubCommand("logDpe", args -> showDpeLog(), "Show front-end DPE log.");
         addSubCommand("logOrchestrator", args -> showOrchestratorLog(), "Show orchestrator log.");
     }
@@ -63,12 +66,29 @@ class ShowCommand extends BaseCommand {
         return "\"" + value + "\"";
     }
 
+    private int showServices() {
+        return printFile(Config.SERVICES_FILE);
+    }
+
+    private int showFiles() {
+        return printFile(Config.FILES_LIST);
+    }
+
     private int showDpeLog() {
         return printLog("fe-dpe", "DPE");
     }
 
     private int showOrchestratorLog() {
         return printLog("orch", "orchestrator");
+    }
+
+    private int printFile(String variable) {
+        if (!config.hasValue(variable)) {
+            terminal.writer().printf("error: variable %s is not set%n", variable);
+            return EXIT_ERROR;
+        }
+        Path path = Paths.get(config.getValue(variable).toString());
+        return RunUtils.printFile(terminal, path);
     }
 
     private int printLog(String type, String description) {

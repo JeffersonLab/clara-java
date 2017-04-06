@@ -50,6 +50,20 @@ final class RunUtils {
         return Paths.get(Config.claraHome(), "log", logName);
     }
 
+    static int printFile(Terminal terminal, Path path) {
+        if (!Files.exists(path)) {
+            terminal.writer().printf("error: no file %s%n", path);
+            return Command.EXIT_ERROR;
+        }
+        try {
+            Files.lines(path).forEach(terminal.writer()::println);
+            return Command.EXIT_SUCCESS;
+        } catch (IOException e) {
+            terminal.writer().printf("error: could not open file: %s%n", e);
+            return Command.EXIT_ERROR;
+        }
+    }
+
     static int paginateFile(Terminal terminal, Path path, String description) {
         if (!Files.exists(path)) {
             terminal.writer().printf("error: no %s log: %s%n", description, path);
