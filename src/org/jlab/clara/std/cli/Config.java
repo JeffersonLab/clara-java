@@ -81,11 +81,6 @@ public class Config {
     public static final String MAX_THREADS = "threads";
 
     /**
-     * The variable for the number of reconstruction nodes.
-     */
-    public static final String MAX_NODES = "numNodes";
-
-    /**
      * The variable for the the JVM heap size used by the DPE.
      */
     public static final String JAVA_MEMORY = "javaMemory";
@@ -159,11 +154,6 @@ public class Config {
         addBuilder.apply(MAX_THREADS,
                 "The maximum number of processing threads to be used per node.")
                 .withInitialValue(Runtime.getRuntime().availableProcessors())
-                .withParser(ConfigParsers::toPositiveInteger);
-
-        addBuilder.apply(MAX_NODES,
-                "The maximum number of reconstruction nodes to be used.")
-                .withInitialValue(512)
                 .withParser(ConfigParsers::toPositiveInteger);
 
         addBuilder.apply(JAVA_MEMORY, "DPE JVM memory size (in GB)")
