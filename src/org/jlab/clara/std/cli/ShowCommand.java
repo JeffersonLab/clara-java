@@ -41,9 +41,9 @@ class ShowCommand extends BaseCommand {
     }
 
     private void setArguments() {
-        addSubCommand("config", args -> showConfig(), "Show parameter values");
-        addSubCommand("logDpe", args -> showDpeLog(), "Show DPE log");
-        addSubCommand("logOrchestrator", args -> showOrchestratorLog(), "Show orchestrator log");
+        addSubCommand("config", args -> showConfig(), "Show configuration variables.");
+        addSubCommand("logDpe", args -> showDpeLog(), "Show front-end DPE log.");
+        addSubCommand("logOrchestrator", args -> showOrchestratorLog(), "Show orchestrator log.");
     }
 
     private int showConfig() {

@@ -40,7 +40,7 @@ import org.jline.terminal.Terminal;
 class RunCommand extends BaseCommand {
 
     RunCommand(Terminal terminal, Config config) {
-        super(terminal, "run", "Start CLARA data processing.");
+        super(terminal, "run", "Start CLARA data processing");
         addSubCommand(new RunLocal(terminal, config));
     }
 

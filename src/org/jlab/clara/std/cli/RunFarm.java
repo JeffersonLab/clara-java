@@ -54,28 +54,28 @@ class RunFarm extends AbstractCommand {
             return b;
         };
 
-        addBuilder.apply(FARM_CPU, "Farm resource core number request")
+        addBuilder.apply(FARM_CPU, "Farm resource core number request.")
             .withParser(ConfigParsers::toPositiveInteger)
             .withInitialValue(DEFAULT_FARM_CORES);
 
-        addBuilder.apply(FARM_MEMORY, "Farm job memory request (in GB)")
+        addBuilder.apply(FARM_MEMORY, "Farm job memory request (in GB).")
             .withParser(ConfigParsers::toPositiveInteger)
             .withInitialValue(DEFAULT_FARM_MEMORY);
 
-        addBuilder.apply(FARM_DISK, "Farm job disk space request (in GB)")
+        addBuilder.apply(FARM_DISK, "Farm job disk space request (in GB).")
             .withParser(ConfigParsers::toPositiveInteger)
             .withInitialValue(DEFAULT_FARM_DISK_SPACE);
 
-        addBuilder.apply(FARM_TIME, "Farm job wall time request (in min)")
+        addBuilder.apply(FARM_TIME, "Farm job wall time request (in min).")
             .withParser(ConfigParsers::toPositiveInteger)
             .withInitialValue(DEFAULT_FARM_TIME);
 
-        addBuilder.apply(FARM_OS, "Farm resource OS")
+        addBuilder.apply(FARM_OS, "Farm resource OS.")
             .withInitialValue(DEFAULT_FARM_OS);
 
-        addBuilder.apply(FARM_STAGE, "Local directory to stage reconstruction files");
+        addBuilder.apply(FARM_STAGE, "Local directory to stage reconstruction files.");
 
-        addBuilder.apply(FARM_TRACK, "Farm job track")
+        addBuilder.apply(FARM_TRACK, "Farm job track.")
             .withInitialValue(DEFAULT_FARM_TRACK);
 
         addBuilder.apply(FARM_FLAVOR, "")

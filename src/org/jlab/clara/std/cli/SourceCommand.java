@@ -90,6 +90,6 @@ class SourceCommand extends AbstractCommand {
     @Override
     public void printHelp(PrintWriter writer) {
         writer.printf("%n  source <file_path>%n");
-        writer.printf("%s%n", ClaraUtil.splitIntoLines(description, "    ", 72));
+        writer.printf("%s.%n", ClaraUtil.splitIntoLines(description, "    ", 72));
     }
 }
