@@ -61,7 +61,7 @@ public class Config {
     public static final String OUTPUT_DIR = "outputDir";
 
     /**
-     * The variable for the configuration file of the CLARA orchestrator.
+     * The variable for the session of the CLARA DPE.
      */
     public static final String SESSION = "session";
 
@@ -144,7 +144,7 @@ public class Config {
         addBuilder.apply(SESSION,
                 "The data processing session.")
                 .withInitialValue("")
-                .withParser(ConfigParsers::toStringOrEmpty);
+                .withParser(ConfigParsers::toAlphaNumWordOrEmpty);
 
         addBuilder.apply(DESCRIPTION,
                 "A single word (no spaces) describing the data processing.")
