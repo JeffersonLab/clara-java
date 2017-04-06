@@ -64,8 +64,8 @@ public final class ClaraShell implements AutoCloseable {
 
     public static void main(String[] args) {
         ClaraShell.Builder builder = ClaraShell.newBuilder();
-        if (RunFarm.hasPlugin()) {
-            RunFarm.register(builder);
+        if (FarmCommands.hasPlugin()) {
+            FarmCommands.register(builder);
         }
         ClaraShell shell = builder.build();
 
