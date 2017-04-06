@@ -24,7 +24,7 @@ public class ConfigParsersTest {
 
     @Test
     public void parseStringOrEmptySucceedsIfNoArgs() throws Exception {
-        assertThat(ConfigParsers.toStringOrEmpty(""), is(""));
+        assertThat(ConfigParsers.toStringOrEmpty(), is(""));
     }
 
     @Test
