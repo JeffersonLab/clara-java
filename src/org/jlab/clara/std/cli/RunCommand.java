@@ -134,10 +134,10 @@ class RunCommand extends BaseCommand {
         }
 
         private int findPort() {
-            for (int port = LOWER_PORT; port < UPPER_PORT; port += 10) {
+            for (int port = LOWER_PORT + 2; port < UPPER_PORT; port += 10) {
                 try (ServerSocket socket = new ServerSocket(port)) {
                     socket.setReuseAddress(true);
-                    return socket.getLocalPort();
+                    return socket.getLocalPort() - 2;
                 } catch (IOException e) {
                     continue;
                 }
