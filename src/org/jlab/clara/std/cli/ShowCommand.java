@@ -46,6 +46,9 @@ class ShowCommand extends BaseCommand {
         addSubCommand("logDir", args -> showLogDir(), "List logs directory.");
         addSubCommand("logDpe", args -> showDpeLog(), "Show front-end DPE log.");
         addSubCommand("logOrchestrator", args -> showOrchestratorLog(), "Show orchestrator log.");
+        if (FarmCommands.hasPlugin()) {
+            addSubCommand(new FarmCommands.ShowFarmStatus(terminal, config));
+        }
     }
 
     private int showConfig() {

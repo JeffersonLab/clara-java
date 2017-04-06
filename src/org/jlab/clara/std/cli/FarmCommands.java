@@ -41,6 +41,9 @@ final class FarmCommands {
     private static final String JLAB_SUB_CMD = "jsub";
     private static final String PBS_SUB_CMD = "qsub";
 
+    private static final String JLAB_STAT_CMD = "jobstat";
+    private static final String PBS_STAT_CMD = "qstat";
+
     static final Path PLUGIN = Paths.get(Config.claraHome(), "plugins", "clas12");
 
 
@@ -236,6 +239,39 @@ final class FarmCommands {
 
         private void appendOpt(StringBuilder sb, String opt, Object value) {
             sb.append(" ").append(opt).append(" \"").append(value).append("\"");
+        }
+    }
+
+
+    static class ShowFarmStatus extends AbstractCommand {
+
+        private final Config config;
+
+        ShowFarmStatus(Terminal terminal, Config config) {
+            super(terminal, "farmStatus", "Show status of farm submitted jobs.");
+            this.config = config;
+        }
+
+        @Override
+        public int execute(String[] args) {
+            PrintWriter writer = terminal.writer();
+            String system = config.getValue(FARM_SYSTEM).toString();
+            if (system.equals(JLAB_SYSTEM)) {
+                if (CommandUtils.checkProgram(JLAB_STAT_CMD)) {
+                    return CommandUtils.runProcess(JLAB_STAT_CMD, "-u", Config.user());
+                }
+                writer.println("Error: can not run farm operations from this node = " + getHost());
+                return EXIT_ERROR;
+            }
+            if (system.equals(PBS_SYSTEM)) {
+                if (CommandUtils.checkProgram(PBS_STAT_CMD)) {
+                    return CommandUtils.runProcess(PBS_STAT_CMD, "-u", Config.user());
+                }
+                writer.println("Error: can not run farm operations from this node = " + getHost());
+                return EXIT_ERROR;
+            }
+            writer.println("Error: invalid farm system = " + system);
+            return EXIT_ERROR;
         }
     }
 
