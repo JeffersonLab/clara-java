@@ -25,7 +25,7 @@ final class FarmCommands {
     private static final String FARM_CPU = "farm.cpu";
     private static final String FARM_DISK = "farm.disk";
     private static final String FARM_TIME = "farm.time";
-    private static final String FARM_FLAVOR = "farm.flavor";
+    private static final String FARM_SYSTEM = "farm.system";
 
     private static final int DEFAULT_FARM_MEMORY = 70;
     private static final int DEFAULT_FARM_CORES = 72;
@@ -34,6 +34,11 @@ final class FarmCommands {
     private static final int DEFAULT_FARM_JVM_MEMORY = 40;
     private static final String DEFAULT_FARM_OS = "centos7";
     private static final String DEFAULT_FARM_TRACK = "debug";
+
+    private static final String JLAB_SYSTEM = "jlab";
+    private static final String PBS_SYSTEM = "pbs";
+
+    private static final String JLAB_SUB_CMD = "jsub";
 
     static final Path PLUGIN = Paths.get(Config.claraHome(), "plugins", "clas12");
 
@@ -79,9 +84,9 @@ final class FarmCommands {
         addBuilder.apply(FARM_TRACK, "Farm job track.")
             .withInitialValue(DEFAULT_FARM_TRACK);
 
-        addBuilder.apply(FARM_FLAVOR, "")
-            .withExpectedValues("jlab", "pbs")
-            .withInitialValue("jlab");
+        addBuilder.apply(FARM_SYSTEM, "Farm batch system. Accepts pbs and jlab.")
+            .withExpectedValues(JLAB_SYSTEM, PBS_SYSTEM)
+            .withInitialValue(JLAB_SYSTEM);
 
         vl.forEach(builder::withConfigVariable);
     }
@@ -94,7 +99,7 @@ final class FarmCommands {
         return PLUGIN.resolve("config/files.list").toString();
     }
 
-    private static String defaultFarmSubFile() {
+    private static String defaultJLabScript() {
         return PLUGIN.resolve("config/clara_p.jsub").toString();
     }
 
@@ -124,13 +129,13 @@ final class FarmCommands {
         @Override
         public int execute(String[] args) {
             PrintWriter writer = terminal.writer();
-            String flavor = config.getValue(FARM_FLAVOR).toString();
-            if (flavor.equals("jlab")) {
-                if (CommandUtils.checkProgram("jsub")) {
-                    String jsubFile = defaultFarmSubFile();
+            String system = config.getValue(FARM_SYSTEM).toString();
+            if (system.equals(JLAB_SYSTEM)) {
+                if (CommandUtils.checkProgram(JLAB_SUB_CMD)) {
+                    String jsubFile = defaultJLabScript();
                     try {
-                        setFarmScript(jsubFile);
-                        return CommandUtils.runProcess("jsub", jsubFile);
+                        createJLabScript(jsubFile);
+                        return CommandUtils.runProcess(JLAB_SUB_CMD, jsubFile);
                     } catch (IOException e) {
                         writer.println("Error: could not create file = " + jsubFile);
                     }
@@ -138,11 +143,11 @@ final class FarmCommands {
                 writer.println("Error: can not run farm job from this node = " + getHost());
                 return EXIT_ERROR;
             }
-            writer.println("Error: invalid farm flavor = " + flavor);
+            writer.println("Error: invalid farm system = " + system);
             return EXIT_ERROR;
         }
 
-        private void setFarmScript(String path) throws IOException {
+        private String getClaraCommand() {
             StringBuilder cmd = new StringBuilder();
             cmd.append("setenv CLARA_HOME ").append(Config.claraHome()).append("; ");
             cmd.append("setenv CLAS12DIR ").append(PLUGIN).append("; ");
@@ -161,6 +166,10 @@ final class FarmCommands {
             appendOpt(cmd, "-J", getJVMOptions());
             appendOpt(cmd, "-W", 20);
 
+            return cmd.toString();
+        }
+
+        private void createJLabScript(String path) throws IOException {
             try (PrintStream printer = new PrintStream(new FileOutputStream(path, false))) {
                 printer.printf("PROJECT: clas12%n");
                 printer.printf("JOBNAME: rec-%s-%s%n",
@@ -171,7 +180,7 @@ final class FarmCommands {
                 printer.printf("CPU: %s%n", config.getValue(FARM_CPU));
                 printer.printf("DISK_SPACE: %s GB%n", config.getValue(FARM_DISK));
                 printer.printf("TIME: %s%n", config.getValue(FARM_TIME));
-                printer.printf("COMMAND: %s%n", cmd.toString());
+                printer.printf("COMMAND: %s%n", getClaraCommand());
             }
         }
 
