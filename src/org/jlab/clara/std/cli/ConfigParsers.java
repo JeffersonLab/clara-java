@@ -61,6 +61,40 @@ public final class ConfigParsers {
     }
 
     /**
+     * Parses the set command arguments into a single alphanumeric word.
+     *
+     * @param args the command arguments
+     * @return the first argument
+     */
+    public static String toAlphaNumWord(String... args) {
+        String word = requireArg(args);
+        if (!word.matches("[0-9A-Za-z_]+")) {
+            throw new IllegalArgumentException("argument is not an alphanumeric word");
+        }
+        return word;
+    }
+
+    /**
+     * Parses the set command arguments into a single alphanumeric word.
+     *
+     * @param args the command arguments
+     * @return the first argument
+     */
+    public static String toAlphaNumWordOrEmpty(String... args) {
+        if (args.length == 0) {
+            return "";
+        }
+        String word = args[0];
+        if (word.isEmpty()) {
+            return "";
+        }
+        if (!word.matches("[0-9A-Za-z_]+")) {
+            throw new IllegalArgumentException("argument is not an alphanumeric word");
+        }
+        return word;
+    }
+
+    /**
      * Parses the set command arguments into an integer.
      *
      * @param args the command arguments

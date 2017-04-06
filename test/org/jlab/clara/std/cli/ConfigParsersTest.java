@@ -32,6 +32,43 @@ public class ConfigParsersTest {
         assertThat(ConfigParsers.toStringOrEmpty(""), is(""));
     }
 
+
+    @Test
+    public void parseAlphaNumWordSucceedsWithArg() throws Exception {
+        assertThat(ConfigParsers.toAlphaNumWord("test_string"), is("test_string"));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void parseAlphaNumWordFailsIfArgContainsSpaces() throws Exception {
+        ConfigParsers.toAlphaNumWord("test string");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void parseAlphaNumWordFailsIfEmptyArg() throws Exception {
+        ConfigParsers.toAlphaNumWord("");
+    }
+
+    @Test
+    public void parseAlphaNumWordOrEmptySucceedsWithArg() throws Exception {
+        assertThat(ConfigParsers.toAlphaNumWordOrEmpty("test_string"), is("test_string"));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void parseAlphaNumWordOrEmptyFailsIfArgContainsSpaces() throws Exception {
+        ConfigParsers.toAlphaNumWordOrEmpty("test string");
+    }
+
+    @Test
+    public void parseAlphaNumWordOrEmptySucceedsIfNoArgs() throws Exception {
+        assertThat(ConfigParsers.toAlphaNumWordOrEmpty(), is(""));
+    }
+
+    @Test
+    public void parseAlphaNumWordOrEmptySucceedsIfEmptyArg() throws Exception {
+        assertThat(ConfigParsers.toAlphaNumWordOrEmpty(""), is(""));
+    }
+
+
     @Test(expected = IllegalArgumentException.class)
     public void parseFileFailsIfEmptyArg() throws Exception {
         ConfigParsers.toFile("");
