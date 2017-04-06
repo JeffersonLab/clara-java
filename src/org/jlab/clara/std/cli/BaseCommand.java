@@ -64,13 +64,13 @@ public abstract class BaseCommand extends AbstractCommand {
     @Override
     public int execute(String[] args) {
         if (args.length < 1) {
-            terminal.writer().println("Error: missing argument.");
+            terminal.writer().println("Error: missing argument(s).");
             return EXIT_ERROR;
         }
         String subCommandName = args[0];
         Command subCommand = subCommands.get(subCommandName);
         if (subCommand == null) {
-            terminal.writer().println("Error: invalid argument.");
+            terminal.writer().println("Error: unknown argument " + subCommandName);
             return EXIT_ERROR;
         }
         try {
