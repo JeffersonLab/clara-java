@@ -39,6 +39,7 @@ final class FarmCommands {
     private static final String PBS_SYSTEM = "pbs";
 
     private static final String JLAB_SUB_CMD = "jsub";
+    private static final String PBS_SUB_CMD = "qsub";
 
     static final Path PLUGIN = Paths.get(Config.claraHome(), "plugins", "clas12");
 
@@ -103,6 +104,10 @@ final class FarmCommands {
         return PLUGIN.resolve("config/clara_p.jsub").toString();
     }
 
+    private static String defaultPbsScript() {
+        return PLUGIN.resolve("config/clara_p.qsub").toString();
+    }
+
     static boolean hasPlugin() {
         return Files.isDirectory(PLUGIN);
     }
@@ -143,6 +148,21 @@ final class FarmCommands {
                 writer.println("Error: can not run farm job from this node = " + getHost());
                 return EXIT_ERROR;
             }
+
+            if (system.equals(PBS_SYSTEM)) {
+                if (CommandUtils.checkProgram(PBS_SUB_CMD)) {
+                    String qsubFile = defaultPbsScript();
+                    try {
+                        createPbsScript(qsubFile);
+                        return CommandUtils.runProcess(PBS_SUB_CMD, qsubFile);
+                    } catch (IOException e) {
+                        writer.println("Error: could not create file = " + qsubFile);
+                    }
+                }
+                writer.println("Error: can not run farm job from this node = " + getHost());
+                return EXIT_ERROR;
+            }
+
             writer.println("Error: invalid farm system = " + system);
             return EXIT_ERROR;
         }
@@ -181,6 +201,24 @@ final class FarmCommands {
                 printer.printf("DISK_SPACE: %s GB%n", config.getValue(FARM_DISK));
                 printer.printf("TIME: %s%n", config.getValue(FARM_TIME));
                 printer.printf("COMMAND: %s%n", getClaraCommand());
+            }
+        }
+
+        private void createPbsScript(String path) throws IOException {
+            int diskKb = (int) config.getValue(FARM_DISK) * 1024 * 1024;
+            int time = (int) config.getValue(FARM_TIME);
+            String walltime = String.format("%d:%02d:00", time / 60, time % 60);
+
+            try (PrintStream printer = new PrintStream(new FileOutputStream(path, false))) {
+                printer.printf("#!/bin/csh%n");
+                printer.printf("#PBS -N rec-%s-%s%n",
+                        Config.user(), config.getValue(Config.DESCRIPTION));
+                printer.printf("#PBS -A clas12%n");
+                printer.printf("#PBS -S /bin/csh%n");
+                printer.printf("#PBS -l nodes=1:ppn=%s%n", config.getValue(FARM_CPU));
+                printer.printf("#PBS -l file=%dkb%n", diskKb);
+                printer.printf("#PBS -l walltime=%s%n", walltime);
+                printer.printf(getClaraCommand());
             }
         }
 
