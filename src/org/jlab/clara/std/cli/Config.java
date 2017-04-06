@@ -66,6 +66,11 @@ public class Config {
     public static final String SESSION = "session";
 
     /**
+     * The variable for the data processing description keyword.
+     */
+    public static final String DESCRIPTION = "description";
+
+    /**
      * The variable for the address of the front-end DPE.
      */
     public static final String FRONTEND_HOST = "feHost";
@@ -140,6 +145,11 @@ public class Config {
                 "The data processing session.")
                 .withInitialValue("")
                 .withParser(ConfigParsers::toStringOrEmpty);
+
+        addBuilder.apply(DESCRIPTION,
+                "A single word (no spaces) describing the data processing.")
+                .withInitialValue("clara")
+                .withParser(ConfigParsers::toAlphaNumWord);
 
         addBuilder.apply(FRONTEND_HOST,
                 "The IP address to be used by the front-end DPE.")

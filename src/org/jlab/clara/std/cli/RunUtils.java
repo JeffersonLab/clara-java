@@ -34,19 +34,16 @@ import java.nio.file.Paths;
 
 final class RunUtils {
 
-    static final String USER = System.getProperty("user.name");
-
     private RunUtils() { }
 
-    static Path getLogFile(DpeName name) {
+    static Path getLogFile(DpeName name, String keyword) {
         ClaraLang lang = name.language();
-        String dpeType = lang == ClaraLang.JAVA ? "fe-dpe" : lang + "-dpe";
-        return getLogFile(name.address().host(), dpeType);
+        String component = lang == ClaraLang.JAVA ? "fe-dpe" : lang + "-dpe";
+        return getLogFile(name.address().host(), keyword, component);
     }
 
-    static Path getLogFile(String host, String type) {
-        String description = "clara";
-        String logName = String.format("%s-%s-%s-%s.log", host, USER, description, type);
+    static Path getLogFile(String host, String keyword, String component) {
+        String logName = String.format("%s-%s-%s-%s.log", host, Config.user(), keyword, component);
         return Paths.get(Config.claraHome(), "log", logName);
     }
 

@@ -117,9 +117,10 @@ class ShowCommand extends BaseCommand {
         return RunUtils.printFile(terminal, path);
     }
 
-    private int printLog(String type, String description) {
+    private int printLog(String component, String description) {
         String host = config.getValue(Config.FRONTEND_HOST).toString();
-        Path path = RunUtils.getLogFile(host, type);
+        String keyword = config.getValue(Config.DESCRIPTION).toString();
+        Path path = RunUtils.getLogFile(host, keyword, component);
         return RunUtils.paginateFile(terminal, path, description);
     }
 }

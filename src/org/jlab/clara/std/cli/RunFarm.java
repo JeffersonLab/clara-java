@@ -158,7 +158,8 @@ class RunFarm extends AbstractCommand {
 
         try (PrintStream printer = new PrintStream(new FileOutputStream(path, false))) {
             printer.printf("PROJECT: clas12%n");
-            printer.printf("JOBNAME: rec-%s-clara%n", Config.user());
+            printer.printf("JOBNAME: rec-%s-%s%n",
+                    Config.user(), config.getValue(Config.DESCRIPTION));
             printer.printf("MEMORY: %s GB%n", config.getValue(FARM_MEMORY));
             printer.printf("TRACK: %s%n", config.getValue(FARM_TRACK));
             printer.printf("OS: %s%n", config.getValue(FARM_OS));
