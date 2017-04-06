@@ -81,4 +81,8 @@ final class RunUtils {
             return Command.EXIT_ERROR;
         }
     }
+
+    static int listFiles(String dir) {
+        return CommandUtils.runProcess("ls", "-lah", dir);
+    }
 }

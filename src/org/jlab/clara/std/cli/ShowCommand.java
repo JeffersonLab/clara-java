@@ -41,6 +41,9 @@ class ShowCommand extends BaseCommand {
         addSubCommand("config", args -> showConfig(), "Show configuration variables.");
         addSubCommand("services", args -> showServices(), "Show services YAML.");
         addSubCommand("files", args -> showFiles(), "Show input files list.");
+        addSubCommand("inputDir", args -> showInputDir(), "List input files directory.");
+        addSubCommand("outputDir", args -> showOutputDir(), "List output files directory.");
+        addSubCommand("logDir", args -> showLogDir(), "List logs directory.");
         addSubCommand("logDpe", args -> showDpeLog(), "Show front-end DPE log.");
         addSubCommand("logOrchestrator", args -> showOrchestratorLog(), "Show orchestrator log.");
     }
@@ -72,6 +75,29 @@ class ShowCommand extends BaseCommand {
 
     private int showFiles() {
         return printFile(Config.FILES_LIST);
+    }
+
+    private int showInputDir() {
+        String variable = Config.INPUT_DIR;
+        if (!config.hasValue(variable)) {
+            terminal.writer().printf("error: variable %s is not set%n", variable);
+            return EXIT_ERROR;
+        }
+        return RunUtils.listFiles(config.getValue(variable).toString());
+    }
+
+    private int showOutputDir() {
+        String variable = Config.OUTPUT_DIR;
+        if (!config.hasValue(variable)) {
+            terminal.writer().printf("error: variable %s is not set%n", variable);
+            return EXIT_ERROR;
+        }
+        return RunUtils.listFiles(config.getValue(variable).toString());
+    }
+
+    private int showLogDir() {
+        String logDir = Paths.get(Config.claraHome(), "log").toString();
+        return RunUtils.listFiles(logDir);
     }
 
     private int showDpeLog() {
