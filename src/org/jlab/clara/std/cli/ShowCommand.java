@@ -22,13 +22,9 @@
 
 package org.jlab.clara.std.cli;
 
-import org.jline.builtins.Commands;
 import org.jline.terminal.Terminal;
 
-import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 class ShowCommand extends BaseCommand {
 
@@ -68,30 +64,16 @@ class ShowCommand extends BaseCommand {
     }
 
     private int showDpeLog() {
-        return showLog("fe-dpe", "DPE");
+        return printLog("fe-dpe", "DPE");
     }
 
     private int showOrchestratorLog() {
-        return showLog("orch", "orchestrator");
+        return printLog("orch", "orchestrator");
     }
 
-    private int showLog(String type, String description) {
+    private int printLog(String type, String description) {
         String host = config.getValue(Config.FRONTEND_HOST).toString();
         Path path = RunUtils.getLogFile(host, type);
-        if (!Files.exists(path)) {
-            terminal.writer().printf("error: no %s log: %s%n", description, path);
-            return EXIT_ERROR;
-        }
-        try {
-            String[] args = new String[] {path.toString()};
-            Commands.less(terminal, System.out, System.err, Paths.get(""), args);
-        } catch (IOException e) {
-            terminal.writer().printf("error: could not open %s log: %s%n", description, e);
-            return EXIT_ERROR;
-        } catch (InterruptedException e) {
-            Thread.currentThread().interrupt();
-            return EXIT_ERROR;
-        }
-        return EXIT_SUCCESS;
+        return RunUtils.paginateFile(terminal, path, description);
     }
 }

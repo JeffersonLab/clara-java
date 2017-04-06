@@ -24,7 +24,11 @@ package org.jlab.clara.std.cli;
 
 import org.jlab.clara.base.ClaraLang;
 import org.jlab.clara.base.DpeName;
+import org.jline.builtins.Commands;
+import org.jline.terminal.Terminal;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
@@ -44,5 +48,23 @@ final class RunUtils {
         String description = "clara";
         String logName = String.format("%s-%s-%s-%s.log", host, USER, description, type);
         return Paths.get(Config.claraHome(), "log", logName);
+    }
+
+    static int paginateFile(Terminal terminal, Path path, String description) {
+        if (!Files.exists(path)) {
+            terminal.writer().printf("error: no %s log: %s%n", description, path);
+            return 1;
+        }
+        try {
+            String[] args = new String[] {path.toString()};
+            Commands.less(terminal, System.out, System.err, Paths.get(""), args);
+            return Command.EXIT_SUCCESS;
+        } catch (IOException e) {
+            terminal.writer().printf("error: could not open %s log: %s%n", description, e);
+            return Command.EXIT_ERROR;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return Command.EXIT_ERROR;
+        }
     }
 }
