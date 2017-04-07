@@ -82,7 +82,7 @@ class CoreOrchestrator {
         } catch (ClaraException e) {
             String errorMsg = String.format("failed request to deploy service = %s  class = %s",
                                             service.name, service.classPath);
-            throw new OrchestratorError(errorMsg, e);
+            throw new OrchestratorException(errorMsg, e);
         }
     }
 
@@ -104,7 +104,7 @@ class CoreOrchestrator {
                 base.deploy(container).run();
             }
             if (counter == maxAttempts) {
-                throw new OrchestratorError("could not start container = " + container);
+                throw new OrchestratorException("could not start container = " + container);
             }
             sleep(200);
         }
@@ -117,7 +117,7 @@ class CoreOrchestrator {
                        .canonicalNames(ClaraFilters.containersByDpe(dpe))
                        .syncRun(3, TimeUnit.SECONDS);
         } catch (TimeoutException | ClaraException e) {
-            throw new OrchestratorError(e);
+            throw new OrchestratorException(e);
         }
     }
 
@@ -128,7 +128,7 @@ class CoreOrchestrator {
                        .canonicalNames(ClaraFilters.servicesByDpe(dpe))
                        .syncRun(3, TimeUnit.SECONDS);
         } catch (TimeoutException | ClaraException e) {
-            throw new OrchestratorError(e);
+            throw new OrchestratorException(e);
         }
     }
 
@@ -163,7 +163,7 @@ class CoreOrchestrator {
                 }
                 counter++;
                 if (counter > maxAttempts) {
-                    throw new OrchestratorError(reportUndeployed(missingServices));
+                    throw new OrchestratorException(reportUndeployed(missingServices));
                 }
                 sleep(sleepTime);
             }
@@ -275,7 +275,8 @@ class CoreOrchestrator {
             DpeCallbackWrapper dpeCallback = new DpeCallbackWrapper(callback);
             base.listen().aliveDpes(session).start(dpeCallback);
         } catch (ClaraException e) {
-            throw new OrchestratorError("Could not subscribe to front-end to get running DPEs", e);
+            String msg = "Could not subscribe to front-end to get running DPEs";
+            throw new OrchestratorException(msg, e);
         }
     }
 
@@ -284,7 +285,7 @@ class CoreOrchestrator {
         try {
             base.listen(name).status(EngineStatus.ERROR).start(callback);
         } catch (ClaraException e) {
-            throw new OrchestratorError("Could not subscribe to services", e);
+            throw new OrchestratorException("Could not subscribe to services", e);
         }
     }
 
@@ -293,7 +294,7 @@ class CoreOrchestrator {
         try {
             base.listen(service).done().start(callback);
         } catch (ClaraException e) {
-            throw new OrchestratorError("Could not subscribe to services", e);
+            throw new OrchestratorException("Could not subscribe to services", e);
         }
     }
 
@@ -305,7 +306,8 @@ class CoreOrchestrator {
                        .canonicalNames(ClaraFilters.dpesByHost(address.host()))
                        .syncRun(seconds, TimeUnit.SECONDS);
         } catch (TimeoutException | ClaraException e) {
-            throw new OrchestratorError("cannot connect with front-end: " + base.getFrontEnd(), e);
+            String msg = "cannot connect with front-end: " + base.getFrontEnd();
+            throw new OrchestratorException(msg, e);
         }
     }
 
@@ -316,7 +318,7 @@ class CoreOrchestrator {
                        .runtimeData(ClaraFilters.servicesByDpe(dpe))
                        .syncRun(5, TimeUnit.SECONDS);
         } catch (ClaraException | TimeoutException e) {
-            throw new OrchestratorError(e);
+            throw new OrchestratorException(e);
         }
     }
 

@@ -179,7 +179,7 @@ class WorkerNode {
             data.put("stage_path", stagePath);
             orchestrator.syncConfig(stageName, data, 2, TimeUnit.MINUTES);
         } catch (ClaraException | TimeoutException e) {
-            throw new OrchestratorError("Could not configure directories", e);
+            throw new OrchestratorException("Could not configure directories", e);
         }
     }
 
@@ -211,7 +211,7 @@ class WorkerNode {
                 return false;
             }
         } catch (ClaraException | TimeoutException e) {
-            throw new OrchestratorError("Could not configure directories", e);
+            throw new OrchestratorException("Could not configure directories", e);
         }
     }
 
@@ -260,7 +260,7 @@ class WorkerNode {
 
             return status;
         } catch (ClaraException | TimeoutException e) {
-            throw new OrchestratorError("Could not save output", e);
+            throw new OrchestratorException("Could not save output", e);
         }
     }
 
@@ -278,7 +278,7 @@ class WorkerNode {
             }
             return true;
         } catch (ClaraException | TimeoutException e) {
-            throw new OrchestratorError("Could not remove stage directory", e);
+            throw new OrchestratorException("Could not remove stage directory", e);
         }
     }
 
@@ -312,7 +312,7 @@ class WorkerNode {
             }
             orchestrator.syncConfig(readerName, inputConfig, 5, TimeUnit.MINUTES);
         } catch (ClaraException | TimeoutException e) {
-            throw new OrchestratorError("Could not open input file", e);
+            throw new OrchestratorException("Could not open input file", e);
         }
 
         // total number of events in the file
@@ -334,7 +334,7 @@ class WorkerNode {
             outputConfig.put("overwrite", true);
             orchestrator.syncConfig(writerName, outputConfig, 5, TimeUnit.MINUTES);
         } catch (ClaraException | TimeoutException e) {
-            throw new OrchestratorError("Could not open output file", e);
+            throw new OrchestratorException("Could not open output file", e);
         }
     }
 
@@ -347,7 +347,7 @@ class WorkerNode {
         try {
             orchestrator.startDoneReporting(writerName, frequency);
         } catch (ClaraException e) {
-            throw new OrchestratorError("Could not configure writer", e);
+            throw new OrchestratorException("Could not configure writer", e);
         }
     }
 
@@ -359,7 +359,7 @@ class WorkerNode {
             closeInput.put("file", currentInputFile);
             orchestrator.syncConfig(readerName, closeInput, 5, TimeUnit.MINUTES);
         } catch (ClaraException | TimeoutException e) {
-            throw new OrchestratorError("Could not close input file", e);
+            throw new OrchestratorException("Could not close input file", e);
         }
 
         try {
@@ -368,7 +368,7 @@ class WorkerNode {
             closeOutput.put("file", currentOutputFile);
             orchestrator.syncConfig(writerName, closeOutput, 5, TimeUnit.MINUTES);
         } catch (ClaraException | TimeoutException e) {
-            throw new OrchestratorError("Could not close output file", e);
+            throw new OrchestratorException("Could not close output file", e);
         }
     }
 
@@ -378,7 +378,7 @@ class WorkerNode {
             EngineData output = orchestrator.syncSend(readerName, "order", 1, TimeUnit.MINUTES);
             return (String) output.getData();
         } catch (ClaraException | TimeoutException e) {
-            throw new OrchestratorError("Could not get input file order", e);
+            throw new OrchestratorException("Could not get input file order", e);
         }
     }
 
@@ -388,7 +388,7 @@ class WorkerNode {
             EngineData output = orchestrator.syncSend(readerName, "count", 1, TimeUnit.MINUTES);
             return (Integer) output.getData();
         } catch (ClaraException | TimeoutException e) {
-            throw new OrchestratorError("Could not get number of input events", e);
+            throw new OrchestratorException("Could not get number of input events", e);
         }
     }
 
@@ -398,7 +398,7 @@ class WorkerNode {
             try {
                 orchestrator.syncConfig(service, configuration.get(service), 2, TimeUnit.MINUTES);
             } catch (ClaraException | TimeoutException e) {
-                throw new OrchestratorError("Could not configure " + service, e);
+                throw new OrchestratorException("Could not configure " + service, e);
             }
         }
     }
@@ -427,7 +427,7 @@ class WorkerNode {
             data.setCommunicationId(requestId);
             orchestrator.send(application.composition(), data);
         } catch (ClaraException e) {
-            throw new OrchestratorError("Could not request reconstruction on = " + name(), e);
+            throw new OrchestratorException("Could not request reconstruction on = " + name(), e);
         }
     }
 

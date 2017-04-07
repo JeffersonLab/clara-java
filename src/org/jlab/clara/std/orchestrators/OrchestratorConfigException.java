@@ -22,21 +22,19 @@
 
 package org.jlab.clara.std.orchestrators;
 
-import org.jlab.clara.base.ClaraUtil;
-
 /**
- * An error in the orchestrator.
+ * An error configuring the orchestrator.
  */
-public class OrchestratorError extends RuntimeException {
+public class OrchestratorConfigException extends RuntimeException {
 
-    private static final long serialVersionUID = -5459481851420223735L;
+    private static final long serialVersionUID = 7169655555225259425L;
 
     /**
      * Constructs a new exception.
      *
      * @param message the detail message
      */
-    public OrchestratorError(String message) {
+    public OrchestratorConfigException(String message) {
         super(message);
     }
 
@@ -45,28 +43,18 @@ public class OrchestratorError extends RuntimeException {
      *
      * @param cause the cause of the exception
      */
-    public OrchestratorError(Throwable cause) {
+    public OrchestratorConfigException(Throwable cause) {
         super(cause);
     }
 
     /**
      * Constructs a new exception.
      *
-     *
      * @param message the detail message
      * @param cause the cause of the exception
      */
-    public OrchestratorError(String message, Throwable cause) {
+    public OrchestratorConfigException(String message, Throwable cause) {
         super(message, cause);
     }
 
-    @Override
-    public String getMessage() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(super.getMessage());
-        for (Throwable e: ClaraUtil.getThrowableList(getCause())) {
-            sb.append(": ").append(e.getMessage());
-        }
-        return sb.toString();
-    }
 }

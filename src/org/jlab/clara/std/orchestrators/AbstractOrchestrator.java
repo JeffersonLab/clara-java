@@ -167,7 +167,7 @@ abstract class AbstractOrchestrator {
      * Runs the reconstruction.
      *
      * @return status of the reconstruction.
-     * @throws OrchestratorError in case of any error that aborted the reconstruction
+     * @throws OrchestratorException in case of any error that aborted the reconstruction
      */
     public boolean run() {
         try {
@@ -178,7 +178,7 @@ abstract class AbstractOrchestrator {
             end();
             destroy();
             return recStatus;
-        } catch (OrchestratorError e) {
+        } catch (OrchestratorException e) {
             // cleanup();
             destroy();
             throw e;
@@ -237,7 +237,7 @@ abstract class AbstractOrchestrator {
         nodesExecutor.execute(() -> {
             try {
                 setupNode(node);
-            } catch (OrchestratorError e) {
+            } catch (OrchestratorException e) {
                 Logging.error("Could not use %s for reconstruction:%n%s",
                               node.name(), e.getMessage());
             }
@@ -248,7 +248,7 @@ abstract class AbstractOrchestrator {
     /**
      * Deploy and configure services in the node.
      *
-     * @throws OrchestratorError
+     * @throws OrchestratorException
      */
     void setupNode(WorkerNode node) {
         try {
@@ -269,7 +269,7 @@ abstract class AbstractOrchestrator {
 
             freeNodes.add(node);
             stats.add(node);
-        } catch (OrchestratorError e) {
+        } catch (OrchestratorException e) {
             // TODO cleanup
             throw e;
         }
@@ -311,7 +311,7 @@ abstract class AbstractOrchestrator {
                 }
             }
             if (count == 0) {
-                throw new OrchestratorError("Input files do not exist");
+                throw new OrchestratorException("Input files do not exist");
             }
         }
     }
@@ -372,7 +372,7 @@ abstract class AbstractOrchestrator {
             // TODO check DPE is alive
             openFiles(node, recFile);
             startFile(node);
-        } catch (OrchestratorError e) {
+        } catch (OrchestratorException e) {
             Logging.error("Could not use %s for reconstruction:%n%s",
                     node.name(), e.getMessage());
         }
@@ -418,7 +418,7 @@ abstract class AbstractOrchestrator {
                 node.saveOutputFile();
                 Logging.info("Saved file %s on %s", currentFile, node.name());
             }
-        } catch (OrchestratorError e) {
+        } catch (OrchestratorException e) {
             Logging.error("Could not close files on %s:%n%s", node.name(), e.getMessage());
         } finally {
             incrementFinishedFile();
@@ -442,7 +442,7 @@ abstract class AbstractOrchestrator {
             freeNodes.stream().parallel().forEach(n -> {
                 try {
                     n.removeStageDir();
-                } catch (OrchestratorError e) {
+                } catch (OrchestratorException e) {
                     Logging.error("Could not remove stage directory from %s: %s",
                             n.name(), e.getMessage());
                 }
@@ -481,7 +481,7 @@ abstract class AbstractOrchestrator {
                 try {
                     Logging.error("Error in %s (ID: %d):%n%s", source, requestId, description);
                     node.requestEvent(requestId, "next-rec");
-                } catch (OrchestratorError e) {
+                } catch (OrchestratorException e) {
                     Logging.error(e.getMessage());
                 }
             }

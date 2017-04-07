@@ -75,10 +75,10 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
             } else {
                 System.exit(1);
             }
-        } catch (OrchestratorConfigError e) {
+        } catch (OrchestratorConfigException e) {
             System.err.println("Error: " + e.getMessage());
             System.exit(1);
-        } catch (OrchestratorError e) {
+        } catch (OrchestratorException e) {
             Logging.error(e.getMessage());
             Logging.error("Exiting...");
             System.exit(1);
@@ -104,7 +104,7 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
          *
          * @param servicesFile the YAML file describing the reconstruction chain
          * @param inputFiles the list of files to be processed (only names).
-         * @throws OrchestratorConfigError if the reconstruction chain could not be parsed
+         * @throws OrchestratorConfigException if the reconstruction chain could not be parsed
          */
         public Builder(String servicesFile, List<String> inputFiles) {
             Objects.requireNonNull(servicesFile, "servicesFile parameter is null");
@@ -367,7 +367,7 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
                 benchmark.update(localNode.getRuntimeData());
                 BenchmarkPrinter printer = new BenchmarkPrinter(benchmark, stats.totalEvents());
                 printer.printBenchmark(setup.application);
-            } catch (OrchestratorError e) {
+            } catch (OrchestratorException e) {
                 Logging.error("Could not generate benchmark: %s", e.getMessage());
             }
             orchTimeEnd = System.currentTimeMillis();
@@ -412,7 +412,7 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
                 int timeout = count == 0 ? 2 : 4;
                 orchestrator.getLocalRegisteredDpes(timeout);
                 break;
-            } catch (OrchestratorError e) {
+            } catch (OrchestratorException e) {
                 if (++count == maxAttempts) {
                     throw e;
                 }
@@ -445,7 +445,7 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
     private void waitFirstNode() {
         try {
             if (!dpeCallback.waitFirstNode()) {
-                throw new OrchestratorError("could not find a reconstruction node");
+                throw new OrchestratorException("could not find a reconstruction node");
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -641,7 +641,7 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
             try {
                 return new DpeName(frontEnd);
             } catch (IllegalArgumentException e) {
-                throw new OrchestratorConfigError("invalid front-end name: " + frontEnd);
+                throw new OrchestratorConfigException("invalid front-end name: " + frontEnd);
             }
         }
 

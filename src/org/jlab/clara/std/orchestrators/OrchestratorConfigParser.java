@@ -275,12 +275,12 @@ public class OrchestratorConfigParser {
     }
 
 
-    private static OrchestratorConfigError error(String msg) {
-        return new OrchestratorConfigError(msg);
+    private static OrchestratorConfigException error(String msg) {
+        return new OrchestratorConfigException(msg);
     }
 
 
-    private static OrchestratorConfigError error(Throwable cause) {
-        return new OrchestratorConfigError(cause);
+    private static OrchestratorConfigException error(Throwable cause) {
+        return new OrchestratorConfigException(cause);
     }
 }

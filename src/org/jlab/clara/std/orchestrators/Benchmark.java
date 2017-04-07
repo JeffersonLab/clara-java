@@ -73,7 +73,7 @@ class Benchmark {
         if (r != null) {
             return r.totalTime - r.initialTime;
         }
-        throw new OrchestratorError("Invalid runtime report: missing " + service.name);
+        throw new OrchestratorException("Invalid runtime report: missing " + service.name);
     }
 
     private static ServiceInfo key(ServiceName service) {

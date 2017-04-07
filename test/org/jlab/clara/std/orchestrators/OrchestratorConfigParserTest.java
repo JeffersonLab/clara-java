@@ -54,7 +54,7 @@ public class OrchestratorConfigParserTest {
 
     @Test
     public void parseBadServicesFileYaml() {
-        expectedEx.expect(OrchestratorConfigError.class);
+        expectedEx.expect(OrchestratorConfigException.class);
         expectedEx.expectMessage("missing name or class of service");
 
         URL path = getClass().getResource("/resources/services-bad.yaml");
