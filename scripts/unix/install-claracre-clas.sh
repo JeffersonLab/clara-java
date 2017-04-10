@@ -10,7 +10,7 @@ fi
 
 rm -rf $CLARA_HOME
 
-PLUGIN=coatjava-4a.0.0
+PLUGIN=coatjava-4a.2.2
 
     case "$1" in
       -u | --update)

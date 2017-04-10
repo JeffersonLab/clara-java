@@ -9,6 +9,7 @@ if ! [ -n "$CLARA_HOME" ]; then
 fi
 
 DPE_PORT=
+FARM_DPE_PORT="undefined"
 IP=127.0.0.1
 lang="_java"
 FENAME=
@@ -89,6 +90,9 @@ echo '        (default: 3)'
 echo '  [-fw | --farm-time <farm time>]'
 echo '        Farm job wall time request (in min).'
 echo '        (default: 1440)'
+echo '  [-fport | --farm-dpe-port <port number>]'
+echo '        Farm DPE port number.'
+echo '        (Do not set if in doubt.)'
 }
 
 ######################################################################################################################
@@ -230,7 +234,11 @@ echo
 
 a="setenv CLARA_HOME $CLARA_HOME"
 b="$a ; $CLARA_HOME/bin/remove-dpe"
+if [ "FARM_DPE_PORT" == "undefined" ]; then
 rcCmd="$a ; $CLARA_HOME/bin/etc/f-clara.sh $IN_DIR $OUT_DIR $SERVICE_YAML $FILE_LIST $PLUGIN $DESCRIPTION $FARM_CPU $SESSION $FARM_LOADING_ZONE"
+else
+rcCmd="$a ; $CLARA_HOME/bin/etc/f-clara.sh $IN_DIR $OUT_DIR $SERVICE_YAML $FILE_LIST $PLUGIN $DESCRIPTION $FARM_CPU $SESSION $FARM_LOADING_ZONE $FARM_DPE_PORT"
+fi
 
 # Create orchestrator job submission script
 # ------------- JLAB auger script creation and submission ------------
@@ -381,6 +389,10 @@ do
 	  ;;
       -fdod | --farm-dpe-orc-delay)
 	  FARM_DPE_ORC_DELAY="$2"
+	  shift 2
+	  ;;
+      -fport | --farm-dpe-port)
+	  FARM_DPE_PORT="$2"
 	  shift 2
 	  ;;
 

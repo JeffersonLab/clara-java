@@ -9,7 +9,7 @@
 # $7  : THREAD_NUM
 # $8  : SESSION
 # $9  : FARM_LOADING_ZONE
-
+# $10  : USER_DPE_PORT
 
 export MALLOC_ARENA_MAX=2
 export MALLOC_MMAP_THRESHOLD_=131072
@@ -73,9 +73,6 @@ if ! [ -n "$CLARA_HOME" ]; then
     echo "CLARA_HOME is not defined. Exiting..."
     exit
 fi
-
-# define private clara port
-define_dpe_port
 
 # define this host IP
 define_host_ip
@@ -156,6 +153,16 @@ fi
 
 FARM_LOADING_ZONE=$9
 
+shift
+USER_DPE_PORT=$9
+
+if ! [ -n "$USER_DPE_PORT" ]; then
+# define private clara port
+define_dpe_port
+else
+DPE_PORT="$USER_DPE_PORT"
+fi
+
 export JAVA_HOME="$J_HOME"
 export PATH=$PATH:$JAVA_HOME/bin:$CLARA_HOME/bin
 export CLAS12DIR="$PLUGIN"
@@ -182,7 +189,13 @@ echo
 
 # start dpe
 if ["$THREAD_NUM" == "72"]; then
-export JAVA_OPTS="-Xms40000m -Xmx40000m -XX:+UseNUMA -XX:+UseBiasedLocking"
+export JAVA_OPTS="-Xms1024m -Xmx40000m -XX:+UseNUMA -XX:+UseBiasedLocking"
+unset MALLOC_ARENA_MAX=2
+unset MALLOC_MMAP_THRESHOLD_=131072
+unset MALLOC_TRIM_THRESHOLD_=131072
+unset MALLOC_TOP_PAD_=131072
+unset MALLOC_MMAP_MAX_=65536
+
 fi
 
 $CLARA_HOME/bin/j_dpe --port $DPE_PORT --host $HOST --session $SESSION --max-sockets 5120 --report 5 --max-cores $THREAD_NUM 2>&1 | tee $LOG_FILE_DPE &
