@@ -20,7 +20,7 @@ rm $CLARA_HOME/plugins/clas12/lib/clas/.*.jar
 mv clasrec-io-*.jar $CLARA_HOME/plugins/clas12/lib/services/.
 mv clasrec-orchestrators-*.jar $CLARA_HOME/plugins/clas12/lib/clas/.
 
-rm $CLARA_HOME/data/out/*
+rm $CLARA_HOME/data/output/*
 
 rm -rf $CLARA_HOME/jre
 cd $CLARA_HOME/..

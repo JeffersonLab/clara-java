@@ -119,10 +119,10 @@ rm -rf $CLARA_HOME/plugins/clas12/etc/services
 cd ..
 
 mkdir $CLARA_HOME/data
-mkdir $CLARA_HOME/data/in
-mkdir $CLARA_HOME/data/out
+mkdir $CLARA_HOME/data/input
+mkdir $CLARA_HOME/data/output
 
-cp /group/da/vhg/data/* $CLARA_HOME/data/in/
+cp /group/da/vhg/data/* $CLARA_HOME/data/input/
 
 echo "Installing jre ..."
 cd $CLARA_HOME/jre

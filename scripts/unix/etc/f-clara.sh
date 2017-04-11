@@ -188,7 +188,7 @@ echo "------------------------------------------"
 echo
 
 # start dpe
-if ["$THREAD_NUM" == "72"]; then
+if [ "$THREAD_NUM" == "72" ]; then
 export JAVA_OPTS="-Xms1024m -Xmx40000m -XX:+UseNUMA -XX:+UseBiasedLocking"
 unset MALLOC_ARENA_MAX=2
 unset MALLOC_MMAP_THRESHOLD_=131072

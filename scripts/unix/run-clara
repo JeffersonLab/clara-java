@@ -49,11 +49,11 @@ echo '        The data processing mode. Accepts values = local, sqlite and farm 
 echo
 echo '  [-i | --input_dir <inputDir>]'
 echo '        The input directory where the files to be processed are located.'
-echo '        (default: $CLARA_HOME/data/in)'
+echo '        (default: $CLARA_HOME/data/input)'
 echo
 echo '  [-o | --output_dir <outputDir>]'
 echo '        The output directory where processed files will be saved.'
-echo '        (default: $CLARA_HOME/data/out)'
+echo '        (default: $CLARA_HOME/data/output)'
 echo
 echo
 echo '  [-t | --threads <maxThreads>]'
@@ -162,9 +162,9 @@ local _ip _line
 
 ######################################################################################################################
 function set_default_parameters {
-IN_DIR="$CLARA_HOME/data/in"
+IN_DIR="$CLARA_HOME/data/input"
 NODE_NUM="undefined"
-OUT_DIR="$CLARA_HOME/data/out"
+OUT_DIR="$CLARA_HOME/data/output"
 PLUGIN="$CLARA_HOME/plugins/clas12"
 THREAD_NUM="2"
 SERVICE_YAML="$PLUGIN/config/services.yaml"
