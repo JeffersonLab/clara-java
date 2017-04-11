@@ -2,6 +2,7 @@ package org.jlab.clara.std.cli;
 
 import org.jline.terminal.Terminal;
 
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
@@ -172,13 +173,10 @@ final class FarmCommands {
 
         private String getClaraCommand() {
             StringBuilder cmd = new StringBuilder();
-            cmd.append("setenv CLARA_HOME ").append(Config.claraHome()).append("; ");
-            cmd.append("setenv CLAS12DIR ").append(PLUGIN).append("; ");
-            cmd.append(Config.claraHome()).append("/bin/remove-dpe; ");
+            cmd.append("\"");
+            cmd.append(Config.claraHome()).append("/lib/clara/run-clara");
+            cmd.append("\"");
 
-            cmd.append(Config.claraHome()).append("/lib/clara/run-farm");
-            appendOpt(cmd, "-c", config.getValue(Config.SERVICES_FILE));
-            appendOpt(cmd, "-f", config.getValue(Config.FILES_LIST));
             appendOpt(cmd, "-i", config.getValue(Config.INPUT_DIR));
             appendOpt(cmd, "-o", config.getValue(Config.OUTPUT_DIR));
             if (config.hasValue(FARM_STAGE)) {
@@ -189,10 +187,33 @@ final class FarmCommands {
             appendOpt(cmd, "-J", getJVMOptions());
             appendOpt(cmd, "-W", 20);
 
+            appendArg(cmd, config.getValue(Config.SERVICES_FILE));
+            appendArg(cmd, config.getValue(Config.FILES_LIST));
+
             return cmd.toString();
         }
 
         private void createJLabScript(String path) throws IOException {
+            File wrapper = PLUGIN.resolve("config/clara_p.sh").toFile();
+            try (PrintStream printer = new PrintStream(new FileOutputStream(wrapper, false))) {
+                printer.printf("#!/bin/bash%n");
+                printer.println();
+                printer.printf("export MALLOC_ARENA_MAX=2%n");
+                printer.printf("export MALLOC_MMAP_THRESHOLD_=131072%n");
+                printer.printf("export MALLOC_TRIM_THRESHOLD_=131072%n");
+                printer.printf("export MALLOC_TOP_PAD_=131072%n");
+                printer.printf("export MALLOC_MMAP_MAX_=65536%n");
+                printer.printf("export MALLOC_MMAP_MAX_=65536%n");
+                printer.println();
+                printer.printf("export CLARA_HOME=\"%s\"%n", Config.claraHome());
+                printer.printf("export CLAS12DIR=\"%s\"%n", PLUGIN);
+                printer.println();
+                printer.printf("\"%s%s\"%n", Config.claraHome(), "/bin/remove-dpe");
+                printer.println();
+                printer.println(getClaraCommand());
+            }
+            wrapper.setExecutable(true);
+
             try (PrintStream printer = new PrintStream(new FileOutputStream(path, false))) {
                 printer.printf("PROJECT: clas12%n");
                 printer.printf("JOBNAME: rec-%s-%s%n",
@@ -203,7 +224,7 @@ final class FarmCommands {
                 printer.printf("CPU: %s%n", config.getValue(FARM_CPU));
                 printer.printf("DISK_SPACE: %s GB%n", config.getValue(FARM_DISK));
                 printer.printf("TIME: %s%n", config.getValue(FARM_TIME));
-                printer.printf("COMMAND: %s%n", getClaraCommand());
+                printer.printf("COMMAND: %s%n", wrapper);
             }
         }
 
@@ -214,6 +235,7 @@ final class FarmCommands {
 
             try (PrintStream printer = new PrintStream(new FileOutputStream(path, false))) {
                 printer.printf("#!/bin/csh%n");
+                printer.println();
                 printer.printf("#PBS -N rec-%s-%s%n",
                         Config.user(), config.getValue(Config.DESCRIPTION));
                 printer.printf("#PBS -A clas12%n");
@@ -221,7 +243,13 @@ final class FarmCommands {
                 printer.printf("#PBS -l nodes=1:ppn=%s%n", config.getValue(FARM_CPU));
                 printer.printf("#PBS -l file=%dkb%n", diskKb);
                 printer.printf("#PBS -l walltime=%s%n", walltime);
-                printer.printf(getClaraCommand());
+                printer.println();
+                printer.printf("setenv CLARA_HOME \"%s\"%n", Config.claraHome());
+                printer.printf("setenv CLAS12DIR \"%s\"%n", PLUGIN);
+                printer.println();
+                printer.printf("\"%s%s\"%n", Config.claraHome(), "/bin/remove-dpe");
+                printer.println();
+                printer.println(getClaraCommand());
             }
         }
 
@@ -239,6 +267,10 @@ final class FarmCommands {
 
         private void appendOpt(StringBuilder sb, String opt, Object value) {
             sb.append(" ").append(opt).append(" \"").append(value).append("\"");
+        }
+
+        private void appendArg(StringBuilder sb, Object value) {
+            sb.append(" \"").append(value).append("\"");
         }
     }
 

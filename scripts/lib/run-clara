@@ -5,10 +5,6 @@ if [[ -z "$CLARA_HOME" ]]; then
     exit 1
 fi
 
-if [[ -z "$CLAS12DIR" ]]; then
-    export CLAS12DIR="$CLARA_HOME/plugins/clas12"
-fi
-
 set -u
 
 
@@ -87,10 +83,8 @@ function in_files_exists() {
 host=$(hostname)
 user=$(id -un)
 
-service_yaml=$CLAS12DIR/config/services.yaml
-file_list=$CLAS12DIR/config/files.list
-input_dir=$CLARA_HOME/data/in
-output_dir=$CLARA_HOME/data/out
+input_dir=$CLARA_HOME/data/input
+output_dir=$CLARA_HOME/data/output
 stage_dir=
 report=5
 thread_num=$(get_num_cores)
@@ -101,8 +95,6 @@ jvm_opts=
 
 while getopts "c:f:i:o:l:t:r:s:d:W:J:" OPTION; do
     case $OPTION in
-        c)  service_yaml=$OPTARG ;;
-        f)  file_list=$OPTARG ;;
         i)  input_dir=$OPTARG ;;
         o)  output_dir=$OPTARG ;;
         l)  stage_dir=$OPTARG ;;
@@ -117,6 +109,23 @@ while getopts "c:f:i:o:l:t:r:s:d:W:J:" OPTION; do
 done
 
 shift $((OPTIND-1))
+
+if [[ $# -ne 2 ]]; then
+    echo "usage: run-clara [ OPTIONS ] <services.yaml> <files.list>"
+    exit 1
+fi
+
+service_yaml=$1
+file_list=$2
+
+if [ ! -r "$service_yaml" ]; then
+    echo "error: not such file: $service_yaml"
+    exit 1
+fi
+if [ ! -r "$file_list" ]; then
+    echo "error: not such file: $file_list"
+    exit 1
+fi
 
 
 ##############################################################################
@@ -148,12 +157,6 @@ fi
 # Run CLARA
 ##############################################################################
 
-export MALLOC_ARENA_MAX=2
-export MALLOC_MMAP_THRESHOLD_=131072
-export MALLOC_TRIM_THRESHOLD_=131072
-export MALLOC_TOP_PAD_=131072
-export MALLOC_MMAP_MAX_=65536
-
 define_host_ip
 define_dpe_port
 
@@ -165,7 +168,6 @@ echo " Start time         = $(date)"
 echo " CLARA distribution = $CLARA_HOME"
 echo " Threads request    = $thread_num"
 echo " Log file           = $fe_log_file"
-echo " Note               = Running as local Front-End"
 echo "========================================="
 echo
 
