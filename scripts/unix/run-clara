@@ -234,7 +234,7 @@ echo
 
 a="setenv CLARA_HOME $CLARA_HOME"
 b="$a ; $CLARA_HOME/bin/remove-dpe"
-if [ "FARM_DPE_PORT" == "undefined" ]; then
+if [ "$FARM_DPE_PORT" == "undefined" ]; then
 rcCmd="$a ; $CLARA_HOME/bin/etc/f-clara.sh $IN_DIR $OUT_DIR $SERVICE_YAML $FILE_LIST $PLUGIN $DESCRIPTION $FARM_CPU $SESSION $FARM_LOADING_ZONE"
 else
 rcCmd="$a ; $CLARA_HOME/bin/etc/f-clara.sh $IN_DIR $OUT_DIR $SERVICE_YAML $FILE_LIST $PLUGIN $DESCRIPTION $FARM_CPU $SESSION $FARM_LOADING_ZONE $FARM_DPE_PORT"

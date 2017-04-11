@@ -195,7 +195,6 @@ unset MALLOC_MMAP_THRESHOLD_=131072
 unset MALLOC_TRIM_THRESHOLD_=131072
 unset MALLOC_TOP_PAD_=131072
 unset MALLOC_MMAP_MAX_=65536
-
 fi
 
 $CLARA_HOME/bin/j_dpe --port $DPE_PORT --host $HOST --session $SESSION --max-sockets 5120 --report 5 --max-cores $THREAD_NUM 2>&1 | tee $LOG_FILE_DPE &
