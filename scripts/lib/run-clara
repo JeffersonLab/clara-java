@@ -93,7 +93,7 @@ description=clara
 wait_dpe=2
 jvm_opts=
 
-while getopts "c:f:i:o:l:t:r:s:d:W:J:" OPTION; do
+while getopts "i:o:l:t:r:s:d:W:J:" OPTION; do
     case $OPTION in
         i)  input_dir=$OPTARG ;;
         o)  output_dir=$OPTARG ;;
