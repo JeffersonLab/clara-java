@@ -125,14 +125,21 @@ final class FarmCommands {
     }
 
 
-    static class RunFarm extends AbstractCommand {
+    private abstract static class FarmCommand extends AbstractCommand {
 
-        private final Config config;
+        protected final Config config;
+
+        protected FarmCommand(Terminal terminal, Config config, String name, String description) {
+            super(terminal, name, description);
+            this.config = config;
+        }
+    }
+
+
+    static class RunFarm extends FarmCommand {
 
         RunFarm(Terminal terminal, Config config) {
-            super(terminal, "farm", "Run CLARA data processing on the farm.");
-
-            this.config = config;
+            super(terminal, config, "farm", "Run CLARA data processing on the farm.");
         }
 
         @Override
@@ -284,13 +291,10 @@ final class FarmCommands {
     }
 
 
-    static class ShowFarmStatus extends AbstractCommand {
-
-        private final Config config;
+    static class ShowFarmStatus extends FarmCommand {
 
         ShowFarmStatus(Terminal terminal, Config config) {
-            super(terminal, "farmStatus", "Show status of farm submitted jobs.");
-            this.config = config;
+            super(terminal, config, "farmStatus", "Show status of farm submitted jobs.");
         }
 
         @Override
@@ -317,13 +321,10 @@ final class FarmCommands {
     }
 
 
-    static class ShowFarmSub extends AbstractCommand {
-
-        private final Config config;
+    static class ShowFarmSub extends FarmCommand {
 
         ShowFarmSub(Terminal terminal, Config config) {
-            super(terminal, "farmSub", "Show farm job submission file.");
-            this.config = config;
+            super(terminal, config, "farmSub", "Show farm job submission file.");
         }
 
         @Override
