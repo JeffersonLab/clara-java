@@ -212,10 +212,8 @@ final class FarmCommands {
             return cmd.toString();
         }
 
-        private String createJLabScript() throws IOException {
-            String jobFile = getJobScript(JLAB_SUB_EXT);
+        private String createClaraScript() throws IOException {
             File wrapper = new File(getJobScript(".sh"));
-
             try (PrintStream printer = new PrintStream(new FileOutputStream(wrapper, false))) {
                 printer.printf("#!/bin/bash%n");
                 printer.println();
@@ -234,7 +232,12 @@ final class FarmCommands {
                 printer.println(getClaraCommand());
             }
             wrapper.setExecutable(true);
+            return wrapper.toString();
+        }
 
+        private String createJLabScript() throws IOException {
+            String jobFile = getJobScript(JLAB_SUB_EXT);
+            String wrapper = createClaraScript();
             try (PrintStream printer = new PrintStream(new FileOutputStream(jobFile, false))) {
                 printer.printf("PROJECT: clas12%n");
                 printer.printf("JOBNAME: rec-%s-%s%n",
@@ -252,6 +255,7 @@ final class FarmCommands {
 
         private String createPbsScript() throws IOException {
             String jobFile = getJobScript(PBS_SUB_EXT);
+            String wrapper = createClaraScript();
 
             int diskKb = (int) config.getValue(FARM_DISK) * 1024 * 1024;
             int time = (int) config.getValue(FARM_TIME);
@@ -268,12 +272,7 @@ final class FarmCommands {
                 printer.printf("#PBS -l file=%dkb%n", diskKb);
                 printer.printf("#PBS -l walltime=%s%n", walltime);
                 printer.println();
-                printer.printf("setenv CLARA_HOME \"%s\"%n", Config.claraHome());
-                printer.printf("setenv CLAS12DIR \"%s\"%n", PLUGIN);
-                printer.println();
-                printer.printf("\"%s%s\"%n", Config.claraHome(), "/bin/remove-dpe");
-                printer.println();
-                printer.println(getClaraCommand());
+                printer.printf("\"%s\"%n", wrapper);
             }
 
             return jobFile;
