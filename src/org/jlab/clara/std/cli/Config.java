@@ -147,7 +147,6 @@ public class Config {
 
         addBuilder.apply(MAX_THREADS,
                 "The maximum number of processing threads to be used per node.")
-                .withInitialValue(Runtime.getRuntime().availableProcessors())
                 .withParser(ConfigParsers::toPositiveInteger);
 
         addBuilder.apply(FRONTEND_HOST,

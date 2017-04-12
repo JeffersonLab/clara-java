@@ -198,7 +198,11 @@ final class FarmCommands {
             if (config.hasValue(FARM_STAGE)) {
                 appendOpt(cmd, "-l ", config.getValue(FARM_STAGE));
             }
-            appendOpt(cmd, "-t", config.getValue(FARM_CPU));
+            if (config.hasValue(Config.MAX_THREADS)) {
+                appendOpt(cmd, "-t", config.getValue(Config.MAX_THREADS));
+            } else {
+                appendOpt(cmd, "-t", config.getValue(FARM_CPU));
+            }
             appendOpt(cmd, "-s", config.getValue(Config.SESSION));
             if (config.hasValue(Config.DESCRIPTION)) {
                 appendOpt(cmd, "-d", config.getValue(Config.DESCRIPTION));

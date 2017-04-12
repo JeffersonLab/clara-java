@@ -73,7 +73,7 @@ class RunCommand extends BaseCommand {
                         orchestrator.toString(),
                         "-F",
                         "-f", feDpe.toString(),
-                        "-t", config.getValue(Config.MAX_THREADS).toString(),
+                        "-t", getThreads().toString(),
                         "-i", config.getValue(Config.INPUT_DIR).toString(),
                         "-o", config.getValue(Config.OUTPUT_DIR).toString(),
                         config.getValue(Config.SERVICES_FILE).toString(),
@@ -212,6 +212,13 @@ class RunCommand extends BaseCommand {
             builder.environment().putAll(config.getenv());
             builder.inheritIO();
             return builder;
+        }
+
+        private Integer getThreads() {
+            if (config.hasValue(Config.MAX_THREADS)) {
+                return (Integer) config.getValue(Config.MAX_THREADS);
+            }
+            return Runtime.getRuntime().availableProcessors();
         }
 
         private String getKeyword() {
