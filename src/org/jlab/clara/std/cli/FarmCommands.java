@@ -39,6 +39,9 @@ final class FarmCommands {
     private static final String JLAB_SYSTEM = "jlab";
     private static final String PBS_SYSTEM = "pbs";
 
+    private static final String JLAB_SUB_EXT = ".jsub";
+    private static final String PBS_SUB_EXT = ".qsub";
+
     private static final String JLAB_SUB_CMD = "jsub";
     private static final String PBS_SUB_CMD = "qsub";
 
@@ -104,14 +107,6 @@ final class FarmCommands {
         return PLUGIN.resolve("config/files.list").toString();
     }
 
-    private static String defaultJLabScript() {
-        return PLUGIN.resolve("config/clara_p.jsub").toString();
-    }
-
-    private static String defaultPbsScript() {
-        return PLUGIN.resolve("config/clara_p.qsub").toString();
-    }
-
     static boolean hasPlugin() {
         return Files.isDirectory(PLUGIN);
     }
@@ -133,6 +128,20 @@ final class FarmCommands {
             super(terminal, name, description);
             this.config = config;
         }
+
+        String getJLabScript() {
+            return getJobScript(JLAB_SUB_EXT);
+        }
+
+        String getPbsScript() {
+            return getJobScript(PBS_SUB_EXT);
+        }
+
+        private String getJobScript(String ext) {
+            String keyword = config.getValue(Config.DESCRIPTION).toString();
+            String name = String.format("farm-%s-%s", Config.user(), keyword);
+            return PLUGIN.resolve("config/" + name + ext).toString();
+        }
     }
 
 
@@ -148,7 +157,7 @@ final class FarmCommands {
             String system = config.getValue(FARM_SYSTEM).toString();
             if (system.equals(JLAB_SYSTEM)) {
                 if (CommandUtils.checkProgram(JLAB_SUB_CMD)) {
-                    String jsubFile = defaultJLabScript();
+                    String jsubFile = getJLabScript();
                     try {
                         createJLabScript(jsubFile);
                         return CommandUtils.runProcess(JLAB_SUB_CMD, jsubFile);
@@ -162,7 +171,7 @@ final class FarmCommands {
 
             if (system.equals(PBS_SYSTEM)) {
                 if (CommandUtils.checkProgram(PBS_SUB_CMD)) {
-                    String qsubFile = defaultPbsScript();
+                    String qsubFile = getPbsScript();
                     try {
                         createPbsScript(qsubFile);
                         return CommandUtils.runProcess(PBS_SUB_CMD, qsubFile);
@@ -210,7 +219,7 @@ final class FarmCommands {
         }
 
         private void createJLabScript(String path) throws IOException {
-            File wrapper = PLUGIN.resolve("config/clara_p.sh").toFile();
+            File wrapper = new File(path.replace(JLAB_SUB_EXT, ".sh"));
             try (PrintStream printer = new PrintStream(new FileOutputStream(wrapper, false))) {
                 printer.printf("#!/bin/bash%n");
                 printer.println();
@@ -332,10 +341,10 @@ final class FarmCommands {
             PrintWriter writer = terminal.writer();
             String system = config.getValue(FARM_SYSTEM).toString();
             if (system.equals(JLAB_SYSTEM)) {
-                return showFile(defaultJLabScript());
+                return showFile(getJLabScript());
             }
             if (system.equals(PBS_SYSTEM)) {
-                return showFile(defaultPbsScript());
+                return showFile(getPbsScript());
             }
             writer.println("Error: invalid farm system = " + system);
             return EXIT_ERROR;
