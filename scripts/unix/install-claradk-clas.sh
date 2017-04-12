@@ -16,7 +16,7 @@ mkdir $CLARA_HOME/plugins
 mkdir $CLARA_HOME/plugins/clas12
 mkdir $CLARA_HOME/plugins/clas12/config
 
-PLUGIN=coatjava-4a.2.2
+PLUGIN=coatjava-4a.3.0
 while :
 do
     case "$1" in
