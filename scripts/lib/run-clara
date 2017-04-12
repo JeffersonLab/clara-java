@@ -41,7 +41,7 @@ function define_dpe_port() {
         found_port=0
         eval "exec 6<>/dev/tcp/127.0.0.1/$fe_port" 2> /dev/null || found_port=1
         if [ $found_port == 0 ]; then
-            let "fe_port=fe_port+10"
+            let "fe_port=fe_port+20"
         else break
         fi
     done
