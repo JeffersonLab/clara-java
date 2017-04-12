@@ -30,7 +30,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.function.BiFunction;
 
-import org.jlab.clara.base.ClaraUtil;
 import org.jlab.clara.util.ArgUtils;
 import org.jline.reader.Completer;
 import org.jline.reader.impl.completer.FileNameCompleter;
@@ -153,7 +152,6 @@ public class Config {
 
         addBuilder.apply(FRONTEND_HOST,
                 "The IP address to be used by the front-end DPE.")
-                .withInitialValue(ClaraUtil.localhost())
                 .withParser(ConfigParsers::toHostAddress);
 
         addBuilder.apply(USE_FRONTEND,

@@ -242,7 +242,11 @@ public final class ConfigParsers {
      * @return the IP address represented by the first argument
      */
     public static String toHostAddress(String... args) {
-        return xMsgUtil.toHostAddress(requireArg(args));
+        String arg = requireArg(args);
+        if (xMsgUtil.isIP(arg)) {
+            return arg;
+        }
+        throw new IllegalArgumentException("the argument must be an IPv4 address");
     }
 
     private static String requireArg(String... args) {

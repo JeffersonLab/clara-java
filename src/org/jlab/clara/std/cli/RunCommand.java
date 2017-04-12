@@ -130,7 +130,10 @@ class RunCommand extends BaseCommand {
         }
 
         private String findHost() {
-            return config.getValue(Config.FRONTEND_HOST).toString();
+            if (config.hasValue(Config.FRONTEND_HOST)) {
+                return config.getValue(Config.FRONTEND_HOST).toString();
+            }
+            return ClaraUtil.localhost();
         }
 
         private int findPort() {
