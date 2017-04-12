@@ -27,9 +27,13 @@ import java.net.ServerSocket;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.jlab.clara.base.ClaraLang;
 import org.jlab.clara.base.ClaraUtil;
@@ -48,6 +52,7 @@ class RunCommand extends BaseCommand {
 
         private static final int LOWER_PORT = 7000;
         private static final int UPPER_PORT = 8000;
+        private static final int STEP_PORTS = 20;
 
         private final Config config;
         private final Map<ClaraLang, DpeProcess> backgroundDpes;
@@ -142,10 +147,18 @@ class RunCommand extends BaseCommand {
             if (config.hasValue(Config.FRONTEND_PORT)) {
                 return (Integer) config.getValue(Config.FRONTEND_PORT);
             }
-            for (int port = LOWER_PORT + 2; port < UPPER_PORT; port += 20) {
-                try (ServerSocket socket = new ServerSocket(port)) {
+
+            List<Integer> ports = IntStream.iterate(LOWER_PORT, n -> n + STEP_PORTS)
+                                           .limit((UPPER_PORT - LOWER_PORT) / STEP_PORTS)
+                                           .boxed()
+                                           .collect(Collectors.toList());
+            Collections.shuffle(ports);
+
+            for (Integer port : ports) {
+                int ctrlPort = port + 2;
+                try (ServerSocket socket = new ServerSocket(ctrlPort)) {
                     socket.setReuseAddress(true);
-                    return socket.getLocalPort() - 2;
+                    return port;
                 } catch (IOException e) {
                     continue;
                 }

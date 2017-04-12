@@ -35,17 +35,21 @@ function cleanup() {
 trap cleanup EXIT SIGINT SIGTERM
 
 function define_dpe_port() {
-    fe_port=7002
-    local found_port=0
-    while [ $found_port == 0 ]; do
-        found_port=0
-        eval "exec 6<>/dev/tcp/127.0.0.1/$fe_port" 2> /dev/null || found_port=1
-        if [ $found_port == 0 ]; then
-            let "fe_port=fe_port+20"
-        else break
+    local ports
+    ports=$(seq 7000 20 8000)
+    if command -v shuf >/dev/null 2>&1; then
+        ports=$(echo "$ports" | shuf)
+    fi
+
+    for port in $ports; do
+        local ctrl_port=$((port + 2))
+        if ! eval "exec 6<>/dev/tcp/127.0.0.1/$ctrl_port" 2> /dev/null; then
+            fe_port=$port
+            return
         fi
     done
-    let "fe_port=fe_port-2"
+    echo "could not find an available port"
+    exit 1
 }
 
 function define_host_ip() {
@@ -138,8 +142,6 @@ if [[ -z "$fe_host" ]]; then
     define_host_ip
 fi
 if [[ -z "$fe_port" ]]; then
-
-    sleep $[ ( $RANDOM % 6 )  + 1 ]s
     define_dpe_port
 fi
 
