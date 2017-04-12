@@ -107,7 +107,7 @@ class ShowCommand extends BaseCommand {
 
     private int showLogDir() {
         String logDir = Paths.get(Config.claraHome(), "log").toString();
-        return RunUtils.listFiles(logDir, "lh");
+        return RunUtils.listFiles(logDir, "lhtr");
     }
 
     private int showDpeLog() {
