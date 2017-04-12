@@ -57,6 +57,12 @@ final class RunUtils {
         return getLogDir().resolve(logName);
     }
 
+    static Path getLogFile(Path feLog, ClaraLang dpeLang) {
+        Path logDir = getLogDir();
+        String name = feLog.getFileName().toString();
+        return logDir.resolve(name.replaceAll("fe-dpe", dpeLang + "-dpe"));
+    }
+
     static List<Path> getLogFiles(String keyword, String component) throws IOException {
         String glob = String.format("glob:*-%s-%s-%s.log", Config.user(), keyword, component);
         PathMatcher matcher = FileSystems.getDefault().getPathMatcher(glob);

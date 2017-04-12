@@ -22,11 +22,15 @@
 
 package org.jlab.clara.std.cli;
 
+import org.jlab.clara.base.ClaraLang;
 import org.jline.terminal.Terminal;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 class ShowCommand extends BaseCommand {
@@ -136,6 +140,22 @@ class ShowCommand extends BaseCommand {
             terminal.writer().printf("error: no logs for %s%n", Config.user());
             return EXIT_ERROR;
         }
-        return RunUtils.paginateFile(terminal, description, logs.get(0));
+        Path log = logs.get(0);
+        if (component.equals("fe-dpe")) {
+            return RunUtils.paginateFile(terminal, description, getDpeLogs(log));
+        }
+        return RunUtils.paginateFile(terminal, description, log);
+    }
+
+    private Path[] getDpeLogs(Path fe) {
+        List<Path> logs = new ArrayList<>();
+        logs.add(fe);
+        for (ClaraLang lang : Arrays.asList(ClaraLang.CPP, ClaraLang.PYTHON)) {
+            Path path = RunUtils.getLogFile(fe, lang);
+            if (Files.exists(path)) {
+                logs.add(path);
+            }
+        }
+        return logs.toArray(new Path[logs.size()]);
     }
 }
