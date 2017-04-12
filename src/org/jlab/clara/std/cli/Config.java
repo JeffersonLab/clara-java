@@ -145,6 +145,19 @@ public class Config {
                 .withParser(ConfigParsers::toDirectory)
                 .withCompleter(fileCompleter());
 
+        addBuilder.apply(MAX_THREADS,
+                "The maximum number of processing threads to be used per node.")
+                .withInitialValue(Runtime.getRuntime().availableProcessors())
+                .withParser(ConfigParsers::toPositiveInteger);
+
+        addBuilder.apply(FRONTEND_HOST,
+                "The IP address to be used by the front-end DPE.")
+                .withParser(ConfigParsers::toHostAddress);
+
+        addBuilder.apply(FRONTEND_PORT,
+                "The port to be used by the front-end DPE.")
+                .withParser(ConfigParsers::toPositiveInteger);
+
         addBuilder.apply(SESSION,
                 "The data processing session.")
                 .withInitialValue("")
@@ -155,23 +168,10 @@ public class Config {
                 .withInitialValue("clara")
                 .withParser(ConfigParsers::toAlphaNumWord);
 
-        addBuilder.apply(FRONTEND_HOST,
-                "The IP address to be used by the front-end DPE.")
-                .withParser(ConfigParsers::toHostAddress);
-
-        addBuilder.apply(FRONTEND_PORT,
-                "The port to be used by the front-end DPE.")
-                .withParser(ConfigParsers::toPositiveInteger);
-
         addBuilder.apply(USE_FRONTEND,
                 "Use the front-end DPE for reconstruction.")
                 .withInitialValue(true)
                 .withParser(ConfigParsers::toBoolean);
-
-        addBuilder.apply(MAX_THREADS,
-                "The maximum number of processing threads to be used per node.")
-                .withInitialValue(Runtime.getRuntime().availableProcessors())
-                .withParser(ConfigParsers::toPositiveInteger);
 
         addBuilder.apply(JAVA_MEMORY, "DPE JVM memory size (in GB)")
             .withParser(ConfigParsers::toPositiveInteger);
