@@ -142,8 +142,6 @@ if [[ -z "$fe_host" ]]; then
     define_host_ip
 fi
 if [[ -z "$fe_port" ]]; then
-
-    sleep $[ ( $RANDOM % 21 )  + 1 ]s
     define_dpe_port
 fi
 

@@ -229,6 +229,8 @@ final class FarmCommands {
                 printer.println();
                 printer.printf("\"%s%s\"%n", Config.claraHome(), "/bin/remove-dpe");
                 printer.println();
+                printer.println("sleep $[ ( $RANDOM % 20 )  + 1 ]s");
+                printer.println();
                 printer.println(getClaraCommand());
             }
             wrapper.setExecutable(true);
