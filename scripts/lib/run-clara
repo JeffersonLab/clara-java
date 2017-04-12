@@ -83,17 +83,22 @@ function in_files_exists() {
 host=$(hostname)
 user=$(id -un)
 
+fe_host=
+fe_port=
+
 input_dir=$CLARA_HOME/data/input
 output_dir=$CLARA_HOME/data/output
 stage_dir=
+
 report=5
 thread_num=$(get_num_cores)
 session=$user
 description=clara
+
 wait_dpe=2
 jvm_opts=
 
-while getopts "i:o:l:t:r:s:d:W:J:" OPTION; do
+while getopts "i:o:l:t:r:s:d:H:P:W:J:" OPTION; do
     case $OPTION in
         i)  input_dir=$OPTARG ;;
         o)  output_dir=$OPTARG ;;
@@ -102,6 +107,8 @@ while getopts "i:o:l:t:r:s:d:W:J:" OPTION; do
         r)  report=$OPTARG ;;
         s)  session=$OPTARG ;;
         d)  description=$OPTARG ;;
+        H)  fe_host=$OPTARG ;;
+        P)  fe_port=$OPTARG ;;
         W)  wait_dpe=$OPTARG ;;
         J)  jvm_opts=$OPTARG ;;
         ?)  exit 1 ;;
@@ -125,6 +132,13 @@ fi
 if [ ! -r "$file_list" ]; then
     echo "error: not such file: $file_list"
     exit 1
+fi
+
+if [[ -z "$fe_host" ]]; then
+    define_host_ip
+fi
+if [[ -z "$fe_port" ]]; then
+    define_dpe_port
 fi
 
 
@@ -156,9 +170,6 @@ fi
 ##############################################################################
 # Run CLARA
 ##############################################################################
-
-define_host_ip
-define_dpe_port
 
 fe_log_file=$CLARA_HOME/log/$host-$user-$description-fe-dpe.log
 or_log_file=$CLARA_HOME/log/$host-$user-$description-orch.log
