@@ -125,6 +125,6 @@ class ShowCommand extends BaseCommand {
         String host = config.getValue(Config.FRONTEND_HOST).toString();
         String keyword = config.getValue(Config.DESCRIPTION).toString();
         Path path = RunUtils.getLogFile(host, keyword, component);
-        return RunUtils.paginateFile(terminal, path, description);
+        return RunUtils.paginateFile(terminal, description, path);
     }
 }

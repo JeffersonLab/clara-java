@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 
 final class RunUtils {
 
@@ -65,13 +66,17 @@ final class RunUtils {
         }
     }
 
-    static int paginateFile(Terminal terminal, Path path, String description) {
-        if (!Files.exists(path)) {
-            terminal.writer().printf("error: no %s log: %s%n", description, path);
-            return 1;
+    static int paginateFile(Terminal terminal, String description, Path... paths) {
+        for (Path path : paths) {
+            if (!Files.exists(path)) {
+                terminal.writer().printf("error: no %s log: %s%n", description, path);
+                return 1;
+            }
         }
         try {
-            String[] args = new String[] {path.toString()};
+            String[] args = Arrays.stream(paths)
+                                  .map(Path::toString)
+                                  .toArray(String[]::new);
             Commands.less(terminal, System.out, System.err, Paths.get(""), args);
             return Command.EXIT_SUCCESS;
         } catch (IOException e) {
