@@ -129,15 +129,7 @@ final class FarmCommands {
             this.config = config;
         }
 
-        String getJLabScript() {
-            return getJobScript(JLAB_SUB_EXT);
-        }
-
-        String getPbsScript() {
-            return getJobScript(PBS_SUB_EXT);
-        }
-
-        private String getJobScript(String ext) {
+        protected String getJobScript(String ext) {
             String keyword = config.getValue(Config.DESCRIPTION).toString();
             String name = String.format("farm-%s-%s", Config.user(), keyword);
             return PLUGIN.resolve("config/" + name + ext).toString();
@@ -157,12 +149,11 @@ final class FarmCommands {
             String system = config.getValue(FARM_SYSTEM).toString();
             if (system.equals(JLAB_SYSTEM)) {
                 if (CommandUtils.checkProgram(JLAB_SUB_CMD)) {
-                    String jsubFile = getJLabScript();
                     try {
-                        createJLabScript(jsubFile);
-                        return CommandUtils.runProcess(JLAB_SUB_CMD, jsubFile);
+                        String jobFile = createJLabScript();
+                        return CommandUtils.runProcess(JLAB_SUB_CMD, jobFile);
                     } catch (IOException e) {
-                        writer.println("Error: could not create file = " + jsubFile);
+                        writer.println("Error: could not set job:  " + e.getMessage());
                     }
                 }
                 writer.println("Error: can not run farm job from this node = " + getHost());
@@ -171,12 +162,11 @@ final class FarmCommands {
 
             if (system.equals(PBS_SYSTEM)) {
                 if (CommandUtils.checkProgram(PBS_SUB_CMD)) {
-                    String qsubFile = getPbsScript();
                     try {
-                        createPbsScript(qsubFile);
-                        return CommandUtils.runProcess(PBS_SUB_CMD, qsubFile);
+                        String jobFile = createPbsScript();
+                        return CommandUtils.runProcess(PBS_SUB_CMD, jobFile);
                     } catch (IOException e) {
-                        writer.println("Error: could not create file = " + qsubFile);
+                        writer.println("Error: could not set job:  " + e.getMessage());
                     }
                 }
                 writer.println("Error: can not run farm job from this node = " + getHost());
@@ -222,8 +212,10 @@ final class FarmCommands {
             return cmd.toString();
         }
 
-        private void createJLabScript(String path) throws IOException {
-            File wrapper = new File(path.replace(JLAB_SUB_EXT, ".sh"));
+        private String createJLabScript() throws IOException {
+            String jobFile = getJobScript(JLAB_SUB_EXT);
+            File wrapper = new File(getJobScript(".sh"));
+
             try (PrintStream printer = new PrintStream(new FileOutputStream(wrapper, false))) {
                 printer.printf("#!/bin/bash%n");
                 printer.println();
@@ -243,7 +235,7 @@ final class FarmCommands {
             }
             wrapper.setExecutable(true);
 
-            try (PrintStream printer = new PrintStream(new FileOutputStream(path, false))) {
+            try (PrintStream printer = new PrintStream(new FileOutputStream(jobFile, false))) {
                 printer.printf("PROJECT: clas12%n");
                 printer.printf("JOBNAME: rec-%s-%s%n",
                         Config.user(), config.getValue(Config.DESCRIPTION));
@@ -255,14 +247,17 @@ final class FarmCommands {
                 printer.printf("TIME: %s%n", config.getValue(FARM_TIME));
                 printer.printf("COMMAND: %s%n", wrapper);
             }
+            return jobFile;
         }
 
-        private void createPbsScript(String path) throws IOException {
+        private String createPbsScript() throws IOException {
+            String jobFile = getJobScript(PBS_SUB_EXT);
+
             int diskKb = (int) config.getValue(FARM_DISK) * 1024 * 1024;
             int time = (int) config.getValue(FARM_TIME);
             String walltime = String.format("%d:%02d:00", time / 60, time % 60);
 
-            try (PrintStream printer = new PrintStream(new FileOutputStream(path, false))) {
+            try (PrintStream printer = new PrintStream(new FileOutputStream(jobFile, false))) {
                 printer.printf("#!/bin/csh%n");
                 printer.println();
                 printer.printf("#PBS -N rec-%s-%s%n",
@@ -280,6 +275,8 @@ final class FarmCommands {
                 printer.println();
                 printer.println(getClaraCommand());
             }
+
+            return jobFile;
         }
 
         private String getJVMOptions() {
@@ -345,10 +342,10 @@ final class FarmCommands {
             PrintWriter writer = terminal.writer();
             String system = config.getValue(FARM_SYSTEM).toString();
             if (system.equals(JLAB_SYSTEM)) {
-                return showFile(getJLabScript());
+                return showFile(getJobScript(JLAB_SUB_EXT));
             }
             if (system.equals(PBS_SYSTEM)) {
-                return showFile(getPbsScript());
+                return showFile(getJobScript(PBS_SUB_EXT));
             }
             writer.println("Error: invalid farm system = " + system);
             return EXIT_ERROR;
