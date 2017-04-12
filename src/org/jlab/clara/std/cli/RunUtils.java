@@ -36,6 +36,10 @@ final class RunUtils {
 
     private RunUtils() { }
 
+    static Path getLogDir() {
+        return Paths.get(Config.claraHome(), "log");
+    }
+
     static Path getLogFile(DpeName name, String keyword) {
         ClaraLang lang = name.language();
         String component = lang == ClaraLang.JAVA ? "fe-dpe" : lang + "-dpe";
@@ -44,7 +48,7 @@ final class RunUtils {
 
     static Path getLogFile(String host, String keyword, String component) {
         String logName = String.format("%s-%s-%s-%s.log", host, Config.user(), keyword, component);
-        return Paths.get(Config.claraHome(), "log", logName);
+        return getLogDir().resolve(logName);
     }
 
     static int printFile(Terminal terminal, Path path) {
