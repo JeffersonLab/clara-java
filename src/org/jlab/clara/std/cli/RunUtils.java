@@ -79,7 +79,7 @@ final class RunUtils {
         }
     }
 
-    static int listFiles(String dir) {
-        return CommandUtils.runProcess("ls", "-lah", dir);
+    static int listFiles(String dir, String opts) {
+        return CommandUtils.runProcess("ls", "-" + opts, dir);
     }
 }

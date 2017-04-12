@@ -87,7 +87,7 @@ class ShowCommand extends BaseCommand {
             terminal.writer().printf("error: variable %s is not set%n", variable);
             return EXIT_ERROR;
         }
-        return RunUtils.listFiles(config.getValue(variable).toString());
+        return RunUtils.listFiles(config.getValue(variable).toString(), "lh");
     }
 
     private int showOutputDir() {
@@ -96,12 +96,12 @@ class ShowCommand extends BaseCommand {
             terminal.writer().printf("error: variable %s is not set%n", variable);
             return EXIT_ERROR;
         }
-        return RunUtils.listFiles(config.getValue(variable).toString());
+        return RunUtils.listFiles(config.getValue(variable).toString(), "lh");
     }
 
     private int showLogDir() {
         String logDir = Paths.get(Config.claraHome(), "log").toString();
-        return RunUtils.listFiles(logDir);
+        return RunUtils.listFiles(logDir, "lh");
     }
 
     private int showDpeLog() {
