@@ -139,6 +139,9 @@ class RunCommand extends BaseCommand {
         }
 
         private int findPort() {
+            if (config.hasValue(Config.FRONTEND_PORT)) {
+                return (Integer) config.getValue(Config.FRONTEND_PORT);
+            }
             for (int port = LOWER_PORT + 2; port < UPPER_PORT; port += 20) {
                 try (ServerSocket socket = new ServerSocket(port)) {
                     socket.setReuseAddress(true);

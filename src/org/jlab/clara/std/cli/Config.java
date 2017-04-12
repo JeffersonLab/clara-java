@@ -75,6 +75,11 @@ public class Config {
     public static final String FRONTEND_HOST = "feHost";
 
     /**
+     * The variable for the port of the front-end DPE.
+     */
+    public static final String FRONTEND_PORT = "fePort";
+
+    /**
      * The variable for the switch to use the front-end DPE or not.
      */
     public static final String USE_FRONTEND = "useFE";
@@ -153,6 +158,10 @@ public class Config {
         addBuilder.apply(FRONTEND_HOST,
                 "The IP address to be used by the front-end DPE.")
                 .withParser(ConfigParsers::toHostAddress);
+
+        addBuilder.apply(FRONTEND_PORT,
+                "The port to be used by the front-end DPE.")
+                .withParser(ConfigParsers::toPositiveInteger);
 
         addBuilder.apply(USE_FRONTEND,
                 "Use the front-end DPE for reconstruction.")

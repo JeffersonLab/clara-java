@@ -190,6 +190,9 @@ final class FarmCommands {
             if (config.hasValue(Config.FRONTEND_HOST)) {
                 appendOpt(cmd, "-H", config.getValue(Config.FRONTEND_HOST));
             }
+            if (config.hasValue(Config.FRONTEND_PORT)) {
+                appendOpt(cmd, "-P", config.getValue(Config.FRONTEND_PORT));
+            }
             appendOpt(cmd, "-W", 20);
             appendOpt(cmd, "-J", getJVMOptions());
 
