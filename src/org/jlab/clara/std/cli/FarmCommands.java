@@ -187,6 +187,9 @@ final class FarmCommands {
             if (config.hasValue(Config.DESCRIPTION)) {
                 appendOpt(cmd, "-d", config.getValue(Config.DESCRIPTION));
             }
+            if (config.hasValue(Config.FRONTEND_HOST)) {
+                appendOpt(cmd, "-H", config.getValue(Config.FRONTEND_HOST));
+            }
             appendOpt(cmd, "-W", 20);
             appendOpt(cmd, "-J", getJVMOptions());
 
