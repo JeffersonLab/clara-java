@@ -184,8 +184,8 @@ final class FarmCommands {
             }
             appendOpt(cmd, "-t", config.getValue(FARM_CPU));
             appendOpt(cmd, "-s", config.getValue(Config.SESSION));
-            appendOpt(cmd, "-J", getJVMOptions());
             appendOpt(cmd, "-W", 20);
+            appendOpt(cmd, "-J", getJVMOptions());
 
             appendArg(cmd, config.getValue(Config.SERVICES_FILE));
             appendArg(cmd, config.getValue(Config.FILES_LIST));
