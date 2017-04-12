@@ -24,8 +24,10 @@ package org.jlab.clara.std.cli;
 
 import org.jline.terminal.Terminal;
 
+import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 class ShowCommand extends BaseCommand {
 
@@ -122,9 +124,18 @@ class ShowCommand extends BaseCommand {
     }
 
     private int printLog(String component, String description) {
-        String host = config.getValue(Config.FRONTEND_HOST).toString();
         String keyword = config.getValue(Config.DESCRIPTION).toString();
-        Path path = RunUtils.getLogFile(host, keyword, component);
-        return RunUtils.paginateFile(terminal, description, path);
+        List<Path> logs;
+        try {
+            logs = RunUtils.getLogFiles(keyword, component);
+        } catch (IOException e) {
+            terminal.writer().printf("error: could not open log directory%n");
+            return EXIT_ERROR;
+        }
+        if (logs.isEmpty()) {
+            terminal.writer().printf("error: no logs for %s%n", Config.user());
+            return EXIT_ERROR;
+        }
+        return RunUtils.paginateFile(terminal, description, logs.get(0));
     }
 }

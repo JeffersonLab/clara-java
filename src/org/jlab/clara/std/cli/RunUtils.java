@@ -28,10 +28,15 @@ import org.jline.builtins.Commands;
 import org.jline.terminal.Terminal;
 
 import java.io.IOException;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.Arrays;
+import java.util.List;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 final class RunUtils {
 
@@ -50,6 +55,19 @@ final class RunUtils {
     static Path getLogFile(String host, String keyword, String component) {
         String logName = String.format("%s-%s-%s-%s.log", host, Config.user(), keyword, component);
         return getLogDir().resolve(logName);
+    }
+
+    static List<Path> getLogFiles(String keyword, String component) throws IOException {
+        String glob = String.format("glob:*-%s-%s-%s.log", Config.user(), keyword, component);
+        PathMatcher matcher = FileSystems.getDefault().getPathMatcher(glob);
+
+        Function<Path, Long> modDate = path -> path.toFile().lastModified();
+
+        return Files.list(getLogDir())
+                    .filter(Files::isRegularFile)
+                    .filter(p -> matcher.matches(p.getFileName()))
+                    .sorted((a, b) -> Long.compare(modDate.apply(b), modDate.apply(a)))
+                    .collect(Collectors.toList());
     }
 
     static int printFile(Terminal terminal, Path path) {
