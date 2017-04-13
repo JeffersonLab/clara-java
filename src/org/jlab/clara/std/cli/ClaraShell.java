@@ -53,10 +53,12 @@ public final class ClaraShell implements AutoCloseable {
 
     private static final String HISTORY_NAME = ".clara_history";
 
-    private final Config config;
     private final Terminal terminal;
+    private final Config config;
+
     private final Map<String, Command> commands;
     private final CommandRunner commandRunner;
+
     private final LineReader reader;
     private final History history;
 
