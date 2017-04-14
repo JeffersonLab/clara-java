@@ -15,7 +15,7 @@ if [ -z "${CLASSPATH}" ]; then
         fi
         plugins_dir="${CLARA_PLUGINS}"
     else
-        plugins_dir="${CLARA_HOME}/plugins"
+        plugins_dir="${CLARA_HOME}/plugins/clas12"
     fi
 
     # Add every plugin
