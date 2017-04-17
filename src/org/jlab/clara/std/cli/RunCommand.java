@@ -70,7 +70,6 @@ class RunCommand extends BaseCommand {
 
                 Thread.sleep(20000);
 
-
                 Path orchestrator = Paths.get(Config.claraHome(), "bin", "clara-orchestrator");
                 int exitStatus = runOrchestrator(feDpe,
                         orchestrator.toString(),
