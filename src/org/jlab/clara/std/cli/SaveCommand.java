@@ -61,9 +61,7 @@ class SaveCommand extends AbstractCommand {
                 return EXIT_SUCCESS;
             }
         }
-        writeFile(path);
-        terminal.writer().println("Config saved in " + path.toFile().getAbsolutePath());
-        return EXIT_SUCCESS;
+        return writeFile(path);
     }
 
     private boolean scanAnswer() {
@@ -89,10 +87,9 @@ class SaveCommand extends AbstractCommand {
                     System.out.println("Invalid answer.");
             }
         }
-
     }
 
-    private void writeFile(Path path) {
+    private int writeFile(Path path) {
         try (PrintWriter printer = FileUtils.openOutputTextFile(path, false)) {
             for (ConfigVariable variable : config.getVariables()) {
                 if (variable.hasValue()) {
@@ -101,7 +98,10 @@ class SaveCommand extends AbstractCommand {
             }
         } catch (IOException e) {
             terminal.writer().println("Could not create file: " + path);
+            return EXIT_ERROR;
         }
+        terminal.writer().println("Config saved in " + path.toFile().getAbsolutePath());
+        return EXIT_SUCCESS;
     }
 
     @Override
