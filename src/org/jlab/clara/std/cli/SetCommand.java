@@ -97,20 +97,20 @@ class SetCommand extends BaseCommand {
         }
         try {
             Path path = Paths.get(FileUtils.expandHome(args[0]));
-            File tempFile = File.createTempFile("temp", "");
-            try (PrintWriter printer = FileUtils.openOutputTextFile(tempFile.toPath(), false)) {
+            File output = getOutputFile();
+            try (PrintWriter printer = FileUtils.openOutputTextFile(output.toPath(), false)) {
                 if (Files.isDirectory(path)) {
                     int numFiles = listDir(printer, path, f -> true);
                     if (numFiles > 0) {
                         config.setValue(Config.INPUT_DIR, path.toString());
-                        config.setValue(Config.FILES_LIST, tempFile.getAbsolutePath());
+                        config.setValue(Config.FILES_LIST, output.getAbsolutePath());
                     } else {
                         System.out.println("Error: empty directory");
                     }
                 } else if (Files.isRegularFile(path)) {
                     printer.println(path.getFileName());
                     config.setValue(Config.INPUT_DIR, FileUtils.getParent(path).toString());
-                    config.setValue(Config.FILES_LIST, tempFile.getAbsolutePath());
+                    config.setValue(Config.FILES_LIST, output.getAbsolutePath());
                 } else if (path.getFileName().toString().contains("*")
                         && Files.isDirectory(FileUtils.getParent(path))) {
                     String pattern = path.getFileName().toString();
@@ -119,7 +119,7 @@ class SetCommand extends BaseCommand {
                     int numFiles = listDir(printer, FileUtils.getParent(path), matcher::matches);
                     if (numFiles > 0) {
                         config.setValue(Config.INPUT_DIR, FileUtils.getParent(path).toString());
-                        config.setValue(Config.FILES_LIST, tempFile.getAbsolutePath());
+                        config.setValue(Config.FILES_LIST, output.getAbsolutePath());
                     } else {
                         System.out.println("Error: no files matched");
                     }
@@ -130,6 +130,15 @@ class SetCommand extends BaseCommand {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private File getOutputFile() {
+        Path dir = FarmCommands.hasPlugin()
+                ? FarmCommands.PLUGIN.resolve("config")
+                : Paths.get("");
+        String keyword = config.getValue(Config.DESCRIPTION).toString();
+        String name = String.format("files-%s-%s.txt", Config.user(), keyword);
+        return dir.resolve(name).toFile();
     }
 
     private int listDir(PrintWriter printer, Path directory, Predicate<Path> filter)
