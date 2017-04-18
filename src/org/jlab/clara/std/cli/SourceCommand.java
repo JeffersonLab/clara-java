@@ -35,6 +35,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.jlab.clara.base.ClaraUtil;
+import org.jlab.clara.util.FileUtils;
 import org.jline.reader.Completer;
 import org.jline.reader.impl.completer.ArgumentCompleter;
 import org.jline.reader.impl.completer.FileNameCompleter;
@@ -57,7 +58,7 @@ class SourceCommand extends AbstractCommand {
             terminal.writer().println("Missing filename argument");
             return EXIT_ERROR;
         }
-        Path path = Paths.get(args[0]);
+        Path path = Paths.get(FileUtils.expandHome(args[0]));
         for (String line : readLines(path)) {
             terminal.writer().println(line);
             commandRunner.execute(line);
