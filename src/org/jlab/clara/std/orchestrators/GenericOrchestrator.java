@@ -6,7 +6,10 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
+import org.jlab.clara.base.ClaraLang;
 import org.jlab.clara.base.ClaraUtil;
 import org.jlab.clara.base.DpeName;
 import org.jlab.clara.std.orchestrators.CoreOrchestrator.DpeCallBack;
@@ -24,6 +27,9 @@ import com.martiansoftware.jsap.UnflaggedOption;
  * input files.
  */
 public final class GenericOrchestrator extends AbstractOrchestrator {
+
+    private final DpeReportCB dpeCallback;
+
 
     public static void main(String[] args) {
         try {
@@ -282,6 +288,8 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
                                 OrchestratorOptions options) {
         super(setup, paths, options);
         Logging.verbose(true);
+        dpeCallback = new DpeReportCB(orchestrator, options, setup.application,
+                                      this::executeSetup);
     }
 
 
@@ -290,9 +298,8 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
         printStartup();
         waitFrontEnd();
         Logging.info("Waiting for reconstruction nodes...");
-        DpeReportCB dpeCallback = new DpeReportCB(orchestrator, options, setup.application,
-                                                  this::executeSetup);
         orchestrator.subscribeDpes(dpeCallback, setup.session);
+        tryLocalNode();
     }
 
 
@@ -342,6 +349,24 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
         }
     }
 
+
+    void tryLocalNode() {
+        if (options.useFrontEnd) {
+            int cores = Runtime.getRuntime().availableProcessors();
+            Map<ClaraLang, DpeName> localDpes = orchestrator.getLocalRegisteredDpes(2).stream()
+                    .collect(Collectors.toMap(DpeName::language, Function.identity()));
+
+            Set<ClaraLang> appLangs = setup.application.getLanguages();
+            Set<ClaraLang> dpeLangs = localDpes.keySet();
+
+            if (dpeLangs.containsAll(appLangs)) {
+                for (ClaraLang lang : appLangs) {
+                    DpeName dpe = localDpes.get(lang);
+                    dpeCallback.callback(new DpeInfo(dpe, cores, DpeInfo.DEFAULT_CLARA_HOME));
+                }
+            }
+        }
+    }
 
 
     static class DpeReportCB implements DpeCallBack {
