@@ -22,12 +22,9 @@
 
 package org.jlab.clara.std.cli;
 
-import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
+import java.io.PrintWriter;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -101,8 +98,7 @@ class SetCommand extends BaseCommand {
         try {
             Path path = Paths.get(FileUtils.expandHome(args[0]));
             File tempFile = File.createTempFile("temp", "");
-            try (PrintStream printer = new PrintStream(new BufferedOutputStream(
-                    new FileOutputStream(tempFile, false)))) {
+            try (PrintWriter printer = FileUtils.openOutputTextFile(tempFile.toPath(), false)) {
                 if (Files.isDirectory(path)) {
                     int numFiles = listDir(printer, path, f -> true);
                     if (numFiles > 0) {
@@ -131,14 +127,12 @@ class SetCommand extends BaseCommand {
                     System.out.println("Error: invalid path");
                 }
             }
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private int listDir(PrintStream printer, Path directory, Predicate<Path> filter)
+    private int listDir(PrintWriter printer, Path directory, Predicate<Path> filter)
             throws IOException {
         List<Path> files = Files.list(directory)
                     .filter(Files::isRegularFile)

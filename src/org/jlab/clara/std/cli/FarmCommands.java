@@ -1,11 +1,9 @@
 package org.jlab.clara.std.cli;
 
+import org.jlab.clara.util.FileUtils;
 import org.jline.terminal.Terminal;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.io.UncheckedIOException;
 import java.net.InetAddress;
@@ -129,10 +127,10 @@ final class FarmCommands {
             this.config = config;
         }
 
-        protected String getJobScript(String ext) {
+        protected Path getJobScript(String ext) {
             String keyword = config.getValue(Config.DESCRIPTION).toString();
             String name = String.format("farm-%s-%s", Config.user(), keyword);
-            return PLUGIN.resolve("config/" + name + ext).toString();
+            return PLUGIN.resolve("config/" + name + ext);
         }
     }
 
@@ -150,8 +148,8 @@ final class FarmCommands {
             if (system.equals(JLAB_SYSTEM)) {
                 if (CommandUtils.checkProgram(JLAB_SUB_CMD)) {
                     try {
-                        String jobFile = createJLabScript();
-                        return CommandUtils.runProcess(JLAB_SUB_CMD, jobFile);
+                        Path jobFile = createJLabScript();
+                        return CommandUtils.runProcess(JLAB_SUB_CMD, jobFile.toString());
                     } catch (IOException e) {
                         writer.println("Error: could not set job:  " + e.getMessage());
                     }
@@ -163,8 +161,8 @@ final class FarmCommands {
             if (system.equals(PBS_SYSTEM)) {
                 if (CommandUtils.checkProgram(PBS_SUB_CMD)) {
                     try {
-                        String jobFile = createPbsScript();
-                        return CommandUtils.runProcess(PBS_SUB_CMD, jobFile);
+                        Path jobFile = createPbsScript();
+                        return CommandUtils.runProcess(PBS_SUB_CMD, jobFile.toString());
                     } catch (IOException e) {
                         writer.println("Error: could not set job:  " + e.getMessage());
                     }
@@ -211,9 +209,9 @@ final class FarmCommands {
             return cmd.toString();
         }
 
-        private String createClaraScript() throws IOException {
-            File wrapper = new File(getJobScript(".sh"));
-            try (PrintStream printer = new PrintStream(new FileOutputStream(wrapper, false))) {
+        private Path createClaraScript() throws IOException {
+            Path wrapper = getJobScript(".sh");
+            try (PrintWriter printer = FileUtils.openOutputTextFile(wrapper, false)) {
                 printer.printf("#!/bin/bash%n");
                 printer.println();
                 printer.printf("export MALLOC_ARENA_MAX=2%n");
@@ -232,14 +230,14 @@ final class FarmCommands {
                 printer.println();
                 printer.println(getClaraCommand());
             }
-            wrapper.setExecutable(true);
-            return wrapper.toString();
+            wrapper.toFile().setExecutable(true);
+            return wrapper;
         }
 
-        private String createJLabScript() throws IOException {
-            String jobFile = getJobScript(JLAB_SUB_EXT);
-            String wrapper = createClaraScript();
-            try (PrintStream printer = new PrintStream(new FileOutputStream(jobFile, false))) {
+        private Path createJLabScript() throws IOException {
+            Path jobFile = getJobScript(JLAB_SUB_EXT);
+            Path wrapper = createClaraScript();
+            try (PrintWriter printer = FileUtils.openOutputTextFile(jobFile, false)) {
                 printer.printf("PROJECT: clas12%n");
                 printer.printf("JOBNAME: rec-%s-%s%n",
                         Config.user(), config.getValue(Config.DESCRIPTION));
@@ -254,15 +252,15 @@ final class FarmCommands {
             return jobFile;
         }
 
-        private String createPbsScript() throws IOException {
-            String jobFile = getJobScript(PBS_SUB_EXT);
-            String wrapper = createClaraScript();
+        private Path createPbsScript() throws IOException {
+            Path jobFile = getJobScript(PBS_SUB_EXT);
+            Path wrapper = createClaraScript();
 
             int diskKb = (int) config.getValue(FARM_DISK) * 1024 * 1024;
             int time = (int) config.getValue(FARM_TIME);
             String walltime = String.format("%d:%02d:00", time / 60, time % 60);
 
-            try (PrintStream printer = new PrintStream(new FileOutputStream(jobFile, false))) {
+            try (PrintWriter printer = FileUtils.openOutputTextFile(jobFile, false)) {
                 printer.printf("#!/bin/csh%n");
                 printer.println();
                 printer.printf("#PBS -N rec-%s-%s%n",
@@ -351,8 +349,8 @@ final class FarmCommands {
             return EXIT_ERROR;
         }
 
-        private int showFile(String subFile) {
-            return RunUtils.printFile(terminal, Paths.get(subFile));
+        private int showFile(Path subFile) {
+            return RunUtils.printFile(terminal, subFile);
         }
     }
 

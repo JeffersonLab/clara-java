@@ -22,9 +22,7 @@
 
 package org.jlab.clara.std.cli;
 
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.PrintStream;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -32,6 +30,7 @@ import java.nio.file.Paths;
 import java.util.Scanner;
 
 import org.jlab.clara.base.ClaraUtil;
+import org.jlab.clara.util.FileUtils;
 import org.jline.reader.Completer;
 import org.jline.reader.impl.completer.ArgumentCompleter;
 import org.jline.reader.impl.completer.FileNameCompleter;
@@ -94,13 +93,13 @@ class SaveCommand extends AbstractCommand {
     }
 
     private void writeFile(Path path) {
-        try (PrintStream printer = new PrintStream(new FileOutputStream(path.toFile(), false))) {
+        try (PrintWriter printer = FileUtils.openOutputTextFile(path, false)) {
             for (ConfigVariable variable : config.getVariables()) {
                 if (variable.hasValue()) {
                     printer.printf("set %s %s%n", variable.getName(), variable.getValue());
                 }
             }
-        } catch (FileNotFoundException e) {
+        } catch (IOException e) {
             terminal.writer().println("Could not create file: " + path);
         }
     }
