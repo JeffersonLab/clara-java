@@ -1,5 +1,6 @@
 package org.jlab.clara.std.orchestrators;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -279,8 +280,15 @@ abstract class AbstractOrchestrator {
             Logging.info("Monitoring files on input directory...");
             new Thread(new FileMonitoringWorker(), "file-monitoring-thread").start();
         } else {
+            int count = 0;
             for (WorkerFile file : paths.allFiles) {
-                processingQueue.add(file);
+                if (Files.exists(paths.inputFilePath(file))) {
+                    processingQueue.add(file);
+                    count++;
+                }
+            }
+            if (count == 0) {
+                throw new OrchestratorError("Input files do not exist");
             }
         }
     }
