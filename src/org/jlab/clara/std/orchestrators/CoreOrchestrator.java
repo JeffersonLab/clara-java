@@ -276,12 +276,12 @@ class CoreOrchestrator {
     }
 
 
-    Set<DpeName> getLocalRegisteredDpes() {
+    Set<DpeName> getLocalRegisteredDpes(int seconds) {
         try {
             ClaraAddress address = base.getFrontEnd().address();
             return base.query()
                        .canonicalNames(ClaraFilters.dpesByHost(address.host()))
-                       .syncRun(1, TimeUnit.SECONDS);
+                       .syncRun(seconds, TimeUnit.SECONDS);
         } catch (TimeoutException | ClaraException e) {
             throw new OrchestratorError("cannot connect with front-end: " + base.getFrontEnd(), e);
         }

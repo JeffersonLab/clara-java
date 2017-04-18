@@ -288,6 +288,7 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
     @Override
     protected void start() {
         printStartup();
+        waitFrontEnd();
         Logging.info("Waiting for reconstruction nodes...");
         DpeReportCB dpeCallback = new DpeReportCB(orchestrator, options, setup.application,
                                                   this::executeSetup);
@@ -321,6 +322,24 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
         }
         System.out.println("- Number of files  = " + paths.numFiles());
         System.out.println("****************************************");
+    }
+
+
+    private void waitFrontEnd() {
+        final int maxAttempts = 5;
+        int count = 0;
+        while (true) {
+            try {
+                int timeout = count == 0 ? 2 : 4;
+                orchestrator.getLocalRegisteredDpes(timeout);
+                break;
+            } catch (OrchestratorError e) {
+                if (++count == maxAttempts) {
+                    throw e;
+                }
+                Logging.error("Could not connect with front-end. Retrying...");
+            }
+        }
     }
 
 
