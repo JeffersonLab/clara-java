@@ -24,6 +24,7 @@ package org.jlab.clara.std.cli;
 
 import org.jlab.clara.base.ClaraLang;
 import org.jlab.clara.base.DpeName;
+import org.jlab.clara.util.FileUtils;
 import org.jline.builtins.Commands;
 import org.jline.terminal.Terminal;
 
@@ -59,7 +60,7 @@ final class RunUtils {
 
     static Path getLogFile(Path feLog, ClaraLang dpeLang) {
         Path logDir = getLogDir();
-        String name = feLog.getFileName().toString();
+        String name = FileUtils.getFileName(feLog).toString();
         return logDir.resolve(name.replaceAll("fe-dpe", dpeLang + "-dpe"));
     }
 
