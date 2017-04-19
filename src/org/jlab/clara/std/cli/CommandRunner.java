@@ -68,6 +68,7 @@ class CommandRunner {
             return command.execute(cmdArgs);
         } finally {
             terminal.handle(Signal.INT, prevIntHandler);
+            terminal.writer().flush();
         }
     }
 
