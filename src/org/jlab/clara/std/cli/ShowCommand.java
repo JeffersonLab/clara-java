@@ -90,7 +90,7 @@ class ShowCommand extends BaseCommand {
     private int showInputDir() {
         String variable = Config.INPUT_DIR;
         if (!config.hasValue(variable)) {
-            terminal.writer().printf("error: variable %s is not set%n", variable);
+            terminal.writer().printf("Error: variable %s is not set%n", variable);
             return EXIT_ERROR;
         }
         return RunUtils.listFiles(config.getValue(variable).toString(), "lh");
@@ -99,7 +99,7 @@ class ShowCommand extends BaseCommand {
     private int showOutputDir() {
         String variable = Config.OUTPUT_DIR;
         if (!config.hasValue(variable)) {
-            terminal.writer().printf("error: variable %s is not set%n", variable);
+            terminal.writer().printf("Error: variable %s is not set%n", variable);
             return EXIT_ERROR;
         }
         return RunUtils.listFiles(config.getValue(variable).toString(), "lh");
@@ -120,7 +120,7 @@ class ShowCommand extends BaseCommand {
 
     private int printFile(String variable) {
         if (!config.hasValue(variable)) {
-            terminal.writer().printf("error: variable %s is not set%n", variable);
+            terminal.writer().printf("Error: variable %s is not set%n", variable);
             return EXIT_ERROR;
         }
         Path path = Paths.get(config.getValue(variable).toString());
@@ -133,11 +133,11 @@ class ShowCommand extends BaseCommand {
         try {
             logs = RunUtils.getLogFiles(keyword, component);
         } catch (IOException e) {
-            terminal.writer().printf("error: could not open log directory%n");
+            terminal.writer().printf("Error: could not open log directory%n");
             return EXIT_ERROR;
         }
         if (logs.isEmpty()) {
-            terminal.writer().printf("error: no logs for %s%n", Config.user());
+            terminal.writer().printf("Error: no logs for %s%n", Config.user());
             return EXIT_ERROR;
         }
         Path log = logs.get(0);

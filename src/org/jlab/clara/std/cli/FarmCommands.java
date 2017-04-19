@@ -152,6 +152,7 @@ final class FarmCommands {
                         return CommandUtils.runProcess(JLAB_SUB_CMD, jobFile.toString());
                     } catch (IOException e) {
                         writer.println("Error: could not set job:  " + e.getMessage());
+                        return EXIT_ERROR;
                     }
                 }
                 writer.println("Error: can not run farm job from this node = " + getHost());
@@ -165,6 +166,7 @@ final class FarmCommands {
                         return CommandUtils.runProcess(PBS_SUB_CMD, jobFile.toString());
                     } catch (IOException e) {
                         writer.println("Error: could not set job:  " + e.getMessage());
+                        return EXIT_ERROR;
                     }
                 }
                 writer.println("Error: can not run farm job from this node = " + getHost());

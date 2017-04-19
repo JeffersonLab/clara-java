@@ -77,7 +77,7 @@ class SetCommand extends BaseCommand {
                     action.accept(args);
                     return EXIT_SUCCESS;
                 } catch (Exception e) {
-                    terminal.writer().printf("could not set variable: %s%n", e.getMessage());
+                    terminal.writer().printf("Error: %s%n", e.getMessage());
                     return EXIT_ERROR;
                 }
             }
@@ -105,7 +105,7 @@ class SetCommand extends BaseCommand {
                         config.setValue(Config.INPUT_DIR, path.toString());
                         config.setValue(Config.FILES_LIST, output.getAbsolutePath());
                     } else {
-                        System.out.println("Error: empty directory");
+                        throw new IllegalArgumentException("empty input directory");
                     }
                 } else if (Files.isRegularFile(path)) {
                     printer.println(path.getFileName());
@@ -121,10 +121,10 @@ class SetCommand extends BaseCommand {
                         config.setValue(Config.INPUT_DIR, FileUtils.getParent(path).toString());
                         config.setValue(Config.FILES_LIST, output.getAbsolutePath());
                     } else {
-                        System.out.println("Error: no files matched");
+                        throw new IllegalArgumentException("no files matched");
                     }
                 } else {
-                    System.out.println("Error: invalid path");
+                    throw new IllegalArgumentException("invalid path");
                 }
             }
         } catch (IOException e) {

@@ -38,6 +38,7 @@ import java.util.stream.IntStream;
 import org.jlab.clara.base.ClaraLang;
 import org.jlab.clara.base.ClaraUtil;
 import org.jlab.clara.base.DpeName;
+import org.jlab.clara.std.orchestrators.OrchestratorConfigError;
 import org.jlab.clara.std.orchestrators.OrchestratorConfigParser;
 import org.jline.terminal.Terminal;
 
@@ -84,6 +85,9 @@ class RunCommand extends BaseCommand {
                     Thread.currentThread().interrupt();
                 }
                 return exitStatus;
+            } catch (OrchestratorConfigError e) {
+                terminal.writer().println("Error: " + e.getMessage());
+                return EXIT_ERROR;
             } catch (Exception e) {
                 e.printStackTrace();
                 return EXIT_ERROR;

@@ -50,7 +50,7 @@ class SaveCommand extends AbstractCommand {
     @Override
     public int execute(String[] args) {
         if (args.length < 1) {
-            terminal.writer().println("Missing filename argument");
+            terminal.writer().println("Error: missing filename argument");
             return EXIT_ERROR;
         }
         Path path = Paths.get(FileUtils.expandHome(args[0]));
@@ -97,10 +97,10 @@ class SaveCommand extends AbstractCommand {
                 }
             }
         } catch (IOException e) {
-            terminal.writer().println("Could not create file: " + path);
+            terminal.writer().printf("Error: could not write file: %s: %s%n", path, e.getMessage());
             return EXIT_ERROR;
         }
-        terminal.writer().println("Config saved in " + path.toFile().getAbsolutePath());
+        terminal.writer().println("Config saved in " + path);
         return EXIT_SUCCESS;
     }
 

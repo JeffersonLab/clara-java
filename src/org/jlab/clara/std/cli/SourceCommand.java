@@ -22,14 +22,12 @@
 
 package org.jlab.clara.std.cli;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -55,30 +53,29 @@ class SourceCommand extends AbstractCommand {
     @Override
     public int execute(String[] args) {
         if (args.length < 1) {
-            terminal.writer().println("Missing filename argument");
+            terminal.writer().println("Error: missing filename argument");
             return EXIT_ERROR;
         }
         Path path = Paths.get(FileUtils.expandHome(args[0]));
-        for (String line : readLines(path)) {
-            terminal.writer().println(line);
-            commandRunner.execute(line);
+        try {
+            for (String line : readLines(path)) {
+                terminal.writer().println(line);
+                commandRunner.execute(line);
+            }
+        } catch (NoSuchFileException e) {
+            System.out.println("Error: missing file " + e.getMessage());
+        } catch (IOException e) {
+            System.out.println("Error: could not read source file " + e.getMessage());
         }
         return EXIT_SUCCESS;
     }
 
-    private static List<String> readLines(Path sourceFile) {
-        try {
-            Pattern pattern = Pattern.compile("^\\s*#.*$");
-            return Files.lines(sourceFile)
-                        .filter(line -> !line.isEmpty())
-                        .filter(line -> !pattern.matcher(line).matches())
-                        .collect(Collectors.toList());
-        } catch (FileNotFoundException | NoSuchFileException e) {
-            System.out.println("Error: invalid file " + e.getMessage());
-        } catch (IOException e) {
-            System.out.println("Error: could not read source file " + e.getMessage());
-        }
-        return new ArrayList<>();
+    private static List<String> readLines(Path sourceFile) throws IOException {
+        Pattern pattern = Pattern.compile("^\\s*#.*$");
+        return Files.lines(sourceFile)
+                    .filter(line -> !line.isEmpty())
+                    .filter(line -> !pattern.matcher(line).matches())
+                    .collect(Collectors.toList());
     }
 
     @Override
