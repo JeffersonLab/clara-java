@@ -33,7 +33,7 @@ case $OS in
   fi
 
     wget https://userweb.jlab.org/~gurjyan/clara-cre/clara-cre.tar.gz
-    wget https://github.com/JeffersonLab/clas12-offline-software/releases/download/"$PLUGIN"/coatjava.tar.gz
+    wget --no-check-certificate https://github.com/JeffersonLab/clas12-offline-software/releases/download/"$PLUGIN"/coatjava.tar.gz
 
 
     MACHINE_TYPE=`uname -m`
