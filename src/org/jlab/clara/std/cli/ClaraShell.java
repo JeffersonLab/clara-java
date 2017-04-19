@@ -62,15 +62,25 @@ public final class ClaraShell implements AutoCloseable {
     private final LineReader reader;
     private final History history;
 
+    private final boolean interactive;
+    private final Path script;
+
     private final Thread interactiveThread;
     private volatile boolean running;
 
 
     public static void main(String[] args) {
         ClaraShell.Builder builder = ClaraShell.newBuilder();
+        if (args.length == 1) {
+            builder.withScript(Paths.get(args[0]));
+        } else if (args.length > 1) {
+            System.err.println("usage: clara-shell [ <script> ]");
+            System.exit(1);
+        }
         if (FarmCommands.hasPlugin()) {
             FarmCommands.register(builder);
         }
+
         ClaraShell shell = builder.build();
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
@@ -103,6 +113,9 @@ public final class ClaraShell implements AutoCloseable {
         private final List<CommandFactory> editSubCommands = new ArrayList<>();
 
         private final List<CommandFactory> userCommands = new ArrayList<>();
+
+        private Path script = null;
+        private boolean interactive = true;
 
         /**
          * Creates a new builder.
@@ -253,6 +266,19 @@ public final class ClaraShell implements AutoCloseable {
         }
 
         /**
+         * Sets the script to be executed by the shell in non-interactive mode.
+         *
+         * @param script the script with commands to be executed by the shell
+         * @return this builder
+         */
+        public Builder withScript(Path script) {
+            ArgUtils.requireNonNull(script, "script");
+            this.script = script;
+            this.interactive = false;
+            return this;
+        }
+
+        /**
          * Creates the user-interactive CLARA shell instance.
          *
          * @return the created shell
@@ -266,9 +292,11 @@ public final class ClaraShell implements AutoCloseable {
     private ClaraShell(Builder builder) {
         terminal = builder.terminal;
         config = builder.config;
+
         commands = new LinkedHashMap<>();
         commandRunner = new CommandRunner(terminal, commands);
         initCommands(builder);
+
         reader = LineReaderBuilder.builder()
                 .completer(initCompleter())
                 .parser(commandRunner.getParser())
@@ -276,6 +304,9 @@ public final class ClaraShell implements AutoCloseable {
                 .build();
         history = new DefaultHistory(reader);
         loadHistory();
+
+        script = builder.script;
+        interactive = builder.interactive;
         interactiveThread = new Thread(() -> internalRun());
     }
 
@@ -345,13 +376,29 @@ public final class ClaraShell implements AutoCloseable {
 
     /**
      * Runs the shell accepting user commands.
+     * If a script file is set, then the shell will process the commands in the
+     * script in non-interactive mode and exit. Otherwise, an interactive
+     * session will be started.
      */
     public void run() {
-        interactiveThread.start();
+        if (interactive) {
+            printWelcomeMessage(terminal.writer());
+        }
+        if (script !=  null) {
+            try {
+                String[] args = new String[] {"-q", script.toString()};
+                Command sourceCmd = commands.get("source");
+                sourceCmd.execute(args);
+            } finally {
+                terminal.writer().flush();
+            }
+        }
+        if (interactive) {
+            interactiveThread.start();
+        }
     }
 
     private void internalRun() {
-        printWelcomeMessage(terminal.writer());
         running = true;
         while (running) {
             try {
