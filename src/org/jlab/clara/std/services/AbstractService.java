@@ -25,11 +25,11 @@ package org.jlab.clara.std.services;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.jlab.clara.base.logging.Logger;
-import org.jlab.clara.base.logging.LoggerFactory;
 import org.jlab.clara.engine.Engine;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.EngineSpecification;
+import org.jlab.clara.util.logging.Logger;
+import org.jlab.clara.util.logging.LoggerFactory;
 
 /**
  * An abstract writer service that writes all received events into the
@@ -41,7 +41,7 @@ public abstract class AbstractService implements Engine {
     private final EngineSpecification info = new EngineSpecification(this.getClass());
 
     /** This service logger. */
-    protected final Logger logger = new LoggerFactory().getLogger(info.name());
+    final Logger logger = new LoggerFactory().getLogger(info.name());
 
 
     @Override

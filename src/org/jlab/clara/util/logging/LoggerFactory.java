@@ -20,7 +20,7 @@
  *   Department of Experimental Nuclear Physics, Jefferson Lab.
  */
 
-package org.jlab.clara.base.logging;
+package org.jlab.clara.util.logging;
 
 public class LoggerFactory {
 

@@ -23,7 +23,7 @@
  *
  */
 
-package org.jlab.clara.base.logging;
+package org.jlab.clara.util.logging;
 
 import java.text.MessageFormat;
 import java.util.HashMap;

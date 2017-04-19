@@ -1,4 +1,4 @@
-package org.jlab.clara.base.logging;
+package org.jlab.clara.util.logging;
 
 import java.io.PrintStream;
 

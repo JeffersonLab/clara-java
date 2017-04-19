@@ -45,7 +45,9 @@
  *
  */
 
-package org.jlab.clara.base.logging;
+package org.jlab.clara.util.logging;
+
+import org.jlab.clara.util.logging.OutputChoice.OutputChoiceType;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -57,8 +59,6 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Properties;
-
-import org.jlab.clara.base.logging.OutputChoice.OutputChoiceType;
 
 /**
  * <p>Simple implementation of {@link Logger} that sends all enabled log messages,

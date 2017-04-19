@@ -45,7 +45,7 @@
  *
  */
 
-package org.jlab.clara.base.logging;
+package org.jlab.clara.util.logging;
 
 /**
  * A logger interface for CLARA components.
