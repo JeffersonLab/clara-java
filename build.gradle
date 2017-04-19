@@ -78,6 +78,7 @@ javadoc {
 
     include "org/jlab/clara/base/**"
     include "org/jlab/clara/engine/**"
+    include "org/jlab/clara/std/**"
     include "org/jlab/clara/sys/**"
     exclude "org/jlab/clara/base/core/**"
     exclude "org/jlab/clara/sys/ccc/**"
