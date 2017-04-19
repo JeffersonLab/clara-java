@@ -81,10 +81,10 @@ public class EngineSpecification {
      * package std.services.Simple;
      *
      * class Simple extends JService {
-     *     private CServiceSpecification info;
+     *     private EngineSpecification info;
      *
      *     public Simple() {
-     *         this.info = new CServiceSpecification(this.getClass());
+     *         this.info = new EngineSpecification(this.getClass());
      *     }
      *
      *     ...
@@ -111,7 +111,7 @@ public class EngineSpecification {
      * <p>
      * Example:
      * <pre>
-     *     new CServiceSpecification("std.services.convertors.EvioToEvioReader")
+     *     new EngineSpecification("std.services.convertors.EvioToEvioReader")
      * </pre>
      * will search for the file
      * <code>std/services/convertors/EvioToEvioReader.yaml</code> in the CLASSPATH.

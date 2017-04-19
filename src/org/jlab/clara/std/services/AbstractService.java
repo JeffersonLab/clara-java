@@ -32,8 +32,9 @@ import org.jlab.clara.util.logging.Logger;
 import org.jlab.clara.util.logging.LoggerFactory;
 
 /**
- * An abstract writer service that writes all received events into the
- * configured output file.
+ * An base class for service engines that obtains the service information from a
+ * YAML file. This service specification file should be a resource named as the
+ * concrete service class.
  */
 public abstract class AbstractService implements Engine {
 

@@ -71,7 +71,8 @@ public class DataManager implements Engine {
     }
 
     /**
-     * Configuration data from an orchestrator should contain the following parameters:
+     * Configures the engine with the given input data.
+     * The data should contain the following parameters:
      * <ol>
      * <li> {@code input_path}: path to the location of the input-data files.</li>
      * <li> {@code output_path}: destination path of the output-data file.</li>
@@ -79,6 +80,7 @@ public class DataManager implements Engine {
      *      that is also used by the orchestrator to configure RW services.</li>
      * </ol>
      * @param input JSON text containing the configuration parameters
+     * @return paths or error
      */
     @Override
     public EngineData configure(EngineData input) {
@@ -122,6 +124,7 @@ public class DataManager implements Engine {
     }
 
     /**
+     * Executes the engine with the given input data.
      * Accepts a JSON text with an action and an input file name.
      *
      * Current version assumes that there is a CLAS12 convention

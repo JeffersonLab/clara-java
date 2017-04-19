@@ -32,8 +32,9 @@ import org.yaml.snakeyaml.Yaml;
  * Currently, the user can set:
  * <ul>
  * <li>A default container name and language for the services
- * <li>The set of I/O services
- * <li>The list of processing services
+ * <li>The set of I/O services (required)
+ * <li>The list of processing services (required)
+ * <li>The list of mime-types used by the services (required)
  * <li>The global configuration for all services
  * </ul>
  *
@@ -57,6 +58,8 @@ import org.yaml.snakeyaml.Yaml;
  *   - class: service_c
  *     name: ServiceC
  *     lang: cpp # a C++ service
+ * mime-types:
+ *   - binary/data-hipo
  * config:
  *   param1: "some_string"
  *   param2:
