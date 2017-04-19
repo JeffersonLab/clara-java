@@ -77,7 +77,7 @@ class SetCommand extends BaseCommand {
                     action.accept(args);
                     return EXIT_SUCCESS;
                 } catch (Exception e) {
-                    terminal.writer().printf("Error: %s%n", e.getMessage());
+                    writer.printf("Error: %s%n", e.getMessage());
                     return EXIT_ERROR;
                 }
             }

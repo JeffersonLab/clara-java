@@ -52,6 +52,11 @@ public abstract class AbstractCommand implements Command {
      */
     protected final Terminal terminal;
 
+    /**
+     * The text-output stream of the terminal.
+     */
+    protected final PrintWriter writer;
+
 
     static CommandFactory wrap(String name, String description, String... command) {
         return (terminal, config) -> {
@@ -76,6 +81,7 @@ public abstract class AbstractCommand implements Command {
         this.name = name;
         this.description = description;
         this.terminal = terminal;
+        this.writer = terminal.writer();
     }
 
     @Override

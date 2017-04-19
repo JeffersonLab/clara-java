@@ -39,27 +39,27 @@ class HelpCommand extends BaseCommand {
     @Override
     public int execute(String[] args) {
         if (args.length < 1) {
-            terminal.writer().println("Commands:\n");
+            writer.println("Commands:\n");
             subCommands.values().stream()
                        .map(Command::getName)
                        .forEach(this::printCommand);
-            terminal.writer().println("\nUse help <command> for details about each command.");
+            writer.println("\nUse help <command> for details about each command.");
             return EXIT_SUCCESS;
         }
 
         Command command = commands.get(args[0]);
         if (command == null) {
-            terminal.writer().println("Invalid command name.");
+            writer.println("Invalid command name.");
             return EXIT_ERROR;
         }
-        command.printHelp(terminal.writer());
+        command.printHelp(writer);
         return EXIT_SUCCESS;
     }
 
     private void printCommand(String name) {
         Command command = commands.get(name);
-        terminal.writer().printf("   %-14s", command.getName());
-        terminal.writer().printf("%s\n", command.getDescription());
+        writer.printf("   %-14s", command.getName());
+        writer.printf("%s\n", command.getDescription());
     }
 
     private void addCommands() {

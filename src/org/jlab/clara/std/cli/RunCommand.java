@@ -86,7 +86,7 @@ class RunCommand extends BaseCommand {
                 }
                 return exitStatus;
             } catch (OrchestratorConfigError e) {
-                terminal.writer().println("Error: " + e.getMessage());
+                writer.println("Error: " + e.getMessage());
                 return EXIT_ERROR;
             } catch (Exception e) {
                 e.printStackTrace();

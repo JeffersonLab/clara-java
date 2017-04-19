@@ -53,13 +53,13 @@ class SourceCommand extends AbstractCommand {
     @Override
     public int execute(String[] args) {
         if (args.length < 1) {
-            terminal.writer().println("Error: missing filename argument");
+            writer.println("Error: missing filename argument");
             return EXIT_ERROR;
         }
         Path path = Paths.get(FileUtils.expandHome(args[0]));
         try {
             for (String line : readLines(path)) {
-                terminal.writer().println(line);
+                writer.println(line);
                 commandRunner.execute(line);
             }
         } catch (NoSuchFileException e) {

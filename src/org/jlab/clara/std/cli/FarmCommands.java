@@ -167,7 +167,6 @@ final class FarmCommands {
 
         @Override
         public int execute(String[] args) {
-            PrintWriter writer = terminal.writer();
             String system = config.getValue(FARM_SYSTEM).toString();
             if (system.equals(JLAB_SYSTEM)) {
                 if (CommandUtils.checkProgram(JLAB_SUB_CMD)) {
@@ -346,7 +345,6 @@ final class FarmCommands {
 
         @Override
         public int execute(String[] args) {
-            PrintWriter writer = terminal.writer();
             String system = config.getValue(FARM_SYSTEM).toString();
             if (system.equals(JLAB_SYSTEM)) {
                 if (CommandUtils.checkProgram(JLAB_STAT_CMD)) {
@@ -376,7 +374,6 @@ final class FarmCommands {
 
         @Override
         public int execute(String[] args) {
-            PrintWriter writer = terminal.writer();
             String system = config.getValue(FARM_SYSTEM).toString();
             if (system.equals(JLAB_SYSTEM)) {
                 return showFile(getJobScript(JLAB_SUB_EXT));

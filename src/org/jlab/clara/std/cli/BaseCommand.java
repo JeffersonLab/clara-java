@@ -64,20 +64,20 @@ public abstract class BaseCommand extends AbstractCommand {
     @Override
     public int execute(String[] args) {
         if (args.length < 1) {
-            terminal.writer().println("Error: missing argument(s).");
+            writer.println("Error: missing argument(s).");
             return EXIT_ERROR;
         }
         String subCommandName = args[0];
         Command subCommand = subCommands.get(subCommandName);
         if (subCommand == null) {
-            terminal.writer().println("Error: unknown argument " + subCommandName);
+            writer.println("Error: unknown argument " + subCommandName);
             return EXIT_ERROR;
         }
         try {
             String[] cmdArgs = Arrays.copyOfRange(args, 1, args.length);
             return subCommand.execute(cmdArgs);
         } catch (IllegalArgumentException e) {
-            terminal.writer().println("Error: " + e.getMessage());
+            writer.println("Error: " + e.getMessage());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -160,7 +160,7 @@ public abstract class BaseCommand extends AbstractCommand {
             try {
                 subCommand.close();
             } catch (Exception e) {
-                terminal.writer().println(e.getMessage());
+                writer.println(e.getMessage());
             }
         }
     }

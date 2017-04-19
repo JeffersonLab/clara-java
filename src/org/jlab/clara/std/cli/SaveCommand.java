@@ -50,14 +50,14 @@ class SaveCommand extends AbstractCommand {
     @Override
     public int execute(String[] args) {
         if (args.length < 1) {
-            terminal.writer().println("Error: missing filename argument");
+            writer.println("Error: missing filename argument");
             return EXIT_ERROR;
         }
         Path path = Paths.get(FileUtils.expandHome(args[0]));
         if (Files.exists(path)) {
             boolean overwrite = scanAnswer();
             if (!overwrite) {
-                terminal.writer().println("The config was not saved");
+                writer.println("The config was not saved");
                 return EXIT_SUCCESS;
             }
         }
@@ -97,10 +97,10 @@ class SaveCommand extends AbstractCommand {
                 }
             }
         } catch (IOException e) {
-            terminal.writer().printf("Error: could not write file: %s: %s%n", path, e.getMessage());
+            writer.printf("Error: could not write file: %s: %s%n", path, e.getMessage());
             return EXIT_ERROR;
         }
-        terminal.writer().println("Config saved in " + path);
+        writer.println("Config saved in " + path);
         return EXIT_SUCCESS;
     }
 
