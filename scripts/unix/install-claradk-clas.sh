@@ -16,7 +16,8 @@ mkdir $CLARA_HOME/plugins
 mkdir $CLARA_HOME/plugins/clas12
 mkdir $CLARA_HOME/plugins/clas12/config
 
-PLUGIN=coatjava-4a.3.0
+PLUGIN=4a.4.0
+
 while :
 do
     case "$1" in
@@ -85,7 +86,9 @@ case $OS in
 #    OS='Windows'
 #    ;;
   'Darwin')
- curl "http://clasweb.jlab.org/clas12offline/distribution/coatjava/"$PLUGIN".tar.gz" -o "$PLUGIN".tar.gz
+# curl "http://clasweb.jlab.org/clas12offline/distribution/coatjava/"$PLUGIN".tar.gz" -o "$PLUGIN".tar.gz
+ curl -sL "https://github.com/JeffersonLab/clas12-offline-software/releases/download/"$PLUGIN"/coatjava.tar.gz" -o "$PLUGIN".tar.gz
+
  curl "https://userweb.jlab.org/~gurjyan/clara-cre/macosx-64.tar.gz" -o macosx-64.tar.gz
     mv macosx-64.tar.gz $CLARA_HOME/jre
     ;;

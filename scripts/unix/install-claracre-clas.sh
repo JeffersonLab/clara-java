@@ -10,7 +10,7 @@ fi
 
 rm -rf $CLARA_HOME
 
-PLUGIN=coatjava-4a.3.0
+PLUGIN=4a.4.0
 
     case "$1" in
       -u | --update)
@@ -54,7 +54,8 @@ case $OS in
     fi
 
  curl "https://userweb.jlab.org/~gurjyan/clara-cre/clara-cre.tar.gz" -o clara-cre.tar.gz
- curl "http://clasweb.jlab.org/clas12offline/distribution/coatjava/"$PLUGIN".tar.gz" -o "$PLUGIN".tar.gz
+ curl -sL "https://github.com/JeffersonLab/clas12-offline-software/releases/download/"$PLUGIN"/coatjava.tar.gz" -o "$PLUGIN".tar.gz
+# curl "http://clasweb.jlab.org/clas12offline/distribution/coatjava/"$PLUGIN".tar.gz" -o "$PLUGIN".tar.gz
 
  curl "https://userweb.jlab.org/~gurjyan/clara-cre/macosx-64.tar.gz" -o macosx-64.tar.gz
     ;;
