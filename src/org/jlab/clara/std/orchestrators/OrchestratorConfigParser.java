@@ -1,6 +1,7 @@
 package org.jlab.clara.std.orchestrators;
 
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.UncheckedIOException;
@@ -86,6 +87,8 @@ public class OrchestratorConfigParser {
             @SuppressWarnings("unchecked")
             Map<String, Object> config = (Map<String, Object>) yaml.load(input);
             this.config = new JSONObject(config);
+        } catch (FileNotFoundException e) {
+            throw error("missing configuration file " + configFilePath);
         } catch (IOException e) {
             throw error(e);
         }
