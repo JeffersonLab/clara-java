@@ -62,12 +62,14 @@ class SourceCommand extends AbstractCommand {
                 writer.println(line);
                 commandRunner.execute(line);
             }
+            return EXIT_SUCCESS;
         } catch (NoSuchFileException e) {
-            System.out.println("Error: missing file " + e.getMessage());
+            writer.println("Error: no file " + path);
+            return EXIT_ERROR;
         } catch (IOException e) {
-            System.out.println("Error: could not read source file " + e.getMessage());
+            writer.println("Error: could not read source file " + e.getMessage());
+            return EXIT_ERROR;
         }
-        return EXIT_SUCCESS;
     }
 
     private static List<String> readLines(Path sourceFile) throws IOException {
