@@ -33,7 +33,7 @@ case $OS in
   fi
 
     wget https://userweb.jlab.org/~gurjyan/clara-cre/clara-cre.tar.gz
-    wget http://clasweb.jlab.org/clas12offline/distribution/coatjava/"$PLUGIN".tar.gz
+    wget https://github.com/JeffersonLab/clas12-offline-software/releases/download/"$PLUGIN"/coatjava.tar.gz
 
 
     MACHINE_TYPE=`uname -m`
@@ -54,7 +54,7 @@ case $OS in
     fi
 
  curl "https://userweb.jlab.org/~gurjyan/clara-cre/clara-cre.tar.gz" -o clara-cre.tar.gz
- curl -sL "https://github.com/JeffersonLab/clas12-offline-software/releases/download/"$PLUGIN"/coatjava.tar.gz" -o "$PLUGIN".tar.gz
+ curl -sL "https://github.com/JeffersonLab/clas12-offline-software/releases/download/"$PLUGIN"/coatjava.tar.gz" -o coatjava.tar.gz
 # curl "http://clasweb.jlab.org/clas12offline/distribution/coatjava/"$PLUGIN".tar.gz" -o "$PLUGIN".tar.gz
 
  curl "https://userweb.jlab.org/~gurjyan/clara-cre/macosx-64.tar.gz" -o macosx-64.tar.gz
@@ -69,7 +69,7 @@ esac
     mkdir jre
     cd jre
     mv ../../*.tar.* .
-    mv "$PLUGIN".tar.gz ../../.
+    mv coatjava.tar.gz ../../.
 
 
 
@@ -81,7 +81,7 @@ cd ../..
 
 mv clara-cre $CLARA_HOME
 
-tar xvzf "$PLUGIN".tar.gz
+tar xvzf coatjava.tar.gz
 
 
 cd coatjava
@@ -109,7 +109,7 @@ rm -rf $CLARA_HOME/plugins/clas12/etc/services
 
 cd ..
 rm -rf coatjava
-rm "$PLUGIN".tar.gz
+rm coatjava.tar.gz
 
 chmod a+x $CLARA_HOME/bin/*
 chmod a+x $CLARA_HOME/bin/etc/*
