@@ -52,14 +52,30 @@ class SourceCommand extends AbstractCommand {
 
     @Override
     public int execute(String[] args) {
-        if (args.length < 1) {
+        boolean verbose = true;
+        String sourceFile;
+
+        if (args.length == 1) {
+            sourceFile = args[0];
+        } else if (args.length == 2) {
+            if (args[0].equals("-q")) {
+                verbose = false;
+            } else {
+                writer.println("Error: invalid number of arguments");
+                return EXIT_ERROR;
+            }
+            sourceFile = args[1];
+        } else {
             writer.println("Error: missing filename argument");
             return EXIT_ERROR;
         }
-        Path path = Paths.get(FileUtils.expandHome(args[0]));
+
+        Path path = Paths.get(FileUtils.expandHome(sourceFile));
         try {
             for (String line : readLines(path)) {
-                writer.println(line);
+                if (verbose) {
+                    writer.println(line);
+                }
                 commandRunner.execute(line);
             }
             return EXIT_SUCCESS;
