@@ -12,8 +12,16 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.function.BiFunction;
+import java.util.function.Function;
+
+import freemarker.template.Configuration;
+import freemarker.template.Template;
+import freemarker.template.TemplateException;
+import freemarker.template.TemplateExceptionHandler;
 
 final class FarmCommands {
 
@@ -46,10 +54,25 @@ final class FarmCommands {
     private static final String JLAB_STAT_CMD = "jobstat";
     private static final String PBS_STAT_CMD = "qstat";
 
+    private static final Configuration FTL_CONFIG = new Configuration(Configuration.VERSION_2_3_25);
+
     static final Path PLUGIN = Paths.get(Config.claraHome(), "plugins", "clas12");
 
 
     private FarmCommands() { }
+
+    private  static void configTemplates() {
+        Path tplDir = getTemplatesDir();
+        try {
+            FTL_CONFIG.setDirectoryForTemplateLoading(tplDir.toFile());
+            FTL_CONFIG.setDefaultEncoding("UTF-8");
+            FTL_CONFIG.setNumberFormat("computer");
+            FTL_CONFIG.setTemplateExceptionHandler(TemplateExceptionHandler.RETHROW_HANDLER);
+            FTL_CONFIG.setLogTemplateExceptions(false);
+        } catch (IOException e) {
+            throw new IllegalStateException("Missing CLAS12 templates directory: " + tplDir);
+        }
+    }
 
     private static void clasVariables(ClaraShell.Builder builder) {
         builder.withConfigVariable(Config.SERVICES_FILE, defaultConfigFile());
@@ -110,6 +133,7 @@ final class FarmCommands {
     }
 
     static void register(ClaraShell.Builder builder) {
+        configTemplates();
         clasVariables(builder);
         farmVariables(builder);
 
@@ -153,6 +177,10 @@ final class FarmCommands {
                     } catch (IOException e) {
                         writer.println("Error: could not set job:  " + e.getMessage());
                         return EXIT_ERROR;
+                    } catch (TemplateException e) {
+                        String error = e.getMessageWithoutStackTop();
+                        writer.println("Error: could not set job: " + error);
+                        return EXIT_ERROR;
                     }
                 }
                 writer.println("Error: can not run farm job from this node = " + getHost());
@@ -166,6 +194,10 @@ final class FarmCommands {
                         return CommandUtils.runProcess(PBS_SUB_CMD, jobFile.toString());
                     } catch (IOException e) {
                         writer.println("Error: could not set job:  " + e.getMessage());
+                        return EXIT_ERROR;
+                    } catch (TemplateException e) {
+                        String error = e.getMessageWithoutStackTop();
+                        writer.println("Error: could not set job: " + error);
                         return EXIT_ERROR;
                     }
                 }
@@ -211,72 +243,77 @@ final class FarmCommands {
             return cmd.toString();
         }
 
-        private Path createClaraScript() throws IOException {
+        private Path createClaraScript(Model model) throws IOException, TemplateException {
             Path wrapper = getJobScript(".sh");
             try (PrintWriter printer = FileUtils.openOutputTextFile(wrapper, false)) {
-                printer.printf("#!/bin/bash%n");
-                printer.println();
-                printer.printf("export MALLOC_ARENA_MAX=2%n");
-                printer.printf("export MALLOC_MMAP_THRESHOLD_=131072%n");
-                printer.printf("export MALLOC_TRIM_THRESHOLD_=131072%n");
-                printer.printf("export MALLOC_TOP_PAD_=131072%n");
-                printer.printf("export MALLOC_MMAP_MAX_=65536%n");
-                printer.printf("export MALLOC_MMAP_MAX_=65536%n");
-                printer.println();
-                printer.printf("export CLARA_HOME=\"%s\"%n", Config.claraHome());
-                printer.printf("export CLAS12DIR=\"%s\"%n", PLUGIN);
-                printer.println();
-                printer.printf("\"%s%s\"%n", Config.claraHome(), "/bin/remove-dpe");
-                printer.println();
-                printer.println("sleep $[ ( $RANDOM % 20 )  + 1 ]s");
-                printer.println();
-                printer.println(getClaraCommand());
+                processTemplate("farm-script.ftl", model, printer);
+                model.put("farm", "script", wrapper);
             }
             wrapper.toFile().setExecutable(true);
+
             return wrapper;
         }
 
-        private Path createJLabScript() throws IOException {
+        private Path createJLabScript() throws IOException, TemplateException {
+            Model model = createDataModel();
+            createClaraScript(model);
+
             Path jobFile = getJobScript(JLAB_SUB_EXT);
-            Path wrapper = createClaraScript();
             try (PrintWriter printer = FileUtils.openOutputTextFile(jobFile, false)) {
-                printer.printf("PROJECT: clas12%n");
-                printer.printf("JOBNAME: rec-%s-%s%n",
-                        Config.user(), config.getValue(Config.DESCRIPTION));
-                printer.printf("MEMORY: %s GB%n", config.getValue(FARM_MEMORY));
-                printer.printf("TRACK: %s%n", config.getValue(FARM_TRACK));
-                printer.printf("OS: %s%n", config.getValue(FARM_OS));
-                printer.printf("CPU: %s%n", config.getValue(FARM_CPU));
-                printer.printf("DISK_SPACE: %s GB%n", config.getValue(FARM_DISK));
-                printer.printf("TIME: %s%n", config.getValue(FARM_TIME));
-                printer.printf("COMMAND: %s%n", wrapper);
+                processTemplate("farm-jlab.ftl", model, printer);
             }
             return jobFile;
         }
 
-        private Path createPbsScript() throws IOException {
-            Path jobFile = getJobScript(PBS_SUB_EXT);
-            Path wrapper = createClaraScript();
+        private Path createPbsScript() throws IOException, TemplateException {
+            Model model = createDataModel();
+            createClaraScript(model);
 
             int diskKb = (int) config.getValue(FARM_DISK) * 1024 * 1024;
             int time = (int) config.getValue(FARM_TIME);
             String walltime = String.format("%d:%02d:00", time / 60, time % 60);
 
+            model.put("farm", "disk", diskKb);
+            model.put("farm", "time", walltime);
+
+            Path jobFile = getJobScript(PBS_SUB_EXT);
             try (PrintWriter printer = FileUtils.openOutputTextFile(jobFile, false)) {
-                printer.printf("#!/bin/csh%n");
-                printer.println();
-                printer.printf("#PBS -N rec-%s-%s%n",
-                        Config.user(), config.getValue(Config.DESCRIPTION));
-                printer.printf("#PBS -A clas12%n");
-                printer.printf("#PBS -S /bin/csh%n");
-                printer.printf("#PBS -l nodes=1:ppn=%s%n", config.getValue(FARM_CPU));
-                printer.printf("#PBS -l file=%dkb%n", diskKb);
-                printer.printf("#PBS -l walltime=%s%n", walltime);
-                printer.println();
-                printer.printf("\"%s\"%n", wrapper);
+                processTemplate("farm-pbs.ftl", model, printer);
             }
 
             return jobFile;
+        }
+
+        private Model createDataModel() {
+            Model model = new Model();
+
+            // set core variables
+            model.put("user", Config.user());
+            model.put("clara", "dir", Config.claraHome());
+            model.put("clas12", "dir", PLUGIN);
+
+            // set shell variables
+            config.getVariables().stream()
+                .filter(v -> !v.getName().startsWith("farm."))
+                .filter(v -> v.hasValue())
+                .forEach(v -> model.put(v.getName(), v.getValue()));
+
+            // set farm variables
+            config.getVariables().stream()
+                .filter(v -> v.getName().startsWith("farm."))
+                .filter(v -> v.hasValue())
+                .forEach(v -> model.put("farm", v.getName().replace("farm.", ""), v.getValue()));
+
+            // set farm command
+            model.put("farm", "command", getClaraCommand());
+
+            return model;
+        }
+
+        private void processTemplate(String name, Model model, PrintWriter printer)
+                throws IOException, TemplateException  {
+            Template template = FTL_CONFIG.getTemplate(name);
+            template.process(model.getRoot(), printer);
         }
 
         private String getJVMOptions() {
@@ -354,6 +391,40 @@ final class FarmCommands {
         private int showFile(Path subFile) {
             return RunUtils.printFile(terminal, subFile);
         }
+    }
+
+
+    private static class Model {
+
+        private static final Function<String, Object> FN = k -> new HashMap<String, Object>();
+
+        private final Map<String, Object> model = new HashMap<>();
+
+        void put(String key, Object value) {
+            getRoot().put(key, value);
+        }
+
+        void put(String node, String key, Object value) {
+            getNode(node).put(key, value);
+        }
+
+        Map<String, Object> getRoot() {
+            return model;
+        }
+
+        @SuppressWarnings("unchecked")
+        Map<String, Object> getNode(String key) {
+            return (Map<String, Object>) model.computeIfAbsent(key, FN);
+        }
+    }
+
+
+    private static Path getTemplatesDir() {
+        String devDir = System.getenv("CLARA_TEMPLATES_DIR");
+        if (devDir != null) {
+            return Paths.get(devDir);
+        }
+        return Paths.get(Config.claraHome(), "lib", "clara", "templates");
     }
 
 
