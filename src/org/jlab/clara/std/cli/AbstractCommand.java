@@ -100,8 +100,8 @@ public abstract class AbstractCommand implements Command {
     }
 
     @Override
-    public void printHelp(PrintWriter writer) {
-        writer.println(getDescription());
+    public void printHelp(PrintWriter printer) {
+        printer.println(getDescription());
     }
 
     @Override

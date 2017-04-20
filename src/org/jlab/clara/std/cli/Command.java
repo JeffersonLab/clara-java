@@ -59,7 +59,7 @@ public interface Command extends AutoCloseable {
     /**
      * Prints a detailed description of what the command does.
      *
-     * @param writer where to print the help text
+     * @param printer where to print the help text
      */
-    void printHelp(PrintWriter writer);
+    void printHelp(PrintWriter printer);
 }

@@ -147,10 +147,10 @@ public abstract class BaseCommand extends AbstractCommand {
     }
 
     @Override
-    public void printHelp(PrintWriter writer) {
+    public void printHelp(PrintWriter printer) {
         for (Command cmd: subCommands.values()) {
-            writer.printf("%n  %s %s%n", name, cmd.getName());
-            writer.printf("%s%n", ClaraUtil.splitIntoLines(cmd.getDescription(), "    ", 72));
+            printer.printf("%n  %s %s%n", name, cmd.getName());
+            printer.printf("%s%n", ClaraUtil.splitIntoLines(cmd.getDescription(), "    ", 72));
         }
     }
 

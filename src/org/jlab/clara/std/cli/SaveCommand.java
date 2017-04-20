@@ -112,8 +112,8 @@ class SaveCommand extends AbstractCommand {
     }
 
     @Override
-    public void printHelp(PrintWriter writer) {
-        writer.printf("%n  save <file_path>%n");
-        writer.printf("%s.%n", ClaraUtil.splitIntoLines(description, "    ", 72));
+    public void printHelp(PrintWriter printer) {
+        printer.printf("%n  save <file_path>%n");
+        printer.printf("%s.%n", ClaraUtil.splitIntoLines(description, "    ", 72));
     }
 }
