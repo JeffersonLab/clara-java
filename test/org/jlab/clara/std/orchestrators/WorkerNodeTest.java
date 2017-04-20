@@ -2,6 +2,8 @@ package org.jlab.clara.std.orchestrators;
 
 import org.jlab.clara.base.DpeName;
 import org.jlab.clara.base.ServiceName;
+import org.jlab.clara.engine.EngineData;
+import org.jlab.clara.engine.EngineDataType;
 import org.json.JSONObject;
 import org.junit.Before;
 import org.junit.Test;
@@ -24,6 +26,7 @@ import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class WorkerNodeTest {
@@ -208,18 +211,74 @@ public class WorkerNodeTest {
 
 
     @Test
+    public void sendIOConfiguration() throws Exception {
+        node = new WorkerNode(orchestrator, MultiLangData.application());
+
+        // mock call
+        EngineData events = new EngineData();
+        events.setData(EngineDataType.SINT32, 1200);
+
+        EngineData order = new EngineData();
+        order.setData("returned_reader_order");
+
+        when(orchestrator.syncSend(any(), any(String.class), anyInt(), any()))
+             .thenReturn(events, order);
+
+        // set user configuration
+        JSONObject readerConfig = new JSONObject();
+        readerConfig.put("block_size", 40000);
+        readerConfig.put("action", "unexpected");
+
+        JSONObject writerConfig = new JSONObject();
+        writerConfig.put("compression", 2);
+
+        JSONObject ioConfig = new JSONObject();
+        ioConfig.put("reader", readerConfig);
+        ioConfig.put("writer", writerConfig);
+
+        JSONObject config = new JSONObject();
+        config.put("io-services", ioConfig);
+
+        // configure IO services
+        WorkerFile file = new WorkerFile("in.dat", "out.dat");
+        OrchestratorPaths paths = new OrchestratorPaths("/mnt/data/in.dat", "/mnt/data/out.dat");
+
+        node.setConfiguration(config);
+        node.setFiles(paths, file);
+        node.openFiles();
+
+        // check JSON data
+        ArgumentCaptor<JSONObject> configCaptor = ArgumentCaptor.forClass(JSONObject.class);
+        verify(orchestrator, times(2)).syncConfig(any(), configCaptor.capture(), anyInt(), any());
+
+        JSONObject reader = configCaptor.getAllValues().get(0);
+        JSONObject writer = configCaptor.getAllValues().get(1);
+
+        assertThat(reader.getString("action"), is("open"));
+        assertThat(reader.getString("file"), is("/mnt/data/in.dat"));
+        assertThat(reader.getInt("block_size"), is(40000));
+
+        assertThat(writer.getString("action"), is("open"));
+        assertThat(writer.getString("file"), is("/mnt/data/out.dat"));
+        assertThat(writer.getString("order"), is("returned_reader_order"));
+        assertThat(writer.getInt("compression"), is(2));
+    }
+
+    @Test
     public void sendGlobalConfiguration() throws Exception {
         node = new WorkerNode(orchestrator, MultiLangData.application());
 
-        JSONObject globalConfig = new JSONObject("{ \"foo\": 1, \"bar\": 2 }");
+        JSONObject config = new JSONObject("{ \"global\": { \"foo\": 1, \"bar\": 2 } }");
 
-        node.configureServices(globalConfig);
+        node.setConfiguration(config);
+        node.configureServices();
 
         ArgumentCaptor<JSONObject> configCaptor = ArgumentCaptor.forClass(JSONObject.class);
         verify(orchestrator, times(5)).syncConfig(any(), configCaptor.capture(), anyInt(), any());
 
+        JSONObject globalConfig = config.getJSONObject("global");
         configCaptor.getAllValues().forEach(data -> {
-            assertThat(data.toString(), is(globalConfig.toString()));
+            assertThat(data.similar(globalConfig), is(true));
         });
     }
 

@@ -154,7 +154,14 @@ public class OrchestratorConfigParserTest {
 
         JSONObject config = parser.parseReconstructionConfig();
 
-        assertThat(config.keySet(), containsInAnyOrder("ccdb", "magnet", "kalman"));
+        assertThat(config.keySet(), containsInAnyOrder("global", "io-services", "services"));
+
+        assertThat(config.getJSONObject("global").keySet(),
+                   containsInAnyOrder("ccdb", "magnet", "kalman"));
+        assertThat(config.getJSONObject("io-services").keySet(),
+                   containsInAnyOrder("reader", "writer"));
+        assertThat(config.getJSONObject("services").keySet(),
+                   containsInAnyOrder("ECReconstruction", "HeaderFilter"));
     }
 
 

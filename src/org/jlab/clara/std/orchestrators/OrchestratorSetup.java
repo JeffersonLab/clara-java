@@ -41,7 +41,7 @@ class OrchestratorSetup {
 
     final ApplicationInfo application;
     final Set<EngineDataType> dataTypes;
-    final JSONObject globalConfig;
+    final JSONObject configuration;
 
     OrchestratorSetup(DpeName frontEnd,
                       Map<String, ServiceInfo> ioServices,
@@ -53,7 +53,7 @@ class OrchestratorSetup {
         this.session = session;
         this.application = new ApplicationInfo(ioServices, recChain);
         this.dataTypes = dataTypes.stream().map(this::dummyDataType).collect(Collectors.toSet());
-        this.globalConfig = globalConfig;
+        this.configuration = globalConfig;
     }
 
     private EngineDataType dummyDataType(String mimeType) {

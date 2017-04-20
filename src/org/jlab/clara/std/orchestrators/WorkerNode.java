@@ -60,6 +60,8 @@ class WorkerNode {
 
     volatile WorkerFile recFile;
 
+    private volatile ServiceConfig configuration = new ServiceConfig();
+
     private volatile String currentInputFileName;
     private volatile String currentInputFile;
     private volatile String currentOutputFile;
@@ -164,6 +166,9 @@ class WorkerNode {
         orchestrator.subscribeDone(writerName, callbackFn.apply(this));
     }
 
+    void setConfiguration(JSONObject configData) {
+        this.configuration = new ServiceConfig(configData);
+    }
 
     void setPaths(Path inputPath, Path outputPath, Path stagePath) {
         try {
@@ -294,7 +299,7 @@ class WorkerNode {
         // open input file
         try {
             Logging.info("Opening file %s on %s", currentInputFileName, name());
-            JSONObject inputConfig = new JSONObject();
+            JSONObject inputConfig = configuration.reader();
             inputConfig.put("action", "open");
             inputConfig.put("file", currentInputFile);
             if (skipEv > 0) {
@@ -320,7 +325,7 @@ class WorkerNode {
 
         // open output file
         try {
-            JSONObject outputConfig = new JSONObject();
+            JSONObject outputConfig = configuration.writer();
             outputConfig.put("action", "open");
             outputConfig.put("file", currentOutputFile);
             outputConfig.put("order", fileOrder);
@@ -386,10 +391,10 @@ class WorkerNode {
     }
 
 
-    void configureServices(JSONObject configData) {
+    void configureServices() {
         for (ServiceName service : application.recServices()) {
             try {
-                orchestrator.syncConfig(service, configData, 2, TimeUnit.MINUTES);
+                orchestrator.syncConfig(service, configuration.get(service), 2, TimeUnit.MINUTES);
             } catch (ClaraException | TimeoutException e) {
                 throw new OrchestratorError("Could not configure " + service, e);
             }

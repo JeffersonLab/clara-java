@@ -262,7 +262,8 @@ abstract class AbstractOrchestrator {
             if (options.stageFiles) {
                 node.setPaths(paths.inputDir, paths.outputDir, paths.stageDir);
             }
-            node.configureServices(setup.globalConfig);
+            node.setConfiguration(setup.configuration);
+            node.configureServices();
             node.setEventLimits(options.skipEvents, options.maxEvents);
             Logging.info("All services configured on %s", node.name());
 
