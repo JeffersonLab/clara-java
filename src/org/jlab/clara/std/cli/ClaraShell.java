@@ -314,23 +314,27 @@ public final class ClaraShell implements AutoCloseable {
         addCommand(initCommand(RunCommand::new, builder.runSubCommands));
         addCommand(initCommand(EditCommand::new, builder.editSubCommands));
 
-        builder.userCommands.forEach(c -> addCommand(c.create(terminal, config)));
+        builder.userCommands.forEach(this::addCommand);
 
-        addCommand(new SetCommand(terminal, config));
-        addCommand(new ShowCommand(terminal, config));
-        addCommand(new SaveCommand(terminal, config));
-        addCommand(new SourceCommand(terminal, commandRunner));
-        addCommand(new HelpCommand(terminal, commands));
+        addCommand(SetCommand::new);
+        addCommand(ShowCommand::new);
+        addCommand(SaveCommand::new);
+
+        addCommand(s -> new SourceCommand(s, commandRunner));
+        addCommand(s -> new HelpCommand(s, commands));
     }
 
-    private Command initCommand(CommandFactory baseCommand,
-                                List<CommandFactory> userSubCommands) {
-        BaseCommand cmd = (BaseCommand) baseCommand.create(terminal, config);
-        userSubCommands.forEach(c -> cmd.addSubCommand(c.create(terminal, config)));
-        return cmd;
+    private CommandFactory initCommand(CommandFactory baseCommand,
+                                       List<CommandFactory> userSubCommands) {
+        return session -> {
+            BaseCommand cmd = (BaseCommand) baseCommand.create(session);
+            userSubCommands.forEach(cmd::addSubCommand);
+            return cmd;
+        };
     }
 
-    private void addCommand(Command command) {
+    private void addCommand(CommandFactory factory) {
+        Command command = factory.create(new Context(terminal, config));
         commands.put(command.getName(), command);
     }
 

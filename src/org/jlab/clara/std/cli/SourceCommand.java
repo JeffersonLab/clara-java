@@ -39,14 +39,13 @@ import org.jline.reader.impl.completer.ArgumentCompleter;
 import org.jline.reader.impl.completer.FileNameCompleter;
 import org.jline.reader.impl.completer.NullCompleter;
 import org.jline.reader.impl.completer.StringsCompleter;
-import org.jline.terminal.Terminal;
 
 class SourceCommand extends AbstractCommand {
 
     private final CommandRunner commandRunner;
 
-    SourceCommand(Terminal terminal, CommandRunner commandRunner) {
-        super(terminal, "source", "Read and execute commands from file");
+    SourceCommand(Context context, CommandRunner commandRunner) {
+        super(context, "source", "Read and execute commands from file");
         this.commandRunner = commandRunner;
     }
 

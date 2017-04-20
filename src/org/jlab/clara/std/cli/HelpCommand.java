@@ -32,14 +32,13 @@ import java.util.Map;
 
 import org.jline.builtins.Less;
 import org.jline.builtins.Source;
-import org.jline.terminal.Terminal;
 
 class HelpCommand extends BaseCommand {
 
     private final Map<String, Command> commands;
 
-    HelpCommand(Terminal terminal, Map<String, Command> commands) {
-        super(terminal, "help", "Display help information about CLARA shell");
+    HelpCommand(Context context, Map<String, Command> commands) {
+        super(context, "help", "Display help information about CLARA shell");
         this.commands = commands;
         addCommands();
     }

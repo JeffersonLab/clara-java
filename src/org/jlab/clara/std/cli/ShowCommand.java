@@ -23,7 +23,6 @@
 package org.jlab.clara.std.cli;
 
 import org.jlab.clara.base.ClaraLang;
-import org.jline.terminal.Terminal;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -35,11 +34,8 @@ import java.util.List;
 
 class ShowCommand extends BaseCommand {
 
-    private final Config config;
-
-    ShowCommand(Terminal terminal, Config config) {
-        super(terminal, "show", "Show values");
-        this.config = config;
+    ShowCommand(Context context) {
+        super(context, "show", "Show values");
         setArguments();
     }
 
@@ -53,8 +49,8 @@ class ShowCommand extends BaseCommand {
         addSubCommand("logDpe", args -> showDpeLog(), "Show front-end DPE log.");
         addSubCommand("logOrchestrator", args -> showOrchestratorLog(), "Show orchestrator log.");
         if (FarmCommands.hasPlugin()) {
-            addSubCommand(new FarmCommands.ShowFarmStatus(terminal, config));
-            addSubCommand(new FarmCommands.ShowFarmSub(terminal, config));
+            addSubCommand(FarmCommands.ShowFarmStatus::new);
+            addSubCommand(FarmCommands.ShowFarmSub::new);
         }
     }
 

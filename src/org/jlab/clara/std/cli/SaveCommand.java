@@ -36,15 +36,11 @@ import org.jline.reader.impl.completer.ArgumentCompleter;
 import org.jline.reader.impl.completer.FileNameCompleter;
 import org.jline.reader.impl.completer.NullCompleter;
 import org.jline.reader.impl.completer.StringsCompleter;
-import org.jline.terminal.Terminal;
 
 class SaveCommand extends AbstractCommand {
 
-    private final Config config;
-
-    SaveCommand(Terminal terminal, Config config) {
-        super(terminal, "save", "Export configuration to file");
-        this.config = config;
+    SaveCommand(Context context) {
+        super(context, "save", "Export configuration to file");
     }
 
     @Override

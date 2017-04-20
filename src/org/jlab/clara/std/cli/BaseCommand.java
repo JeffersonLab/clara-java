@@ -37,7 +37,6 @@ import org.jline.reader.impl.completer.AggregateCompleter;
 import org.jline.reader.impl.completer.ArgumentCompleter;
 import org.jline.reader.impl.completer.NullCompleter;
 import org.jline.reader.impl.completer.StringsCompleter;
-import org.jline.terminal.Terminal;
 
 /**
  * A command that groups a list of subcommands that can be executed separately.
@@ -52,12 +51,12 @@ public abstract class BaseCommand extends AbstractCommand {
     /**
      * Creates a new base command to group subcommands.
      *
-     * @param terminal the terminal used by the shell
+     * @param context the context of the shell session
      * @param name the name of the base command
      * @param description the description of the base command
      */
-    protected BaseCommand(Terminal terminal, String name, String description) {
-        super(terminal, name, description);
+    protected BaseCommand(Context context, String name, String description) {
+        super(context, name, description);
         this.subCommands = new LinkedHashMap<>();
     }
 
@@ -96,23 +95,23 @@ public abstract class BaseCommand extends AbstractCommand {
     protected void addSubCommand(String name,
                                  Function<String[], Integer> action,
                                  String description) {
-        Command subCmd = new AbstractCommand(terminal, name, description) {
+        addSubCommand(session -> new AbstractCommand(session, name, description) {
             @Override
             public int execute(String[] args) {
                 return action.apply(args);
             }
-        };
-        addSubCommand(subCmd);
+        });
     }
 
     /**
      * Adds the given subcommand to the list of subcommands supported by this
      * command.
      *
-     * @param subCmd the new subcommand for this command
+     * @param factory the factory for a new subcommand of this command
      * @throws IllegalArgumentException if a subcommand of the given name already exists
      */
-    protected void addSubCommand(Command subCmd) {
+    protected void addSubCommand(CommandFactory factory) {
+        Command subCmd = factory.create(new Context(terminal, config));
         String subName = subCmd.getName();
         Command prev = subCommands.putIfAbsent(subName, subCmd);
         if (prev != null) {

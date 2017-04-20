@@ -22,8 +22,6 @@
 
 package org.jlab.clara.std.cli;
 
-import org.jline.terminal.Terminal;
-
 /**
  * A factory for new shell builtin commands.
  */
@@ -33,9 +31,8 @@ public interface CommandFactory {
     /**
      * Creates a new builtin command.
      *
-     * @param terminal the virtual terminal
-     * @param config the shell configuration
+     * @param context the shell session
      * @return the builtin command
      */
-    Command create(Terminal terminal, Config config);
+    Command create(Context context);
 }

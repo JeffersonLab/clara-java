@@ -40,13 +40,12 @@ import org.jlab.clara.base.ClaraUtil;
 import org.jlab.clara.base.DpeName;
 import org.jlab.clara.std.orchestrators.OrchestratorConfigError;
 import org.jlab.clara.std.orchestrators.OrchestratorConfigParser;
-import org.jline.terminal.Terminal;
 
 class RunCommand extends BaseCommand {
 
-    RunCommand(Terminal terminal, Config config) {
-        super(terminal, "run", "Start CLARA data processing");
-        addSubCommand(new RunLocal(terminal, config));
+    RunCommand(Context context) {
+        super(context, "run", "Start CLARA data processing");
+        addSubCommand(RunLocal::new);
     }
 
     private static class RunLocal extends AbstractCommand {
@@ -55,12 +54,10 @@ class RunCommand extends BaseCommand {
         private static final int UPPER_PORT = 8000;
         private static final int STEP_PORTS = 20;
 
-        private final Config config;
         private final Map<ClaraLang, DpeProcess> backgroundDpes;
 
-        RunLocal(Terminal terminal, Config config) {
-            super(terminal, "local", "Run CLARA data processing on the local node.");
-            this.config = config;
+        RunLocal(Context context) {
+            super(context, "local", "Run CLARA data processing on the local node.");
             this.backgroundDpes = new HashMap<>();
         }
 

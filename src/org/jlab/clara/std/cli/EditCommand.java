@@ -22,17 +22,13 @@
 
 package org.jlab.clara.std.cli;
 
-import org.jline.terminal.Terminal;
 
 import java.util.function.Function;
 
 class EditCommand extends BaseCommand {
 
-    private final Config config;
-
-    EditCommand(Terminal terminal, Config config) {
-        super(terminal, "edit", "Edit data processing conditions");
-        this.config = config;
+    EditCommand(Context context) {
+        super(context, "edit", "Edit data processing conditions");
 
         addArgument("services", "Edit services composition.",
                 c -> c.getValue(Config.SERVICES_FILE).toString());
@@ -41,19 +37,17 @@ class EditCommand extends BaseCommand {
     }
 
     void addArgument(String name, String description, Function<Config, String> fileArg) {
-        addSubCommand(newArgument(name, description, fileArg).create(terminal, config));
+        addSubCommand(newArgument(name, description, fileArg));
     }
 
     static CommandFactory newArgument(String name,
                                       String description,
                                       Function<Config, String> fileArg) {
-        return (terminal, config) -> {
-            return new AbstractCommand(terminal, name, description) {
-                @Override
-                public int execute(String[] args) {
-                    return CommandUtils.editFile(fileArg.apply(config).toString());
-                }
-            };
+        return session -> new AbstractCommand(session, name, description) {
+            @Override
+            public int execute(String[] args) {
+                return CommandUtils.editFile(fileArg.apply(session.config()).toString());
+            }
         };
     }
 }

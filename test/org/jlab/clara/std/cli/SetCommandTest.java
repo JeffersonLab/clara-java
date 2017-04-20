@@ -23,18 +23,16 @@ public class SetCommandTest {
     @Before
     public void setup() throws Exception {
         config = new Config();
-        command = new SetCommand(TERMINAL, config);
+        command = new SetCommand(new Context(TERMINAL, config));
     }
 
     @Test
     public void testDefaultSession() throws Exception {
-
         assertThat(config.getValue(Config.SESSION), is(""));
     }
 
     @Test
     public void testSetSession() throws Exception {
-
         command.execute(new String[]{"session", "trevor"});
 
         assertThat(config.getValue(Config.SESSION), is("trevor"));

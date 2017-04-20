@@ -1,7 +1,6 @@
 package org.jlab.clara.std.cli;
 
 import org.jlab.clara.util.FileUtils;
-import org.jline.terminal.Terminal;
 
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -138,17 +137,14 @@ final class FarmCommands {
         farmVariables(builder);
 
         builder.withEnvironmentVariable("CLAS12DIR", PLUGIN.toString());
-        builder.withRunSubCommand((t, c) -> new RunFarm(t, c));
+        builder.withRunSubCommand(RunFarm::new);
     }
 
 
     private abstract static class FarmCommand extends AbstractCommand {
 
-        protected final Config config;
-
-        protected FarmCommand(Terminal terminal, Config config, String name, String description) {
-            super(terminal, name, description);
-            this.config = config;
+        protected FarmCommand(Context context, String name, String description) {
+            super(context, name, description);
         }
 
         protected Path getJobScript(String ext) {
@@ -161,8 +157,8 @@ final class FarmCommands {
 
     static class RunFarm extends FarmCommand {
 
-        RunFarm(Terminal terminal, Config config) {
-            super(terminal, config, "farm", "Run CLARA data processing on the farm.");
+        RunFarm(Context context) {
+            super(context, "farm", "Run CLARA data processing on the farm.");
         }
 
         @Override
@@ -339,8 +335,8 @@ final class FarmCommands {
 
     static class ShowFarmStatus extends FarmCommand {
 
-        ShowFarmStatus(Terminal terminal, Config config) {
-            super(terminal, config, "farmStatus", "Show status of farm submitted jobs.");
+        ShowFarmStatus(Context context) {
+            super(context, "farmStatus", "Show status of farm submitted jobs.");
         }
 
         @Override
@@ -368,8 +364,8 @@ final class FarmCommands {
 
     static class ShowFarmSub extends FarmCommand {
 
-        ShowFarmSub(Terminal terminal, Config config) {
-            super(terminal, config, "farmSub", "Show farm job submission file.");
+        ShowFarmSub(Context context) {
+            super(context, "farmSub", "Show farm job submission file.");
         }
 
         @Override

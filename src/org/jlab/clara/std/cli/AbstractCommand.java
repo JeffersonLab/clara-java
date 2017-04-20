@@ -53,14 +53,19 @@ public abstract class AbstractCommand implements Command {
     protected final Terminal terminal;
 
     /**
+     * The configuration of the shell session.
+     */
+    protected final Config config;
+
+    /**
      * The text-output stream of the terminal.
      */
     protected final PrintWriter writer;
 
 
     static CommandFactory wrap(String name, String description, String... command) {
-        return (terminal, config) -> {
-            return new AbstractCommand(terminal, name, description) {
+        return session -> {
+            return new AbstractCommand(session, name, description) {
                 @Override
                 public int execute(String[] args) {
                     return CommandUtils.runProcess(command);
@@ -73,14 +78,15 @@ public abstract class AbstractCommand implements Command {
     /**
      * Creates a new command.
      *
-     * @param terminal the terminal used by the shell
+     * @param context the context of the shell session
      * @param name the name of the command
      * @param description the description of the command
      */
-    protected AbstractCommand(Terminal terminal, String name, String description) {
+    protected AbstractCommand(Context context, String name, String description) {
         this.name = name;
         this.description = description;
-        this.terminal = terminal;
+        this.terminal = context.terminal();
+        this.config = context.config();
         this.writer = terminal.writer();
     }
 

@@ -41,40 +41,34 @@ import org.jline.reader.Completer;
 import org.jline.reader.impl.completer.ArgumentCompleter;
 import org.jline.reader.impl.completer.FileNameCompleter;
 import org.jline.reader.impl.completer.StringsCompleter;
-import org.jline.terminal.Terminal;
 
 class SetCommand extends BaseCommand {
 
-    private final Config config;
-
-    SetCommand(Terminal terminal, Config config) {
-        super(terminal, "set", "Parameter settings");
-        this.config = config;
+    SetCommand(Context context) {
+        super(context, "set", "Parameter settings");
         setArguments();
     }
 
     private void setArguments() {
-        List<Command> commands = new LinkedList<>();
+        List<CommandFactory> commands = new LinkedList<>();
         config.getVariables().stream().map(this::subCmd).forEach(commands::add);
 
-        commands.add(1, subCmd("files",
-                this::setFiles,
-                new FileNameCompleter(),
+        commands.add(1, subCmd("files", this::setFiles, new FileNameCompleter(),
                 "Set the input files to be processed (example: /mnt/data/files/*.evio). "
                         + "This will set both fileList and inputDir variables."));
 
         commands.forEach(this::addSubCommand);
     }
 
-    private Command subCmd(ConfigVariable v) {
+    private CommandFactory subCmd(ConfigVariable v) {
         return subCmd(v.getName(), v::setValue, v.getCompleter(), v.getDescription());
     }
 
-    private Command subCmd(String name,
-                           Consumer<String[]> action,
-                           Completer completer,
-                           String description) {
-        Command subCmd = new AbstractCommand(terminal, name, description) {
+    private CommandFactory subCmd(String name,
+                                  Consumer<String[]> action,
+                                  Completer completer,
+                                  String description) {
+        return session -> new AbstractCommand(session, name, description) {
 
             @Override
             public int execute(String[] args) {
@@ -92,8 +86,6 @@ class SetCommand extends BaseCommand {
                 return new ArgumentCompleter(new StringsCompleter(name), completer);
             }
         };
-
-        return subCmd;
     }
 
     private void setFiles(String[] args) {
