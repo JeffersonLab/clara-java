@@ -73,13 +73,15 @@ final class FarmCommands {
         }
     }
 
-    private static void clasVariables(ClaraShell.Builder builder) {
+    private static void clasVariables(Config.Builder builder) {
         builder.withConfigVariable(Config.SERVICES_FILE, defaultConfigFile());
         builder.withConfigVariable(Config.FILES_LIST, defaultFileList());
         builder.withConfigVariable(Config.SESSION, Config.user());
+
+        builder.withEnvironmentVariable("CLAS12DIR", PLUGIN.toString());
     }
 
-    private static void farmVariables(ClaraShell.Builder builder) {
+    private static void farmVariables(Config.Builder builder) {
         List<ConfigVariable.Builder> vl = new ArrayList<>();
 
         BiFunction<String, String, ConfigVariable.Builder> addBuilder = (n, d) -> {
@@ -133,10 +135,8 @@ final class FarmCommands {
 
     static void register(ClaraShell.Builder builder) {
         configTemplates();
-        clasVariables(builder);
-        farmVariables(builder);
-
-        builder.withEnvironmentVariable("CLAS12DIR", PLUGIN.toString());
+        builder.withConfiguration(FarmCommands::clasVariables);
+        builder.withConfiguration(FarmCommands::farmVariables);
         builder.withRunSubCommand(RunFarm::new);
     }
 

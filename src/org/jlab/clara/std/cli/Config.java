@@ -102,6 +102,77 @@ public class Config {
     private final Map<String, ConfigVariable> variables;
     private final Map<String, String> environment;
 
+    /**
+     * Helps creating the configuration for a shell session.
+     */
+    public static class Builder {
+
+        private final Config config;
+
+        /**
+         * Creates a new builder.
+         */
+        public Builder() {
+            this.config = new Config();
+        }
+
+        /**
+         * Sets a configuration variable with the given initial value.
+         *
+         * @param name the name of the variable
+         * @param initialValue the initial value of the variable
+         * @return this builder
+         */
+        public Builder withConfigVariable(String name, Object initialValue) {
+            ArgUtils.requireNonEmpty(name, "name");
+            ArgUtils.requireNonNull(initialValue, "value");
+
+            config.setValue(name, initialValue);
+            return this;
+        }
+
+        /**
+         * Adds a configuration variable.
+         * This new variable cannot have the same name as one of the default
+         * configuration variables.
+         *
+         * @param builder the builder of the configuration variable
+         * @return this builder
+         */
+        public Builder withConfigVariable(ConfigVariable.Builder builder) {
+            ArgUtils.requireNonNull(builder, "variable builder");
+
+            config.addVariable(builder.build());
+            return this;
+        }
+
+        /**
+         * Sets an environment variable for commands.
+         * The variable will be added to the environment of the DPEs started by
+         * the {@code run} command.
+         *
+         * @param name the name of the variable
+         * @param value the value of the variable
+         * @return this builder
+         */
+        public Builder withEnvironmentVariable(String name, String value) {
+            ArgUtils.requireNonEmpty(name, "name");
+            ArgUtils.requireNonNull(value, "value");
+            config.setenv(name, value);
+            return this;
+        }
+
+        /**
+         * Creates the shell configuration.
+         *
+         * @return the configuration
+         */
+        public Config build() {
+            return config;
+        }
+    }
+
+
     Config() {
         variables = initVariables();
         environment = new HashMap<>();

@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -106,8 +107,8 @@ public final class ClaraShell implements AutoCloseable {
      */
     public static class Builder {
 
-        private final Terminal terminal;
-        private final Config config;
+        private final TerminalBuilder terminal;
+        private final Config.Builder config;
 
         private final List<CommandFactory> runSubCommands = new ArrayList<>();
         private final List<CommandFactory> editSubCommands = new ArrayList<>();
@@ -123,58 +124,20 @@ public final class ClaraShell implements AutoCloseable {
          * @param termBuilder the builder of the virtual terminal
          */
         public Builder(TerminalBuilder termBuilder) {
-            try {
-                this.terminal = termBuilder.build();
-                this.config = new Config();
-            } catch (IOException e) {
-                throw new UncheckedIOException(e);
-            }
+            this.terminal = termBuilder;
+            this.config = new Config.Builder();
         }
 
         /**
-         * Adds a configuration variable to the shell session with the given
-         * default value.
+         * Customizes the configuration variables of the shell session.
          *
-         * @param name the name of the variable
-         * @param defaultValue the default value of the variable
+         * @param consumer a function that updates the configuration builder
          * @return this builder
          */
-        public Builder withConfigVariable(String name, Object defaultValue) {
-            ArgUtils.requireNonEmpty(name, "name");
-            ArgUtils.requireNonNull(defaultValue, "value");
+        public Builder withConfiguration(Consumer<Config.Builder> consumer) {
+            ArgUtils.requireNonNull(consumer, "configure function");
 
-            config.setValue(name, defaultValue);
-            return this;
-        }
-
-        /**
-         * Adds a configuration variable to the shell session.
-         * This new variable cannot have the same name as one of the default
-         * configuration variables.
-         *
-         * @param builder the builder of the configuration variable
-         * @return this builder
-         */
-        public Builder withConfigVariable(ConfigVariable.Builder builder) {
-            ArgUtils.requireNonNull(builder, "variable builder");
-
-            config.addVariable(builder.build());
-            return this;
-        }
-
-        /**
-         * Sets an environment variable for CLARA processes.
-         * The variable will be added to the environment of the DPEs started by
-         * {@code run local}.
-         *
-         * @param name the name of the variable
-         * @param value the value of the variable
-         * @return this builder
-         */
-        public Builder withEnvironmentVariable(String name, String value) {
-            ArgUtils.requireNonEmpty(name, "name");
-            ArgUtils.requireNonNull(value, "value");
-            config.setenv(name, value);
+            consumer.accept(config);
             return this;
         }
 
@@ -290,8 +253,12 @@ public final class ClaraShell implements AutoCloseable {
 
 
     private ClaraShell(Builder builder) {
-        terminal = builder.terminal;
-        config = builder.config;
+        try {
+            terminal = builder.terminal.build();
+            config = builder.config.build();
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
 
         commands = new LinkedHashMap<>();
         commandRunner = new CommandRunner(terminal, commands);
