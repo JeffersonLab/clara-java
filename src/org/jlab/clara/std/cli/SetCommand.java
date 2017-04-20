@@ -30,6 +30,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
@@ -53,22 +54,26 @@ class SetCommand extends BaseCommand {
     }
 
     private void setArguments() {
-        config.getVariables().forEach(this::subCmd);
+        List<Command> commands = new LinkedList<>();
+        config.getVariables().stream().map(this::subCmd).forEach(commands::add);
 
-        subCmd("files",
+        commands.add(1, subCmd("files",
                 this::setFiles,
                 new FileNameCompleter(),
-                "Set the input files to be processed (Example: /mnt/data/files/*.evio).");
+                "Set the input files to be processed (example: /mnt/data/files/*.evio). "
+                        + "This will set both fileList and inputDir variables."));
+
+        commands.forEach(this::addSubCommand);
     }
 
-    private void subCmd(ConfigVariable v) {
-        subCmd(v.getName(), v::setValue, v.getCompleter(), v.getDescription());
+    private Command subCmd(ConfigVariable v) {
+        return subCmd(v.getName(), v::setValue, v.getCompleter(), v.getDescription());
     }
 
-    private void subCmd(String name,
-                        Consumer<String[]> action,
-                        Completer completer,
-                        String description) {
+    private Command subCmd(String name,
+                           Consumer<String[]> action,
+                           Completer completer,
+                           String description) {
         Command subCmd = new AbstractCommand(terminal, name, description) {
 
             @Override
@@ -88,7 +93,7 @@ class SetCommand extends BaseCommand {
             }
         };
 
-        addSubCommand(subCmd);
+        return subCmd;
     }
 
     private void setFiles(String[] args) {
