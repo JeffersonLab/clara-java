@@ -22,8 +22,16 @@
 
 package org.jlab.clara.std.cli;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.PrintWriter;
+import java.io.StringWriter;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
+import org.jline.builtins.Less;
+import org.jline.builtins.Source;
 import org.jline.terminal.Terminal;
 
 class HelpCommand extends BaseCommand {
@@ -52,8 +60,7 @@ class HelpCommand extends BaseCommand {
             writer.println("Invalid command name.");
             return EXIT_ERROR;
         }
-        command.printHelp(writer);
-        return EXIT_SUCCESS;
+        return showHelp(command);
     }
 
     private void printCommand(String name) {
@@ -66,5 +73,50 @@ class HelpCommand extends BaseCommand {
         commands.values().stream()
                 .filter(c -> !c.getName().equals("help"))
                 .forEach(c -> addSubCommand(c.getName(), args -> 0, c.getDescription()));
+    }
+
+    private int showHelp(Command command) {
+        try {
+            String help = getHelp(command);
+            if (terminal.getHeight() - 2 > countLines(help)) {
+                writer.print(help);
+            } else {
+                Less less = new Less(terminal);
+                less.run(new Source() {
+
+                    @Override
+                    public String getName() {
+                        return "help " + command.getName();
+                    }
+
+                    @Override
+                    public InputStream read() throws IOException {
+                        String text = String.format("help %s%n%s%n", command.getName(), help);
+                        return new ByteArrayInputStream(text.getBytes(StandardCharsets.UTF_8));
+                    }
+                });
+            }
+            return EXIT_SUCCESS;
+        } catch (IOException e) {
+            writer.print("Error: could not show help: " + e.getMessage());
+            return EXIT_ERROR;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return EXIT_ERROR;
+        }
+    }
+
+    private String getHelp(Command command) {
+        StringWriter helpWriter = new StringWriter();
+        PrintWriter printer = new PrintWriter(helpWriter);
+        command.printHelp(printer);
+        printer.close();
+        return helpWriter.toString();
+    }
+
+    private int countLines(String str) {
+        // TODO it could be faster
+        String[] lines = str.split("\r\n|\r|\n");
+        return lines.length;
     }
 }
