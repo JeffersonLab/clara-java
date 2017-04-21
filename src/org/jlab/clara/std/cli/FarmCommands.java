@@ -309,6 +309,12 @@ final class FarmCommands {
             model.put("clara", "dir", Config.claraHome());
             model.put("clas12", "dir", PLUGIN);
 
+            // set monitor FE
+            String monitor = System.getenv("CLARA_MONITOR_FRONT_END");
+            if (monitor != null) {
+                model.put("clara", "monitorFE", monitor);
+            }
+
             // set shell variables
             config.getVariables().stream()
                 .filter(v -> !v.getName().startsWith("farm."))

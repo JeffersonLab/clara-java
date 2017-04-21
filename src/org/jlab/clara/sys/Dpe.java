@@ -22,7 +22,9 @@
 
 package org.jlab.clara.sys;
 
+import org.jlab.clara.base.ClaraAddress;
 import org.jlab.clara.base.ClaraUtil;
+import org.jlab.clara.base.DpeName;
 import org.jlab.clara.base.core.ClaraConstants;
 import org.jlab.clara.base.core.ClaraComponent;
 import org.jlab.clara.base.core.MessageUtil;
@@ -32,7 +34,6 @@ import org.jlab.clara.sys.RequestParser.RequestException;
 import org.jlab.clara.util.report.DpeReport;
 import org.jlab.clara.util.report.JsonReportBuilder;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
-import org.jlab.coda.xmsg.core.xMsgConnection;
 import org.jlab.coda.xmsg.core.xMsgConnectionPool;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgSubscription;
@@ -42,6 +43,10 @@ import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 import org.jlab.coda.xmsg.excp.xMsgException;
 import org.jlab.coda.xmsg.net.xMsgContext;
 import org.jlab.coda.xmsg.net.xMsgProxyAddress;
+import org.jlab.coda.xmsg.net.xMsgSocketFactory;
+import org.zeromq.ZMQ;
+import org.zeromq.ZMQ.Socket;
+import org.zeromq.ZMsg;
 
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
@@ -664,6 +669,8 @@ public final class Dpe extends AbstractActor {
      */
     private class ReportService {
 
+        private final xMsgSocketFactory socketFactory;
+
         private final DpeReport myReport;
         private final JsonReportBuilder myReportBuilder = new JsonReportBuilder();
 
@@ -673,6 +680,7 @@ public final class Dpe extends AbstractActor {
         private String session;
 
         ReportService(long periodMillis, String session) {
+            socketFactory = new xMsgSocketFactory(xMsgContext.getInstance().getContext());
             myReport = new DpeReport(base, session);
             myReport.setPoolSize(base.getPoolSize());
             scheduledPingService = Executors.newSingleThreadScheduledExecutor();
@@ -718,6 +726,34 @@ public final class Dpe extends AbstractActor {
             return myReportBuilder.generateReport(myReport);
         }
 
+        // TODO: make xMsg support multiple addresses per connection
+        private Socket connect(xMsgProxyAddress feAddr) throws xMsgException {
+            Socket socket = socketFactory.createSocket(ZMQ.PUB);
+            socketFactory.connectSocket(socket, feAddr.host(), feAddr.pubPort());
+
+            String monName = System.getenv("CLARA_MONITOR_FRONT_END");
+            if (monName != null) {
+                try {
+                    DpeName monDpe = new DpeName(monName);
+                    ClaraAddress monAddr = monDpe.address();
+                    socketFactory.connectSocket(socket, monAddr.host(), monAddr.pubPort());
+                    Logging.info("Using monitoring front-end %s", monName);
+                } catch (IllegalArgumentException e) {
+                    Logging.error("Could not use monitor node: %s", e.getMessage());
+                }
+            }
+            return socket;
+        }
+
+        private void send(Socket con, xMsgMessage msg) throws xMsgException {
+            msg.getMetaData().setSender(base.getName());
+            ZMsg zmsg = new ZMsg();
+            zmsg.add(msg.getTopic().toString());
+            zmsg.add(msg.getMetaData().build().toByteArray());
+            zmsg.add(msg.getData());
+            zmsg.send(con);
+        }
+
         private xMsgMessage aliveMessage() {
             xMsgTopic topic = xMsgTopic.build(ClaraConstants.DPE_ALIVE, session, base.getName());
             return MessageUtil.buildRequest(topic, aliveReport());
@@ -731,18 +767,18 @@ public final class Dpe extends AbstractActor {
         private void run() {
             try {
                 xMsgProxyAddress feHost = base.getFrontEnd().getProxyAddress();
-                xMsgConnection con = base.getConnection(feHost);
+                Socket con = connect(feHost);
                 xMsgUtil.sleep(100);
                 try {
                     while (isReporting.get()) {
-                        base.send(con, aliveMessage());
-                        base.send(con, jsonMessage());
+                        send(con, aliveMessage());
+                        send(con, jsonMessage());
                         xMsgUtil.sleep(reportPeriod);
                     }
                 } catch (xMsgException e) {
                     System.err.println("Could not publish DPE report:" + e.getMessage());
                 } finally {
-                    con.close();
+                    socketFactory.closeQuietly(con);
                 }
             } catch (xMsgException e) {
                 System.err.println("Could not start DPE reporting thread:");

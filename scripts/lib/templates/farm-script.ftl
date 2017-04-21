@@ -8,6 +8,7 @@ export MALLOC_MMAP_MAX_=65536
 export MALLOC_MMAP_MAX_=65536
 
 export CLARA_HOME="${clara.dir}"
+export CLARA_MONITOR_FRONT_END="${clara.monitorFE!"clara1601%9000_java"}"
 export CLAS12DIR="${clas12.dir}"
 
 "$CLARA_HOME/bin/remove-dpe"
