@@ -12,12 +12,12 @@ rm -rf $CLARA_HOME
 
 PLUGIN=4a.4.0
 
-    case "$1" in
-      -u | --update)
-      if ! [ -z ${2+x} ]; then PLUGIN=$2; fi
-      echo $PLUGIN
-	  ;;
-    esac
+case "$1" in
+    -u | --update)
+        if ! [ -z ${2+x} ]; then PLUGIN=$2; fi
+        echo $PLUGIN
+        ;;
+esac
 
 command_exists () {
     type "$1" &> /dev/null ;
@@ -25,51 +25,53 @@ command_exists () {
 
 OS="`uname`"
 case $OS in
-  'Linux')
+    'Linux')
 
-  if ! command_exists wget ; then
-  echo "Can not run wget. Exiting..."
-  exit
-  fi
+        if ! command_exists wget ; then
+            echo "Can not run wget. Exiting..."
+            exit
+        fi
 
-    wget https://userweb.jlab.org/~gurjyan/clara-cre/clara-cre.tar.gz
-    wget --no-check-certificate https://github.com/JeffersonLab/clas12-offline-software/releases/download/"$PLUGIN"/coatjava.tar.gz
+        wget https://userweb.jlab.org/~gurjyan/clara-cre/clara-cre.tar.gz
+        wget --no-check-certificate https://github.com/JeffersonLab/clas12-offline-software/releases/download/"$PLUGIN"/coatjava.tar.gz
 
+        MACHINE_TYPE=`uname -m`
+        if [ ${MACHINE_TYPE} == 'x86_64' ]; then
+            wget https://userweb.jlab.org/~gurjyan/clara-cre/linux-64.tar.gz
+        else
+            wget https://userweb.jlab.org/~gurjyan/clara-cre/linux-i586.tar.gz
+        fi
+        ;;
 
-    MACHINE_TYPE=`uname -m`
-    if [ ${MACHINE_TYPE} == 'x86_64' ]; then
-      wget https://userweb.jlab.org/~gurjyan/clara-cre/linux-64.tar.gz
-    else
-      wget https://userweb.jlab.org/~gurjyan/clara-cre/linux-i586.tar.gz
-    fi
-    ;;
-#  'WindowsNT')
-#    OS='Windows'
-#    ;;
-  'Darwin')
+    #  'WindowsNT')
+        #    OS='Windows'
+        #    ;;
 
-    if ! command_exists curl ; then
-    echo "Can not run curl. Exiting..."
-    exit
-    fi
+    'Darwin')
 
- curl "https://userweb.jlab.org/~gurjyan/clara-cre/clara-cre.tar.gz" -o clara-cre.tar.gz
- curl -sL "https://github.com/JeffersonLab/clas12-offline-software/releases/download/"$PLUGIN"/coatjava.tar.gz" -o coatjava.tar.gz
-# curl "http://clasweb.jlab.org/clas12offline/distribution/coatjava/"$PLUGIN".tar.gz" -o "$PLUGIN".tar.gz
+        if ! command_exists curl ; then
+            echo "Can not run curl. Exiting..."
+            exit
+        fi
 
- curl "https://userweb.jlab.org/~gurjyan/clara-cre/macosx-64.tar.gz" -o macosx-64.tar.gz
-    ;;
-  *) ;;
+        curl "https://userweb.jlab.org/~gurjyan/clara-cre/clara-cre.tar.gz" -o clara-cre.tar.gz
+        curl -sL "https://github.com/JeffersonLab/clas12-offline-software/releases/download/"$PLUGIN"/coatjava.tar.gz" -o coatjava.tar.gz
+        # curl "http://clasweb.jlab.org/clas12offline/distribution/coatjava/"$PLUGIN".tar.gz" -o "$PLUGIN".tar.gz
+
+        curl "https://userweb.jlab.org/~gurjyan/clara-cre/macosx-64.tar.gz" -o macosx-64.tar.gz
+        ;;
+
+    *) ;;
 esac
 
-    tar xvzf clara-cre.tar.gz
-    rm -f clara-cre.tar.gz
-    cd clara-cre
+tar xvzf clara-cre.tar.gz
+rm -f clara-cre.tar.gz
+cd clara-cre
 
-    mkdir jre
-    cd jre
-    mv ../../*.tar.* .
-    mv coatjava.tar.gz ../../.
+mkdir jre
+cd jre
+mv ../../*.tar.* .
+mv coatjava.tar.gz ../../.
 
 
 

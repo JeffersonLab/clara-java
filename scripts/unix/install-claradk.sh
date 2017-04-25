@@ -15,8 +15,8 @@ command_exists () {
 }
 
 if ! command_exists git ; then
-echo "Can not run git. Exiting..."
-exit
+    echo "Can not run git. Exiting..."
+    exit
 fi
 
 rm -rf clara-dk
@@ -51,24 +51,27 @@ mkdir $CLARA_HOME/clara-cre/jre
 
 OS="`uname`"
 case $OS in
-  'Linux')
-      MACHINE_TYPE=`uname -m`
-      if [ ${MACHINE_TYPE} == 'x86_64' ]; then
-    wget https://userweb.jlab.org/~gurjyan/clara-cre/linux-64.tar.gz
-    mv linux-64.tar.gz $CLARA/clara-cre/jre
-  else
-     wget https://userweb.jlab.org/~gurjyan/clara-cre/linux-i586.tar.gz
-    mv linux-i586.tar.gz $CLARA_HOME/clara-cre/jre
-  fi
-    ;;
-#  'WindowsNT')
-#    OS='Windows'
-#    ;;
-  'Darwin')
- curl "https://userweb.jlab.org/~gurjyan/clara-cre/macosx-64.tar.gz" -o macosx-64.tar.gz
-    mv macosx-64.tar.gz $CLARA_HOME/clara-cre/jre
-    ;;
-  *) ;;
+    'Linux')
+        MACHINE_TYPE=`uname -m`
+        if [ ${MACHINE_TYPE} == 'x86_64' ]; then
+            wget https://userweb.jlab.org/~gurjyan/clara-cre/linux-64.tar.gz
+            mv linux-64.tar.gz $CLARA/clara-cre/jre
+        else
+            wget https://userweb.jlab.org/~gurjyan/clara-cre/linux-i586.tar.gz
+            mv linux-i586.tar.gz $CLARA_HOME/clara-cre/jre
+        fi
+        ;;
+
+    #  'WindowsNT')
+        #    OS='Windows'
+        #    ;;
+
+    'Darwin')
+        curl "https://userweb.jlab.org/~gurjyan/clara-cre/macosx-64.tar.gz" -o macosx-64.tar.gz
+        mv macosx-64.tar.gz $CLARA_HOME/clara-cre/jre
+        ;;
+
+    *) ;;
 esac
 
 mkdir $CLARA_HOME/clara-cre/plugins
