@@ -12,7 +12,7 @@ command_exists () {
     type "$1" &> /dev/null ;
 }
 
-OS="`uname`"
+OS=$(uname)
 case $OS in
     'Linux')
         if ! command_exists wget ; then
@@ -23,8 +23,8 @@ case $OS in
         wget https://userweb.jlab.org/~gurjyan/clara-cre/clara-cre.tar.gz
         tar xvzf clara-cre.tar.gz
 
-        MACHINE_TYPE=`uname -m`
-        if [ ${MACHINE_TYPE} == 'x86_64' ]; then
+        MACHINE_TYPE=$(uname -m)
+        if [ "$MACHINE_TYPE" == "x86_64" ]; then
             wget https://userweb.jlab.org/~gurjyan/clara-cre/linux-64.tar.gz
         else
             wget https://userweb.jlab.org/~gurjyan/clara-cre/linux-i586.tar.gz
@@ -52,19 +52,21 @@ esac
 
 tar xvzf clara-cre.tar.gz
 rm -f clara-cre.tar.gz
-cd clara-cre
-mkdir jre
-cd jre
+
+(
+mkdir clara-cre/jre
+cd clara-cre/jre || exit
+
 mv ../../*.tar.* .
 
 echo "Installing jre ..."
-tar xvzf *.tar.*
+tar xvzf ./*.tar.*
+)
 
-cd ../..
-echo `pwd`
+pwd
 
-rm -rf $CLARA_HOME
-mv clara-cre $CLARA_HOME
+rm -rf "$CLARA_HOME"
+mv clara-cre "$CLARA_HOME"
 rm -rf clara-cre
 
-echo done
+echo "Done!"
