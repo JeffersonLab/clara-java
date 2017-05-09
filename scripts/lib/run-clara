@@ -147,31 +147,6 @@ fi
 
 
 ##############################################################################
-# Packaged Java distribution
-##############################################################################
-
-java_dist=
-case "$(uname)" in
-    "Linux")
-        if [ "$(uname -m)" == "x86_64" ]; then
-            java_dist=$CLARA_HOME/jre/linux-64/jre1.8.0_112/
-        else
-            java_dist=$CLARA_HOME/jre/linux-i586/jre1.8.0_112/
-        fi
-        ;;
-
-    "Darwin")
-        java_dist=$CLARA_HOME/jre/macosx-64/jre1.8.0_112.jre/Contents/Home/
-        ;;
-
-    *)  ;;
-esac
-if [[ -n "$java_dist" && -d "$java_dist" ]]; then
-    export JAVA_HOME="$java_dist"
-fi
-
-
-##############################################################################
 # Run CLARA
 ##############################################################################
 

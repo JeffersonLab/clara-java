@@ -40,10 +40,6 @@ else
     jvm_options=(-Xms1024m -Xmx2048m -XX:+UseNUMA -XX:+UseBiasedLocking)
 fi
 
-if [ -n "${JAVA_HOME}" ]; then
-    java_bin="${JAVA_HOME}/bin/java"
-else
-    java_bin=java
-fi
+java_wrapper=${CLARA_HOME}/lib/clara/run-java
 
-exec "${java_bin}" "${jvm_options[@]}" org.jlab.clara.std.cli.ClaraShell "$@"
+exec "${java_wrapper}" "${jvm_options[@]}" org.jlab.clara.std.cli.ClaraShell "$@"
