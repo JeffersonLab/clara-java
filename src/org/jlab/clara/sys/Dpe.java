@@ -430,7 +430,8 @@ public final class Dpe extends AbstractActor {
     private void cacheConnections() throws ClaraException {
         base.cacheLocalConnection();
 
-        int createdConnections = IntStream.range(0, maxCores)
+        int cachedConnections = (int) (maxCores * 1.5);
+        int createdConnections = IntStream.range(0, cachedConnections)
                 .parallel()
                 .map(i -> cacheLocalConnection())
                 .reduce(0, Integer::sum);
