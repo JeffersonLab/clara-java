@@ -74,6 +74,7 @@ class WorkerNode {
 
     AtomicInteger totalEvents = new AtomicInteger();
     AtomicInteger eventNumber = new AtomicInteger();
+    AtomicInteger eofCounter = new AtomicInteger();
     AtomicLong startTime = new AtomicLong();
 
 
@@ -290,6 +291,7 @@ class WorkerNode {
 
     void openFiles() {
         startTime.set(0);
+        eofCounter.set(0);
         eventNumber.set(0);
         totalEvents.set(0);
 

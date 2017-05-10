@@ -466,6 +466,11 @@ abstract class AbstractOrchestrator {
             int severity = data.getStatusSeverity();
             String description = data.getDescription();
             if (description.equalsIgnoreCase("End of File")) {
+                int eof = node.eofCounter.incrementAndGet();
+                if (eof == 1) {
+                    Logging.info("All events read from %s on %s. Waiting for output events...",
+                                 node.recFile.inputName, node.name());
+                }
                 if (severity == 2) {
                     printAverage(node);
                     processFinishedFile(node);
