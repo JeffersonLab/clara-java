@@ -7,6 +7,8 @@ import org.jlab.coda.xmsg.data.xMsgD;
 import org.jlab.coda.xmsg.data.xMsgM;
 import org.jlab.coda.xmsg.data.xMsgMimeType;
 import org.jlab.coda.xmsg.excp.xMsgException;
+import org.jlab.coda.xmsg.net.xMsgProxyAddress;
+import org.jlab.coda.xmsg.net.xMsgRegAddress;
 
 
 /**
@@ -21,8 +23,8 @@ public abstract class DpeListenerAndReporter extends xMsg {
     private String subject = "*";
     private String type = "*";
 
-    DpeListenerAndReporter() {
-        super("Dpe_Listener", 1);
+    DpeListenerAndReporter(String name, xMsgProxyAddress proxy) {
+        super(name, proxy, new xMsgRegAddress(), 1);
     }
 
     /**

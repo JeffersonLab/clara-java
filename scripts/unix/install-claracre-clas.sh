@@ -2,6 +2,7 @@
 # author Vardan Gyurjyan
 # date 1.13.17
 
+is_local="false"
 
 if ! [ -n "$CLARA_HOME" ]; then
     echo "CLARA_HOME environmental variable is not defined. Exiting..."
@@ -13,8 +14,12 @@ rm -rf "$CLARA_HOME"
 PLUGIN=4a.4.0
 
 case "$1" in
-    -u | --update)
+    -v | --version)
         if ! [ -z "${2+x}" ]; then PLUGIN=$2; fi
+        echo "$PLUGIN"
+        ;;
+    -l | --local)
+        if ! [ -z "${2+x}" ]; then PLUGIN=$2; is_local="true"; fi
         echo "$PLUGIN"
         ;;
 esac
@@ -33,7 +38,12 @@ case $OS in
         fi
 
         wget https://userweb.jlab.org/~gurjyan/clara-cre/clara-cre.tar.gz
-        wget --no-check-certificate "https://github.com/JeffersonLab/clas12-offline-software/releases/download/$PLUGIN/coatjava.tar.gz"
+
+        if [ "$is_local" == "false" ]; then
+            wget http://clasweb.jlab.org/clas12offline/distribution/coatjava/coatjava-$PLUGIN.tar.gz
+        else
+            cp $PLUGIN .
+        fi
 
         MACHINE_TYPE=$(uname -m)
         if [ "$MACHINE_TYPE" == "x86_64" ]; then
@@ -55,8 +65,12 @@ case $OS in
         fi
 
         curl "https://userweb.jlab.org/~gurjyan/clara-cre/clara-cre.tar.gz" -o clara-cre.tar.gz
-        curl -sL "https://github.com/JeffersonLab/clas12-offline-software/releases/download/$PLUGIN/coatjava.tar.gz" -o coatjava.tar.gz
-        # curl "http://clasweb.jlab.org/clas12offline/distribution/coatjava/$PLUGIN.tar.gz" -o "$PLUGIN".tar.gz
+
+       if [ "$is_local" == "false" ]; then
+            curl "http://clasweb.jlab.org/clas12offline/distribution/coatjava/coatjava-$PLUGIN.tar.gz" -o coatjava-$PLUGIN.tar.gz
+       else
+            cp $PLUGIN .
+       fi
 
         curl "https://userweb.jlab.org/~gurjyan/clara-cre/macosx-64.tar.gz" -o macosx-64.tar.gz
         ;;
@@ -72,7 +86,7 @@ mkdir clara-cre/jre
 cd clara-cre/jre || exit
 
 mv ../../*.tar.* .
-mv coatjava.tar.gz ../../.
+mv coatjava-$PLUGIN.tar.gz ../../.
 
 echo "Installing jre ..."
 tar xvzf ./*.tar.*
@@ -81,7 +95,7 @@ rm -f ./*.tar.*
 
 mv clara-cre "$CLARA_HOME"
 
-tar xvzf coatjava.tar.gz
+tar xvzf coatjava-$PLUGIN.tar.gz
 
 (
 cd coatjava || exit
@@ -109,7 +123,7 @@ cp "$CLARA_HOME"/plugins/clas12/etc/services/reconstruction.yaml "$CLARA_HOME"/p
 rm -rf "$CLARA_HOME"/plugins/clas12/etc/services
 
 rm -rf coatjava
-rm coatjava.tar.gz
+rm coatjava-$PLUGIN.tar.gz
 
 chmod a+x "$CLARA_HOME"/bin/*
 chmod a+x "$CLARA_HOME"/bin/etc/*

@@ -21,7 +21,7 @@ PLUGIN=4a.4.0
 while :
 do
     case "$1" in
-        -u | --update)
+        -v | --version)
             if ! [ -z "${2+x}" ]; then PLUGIN=$2; fi
             echo "$PLUGIN"
             ;;
@@ -75,7 +75,7 @@ mkdir "$CLARA_HOME"/jre
 OS=$(uname)
 case $OS in
     'Linux')
-        wget --no-check-certificate "https://github.com/JeffersonLab/clas12-offline-software/releases/download/$PLUGIN/coatjava.tar.gz"
+         wget http://clasweb.jlab.org/clas12offline/distribution/coatjava/coatjava-$PLUGIN.tar.gz
         MACHINE_TYPE=$(uname -m)
         if [ "$MACHINE_TYPE" == "x86_64" ]; then
             wget https://userweb.jlab.org/~gurjyan/clara-cre/linux-64.tar.gz
@@ -91,8 +91,7 @@ case $OS in
         #    ;;
 
     'Darwin')
-        # curl "http://clasweb.jlab.org/clas12offline/distribution/coatjava/$PLUGIN.tar.gz" -o "$PLUGIN".tar.gz
-        curl -sL "https://github.com/JeffersonLab/clas12-offline-software/releases/download/$PLUGIN/coatjava.tar.gz" -o coatjava.tar.gz
+        curl "http://clasweb.jlab.org/clas12offline/distribution/coatjava/coatjava-$PLUGIN.tar.gz" -o coatjava-$PLUGIN.tar.gz
 
         curl "https://userweb.jlab.org/~gurjyan/clara-cre/macosx-64.tar.gz" -o macosx-64.tar.gz
         mv macosx-64.tar.gz "$CLARA_HOME"/jre
@@ -101,7 +100,7 @@ case $OS in
     *) ;;
 esac
 
-tar xvzf coatjava.tar.gz
+tar xvzf coatjava-$PLUGIN.tar.gz
 
 (
 cd coatjava || exit
