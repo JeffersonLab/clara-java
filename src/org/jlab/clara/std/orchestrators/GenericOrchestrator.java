@@ -27,6 +27,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -322,6 +324,7 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
         Logging.info("Waiting for reconstruction nodes...");
         orchestrator.subscribeDpes(dpeCallback, setup.session);
         tryLocalNode();
+        waitFirstNode();
     }
 
 
@@ -391,6 +394,17 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
     }
 
 
+    private void waitFirstNode() {
+        try {
+            if (!dpeCallback.waitFirstNode()) {
+                throw new OrchestratorError("could not find a reconstruction node");
+            }
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+        }
+    }
+
+
     static class DpeReportCB implements DpeCallBack {
 
         private final CoreOrchestrator orchestrator;
@@ -401,6 +415,8 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
 
         private final Map<String, WorkerNode.Builder> waitingNodes = new HashMap<>();
         private final Map<String, WorkerNode> availableNodes = new HashMap<>();
+
+        private final CountDownLatch latch = new CountDownLatch(1);
 
         DpeReportCB(CoreOrchestrator orchestrator,
                     OrchestratorOptions options,
@@ -431,8 +447,13 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
                     WorkerNode node = nodeBuilder.build(orchestrator);
                     availableNodes.put(nodeName, node);
                     nodeConsumer.accept(node);
+                    latch.countDown();
                 }
             }
+        }
+
+        public boolean waitFirstNode() throws InterruptedException {
+            return latch.await(1, TimeUnit.MINUTES);
         }
 
         private String getHost(DpeName name) {
