@@ -54,6 +54,9 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
 
     private final DpeReportCB dpeCallback;
 
+    private long orchTimeStart;
+    private long orchTimeEnd;
+
 
     public static void main(String[] args) {
         try {
@@ -138,6 +141,18 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
         public Builder withFrontEnd(DpeName frontEnd) {
             Objects.requireNonNull(frontEnd, "frontEnd parameter is null");
             this.frontEnd = frontEnd;
+            return this;
+        }
+
+        /**
+         * Uses a cloud of worker DPEs to process the set of input files.
+         * By default, the orchestrator runs on local mode, which only uses the
+         * local front-end DPE.
+         *
+         * @return this object, so methods can be chained
+         */
+        public Builder cloudMode() {
+            options.cloudMode();
             return this;
         }
 
@@ -319,9 +334,15 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
 
     @Override
     protected void start() {
+        orchTimeStart = System.currentTimeMillis();
         printStartup();
         waitFrontEnd();
-        Logging.info("Waiting for reconstruction nodes...");
+
+        if (options.orchMode == OrchestratorMode.LOCAL) {
+            Logging.info("Waiting for local node...");
+        } else {
+            Logging.info("Waiting for worker nodes...");
+        }
         orchestrator.subscribeDpes(dpeCallback, setup.session);
         tryLocalNode();
         waitFirstNode();
@@ -331,8 +352,17 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
     @Override
     protected void end() {
         removeStageDirectories();
-        Logging.info("Local  average event processing time = %.2f ms", stats.localAverage());
-        Logging.info("Global average event processing time = %.2f ms", stats.globalAverage());
+        if (options.orchMode == OrchestratorMode.LOCAL) {
+            orchTimeEnd = System.currentTimeMillis();
+            float recTimeMs = stats.totalTime() / 1000.0f;
+            float totalTimeMs = (orchTimeEnd - orchTimeStart) / 1000.0f;
+            Logging.info("Average processing time  = %7.2f ms", stats.localAverage());
+            Logging.info("Total processing time    = %7.2f s", recTimeMs);
+            Logging.info("Total orchestrator time  = %7.2f s", totalTimeMs);
+        } else {
+            Logging.info("Local  average event processing time = %7.2f ms", stats.localAverage());
+            Logging.info("Global average event processing time = %7.2f ms", stats.globalAverage());
+        }
     }
 
 
@@ -378,6 +408,7 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
     private void tryLocalNode() {
         if (options.useFrontEnd) {
             int cores = Runtime.getRuntime().availableProcessors();
+            // TODO: filter local DPEs with non-matching sessions
             Map<ClaraLang, DpeName> localDpes = orchestrator.getLocalRegisteredDpes(2).stream()
                     .collect(Collectors.toMap(DpeName::language, Function.identity()));
 
@@ -410,6 +441,7 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
         private final CoreOrchestrator orchestrator;
         private final OrchestratorOptions options;
         private final ApplicationInfo application;
+        private final DpeName frontEnd;
 
         private final Consumer<WorkerNode> nodeConsumer;
 
@@ -425,6 +457,7 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
             this.orchestrator = orchestrator;
             this.options = options;
             this.application = application;
+            this.frontEnd = orchestrator.getFrontEnd();
             this.nodeConsumer = nodeConsumer;
         }
 
@@ -461,9 +494,12 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
         }
 
         private boolean ignoreDpe(DpeInfo dpe) {
-            DpeName name = dpe.name;
-            DpeName fe = orchestrator.getFrontEnd();
-            return name.equals(fe) && !options.useFrontEnd;
+            String dpeNode = getHost(dpe.name);
+            String feNode = getHost(frontEnd);
+            if (options.orchMode == OrchestratorMode.LOCAL) {
+                return !dpeNode.equals(feNode);
+            }
+            return dpeNode.equals(feNode) && !options.useFrontEnd;
         }
     }
 
@@ -471,6 +507,7 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
     static class CommandLineBuilder {
 
         private static final String ARG_FRONTEND      = "frontEnd";
+        private static final String ARG_CLOUD_MODE    = "cloudMode";
         private static final String ARG_SESSION       = "session";
         private static final String ARG_USE_FRONTEND  = "useFrontEnd";
         private static final String ARG_STAGE_FILES   = "stageFiles";
@@ -523,6 +560,9 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
                     .withMaxThreads(config.getInt(ARG_MAX_THREADS))
                     .withMaxNodes(config.getInt(ARG_MAX_NODES));
 
+            if (config.getBoolean(ARG_CLOUD_MODE)) {
+                options.cloudMode();
+            }
             if (config.getBoolean(ARG_USE_FRONTEND)) {
                 options.useFrontEnd();
             }
@@ -578,6 +618,10 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
                     .setShortFlag('s')
                     .setRequired(false);
             session.setHelp("The session of the CLARA DPEs to be used for reconstruction.");
+
+            Switch cloudMode = new Switch(ARG_CLOUD_MODE)
+                    .setShortFlag('C');
+            cloudMode.setHelp("Use cloud mode for reconstruction.");
 
             Switch useFrontEnd = new Switch(ARG_USE_FRONTEND)
                     .setShortFlag('F');
@@ -659,6 +703,7 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
             try {
                 jsap.registerParameter(frontEnd);
                 jsap.registerParameter(session);
+                jsap.registerParameter(cloudMode);
                 jsap.registerParameter(useFrontEnd);
                 jsap.registerParameter(stageFiles);
                 jsap.registerParameter(bulkStage);

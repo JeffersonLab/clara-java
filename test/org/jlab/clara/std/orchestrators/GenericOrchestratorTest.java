@@ -43,6 +43,31 @@ public class GenericOrchestratorTest {
 
 
     @Test
+    public void singleLangLocalModeUseFrontEndNode() throws Exception {
+        NodeData data = singleLangData();
+        DpeReportCBTest cb = data.callback();
+
+        cb.callback("10.1.1.254_java");
+        cb.callback("10.1.1.254_java");
+
+        assertThat(cb.nodes(), contains(data.nodes("10.1.1.254")));
+    }
+
+
+    @Test
+    public void singleLangLocalModeIgnoreRemoteNodes() throws Exception {
+        NodeData data = singleLangData();
+        DpeReportCBTest cb = data.callback();
+
+        cb.callback("10.1.1.1_java");
+        cb.callback("10.1.1.2_java");
+        cb.callback("10.1.1.254_java");
+
+        assertThat(cb.nodes(), contains(data.nodes("10.1.1.254")));
+    }
+
+
+    @Test
     public void singleLangUseSingleNode() throws Exception {
         NodeData data = singleLangData();
         DpeReportCBTest cb = data.callback(false, 10);
@@ -172,6 +197,50 @@ public class GenericOrchestratorTest {
         assertThat(actual, not(hasItem(data.node("10.1.1.254"))));
     }
 
+
+    @Test
+    public void multiLangLocalModeUseFrontEnd() throws Exception {
+        NodeData data = multiLangData();
+        DpeReportCBTest cb = data.callback();
+
+        cb.callback("10.1.1.254_java");
+        cb.callback("10.1.1.254_cpp");
+        cb.callback("10.1.1.254_cpp");
+        cb.callback("10.1.1.254_java");
+
+        WorkerNode expected = data.node("10.1.1.254");
+
+        assertThat(cb.nodes(), contains(expected));
+    }
+
+
+    @Test
+    public void multiLangLocalModeIgnoreRemoteNodes() throws Exception {
+        NodeData data = multiLangData();
+        DpeReportCBTest cb = data.callback();
+
+        cb.callback("10.1.1.1_java");
+        cb.callback("10.1.1.1_cpp");
+        cb.callback("10.1.1.2_java");
+        cb.callback("10.1.1.2_cpp");
+        cb.callback("10.1.1.254_cpp");
+        cb.callback("10.1.1.254_java");
+
+        WorkerNode expected = data.node("10.1.1.254");
+
+        assertThat(cb.nodes(), contains(expected));
+    }
+
+
+    @Test
+    public void multiLangLocalModeIgnoreIncompleteFrontEnd() throws Exception {
+        NodeData data = multiLangData();
+        DpeReportCBTest cb = data.callback();
+
+        cb.callback("10.1.1.254_java");
+
+        assertThat(cb.nodes(), is(empty()));
+    }
 
     @Test
     public void multiLangUseSingleNode() throws Exception {
@@ -381,8 +450,19 @@ public class GenericOrchestratorTest {
             this.app = AppData.newAppInfo(services);
         }
 
+        DpeReportCBTest callback() {
+            return new DpeReportCBTest(app, OrchestratorOptions.builder().build());
+        }
+
         DpeReportCBTest callback(boolean useFrontEnd, int maxNodes) {
-            return new DpeReportCBTest(app, useFrontEnd, maxNodes);
+            OrchestratorOptions.Builder builder = OrchestratorOptions.builder();
+            builder.cloudMode();
+            if (useFrontEnd) {
+                builder.useFrontEnd();
+            }
+            builder.withMaxNodes(maxNodes);
+
+            return new DpeReportCBTest(app, builder.build());
         }
 
         WorkerNode node(String host) {
@@ -410,11 +490,11 @@ public class GenericOrchestratorTest {
         private final Consumer<WorkerNode> nodeConsumer;
         private final DpeReportCB callback;
 
-        DpeReportCBTest(ApplicationInfo application, boolean useFrontEnd, int maxNodes) {
+        DpeReportCBTest(ApplicationInfo application, OrchestratorOptions options) {
             tasks = Collections.synchronizedList(new ArrayList<>());
             nodes = Collections.synchronizedList(new ArrayList<>());
             nodeConsumer = nodes::add;
-            callback = new DpeReportCB(orchestrator, options(useFrontEnd, maxNodes),
+            callback = new DpeReportCB(orchestrator, options,
                                        application, nodeConsumer);
         }
 
@@ -431,15 +511,5 @@ public class GenericOrchestratorTest {
             waitCallbacks();
             return nodes;
         }
-    }
-
-
-    private static OrchestratorOptions options(boolean useFrontEnd, int maxNodes) {
-        OrchestratorOptions.Builder builder = OrchestratorOptions.builder();
-        if (useFrontEnd) {
-            builder.useFrontEnd();
-        }
-        builder.withMaxNodes(maxNodes);
-        return builder.build();
     }
 }

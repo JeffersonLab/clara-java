@@ -28,6 +28,7 @@ final class OrchestratorOptions {
     static final int MAX_NODES = 512;
     static final int MAX_THREADS = 64;
 
+    final OrchestratorMode orchMode;
     final boolean useFrontEnd;
     final boolean stageFiles;
 
@@ -47,6 +48,7 @@ final class OrchestratorOptions {
 
     static final class Builder {
 
+        private OrchestratorMode orchMode = OrchestratorMode.LOCAL;
         private boolean useFrontEnd = false;
         private boolean stageFiles = false;
 
@@ -57,6 +59,11 @@ final class OrchestratorOptions {
         private int skipEvents = 0;
         private int maxEvents = 0;
         private int reportFreq = 0;
+
+        Builder cloudMode() {
+            this.orchMode = OrchestratorMode.CLOUD;
+            return this;
+        }
 
         Builder useFrontEnd() {
             this.useFrontEnd = true;
@@ -123,10 +130,11 @@ final class OrchestratorOptions {
 
 
     private OrchestratorOptions(Builder builder) {
-        this.useFrontEnd = builder.useFrontEnd;
+        this.orchMode = builder.orchMode;
+        this.useFrontEnd = builder.orchMode == OrchestratorMode.LOCAL || builder.useFrontEnd;
         this.stageFiles = builder.stageFiles;
         this.poolSize = builder.poolSize;
-        this.maxNodes = builder.maxNodes;
+        this.maxNodes = builder.orchMode == OrchestratorMode.LOCAL ? 1 : builder.maxNodes;
         this.maxThreads = builder.maxThreads;
         this.skipEvents = builder.skipEvents;
         this.maxEvents = builder.maxEvents;
