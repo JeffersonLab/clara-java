@@ -372,7 +372,7 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
     }
 
 
-    void tryLocalNode() {
+    private void tryLocalNode() {
         if (options.useFrontEnd) {
             int cores = Runtime.getRuntime().availableProcessors();
             Map<ClaraLang, DpeName> localDpes = orchestrator.getLocalRegisteredDpes(2).stream()
@@ -417,7 +417,7 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
                 if (availableNodes.size() == options.maxNodes || ignoreDpe(dpe)) {
                     return;
                 }
-                String nodeName = getHost(dpe);
+                String nodeName = getHost(dpe.name);
                 WorkerNode.Builder nodeBuilder = waitingNodes.get(nodeName);
                 if (nodeBuilder == null) {
                     nodeBuilder = new WorkerNode.Builder(application);
@@ -433,8 +433,8 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
             }
         }
 
-        private String getHost(DpeInfo dpe) {
-            return dpe.name.address().host();
+        private String getHost(DpeName name) {
+            return name.address().host();
         }
 
         private boolean ignoreDpe(DpeInfo dpe) {
