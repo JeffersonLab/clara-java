@@ -53,6 +53,7 @@ import com.martiansoftware.jsap.UnflaggedOption;
 public final class GenericOrchestrator extends AbstractOrchestrator {
 
     private final DpeReportCB dpeCallback;
+    private final Benchmark benchmark;
 
     private long orchTimeStart;
     private long orchTimeEnd;
@@ -329,6 +330,7 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
         Logging.verbose(true);
         dpeCallback = new DpeReportCB(orchestrator, options, setup.application,
                                       this::executeSetup);
+        benchmark = new Benchmark(setup.application);
     }
 
 
@@ -346,6 +348,11 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
         orchestrator.subscribeDpes(dpeCallback, setup.session);
         tryLocalNode();
         waitFirstNode();
+
+        if (options.orchMode == OrchestratorMode.LOCAL) {
+            WorkerNode localNode = dpeCallback.getLocalNode();
+            benchmark.initialize(localNode.getRuntimeData());
+        }
     }
 
 
@@ -353,6 +360,14 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
     protected void end() {
         removeStageDirectories();
         if (options.orchMode == OrchestratorMode.LOCAL) {
+            try {
+                WorkerNode localNode = dpeCallback.getLocalNode();
+                benchmark.update(localNode.getRuntimeData());
+                BenchmarkPrinter printer = new BenchmarkPrinter(benchmark, stats.totalEvents());
+                printer.printBenchmark(setup.application);
+            } catch (OrchestratorError e) {
+                Logging.error("Could not generate benchmark: %s", e.getMessage());
+            }
             orchTimeEnd = System.currentTimeMillis();
             float recTimeMs = stats.totalTime() / 1000.0f;
             float totalTimeMs = (orchTimeEnd - orchTimeStart) / 1000.0f;
@@ -487,6 +502,13 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
 
         public boolean waitFirstNode() throws InterruptedException {
             return latch.await(1, TimeUnit.MINUTES);
+        }
+
+        public WorkerNode getLocalNode() {
+            String nodeName = getHost(frontEnd);
+            synchronized (availableNodes) {
+                return availableNodes.get(nodeName);
+            }
         }
 
         private String getHost(DpeName name) {
