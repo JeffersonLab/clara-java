@@ -398,8 +398,9 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
         private final ApplicationInfo application;
 
         private final Consumer<WorkerNode> nodeConsumer;
+
         private final Map<String, WorkerNode.Builder> waitingNodes = new HashMap<>();
-        private final Map<String, WorkerNode.Builder> availableNodes = new HashMap<>();
+        private final Map<String, WorkerNode> availableNodes = new HashMap<>();
 
         DpeReportCB(CoreOrchestrator orchestrator,
                     OrchestratorOptions options,
@@ -427,8 +428,9 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
                 }
                 nodeBuilder.addDpe(dpe);
                 if (nodeBuilder.isReady()) {
-                    availableNodes.put(nodeName, nodeBuilder);
-                    nodeConsumer.accept(nodeBuilder.build(orchestrator));
+                    WorkerNode node = nodeBuilder.build(orchestrator);
+                    availableNodes.put(nodeName, node);
+                    nodeConsumer.accept(node);
                 }
             }
         }
