@@ -36,6 +36,8 @@ import java.util.stream.Collectors;
 import org.jlab.clara.base.ClaraLang;
 import org.jlab.clara.base.ClaraUtil;
 import org.jlab.clara.base.DpeName;
+import org.jlab.clara.base.EngineCallback;
+import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.std.orchestrators.CoreOrchestrator.DpeCallBack;
 import org.json.JSONObject;
 
@@ -357,6 +359,15 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
 
 
     @Override
+    void subscribe(WorkerNode node) {
+        super.subscribe(node);
+        if (options.orchMode == OrchestratorMode.LOCAL) {
+            node.subscribeDone(n -> new DataHandlerCB(node, options));
+        }
+    }
+
+
+    @Override
     protected void end() {
         removeStageDirectories();
         if (options.orchMode == OrchestratorMode.LOCAL) {
@@ -526,6 +537,31 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
     }
 
 
+    static class DataHandlerCB implements EngineCallback {
+
+        private final WorkerNode localNode;
+        private final OrchestratorOptions options;
+
+        DataHandlerCB(WorkerNode localNode,
+                    OrchestratorOptions options) {
+            this.localNode = localNode;
+            this.options = options;
+        }
+
+        @Override
+        public void callback(EngineData data) {
+            int totalEvents = localNode.eventNumber.addAndGet(options.reportFreq);
+            long endTime = System.currentTimeMillis();
+            double totalTime = (endTime - localNode.startTime.get());
+            double timePerEvent = totalTime /  totalEvents;
+            Logging.info("Processed  %5d events    "
+                         + "total time = %7.2f s    "
+                         + "average event time = %6.2f ms",
+                         totalEvents, totalTime / 1000L, timePerEvent);
+        }
+    }
+
+
     static class CommandLineBuilder {
 
         private static final String ARG_FRONTEND      = "frontEnd";
@@ -540,6 +576,7 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
         private static final String ARG_POOL_SIZE     = "poolSize";
         private static final String ARG_MAX_NODES     = "maxNodes";
         private static final String ARG_MAX_THREADS   = "maxThreads";
+        private static final String ARG_FREQUENCY     = "frequency";
         private static final String ARG_SKIP_EVENTS   = "skipEv";
         private static final String ARG_MAX_EVENTS    = "maxEv";
         private static final String ARG_SERVICES_FILE = "servicesFile";
@@ -590,6 +627,9 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
             }
             if (config.getBoolean(ARG_STAGE_FILES)) {
                 options.stageFiles();
+            }
+            if (config.contains(ARG_FREQUENCY)) {
+                options.withReportFrequency(config.getInt(ARG_FREQUENCY));
             }
             if (config.contains(ARG_SKIP_EVENTS)) {
                 options.withSkipEvents(config.getInt(ARG_SKIP_EVENTS));
@@ -699,6 +739,13 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
                     .setRequired(false);
             maxThreads.setHelp("The maximum number of reconstruction threads to be used per node.");
 
+            FlaggedOption reportFreq = new FlaggedOption(ARG_FREQUENCY)
+                    .setStringParser(JSAP.INTEGER_PARSER)
+                    .setShortFlag('r')
+                    .setDefault("500")
+                    .setRequired(false);
+            reportFreq.setHelp("The report frequency of processed events.");
+
             FlaggedOption skipEvents = new FlaggedOption(ARG_SKIP_EVENTS)
                     .setStringParser(JSAP.INTEGER_PARSER)
                     .setShortFlag('k')
@@ -735,6 +782,7 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
                 jsap.registerParameter(poolSize);
                 jsap.registerParameter(maxNodes);
                 jsap.registerParameter(maxThreads);
+                jsap.registerParameter(reportFreq);
                 jsap.registerParameter(skipEvents);
                 jsap.registerParameter(maxEvents);
                 jsap.registerParameter(servicesFile);
