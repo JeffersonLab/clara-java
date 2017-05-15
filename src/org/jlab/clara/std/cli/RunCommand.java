@@ -65,18 +65,7 @@ class RunCommand extends BaseCommand {
         public int execute(String[] args) {
             try {
                 DpeName feDpe = startLocalDpes();
-
-                Path orchestrator = Paths.get(Config.claraHome(), "bin", "clara-orchestrator");
-                int exitStatus = runOrchestrator(feDpe,
-                        orchestrator.toString(),
-                        "-F",
-                        "-f", feDpe.toString(),
-                        "-t", getThreads().toString(),
-                        "-i", config.getValue(Config.INPUT_DIR).toString(),
-                        "-o", config.getValue(Config.OUTPUT_DIR).toString(),
-                        config.getValue(Config.SERVICES_FILE).toString(),
-                        config.getValue(Config.FILES_LIST).toString());
-
+                int exitStatus = runOrchestrator(feDpe);
                 if (Thread.interrupted()) {
                     destroyDpes();
                     Thread.currentThread().interrupt();
@@ -91,9 +80,27 @@ class RunCommand extends BaseCommand {
             }
         }
 
-        private int runOrchestrator(DpeName feName, String... cmd) {
+        private int runOrchestrator(DpeName feName) {
+            String[] cmd = orchestratorCmd(feName);
             String logFile = RunUtils.getLogFile(getHost(feName), getKeyword(), "orch").toString();
             return CommandUtils.runProcess(buildProcess(cmd, logFile));
+        }
+
+        private String[] orchestratorCmd(DpeName feName) {
+            Path orchestrator = Paths.get(Config.claraHome(), "bin", "clara-orchestrator");
+            CommandBuilder cmd = new CommandBuilder(orchestrator, false);
+
+            cmd.addOption("-F");
+            cmd.addOption("-f", feName);
+
+            cmd.addOption("-t", getThreads());
+            cmd.addOption("-i", config.getValue(Config.INPUT_DIR));
+            cmd.addOption("-o", config.getValue(Config.OUTPUT_DIR));
+
+            cmd.addArgument(config.getValue(Config.SERVICES_FILE));
+            cmd.addArgument(config.getValue(Config.FILES_LIST));
+
+            return cmd.toArray();
         }
 
         private DpeName startLocalDpes() throws IOException {

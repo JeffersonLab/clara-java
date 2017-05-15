@@ -227,35 +227,33 @@ final class FarmCommands {
         }
 
         private String getClaraCommand() {
-            StringBuilder cmd = new StringBuilder();
-            cmd.append("\"");
-            cmd.append(Config.claraHome()).append("/lib/clara/run-clara");
-            cmd.append("\"");
+            Path wrapper = Paths.get(Config.claraHome(), "lib", "clara", "run-clara");
+            CommandBuilder cmd = new CommandBuilder(wrapper, true);
 
-            appendOpt(cmd, "-i", config.getValue(Config.INPUT_DIR));
-            appendOpt(cmd, "-o", config.getValue(Config.OUTPUT_DIR));
+            cmd.addOption("-i", config.getValue(Config.INPUT_DIR));
+            cmd.addOption("-o", config.getValue(Config.OUTPUT_DIR));
             if (config.hasValue(FARM_STAGE)) {
-                appendOpt(cmd, "-l ", config.getValue(FARM_STAGE));
+                cmd.addOption("-l ", config.getValue(FARM_STAGE));
             }
             if (config.hasValue(Config.MAX_THREADS)) {
-                appendOpt(cmd, "-t", config.getValue(Config.MAX_THREADS));
+                cmd.addOption("-t", config.getValue(Config.MAX_THREADS));
             } else {
-                appendOpt(cmd, "-t", config.getValue(FARM_CPU));
+                cmd.addOption("-t", config.getValue(FARM_CPU));
             }
-            appendOpt(cmd, "-s", config.getValue(Config.SESSION));
+            cmd.addOption("-s", config.getValue(Config.SESSION));
             if (config.hasValue(Config.DESCRIPTION)) {
-                appendOpt(cmd, "-d", config.getValue(Config.DESCRIPTION));
+                cmd.addOption("-d", config.getValue(Config.DESCRIPTION));
             }
             if (config.hasValue(Config.FRONTEND_HOST)) {
-                appendOpt(cmd, "-H", config.getValue(Config.FRONTEND_HOST));
+                cmd.addOption("-H", config.getValue(Config.FRONTEND_HOST));
             }
             if (config.hasValue(Config.FRONTEND_PORT)) {
-                appendOpt(cmd, "-P", config.getValue(Config.FRONTEND_PORT));
+                cmd.addOption("-P", config.getValue(Config.FRONTEND_PORT));
             }
-            appendOpt(cmd, "-J", getJVMOptions());
+            cmd.addOption("-J", getJVMOptions());
 
-            appendArg(cmd, config.getValue(Config.SERVICES_FILE));
-            appendArg(cmd, config.getValue(Config.FILES_LIST));
+            cmd.addArgument(config.getValue(Config.SERVICES_FILE));
+            cmd.addArgument(config.getValue(Config.FILES_LIST));
 
             return cmd.toString();
         }
@@ -349,14 +347,6 @@ final class FarmCommands {
             }
             return String.format("-Xms%dg -Xmx%dg -XX:+UseNUMA -XX:+UseBiasedLocking",
                                  memSize, memSize);
-        }
-
-        private void appendOpt(StringBuilder sb, String opt, Object value) {
-            sb.append(" ").append(opt).append(" \"").append(value).append("\"");
-        }
-
-        private void appendArg(StringBuilder sb, Object value) {
-            sb.append(" \"").append(value).append("\"");
         }
     }
 
