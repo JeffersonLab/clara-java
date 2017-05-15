@@ -143,6 +143,7 @@ def deploySpec = copySpec {
 
     from ('scripts/unix') {
         into 'bin'
+        exclude 'etc'
         fileMode 0755
     }
 
