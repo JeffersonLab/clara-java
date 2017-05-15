@@ -1,0 +1,3 @@
+#!/bin/sh
+
+exec ./scripts/exec-class org.jlab.clara.std.orchestrators.GenericOrchestrator "$@"
