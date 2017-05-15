@@ -21,8 +21,7 @@ public class InfluxDbReport extends DpeListenerAndReporter {
     }
 
     public static void main(String[] args) {
-        InfluxDbReport rep = new InfluxDbReport(args[1], args[2]);
-        try {
+        try (InfluxDbReport rep = new InfluxDbReport(args[1], args[2])) {
             rep.start();
         } catch (xMsgException e) {
             e.printStackTrace();
