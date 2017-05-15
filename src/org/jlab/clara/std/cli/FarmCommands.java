@@ -240,6 +240,15 @@ final class FarmCommands {
             } else {
                 cmd.addOption("-t", config.getValue(FARM_CPU));
             }
+            if (config.hasValue(Config.DATA_FREQUENCY)) {
+                cmd.addOption("-r", config.getValue(Config.DATA_FREQUENCY));
+            }
+            if (config.hasValue(Config.SKIP_EVENTS)) {
+                cmd.addOption("-k", config.getValue(Config.SKIP_EVENTS));
+            }
+            if (config.hasValue(Config.MAX_EVENTS)) {
+                cmd.addOption("-e", config.getValue(Config.MAX_EVENTS));
+            }
             cmd.addOption("-s", config.getValue(Config.SESSION));
             if (config.hasValue(Config.DESCRIPTION)) {
                 cmd.addOption("-d", config.getValue(Config.DESCRIPTION));

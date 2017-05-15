@@ -94,6 +94,15 @@ class RunCommand extends BaseCommand {
             cmd.addOption("-f", feName);
 
             cmd.addOption("-t", getThreads());
+            if (config.hasValue(Config.DATA_FREQUENCY)) {
+                cmd.addOption("-r", config.getValue(Config.DATA_FREQUENCY));
+            }
+            if (config.hasValue(Config.SKIP_EVENTS)) {
+                cmd.addOption("-k", config.getValue(Config.SKIP_EVENTS));
+            }
+            if (config.hasValue(Config.MAX_EVENTS)) {
+                cmd.addOption("-e", config.getValue(Config.MAX_EVENTS));
+            }
             cmd.addOption("-i", config.getValue(Config.INPUT_DIR));
             cmd.addOption("-o", config.getValue(Config.OUTPUT_DIR));
 

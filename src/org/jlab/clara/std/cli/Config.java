@@ -90,6 +90,21 @@ public class Config {
     public static final String MAX_THREADS = "threads";
 
     /**
+     * The variable for the frequency of "done" reports by the writer.
+     */
+    public static final String DATA_FREQUENCY = "dataFreq";
+
+    /**
+     * The variable for the number events to skip from the input file.
+     */
+    public static final String SKIP_EVENTS = "skipEvents";
+
+    /**
+     * The variable for the number events to be processed from the input file.
+     */
+    public static final String MAX_EVENTS = "maxEvents";
+
+    /**
      * The variable for the the JVM heap size used by the DPE.
      */
     public static final String JAVA_MEMORY = "javaMemory";
@@ -218,6 +233,18 @@ public class Config {
 
         addBuilder.apply(MAX_THREADS,
                 "The maximum number of processing threads to be used per node.")
+                .withParser(ConfigParsers::toPositiveInteger);
+
+        addBuilder.apply(DATA_FREQUENCY,
+                "The frequency to report finished events.")
+                .withParser(ConfigParsers::toPositiveInteger);
+
+        addBuilder.apply(SKIP_EVENTS,
+                "The number of events to skip from the input file.")
+                .withParser(ConfigParsers::toPositiveInteger);
+
+        addBuilder.apply(MAX_EVENTS,
+                "The maximum number of events to be processed.")
                 .withParser(ConfigParsers::toPositiveInteger);
 
         addBuilder.apply(FRONTEND_HOST,
