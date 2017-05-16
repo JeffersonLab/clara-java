@@ -82,7 +82,7 @@ class OrchestratorSetup {
         }
 
         OrchestratorSetup build() {
-            return null;
+            return new OrchestratorSetup(this);
         }
     }
 
