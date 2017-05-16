@@ -240,8 +240,8 @@ final class FarmCommands {
             } else {
                 cmd.addOption("-t", config.getValue(FARM_CPU));
             }
-            if (config.hasValue(Config.DATA_FREQUENCY)) {
-                cmd.addOption("-r", config.getValue(Config.DATA_FREQUENCY));
+            if (config.hasValue(Config.REPORT_EVENTS)) {
+                cmd.addOption("-r", config.getValue(Config.REPORT_EVENTS));
             }
             if (config.hasValue(Config.SKIP_EVENTS)) {
                 cmd.addOption("-k", config.getValue(Config.SKIP_EVENTS));

@@ -90,9 +90,9 @@ public class Config {
     public static final String MAX_THREADS = "threads";
 
     /**
-     * The variable for the frequency of "done" reports by the writer.
+     * The variable for the report frequency of completed events.
      */
-    public static final String DATA_FREQUENCY = "dataFreq";
+    public static final String REPORT_EVENTS = "reportEvents";
 
     /**
      * The variable for the number events to skip from the input file.
@@ -235,7 +235,7 @@ public class Config {
                 "The maximum number of processing threads to be used per node.")
                 .withParser(ConfigParsers::toPositiveInteger);
 
-        addBuilder.apply(DATA_FREQUENCY,
+        addBuilder.apply(REPORT_EVENTS,
                 "The frequency to report finished events.")
                 .withParser(ConfigParsers::toPositiveInteger);
 
