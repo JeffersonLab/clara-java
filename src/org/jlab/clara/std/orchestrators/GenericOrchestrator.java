@@ -123,6 +123,16 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
             this.options = new OrchestratorOptions.Builder();
         }
 
+        private Builder(String servicesFile, String inputFile, String outputFile) {
+            Objects.requireNonNull(servicesFile, "servicesFile parameter is null");
+            Objects.requireNonNull(inputFile, "inputFile parameter is null");
+            Objects.requireNonNull(outputFile, "outputFile parameter is null");
+
+            this.setup = initialSetup(servicesFile);
+            this.paths = new OrchestratorPaths.Builder(inputFile, outputFile);
+            this.options = new OrchestratorOptions.Builder();
+        }
+
         private OrchestratorSetup.Builder initialSetup(String servicesFile) {
             OrchestratorConfigParser parser = new OrchestratorConfigParser(servicesFile);
             return new OrchestratorSetup
@@ -674,7 +684,7 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
                 if (numArgs == 0) {
                     throw new CommandLineException("missing arguments");
                 }
-                if (numArgs != 2) {
+                if (numArgs < 2 || numArgs > 3) {
                     throw new CommandLineException("invalid number of arguments");
                 }
             } catch (OptionException e) {
@@ -690,12 +700,16 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
             try {
                 List<String> args = arguments.values(options);
                 String services = args.get(0);
-                String files = args.get(1);
+                List<String> files = args.subList(1, args.size());
 
-                Builder builder = new Builder(services, parseInputFiles(files));
-
-                builder.withInputDirectory(options.valueOf(inputDir));
-                builder.withOutputDirectory(options.valueOf(outputDir));
+                Builder builder;
+                if (files.size() == 1) {
+                    builder = new Builder(services, parseInputFiles(files.get(0)));
+                    builder.withInputDirectory(options.valueOf(inputDir));
+                    builder.withOutputDirectory(options.valueOf(outputDir));
+                } else {
+                    builder = new Builder(services, files.get(0), files.get(1));
+                }
                 builder.withStageDirectory(options.valueOf(stageDir));
 
                 builder.withPoolSize(options.valueOf(poolSize));
