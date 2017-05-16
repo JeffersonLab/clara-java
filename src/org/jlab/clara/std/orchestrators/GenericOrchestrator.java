@@ -22,6 +22,7 @@
 
 package org.jlab.clara.std.orchestrators;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -33,19 +34,19 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import joptsimple.OptionException;
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
+import joptsimple.OptionSpec;
+
+
 import org.jlab.clara.base.ClaraLang;
 import org.jlab.clara.base.ClaraUtil;
 import org.jlab.clara.base.DpeName;
 import org.jlab.clara.base.EngineCallback;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.std.orchestrators.CoreOrchestrator.DpeCallBack;
-
-import com.martiansoftware.jsap.FlaggedOption;
-import com.martiansoftware.jsap.JSAP;
-import com.martiansoftware.jsap.JSAPException;
-import com.martiansoftware.jsap.JSAPResult;
-import com.martiansoftware.jsap.Switch;
-import com.martiansoftware.jsap.UnflaggedOption;
+import org.jlab.clara.util.OptUtils;
 
 /**
  * A generic orchestrator that runs a simple application loop over a set of
@@ -61,12 +62,12 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
 
 
     public static void main(String[] args) {
+        CommandLineBuilder cl = new CommandLineBuilder();
         try {
-            CommandLineBuilder cl = new CommandLineBuilder(args);
-            if (!cl.success()) {
-                System.err.printf("Usage:%n%n  cloud-orchestrator %s%n%n%n", cl.usage());
-                System.err.print(cl.help());
-                System.exit(1);
+            cl.parse(args);
+            if (cl.hasHelp()) {
+                System.out.println(cl.usage());
+                System.exit(0);
             }
             GenericOrchestrator fo = cl.build();
             boolean status = fo.run();
@@ -75,6 +76,10 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
             } else {
                 System.exit(1);
             }
+        } catch (CommandLineException e) {
+            System.err.println("error: " + e.getMessage());
+            System.err.println(cl.usage());
+            System.exit(1);
         } catch (OrchestratorConfigException e) {
             System.err.println("Error: " + e.getMessage());
             System.exit(1);
@@ -558,93 +563,182 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
     }
 
 
+    static class CommandLineException extends RuntimeException {
+
+        CommandLineException(String message) {
+            super(message);
+        }
+
+        CommandLineException(Throwable cause) {
+            super(cause);
+        }
+
+        @Override
+        public String getMessage() {
+            Throwable cause = getCause();
+            if (cause != null) {
+                return cause.getMessage();
+            }
+            return super.getMessage();
+        }
+    }
+
+
     static class CommandLineBuilder {
 
-        private static final String ARG_FRONTEND      = "frontEnd";
-        private static final String ARG_CLOUD_MODE    = "cloudMode";
-        private static final String ARG_SESSION       = "session";
-        private static final String ARG_USE_FRONTEND  = "useFrontEnd";
-        private static final String ARG_STAGE_FILES   = "stageFiles";
-        private static final String ARG_BULK_STAGE    = "bulkStage";
-        private static final String ARG_INPUT_DIR     = "inputDir";
-        private static final String ARG_OUTPUT_DIR    = "outputDir";
-        private static final String ARG_STAGE_DIR     = "stageDir";
-        private static final String ARG_POOL_SIZE     = "poolSize";
-        private static final String ARG_MAX_NODES     = "maxNodes";
-        private static final String ARG_MAX_THREADS   = "maxThreads";
-        private static final String ARG_FREQUENCY     = "frequency";
-        private static final String ARG_SKIP_EVENTS   = "skipEv";
-        private static final String ARG_MAX_EVENTS    = "maxEv";
-        private static final String ARG_SERVICES_FILE = "servicesFile";
-        private static final String ARG_INPUT_FILES   = "inputFiles";
+        private final OptionSpec<String> frontEnd;
+        private final OptionSpec<String> session;
+        private final OptionSpec<String> inputDir;
+        private final OptionSpec<String> outputDir;
+        private final OptionSpec<String> stageDir;
+        private final OptionSpec<Integer> poolSize;
+        private final OptionSpec<Integer> maxNodes;
+        private final OptionSpec<Integer> maxThreads;
+        private final OptionSpec<Integer> reportFreq;
+        private final OptionSpec<Integer> skipEvents;
+        private final OptionSpec<Integer> maxEvents;
 
-        private final JSAP jsap;
-        private final JSAPResult config;
+        private final OptionSpec<String> arguments;
 
-        CommandLineBuilder(String[] args) {
-            jsap = new JSAP();
-            setArguments(jsap);
-            config = jsap.parse(args);
+        private OptionParser parser;
+        private OptionSet options;
+
+        CommandLineBuilder() {
+            parser = new OptionParser();
+
+            frontEnd = parser.accepts("f")
+                    .withRequiredArg()
+                    .defaultsTo(OrchestratorConfigParser.localDpeName().toString());
+
+            session = parser.accepts("s")
+                    .withRequiredArg()
+                    .defaultsTo("");
+
+            parser.accepts("C");
+            parser.accepts("F");
+            parser.accepts("L");
+
+            inputDir = parser.accepts("i")
+                    .withRequiredArg()
+                    .defaultsTo(OrchestratorPaths.INPUT_DIR);
+
+            outputDir = parser.accepts("o")
+                    .withRequiredArg()
+                    .defaultsTo(OrchestratorPaths.OUTPUT_DIR);
+
+            stageDir = parser.accepts("l")
+                    .withRequiredArg()
+                    .defaultsTo(OrchestratorPaths.STAGE_DIR);
+
+            poolSize = parser.accepts("p")
+                    .withRequiredArg()
+                    .ofType(Integer.class)
+                    .defaultsTo(OrchestratorOptions.DEFAULT_POOLSIZE);
+
+            maxNodes = parser.accepts("n")
+                    .withRequiredArg()
+                    .ofType(Integer.class)
+                    .defaultsTo(OrchestratorOptions.MAX_NODES);
+
+            maxThreads = parser.accepts("t")
+                    .withRequiredArg()
+                    .ofType(Integer.class)
+                    .defaultsTo(OrchestratorOptions.MAX_THREADS);
+
+            reportFreq = parser.accepts("r")
+                    .withRequiredArg()
+                    .ofType(Integer.class)
+                    .defaultsTo(OrchestratorOptions.DEFAULT_REPORT_FREQ);
+
+            skipEvents = parser.accepts("k")
+                    .withRequiredArg()
+                    .ofType(Integer.class);
+
+            maxEvents = parser.accepts("e")
+                    .withRequiredArg()
+                    .ofType(Integer.class)
+                    .defaultsTo(0);
+
+            arguments = parser.nonOptions();
+
+            parser.acceptsAll(Arrays.asList("h", "help")).forHelp();
         }
 
-        public boolean success() {
-            return config.success();
+        public void parse(String[] args) {
+            try {
+                options = parser.parse(args);
+                if (hasHelp()) {
+                    return;
+                }
+                int numArgs = options.nonOptionArguments().size();
+                if (numArgs == 0) {
+                    throw new CommandLineException("missing arguments");
+                }
+                if (numArgs != 2) {
+                    throw new CommandLineException("invalid number of arguments");
+                }
+            } catch (OptionException e) {
+                throw new CommandLineException(e);
+            }
         }
 
-        public String usage() {
-            return jsap.getUsage();
-        }
-
-        public String help() {
-            return jsap.getHelp();
+        public boolean hasHelp() {
+            return options.has("help");
         }
 
         public GenericOrchestrator build() {
-            String services = config.getString(ARG_SERVICES_FILE);
+            try {
+                List<String> args = arguments.values(options);
+                String services = args.get(0);
+                String files = args.get(1);
 
-            Builder builder = new Builder(services, parseInputFiles());
+                Builder builder = new Builder(services, parseInputFiles(files));
 
-            builder.withInputDirectory(config.getString(ARG_INPUT_DIR));
-            builder.withOutputDirectory(config.getString(ARG_OUTPUT_DIR));
-            builder.withStageDirectory(config.getString(ARG_STAGE_DIR));
+                builder.withInputDirectory(options.valueOf(inputDir));
+                builder.withOutputDirectory(options.valueOf(outputDir));
+                builder.withStageDirectory(options.valueOf(stageDir));
 
-            builder.withPoolSize(config.getInt(ARG_POOL_SIZE));
-            builder.withMaxThreads(config.getInt(ARG_MAX_THREADS));
-            builder.withMaxNodes(config.getInt(ARG_MAX_NODES));
+                builder.withPoolSize(options.valueOf(poolSize));
+                builder.withMaxThreads(options.valueOf(maxThreads));
+                builder.withMaxNodes(options.valueOf(maxNodes));
 
-            builder.withSession(parseSession());
-            builder.withFrontEnd(parseFrontEnd());
+                builder.withFrontEnd(parseFrontEnd());
+                builder.withSession(parseSession());
 
-            if (config.getBoolean(ARG_CLOUD_MODE)) {
-                builder.cloudMode();
+                if (options.has("C")) {
+                    builder.cloudMode();
+                }
+                if (options.has("F")) {
+                    builder.useFrontEnd();
+                }
+                if (options.has("L")) {
+                    builder.useStageDirectory();
+                }
+
+                if (options.has(reportFreq)) {
+                    builder.withReportFrequency(options.valueOf(reportFreq));
+                }
+                if (options.has(skipEvents)) {
+                    builder.withSkipEvents(options.valueOf(skipEvents));
+                }
+                if (options.has(maxEvents)) {
+                    builder.withMaxEvents(options.valueOf(maxEvents));
+                }
+
+                return builder.build();
+
+            } catch (OptionException e) {
+                throw new CommandLineException(e);
             }
-            if (config.getBoolean(ARG_USE_FRONTEND)) {
-                builder.useFrontEnd();
-            }
-            if (config.getBoolean(ARG_STAGE_FILES)) {
-                builder.useStageDirectory();
-            }
-
-            if (config.contains(ARG_FREQUENCY)) {
-                builder.withReportFrequency(config.getInt(ARG_FREQUENCY));
-            }
-            if (config.contains(ARG_SKIP_EVENTS)) {
-                builder.withSkipEvents(config.getInt(ARG_SKIP_EVENTS));
-            }
-            if (config.contains(ARG_MAX_EVENTS)) {
-                builder.withMaxEvents(config.getInt(ARG_MAX_EVENTS));
-            }
-
-            return builder.build();
         }
 
-        private List<String> parseInputFiles() {
-            return OrchestratorConfigParser.readInputFiles(config.getString(ARG_INPUT_FILES));
+        private List<String> parseInputFiles(String filesList) {
+            return OrchestratorConfigParser.readInputFiles(filesList);
         }
 
         private DpeName parseFrontEnd() {
-            String frontEnd = config.getString(ARG_FRONTEND)
-                                    .replaceFirst("localhost", ClaraUtil.localhost());
+            String frontEnd = options.valueOf(this.frontEnd)
+                                     .replaceFirst("localhost", ClaraUtil.localhost());
             try {
                 return new DpeName(frontEnd);
             } catch (IllegalArgumentException e) {
@@ -653,136 +747,45 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
         }
 
         private String parseSession() {
-            String session = config.getString(ARG_SESSION);
+            String session = options.valueOf(this.session);
             if (session == null) {
                 return "";
             }
             return session;
         }
 
-        private void setArguments(JSAP jsap) {
-            FlaggedOption frontEnd = new FlaggedOption(ARG_FRONTEND)
-                    .setStringParser(JSAP.STRING_PARSER)
-                    .setRequired(false)
-                    .setShortFlag('f')
-                    .setDefault(OrchestratorConfigParser.localDpeName().toString());
-            frontEnd.setHelp("The name of the CLARA front-end DPE.");
-
-            FlaggedOption session = new FlaggedOption(ARG_SESSION)
-                    .setStringParser(JSAP.STRING_PARSER)
-                    .setShortFlag('s')
-                    .setRequired(false);
-            session.setHelp("The session of the CLARA DPEs to be used for reconstruction.");
-
-            Switch cloudMode = new Switch(ARG_CLOUD_MODE)
-                    .setShortFlag('C');
-            cloudMode.setHelp("Use cloud mode for reconstruction.");
-
-            Switch useFrontEnd = new Switch(ARG_USE_FRONTEND)
-                    .setShortFlag('F');
-            useFrontEnd.setHelp("Use front-end for reconstruction.");
-
-            Switch stageFiles = new Switch(ARG_STAGE_FILES)
-                    .setShortFlag('L');
-            stageFiles.setHelp("Stage files to the local file-system before using them.");
-
-            Switch bulkStage = new Switch(ARG_BULK_STAGE)
-                    .setShortFlag('B');
-            bulkStage.setHelp("Stage all files at once to the local file-system.");
-
-            FlaggedOption inputDir = new FlaggedOption(ARG_INPUT_DIR)
-                    .setStringParser(JSAP.STRING_PARSER)
-                    .setRequired(false)
-                    .setShortFlag('i')
-                    .setDefault(OrchestratorPaths.INPUT_DIR);
-            inputDir.setHelp("The input directory where the files to be processed are located.");
-
-            FlaggedOption outputDir = new FlaggedOption(ARG_OUTPUT_DIR)
-                    .setStringParser(JSAP.STRING_PARSER)
-                    .setRequired(false)
-                    .setShortFlag('o')
-                    .setDefault(OrchestratorPaths.OUTPUT_DIR);
-            outputDir.setHelp("The output directory where reconstructed files will be saved.");
-
-            FlaggedOption stageDir = new FlaggedOption(ARG_STAGE_DIR)
-                    .setStringParser(JSAP.STRING_PARSER)
-                    .setRequired(false)
-                    .setShortFlag('l')
-                    .setDefault(OrchestratorPaths.STAGE_DIR);
-            stageDir.setHelp("The local stage directory where the temporary files will be stored.");
-
-            FlaggedOption poolSize = new FlaggedOption(ARG_POOL_SIZE)
-                    .setStringParser(JSAP.INTEGER_PARSER)
-                    .setShortFlag('p')
-                    .setDefault(String.valueOf(OrchestratorOptions.DEFAULT_POOLSIZE))
-                    .setRequired(false);
-            poolSize.setHelp("The size of the thread-pool processing service and node reports.");
-
-            FlaggedOption maxNodes = new FlaggedOption(ARG_MAX_NODES)
-                    .setStringParser(JSAP.INTEGER_PARSER)
-                    .setShortFlag('n')
-                    .setDefault(String.valueOf(OrchestratorOptions.MAX_NODES))
-                    .setRequired(false);
-            maxNodes.setHelp("The maximum number of reconstruction nodes to be used.");
-
-            FlaggedOption maxThreads = new FlaggedOption(ARG_MAX_THREADS)
-                    .setStringParser(JSAP.INTEGER_PARSER)
-                    .setShortFlag('t')
-                    .setDefault(String.valueOf(OrchestratorOptions.MAX_THREADS))
-                    .setRequired(false);
-            maxThreads.setHelp("The maximum number of reconstruction threads to be used per node.");
-
-            FlaggedOption reportFreq = new FlaggedOption(ARG_FREQUENCY)
-                    .setStringParser(JSAP.INTEGER_PARSER)
-                    .setShortFlag('r')
-                    .setDefault(String.valueOf(OrchestratorOptions.DEFAULT_REPORT_FREQ))
-                    .setRequired(false);
-            reportFreq.setHelp("The report frequency of processed events.");
-
-            FlaggedOption skipEvents = new FlaggedOption(ARG_SKIP_EVENTS)
-                    .setStringParser(JSAP.INTEGER_PARSER)
-                    .setShortFlag('k')
-                    .setRequired(false);
-            skipEvents.setHelp("The amount of events to skip at the beginning.");
-
-            FlaggedOption maxEvents = new FlaggedOption(ARG_MAX_EVENTS)
-                    .setStringParser(JSAP.INTEGER_PARSER)
-                    .setShortFlag('e')
-                    .setRequired(false);
-            maxEvents.setHelp("The maximum number of events to process.");
-
-            UnflaggedOption servicesFile = new UnflaggedOption(ARG_SERVICES_FILE)
-                    .setStringParser(JSAP.STRING_PARSER)
-                    .setRequired(true);
-            servicesFile.setHelp("The YAML file with the reconstruction chain description.");
-
-            UnflaggedOption inputFiles = new UnflaggedOption(ARG_INPUT_FILES)
-                    .setStringParser(JSAP.STRING_PARSER)
-                    .setRequired(true);
-            inputFiles.setHelp("The file with the list of input files to be reconstructed"
-                              + " (one name per line).");
-
-            try {
-                jsap.registerParameter(frontEnd);
-                jsap.registerParameter(session);
-                jsap.registerParameter(cloudMode);
-                jsap.registerParameter(useFrontEnd);
-                jsap.registerParameter(stageFiles);
-                jsap.registerParameter(bulkStage);
-                jsap.registerParameter(inputDir);
-                jsap.registerParameter(outputDir);
-                jsap.registerParameter(stageDir);
-                jsap.registerParameter(poolSize);
-                jsap.registerParameter(maxNodes);
-                jsap.registerParameter(maxThreads);
-                jsap.registerParameter(reportFreq);
-                jsap.registerParameter(skipEvents);
-                jsap.registerParameter(maxEvents);
-                jsap.registerParameter(servicesFile);
-                jsap.registerParameter(inputFiles);
-            } catch (JSAPException e) {
-                throw new RuntimeException(e);
-            }
+        public String usage() {
+            String wrapper = "clara-orchestrator";
+            return String.format("usage: %s [options] <servicesFile> <datasetFile>", wrapper)
+                + String.format("%n%n  Options:%n")
+                + OptUtils.optionHelp("-C",
+                        "Use the orchestrator on cloud mode.")
+                + OptUtils.optionHelp("-F",
+                        "Use the front-end for processing (on cloud mode).")
+                + OptUtils.optionHelp("-L",
+                        "Stage input files in the local file-system.")
+                + OptUtils.optionHelp(frontEnd, "frontEnd",
+                        "The name of the CLARA front-end DPE")
+                + OptUtils.optionHelp(session, "session",
+                        "The session name to filter worker DPEs")
+                + OptUtils.optionHelp(inputDir, "inputDir",
+                        "The directory with the set of input files")
+                + OptUtils.optionHelp(outputDir, "outputDir",
+                        "The directory where output files will be saved")
+                + OptUtils.optionHelp(stageDir, "stageDir",
+                        "The local directory where files will be staged")
+                + OptUtils.optionHelp(poolSize, "poolSize",
+                        "The size of the thread pool processing event reports")
+                + OptUtils.optionHelp(maxNodes, "maxNodes",
+                        "The maximum number of worker nodes to be used")
+                + OptUtils.optionHelp(maxThreads, "maxThreads",
+                        "The maximum number of threads to be used per node")
+                + OptUtils.optionHelp(reportFreq, "frequency",
+                        "The report frequency of processed events.")
+                + OptUtils.optionHelp(skipEvents, "skipEv",
+                        "The number of events to skip at the beginning")
+                + OptUtils.optionHelp(maxEvents, "maxEv",
+                        "The maximum number of events to process");
         }
     }
 }
