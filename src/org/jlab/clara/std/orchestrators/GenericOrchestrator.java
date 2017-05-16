@@ -39,7 +39,6 @@ import org.jlab.clara.base.DpeName;
 import org.jlab.clara.base.EngineCallback;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.std.orchestrators.CoreOrchestrator.DpeCallBack;
-import org.json.JSONObject;
 
 import com.martiansoftware.jsap.FlaggedOption;
 import com.martiansoftware.jsap.JSAP;
@@ -96,17 +95,9 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
      */
     public static class Builder {
 
-        private final Map<String, ServiceInfo> ioServices;
-        private final List<ServiceInfo> recChain;
-
-        private final Set<String> dataTypes;
-        private final JSONObject config;
-
+        private final OrchestratorSetup.Builder setup;
         private final OrchestratorPaths.Builder paths;
         private final OrchestratorOptions.Builder options = OrchestratorOptions.builder();
-
-        private DpeName frontEnd = OrchestratorConfigParser.localDpeName();
-        private String session = "";
 
         /**
          * Sets the required arguments to start a reconstruction.
@@ -121,12 +112,13 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
             if (inputFiles.isEmpty()) {
                 throw new IllegalArgumentException("inputFiles list is empty");
             }
+
             OrchestratorConfigParser parser = new OrchestratorConfigParser(servicesFile);
-            this.ioServices = parser.parseInputOutputServices();
-            this.recChain = parser.parseReconstructionChain();
+            this.setup = new OrchestratorSetup
+                    .Builder(parser.parseInputOutputServices(), parser.parseReconstructionChain())
+                    .withConfig(parser.parseReconstructionConfig())
+                    .withDataTypes(parser.parseDataTypes());
             this.paths = new OrchestratorPaths.Builder(inputFiles);
-            this.dataTypes = parser.parseDataTypes();
-            this.config = parser.parseReconstructionConfig();
         }
 
         /**
@@ -138,8 +130,7 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
          * @return this object, so methods can be chained
          */
         public Builder withFrontEnd(DpeName frontEnd) {
-            Objects.requireNonNull(frontEnd, "frontEnd parameter is null");
-            this.frontEnd = frontEnd;
+            setup.withFrontEnd(frontEnd);
             return this;
         }
 
@@ -164,8 +155,7 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
          * @return this object, so methods can be chained
          */
         public Builder withSession(String session) {
-            Objects.requireNonNull(session, "session parameter is null");
-            this.session = session;
+            setup.withSession(session);
             return this;
         }
 
@@ -321,10 +311,7 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
          * @return a new orchestrator object configured as requested
          */
         public GenericOrchestrator build() {
-            OrchestratorSetup setup = new OrchestratorSetup(
-                    frontEnd, ioServices, recChain,
-                    dataTypes, config, session);
-            return new GenericOrchestrator(setup, paths.build(), options.build());
+            return new GenericOrchestrator(setup.build(), paths.build(), options.build());
         }
     }
 

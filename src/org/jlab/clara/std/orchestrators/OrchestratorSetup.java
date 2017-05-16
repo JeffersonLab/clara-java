@@ -29,34 +29,76 @@ import org.jlab.clara.engine.EngineDataType;
 import org.json.JSONObject;
 
 import java.nio.ByteBuffer;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 class OrchestratorSetup {
 
+    final ApplicationInfo application;
     final DpeName frontEnd;
     final String session;
-
-    final ApplicationInfo application;
-    final Set<EngineDataType> dataTypes;
     final JSONObject configuration;
+    final Set<EngineDataType> dataTypes;
 
-    OrchestratorSetup(DpeName frontEnd,
-                      Map<String, ServiceInfo> ioServices,
-                      List<ServiceInfo> recChain,
-                      Set<String> dataTypes,
-                      JSONObject globalConfig,
-                      String session) {
-        this.frontEnd = frontEnd;
-        this.session = session;
-        this.application = new ApplicationInfo(ioServices, recChain);
-        this.dataTypes = dataTypes.stream().map(this::dummyDataType).collect(Collectors.toSet());
-        this.configuration = globalConfig;
+
+    static class Builder {
+
+        private final ApplicationInfo application;
+
+        private DpeName frontEnd = OrchestratorConfigParser.localDpeName();
+        private String session = "";
+
+        private JSONObject config = new JSONObject();
+        private Set<String> dataTypes = new HashSet<>();
+
+        Builder(Map<String, ServiceInfo> ioServices, List<ServiceInfo> recChain) {
+            this.application = new ApplicationInfo(ioServices, recChain);
+        }
+
+        Builder withFrontEnd(DpeName frontEnd) {
+            Objects.requireNonNull(frontEnd, "frontEnd parameter is null");
+            this.frontEnd = frontEnd;
+            return this;
+        }
+
+        Builder withSession(String session) {
+            Objects.requireNonNull(session, "session parameter is null");
+            this.session = session;
+            return this;
+        }
+
+        Builder withConfig(JSONObject config) {
+            this.config = config;
+            return this;
+        }
+
+        Builder withDataTypes(Set<String> dataTypes) {
+            this.dataTypes = dataTypes;
+            return this;
+        }
+
+        OrchestratorSetup build() {
+            return null;
+        }
     }
 
-    private EngineDataType dummyDataType(String mimeType) {
+
+    protected OrchestratorSetup(Builder builder) {
+        this.frontEnd = builder.frontEnd;
+        this.session = builder.session;
+        this.application = builder.application;
+        this.configuration = builder.config;
+        this.dataTypes = builder.dataTypes.stream()
+                    .map(OrchestratorSetup::dummyDataType)
+                    .collect(Collectors.toSet());
+    }
+
+
+    private static EngineDataType dummyDataType(String mimeType) {
         return new EngineDataType(mimeType, new ClaraSerializer() {
 
             @Override
