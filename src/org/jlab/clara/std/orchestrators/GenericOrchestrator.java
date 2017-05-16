@@ -238,6 +238,17 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
         }
 
         /**
+         * Sets the frequency of the "done" event reports.
+         *
+         * @param frequency the frequency of done reports
+         * @return this object, so methods can be chained
+         */
+        public Builder withReportFrequency(int frequency) {
+            options.withReportFrequency(frequency);
+            return this;
+        }
+
+        /**
          * Sets the number of events to skip.
          *
          * @param skip how many events to skip
