@@ -25,6 +25,7 @@ package org.jlab.clara.std.orchestrators;
 final class OrchestratorOptions {
 
     static final int DEFAULT_POOLSIZE = 32;
+    static final int DEFAULT_REPORT_FREQ = 500;
     static final int MAX_NODES = 512;
     static final int MAX_THREADS = 64;
 
@@ -58,7 +59,7 @@ final class OrchestratorOptions {
 
         private int skipEvents = 0;
         private int maxEvents = 0;
-        private int reportFreq = 0;
+        private int reportFreq = DEFAULT_REPORT_FREQ;
 
         Builder cloudMode() {
             this.orchMode = OrchestratorMode.CLOUD;

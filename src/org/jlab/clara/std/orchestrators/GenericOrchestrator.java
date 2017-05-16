@@ -753,7 +753,7 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
             FlaggedOption reportFreq = new FlaggedOption(ARG_FREQUENCY)
                     .setStringParser(JSAP.INTEGER_PARSER)
                     .setShortFlag('r')
-                    .setDefault("500")
+                    .setDefault(String.valueOf(OrchestratorOptions.DEFAULT_REPORT_FREQ))
                     .setRequired(false);
             reportFreq.setHelp("The report frequency of processed events.");
 
