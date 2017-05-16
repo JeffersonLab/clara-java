@@ -26,6 +26,8 @@ import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
 import joptsimple.OptionSpec;
+
+import org.jlab.clara.util.OptUtils;
 import org.jlab.coda.xmsg.net.xMsgProxyAddress;
 
 import java.util.concurrent.TimeUnit;
@@ -66,12 +68,12 @@ class DpeOptionsParser {
 
         parser.acceptsAll(asList("fe", "frontend"));
 
-        dpeHost = parser.acceptsAll(asList("host", "dpe_host")).withRequiredArg();
-        dpePort = parser.acceptsAll(asList("port", "dpe_port"))
+        dpeHost = parser.acceptsAll(asList("host")).withRequiredArg();
+        dpePort = parser.acceptsAll(asList("port"))
                         .withRequiredArg().ofType(Integer.class);
 
-        feHost = parser.acceptsAll(asList("fe-host", "fe_host")).withRequiredArg();
-        fePort = parser.acceptsAll(asList("fe-port", "fe_port"))
+        feHost = parser.acceptsAll(asList("fe-host")).withRequiredArg();
+        fePort = parser.acceptsAll(asList("fe-port"))
                        .withRequiredArg().ofType(Integer.class);
 
         session = parser.accepts("session").withRequiredArg();
@@ -179,42 +181,19 @@ class DpeOptionsParser {
 
     public String usage() {
         return String.format("usage: j_dpe [options]%n%n  Options:%n")
-             + optionHelp(dpeHost, "hostname", "use given host for this DPE")
-             + optionHelp(dpePort, "port", "use given port for this DPE")
-             + optionHelp(feHost, "hostname", "the host used by the remote front-end")
-             + optionHelp(fePort, "port", "the port used by the remote front-end")
-             + optionHelp(session, "id", "the session ID of this DPE")
-             + optionHelp(description, "string", "a short description of this DPE")
+             + OptUtils.optionHelp(dpeHost, "hostname", "use given host for this DPE")
+             + OptUtils.optionHelp(dpePort, "port", "use given port for this DPE")
+             + OptUtils.optionHelp(feHost, "hostname", "the host used by the remote front-end")
+             + OptUtils.optionHelp(fePort, "port", "the port used by the remote front-end")
+             + OptUtils.optionHelp(session, "id", "the session ID of this DPE")
+             + OptUtils.optionHelp(description, "string", "a short description of this DPE")
              + String.format("%n  Config options:%n")
-             + optionHelp(poolSize, "size", "size of thread pool to handle requests")
-             + optionHelp(maxCores, "cores", "how many cores can be used by a service")
-             + optionHelp(reportPeriod, "seconds", "the period to publish reports")
+             + OptUtils.optionHelp(poolSize, "size", "size of thread pool to handle requests")
+             + OptUtils.optionHelp(maxCores, "cores", "how many cores can be used by a service")
+             + OptUtils.optionHelp(reportPeriod, "seconds", "the period to publish reports")
              + String.format("%n  Advanced options:%n")
-             + optionHelp(maxSockets, "sockets", "maximum number of allowed ZMQ sockets")
-             + optionHelp(ioThreads, "threads", "size of ZMQ thread pool to handle I/O");
-    }
-
-    private <V> String optionHelp(OptionSpec<V> spec, String arg, String... help) {
-        StringBuilder sb = new StringBuilder();
-        String[] lhs = new String[help.length];
-        lhs[0] = optionName(spec, arg);
-        for (int i = 0; i < help.length; i++) {
-            sb.append(String.format("  %-24s  %s%n", lhs[i] == null ? "" : lhs[i], help[i]));
-        }
-        return sb.toString();
-    }
-
-    private <V> String optionName(OptionSpec<V> spec, String arg) {
-        StringBuilder sb = new StringBuilder();
-        if (spec == dpeHost || spec == dpePort) {
-            sb.append("--").append(spec.options().get(1));
-        } else {
-            sb.append("--").append(spec.options().get(0));
-        }
-        if (arg != null) {
-            sb.append(" <").append(arg).append(">");
-        }
-        return sb.toString();
+             + OptUtils.optionHelp(maxSockets, "sockets", "maximum number of allowed ZMQ sockets")
+             + OptUtils.optionHelp(ioThreads, "threads", "size of ZMQ thread pool to handle I/O");
     }
 
     static class DpeOptionsException extends RuntimeException {
