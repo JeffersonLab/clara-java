@@ -39,32 +39,36 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-final class RunUtils {
+class RunUtils {
 
-    private RunUtils() { }
+    private final Config config;
 
-    static Path getLogDir() {
-        return Paths.get(Config.claraHome(), "log");
+    RunUtils(Config config) {
+        this.config = config;
     }
 
-    static Path getLogFile(DpeName name, String keyword) {
+    Path getLogDir() {
+        return Paths.get(config.getValue(Config.LOG_DIR).toString());
+    }
+
+    Path getLogFile(DpeName name, String keyword) {
         ClaraLang lang = name.language();
         String component = lang == ClaraLang.JAVA ? "fe-dpe" : lang + "-dpe";
         return getLogFile(name.address().host(), keyword, component);
     }
 
-    static Path getLogFile(String host, String keyword, String component) {
+    Path getLogFile(String host, String keyword, String component) {
         String logName = String.format("%s-%s-%s-%s.log", host, Config.user(), keyword, component);
         return getLogDir().resolve(logName);
     }
 
-    static Path getLogFile(Path feLog, ClaraLang dpeLang) {
+    Path getLogFile(Path feLog, ClaraLang dpeLang) {
         Path logDir = getLogDir();
         String name = FileUtils.getFileName(feLog).toString();
         return logDir.resolve(name.replaceAll("fe-dpe", dpeLang + "-dpe"));
     }
 
-    static List<Path> getLogFiles(String keyword, String component) throws IOException {
+    List<Path> getLogFiles(String keyword, String component) throws IOException {
         String glob = String.format("glob:*-%s-%s-%s.log", Config.user(), keyword, component);
         PathMatcher matcher = FileSystems.getDefault().getPathMatcher(glob);
 

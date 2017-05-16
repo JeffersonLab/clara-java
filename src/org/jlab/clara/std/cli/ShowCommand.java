@@ -127,7 +127,8 @@ class ShowCommand extends BaseCommand {
         String keyword = config.getValue(Config.DESCRIPTION).toString();
         List<Path> logs;
         try {
-            logs = RunUtils.getLogFiles(keyword, component);
+            RunUtils runUtils = new RunUtils(config);
+            logs = runUtils.getLogFiles(keyword, component);
         } catch (IOException e) {
             writer.printf("Error: could not open log directory%n");
             return EXIT_ERROR;
@@ -146,8 +147,9 @@ class ShowCommand extends BaseCommand {
     private Path[] getDpeLogs(Path fe) {
         List<Path> logs = new ArrayList<>();
         logs.add(fe);
+        RunUtils runUtils = new RunUtils(config);
         for (ClaraLang lang : Arrays.asList(ClaraLang.CPP, ClaraLang.PYTHON)) {
-            Path path = RunUtils.getLogFile(fe, lang);
+            Path path = runUtils.getLogFile(fe, lang);
             if (Files.exists(path)) {
                 logs.add(path);
             }

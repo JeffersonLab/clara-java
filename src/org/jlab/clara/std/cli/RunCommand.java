@@ -55,10 +55,12 @@ class RunCommand extends BaseCommand {
         private static final int STEP_PORTS = 20;
 
         private final Map<ClaraLang, DpeProcess> backgroundDpes;
+        private final RunUtils runUtils;
 
         RunLocal(Context context) {
             super(context, "local", "Run CLARA data processing on the local node.");
             this.backgroundDpes = new HashMap<>();
+            this.runUtils = new RunUtils(config);
         }
 
         @Override
@@ -82,7 +84,7 @@ class RunCommand extends BaseCommand {
 
         private int runOrchestrator(DpeName feName) {
             String[] cmd = orchestratorCmd(feName);
-            String logFile = RunUtils.getLogFile(getHost(feName), getKeyword(), "orch").toString();
+            String logFile = runUtils.getLogFile(getHost(feName), getKeyword(), "orch").toString();
             return CommandUtils.runProcess(buildProcess(cmd, logFile));
         }
 
@@ -199,7 +201,7 @@ class RunCommand extends BaseCommand {
         private void addBackgroundDpeProcess(DpeName name, String... command)
                 throws IOException {
             if (!backgroundDpes.containsKey(name.language())) {
-                String logFile = RunUtils.getLogFile(name, getKeyword()).toString();
+                String logFile = runUtils.getLogFile(name, getKeyword()).toString();
                 ProcessBuilder builder = buildProcess(command, logFile);
                 if (name.language() == ClaraLang.JAVA) {
                     String javaOptions = getJVMOptions();

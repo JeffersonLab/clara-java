@@ -70,6 +70,11 @@ public class Config {
     public static final String DESCRIPTION = "description";
 
     /**
+     * The variable for the log directory.
+     */
+    public static final String LOG_DIR = "logDir";
+
+    /**
      * The variable for the address of the front-end DPE.
      */
     public static final String FRONTEND_HOST = "feHost";
@@ -246,6 +251,12 @@ public class Config {
         addBuilder.apply(MAX_EVENTS,
                 "The maximum number of events to be processed.")
                 .withParser(ConfigParsers::toPositiveInteger);
+
+        addBuilder.apply(LOG_DIR,
+                "The directory where log files will be saved.")
+                .withInitialValue(Paths.get(claraHome, "log").toString())
+                .withParser(ConfigParsers::toDirectory)
+                .withCompleter(fileCompleter());
 
         addBuilder.apply(FRONTEND_HOST,
                 "The IP address to be used by the front-end DPE.")
