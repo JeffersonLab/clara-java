@@ -97,7 +97,7 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
 
         private final OrchestratorSetup.Builder setup;
         private final OrchestratorPaths.Builder paths;
-        private final OrchestratorOptions.Builder options = OrchestratorOptions.builder();
+        private final OrchestratorOptions.Builder options;
 
         /**
          * Sets the required arguments to start a reconstruction.
@@ -113,12 +113,17 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
                 throw new IllegalArgumentException("inputFiles list is empty");
             }
 
+            this.setup = initialSetup(servicesFile);
+            this.paths = new OrchestratorPaths.Builder(inputFiles);
+            this.options = new OrchestratorOptions.Builder();
+        }
+
+        private OrchestratorSetup.Builder initialSetup(String servicesFile) {
             OrchestratorConfigParser parser = new OrchestratorConfigParser(servicesFile);
-            this.setup = new OrchestratorSetup
+            return new OrchestratorSetup
                     .Builder(parser.parseInputOutputServices(), parser.parseReconstructionChain())
                     .withConfig(parser.parseReconstructionConfig())
                     .withDataTypes(parser.parseDataTypes());
-            this.paths = new OrchestratorPaths.Builder(inputFiles);
         }
 
         /**
