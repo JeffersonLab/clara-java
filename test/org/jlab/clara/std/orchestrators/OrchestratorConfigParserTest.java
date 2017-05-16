@@ -167,15 +167,12 @@ public class OrchestratorConfigParserTest {
 
     @Test
     public void parseInputFilesList() {
-        URL config = getClass().getResource("/resources/services-ok.yaml");
         URL files = getClass().getResource("/resources/files.list");
-
-        OrchestratorConfigParser parser = new OrchestratorConfigParser(config.getPath());
 
         List<String> expected = Arrays.asList("file1.ev", "file2.ev", "file3.ev",
                                               "file4.ev", "file5.ev");
 
-        assertThat(parser.readInputFiles(files.getPath()), is(expected));
+        assertThat(OrchestratorConfigParser.readInputFiles(files.getPath()), is(expected));
     }
 
 

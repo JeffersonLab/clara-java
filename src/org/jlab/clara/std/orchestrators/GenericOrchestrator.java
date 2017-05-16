@@ -596,10 +596,8 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
 
         public GenericOrchestrator build() {
             String services = config.getString(ARG_SERVICES_FILE);
-            OrchestratorConfigParser parser = new OrchestratorConfigParser(services);
-            List<String> inFiles = parser.readInputFiles(config.getString(ARG_INPUT_FILES));
 
-            Builder builder = new Builder(services, inFiles);
+            Builder builder = new Builder(services, parseInputFiles());
 
             builder.withInputDirectory(config.getString(ARG_INPUT_DIR));
             builder.withOutputDirectory(config.getString(ARG_OUTPUT_DIR));
@@ -633,6 +631,10 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
             }
 
             return builder.build();
+        }
+
+        private List<String> parseInputFiles() {
+            return OrchestratorConfigParser.readInputFiles(config.getString(ARG_INPUT_FILES));
         }
 
         private DpeName parseFrontEnd() {

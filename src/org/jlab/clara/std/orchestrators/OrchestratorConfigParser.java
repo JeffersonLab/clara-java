@@ -262,7 +262,7 @@ public class OrchestratorConfigParser {
     }
 
 
-    List<String> readInputFiles(String inputFilesList) {
+    static List<String> readInputFiles(String inputFilesList) {
         try {
             Pattern pattern = Pattern.compile("^\\s*#.*$");
             return Files.lines(Paths.get(inputFilesList))
