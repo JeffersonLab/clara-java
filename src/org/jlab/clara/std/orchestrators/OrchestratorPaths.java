@@ -38,34 +38,65 @@ class OrchestratorPaths {
     static final String OUTPUT_DIR = DATA_DIR + File.separator + "out";
     static final String STAGE_DIR = File.separator + "scratch";
 
+    final List<WorkerFile> allFiles;
+
     final Path inputDir;
     final Path outputDir;
     final Path stageDir;
 
-    final List<WorkerFile> allFiles;
 
-    OrchestratorPaths(String inputFile, String outputFile) {
-        Path inputPath = Paths.get(inputFile);
-        Path outputPath = Paths.get(outputFile);
+    static class Builder {
 
-        String inputName = FileUtils.getFileName(inputPath).toString();
-        String outputName = FileUtils.getFileName(outputPath).toString();
+        private final List<WorkerFile> allFiles;
 
-        this.inputDir = FileUtils.getParent(inputPath).toAbsolutePath();
-        this.outputDir = FileUtils.getParent(outputPath).toAbsolutePath();
-        this.stageDir = Paths.get(STAGE_DIR).toAbsolutePath();
+        private Path inputDir;
+        private Path outputDir;
+        private Path stageDir;
 
-        this.allFiles = Arrays.asList(new WorkerFile(inputName, outputName));
+        Builder(String inputFile, String outputFile) {
+            Path inputPath = Paths.get(inputFile);
+            Path outputPath = Paths.get(outputFile);
+
+            String inputName = FileUtils.getFileName(inputPath).toString();
+            String outputName = FileUtils.getFileName(outputPath).toString();
+
+            this.allFiles = Arrays.asList(new WorkerFile(inputName, outputName));
+            this.inputDir = FileUtils.getParent(inputPath).toAbsolutePath();
+            this.outputDir = FileUtils.getParent(outputPath).toAbsolutePath();
+        }
+
+        Builder(List<String> inputFiles) {
+            this.allFiles = inputFiles.stream()
+                    .map(f -> new WorkerFile(f, "out_" + f))
+                    .collect(Collectors.toList());
+        }
+
+        Builder withInputDir(String inputDir) {
+            this.inputDir = Paths.get(inputDir);
+            return this;
+        }
+
+        Builder withOutputDir(String outputDir) {
+            this.outputDir = Paths.get(outputDir);
+            return this;
+        }
+
+        Builder withStageDir(String stageDir) {
+            this.stageDir = Paths.get(stageDir);
+            return this;
+        }
+
+        OrchestratorPaths build() {
+            return new OrchestratorPaths(this);
+        }
     }
 
-    OrchestratorPaths(List<String> inputFiles,
-                      String inputDir, String outputDir, String stageDir) {
-        this.inputDir = Paths.get(inputDir).toAbsolutePath();
-        this.outputDir = Paths.get(outputDir).toAbsolutePath();
-        this.stageDir = Paths.get(stageDir).toAbsolutePath();
-        this.allFiles = inputFiles.stream()
-                                  .map(f -> new WorkerFile(f, "out_" + f))
-                                  .collect(Collectors.toList());
+
+    protected OrchestratorPaths(Builder builder) {
+        this.allFiles = builder.allFiles;
+        this.inputDir = builder.inputDir;
+        this.outputDir = builder.outputDir;
+        this.stageDir = builder.stageDir;
     }
 
     Path inputFilePath(WorkerFile recFile) {

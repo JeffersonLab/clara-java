@@ -241,7 +241,9 @@ public class WorkerNodeTest {
 
         // configure IO services
         WorkerFile file = new WorkerFile("in.dat", "out.dat");
-        OrchestratorPaths paths = new OrchestratorPaths("/mnt/data/in.dat", "/mnt/data/out.dat");
+        OrchestratorPaths paths = new OrchestratorPaths
+                .Builder("/mnt/data/in.dat", "/mnt/data/out.dat")
+                .build();
 
         node.setConfiguration(config);
         node.setFiles(paths, file);

@@ -98,19 +98,15 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
 
         private final Map<String, ServiceInfo> ioServices;
         private final List<ServiceInfo> recChain;
-        private final List<String> inputFiles;
 
         private final Set<String> dataTypes;
         private final JSONObject config;
 
+        private final OrchestratorPaths.Builder paths;
         private final OrchestratorOptions.Builder options = OrchestratorOptions.builder();
 
         private DpeName frontEnd = OrchestratorConfigParser.localDpeName();
         private String session = "";
-
-        private String inputDir = OrchestratorPaths.INPUT_DIR;
-        private String outputDir = OrchestratorPaths.OUTPUT_DIR;
-        private String stageDir = OrchestratorPaths.STAGE_DIR;
 
         /**
          * Sets the required arguments to start a reconstruction.
@@ -128,7 +124,7 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
             OrchestratorConfigParser parser = new OrchestratorConfigParser(servicesFile);
             this.ioServices = parser.parseInputOutputServices();
             this.recChain = parser.parseReconstructionChain();
-            this.inputFiles = inputFiles;
+            this.paths = new OrchestratorPaths.Builder(inputFiles);
             this.dataTypes = parser.parseDataTypes();
             this.config = parser.parseReconstructionConfig();
         }
@@ -282,7 +278,7 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
             if (inputDir.isEmpty()) {
                 throw new IllegalArgumentException("inputDir parameter is empty");
             }
-            this.inputDir = inputDir;
+            paths.withInputDir(inputDir);
             return this;
         }
 
@@ -298,7 +294,7 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
             if (outputDir.isEmpty()) {
                 throw new IllegalArgumentException("outputDir parameter is empty");
             }
-            this.outputDir = outputDir;
+            paths.withOutputDir(outputDir);
             return this;
         }
 
@@ -315,7 +311,7 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
             if (stageDir.isEmpty()) {
                 throw new IllegalArgumentException("stageDir parameter is empty");
             }
-            this.stageDir = stageDir;
+            paths.withStageDir(stageDir);
             return this;
         }
 
@@ -328,10 +324,7 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
             OrchestratorSetup setup = new OrchestratorSetup(
                     frontEnd, ioServices, recChain,
                     dataTypes, config, session);
-            OrchestratorPaths paths = new OrchestratorPaths(
-                    inputFiles,
-                    inputDir, outputDir, stageDir);
-            return new GenericOrchestrator(setup, paths, options.build());
+            return new GenericOrchestrator(setup, paths.build(), options.build());
         }
     }
 
