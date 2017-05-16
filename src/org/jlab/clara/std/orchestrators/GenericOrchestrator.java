@@ -615,49 +615,44 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
         }
 
         public GenericOrchestrator build() {
-            DpeName frontEnd = parseFrontEnd();
-            String session = parseSession();
-
             String services = config.getString(ARG_SERVICES_FILE);
-            String files = config.getString(ARG_INPUT_FILES);
+            OrchestratorConfigParser parser = new OrchestratorConfigParser(services);
+            List<String> inFiles = parser.readInputFiles(config.getString(ARG_INPUT_FILES));
 
-            String inDir = config.getString(ARG_INPUT_DIR);
-            String outDir = config.getString(ARG_OUTPUT_DIR);
-            String tmpDir = config.getString(ARG_STAGE_DIR);
+            Builder builder = new Builder(services, inFiles);
 
-            OrchestratorOptions.Builder options = OrchestratorOptions.builder()
-                    .withPoolSize(config.getInt(ARG_POOL_SIZE))
-                    .withMaxThreads(config.getInt(ARG_MAX_THREADS))
-                    .withMaxNodes(config.getInt(ARG_MAX_NODES));
+            builder.withInputDirectory(config.getString(ARG_INPUT_DIR));
+            builder.withOutputDirectory(config.getString(ARG_OUTPUT_DIR));
+            builder.withStageDirectory(config.getString(ARG_STAGE_DIR));
+
+            builder.withPoolSize(config.getInt(ARG_POOL_SIZE));
+            builder.withMaxThreads(config.getInt(ARG_MAX_THREADS));
+            builder.withMaxNodes(config.getInt(ARG_MAX_NODES));
+
+            builder.withSession(parseSession());
+            builder.withFrontEnd(parseFrontEnd());
 
             if (config.getBoolean(ARG_CLOUD_MODE)) {
-                options.cloudMode();
+                builder.cloudMode();
             }
             if (config.getBoolean(ARG_USE_FRONTEND)) {
-                options.useFrontEnd();
+                builder.useFrontEnd();
             }
             if (config.getBoolean(ARG_STAGE_FILES)) {
-                options.stageFiles();
+                builder.useStageDirectory();
             }
+
             if (config.contains(ARG_FREQUENCY)) {
-                options.withReportFrequency(config.getInt(ARG_FREQUENCY));
+                builder.withReportFrequency(config.getInt(ARG_FREQUENCY));
             }
             if (config.contains(ARG_SKIP_EVENTS)) {
-                options.withSkipEvents(config.getInt(ARG_SKIP_EVENTS));
+                builder.withSkipEvents(config.getInt(ARG_SKIP_EVENTS));
             }
             if (config.contains(ARG_MAX_EVENTS)) {
-                options.withMaxEvents(config.getInt(ARG_MAX_EVENTS));
+                builder.withMaxEvents(config.getInt(ARG_MAX_EVENTS));
             }
 
-            OrchestratorConfigParser parser = new OrchestratorConfigParser(services);
-            List<String> inFiles = parser.readInputFiles(files);
-
-            OrchestratorSetup setup = new OrchestratorSetup(frontEnd,
-                    parser.parseInputOutputServices(), parser.parseReconstructionChain(),
-                    parser.parseDataTypes(), parser.parseReconstructionConfig(), session);
-            OrchestratorPaths paths = new OrchestratorPaths(inFiles, inDir, outDir, tmpDir);
-
-            return new GenericOrchestrator(setup, paths, options.build());
+            return builder.build();
         }
 
         private DpeName parseFrontEnd() {
