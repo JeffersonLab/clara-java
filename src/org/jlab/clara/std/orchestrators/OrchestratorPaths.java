@@ -61,8 +61,8 @@ class OrchestratorPaths {
             String outputName = FileUtils.getFileName(outputPath).toString();
 
             this.allFiles = Arrays.asList(new WorkerFile(inputName, outputName));
-            this.inputDir = FileUtils.getParent(inputPath).toAbsolutePath();
-            this.outputDir = FileUtils.getParent(outputPath).toAbsolutePath();
+            this.inputDir = FileUtils.getParent(inputPath).toAbsolutePath().normalize();
+            this.outputDir = FileUtils.getParent(outputPath).toAbsolutePath().normalize();
         }
 
         Builder(List<String> inputFiles) {
@@ -72,17 +72,17 @@ class OrchestratorPaths {
         }
 
         Builder withInputDir(String inputDir) {
-            this.inputDir = Paths.get(inputDir);
+            this.inputDir = Paths.get(inputDir).toAbsolutePath().normalize();
             return this;
         }
 
         Builder withOutputDir(String outputDir) {
-            this.outputDir = Paths.get(outputDir);
+            this.outputDir = Paths.get(outputDir).toAbsolutePath().normalize();
             return this;
         }
 
         Builder withStageDir(String stageDir) {
-            this.stageDir = Paths.get(stageDir);
+            this.stageDir = Paths.get(stageDir).toAbsolutePath().normalize();
             return this;
         }
 
