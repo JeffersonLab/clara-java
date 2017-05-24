@@ -47,6 +47,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.yaml.snakeyaml.Yaml;
+import org.yaml.snakeyaml.error.YAMLException;
 
 /**
  * Helper class to read configuration for the standard orchestrators.
@@ -113,9 +114,11 @@ public class OrchestratorConfigParser {
             Map<String, Object> config = (Map<String, Object>) yaml.load(input);
             this.config = new JSONObject(config);
         } catch (FileNotFoundException e) {
-            throw error("missing configuration file " + configFilePath);
+            throw error("could not open configuration file", e);
         } catch (IOException e) {
             throw error(e);
+        } catch (ClassCastException | YAMLException e) {
+            throw error("invalid YAML configuration file", e);
         }
     }
 
@@ -156,7 +159,7 @@ public class OrchestratorConfigParser {
                 try {
                     types.add(mimeTypes.getString(i));
                 } catch (JSONException e) {
-                    throw error("Invalid array of mime-types");
+                    throw error("invalid array of mime-types");
                 }
             }
         }
@@ -168,13 +171,13 @@ public class OrchestratorConfigParser {
         Map<String, ServiceInfo> services = new HashMap<>();
         JSONObject io = config.optJSONObject("io-services");
         if (io == null) {
-            throw error("Missing I/O services");
+            throw error("missing I/O services");
         }
 
         Consumer<String> getTypes = key -> {
             JSONObject data = io.optJSONObject(key);
             if (data == null) {
-                throw error("Missing " + key + " I/O service");
+                throw error("missing " + key + " I/O service");
             }
             services.put(key, parseService(data));
         };
@@ -265,12 +268,18 @@ public class OrchestratorConfigParser {
     static List<String> readInputFiles(String inputFilesList) {
         try {
             Pattern pattern = Pattern.compile("^\\s*#.*$");
-            return Files.lines(Paths.get(inputFilesList))
-                        .filter(line -> !line.isEmpty())
-                        .filter(line -> !pattern.matcher(line).matches())
-                        .collect(Collectors.toList());
+            List<String> files = Files.lines(Paths.get(inputFilesList))
+                    .filter(line -> !line.isEmpty())
+                    .filter(line -> !pattern.matcher(line).matches())
+                    .collect(Collectors.toList());
+            if (files.isEmpty()) {
+                throw error("empty list of input files from " + inputFilesList);
+            }
+            return files;
         } catch (IOException e) {
-            throw error("Could not read file " + inputFilesList);
+            throw error("could not open file", e);
+        } catch (UncheckedIOException e) {
+            throw error("could not read list of input files from " + inputFilesList);
         }
     }
 
@@ -282,5 +291,10 @@ public class OrchestratorConfigParser {
 
     private static OrchestratorConfigException error(Throwable cause) {
         return new OrchestratorConfigException(cause);
+    }
+
+
+    private static OrchestratorConfigException error(String msg, Throwable cause) {
+        return new OrchestratorConfigException(msg, cause);
     }
 }

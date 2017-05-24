@@ -25,7 +25,7 @@ package org.jlab.clara.std.orchestrators;
 /**
  * An error configuring the orchestrator.
  */
-public class OrchestratorConfigException extends RuntimeException {
+public class OrchestratorConfigException extends OrchestratorException {
 
     private static final long serialVersionUID = 7169655555225259425L;
 
