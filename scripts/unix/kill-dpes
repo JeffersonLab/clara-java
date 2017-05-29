@@ -1,0 +1,11 @@
+#!/bin/sh
+
+uid=$(id -u)
+
+j_dpe=$(pgrep -u $uid -f 'java.*Dpe')
+c_dpe=$(pgrep -u $uid -f 'c_dpe')
+p_dpe=$(pgrep -u $uid -f 'python.*Dpe')
+
+for dpe in $p_dpe $c_dpe $j_dpe; do
+    kill -0 $dpe && kill -KILL $dpe
+done
