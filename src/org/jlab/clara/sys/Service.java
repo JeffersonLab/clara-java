@@ -193,14 +193,15 @@ class Service extends AbstractActor {
         RequestParser setup = RequestParser.build(msg);
         String report = setup.nextString();
         int value = setup.nextInteger();
+        boolean publishReport = value > 0; // 0 is used to cancel reports
         switch (report) {
             case ClaraConstants.SERVICE_REPORT_DONE:
-                sysConfig.setDoneRequest(true);
+                sysConfig.setDoneRequest(publishReport);
                 sysConfig.setDoneReportThreshold(value);
                 sysConfig.resetDoneRequestCount();
                 break;
             case ClaraConstants.SERVICE_REPORT_DATA:
-                sysConfig.setDataRequest(true);
+                sysConfig.setDataRequest(publishReport);
                 sysConfig.setDataReportThreshold(value);
                 sysConfig.resetDataRequestCount();
                 break;
