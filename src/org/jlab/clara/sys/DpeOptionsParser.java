@@ -149,14 +149,14 @@ class DpeOptionsParser {
     }
 
     public DpeConfig config() {
-        int dpePoolSize = valueOf(poolSize, Dpe.DEFAULT_POOL_SIZE);
         int dpeMaxCores = valueOf(maxCores, Dpe.DEFAULT_MAX_CORES);
+        int dpePoolSize = valueOf(poolSize, DpeConfig.calculatePoolSize(dpeMaxCores));
 
         long defaultPeriodSeconds = TimeUnit.MILLISECONDS.toSeconds(Dpe.DEFAULT_REPORT_PERIOD);
         long reportPeriodSeconds = valueOf(reportPeriod, defaultPeriodSeconds);
         long dpeReportPeriod = TimeUnit.SECONDS.toMillis(reportPeriodSeconds);
 
-        return new DpeConfig(dpePoolSize, dpeMaxCores, dpeReportPeriod);
+        return new DpeConfig(dpeMaxCores, dpePoolSize, dpeReportPeriod);
     }
 
     public int maxSockets() {

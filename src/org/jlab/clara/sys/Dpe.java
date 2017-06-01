@@ -75,7 +75,7 @@ public final class Dpe extends AbstractActor {
     static final int DEFAULT_PROXY_PORT = ClaraConstants.JAVA_PORT;
 
     static final int DEFAULT_MAX_CORES = Runtime.getRuntime().availableProcessors();
-    static final int DEFAULT_POOL_SIZE = 2;
+    static final int DEFAULT_POOL_SIZE = DpeConfig.calculatePoolSize(DEFAULT_MAX_CORES);
     static final long DEFAULT_REPORT_PERIOD = 10_000;
 
     static final int DEFAULT_MAX_SOCKETS = 1024;
