@@ -102,7 +102,7 @@ cd coatjava || exit
 
 cp -r etc "$CLARA_HOME"/plugins/clas12/.
 cp -r bin "$CLARA_HOME"/plugins/clas12/.
-cp -r lib/packages "$CLARA_HOME"/plugins/clas12/lib/
+#cp -r lib/packages "$CLARA_HOME"/plugins/clas12/lib/
 cp -r lib/utils "$CLARA_HOME"/plugins/clas12/lib/
 cp  lib/clas/* "$CLARA_HOME"/plugins/clas12/lib/clas/.
 cp  lib/services/* "$CLARA_HOME"/plugins/clas12/lib/services/.
@@ -126,7 +126,7 @@ rm -rf coatjava
 rm coatjava-$PLUGIN.tar.gz
 
 chmod a+x "$CLARA_HOME"/bin/*
-chmod a+x "$CLARA_HOME"/bin/etc/*
+#chmod a+x "$CLARA_HOME"/bin/etc/*
 
 
 echo "Done!"
