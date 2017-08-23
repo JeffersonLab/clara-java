@@ -24,6 +24,7 @@ do
         -v | --version)
             if ! [ -z "${2+x}" ]; then PLUGIN=$2; fi
             echo "$PLUGIN"
+            break
             ;;
 
         *)  # No more options
