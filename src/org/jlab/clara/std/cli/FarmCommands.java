@@ -256,13 +256,14 @@ final class FarmCommands {
                             config.setValue(Config.DESCRIPTION, description+"_"+f_s);
                             // change the files_list file settings in the config
                             config.setValue(Config.FILES_LIST, fn);
+                            // start the last a farm job
+                            Path jobFile = createJLabScript();
+                            int x = CommandUtils.runProcess(JLAB_SUB_CMD, jobFile.toString());
                             // restore initial settings
                             config.setValue(Config.SESSION, session);
                             config.setValue(Config.DESCRIPTION, description);
                             config.setValue(Config.FILES_LIST, f_list);
-                            // start the last a farm job
-                            Path jobFile = createJLabScript();
-                            return CommandUtils.runProcess(JLAB_SUB_CMD, jobFile.toString());
+                            return x;
                         } else {
                             Path jobFile = createJLabScript();
                             return CommandUtils.runProcess(JLAB_SUB_CMD, jobFile.toString());
