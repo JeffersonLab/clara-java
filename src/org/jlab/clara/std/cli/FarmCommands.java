@@ -229,6 +229,8 @@ final class FarmCommands {
                                 fw.close();
                                 // change the session in the config
                                 config.setValue(Config.SESSION, session+"_"+i);
+                                // change the description in the config
+                                config.setValue(Config.DESCRIPTION, description+"_"+i);
                                 // change the files_list file settings in the config
                                 config.setValue(Config.FILES_LIST, fn);
                                 // start a farm job
@@ -250,10 +252,13 @@ final class FarmCommands {
                             fw.close();
                             // change the session in the config
                             config.setValue(Config.SESSION, session+"_"+f_s);
+                            // change the description in the config
+                            config.setValue(Config.DESCRIPTION, description+"_"+f_s);
                             // change the files_list file settings in the config
                             config.setValue(Config.FILES_LIST, fn);
                             // restore initial settings
                             config.setValue(Config.SESSION, session);
+                            config.setValue(Config.DESCRIPTION, description);
                             config.setValue(Config.FILES_LIST, f_list);
                             // start the last a farm job
                             Path jobFile = createJLabScript();
