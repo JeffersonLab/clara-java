@@ -136,13 +136,15 @@ final class FarmCommands {
         addBuilder.apply(FARM_TRACK, "Farm job track.")
             .withInitialValue(DEFAULT_FARM_TRACK);
 
+        addBuilder.apply(FARM_H_SCALE, "Farm horizontal scaling factor. Number of files in " +
+            "the files.list that will be processed in parallel within separate farm jobs.")
+            .withParser(ConfigParsers::toPositiveInteger)
+            .withInitialValue(DEFAULT_FARM_H_SCALE);
+
         addBuilder.apply(FARM_SYSTEM, "Farm batch system. Accepts pbs and jlab.")
             .withExpectedValues(JLAB_SYSTEM, PBS_SYSTEM)
             .withInitialValue(JLAB_SYSTEM);
 
-        addBuilder.apply(FARM_H_SCALE, "Farm horizontal scaling factor. Number of files in " +
-            "the files.list that will be processed in parallel within separate farm jobs.")
-            .withInitialValue(DEFAULT_FARM_H_SCALE);
 
         vl.forEach(builder::withConfigVariable);
     }
@@ -193,7 +195,8 @@ final class FarmCommands {
             if (system.equals(JLAB_SYSTEM)) {
                 if (CommandUtils.checkProgram(JLAB_SUB_CMD)) {
                     try {
-                        int h_scale = Integer.parseInt((String)config.getValue(FARM_H_SCALE));
+
+                        int h_scale =  (Integer)config.getValue(FARM_H_SCALE);
 
                         if(h_scale > 0){
                             // get the original session and description setting
