@@ -257,7 +257,7 @@ public final class ConfigParsers {
     }
 
     private static <T extends Number> T requirePositive(T n) {
-        if (n.longValue() <= 0) {
+        if (n.longValue() < 0) {
             throw new IllegalArgumentException("the argument must be positive");
         }
         return n;
