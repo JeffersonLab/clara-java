@@ -138,7 +138,7 @@ final class FarmCommands {
 
         addBuilder.apply(FARM_H_SCALE, "Farm horizontal scaling factor. Number of files in " +
             "the files.list that will be processed in parallel within separate farm jobs.")
-            .withParser(ConfigParsers::toPositiveInteger)
+            .withParser(ConfigParsers::toNonNegativeInteger)
             .withInitialValue(DEFAULT_FARM_H_SCALE);
 
         addBuilder.apply(FARM_SYSTEM, "Farm batch system. Accepts pbs and jlab.")

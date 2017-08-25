@@ -155,6 +155,16 @@ public final class ConfigParsers {
     }
 
     /**
+     * Parses the set command arguments into a non negative integer.
+     *
+     * @param args the command arguments
+     * @return the integer value represented by the first argument
+     */
+    public static Integer toNonNegativeInteger(String... args) {
+        return requireNonNegative(Integer.parseInt(requireArg(args)));
+    }
+
+    /**
      * Parses the set command arguments into a positive long.
      *
      * @param args the command arguments
@@ -257,6 +267,13 @@ public final class ConfigParsers {
     }
 
     private static <T extends Number> T requirePositive(T n) {
+        if (n.longValue() <= 0) {
+            throw new IllegalArgumentException("the argument must be positive");
+        }
+        return n;
+    }
+
+    private static <T extends Number> T requireNonNegative(T n) {
         if (n.longValue() < 0) {
             throw new IllegalArgumentException("the argument must be positive");
         }
