@@ -285,7 +285,8 @@ public class Config {
             .withParser(ConfigParsers::toPositiveInteger);
 
         addBuilder.apply(JAVA_OPTIONS,
-                        "DPE JVM options (overrides " + JAVA_MEMORY + ")");
+                        "DPE JVM options (overrides " + JAVA_MEMORY + ")")
+            .withInitialValue("-XX:+UseNUMA -XX:+UseBiasedLocking");
 
         return defaultVariables;
     }
