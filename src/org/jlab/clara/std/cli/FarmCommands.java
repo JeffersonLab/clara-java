@@ -59,7 +59,6 @@ final class FarmCommands {
     private static final int DEFAULT_FARM_CORES = 64;
     private static final int DEFAULT_FARM_DISK_SPACE = 5;
     private static final int DEFAULT_FARM_TIME = 24 * 60;
-    private static final int DEFAULT_FARM_JVM_MEMORY = 37;
     private static final String DEFAULT_FARM_OS = "centos7";
     private static final String DEFAULT_FARM_TRACK = "debug";
 
@@ -427,12 +426,12 @@ final class FarmCommands {
             if (config.hasValue(Config.JAVA_OPTIONS)) {
                 return config.getValue(Config.JAVA_OPTIONS).toString();
             }
-            int memSize = DEFAULT_FARM_JVM_MEMORY;
+            String jvmOpts = "-XX:+UseNUMA -XX:+UseBiasedLocking";
             if (config.hasValue(Config.JAVA_MEMORY)) {
-                memSize = (Integer) config.getValue(Config.JAVA_MEMORY);
+                int memSize = (Integer) config.getValue(Config.JAVA_MEMORY);
+                return String.format("-Xms%dg -Xmx%dg %s", memSize, memSize, jvmOpts);
             }
-            return String.format("-Xms%dg -Xmx%dg -XX:+UseNUMA -XX:+UseBiasedLocking",
-                memSize, memSize);
+            return jvmOpts;
         }
     }
 
