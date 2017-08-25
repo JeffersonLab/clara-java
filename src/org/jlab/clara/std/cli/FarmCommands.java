@@ -55,7 +55,7 @@ final class FarmCommands {
     private static final String FARM_H_SCALE = "farm.scaling";
 
     private static final int DEFAULT_FARM_H_SCALE = 0;
-    private static final int DEFAULT_FARM_MEMORY = 37;
+    private static final int DEFAULT_FARM_MEMORY = 40;
     private static final int DEFAULT_FARM_CORES = 64;
     private static final int DEFAULT_FARM_DISK_SPACE = 5;
     private static final int DEFAULT_FARM_TIME = 24 * 60;
