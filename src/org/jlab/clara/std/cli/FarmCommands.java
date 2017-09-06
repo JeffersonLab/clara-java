@@ -24,11 +24,7 @@ package org.jlab.clara.std.cli;
 
 import org.jlab.clara.util.FileUtils;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.UncheckedIOException;
@@ -43,6 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
@@ -142,8 +139,9 @@ final class FarmCommands {
         addBuilder.apply(FARM_TRACK, "Farm job track.")
             .withInitialValue(DEFAULT_FARM_TRACK);
 
-        addBuilder.apply(FARM_H_SCALE, "Farm horizontal scaling factor. Number of files in " +
-            "the files.list that will be processed in parallel within separate farm jobs.")
+        addBuilder.apply(FARM_H_SCALE, "Farm horizontal scaling factor."
+                + " Split the list of input files into chunks of the given size"
+                + " to be processed in parallel within separate farm jobs.")
             .withParser(ConfigParsers::toNonNegativeInteger)
             .withInitialValue(DEFAULT_FARM_H_SCALE);
 
@@ -203,73 +201,7 @@ final class FarmCommands {
                     try {
                         int horizScale = (Integer) config.getValue(FARM_H_SCALE);
                         if (horizScale > 0) {
-                            // get the original session and description setting
-                            String session = config.getValue(Config.SESSION).toString();
-                            String description = config.getValue(Config.DESCRIPTION).toString();
-                            // create .description directory
-                            String dotDirName = PLUGIN.toString() + File.separator
-                                    + "config" + File.separator + "." + description;
-                            File dir = new File(dotDirName);
-                            if (!dir.exists()) {
-                                dir.mkdir();
-                            }
-                            // calculate the lines in the original files.list file
-                            String fileList = config.getValue(Config.FILES_LIST).toString();
-                            int fileTotal = FileUtils.getNumberOfLines(fileList);
-                            // split files.list into multiple files for parallel processing
-                            int fileSplit = fileTotal / horizScale;
-                            // open the original files.list file
-                            BufferedReader ofr = new BufferedReader(new FileReader(fileList));
-                            for (int i = 0; i < fileSplit; i++) {
-                                // open a new file in the .description dir that
-                                // will hold the subset of file names
-                                String fn = dotDirName + File.separator + description + "_" + i;
-                                BufferedWriter fw = new BufferedWriter(new FileWriter(fn));
-                                // read h_scale records from the files.list file
-                                // and write it into the new file
-                                for (int j = 0; j < horizScale; j++) {
-                                    fw.write(ofr.readLine());
-                                    fw.newLine();
-                                }
-                                // close the new file
-                                fw.close();
-                                // change the session in the config
-                                config.setValue(Config.SESSION, session + "_" + i);
-                                // change the description in the config
-                                config.setValue(Config.DESCRIPTION, description + "_" + i);
-                                // change the files_list file settings in the config
-                                config.setValue(Config.FILES_LIST, fn);
-                                // start a farm job
-                                Path jobFile = createJLabScript();
-                                CommandUtils.runProcess(JLAB_SUB_CMD, jobFile.toString());
-                            }
-                            // open one last time a new file  in the .description dir
-                            String fn = dotDirName + File.separator + description + "_" + fileSplit;
-                            BufferedWriter fw = new BufferedWriter(new FileWriter(fn));
-                            // read the rest of records in the initial files.list file
-                            String line;
-
-                            while ((line = ofr.readLine()) != null) {
-                                // put it in the new file
-                                fw.write(line);
-                                fw.newLine();
-                            }
-                            // close the new file
-                            fw.close();
-                            // change the session in the config
-                            config.setValue(Config.SESSION, session + "_" + fileSplit);
-                            // change the description in the config
-                            config.setValue(Config.DESCRIPTION, description + "_" + fileSplit);
-                            // change the files_list file settings in the config
-                            config.setValue(Config.FILES_LIST, fn);
-                            // start the last a farm job
-                            Path jobFile = createJLabScript();
-                            int x = CommandUtils.runProcess(JLAB_SUB_CMD, jobFile.toString());
-                            // restore initial settings
-                            config.setValue(Config.SESSION, session);
-                            config.setValue(Config.DESCRIPTION, description);
-                            config.setValue(Config.FILES_LIST, fileList);
-                            return x;
+                            return splitIntoMultipleJobs(horizScale);
                         } else {
                             Path jobFile = createJLabScript();
                             return CommandUtils.runProcess(JLAB_SUB_CMD, jobFile.toString());
@@ -307,6 +239,42 @@ final class FarmCommands {
 
             writer.println("Error: invalid farm system = " + system);
             return EXIT_ERROR;
+        }
+
+        private int splitIntoMultipleJobs(int filesPerJob) throws IOException, TemplateException {
+            String session = config.getValue(Config.SESSION).toString();
+            String description = config.getValue(Config.DESCRIPTION).toString();
+            String fileList = config.getValue(Config.FILES_LIST).toString();
+            try {
+                Path dotDir = Paths.get(PLUGIN.toString(), "config", "." + description);
+                FileUtils.deleteFileTree(dotDir);
+                FileUtils.createDirectories(dotDir);
+
+                List<List<String>> filePartitions = partitionFiles(fileList, filesPerJob);
+                for (int i = 0; i < filePartitions.size(); i++) {
+                    Path subFileList = dotDir.resolve(appendIndex(description, i));
+                    try (BufferedWriter writer = Files.newBufferedWriter(subFileList)) {
+                        for (String inputFile : filePartitions.get(i)) {
+                            writer.write(inputFile);
+                            writer.newLine();
+                        }
+                    }
+                    config.setValue(Config.SESSION, appendIndex(session, i));
+                    config.setValue(Config.DESCRIPTION, appendIndex(description, i));
+                    config.setValue(Config.FILES_LIST, subFileList);
+
+                    Path jobFile = createJLabScript();
+                    int stat = CommandUtils.runProcess(JLAB_SUB_CMD, jobFile.toString());
+                    if (stat != EXIT_SUCCESS) {
+                        return stat;
+                    }
+                }
+                return EXIT_SUCCESS;
+            } finally {
+                config.setValue(Config.SESSION, session);
+                config.setValue(Config.DESCRIPTION, description);
+                config.setValue(Config.FILES_LIST, fileList);
+            }
         }
 
         private String getClaraCommand() {
@@ -537,5 +505,23 @@ final class FarmCommands {
         } catch (UnknownHostException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+
+    private static List<List<String>> partitionFiles(String fileList, int filesPerJob)
+            throws IOException {
+        List<String> files = Files.lines(Paths.get(fileList))
+                                  .collect(Collectors.toList());
+        List<List<String>> groupedFiles = new ArrayList<>();
+        for (int i = 0; i < files.size(); i += filesPerJob) {
+            int end = Math.min(files.size(), i + filesPerJob);
+            groupedFiles.add(files.subList(i, end));
+        }
+        return groupedFiles;
+    }
+
+
+    private static String appendIndex(String str, int index) {
+        return String.format("%s_%03d", str, index);
     }
 }
