@@ -1,0 +1,7 @@
+#!/bin/bash
+
+DEV_TAG=claradk-$CACHE_TAG
+DEV_TAG=${DEV_TAG%-latest}
+
+docker build --target build --tag $DOCKER_REPO:$DEV_TAG .
+docker build --tag $IMAGE_NAME .
