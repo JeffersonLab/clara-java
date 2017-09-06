@@ -110,7 +110,7 @@ public class Config {
     public static final String JAVA_MEMORY = "javaMemory";
 
     /**
-     * The variable for the JVM options of the Java DPE (overrides {@link JAVA_MEMORY}).
+     * The variable for the JVM options of the Java DPE (overrides {@link #JAVA_MEMORY}).
      */
     public static final String JAVA_OPTIONS = "javaOptions";
 
