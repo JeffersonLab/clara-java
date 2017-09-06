@@ -23,7 +23,6 @@
 package org.jlab.clara.examples.engines;
 
 import org.jlab.clara.base.ClaraUtil;
-import org.jlab.clara.base.core.ClaraConstants;
 import org.jlab.clara.engine.Engine;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.EngineDataType;
@@ -31,7 +30,7 @@ import org.jlab.clara.engine.EngineDataType;
 import java.util.Set;
 
 /**
- * Empty engine
+ * Empty engine.
  *
  * @author gurjyan
  * @version 1.x
@@ -41,7 +40,7 @@ public class Empty implements Engine {
 
     @Override
     public EngineData execute(EngineData x) {
-         return x;
+        return x;
     }
 
     @Override

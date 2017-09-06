@@ -22,7 +22,14 @@
 
 package org.jlab.clara.util;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.LineNumberReader;
+import java.io.OutputStreamWriter;
+import java.io.PrintWriter;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
@@ -99,15 +106,11 @@ public final class FileUtils {
               new FileOutputStream(path.toFile(), append), "utf-8")));
     }
 
-    /**
-     * Returns number of lines in the file
-     * @param fileName full path
-     * @return number of lines in the file
-     */
     public static int getNumberOfLines(String fileName) throws IOException {
-        File file = new File(fileName);
-        LineNumberReader lineNumberReader = new LineNumberReader(new FileReader(file));
-        lineNumberReader.skip(Long.MAX_VALUE);
-       return lineNumberReader.getLineNumber();
+        FileReader fileReader = new FileReader(new File(fileName));
+        try (LineNumberReader lineNumberReader = new LineNumberReader(fileReader)) {
+            lineNumberReader.skip(Long.MAX_VALUE);
+            return lineNumberReader.getLineNumber();
+        }
     }
 }
