@@ -168,7 +168,7 @@ public abstract class AbstractEventWriterService<Writer> extends AbstractService
 
 
     /**
-     * Creates a new writer and opens the given input file.
+     * Creates a new writer and opens the given output file.
      *
      * @param file the path to the output file
      * @param opts extra options for the writer
@@ -228,7 +228,7 @@ public abstract class AbstractEventWriterService<Writer> extends AbstractService
 
 
     /**
-     * Writes an event to the input file.
+     * Writes an event to the output file.
      * The event should be a Java object with the same type as the one defined
      * by the CLARA engine data-type returned by {@link #getDataType()}.
      *
