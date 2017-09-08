@@ -85,6 +85,16 @@ public class Config {
     public static final String FRONTEND_PORT = "fePort";
 
     /**
+     * The variable for the address of the monitor front_end, where all DPs will send their data.
+     */
+    public static final String MONITOR_HOST = "monHost";
+
+    /**
+     * The variable for the switch to use the front-end DPE or not.
+     */
+    public static final String USE_FRONTEND = "useFE";
+
+    /**
      * The variable for the number of reconstruction threads.
      */
     public static final String MAX_THREADS = "threads";
@@ -110,7 +120,7 @@ public class Config {
     public static final String JAVA_MEMORY = "javaMemory";
 
     /**
-     * The variable for the JVM options of the Java DPE (overrides {@link #JAVA_MEMORY}).
+     * The variable for the JVM options of the Java DPE (overrides {@link JAVA_MEMORY}).
      */
     public static final String JAVA_OPTIONS = "javaOptions";
 
@@ -271,11 +281,20 @@ public class Config {
                 .withInitialValue("clara")
                 .withParser(ConfigParsers::toAlphaNumWord);
 
+        addBuilder.apply(USE_FRONTEND,
+                "Use the front-end DPE for reconstruction.")
+                .withInitialValue(true)
+                .withParser(ConfigParsers::toBoolean);
+
         addBuilder.apply(JAVA_MEMORY, "DPE JVM memory size (in GB)")
             .withParser(ConfigParsers::toPositiveInteger);
 
         addBuilder.apply(JAVA_OPTIONS,
                         "DPE JVM options (overrides " + JAVA_MEMORY + ")");
+
+        addBuilder.apply(MONITOR_HOST,
+            "The IP address where DPE monitor server is running.")
+            .withParser(ConfigParsers::toHostAddress);
 
         return defaultVariables;
     }

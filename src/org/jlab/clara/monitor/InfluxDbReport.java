@@ -10,8 +10,8 @@ public class InfluxDbReport extends DpeListenerAndReporter {
 
     int i;
 
-    InfluxDbReport(String name, String proxyHost){
-        super(name,new xMsgProxyAddress(proxyHost));
+    InfluxDbReport(String name, String proxyHost, int proxyPort){
+        super(name,new xMsgProxyAddress(proxyHost, proxyPort));
     }
 
     @Override
@@ -21,7 +21,9 @@ public class InfluxDbReport extends DpeListenerAndReporter {
     }
 
     public static void main(String[] args) {
-        try (InfluxDbReport rep = new InfluxDbReport(args[1], args[2])) {
+        System.out.println(args[0]);
+        System.out.println(args[1]);
+        try (InfluxDbReport rep = new InfluxDbReport(args[0], args[1], Integer.parseInt(args[2]))) {
             rep.start();
         } catch (xMsgException e) {
             e.printStackTrace();

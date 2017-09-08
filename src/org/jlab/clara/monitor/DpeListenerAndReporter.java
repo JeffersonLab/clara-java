@@ -36,7 +36,7 @@ public abstract class DpeListenerAndReporter extends xMsg {
 
         // subscribe to default local proxy
         subscribe(topic, new MyCallBack());
-        System.out.printf("Subscribed to = %s%n", topic);
+        System.out.printf("Subscribed to = %s%n", topic.toString());
         xMsgUtil.keepAlive();
     }
 
@@ -48,15 +48,10 @@ public abstract class DpeListenerAndReporter extends xMsg {
 
         @Override
         public void callback(xMsgMessage msg) {
-            try {
-                xMsgM.xMsgMeta.Builder metadata = msg.getMetaData();
-                if (metadata.getDataType().equals(xMsgMimeType.STRING)) {
-                    xMsgD.xMsgData data = xMsgD.xMsgData.parseFrom(msg.getData());
-                    String jsonString = data.getSTRING();
-                    report(jsonString);
-                }
-            } catch (InvalidProtocolBufferException e) {
-                e.printStackTrace();
+            xMsgM.xMsgMeta.Builder metadata = msg.getMetaData();
+            if (metadata.getDataType().equals(xMsgMimeType.STRING)) {
+                String jsonString = new String(msg.getData());
+                report(jsonString);
             }
 
         }

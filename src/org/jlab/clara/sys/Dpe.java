@@ -681,6 +681,7 @@ public final class Dpe extends AbstractActor {
         private String session;
 
         ReportService(long periodMillis, String session) {
+
             socketFactory = new xMsgSocketFactory(xMsgContext.getInstance().getContext());
             myReport = new DpeReport(base, session);
             myReport.setPoolSize(base.getPoolSize());
@@ -733,6 +734,7 @@ public final class Dpe extends AbstractActor {
             socketFactory.connectSocket(socket, feAddr.host(), feAddr.pubPort());
 
             String monName = System.getenv("CLARA_MONITOR_FRONT_END");
+
             if (monName != null) {
                 try {
                     DpeName monDpe = new DpeName(monName);

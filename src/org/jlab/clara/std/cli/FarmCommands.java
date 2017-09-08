@@ -60,7 +60,7 @@ final class FarmCommands {
 
     private static final int DEFAULT_FARM_H_SCALE = 0;
     private static final int DEFAULT_FARM_MEMORY = 40;
-    private static final int DEFAULT_FARM_CORES = 64;
+    private static final int DEFAULT_FARM_CORES = 16;
     private static final int DEFAULT_FARM_DISK_SPACE = 5;
     private static final int DEFAULT_FARM_TIME = 24 * 60;
     private static final String DEFAULT_FARM_OS = "centos7";
@@ -306,6 +306,9 @@ final class FarmCommands {
             }
             if (config.hasValue(Config.FRONTEND_HOST)) {
                 cmd.addOption("-H", config.getValue(Config.FRONTEND_HOST));
+            }
+            if (config.hasValue(Config.MONITOR_HOST)) {
+                cmd.addOption("-M", config.getValue(Config.MONITOR_HOST));
             }
             if (config.hasValue(Config.FRONTEND_PORT)) {
                 cmd.addOption("-P", config.getValue(Config.FRONTEND_PORT));

@@ -40,6 +40,7 @@ import org.jlab.clara.base.ClaraUtil;
 import org.jlab.clara.base.DpeName;
 import org.jlab.clara.std.orchestrators.OrchestratorConfigException;
 import org.jlab.clara.std.orchestrators.OrchestratorConfigParser;
+import org.jlab.clara.util.EnvUtils;
 
 class RunCommand extends BaseCommand {
 
@@ -124,6 +125,8 @@ class RunCommand extends BaseCommand {
             }
             destroyDpes();
 
+            useMonitorHost();
+
             DpeName feName = new DpeName(findHost(), findPort(), ClaraLang.JAVA);
             String javaDpe = Paths.get(Config.claraHome(), "bin", "j_dpe").toString();
             addBackgroundDpeProcess(feName, javaDpe,
@@ -160,6 +163,12 @@ class RunCommand extends BaseCommand {
                 return config.getValue(Config.FRONTEND_HOST).toString();
             }
             return ClaraUtil.localhost();
+        }
+
+        private void useMonitorHost() {
+            if (config.hasValue(Config.MONITOR_HOST)) {
+                EnvUtils.setEnv("CLARA_MONITOR_FRONT_END",config.getValue(Config.MONITOR_HOST).toString()+"%9000_java");
+            }
         }
 
         private int findPort() {
