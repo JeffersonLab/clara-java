@@ -6,7 +6,9 @@ import java.util.Map;
 /**
  * Created by gurjyan on 9/7/17.
  */
-public class EnvUtils {
+public final class EnvUtils {
+
+    private EnvUtils() { }
 
     public static void setEnv(String key, String value) {
         try {
@@ -14,6 +16,7 @@ public class EnvUtils {
             Class<?> cl = env.getClass();
             Field field = cl.getDeclaredField("m");
             field.setAccessible(true);
+            @SuppressWarnings("unchecked")
             Map<String, String> writableEnv = (Map<String, String>) field.get(env);
             writableEnv.put(key, value);
         } catch (Exception e) {

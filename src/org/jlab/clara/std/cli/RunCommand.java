@@ -132,8 +132,8 @@ class RunCommand extends BaseCommand {
             addBackgroundDpeProcess(feName, javaDpe,
                     "--host", getHost(feName),
                     "--port", getPort(feName),
-                    "--session", (String)config.getValue(Config.SESSION),
-                    "--description", (String)config.getValue(Config.DESCRIPTION));
+                    "--session", (String) config.getValue(Config.SESSION),
+                    "--description", (String) config.getValue(Config.DESCRIPTION));
 
             if (languages.contains(ClaraLang.CPP)) {
                 int cppPort = feName.address().pubPort() + 10;
@@ -169,7 +169,8 @@ class RunCommand extends BaseCommand {
 
         private void useMonitorHost() {
             if (config.hasValue(Config.MONITOR_HOST)) {
-                EnvUtils.setEnv("CLARA_MONITOR_FRONT_END",config.getValue(Config.MONITOR_HOST).toString()+"%9000_java");
+                String monitorHost = config.getValue(Config.MONITOR_HOST).toString() + "%9000_java";
+                EnvUtils.setEnv("CLARA_MONITOR_FRONT_END", monitorHost);
             }
         }
 
