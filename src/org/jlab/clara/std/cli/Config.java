@@ -90,11 +90,6 @@ public class Config {
     public static final String MONITOR_HOST = "monHost";
 
     /**
-     * The variable for the switch to use the front-end DPE or not.
-     */
-    public static final String USE_FRONTEND = "useFE";
-
-    /**
      * The variable for the number of reconstruction threads.
      */
     public static final String MAX_THREADS = "threads";
@@ -120,7 +115,7 @@ public class Config {
     public static final String JAVA_MEMORY = "javaMemory";
 
     /**
-     * The variable for the JVM options of the Java DPE (overrides {@link JAVA_MEMORY}).
+     * The variable for the JVM options of the Java DPE (overrides {@link #JAVA_MEMORY}).
      */
     public static final String JAVA_OPTIONS = "javaOptions";
 
@@ -280,11 +275,6 @@ public class Config {
                 "A single word (no spaces) describing the data processing.")
                 .withInitialValue("clara")
                 .withParser(ConfigParsers::toAlphaNumWord);
-
-        addBuilder.apply(USE_FRONTEND,
-                "Use the front-end DPE for reconstruction.")
-                .withInitialValue(true)
-                .withParser(ConfigParsers::toBoolean);
 
         addBuilder.apply(JAVA_MEMORY, "DPE JVM memory size (in GB)")
             .withParser(ConfigParsers::toPositiveInteger);
