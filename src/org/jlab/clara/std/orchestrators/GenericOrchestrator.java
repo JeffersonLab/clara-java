@@ -430,7 +430,7 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
         while (true) {
             try {
                 int timeout = count == 0 ? 2 : 4;
-                orchestrator.getLocalRegisteredDpes(timeout);
+                orchestrator.getRegisteredDpes(timeout);
                 break;
             } catch (OrchestratorException e) {
                 if (++count == maxAttempts) {
@@ -446,7 +446,8 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
         if (options.useFrontEnd) {
             int cores = Runtime.getRuntime().availableProcessors();
             // TODO: filter local DPEs with non-matching sessions
-            Map<ClaraLang, DpeName> localDpes = orchestrator.getLocalRegisteredDpes(2).stream()
+            Map<ClaraLang, DpeName> localDpes = orchestrator.getRegisteredDpes(2).stream()
+                    .filter(this::isLocalDpe)
                     .collect(Collectors.toMap(DpeName::language, Function.identity()));
 
             Set<ClaraLang> appLangs = setup.application.getLanguages();
@@ -459,6 +460,11 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
                 }
             }
         }
+    }
+
+
+    private boolean isLocalDpe(DpeName dpe) {
+        return dpe.address().host() == orchestrator.getFrontEnd().address().host();
     }
 
 

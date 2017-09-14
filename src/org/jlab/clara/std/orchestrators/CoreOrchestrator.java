@@ -33,7 +33,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
 import org.jlab.clara.base.BaseOrchestrator;
-import org.jlab.clara.base.ClaraAddress;
 import org.jlab.clara.base.ClaraFilters;
 import org.jlab.clara.base.ClaraName;
 import org.jlab.clara.base.Composition;
@@ -299,11 +298,10 @@ class CoreOrchestrator {
     }
 
 
-    Set<DpeName> getLocalRegisteredDpes(int seconds) {
+    Set<DpeName> getRegisteredDpes(int seconds) {
         try {
-            ClaraAddress address = base.getFrontEnd().address();
             return base.query()
-                       .canonicalNames(ClaraFilters.dpesByHost(address.host()))
+                       .canonicalNames(ClaraFilters.allDpes())
                        .syncRun(seconds, TimeUnit.SECONDS);
         } catch (TimeoutException | ClaraException e) {
             String msg = "cannot connect with front-end: " + base.getFrontEnd();
