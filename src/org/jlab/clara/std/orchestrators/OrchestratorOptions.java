@@ -61,6 +61,12 @@ final class OrchestratorOptions {
         private int maxEvents = 0;
         private int reportFreq = DEFAULT_REPORT_FREQ;
 
+        Builder() {
+            if (System.getenv("CLARA_USE_DOCKER") != null) {
+                orchMode = OrchestratorMode.DOCKER;
+            }
+        }
+
         Builder cloudMode() {
             this.orchMode = OrchestratorMode.CLOUD;
             return this;
@@ -132,10 +138,10 @@ final class OrchestratorOptions {
 
     private OrchestratorOptions(Builder builder) {
         this.orchMode = builder.orchMode;
-        this.useFrontEnd = builder.orchMode == OrchestratorMode.LOCAL || builder.useFrontEnd;
+        this.useFrontEnd = builder.orchMode != OrchestratorMode.CLOUD || builder.useFrontEnd;
         this.stageFiles = builder.stageFiles;
         this.poolSize = builder.poolSize;
-        this.maxNodes = builder.orchMode == OrchestratorMode.LOCAL ? 1 : builder.maxNodes;
+        this.maxNodes = builder.orchMode != OrchestratorMode.CLOUD ? 1 : builder.maxNodes;
         this.maxThreads = builder.maxThreads;
         this.skipEvents = builder.skipEvents;
         this.maxEvents = builder.maxEvents;

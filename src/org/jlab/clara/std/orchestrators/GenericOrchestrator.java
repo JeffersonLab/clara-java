@@ -353,7 +353,7 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
         printStartup();
         waitFrontEnd();
 
-        if (options.orchMode == OrchestratorMode.LOCAL) {
+        if (options.orchMode != OrchestratorMode.CLOUD) {
             Logging.info("Waiting for local node...");
         } else {
             Logging.info("Waiting for worker nodes...");
@@ -362,7 +362,7 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
         tryLocalNode();
         waitFirstNode();
 
-        if (options.orchMode == OrchestratorMode.LOCAL) {
+        if (options.orchMode != OrchestratorMode.CLOUD) {
             WorkerNode localNode = dpeCallback.getLocalNode();
             benchmark.initialize(localNode.getRuntimeData());
         }
@@ -372,7 +372,7 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
     @Override
     void subscribe(WorkerNode node) {
         super.subscribe(node);
-        if (options.orchMode == OrchestratorMode.LOCAL) {
+        if (options.orchMode != OrchestratorMode.CLOUD) {
             node.subscribeDone(n -> new DataHandlerCB(node, options));
         }
     }
@@ -381,7 +381,7 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
     @Override
     protected void end() {
         removeStageDirectories();
-        if (options.orchMode == OrchestratorMode.LOCAL) {
+        if (options.orchMode != OrchestratorMode.CLOUD) {
             try {
                 WorkerNode localNode = dpeCallback.getLocalNode();
                 benchmark.update(localNode.getRuntimeData());
@@ -464,6 +464,9 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
 
 
     private boolean isLocalDpe(DpeName dpe) {
+        if (options.orchMode == OrchestratorMode.DOCKER) {
+            return true;
+        }
         return dpe.address().host() == orchestrator.getFrontEnd().address().host();
     }
 
@@ -540,6 +543,9 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
         }
 
         private String getHost(DpeName name) {
+            if (options.orchMode == OrchestratorMode.DOCKER) {
+                return "docker_container";
+            }
             return name.address().host();
         }
 
