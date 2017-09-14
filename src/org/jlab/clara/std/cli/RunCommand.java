@@ -131,7 +131,9 @@ class RunCommand extends BaseCommand {
             String javaDpe = Paths.get(Config.claraHome(), "bin", "j_dpe").toString();
             addBackgroundDpeProcess(feName, javaDpe,
                     "--host", getHost(feName),
-                    "--port", getPort(feName));
+                    "--port", getPort(feName),
+                    "--session", (String)config.getValue(Config.SESSION),
+                    "--description", (String)config.getValue(Config.DESCRIPTION));
 
             if (languages.contains(ClaraLang.CPP)) {
                 int cppPort = feName.address().pubPort() + 10;

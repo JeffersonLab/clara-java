@@ -331,7 +331,7 @@ public final class Dpe extends AbstractActor {
                       1, "Front End"));
 
         AbstractActor.isFrontEnd.set(isFrontEnd);
-        this.reportService = new ReportService(config.reportPeriod(), session);
+        this.reportService = new ReportService(config.reportPeriod(), session, description);
         this.session = session;
         this.maxCores = config.maxCores();
     }
@@ -680,10 +680,10 @@ public final class Dpe extends AbstractActor {
         private final long reportPeriod;
         private String session;
 
-        ReportService(long periodMillis, String session) {
+        ReportService(long periodMillis, String session, String description) {
 
             socketFactory = new xMsgSocketFactory(xMsgContext.getInstance().getContext());
-            myReport = new DpeReport(base, session);
+            myReport = new DpeReport(base, session, description);
             myReport.setPoolSize(base.getPoolSize());
             scheduledPingService = Executors.newSingleThreadScheduledExecutor();
             reportPeriod = periodMillis;

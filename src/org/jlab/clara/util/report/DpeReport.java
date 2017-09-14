@@ -46,8 +46,9 @@ public class DpeReport extends BaseReport {
 
     private final Map<String, ContainerReport> containers = new ConcurrentHashMap<>();
 
-    public DpeReport(ClaraBase base, String author) {
-        super(base.getName(), author, base.getDescription());
+    public DpeReport(ClaraBase base, String session, String description) {
+//        super(base.getName(), session, base.getDescription());
+        super(base.getName(), session, description);
 
         this.host = name;
         this.claraHome = base.getClaraHome();
