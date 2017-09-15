@@ -167,11 +167,11 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
         }
 
         /**
-         * Sets the session used by the DPEs of interest.
+         * Sets the author used by the DPEs of interest.
          * The orchestrator will connect an use only the DPEs registered with
-         * the given session, ignoring all others.
+         * the given author, ignoring all others.
          *
-         * @param session the session of interest
+         * @param session the author of interest
          * @return this object, so methods can be chained
          */
         public Builder withSession(String session) {
@@ -780,8 +780,8 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
                         "Stage input files in the local file-system.")
                 + OptUtils.optionHelp(frontEnd, "frontEnd",
                         "The name of the CLARA front-end DPE")
-                + OptUtils.optionHelp(session, "session",
-                        "The session name to filter worker DPEs")
+                + OptUtils.optionHelp(session, "author",
+                        "The author name to filter worker DPEs")
                 + OptUtils.optionHelp(inputDir, "inputDir",
                         "The directory with the set of input files")
                 + OptUtils.optionHelp(outputDir, "outputDir",

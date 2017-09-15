@@ -76,4 +76,15 @@ public class DpeRuntimeDataTest {
 
         assertThat(dpe.containers(), empty());
     }
+
+    @Test
+    public void session() throws Exception {
+        assertThat(data.session(), is("gurjyan"));
+    }
+
+    @Test
+    public void description() throws Exception {
+        assertThat(data.description(), is("clara"));
+    }
+
 }

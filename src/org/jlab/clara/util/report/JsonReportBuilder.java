@@ -39,7 +39,8 @@ public class JsonReportBuilder implements ExternalReport {
 
         JSONObject dpeRuntime = new JSONObject();
         dpeRuntime.put("hostname", dpeData.getHost()); // keep it to not break existing clients
-        dpeRuntime.put("session", dpeData.getSession());
+        dpeRuntime.put("name", dpeData.getHost());
+        dpeRuntime.put("session", dpeData.getAuthor());
         dpeRuntime.put("description", dpeData.getDescription());
         dpeRuntime.put("snapshot_time", snapshotTime);
         dpeRuntime.put("cpu_usage", dpeData.getCpuUsage());
@@ -83,7 +84,7 @@ public class JsonReportBuilder implements ExternalReport {
 
         JSONObject dpeRegistration = new JSONObject();
         dpeRegistration.put("hostname", dpeData.getHost()); // keep it to not break existing clients
-        dpeRegistration.put("name", dpeData.getSession());
+        dpeRegistration.put("name", dpeData.getHost());
         dpeRegistration.put("language", dpeData.getLang());
         dpeRegistration.put("clara_home", dpeData.getClaraHome());
         dpeRegistration.put("n_cores", dpeData.getCoreCount());
@@ -95,7 +96,7 @@ public class JsonReportBuilder implements ExternalReport {
             JSONObject containerRegistration = new JSONObject();
             containerRegistration.put("name", cr.getName());
             containerRegistration.put("language", cr.getLang());
-            containerRegistration.put("author", cr.getSession());
+            containerRegistration.put("author", cr.getAuthor());
             containerRegistration.put("start_time", cr.getStartTime());
 
             JSONArray servicesRegistrationArray = new JSONArray();
@@ -103,7 +104,7 @@ public class JsonReportBuilder implements ExternalReport {
                 JSONObject serviceRegistration = new JSONObject();
                 serviceRegistration.put("class_name", sr.getClassName());
                 serviceRegistration.put("engine_name", sr.getEngineName());
-                serviceRegistration.put("author", sr.getSession());
+                serviceRegistration.put("author", sr.getAuthor());
                 serviceRegistration.put("version", sr.getVersion());
                 serviceRegistration.put("description", sr.getDescription());
                 serviceRegistration.put("language", sr.getLang());

@@ -25,7 +25,7 @@ package org.jlab.clara.std.cli;
 import org.jline.terminal.Terminal;
 
 /**
- * The context for a shell session.
+ * The context for a shell author.
 */
 public class Context {
 
@@ -33,10 +33,10 @@ public class Context {
     private final Config config;
 
     /**
-     * Creates the context for a shell session.
+     * Creates the context for a shell author.
      *
      * @param terminal the terminal used by the shell
-     * @param config the configuration for the shell session
+     * @param config the configuration for the shell author
      */
     public Context(Terminal terminal, Config config) {
         this.terminal = terminal;
@@ -53,7 +53,7 @@ public class Context {
     }
 
     /**
-     * Gets the configuration variables for the shell session.
+     * Gets the configuration variables for the shell author.
      *
      * @return the configuration
      */

@@ -41,8 +41,8 @@ echo
 echo '  [-p | --plugin <plugin>]'
 echo '        Plugin installation directory. (default: $CLARA_HOME/plugins/clas12)'
 echo
-echo '  [-s | --session <session>]'
-echo '        The data processing session. (default: $USER)'
+echo '  [-s | --author <author>]'
+echo '        The data processing author. (default: $USER)'
 echo
 echo '  [-m | --mode <mode>]'
 echo '        The data processing mode. Accepts values = local, sqlite and farm (default: local)'
@@ -105,7 +105,7 @@ echo "  clara_home    = $CLARA_HOME"
 echo "  plugin        = $PLUGIN"
 echo "  input_dir     = $IN_DIR"
 echo "  output_dir    = $OUT_DIR"
-echo "  session       = $SESSION"
+echo "  author       = $SESSION"
 echo "  cores         = $THREAD_NUM"
 echo "  services      = $SERVICE_YAML"
 echo "  files         = $FILE_LIST"
@@ -338,7 +338,7 @@ do
 	  PLUGIN="$2"
 	  shift 2
 	  ;;
-      -s | --session)
+      -s | --author)
 	  SESSION="$2"
 	  shift 2
 	  ;;

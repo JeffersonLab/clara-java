@@ -66,7 +66,7 @@ class OrchestratorSetup {
         }
 
         Builder withSession(String session) {
-            Objects.requireNonNull(session, "session parameter is null");
+            Objects.requireNonNull(session, "author parameter is null");
             this.session = session;
             return this;
         }

@@ -33,7 +33,7 @@ public class SetCommandTest {
 
     @Test
     public void testSetSession() throws Exception {
-        command.execute(new String[]{"session", "trevor"});
+        command.execute(new String[]{"author", "trevor"});
 
         assertThat(config.getValue(Config.SESSION), is("trevor"));
     }

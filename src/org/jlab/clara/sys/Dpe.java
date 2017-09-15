@@ -89,7 +89,7 @@ public final class Dpe extends AbstractActor {
     // a shared connection pool between all services
     private volatile xMsgConnectionPool servicesConnectionPool;
 
-    // session ID
+    // author ID
     private volatile String session = "undefined";
 
     // The containers running on this DPE
@@ -225,9 +225,9 @@ public final class Dpe extends AbstractActor {
         }
 
         /**
-         * Sets a session for this DPE.
+         * Sets a author for this DPE.
          *
-         * @param id the session ID for the DPE
+         * @param id the author ID for the DPE
          * @return this builder, so methods can be chained
          */
         public Builder withSession(String id) {

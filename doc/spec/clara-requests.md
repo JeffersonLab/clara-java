@@ -152,12 +152,12 @@ __Notes__: `<pool_size>` and `<description>` are optional.
 
 | Field | Value |
 | ----- | ----- |
-| **parameters**    | `<session>` |
+| **parameters**    | `<author>` |
 | **actor**         | Front End |
 | **proxy**         | `<addr>` |
-| **subscription**  | `dpeAlive:` or `dpeAlive:<session>:` |
+| **subscription**  | `dpeAlive:` or `dpeAlive:<author>:` |
 
-__Notes__: `<session>` is optional.
+__Notes__: `<author>` is optional.
 
 ### Subscribe service status reports
 

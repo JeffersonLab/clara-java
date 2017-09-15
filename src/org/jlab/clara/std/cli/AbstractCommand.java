@@ -53,7 +53,7 @@ public abstract class AbstractCommand implements Command {
     protected final Terminal terminal;
 
     /**
-     * The configuration of the shell session.
+     * The configuration of the shell author.
      */
     protected final Config config;
 
@@ -78,7 +78,7 @@ public abstract class AbstractCommand implements Command {
     /**
      * Creates a new command.
      *
-     * @param context the context of the shell session
+     * @param context the context of the shell author
      * @param name the name of the command
      * @param description the description of the command
      */

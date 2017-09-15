@@ -54,8 +54,8 @@ echo
 echo '  [-p | --plugin <plugin>]'
 echo '        Plugin installation directory. (default: $CLARA_HOME/plugins/clas12)'
 echo
-echo '  [-s | --session <session>]'
-echo '        The data processing session. (default: $USER)'
+echo '  [-s | --author <author>]'
+echo '        The data processing author. (default: $USER)'
 echo
 echo '  [-i | --input_dir <inputDir>]'
 echo '        The input directory where the files to be processed are located.'
@@ -235,7 +235,7 @@ echo "  clara_home    = $CLARA_HOME"
 echo "  plugin        = $PLUGIN"
 echo "  input_dir     = $IN_DIR"
 echo "  output_dir    = $OUT_DIR"
-echo "  session       = $SESSION"
+echo "  author       = $SESSION"
 echo "  cores         = $THREAD_NUM"
 echo "  services      = $SERVICE_YAML"
 echo "  files         = $FILE_LIST"
@@ -455,7 +455,7 @@ local val2="$3"
 	  PLUGIN="$val1"
 	  fi
 	  ;;
-      -s | --session)
+      -s | --author)
       if ! [ -z "$val1" ]; then
 	  SESSION="$val1"
 	  fi

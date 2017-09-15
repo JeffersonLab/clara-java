@@ -129,7 +129,7 @@ public final class ClaraShell implements AutoCloseable {
         }
 
         /**
-         * Customizes the configuration variables of the shell session.
+         * Customizes the configuration variables of the shell author.
          *
          * @param consumer a function that updates the configuration builder
          * @return this builder
@@ -176,7 +176,7 @@ public final class ClaraShell implements AutoCloseable {
         }
 
         /**
-         * Adds a new builtin command to the CLARA shell session.
+         * Adds a new builtin command to the CLARA shell author.
          * This new command cannot have the same name as one of the default
          * builtin commands.
          *
@@ -196,7 +196,7 @@ public final class ClaraShell implements AutoCloseable {
         }
 
         /**
-         * Adds a new builtin command to the CLARA shell session.
+         * Adds a new builtin command to the CLARA shell author.
          * This new command cannot have the same name as one of the default
          * builtin commands.
          *
@@ -215,7 +215,7 @@ public final class ClaraShell implements AutoCloseable {
         }
 
         /**
-         * Adds a new builtin command to the CLARA shell session.
+         * Adds a new builtin command to the CLARA shell author.
          * This new command cannot have the same name as one of the default
          * builtin commands.
          *
@@ -349,7 +349,7 @@ public final class ClaraShell implements AutoCloseable {
      * Runs the shell accepting user commands.
      * If a script file is set, then the shell will process the commands in the
      * script in non-interactive mode and exit. Otherwise, an interactive
-     * session will be started.
+     * author will be started.
      */
     public void run() {
         if (interactive) {

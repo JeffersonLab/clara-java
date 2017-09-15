@@ -111,7 +111,7 @@ DESCRIPTION=$6
 
 THREAD_NUM=$7
 
-# Data processing session
+# Data processing author
 if [ "$8" == "undefined" ]; then
 SESSION="$USER"
 else
@@ -154,7 +154,7 @@ echo
 # start dpe if it is not already up
 if [ "$DPE_UP" == "false" ]; then
 #$CLARA_HOME/bin/remove-dpe
-$CLARA_HOME/bin/j_dpe --port $DPE_PORT --host $HOST --session $SESSION --max-sockets 5120 --report 5 --max-cores $THREAD_NUM 2>&1 | tee $LOG_FILE_DPE &
+$CLARA_HOME/bin/j_dpe --port $DPE_PORT --host $HOST --author $SESSION --max-sockets 5120 --report 5 --max-cores $THREAD_NUM 2>&1 | tee $LOG_FILE_DPE &
 sleep 7
 fi
 

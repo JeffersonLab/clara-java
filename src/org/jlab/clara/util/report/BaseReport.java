@@ -34,16 +34,16 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class BaseReport {
 
     protected final String name;
-    protected final String session;
+    protected final String author;
     protected final String lang;
     protected final String description;
     protected final String startTime;
 
     private final AtomicInteger requestCount = new AtomicInteger();
 
-    public BaseReport(String name, String session, String description) {
+    public BaseReport(String name, String author, String description) {
         this.name = name;
-        this.session = session;
+        this.author = author;
         this.lang = ClaraLang.JAVA.toString();
         this.description = description;
         this.startTime = ClaraUtil.getCurrentTime();
@@ -57,8 +57,8 @@ public class BaseReport {
         return lang;
     }
 
-    public String getSession() {
-        return session;
+    public String getAuthor() {
+        return author;
     }
 
     public String getDescription() {

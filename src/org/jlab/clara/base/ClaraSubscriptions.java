@@ -292,16 +292,16 @@ public class ClaraSubscriptions {
 
         /**
          * A subscription to the periodic alive message reported by
-         * the running DPEs with the given session.
+         * the running DPEs with the given author.
          * <p>
-         * If the session is empty, only DPEs with no session will be listened.
+         * If the author is empty, only DPEs with no author will be listened.
          *
-         * @param session the session to select with DPEs to monitor
+         * @param session the author to select with DPEs to monitor
          * @return a subscription to listen DPE alive reports
          */
         public JsonReportSubscription aliveDpes(String session) {
             if (session == null) {
-                throw new IllegalArgumentException("null session argument");
+                throw new IllegalArgumentException("null author argument");
             }
             xMsgTopic topic = MessageUtil.buildTopic(ClaraConstants.DPE_ALIVE, session, "");
             return new JsonReportSubscription(base, subscriptions, frontEnd, topic);

@@ -5,6 +5,8 @@
     "cpu_usage": 45.2,
     "memory_usage": 631222786,
     "load": 2.3879,
+    "session": "gurjyan",
+    "description": "clara",
     "containers": [
       {
         "name": "10.1.1.10_java:trevor",

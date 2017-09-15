@@ -10,6 +10,9 @@ import org.jlab.coda.xmsg.net.xMsgProxyAddress;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -26,8 +29,10 @@ public class InfluxDbReport extends DpeListenerAndReporter {
     private Map<String, String> tags = new HashMap<>();
     private Point.Builder p;
 
-    InfluxDbReport(String name, String proxyHost, int proxyPort, String dbNode){
-        super(name,new xMsgProxyAddress(proxyHost, proxyPort));
+    private DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+
+    InfluxDbReport(String name, String proxyHost, int proxyPort, String dbNode) {
+        super(name, new xMsgProxyAddress(proxyHost, proxyPort));
         this.dbNode = dbNode;
         try {
             jinFlux = new JinFlux(dbNode);
@@ -56,12 +61,13 @@ public class InfluxDbReport extends DpeListenerAndReporter {
             e.printStackTrace();
         }
 
-        if(jinFxConnected) {
+        if (jinFxConnected) {
 
             int pool_size = 1;
             tags.clear();
 
             JSONObject base = new JSONObject(jsonString);
+//            System.out.println(base.toString(4));
 
             // registration information
             JSONObject registration = base.getJSONObject("DPERegistration");
@@ -70,16 +76,8 @@ public class InfluxDbReport extends DpeListenerAndReporter {
             JSONArray cont_services = reg_container.getJSONArray("services");
             for (int i = 0; i < cont_services.length(); i++) {
                 JSONObject service = cont_services.getJSONObject(i);
-//                System.out.println("start_time = " + service.getString("start_time"));
-//                System.out.println("author = " + service.getString("author"));
-//                System.out.println("pool_size = " + service.getInt("pool_size"));
-//                System.out.println("description = " + service.getString("description"));
-//                System.out.println("engine_name = " + service.getString("engine_name"));
-//                System.out.println("language = " + service.getString("language"));
-//                System.out.println("class_name = " + service.getString("class_name"));
-//                System.out.println("version = " + service.getString("version"));
                 pool_size = service.getInt("pool_size");
-                if(pool_size>1) break;
+                if (pool_size > 1) break;
             }
 
             // runtime information
@@ -90,13 +88,7 @@ public class InfluxDbReport extends DpeListenerAndReporter {
             Long memUse = runtime.getLong("memory_usage");
             Integer cpuUse = runtime.getInt("cpu_usage");
 
-            System.out.println("dpeName = "+dpeName);
-            System.out.println("session = "+session);
-            System.out.println("description = "+description);
-            System.out.println("memUse = "+memUse);
-            System.out.println("cpuUse = "+cpuUse);
-            System.out.println("pool_size = "+pool_size);
-
+            System.out.println(dateFormat.format(new Date()) + ": reporting for " + session + "-" + description);
 
             tags.put(ClaraConstants.SESSION, session + "-" + description);
 
@@ -108,28 +100,22 @@ public class InfluxDbReport extends DpeListenerAndReporter {
                 JSONObject service = rt_services.getJSONObject(i);
 
                 String ser_name = service.getString("name");
-                tags.put("service_name", ser_name.substring(ser_name.lastIndexOf(":")+1));
+                tags.put("service_name", ser_name.substring(ser_name.lastIndexOf(":") + 1));
                 p = jinFlux.openTB("clas12", tags);
                 jinFlux.addDP(p, "cpu_usage", cpuUse);
                 jinFlux.addDP(p, "memory_usage", memUse);
 
-//                System.out.println("n_requests = " + service.getInt("n_requests"));
                 jinFlux.addDP(p, "n_requests", service.getInt("n_requests"));
 
-//                System.out.println("n_failures = " + service.getInt("n_failures"));
                 jinFlux.addDP(p, "n_failures", service.getInt("n_failures"));
 
-//                System.out.println("shm_reads = " + service.getInt("shm_reads"));
                 int ser_sher_m_reads = service.getInt("shm_reads");
                 jinFlux.addDP(p, "shm_reads", ser_sher_m_reads);
 
-//                System.out.println("shm_writes = " + service.getInt("shm_writes"));
                 jinFlux.addDP(p, "shm_writes", service.getInt("shm_writes"));
 
-//                System.out.println("bytes_recv = " + service.getInt("bytes_recv"));
                 jinFlux.addDP(p, "bytes_recv", service.getInt("bytes_recv"));
 
-//                System.out.println("bytes_sent = " + service.getInt("bytes_sent"));
                 jinFlux.addDP(p, "bytes_sent", service.getInt("bytes_sent"));
 
                 Long ser_exec_time = service.getLong("exec_time");
@@ -146,7 +132,6 @@ public class InfluxDbReport extends DpeListenerAndReporter {
                 } catch (JinFluxException e) {
                     e.printStackTrace();
                 }
-
             }
 
             jinFlux.addDP(p, "total_exec_time", totalExecTime);
@@ -157,20 +142,19 @@ public class InfluxDbReport extends DpeListenerAndReporter {
             } catch (JinFluxException e) {
                 e.printStackTrace();
             }
-//        System.out.println(base.toString(4));
         }
     }
 
     public static void main(String[] args) {
         IDROptionParser options = new IDROptionParser();
-            options.parse(args);
-            if (options.hasHelp()) {
-                System.out.println(options.usage());
-                System.exit(0);
-            }
+        options.parse(args);
+        if (options.hasHelp()) {
+            System.out.println(options.usage());
+            System.exit(0);
+        }
 
-            String name = UUID.randomUUID().toString();
-            try (InfluxDbReport rep = new InfluxDbReport(name, options.getM_host(), options.getM_port(), options.getDb_host())) {
+        String name = UUID.randomUUID().toString();
+        try (InfluxDbReport rep = new InfluxDbReport(name, options.getM_host(), options.getM_port(), options.getDb_host())) {
             rep.start();
         } catch (xMsgException e) {
             e.printStackTrace();

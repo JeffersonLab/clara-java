@@ -76,7 +76,7 @@ class DpeOptionsParser {
         fePort = parser.acceptsAll(asList("fe-port"))
                        .withRequiredArg().ofType(Integer.class);
 
-        session = parser.accepts("session").withRequiredArg();
+        session = parser.accepts("author").withRequiredArg();
 
         poolSize = parser.accepts("poolsize").withRequiredArg().ofType(Integer.class);
         maxCores = parser.accepts("max-cores").withRequiredArg().ofType(Integer.class);
@@ -185,7 +185,7 @@ class DpeOptionsParser {
              + OptUtils.optionHelp(dpePort, "port", "use given port for this DPE")
              + OptUtils.optionHelp(feHost, "hostname", "the host used by the remote front-end")
              + OptUtils.optionHelp(fePort, "port", "the port used by the remote front-end")
-             + OptUtils.optionHelp(session, "id", "the session ID of this DPE")
+             + OptUtils.optionHelp(session, "id", "the author ID of this DPE")
              + OptUtils.optionHelp(description, "string", "a short description of this DPE")
              + String.format("%n  Config options:%n")
              + OptUtils.optionHelp(poolSize, "size", "size of thread pool to handle requests")
