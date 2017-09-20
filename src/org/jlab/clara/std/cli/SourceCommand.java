@@ -79,10 +79,10 @@ class SourceCommand extends AbstractCommand {
             }
             return EXIT_SUCCESS;
         } catch (NoSuchFileException e) {
-            writer.println("Error: no file " + path);
+            writer.println("Error: no such file: " + path);
             return EXIT_ERROR;
         } catch (IOException e) {
-            writer.println("Error: could not read source file " + e.getMessage());
+            writer.println("Error: could not read source file: " + e.getMessage());
             return EXIT_ERROR;
         }
     }
