@@ -41,9 +41,6 @@ public class DpeRuntimeData implements ClaraReportData<DpeName> {
     private final long memUsage;
     private final double sysLoad;
 
-    private String session;
-    private String description;
-
     private final Set<ContainerRuntimeData> containers;
 
     DpeRuntimeData(JSONObject json) {
@@ -56,8 +53,6 @@ public class DpeRuntimeData implements ClaraReportData<DpeName> {
         this.containers = JsonUtils.containerStream(json)
                                    .map(ContainerRuntimeData::new)
                                    .collect(Collectors.toSet());
-        this.session = json.getString("session");
-        this.description = json.getString("description");
     }
 
     @Override
@@ -110,22 +105,5 @@ public class DpeRuntimeData implements ClaraReportData<DpeName> {
      */
     public Set<ContainerRuntimeData> containers() {
         return Collections.unmodifiableSet(containers);
-    }
-
-    /**
-     * Gets the data processing session.
-     * Note: we can run multiple sessions within the same registered DPE
-     * @return runtime session
-     */
-    public String session() {
-        return session;
-    }
-
-    /**
-     * Gets the data processing description.
-     * @return runtime session
-     */
-    public String description() {
-        return description;
     }
 }

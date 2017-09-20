@@ -37,6 +37,7 @@ public class DpeReport extends BaseReport {
 
     private final String host;
     private final String claraHome;
+    private final String session;
 
     private final int coreCount;
     private int poolSize;
@@ -46,12 +47,12 @@ public class DpeReport extends BaseReport {
 
     private final Map<String, ContainerReport> containers = new ConcurrentHashMap<>();
 
-    public DpeReport(ClaraBase base, String authour, String description) {
-//        super(base.getName(), author, base.getDescription());
-        super(base.getName(), authour, description);
+    public DpeReport(ClaraBase base, String session) {
+        super(base.getName(), System.getenv("USER"), base.getDescription());
 
         this.host = name;
         this.claraHome = base.getClaraHome();
+        this.session = session;
 
         this.coreCount = Runtime.getRuntime().availableProcessors();
         this.memorySize = Runtime.getRuntime().maxMemory();
@@ -73,6 +74,10 @@ public class DpeReport extends BaseReport {
 
     public String getClaraHome() {
         return claraHome;
+    }
+
+    public String getSession() {
+        return session;
     }
 
     public int getCoreCount() {

@@ -83,11 +83,11 @@ public class InfluxDbReport extends DpeListenerAndReporter {
             // runtime information
             JSONObject runtime = base.getJSONObject("DPERuntime");
             String dpeName = runtime.getString("hostname");
-            String session = runtime.getString("session");
-            String description = runtime.getString("description");
             Long memUse = runtime.getLong("memory_usage");
             Integer cpuUse = runtime.getInt("cpu_usage");
 
+            String session = registration.getString("session");
+            String description = registration.getString("description");
             System.out.println(dateFormat.format(new Date()) + ": reporting for " + session + "-" + description);
 
             tags.put(ClaraConstants.SESSION, session + "-" + description);

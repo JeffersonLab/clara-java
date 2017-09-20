@@ -28,7 +28,6 @@ public class DpeRuntimeDataTest {
     public DpeRuntimeDataTest() {
         json = JsonUtils.readJson("/resources/runtime-data.json")
                         .getJSONObject(ClaraConstants.RUNTIME_KEY);
-
         data = new DpeRuntimeData(json);
     }
 
@@ -77,15 +76,4 @@ public class DpeRuntimeDataTest {
 
         assertThat(dpe.containers(), empty());
     }
-
-    @Test
-    public void session() throws Exception {
-        assertThat(data.session(), is("gurjyan"));
-    }
-
-    @Test
-    public void description() throws Exception {
-        assertThat(data.description(), is("clara"));
-    }
-
 }

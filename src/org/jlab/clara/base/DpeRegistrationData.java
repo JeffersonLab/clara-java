@@ -38,6 +38,7 @@ public class DpeRegistrationData implements ClaraReportData<DpeName> {
     private final DpeName name;
     private final LocalDateTime startTime;
     private final String claraHome;
+    private final String session;
 
     private final int numCores;
     private final long memorySize;
@@ -48,6 +49,7 @@ public class DpeRegistrationData implements ClaraReportData<DpeName> {
         name = new DpeName(json.getString("name"));
         this.startTime = JsonUtils.getDate(json, "start_time");
         this.claraHome = json.optString("clara_home");
+        this.session = json.optString("session");
         this.numCores = json.optInt("n_cores");
         this.memorySize = json.optLong("memory_size");
 
@@ -87,6 +89,15 @@ public class DpeRegistrationData implements ClaraReportData<DpeName> {
      */
     public String claraHome() {
         return claraHome;
+    }
+
+    /**
+     * Gets the session used by the DPE to publish reports.
+     *
+     * @return the session ID of the DPE
+     */
+    public String session() {
+        return session;
     }
 
     /**

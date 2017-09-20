@@ -2,6 +2,7 @@
   "DPERegistration": {
     "name": "10.1.1.10_java",
     "language": "java",
+    "session": "los_santos",
     "start_time": "2015-06-20 12:30:00",
     "clara_home": "/home/user/clara",
     "n_cores": 8,

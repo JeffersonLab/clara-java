@@ -40,8 +40,6 @@ public class JsonReportBuilder implements ExternalReport {
         JSONObject dpeRuntime = new JSONObject();
         dpeRuntime.put("hostname", dpeData.getHost()); // keep it to not break existing clients
         dpeRuntime.put("name", dpeData.getHost());
-        dpeRuntime.put("session", dpeData.getAuthor());
-        dpeRuntime.put("description", dpeData.getDescription());
         dpeRuntime.put("snapshot_time", snapshotTime);
         dpeRuntime.put("cpu_usage", dpeData.getCpuUsage());
         dpeRuntime.put("memory_usage", dpeData.getMemoryUsage());
@@ -85,6 +83,8 @@ public class JsonReportBuilder implements ExternalReport {
         JSONObject dpeRegistration = new JSONObject();
         dpeRegistration.put("hostname", dpeData.getHost()); // keep it to not break existing clients
         dpeRegistration.put("name", dpeData.getHost());
+        dpeRegistration.put("session", dpeData.getSession());
+        dpeRegistration.put("description", dpeData.getDescription());
         dpeRegistration.put("language", dpeData.getLang());
         dpeRegistration.put("clara_home", dpeData.getClaraHome());
         dpeRegistration.put("n_cores", dpeData.getCoreCount());

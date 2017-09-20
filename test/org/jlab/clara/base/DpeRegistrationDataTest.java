@@ -47,6 +47,11 @@ public class DpeRegistrationDataTest {
     }
 
     @Test
+    public void session() throws Exception {
+        assertThat(data.session(), is("los_santos"));
+    }
+
+    @Test
     public void numCores() throws Exception {
         assertThat(data.numCores(), is(8));
     }
