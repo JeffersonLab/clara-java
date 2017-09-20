@@ -132,7 +132,7 @@ class RunCommand extends BaseCommand {
             addBackgroundDpeProcess(feName, javaDpe,
                     "--host", getHost(feName),
                     "--port", getPort(feName),
-                    "--author", (String)config.getValue(Config.SESSION),
+                    "--session", (String)config.getValue(Config.SESSION),
                     "--description", (String)config.getValue(Config.DESCRIPTION));
 
             if (languages.contains(ClaraLang.CPP)) {

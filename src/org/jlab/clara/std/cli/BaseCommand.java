@@ -51,7 +51,7 @@ public abstract class BaseCommand extends AbstractCommand {
     /**
      * Creates a new base command to group subcommands.
      *
-     * @param context the context of the shell author
+     * @param context the context of the shell session
      * @param name the name of the base command
      * @param description the description of the base command
      */

@@ -130,7 +130,7 @@ if [ "$PLUGIN" == "undefined" ]; then
 PLUGIN="$CLARA_HOME/plugins/clas12"
 fi
 
-# Data processing author
+# Data processing session
 if [ "$SESSION" == "undefined" ]; then
 SESSION="$USER"
 fi
@@ -170,8 +170,8 @@ echo
 echo '  [-p | --plugin <plugin>]'
 echo '        Plugin installation directory. (default: $CLARA_HOME/plugins/clas12)'
 echo
-echo '  [-s | --author <author>]'
-echo '        The data processing author. (default: $USER)'
+echo '  [-s | --session <session>]'
+echo '        The data processing session. (default: $USER)'
 echo
 echo '  [-i | --input_dir <inputDir>]'
 echo '        The input directory where the files to be processed are located.'
@@ -354,7 +354,7 @@ echo "  clara_home    = $CLARA_HOME"
 echo "  plugin        = $PLUGIN"
 echo "  input_dir     = $IN_DIR"
 echo "  output_dir    = $OUT_DIR"
-echo "  author       = $SESSION"
+echo "  session       = $SESSION"
 echo "  cores         = $THREAD_NUM"
 echo "  services      = $SERVICE_YAML"
 echo "  files         = $FILE_LIST"
@@ -458,7 +458,7 @@ echo
 # start dpe if it is not already up
 if [ "$DPE_UP" == "false" ]; then
 $CLARA_HOME/bin/remove-dpe
-$CLARA_HOME/bin/j_dpe --port $PORT --host $FE_HOST --author $SESSION --max-sockets 5120 --report 5 --max-cores $THREAD_NUM 2>&1 | tee $LOG_FILE &
+$CLARA_HOME/bin/j_dpe --port $PORT --host $FE_HOST --session $SESSION --max-sockets 5120 --report 5 --max-cores $THREAD_NUM 2>&1 | tee $LOG_FILE &
 sleep "$FARM_DPE_ORC_DELAY"
 fi
 
@@ -546,7 +546,7 @@ fi }
 
 a="setenv CLARA_HOME $CL_HOME"
 b="$a ; $CLARA_HOME/bin/remove-dpe"
-c="$b ; $CLARA_HOME/bin/j_dpe --port $PORT --host $FE_HOST --author $SESSION --max-sockets 5120 --report 5 --max-cores $THREAD_NUM 2>&1 | tee $LOG_FILE &"
+c="$b ; $CLARA_HOME/bin/j_dpe --port $PORT --host $FE_HOST --session $SESSION --max-sockets 5120 --report 5 --max-cores $THREAD_NUM 2>&1 | tee $LOG_FILE &"
 d="$c ; sleep 20"
 if [ "$FARM_LOADING_ZONE" == "undefined" ]; then
 rcCmd="$d ; $CLARA_HOME/bin/j_cloud -f $FENAME -s $SESSION -F -B -L -i $IN_DIR -o $OUT_DIR -p $THREAD_NUM -t $THREAD_NUM $SERVICE_YAML $FILE_LIST"
@@ -730,7 +730,7 @@ local val2="$3"
 	  PLUGIN="$val1"
 	  fi
 	  ;;
-      -s | --author)
+      -s | --session)
       if ! [ -z "$val1" ]; then
 	  SESSION="$val1"
 	  fi

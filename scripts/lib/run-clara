@@ -96,7 +96,7 @@ stage_dir=
 
 report=5
 thread_num=$(get_num_cores)
-author=$user
+session=$user
 description=clara
 
 wait_dpe=2
@@ -109,7 +109,7 @@ while getopts "i:o:l:t:r:s:d:H:P:W:J:" OPTION; do
         l)  stage_dir=$OPTARG ;;
         t)  thread_num=$OPTARG ;;
         r)  report=$OPTARG ;;
-        s)  author=$OPTARG ;;
+        s)  session=$OPTARG ;;
         d)  description=$OPTARG ;;
         H)  fe_host=$OPTARG ;;
         P)  fe_port=$OPTARG ;;
@@ -167,7 +167,7 @@ fe_name="${fe_host}%${fe_port}_java"
 fe_args=()
 fe_args+=(--host "$fe_host")
 fe_args+=(--port "$fe_port")
-fe_args+=(--author "$author")
+fe_args+=(--session "$session")
 fe_args+=(--max-cores "$thread_num")
 fe_args+=(--max-sockets 5120)
 fe_args+=(--report "$report")
@@ -184,7 +184,7 @@ sleep "$wait_dpe"
 or_args=()
 or_args+=(-F)
 or_args+=(-f "$fe_name")
-or_args+=(-s "$author")
+or_args+=(-s "$session")
 or_args+=(-i "$input_dir")
 or_args+=(-o "$output_dir")
 or_args+=(-p "$thread_num")

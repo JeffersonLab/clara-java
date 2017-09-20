@@ -31,7 +31,7 @@ public interface CommandFactory {
     /**
      * Creates a new builtin command.
      *
-     * @param context the shell author
+     * @param context the shell session
      * @return the builtin command
      */
     Command create(Context context);

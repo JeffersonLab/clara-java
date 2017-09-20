@@ -35,7 +35,7 @@ import org.jline.reader.Completer;
 import org.jline.reader.impl.completer.FileNameCompleter;
 
 /**
- * Environment configuration for a CLARA shell author.
+ * Environment configuration for a CLARA shell session.
  */
 public class Config {
 
@@ -60,9 +60,9 @@ public class Config {
     public static final String OUTPUT_DIR = "outputDir";
 
     /**
-     * The variable for the author of the CLARA DPE.
+     * The variable for the session of the CLARA DPE.
      */
-    public static final String SESSION = "author";
+    public static final String SESSION = "session";
 
     /**
      * The variable for the data processing description keyword.
@@ -123,7 +123,7 @@ public class Config {
     private final Map<String, String> environment;
 
     /**
-     * Helps creating the configuration for a shell author.
+     * Helps creating the configuration for a shell session.
      */
     public static class Builder {
 
@@ -267,7 +267,7 @@ public class Config {
                 .withParser(ConfigParsers::toPositiveInteger);
 
         addBuilder.apply(SESSION,
-                "The data processing author.")
+                "The data processing session.")
                 .withInitialValue("")
                 .withParser(ConfigParsers::toAlphaNumWordOrEmpty);
 

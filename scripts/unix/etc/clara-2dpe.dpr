@@ -6,8 +6,8 @@
 
 if [ -z ${1+x} ]; then
 echo "Usage:"
-echo "clara-dpe <author> [<clara-home> <plugin-dir> <fe-host>]"
-echo "<author>         Clara data processing author"
+echo "clara-dpe <session> [<clara-home> <plugin-dir> <fe-host>]"
+echo "<session>         Clara data processing session"
 echo
 echo "optional parameters:"
 echo "<clara-home       Clara home (default = $CLARA_HOME env variable)"
@@ -50,12 +50,12 @@ if [ -z ${fe_port+x} ]; then
 echo " Log file           = Clara distribution/log/$HOST-jdpe.log"
 echo "------------------------------------------"
 echo
-j_dpe --port 7881 --fe-host $FE_HOST --author $1 2>&1 | tee "$LOG_FILE-jdpe.log"
+j_dpe --port 7881 --fe-host $FE_HOST --session $1 2>&1 | tee "$LOG_FILE-jdpe.log"
 else
 
 echo " Log file           = Clara distribution/log/$HOST-jfe.log"
 echo " Note               = Running as local Front-End"
 echo "------------------------------------------"
 echo
-j_dpe --host $FE_HOST --author $1 2>&1 | tee "$LOG_FILE-jfe.log"
+j_dpe --host $FE_HOST --session $1 2>&1 | tee "$LOG_FILE-jfe.log"
 fi

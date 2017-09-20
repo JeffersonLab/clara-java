@@ -32,7 +32,7 @@ import org.jline.reader.impl.completer.NullCompleter;
 import org.jline.reader.impl.completer.StringsCompleter;
 
 /**
- * A configuration variable for a CLARA shell author.
+ * A configuration variable for a CLARA shell session.
  */
 public final class ConfigVariable {
 

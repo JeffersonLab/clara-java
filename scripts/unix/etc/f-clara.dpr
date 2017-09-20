@@ -144,7 +144,7 @@ DESCRIPTION=$6
 
 THREAD_NUM=$7
 
-# Data processing author
+# Data processing session
 if [ "$8" == "undefined" ]; then
 SESSION="$USER"
 else
@@ -197,7 +197,7 @@ unset MALLOC_TOP_PAD_=131072
 unset MALLOC_MMAP_MAX_=65536
 fi
 
-$CLARA_HOME/bin/j_dpe --port $DPE_PORT --host $HOST --author $SESSION --max-sockets 5120 --report 5 --max-cores $THREAD_NUM 2>&1 | tee $LOG_FILE_DPE &
+$CLARA_HOME/bin/j_dpe --port $DPE_PORT --host $HOST --session $SESSION --max-sockets 5120 --report 5 --max-cores $THREAD_NUM 2>&1 | tee $LOG_FILE_DPE &
 sleep 20
 
 unset JAVA_OPTS

@@ -5,8 +5,8 @@
 
 if [ -z ${1+x} ]; then
 echo "Usage:"
-echo "clara-orchestrator <author> [<threads-number> <clara-home> <plugin-dir> <in-dir> <out-dir>]"
-echo "<author>         Clara data processing author"
+echo "clara-orchestrator <session> [<threads-number> <clara-home> <plugin-dir> <in-dir> <out-dir>]"
+echo "<session>         Clara data processing session"
 echo
 echo "optional parameters:"
 echo "<threads-number>  number of parallel threads (default = 72)"
