@@ -24,6 +24,7 @@ package org.jlab.clara.std.cli;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
@@ -83,6 +84,9 @@ class SourceCommand extends AbstractCommand {
             return EXIT_ERROR;
         } catch (IOException e) {
             writer.println("Error: could not read source file: " + e.getMessage());
+            return EXIT_ERROR;
+        } catch (UncheckedIOException e) {
+            writer.println("Error: could not read source file: " + e.getCause().getMessage());
             return EXIT_ERROR;
         }
     }
