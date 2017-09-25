@@ -467,7 +467,9 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
         if (options.orchMode == OrchestratorMode.DOCKER) {
             return true;
         }
-        return dpe.address().host() == orchestrator.getFrontEnd().address().host();
+        String feHost = orchestrator.getFrontEnd().address().host();
+        String dpeHost = dpe.address().host();
+        return dpeHost.equals(feHost);
     }
 
 
