@@ -55,7 +55,7 @@ class BenchmarkPrinter {
     }
 
     private void print(String name, long time, long requests) {
-        double timePerEvent = (time / requests) / 1e3;
+        double timePerEvent = (time / (double) requests) / 1e3;
         Logging.info("  %-12.12s   %6d events    total time = %8.2f s    "
                 + "average event time = %7.2f ms",
                 name, requests, time / 1e6,

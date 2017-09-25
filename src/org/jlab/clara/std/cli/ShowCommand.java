@@ -61,7 +61,7 @@ class ShowCommand extends BaseCommand {
     }
 
     private void printFormat(ConfigVariable variable) {
-        System.out.printf("%-20s %s\n", variable.getName() + ":", getValue(variable));
+        System.out.printf("%-20s %s%n", variable.getName() + ":", getValue(variable));
     }
 
     private String getValue(ConfigVariable variable) {

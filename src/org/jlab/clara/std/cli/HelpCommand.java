@@ -65,7 +65,7 @@ class HelpCommand extends BaseCommand {
     private void printCommand(String name) {
         Command command = commands.get(name);
         writer.printf("   %-14s", command.getName());
-        writer.printf("%s\n", command.getDescription());
+        writer.printf("%s%n", command.getDescription());
     }
 
     private void addCommands() {

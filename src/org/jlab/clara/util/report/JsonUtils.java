@@ -27,8 +27,10 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.UncheckedIOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.stream.Collectors;
@@ -44,10 +46,12 @@ public final class JsonUtils {
 
     public static JSONObject readJson(String resource) {
         InputStream stream = JsonUtils.class.getResourceAsStream(resource);
-        String data = new BufferedReader(new InputStreamReader(stream))
-                .lines()
-                .collect(Collectors.joining("\n"));
-        return new JSONObject(data);
+        try (BufferedReader reader = new BufferedReader(new InputStreamReader(stream))) {
+            String data =  reader.lines().collect(Collectors.joining("\n"));
+            return new JSONObject(data);
+        } catch (IOException e) {
+            throw new UncheckedIOException(e);
+        }
     }
 
     public static JSONObject getContainer(JSONObject dpe, int c) {
