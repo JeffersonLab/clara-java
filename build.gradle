@@ -244,6 +244,13 @@ build.dependsOn cacheClasspath
 printClasspath.dependsOn cacheClasspath
 
 
+def ciMode() {
+    if (hasProperty("ciMode")) {
+        return ciMode.toBoolean()
+    }
+    return false
+}
+
 
 checkstyle {
     toolVersion = '7.3'
@@ -260,9 +267,10 @@ findbugs {
 }
 
 tasks.withType(FindBugs) {
+    def useXml = ciMode()
     reports {
-        xml.enabled = false
-        html.enabled = true
+        xml.enabled = useXml
+        html.enabled = !xml.enabled
     }
 }
 
@@ -272,11 +280,42 @@ task findbugs(
     description: 'Marker task to enabled findbugs.'
 )
 
+task checkFindBugsResults {
+    doLast {
+        def bugsFound = 0
+        [findbugsMain, findbugsTest].forEach {
+            bugsFound += printFindBugs it.reports.xml.destination
+        }
+        if (bugsFound > 0) {
+            throw new GradleException("$bugsFound FindBugs rule violations were found.")
+        }
+    }
+}
+
+def printFindBugs(File xml) {
+    def slurped = new XmlSlurper().parse(xml)
+    def bugs = slurped.BugInstance
+
+    bugs.each { bug ->
+        def line = bug.SourceLine
+        logger.error "[FindBugs] ${line.@sourcepath}:${line.@start}:${line.@end} [${bug.@type}]"
+    }
+    bugs.size()
+}
+
+if (ciMode()) {
+    checkFindBugsResults.mustRunAfter findbugsMain, findbugsTest
+    check.dependsOn checkFindBugsResults
+}
+
 gradle.taskGraph.whenReady { taskGraph ->
     tasks.findbugsMain.onlyIf {
         taskGraph.hasTask((tasks.findbugs))
     }
     tasks.findbugsTest.onlyIf {
+        taskGraph.hasTask((tasks.findbugs))
+    }
+    tasks.checkFindBugsResults.onlyIf {
         taskGraph.hasTask((tasks.findbugs))
     }
 }
