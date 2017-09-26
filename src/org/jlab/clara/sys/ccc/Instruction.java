@@ -26,13 +26,16 @@ import java.util.HashSet;
 import java.util.Set;
 
 /**
- *  Correlates CLARA condition with the set of routing statements.
+ * Correlates CLARA condition with the set of routing statements.
  *
  * @author gurjyan
  * @version 4.x
  * @since 5/21/15
  */
-public class Instruction {
+class Instruction {
+
+    // The name of the service that this instruction is relevant to.
+    private String serviceName;
 
     // Conditions of a composition
     private Condition ifCondition;
@@ -45,10 +48,7 @@ public class Instruction {
 
     private Set<Statement> unCondStatements = new HashSet<>();
 
-    // The name of the service that this instruction is relevant to.
-    private String serviceName;
-
-    public Instruction(String serviceName) {
+    Instruction(String serviceName) {
         this.serviceName = serviceName;
     }
 
@@ -68,10 +68,6 @@ public class Instruction {
         return ifCondStatements;
     }
 
-    public void setIfCondStatements(Set<Statement> ifCondStatements) {
-        this.ifCondStatements = ifCondStatements;
-    }
-
     public void addIfCondStatement(Statement ifCondstatement) {
         this.ifCondStatements.add(ifCondstatement);
     }
@@ -88,20 +84,12 @@ public class Instruction {
         return elseifCondStatements;
     }
 
-    public void setElseifCondStatements(Set<Statement> elseifCondStatements) {
-        this.elseifCondStatements = elseifCondStatements;
-    }
-
     public void addElseifCondStatement(Statement elseifCondstatement) {
         this.elseifCondStatements.add(elseifCondstatement);
     }
 
     public Set<Statement> getElseCondStatements() {
         return elseCondStatements;
-    }
-
-    public void setElseCondStatements(Set<Statement> elseCondStatements) {
-        this.elseCondStatements = elseCondStatements;
     }
 
     public void addElseCondStatement(Statement elseCondstatement) {
@@ -122,47 +110,49 @@ public class Instruction {
 
     @Override
     public String toString() {
-        return "Instruction{" +
-                "ifCondition=" + ifCondition +
-                ", ifCondStatements=" + ifCondStatements +
-                ", elseifCondition=" + elseifCondition +
-                ", elseifCondStatements=" + elseifCondStatements +
-                ", elseCondStatements=" + elseCondStatements +
-                ", unCondStatements=" + unCondStatements +
-                ", serviceName='" + serviceName + '\'' +
-                '}';
+        return "Instruction{"
+                + "ifCondition=" + ifCondition
+                + ", ifCondStatements=" + ifCondStatements
+                + ", elseifCondition=" + elseifCondition
+                + ", elseifCondStatements=" + elseifCondStatements
+                + ", elseCondStatements=" + elseCondStatements
+                + ", unCondStatements=" + unCondStatements
+                + ", serviceName='" + serviceName + '\''
+                + '}';
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) {
+    public boolean equals(Object obj) {
+        if (this == obj) {
             return true;
         }
-        if (!(o instanceof Instruction)) {
+        if (!(obj instanceof Instruction)) {
             return false;
         }
 
-        Instruction that = (Instruction) o;
+        Instruction other = (Instruction) obj;
 
-        if (elseCondStatements != null ? !elseCondStatements.equals(that.elseCondStatements) : that.elseCondStatements != null) {
+        if (!serviceName.equals(other.serviceName)) {
             return false;
         }
-        if (elseifCondStatements != null ? !elseifCondStatements.equals(that.elseifCondStatements) : that.elseifCondStatements != null) {
+        if (ifCondition != null ? !ifCondition.equals(other.ifCondition)
+                                : other.ifCondition != null) {
             return false;
         }
-        if (elseifCondition != null ? !elseifCondition.equals(that.elseifCondition) : that.elseifCondition != null) {
+        if (!ifCondStatements.equals(other.ifCondStatements)) {
             return false;
         }
-        if (ifCondStatements != null ? !ifCondStatements.equals(that.ifCondStatements) : that.ifCondStatements != null) {
+        if (elseifCondition != null ? !elseifCondition.equals(other.elseifCondition)
+                                    : other.elseifCondition != null) {
             return false;
         }
-        if (ifCondition != null ? !ifCondition.equals(that.ifCondition) : that.ifCondition != null) {
+        if (!elseifCondStatements.equals(other.elseifCondStatements)) {
             return false;
         }
-        if (!serviceName.equals(that.serviceName)) {
+        if (!elseCondStatements.equals(other.elseCondStatements)) {
             return false;
         }
-        if (unCondStatements != null ? !unCondStatements.equals(that.unCondStatements) : that.unCondStatements != null) {
+        if (!unCondStatements.equals(other.unCondStatements)) {
             return false;
         }
 
@@ -171,13 +161,13 @@ public class Instruction {
 
     @Override
     public int hashCode() {
-        int result = ifCondition != null ? ifCondition.hashCode() : 0;
-        result = 31 * result + (ifCondStatements != null ? ifCondStatements.hashCode() : 0);
+        int result = serviceName.hashCode();
+        result = 31 * result + (ifCondition != null ? ifCondition.hashCode() : 0);
+        result = 31 * result + ifCondStatements.hashCode();
         result = 31 * result + (elseifCondition != null ? elseifCondition.hashCode() : 0);
-        result = 31 * result + (elseifCondStatements != null ? elseifCondStatements.hashCode() : 0);
-        result = 31 * result + (elseCondStatements != null ? elseCondStatements.hashCode() : 0);
-        result = 31 * result + (unCondStatements != null ? unCondStatements.hashCode() : 0);
-        result = 31 * result + serviceName.hashCode();
+        result = 31 * result + elseifCondStatements.hashCode();
+        result = 31 * result + elseCondStatements.hashCode();
+        result = 31 * result + unCondStatements.hashCode();
         return result;
     }
 }

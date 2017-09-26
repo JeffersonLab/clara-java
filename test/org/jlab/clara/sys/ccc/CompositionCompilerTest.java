@@ -35,16 +35,16 @@ import static org.hamcrest.Matchers.is;
 
 public class CompositionCompilerTest {
 
-    private static final String composition = "10.10.10.1_java:C:S1+" +
-                                              "10.10.10.1_java:C:S2+" +
-                                              "10.10.10.1_java:C:S3+" +
-                                              "10.10.10.1_java:C:S4;";
+    private final String composition = "10.10.10.1_java:C:S1+"
+                                     + "10.10.10.1_java:C:S2+"
+                                     + "10.10.10.1_java:C:S3+"
+                                     + "10.10.10.1_java:C:S4;";
 
     @Test(expected = ClaraException.class)
     public void testInvalidServiceName() throws Exception {
-        String composition = "10.10.10.1_java:C:S1+" +
-                             "10.10.10.1:C:S2+" +
-                             "10.10.10.1:C:S4;";
+        String composition = "10.10.10.1_java:C:S1+"
+                           + "10.10.10.1:C:S2+"
+                           + "10.10.10.1:C:S4;";
         CompositionCompiler cc = new CompositionCompiler("10.10.10.1_java:C:S1");
         cc.compile(composition);
     }
@@ -92,7 +92,6 @@ public class CompositionCompilerTest {
                            + "10.10.10.1_java:C:S1;";
         cc.compile(composition);
 
-
         Set<String> expected = new HashSet<>(Arrays.asList("10.10.10.1_java:C:S1"));
         assertThat(cc.getUnconditionalLinks(), is(expected));
     }
@@ -126,9 +125,9 @@ public class CompositionCompilerTest {
         CompositionCompiler cc = new CompositionCompiler("10.10.10.1_java:C:S3");
         cc.compile(composition);
 
-        String composition2 = "10.10.10.1_java:C:S1+" +
-                              "10.10.10.1_java:C:S3+" +
-                              "10.10.10.1_java:C:S5;";
+        String composition2 = "10.10.10.1_java:C:S1+"
+                            + "10.10.10.1_java:C:S3+"
+                            + "10.10.10.1_java:C:S5;";
         cc.compile(composition2);
 
         Set<String> expected = new HashSet<>(Arrays.asList("10.10.10.1_java:C:S5"));
@@ -215,7 +214,7 @@ public class CompositionCompilerTest {
         ServiceState input = new ServiceState("WHATEVER", "DON'T CARE");
 
         Set<String> expected = new HashSet<>(Arrays.asList("10.10.10.1_java:C:S2",
-                                                                 "10.10.10.1_java:C:S7"));
+                                                           "10.10.10.1_java:C:S7"));
         assertThat(cc.getLinks(owner, input), is(expected));
     }
 
@@ -226,7 +225,6 @@ public class CompositionCompilerTest {
                            + "10.10.10.1_java:C:S3+"
                            + "10.10.10.1_java:C:S1;";
         cc.compile(composition);
-
 
         // service-states for conditional routing
         ServiceState ownerSS = new ServiceState("10.10.10.1_java:C:S3", ClaraConstants.UNDEFINED);

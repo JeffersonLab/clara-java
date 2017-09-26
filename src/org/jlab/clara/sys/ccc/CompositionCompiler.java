@@ -22,7 +22,6 @@
 
 package org.jlab.clara.sys.ccc;
 
-
 import org.jlab.clara.base.error.ClaraException;
 
 import java.util.HashSet;
@@ -34,21 +33,21 @@ import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
 /**
- *     CLARA compiler. Compiles the application logical description,
- *     i.e. simple/conditional routing schema in a sets of instructions
- *     for a specified service. Below is an example of the application
- *     code, written in the specific CLARA language:
- *
- *     S1 + S2;
- *     if ( S1 == "abc" && S2 != "xyz") {
- *       S2 + S3;
- *     } elseif ( S1 == "fred" ) {
- *         S2 + S4;
- *     } else {
- *         S2 + S5,S6,S7;
- *     }
- *     S4,S5 + &S8;
- * <p>
+ * CLARA compiler. Compiles the application logical description, i.e.
+ * simple/conditional routing schema in a sets of instructions for a specified
+ * service. Below is an example of the application code, written in the
+ * specific CLARA language:
+ * <pre>
+ * S1 + S2;
+ * if ( S1 == "abc" && S2 != "xyz") {
+ *   S2 + S3;
+ * } elseif ( S1 == "fred" ) {
+ *     S2 + S4;
+ * } else {
+ *     S2 + S5,S6,S7;
+ * }
+ * S4,S5 + &S8;
+ * </pre>
  *
  * @author gurjyan
  * @version 4.x
@@ -64,79 +63,65 @@ public class CompositionCompiler {
     /**
      * String that starts with a character and can have preceding number.
      */
-    public static final String STR = "([A-Z|a-z]+[0-9]*)";
-    public static final String STR2 = "(%+[0-9]*)*";
+    public static final String WORD = "([A-Z|a-z]+[0-9]*)";
+    public static final String PORT = "(%+[0-9]*)*";
 
     /**
      * Service canonical name.
-     * Format: <code>dpe_ip:container_name:service_engine_name</code>.
+     * Format: {@code dpe_name:container_name:engine_name}
      */
-    public static final String Sn = IP + STR2 + "_(java|python|cpp):" + STR + ":" + STR;
+    public static final String SERV_NAME = IP + PORT + "_(java|python|cpp):" + WORD + ":" + WORD;
 
     /**
-     *    Routing statement. Example:
-     *    <li>
-     *       S1 + S2 + S3;
-     *    </li>
-     *    <li>
-     *       S1 , S2 + S3;
-     *    </li>
-     *    <li>
-     *       S1 + S2 , S3;
-     *    </li>
-     *    <li>
-     *       S1 , S2 + &S3;
-     *    </li>
-     *    <li>
-     *       S1;
-     *    </li>
-     *    Note that regular expression does not include end of statement operator.
-     * <p>
+     * Routing statement. Example:
+     * <ul>
+     * <li>{@code S1 + S2 + S3;}</li>
+     * <li>{@code S1 , S2 + S3;}</li>
+     * <li>{@code S1 + S2 , S3;}</li>
+     * <li>{@code S1 , S2 + &S3;}</li>
+     * <li>{@code S1;}</li>
+     * </ul>
+     * Note that regular expression does not include end of statement operator.
      */
-    public static final String RStmt = Sn + "(," + Sn + ")*" + "((\\+&?" + Sn + ")*|(\\+" + Sn + "(," + Sn + ")*)*)";
+    public static final String STATEMENT = SERV_NAME + "(," + SERV_NAME + ")*"
+                                         + "((\\+&?" + SERV_NAME + ")*|(\\+" + SERV_NAME
+                                         + "(," + SERV_NAME + ")*)*)";
 
     /**
      * CLARA simple Condition. Example:
-     * <li>
-     *     Service == "state_name"
-     * </li>
-     * <li>
-     *     Service != "state_name"
-     * </li>
+     * <li>{@code Service == "state_name}"</li>
+     * <li>{@code Service != "state_name"</li>
      */
-    public static final String sCond = Sn + "(==|!=)\"" + STR + "\"";
+    public static final String SIMP_COND = SERV_NAME + "(==|!=)\"" + WORD + "\"";
 
     /**
      * CLARA complex Condition. Example:
-     * <li>
-     *     (Service1 == "state_name1" && Service2 == "state_name2) {
-     * </li>
-     * <li>
-     *     Service1 == "state_name1" !! Service2 == "state_name2" !! Service2 != "state_name3") {
-     * </li>
+     * <li>{@code (Service1 == "state_name1" && Service2 == "state_name2)}</li>
+     * <li>{@code (Service1 == "state_name1" !!
+     *             Service2 == "state_name2" !!
+     *             Service2 != "state_name3")}</li>
      */
-    public static final String cCond = sCond + "((&&|!!)" + sCond + ")*";
+    public static final String COMP_COND = SIMP_COND + "((&&|!!)" + SIMP_COND + ")*";
 
     /**
      * CLARA conditional statement.
      */
-    public static final String Cond = "((\\}?if|\\}elseif)\\(" + cCond + "\\)\\{" + RStmt + ")|(\\}else\\{" + RStmt + ")";
+    public static final String COND = "((\\}?if|\\}elseif)\\(" + COMP_COND + "\\)\\{"
+                                    + STATEMENT + ")|(\\}else\\{" + STATEMENT + ")";
 
     public Set<Instruction> instructions = new LinkedHashSet<>();
 
     // The name of the service relative to which compilation will be done.
     private String myServiceName;
 
-
     /**
      * Constructor.
      *
      * @param service the name of the service relative to which to compile.
      */
-    public CompositionCompiler(String service){
+    public CompositionCompiler(String service) {
         myServiceName = service;
     }
-
 
     public void compile(String iCode) throws ClaraException {
 
@@ -162,10 +147,10 @@ public class CompositionCompiler {
             String scs1 = ppi[i];
 
             // conditional statement
-            if (scs1.startsWith("if(") ||
-                    scs1.startsWith("}if(") ||
-                    scs1.startsWith("}elseif(") ||
-                    scs1.startsWith("}else")) {
+            if (scs1.startsWith("if(")
+                    || scs1.startsWith("}if(")
+                    || scs1.startsWith("}elseif(")
+                    || scs1.startsWith("}else")) {
 
                 Instruction instruction = parseCondition(scs1);
 
@@ -176,11 +161,11 @@ public class CompositionCompiler {
 
                     String scs2 = ppi[i];
 
-                    if (!scs2.startsWith("}") &&
-                            !scs2.startsWith("if(") &&
-                            !scs2.startsWith("}if(") &&
-                            !scs2.startsWith("}elseif(") &&
-                            !scs2.startsWith("}else")) {
+                    if (!scs2.startsWith("}")
+                            && !scs2.startsWith("if(")
+                            && !scs2.startsWith("}if(")
+                            && !scs2.startsWith("}elseif(")
+                            && !scs2.startsWith("}else")) {
 
                         // if ignoring the conditional, then ignore its statements also
                         if (instruction != null) {
@@ -189,8 +174,6 @@ public class CompositionCompiler {
                     } else {
                         break;
                     }
-
-
                 }
                 if (instruction != null) {
                     instructions.add(instruction);
@@ -201,7 +184,6 @@ public class CompositionCompiler {
                 parseStatement(scs1);
             }
         }
-
 
         if (instructions.isEmpty()) {
             throw new ClaraException("Composition is irrelevant for a service.");
@@ -218,8 +200,8 @@ public class CompositionCompiler {
      */
     private Set<String> preProcess(String pCode) throws ClaraException {
         if (!pCode.contains(";") && !pCode.endsWith(";")) {
-            throw new ClaraException("Syntax error in the CLARA routing program. " +
-                    "Missing end of statement operator = \";\"");
+            throw new ClaraException("Syntax error in the CLARA routing program. "
+                    + "Missing end of statement operator = \";\"");
         }
         Set<String> r = new LinkedHashSet<>();
         // tokenize by ;
@@ -250,11 +232,9 @@ public class CompositionCompiler {
         // ignore a leading }
         iStmt = CompositionParser.removeFirst(iStmt, "}");
 
-
-
-        //unconditional routing statement
+        // unconditional routing statement
         try {
-            Pattern p = Pattern.compile(RStmt);
+            Pattern p = Pattern.compile(STATEMENT);
             Matcher m = p.matcher(iStmt);
 
             if (m.matches()) {
@@ -269,10 +249,10 @@ public class CompositionCompiler {
                 instructions.add(ti);
                 b = true;
             } else {
-                System.out.println("DDD ----- > statement = "+iStmt);
+                System.out.println("DDD ----- > statement = " + iStmt);
 
-                throw new ClaraException("Syntax error in the CLARA routing program. " +
-                        "Malformed routing statement");
+                throw new ClaraException("Syntax error in the CLARA routing program. "
+                        + "Malformed routing statement");
             }
         } catch (PatternSyntaxException e) {
             System.err.println(e.getDescription());
@@ -283,8 +263,8 @@ public class CompositionCompiler {
     private boolean parseConditionalStatement(String iStmt, Instruction ti) throws ClaraException {
         boolean b = false;
 
-        //unconditional routing statement
-        Pattern p = Pattern.compile(RStmt);
+        // unconditional routing statement
+        Pattern p = Pattern.compile(STATEMENT);
         Matcher m = p.matcher(iStmt);
         if (m.matches()) {
 
@@ -305,10 +285,10 @@ public class CompositionCompiler {
             }
             b = true;
         } else {
-            System.out.println("DDD ----- > statement = "+iStmt);
+            System.out.println("DDD ----- > statement = " + iStmt);
 
-            throw new ClaraException("Syntax error in the CLARA routing program. " +
-                    "Malformed routing statement");
+            throw new ClaraException("Syntax error in the CLARA routing program. "
+                    + "Malformed routing statement");
         }
 
         return b;
@@ -317,12 +297,12 @@ public class CompositionCompiler {
     private Instruction parseCondition(String iCnd) throws ClaraException {
         Instruction ti;
 
-        Pattern p = Pattern.compile(Cond);
+        Pattern p = Pattern.compile(COND);
         Matcher m = p.matcher(iCnd);
 
         if (m.matches()) {
             try {
-                // get first statement  and analyze it
+                // get first statement and analyze it
                 String statementStr = iCnd.substring(iCnd.indexOf("{"));
 
                 // ignore conditions not concerning me
@@ -335,12 +315,14 @@ public class CompositionCompiler {
                 // create Instruction
                 ti = new Instruction(myServiceName);
                 if (iCnd.startsWith("}if(") || iCnd.startsWith("if(")) {
-                    String conditionStr = iCnd.substring(iCnd.indexOf("(")+1, iCnd.lastIndexOf(")"));
+                    String conditionStr = iCnd.substring(iCnd.indexOf("(") + 1,
+                                                         iCnd.lastIndexOf(")"));
                     Condition tc = new Condition(conditionStr, myServiceName);
                     ti.setIfCondition(tc);
                     ti.addIfCondStatement(ts);
                 } else if (iCnd.startsWith("}elseif(")) {
-                    String conditionStr = iCnd.substring(iCnd.indexOf("(")+1, iCnd.lastIndexOf(")"));
+                    String conditionStr = iCnd.substring(iCnd.indexOf("(") + 1,
+                                                         iCnd.lastIndexOf(")"));
                     Condition tc = new Condition(conditionStr, myServiceName);
                     ti.setElseifCondition(tc);
                     ti.addElseifCondStatement(ts);
@@ -348,18 +330,17 @@ public class CompositionCompiler {
                     ti.addElseCondStatement(ts);
                 }
             } catch (StringIndexOutOfBoundsException e) {
-                e.printStackTrace();
-                throw new ClaraException("Syntax error in the CLARA routing program. " +
-                        "Missing parenthesis");
+                throw new ClaraException("Syntax error in the CLARA routing program. "
+                            + "Missing parenthesis");
             }
         } else {
-            throw new ClaraException("Syntax error in the CLARA routing program. " +
-                    "Malformed conditional statement");
+            throw new ClaraException("Syntax error in the CLARA routing program. "
+                    + "Malformed conditional statement");
         }
         return ti;
     }
 
-    public void reset(){
+    public void reset() {
         instructions.clear();
     }
 
@@ -385,13 +366,10 @@ public class CompositionCompiler {
     public Set<String> getUnconditionalLinks() {
         Set<String> outputs = new HashSet<>();
         for (Instruction inst : instructions) {
-
             // NOTE: instruction routing statements are exclusive: will be
             //       either unconditional, if, elseif, or else.
             if (inst.getUnCondStatements() != null && !inst.getUnCondStatements().isEmpty()) {
-
                 for (Statement stmt : inst.getUnCondStatements()) {
-
                     outputs.addAll(stmt.getOutputLinks());
                 }
             }
@@ -413,66 +391,51 @@ public class CompositionCompiler {
         //   * zero-or-more else-if conditional instructions
         //   * zero-or-one else conditional instruction
         //
-        // In a sequence, only the first conditional to evaluate to "true" supplies output links
+        // In a sequence, only the first conditional to evaluate to "true"
+        // supplies output links
 
         // keep track of when one of the if/elseif/else conditions has been chosen
         boolean inCondition = false;
         boolean conditionChosen = false;
 
-
         for (Instruction inst : instructions) {
-
             // NOTE: instruction routing statements are exclusive: will be
             //       either unconditional, if, elseif, or else.
             if (inst.getUnCondStatements() != null && !inst.getUnCondStatements().isEmpty()) {
-
                 // no longer in a conditional now
                 inCondition = false;
-
                 for (Statement stmt : inst.getUnCondStatements()) {
                     outputs.addAll(stmt.getOutputLinks());
                 }
-
                 continue;
             }
 
             if (inst.getIfCondition() != null) {
-
                 inCondition = true;
                 conditionChosen = false;
-
                 if (inst.getIfCondition().isTrue(ownerSS, inputSS)) {
-
                     conditionChosen = true;
                     for (Statement stmt : inst.getIfCondStatements()) {
                         outputs.addAll(stmt.getOutputLinks());
                     }
                 }
-
                 continue;
             }
 
             // must be in a conditional already to process an elseif or else
             if (inCondition && !conditionChosen) {
-
                 if (inst.getElseifCondition() != null) {
-
                     if (inst.getElseifCondition().isTrue(ownerSS, inputSS)) {
-
                         conditionChosen = true;
-
                         for (Statement stmt : inst.getElseifCondStatements()) {
                             outputs.addAll(stmt.getOutputLinks());
                         }
                     }
-
                     continue;
                 }
 
                 if (!inst.getElseCondStatements().isEmpty()) {
-
                     conditionChosen = true;
-
                     for (Statement stmt : inst.getElseCondStatements()) {
                         outputs.addAll(stmt.getOutputLinks());
                     }

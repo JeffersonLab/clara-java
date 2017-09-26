@@ -22,9 +22,6 @@
 
 package org.jlab.clara.sys.ccc;
 
-
-import org.jlab.clara.base.core.ClaraConstants;
-
 /**
  * Defines service-name and state pair.
  *
@@ -34,8 +31,8 @@ import org.jlab.clara.base.core.ClaraConstants;
  */
 public class ServiceState {
 
-    private String name = ClaraConstants.UNDEFINED;
-    private String state = ClaraConstants.UNDEFINED;
+    private final String name;
+    private String state;
 
     public ServiceState(String name, String state) {
         this.name = name;
@@ -55,20 +52,20 @@ public class ServiceState {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) {
+    public boolean equals(Object obj) {
+        if (this == obj) {
             return true;
         }
-        if (o == null || getClass() != o.getClass()) {
+        if (obj == null || getClass() != obj.getClass()) {
             return false;
         }
 
-        ServiceState that = (ServiceState) o;
+        ServiceState other = (ServiceState) obj;
 
-        if (!name.equals(that.name)) {
+        if (!name.equals(other.name)) {
             return false;
         }
-        if (!state.equals(that.state)) {
+        if (!state.equals(other.state)) {
             return false;
         }
 
@@ -84,9 +81,6 @@ public class ServiceState {
 
     @Override
     public String toString() {
-        return "ServiceState{" +
-                "name='" + name + '\'' +
-                ", state='" + state + '\'' +
-                '}';
+        return "ServiceState{" + "name='" + name + "', state='" + state + "'}";
     }
 }

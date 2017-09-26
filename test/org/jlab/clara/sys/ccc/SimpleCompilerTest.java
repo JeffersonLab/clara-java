@@ -33,16 +33,16 @@ import static org.hamcrest.Matchers.is;
 
 public class SimpleCompilerTest {
 
-    private static final String composition = "10.10.10.1_java:C:S1+" +
-                                              "10.10.10.1_java:C:S2+" +
-                                              "10.10.10.1_java:C:S3+" +
-                                              "10.10.10.1_java:C:S4";
+    private final String composition = "10.10.10.1_java:C:S1+"
+                                     + "10.10.10.1_java:C:S2+"
+                                     + "10.10.10.1_java:C:S3+"
+                                     + "10.10.10.1_java:C:S4";
 
     @Test(expected = IllegalArgumentException.class)
     public void testInvalidServiceName() throws Exception {
-        String composition = "10.10.10.1_java:C:S1+" +
-                             "10.10.10.1:C:S2+" +
-                             "10.10.10.1:C:S4";
+        String composition = "10.10.10.1_java:C:S1+"
+                           + "10.10.10.1:C:S2+"
+                           + "10.10.10.1:C:S4";
         SimpleCompiler cc = new SimpleCompiler("10.10.10.1_java:C:S1");
         cc.compile(composition);
     }
@@ -85,9 +85,9 @@ public class SimpleCompilerTest {
         SimpleCompiler cc = new SimpleCompiler("10.10.10.1_java:C:S3");
         cc.compile(composition);
 
-        String composition2 = "10.10.10.1_java:C:S1+" +
-                              "10.10.10.1_java:C:S3+" +
-                              "10.10.10.1_java:C:S5";
+        String composition2 = "10.10.10.1_java:C:S1+"
+                            + "10.10.10.1_java:C:S3+"
+                            + "10.10.10.1_java:C:S5";
         cc.compile(composition2);
 
         Set<String> expected = new HashSet<>(Arrays.asList("10.10.10.1_java:C:S5"));

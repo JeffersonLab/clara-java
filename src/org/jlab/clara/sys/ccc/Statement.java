@@ -22,7 +22,6 @@
 
 package org.jlab.clara.sys.ccc;
 
-import org.jlab.clara.base.core.ClaraConstants;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineData;
 
@@ -35,44 +34,44 @@ import java.util.Set;
 import java.util.StringTokenizer;
 
 /**
+ * This class presents routing schema for a service, result of the CLARA
+ * composition compiler, parsing routing statements of a composition.
  * <p>
- * This class presents routing schema for a service, result of the CLARA composition
- * compiler, parsing routing statements of a composition.
+ * Contains a map that has keys of input service names, data from which are
+ * required logically to be ANDed, i.e. data from all services in the AND must
+ * be present in order for the receiving service to execute its service engine.
  * <p>
- * Contains Map that has keys = input service names, data from which are required
- * logically to be ANDed. I.e. data from all services in the AND must be present
- * in order for the receiving service to execute its service engine.
- * Also contains a Set of names of all services that are linked to the service
- * of interest, i.e. names of all services that this services will send it's output data.
- * </p>
+ * Also contains a set of names of all services that are linked to the service
+ * of interest, i.e. names of all services that this services will send it's
+ * output data.
  *
  * @author gurjyan
  * @version 1.x
  * @since 5/21/15
  */
-public class Statement {
+class Statement {
 
-    // The Map that has keys = input service names, data from which are required
+    // The name of the service that this statement is relevant to.
+    private final String serviceName;
+
+    // statement string
+    private final String statementString;
+
+    // The map that has keys of input service names, data from which are required
     // logically to be ANDed. I.e. data from all services in the AND must be present
     // in order for the receiving service to execute its service engine.
-    private Map<String, EngineData> logAndInputs = new HashMap<>();
+    private final Map<String, EngineData> logAndInputs = new HashMap<>();
 
     // Names of all services that are linked to the service of interest, i.e. names
     // of all services that send data to this service
-    private Set<String> inputLinks = new LinkedHashSet<>();
+    private final Set<String> inputLinks = new LinkedHashSet<>();
 
     // Names of all services that are linked to the service of interest, i.e. names
     // of all services that this services will send it's output data.
-    private Set<String> outputLinks = new LinkedHashSet<>();
-
-    // statement string
-    private String statementString = ClaraConstants.UNDEFINED;
-
-    // The name of the service that this statement is relevant to.
-    private String serviceName = ClaraConstants.UNDEFINED;
+    private final Set<String> outputLinks = new LinkedHashSet<>();
 
 
-    public Statement(String statementString, String serviceName) throws ClaraException {
+    Statement(String statementString, String serviceName) throws ClaraException {
         if (statementString.contains(serviceName)) {
             this.statementString = statementString;
             this.serviceName = serviceName;
@@ -102,11 +101,8 @@ public class Statement {
         return logAndInputs;
     }
 
-
     /**
-     * <p>
-     * Analyses of the composition string
-     * </p>
+     * Analyses the composition string.
      *
      * @param statement string
      * @throws ClaraException
@@ -131,21 +127,17 @@ public class Statement {
     }
 
     /**
-     * <p>
-     * Parses composition field of the transient data
-     * and returns the list of services output linked
-     * to this service, i.e. that are getting output
+     * Parses composition field of the transient data and returns the list of
+     * services output linked to this service, i.e. that are getting output
      * data of this service.
-     * Attention: service name CAN NOT appear twice
-     * in the composition.
-     * </p>
+     * <p>
+     * Attention: service name CAN NOT appear twice in the composition.
      *
      * @param serviceName the name of the service
-     *                     for which we find input/output links
-     * @param statement    the string of the composition
+     *                    for which we find input/output links
+     * @param statement the string of the composition
      */
-    private void parseLinked(String serviceName,
-                             String statement) throws ClaraException {
+    private void parseLinked(String serviceName, String statement) throws ClaraException {
 
         // List that contains composition elements
         List<String> elementSet = new ArrayList<>();
@@ -170,8 +162,8 @@ public class Statement {
             }
         }
         if (index == -1) {
-            throw new ClaraException("Routing statement parsing exception. " +
-                    "Service name can not be found in the statement.");
+            throw new ClaraException("Routing statement parsing exception. "
+                    + "Service name can not be found in the statement.");
         } else {
             int pIndex = index - 1;
             if (pIndex >= 0) {
@@ -202,17 +194,14 @@ public class Statement {
     }
 
     /**
-     * Check to see in the composition this service
-     * is required to logically AND inputs before
-     * executing its service.
+     * Check to see in the composition this service is required to logically
+     * AND inputs before executing its service.
      *
      * @param serviceNname in the composition
-     * @param composition  the string of the composition
-     * @return true if component name is programmed
-     * as "&<service_name>"
+     * @param composition the string of the composition
+     * @return true if component name is programmed as {@code &<service_name>"}
      */
-    private boolean isLogAnd(String serviceNname,
-                             String composition) {
+    private boolean isLogAnd(String serviceNname, String composition) {
         String ac = "&" + serviceNname;
 
         // List that contains composition elements
@@ -233,39 +222,39 @@ public class Statement {
 
     @Override
     public String toString() {
-        return "Statement{" +
-                "logAndInputs=" + logAndInputs +
-                ", inputLinks=" + inputLinks +
-                ", outputLinks=" + outputLinks +
-                ", statementString='" + statementString + '\'' +
-                ", serviceName='" + serviceName + '\'' +
-                '}';
+        return "Statement{"
+                + "serviceName='" + serviceName + "'"
+                + ", statementString='" + statementString + "'"
+                + ", logAndInputs=" + logAndInputs
+                + ", inputLinks=" + inputLinks
+                + ", outputLinks=" + outputLinks
+                + "}";
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) {
+    public boolean equals(Object obj) {
+        if (this == obj) {
             return true;
         }
-        if (!(o instanceof Statement)) {
+        if (!(obj instanceof Statement)) {
             return false;
         }
 
-        Statement statement = (Statement) o;
+        Statement other = (Statement) obj;
 
-        if (inputLinks != null ? !inputLinks.equals(statement.inputLinks) : statement.inputLinks != null) {
+        if (!serviceName.equals(other.serviceName)) {
             return false;
         }
-        if (logAndInputs != null ? !logAndInputs.equals(statement.logAndInputs) : statement.logAndInputs != null) {
+        if (!statementString.equals(other.statementString)) {
             return false;
         }
-        if (outputLinks != null ? !outputLinks.equals(statement.outputLinks) : statement.outputLinks != null) {
+        if (!logAndInputs.equals(other.logAndInputs)) {
             return false;
         }
-        if (!serviceName.equals(statement.serviceName)) {
+        if (!inputLinks.equals(other.inputLinks)) {
             return false;
         }
-        if (statementString != null ? !statementString.equals(statement.statementString) : statement.statementString != null) {
+        if (!outputLinks.equals(other.outputLinks)) {
             return false;
         }
 
@@ -274,11 +263,11 @@ public class Statement {
 
     @Override
     public int hashCode() {
-        int result = logAndInputs != null ? logAndInputs.hashCode() : 0;
-        result = 31 * result + (inputLinks != null ? inputLinks.hashCode() : 0);
-        result = 31 * result + (outputLinks != null ? outputLinks.hashCode() : 0);
-        result = 31 * result + (statementString != null ? statementString.hashCode() : 0);
-        result = 31 * result + serviceName.hashCode();
+        int result = serviceName.hashCode();
+        result = 31 * result + statementString.hashCode();
+        result = 31 * result + logAndInputs.hashCode();
+        result = 31 * result + inputLinks.hashCode();
+        result = 31 * result + outputLinks.hashCode();
         return result;
     }
 }

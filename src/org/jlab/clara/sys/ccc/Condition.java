@@ -22,7 +22,6 @@
 
 package org.jlab.clara.sys.ccc;
 
-import org.jlab.clara.base.core.ClaraConstants;
 import org.jlab.clara.base.error.ClaraException;
 
 import java.util.LinkedHashSet;
@@ -32,33 +31,32 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- *     Defines it's own as well as all input service states that if
- *     exists in run-time will make this CLARA composition condition
- *     a true condition.
+ * Defines it's own as well as all input service states that if exists in
+ * run-time will make this CLARA composition condition a true condition.
  * <p>
  *
  * @author gurjyan
  * @version 4.x
  * @since 5/21/15
  */
-public class Condition {
-
-    // States of services that are required to be present in order this condition to be true
-    private Set<ServiceState> andStates = new LinkedHashSet<>();
-
-    // NOT states of services that are required to be present in order this condition to be true
-    private Set<ServiceState> andNotStates = new LinkedHashSet<>();
-
-    // Required states of services that will make this statement true
-    private Set<ServiceState> orStates = new LinkedHashSet<>();
-
-    // Required states of services that will make this statement true
-    private Set<ServiceState> orNotStates = new LinkedHashSet<>();
+class Condition {
 
     // The name of the service that this condition is relevant to.
-    private String serviceName = ClaraConstants.UNDEFINED;
+    private final String serviceName;
 
-    public Condition(String conditionString, String serviceName) throws ClaraException {
+    // States of services that are required to be present in order this condition to be true
+    private final Set<ServiceState> andStates = new LinkedHashSet<>();
+
+    // NOT states of services that are required to be present in order this condition to be true
+    private final Set<ServiceState> andNotStates = new LinkedHashSet<>();
+
+    // Required states of services that will make this statement true
+    private final Set<ServiceState> orStates = new LinkedHashSet<>();
+
+    // Required states of services that will make this statement true
+    private final Set<ServiceState> orNotStates = new LinkedHashSet<>();
+
+    Condition(String conditionString, String serviceName) throws ClaraException {
         this.serviceName = serviceName;
         process(conditionString);
     }
@@ -66,7 +64,6 @@ public class Condition {
     public String getServiceName() {
         return serviceName;
     }
-
 
     public Set<ServiceState> getAndStates() {
         return andStates;
@@ -100,7 +97,6 @@ public class Condition {
         this.orNotStates.add(orState);
     }
 
-
     private void process(String cs) throws ClaraException {
         if (cs.contains("(")) {
             cs = cs.replaceAll("\\(", "");
@@ -119,17 +115,15 @@ public class Condition {
     }
 
     private void parseCondition(String cs, String logicOperator) throws ClaraException {
-
-
         StringTokenizer t0, t1;
         if (logicOperator == null) {
-            Pattern p = Pattern.compile(CompositionCompiler.sCond);
+            Pattern p = Pattern.compile(CompositionCompiler.SIMP_COND);
             Matcher m = p.matcher(cs);
             if (m.matches()) {
                 if (cs.contains("!=")) {
                     t1 = new StringTokenizer(cs, "!=\"");
                     if (t1.countTokens() != 2) {
-                        throw new ClaraException("syntax error: malformed conditional statement");
+                        throw new ConditionException();
                     }
                     ServiceState sst = new ServiceState(t1.nextToken(), t1.nextToken());
                     addOrNotState(sst);
@@ -137,16 +131,16 @@ public class Condition {
                 } else if (cs.contains("==")) {
                     t1 = new StringTokenizer(cs, "==\"");
                     if (t1.countTokens() != 2) {
-                        throw new ClaraException("syntax error: malformed conditional statement");
+                        throw new ConditionException();
                     }
                     ServiceState sst = new ServiceState(t1.nextToken(), t1.nextToken());
                     addOrState(sst);
 
                 } else {
-                    throw new ClaraException("syntax error: malformed conditional statement");
+                    throw new ConditionException();
                 }
             } else {
-                throw new ClaraException("syntax error: malformed conditional statement");
+                throw new ConditionException();
             }
 
         } else {
@@ -156,14 +150,14 @@ public class Condition {
                 while (t0.hasMoreTokens()) {
                     String ac = t0.nextToken();
 
-                    Pattern p = Pattern.compile(CompositionCompiler.sCond);
+                    Pattern p = Pattern.compile(CompositionCompiler.SIMP_COND);
                     Matcher m = p.matcher(ac);
                     if (m.matches()) {
 
                         if (ac.contains("!=")) {
                             t1 = new StringTokenizer(t0.nextToken(), "!=\"");
                             if (t1.countTokens() != 2) {
-                                throw new ClaraException("syntax error: malformed conditional statement");
+                                throw new ConditionException();
                             }
                             ServiceState sst = new ServiceState(t1.nextToken(), t1.nextToken());
                             addAndNotState(sst);
@@ -171,16 +165,16 @@ public class Condition {
                         } else if (ac.contains("==")) {
                             t1 = new StringTokenizer(t0.nextToken(), "==\"");
                             if (t1.countTokens() != 2) {
-                                throw new ClaraException("syntax error: malformed conditional statement");
+                                throw new ConditionException();
                             }
                             ServiceState sst = new ServiceState(t1.nextToken(), t1.nextToken());
                             addAndState(sst);
 
                         } else {
-                            throw new ClaraException("syntax error: malformed conditional statement");
+                            throw new ConditionException();
                         }
                     } else {
-                        throw new ClaraException("syntax error: malformed conditional statement");
+                        throw new ConditionException();
                     }
                 }
             } else if (cs.contains("!!") && !cs.contains("&&")) {
@@ -188,14 +182,14 @@ public class Condition {
                 while (t0.hasMoreTokens()) {
                     String ac = t0.nextToken();
 
-                    Pattern p = Pattern.compile(CompositionCompiler.sCond);
+                    Pattern p = Pattern.compile(CompositionCompiler.SIMP_COND);
                     Matcher m = p.matcher(ac);
                     if (m.matches()) {
 
                         if (ac.contains("!=")) {
                             t1 = new StringTokenizer(t0.nextToken(), "!=\"");
                             if (t1.countTokens() != 2) {
-                                throw new ClaraException("syntax error: malformed conditional statement");
+                                throw new ConditionException();
                             }
                             ServiceState sst = new ServiceState(t1.nextToken(), t1.nextToken());
                             addOrNotState(sst);
@@ -203,20 +197,20 @@ public class Condition {
                         } else if (ac.contains("==")) {
                             t1 = new StringTokenizer(t0.nextToken(), "==\"");
                             if (t1.countTokens() != 2) {
-                                throw new ClaraException("syntax error: malformed conditional statement");
+                                throw new ConditionException();
                             }
                             ServiceState sst = new ServiceState(t1.nextToken(), t1.nextToken());
                             addOrState(sst);
 
                         } else {
-                            throw new ClaraException("syntax error: malformed conditional statement");
+                            throw new ConditionException();
                         }
                     } else {
-                        throw new ClaraException("syntax error: malformed conditional statement");
+                        throw new ConditionException();
                     }
                 }
             } else {
-                throw new ClaraException("syntax error: malformed or unsupported conditional statement");
+                throw new ConditionException();
             }
         }
     }
@@ -226,32 +220,44 @@ public class Condition {
      *
      * @return true/false
      */
-    public boolean isTrue(ServiceState ownerSS, ServiceState inputSS){
+    public boolean isTrue(ServiceState ownerSS, ServiceState inputSS) {
 
-        boolean checkAnd = getAndStates().isEmpty() || checkANDCondition(getAndStates(), ownerSS, inputSS);
-        boolean checkAndNot = getAndNotStates().isEmpty() || !checkANDCondition(getAndNotStates(), ownerSS, inputSS);
-        boolean checkOr = getOrStates().isEmpty() || checkORCondition(getOrStates(), ownerSS, inputSS);
-        boolean checkOrNot = getOrNotStates().isEmpty() || !checkORCondition(getOrNotStates(), ownerSS, inputSS);
+        boolean checkAnd = getAndStates().isEmpty()
+                || checkANDCondition(getAndStates(), ownerSS, inputSS);
+        boolean checkAndNot = getAndNotStates().isEmpty()
+                || !checkANDCondition(getAndNotStates(), ownerSS, inputSS);
+        boolean checkOr = getOrStates().isEmpty()
+                || checkORCondition(getOrStates(), ownerSS, inputSS);
+        boolean checkOrNot = getOrNotStates().isEmpty()
+                || !checkORCondition(getOrNotStates(), ownerSS, inputSS);
 
         return checkAnd && checkAndNot && checkOr && checkOrNot;
     }
 
-    private boolean checkANDCondition(Set<ServiceState> sc, ServiceState s1, ServiceState s2){
+    private boolean checkANDCondition(Set<ServiceState> sc, ServiceState s1, ServiceState s2) {
         return sc.contains(s1) && sc.contains(s2);
     }
 
-    private boolean checkORCondition(Set<ServiceState> sc, ServiceState s1, ServiceState s2){
+    private boolean checkORCondition(Set<ServiceState> sc, ServiceState s1, ServiceState s2) {
         return sc.contains(s1) || sc.contains(s2);
     }
 
     @Override
     public String toString() {
-        return "Condition{" +
-                "andStates=" + andStates +
-                ", andNotStates=" + andNotStates +
-                ", orStates=" + orStates +
-                ", orNotStates=" + orNotStates +
-                ", serviceName='" + serviceName + '\'' +
-                '}';
+        return "Condition{"
+                + "serviceName='" + serviceName + '\''
+                + ", andStates=" + andStates
+                + ", andNotStates=" + andNotStates
+                + ", orStates=" + orStates
+                + ", orNotStates=" + orNotStates
+                + '}';
+    }
+
+
+    public static class ConditionException extends ClaraException {
+
+        ConditionException() {
+            super("composition syntax error: malformed conditional statement");
+        }
     }
 }

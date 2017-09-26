@@ -23,9 +23,10 @@
 package org.jlab.clara.sys.ccc;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 import java.util.StringTokenizer;
 
-public final class CompositionParser {
+final class CompositionParser {
 
     private CompositionParser() { }
 
@@ -68,6 +69,6 @@ public final class CompositionParser {
                 return s;
             }
         }
-        return null;
+        throw new NoSuchElementException();
     }
 }
