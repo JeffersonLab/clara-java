@@ -60,7 +60,7 @@ public class SetCommandTest {
     public void testSetMaxThreads() throws Exception {
         command.execute(new String[]{"threads", "5"});
 
-        assertThat((Integer) config.getValue(Config.MAX_THREADS), is(5));
+        assertThat(config.getValue(Config.MAX_THREADS), is(5));
     }
 
     @Test

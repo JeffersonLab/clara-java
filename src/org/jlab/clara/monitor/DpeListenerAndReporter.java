@@ -1,9 +1,7 @@
 package org.jlab.clara.monitor;
 
-import com.google.protobuf.InvalidProtocolBufferException;
 import org.jlab.clara.base.core.ClaraConstants;
 import org.jlab.coda.xmsg.core.*;
-import org.jlab.coda.xmsg.data.xMsgD;
 import org.jlab.coda.xmsg.data.xMsgM;
 import org.jlab.coda.xmsg.data.xMsgMimeType;
 import org.jlab.coda.xmsg.excp.xMsgException;

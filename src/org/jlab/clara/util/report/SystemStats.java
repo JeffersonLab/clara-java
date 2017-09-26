@@ -55,7 +55,7 @@ public final class SystemStats {
             }
 
             // returns a percentage value with 1 decimal point precision
-            return ((int) (value * 1000) / 10.0);
+            return (int) (value * 1000) / 10.0;
         } catch (MalformedObjectNameException | NullPointerException
                 | InstanceNotFoundException | ReflectionException e) {
             System.err.println("Could not obtain CPU usage: " + e.getMessage());

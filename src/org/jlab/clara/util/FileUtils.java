@@ -23,11 +23,8 @@
 package org.jlab.clara.util;
 
 import java.io.BufferedWriter;
-import java.io.File;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
-import java.io.LineNumberReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.file.FileVisitResult;
@@ -104,13 +101,5 @@ public final class FileUtils {
     public static PrintWriter openOutputTextFile(Path path, boolean append) throws IOException {
         return new PrintWriter(new BufferedWriter(new OutputStreamWriter(
               new FileOutputStream(path.toFile(), append), "utf-8")));
-    }
-
-    public static int getNumberOfLines(String fileName) throws IOException {
-        FileReader fileReader = new FileReader(new File(fileName));
-        try (LineNumberReader lineNumberReader = new LineNumberReader(fileReader)) {
-            lineNumberReader.skip(Long.MAX_VALUE);
-            return lineNumberReader.getLineNumber();
-        }
     }
 }

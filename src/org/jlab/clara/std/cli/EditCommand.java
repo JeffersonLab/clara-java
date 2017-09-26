@@ -46,7 +46,7 @@ class EditCommand extends BaseCommand {
         return session -> new AbstractCommand(session, name, description) {
             @Override
             public int execute(String[] args) {
-                return CommandUtils.editFile(fileArg.apply(session.config()).toString());
+                return CommandUtils.editFile(fileArg.apply(session.config()));
             }
         };
     }

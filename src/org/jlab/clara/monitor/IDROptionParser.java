@@ -1,10 +1,5 @@
-package org.jlab.clara.monitor;
-
-/**
- * Created by gurjyan on 9/13/17.
- */
 /*
- *   Copyright (c) 2016.  Jefferson Lab (JLab). All rights reserved. Permission
+ *   Copyright (c) 2017.  Jefferson Lab (JLab). All rights reserved. Permission
  *   to use, copy, modify, and distribute  this software and its documentation for
  *   educational, research, and not-for-profit purposes, without fee and without a
  *   signed licensing agreement.
@@ -24,6 +19,8 @@ package org.jlab.clara.monitor;
  *   For more information contact author at gurjyan@jlab.org
  *   Department of Experimental Nuclear Physics, Jefferson Lab.
  */
+
+package org.jlab.clara.monitor;
 
 import joptsimple.OptionException;
 import joptsimple.OptionParser;
