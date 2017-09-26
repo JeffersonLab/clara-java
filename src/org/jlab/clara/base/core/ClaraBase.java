@@ -85,11 +85,6 @@ public class ClaraBase extends xMsg {
                         .build();
     }
 
-    @Override
-    public void close() {
-        super.close();
-    }
-
     /**
      * @return the path to the Clara_home defined
      * by means of the CLARA_HOME env variable.

@@ -204,10 +204,7 @@ class RunCommand extends BaseCommand {
 
         private boolean isDpeAlive(ClaraLang lang) {
             DpeProcess dpe = backgroundDpes.get(lang);
-            if (dpe == null) {
-                return false;
-            }
-            return dpe.process.isAlive();
+            return dpe != null && dpe.process.isAlive();
         }
 
         private void addBackgroundDpeProcess(DpeName name, String... command)

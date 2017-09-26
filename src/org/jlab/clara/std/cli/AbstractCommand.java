@@ -64,13 +64,11 @@ public abstract class AbstractCommand implements Command {
 
 
     static CommandFactory wrap(String name, String description, String... command) {
-        return session -> {
-            return new AbstractCommand(session, name, description) {
-                @Override
-                public int execute(String[] args) {
-                    return CommandUtils.runProcess(command);
-                }
-            };
+        return session -> new AbstractCommand(session, name, description) {
+            @Override
+            public int execute(String[] args) {
+                return CommandUtils.runProcess(command);
+            }
         };
     }
 

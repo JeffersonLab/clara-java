@@ -322,9 +322,7 @@ abstract class AbstractOrchestrator {
         @Override
         public void run() {
             BlockingQueue<WorkerFile> requestedFiles = new LinkedBlockingDeque<>();
-            for (WorkerFile file : paths.allFiles) {
-                requestedFiles.add(file);
-            }
+            requestedFiles.addAll(paths.allFiles);
             while (!requestedFiles.isEmpty()) {
                 WorkerFile recFile = requestedFiles.element();
                 Path filePath = paths.inputFilePath(recFile);

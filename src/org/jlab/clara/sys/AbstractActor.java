@@ -118,7 +118,7 @@ abstract class AbstractActor {
     }
 
 
-    static final boolean shouldDeregister() {
+    static boolean shouldDeregister() {
         return !(isShutDown.get() && isFrontEnd.get());
     }
 
@@ -136,7 +136,7 @@ abstract class AbstractActor {
         }
     }
 
-    static WrappedException throwWrapped(ClaraException t) {
+    static void throwWrapped(ClaraException t) {
         throw new WrappedException(t);
     }
 }

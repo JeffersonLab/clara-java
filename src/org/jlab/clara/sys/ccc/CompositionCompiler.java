@@ -394,8 +394,6 @@ public class CompositionCompiler {
 
                     outputs.addAll(stmt.getOutputLinks());
                 }
-
-                continue;
             }
         }
         return outputs;

@@ -84,9 +84,7 @@ public final class ClaraShell implements AutoCloseable {
 
         ClaraShell shell = builder.build();
 
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            shell.close();
-        }));
+        Runtime.getRuntime().addShutdownHook(new Thread(shell::close));
 
         shell.run();
     }
@@ -274,7 +272,7 @@ public final class ClaraShell implements AutoCloseable {
 
         script = builder.script;
         interactive = builder.interactive;
-        interactiveThread = new Thread(() -> internalRun());
+        interactiveThread = new Thread(this::internalRun);
     }
 
     private void initCommands(Builder builder) {

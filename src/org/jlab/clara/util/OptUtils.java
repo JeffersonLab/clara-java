@@ -58,10 +58,6 @@ public final class OptUtils {
 
     public static <V> String getDefault(OptionSpec<V> stageDir) {
         ArgumentAcceptingOptionSpec<V> spec = (ArgumentAcceptingOptionSpec<V>) stageDir;
-        StringBuilder sb = new StringBuilder();
-        sb.append("(default: ");
-        sb.append(spec.defaultValues().get(0));
-        sb.append(")");
-        return sb.toString();
+        return "(default: " + spec.defaultValues().get(0) + ")";
     }
 }

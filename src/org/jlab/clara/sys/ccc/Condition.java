@@ -237,17 +237,11 @@ public class Condition {
     }
 
     private boolean checkANDCondition(Set<ServiceState> sc, ServiceState s1, ServiceState s2){
-        if (sc.contains(s1) && sc.contains(s2)) {
-            return true;
-        }
-        return false;
+        return sc.contains(s1) && sc.contains(s2);
     }
 
     private boolean checkORCondition(Set<ServiceState> sc, ServiceState s1, ServiceState s2){
-        if (sc.contains(s1) || sc.contains(s2)) {
-            return true;
-        }
-        return false;
+        return sc.contains(s1) || sc.contains(s2);
     }
 
     @Override
