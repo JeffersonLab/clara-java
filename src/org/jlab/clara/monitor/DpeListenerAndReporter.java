@@ -1,19 +1,27 @@
 package org.jlab.clara.monitor;
 
 import org.jlab.clara.base.core.ClaraConstants;
-import org.jlab.coda.xmsg.core.*;
+import org.jlab.coda.xmsg.core.xMsg;
+import org.jlab.coda.xmsg.core.xMsgCallBack;
+import org.jlab.coda.xmsg.core.xMsgMessage;
+import org.jlab.coda.xmsg.core.xMsgTopic;
+import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.jlab.coda.xmsg.data.xMsgM;
 import org.jlab.coda.xmsg.data.xMsgMimeType;
 import org.jlab.coda.xmsg.excp.xMsgException;
 import org.jlab.coda.xmsg.net.xMsgProxyAddress;
 import org.jlab.coda.xmsg.net.xMsgRegAddress;
 
-
 /**
  * Created by gurjyan on 4/10/17.
  */
 public abstract class DpeListenerAndReporter extends xMsg {
 
+    /**
+     * Process the received DPE registration and runtime report.
+     *
+     * @param jsonString the DPE report
+     */
     public abstract void report(String jsonString);
 
     // build the subscribing topic (hard-coded)
@@ -28,6 +36,8 @@ public abstract class DpeListenerAndReporter extends xMsg {
     /**
      * Subscribes to a hard-coded topic on the local proxy,
      * and registers with the local registrar.
+     *
+     * @throws xMsgException if subscription failed
      */
     public void start() throws xMsgException {
         xMsgTopic topic = xMsgTopic.build(domain, subject, type);
@@ -37,7 +47,6 @@ public abstract class DpeListenerAndReporter extends xMsg {
         System.out.printf("Subscribed to = %s%n", topic.toString());
         xMsgUtil.keepAlive();
     }
-
 
     /**
      * Private callback class.
@@ -54,7 +63,4 @@ public abstract class DpeListenerAndReporter extends xMsg {
 
         }
     }
-
 }
-
-

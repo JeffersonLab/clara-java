@@ -1,6 +1,7 @@
 package org.jlab.clara.monitor;
 
 import org.influxdb.dto.Point;
+import org.jlab.clara.base.ClaraUtil;
 import org.jlab.clara.base.core.ClaraConstants;
 import org.jlab.coda.jinflux.JinFlux;
 import org.jlab.coda.jinflux.JinFluxException;
@@ -23,9 +24,11 @@ import java.util.UUID;
 public class InfluxDbReport extends DpeListenerAndReporter {
 
     private final String dbName = "clara";
-    private String dbNode;
+    private final String dbNode;
+
     private JinFlux jinFlux;
     private boolean jinFxConnected = true;
+
     private Map<String, String> tags = new HashMap<>();
     private Point.Builder p;
 
@@ -39,7 +42,6 @@ public class InfluxDbReport extends DpeListenerAndReporter {
             if (!jinFlux.existsDB(dbName)) {
                 jinFlux.createDB(dbName, 1, JinTime.HOURE);
             }
-
         } catch (JinFluxException e) {
             jinFxConnected = false;
             e.printStackTrace();
@@ -63,70 +65,67 @@ public class InfluxDbReport extends DpeListenerAndReporter {
 
         if (jinFxConnected) {
 
-            int pool_size = 1;
+            int poolSize = 1;
             tags.clear();
 
             JSONObject base = new JSONObject(jsonString);
-//            System.out.println(base.toString(4));
 
             // registration information
             JSONObject registration = base.getJSONObject("DPERegistration");
-            JSONArray reg_containers = registration.getJSONArray("containers");
-            JSONObject reg_container = reg_containers.getJSONObject(0);
-            JSONArray cont_services = reg_container.getJSONArray("services");
-            for (int i = 0; i < cont_services.length(); i++) {
-                JSONObject service = cont_services.getJSONObject(i);
-                pool_size = service.getInt("pool_size");
-                if (pool_size > 1) break;
+            JSONArray regContainers = registration.getJSONArray("containers");
+            JSONObject regContainer = regContainers.getJSONObject(0);
+            JSONArray contServices = regContainer.getJSONArray("services");
+            for (int i = 0; i < contServices.length(); i++) {
+                JSONObject service = contServices.getJSONObject(i);
+                poolSize = service.getInt("pool_size");
+                if (poolSize > 1) {
+                    break;
+                }
             }
 
             // runtime information
             JSONObject runtime = base.getJSONObject("DPERuntime");
-            String dpeName = runtime.getString("hostname");
             Long memUse = runtime.getLong("memory_usage");
             Integer cpuUse = runtime.getInt("cpu_usage");
 
             String session = registration.getString("session");
             String description = registration.getString("description");
-            System.out.println(dateFormat.format(new Date()) + ": reporting for " + session + "-" + description);
+            String sessionId = session + "_" + description;
+            System.out.println(dateFormat.format(new Date()) + ": reporting for " + sessionId);
 
             tags.put(ClaraConstants.SESSION, session + "-" + description);
 
-            JSONArray rt_containers = runtime.getJSONArray("containers");
-            JSONObject rt_container = rt_containers.getJSONObject(0);
-            JSONArray rt_services = rt_container.getJSONArray("services");
-            for (int i = 0; i < rt_services.length(); i++) {
+            JSONArray rtContainers = runtime.getJSONArray("containers");
+            JSONObject rtContainer = rtContainers.getJSONObject(0);
+            JSONArray rtServices = rtContainer.getJSONArray("services");
+            for (int i = 0; i < rtServices.length(); i++) {
 
-                JSONObject service = rt_services.getJSONObject(i);
+                JSONObject service = rtServices.getJSONObject(i);
 
-                String ser_name = service.getString("name");
-                tags.put("service_name", ser_name.substring(ser_name.lastIndexOf(":") + 1));
+                String serName = service.getString("name");
+                tags.put("service_name", ClaraUtil.getEngineName(serName));
                 p = jinFlux.openTB("clas12", tags);
                 jinFlux.addDP(p, "cpu_usage", cpuUse);
                 jinFlux.addDP(p, "memory_usage", memUse);
 
                 jinFlux.addDP(p, "n_requests", service.getInt("n_requests"));
-
                 jinFlux.addDP(p, "n_failures", service.getInt("n_failures"));
 
-                int ser_sher_m_reads = service.getInt("shm_reads");
-                jinFlux.addDP(p, "shm_reads", ser_sher_m_reads);
+                int serShmReads = service.getInt("shm_reads");
 
+                jinFlux.addDP(p, "shm_reads", serShmReads);
                 jinFlux.addDP(p, "shm_writes", service.getInt("shm_writes"));
-
                 jinFlux.addDP(p, "bytes_recv", service.getInt("bytes_recv"));
-
                 jinFlux.addDP(p, "bytes_sent", service.getInt("bytes_sent"));
+                jinFlux.addDP(p, "pool_size", poolSize);
 
-                Long ser_exec_time = service.getLong("exec_time");
-
-                jinFlux.addDP(p, "pool_size", pool_size);
-
-                if (ser_sher_m_reads > 0) {
-                    long execTime = ser_exec_time / ser_sher_m_reads;
+                Long serExecTime = service.getLong("exec_time");
+                if (serShmReads > 0) {
+                    long execTime = serExecTime / serShmReads;
                     jinFlux.addDP(p, "exec_time", execTime);
-                    totalExecTime = totalExecTime + execTime;
+                    totalExecTime += execTime;
                 }
+
                 try {
                     jinFlux.write(dbName, p);
                 } catch (JinFluxException e) {
@@ -135,7 +134,9 @@ public class InfluxDbReport extends DpeListenerAndReporter {
             }
 
             jinFlux.addDP(p, "total_exec_time", totalExecTime);
-            if (pool_size > 0) jinFlux.addDP(p, "average_exec_time", totalExecTime / pool_size);
+            if (poolSize > 0) {
+                jinFlux.addDP(p, "average_exec_time", totalExecTime / poolSize);
+            }
 
             try {
                 jinFlux.write(dbName, p);
@@ -145,19 +146,30 @@ public class InfluxDbReport extends DpeListenerAndReporter {
         }
     }
 
+    private static InfluxDbReport createInfluxReporter(IDROptionParser parser) {
+        String name = UUID.randomUUID().toString();
+        return new InfluxDbReport(
+                name,
+                parser.getProxyHost(),
+                parser.getProxyPort(),
+                parser.getDataBaseHost()
+        );
+    }
+
     public static void main(String[] args) {
         IDROptionParser options = new IDROptionParser();
-        options.parse(args);
+        if (!options.parse(args)) {
+            System.exit(1);
+        }
         if (options.hasHelp()) {
             System.out.println(options.usage());
             System.exit(0);
         }
-
-        String name = UUID.randomUUID().toString();
-        try (InfluxDbReport rep = new InfluxDbReport(name, options.getM_host(), options.getM_port(), options.getDb_host())) {
+        try (InfluxDbReport rep = createInfluxReporter(options)) {
             rep.start();
         } catch (xMsgException e) {
             e.printStackTrace();
+            System.exit(1);
         }
     }
 }

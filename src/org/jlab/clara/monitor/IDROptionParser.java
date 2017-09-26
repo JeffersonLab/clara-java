@@ -35,6 +35,10 @@ import static java.util.Arrays.asList;
  */
 class IDROptionParser {
 
+    private static final String DEFAULT_DB_HOST = "claraweb.jlab.org";
+    private static final String DEFAULT_FE_HOST = "129.57.70.24";
+    private static final int DEFAULT_FE_PORT = 9000;
+
     private final OptionSpec<String> proxyHost;
     private final OptionSpec<Integer> proxyPort;
     private final OptionSpec<String> dbHost;
@@ -42,59 +46,56 @@ class IDROptionParser {
     private OptionParser parser;
     private OptionSet options;
 
-    private String m_host = "129.57.70.24";
-    private int m_port = 9000;
-    private String db_host ="claraweb.jlab.org";
-
     IDROptionParser() {
         parser = new OptionParser();
 
-        proxyHost = parser.acceptsAll(asList("m-host")).withRequiredArg();
-        proxyPort = parser.acceptsAll(asList("m-port"))
-            .withRequiredArg().ofType(Integer.class);
+        proxyHost = parser.acceptsAll(asList("fe-host", "m-host"))
+                .withRequiredArg()
+                .defaultsTo(DEFAULT_FE_HOST);
 
-        dbHost = parser.acceptsAll(asList("db-host")).withRequiredArg();
+        proxyPort = parser.acceptsAll(asList("fe-port", "m-port"))
+                .withRequiredArg()
+                .ofType(Integer.class)
+                .defaultsTo(DEFAULT_FE_PORT);
+
+        dbHost = parser.acceptsAll(asList("db-host"))
+                .withRequiredArg()
+                .defaultsTo(DEFAULT_DB_HOST);
 
         parser.acceptsAll(asList("h", "help")).forHelp();
     }
 
-    public void parse(String[] args) {
+    public boolean parse(String[] args) {
         try {
             options = parser.parse(args);
 
             if (!options.has(proxyHost)) {
-                System.out.println("The monitoring xMsg proxy host is not specified, using the default host: clara1601.jlab.org");
-            } else {
-                m_host = options.valueOf(proxyHost);
+                System.out.println("Using the default proxy host: clara1601.jlab.org");
             }
-
             if (!options.has(proxyPort)) {
-                System.out.println("The monitoring xMsg proxy is not specified, using the default port = 9000");
-            } else {
-                m_port = options.valueOf(proxyPort);
+                System.out.println("Using the default proxy port: 9000");
             }
-
             if (!options.has(dbHost)) {
-                System.out.println("The InfluxDB host is not specified, using the default DB = claraweb.jlab.org");
-            } else {
-                db_host = options.valueOf(dbHost);
+                System.out.println("Using the default db host: claraweb.jlab.org");
             }
 
+            return true;
         } catch (OptionException e) {
-            System.out.println(e.getMessage());
+            System.err.println("error: " + e.getMessage());
+            return false;
         }
     }
 
-    public String getM_host() {
-        return m_host;
+    public String getProxyHost() {
+        return options.valueOf(proxyHost);
     }
 
-    public int getM_port() {
-        return m_port;
+    public int getProxyPort() {
+        return options.valueOf(proxyPort);
     }
 
-    public String getDb_host() {
-        return db_host;
+    public String getDataBaseHost() {
+        return options.valueOf(dbHost);
     }
 
     public boolean hasHelp() {
@@ -103,9 +104,9 @@ class IDROptionParser {
 
     public String usage() {
         return String.format("usage: idr [options]%n%n  Options:%n")
-            + OptUtils.optionHelp(proxyHost, "hostname", "use given host for the monitor xMsg-proxy")
-            + OptUtils.optionHelp(proxyPort, "port", "use given port for the monitor xMsg-proxy")
-            + OptUtils.optionHelp(dbHost, "hostname", "the host where InfluxDB is running");
+            + OptUtils.optionHelp(proxyHost, "hostname", "the host used by the monitoring proxy")
+            + OptUtils.optionHelp(proxyPort, "port", "the port used by the monitoring proxy")
+            + OptUtils.optionHelp(dbHost, "hostname", "the host where the database is running");
     }
 
 }
