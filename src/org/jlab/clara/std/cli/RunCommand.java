@@ -41,7 +41,6 @@ import org.jlab.clara.base.DpeName;
 import org.jlab.clara.base.core.ClaraConstants;
 import org.jlab.clara.std.orchestrators.OrchestratorConfigException;
 import org.jlab.clara.std.orchestrators.OrchestratorConfigParser;
-import org.jlab.clara.util.EnvUtils;
 
 class RunCommand extends BaseCommand {
 
@@ -126,8 +125,6 @@ class RunCommand extends BaseCommand {
             }
             destroyDpes();
 
-            useMonitorHost();
-
             DpeName feName = new DpeName(findHost(), findPort(), ClaraLang.JAVA);
             String javaDpe = Paths.get(Config.claraHome(), "bin", "j_dpe").toString();
             addBackgroundDpeProcess(feName, javaDpe,
@@ -166,13 +163,6 @@ class RunCommand extends BaseCommand {
                 return config.getValue(Config.FRONTEND_HOST).toString();
             }
             return ClaraUtil.localhost();
-        }
-
-        private void useMonitorHost() {
-            if (config.hasValue(Config.MONITOR_HOST)) {
-                String monitorHost = config.getValue(Config.MONITOR_HOST).toString() + "%9000_java";
-                EnvUtils.setEnv(ClaraConstants.ENV_MONITOR_FE, monitorHost);
-            }
         }
 
         private int findPort() {
@@ -218,6 +208,10 @@ class RunCommand extends BaseCommand {
                     if (javaOptions != null) {
                         builder.environment().put("JAVA_OPTS", javaOptions);
                     }
+                }
+                String monitor = runUtils.getMonitorFrontEnd();
+                if (monitor != null) {
+                    builder.environment().put(ClaraConstants.ENV_MONITOR_FE, monitor);
                 }
                 DpeProcess dpe = new DpeProcess(name, builder);
                 backgroundDpes.put(name.language(), dpe);

@@ -85,7 +85,7 @@ public class Config {
     public static final String FRONTEND_PORT = "fePort";
 
     /**
-     * The variable for the address of the monitor front_end, where all DPs will send their data.
+     * The variable for the address of the monitoring front-end.
      */
     public static final String MONITOR_HOST = "monHost";
 

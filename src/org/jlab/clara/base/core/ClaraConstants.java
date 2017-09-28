@@ -102,5 +102,5 @@ public final class ClaraConstants {
 
     public static final String UNDEFINED = "undefined";
 
-    public static final String ENV_MONITOR_FE = "CLARA_MONITOR_FRONT_END";
+    public static final String ENV_MONITOR_FE = "CLARA_MONITOR_FE";
 }

@@ -190,8 +190,11 @@ final class FarmCommands {
 
     static class RunFarm extends FarmCommand {
 
+        protected final RunUtils runUtils;
+
         RunFarm(Context context) {
             super(context, "farm", "Run CLARA data processing on the farm.");
+            runUtils = new RunUtils(config);
         }
 
         @Override
@@ -308,9 +311,6 @@ final class FarmCommands {
             if (config.hasValue(Config.FRONTEND_HOST)) {
                 cmd.addOption("-H", config.getValue(Config.FRONTEND_HOST));
             }
-            if (config.hasValue(Config.MONITOR_HOST)) {
-                cmd.addOption("-M", config.getValue(Config.MONITOR_HOST));
-            }
             if (config.hasValue(Config.FRONTEND_PORT)) {
                 cmd.addOption("-P", config.getValue(Config.FRONTEND_PORT));
             }
@@ -373,7 +373,7 @@ final class FarmCommands {
 
             // set monitor FE
             model.put("env", "monitorFE", ClaraConstants.ENV_MONITOR_FE);
-            String monitor = System.getenv(ClaraConstants.ENV_MONITOR_FE);
+            String monitor = runUtils.getMonitorFrontEnd();
             if (monitor != null) {
                 model.put("clara", "monitorFE", monitor);
             }

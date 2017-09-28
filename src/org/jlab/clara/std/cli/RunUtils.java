@@ -24,6 +24,7 @@ package org.jlab.clara.std.cli;
 
 import org.jlab.clara.base.ClaraLang;
 import org.jlab.clara.base.DpeName;
+import org.jlab.clara.base.core.ClaraConstants;
 import org.jlab.clara.util.FileUtils;
 import org.jline.builtins.Commands;
 import org.jline.terminal.Terminal;
@@ -45,6 +46,13 @@ class RunUtils {
 
     RunUtils(Config config) {
         this.config = config;
+    }
+
+    String getMonitorFrontEnd() {
+        if (config.hasValue(Config.MONITOR_HOST)) {
+            return config.getValue(Config.MONITOR_HOST).toString() + "%9000_java";
+        }
+        return System.getenv(ClaraConstants.ENV_MONITOR_FE);
     }
 
     Path getLogDir() {
