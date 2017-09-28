@@ -733,7 +733,7 @@ public final class Dpe extends AbstractActor {
             Socket socket = socketFactory.createSocket(ZMQ.PUB);
             socketFactory.connectSocket(socket, feAddr.host(), feAddr.pubPort());
 
-            String monName = System.getenv("CLARA_MONITOR_FRONT_END");
+            String monName = System.getenv(ClaraConstants.ENV_MONITOR_FE);
 
             if (monName != null) {
                 try {

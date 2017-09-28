@@ -38,6 +38,7 @@ import java.util.stream.IntStream;
 import org.jlab.clara.base.ClaraLang;
 import org.jlab.clara.base.ClaraUtil;
 import org.jlab.clara.base.DpeName;
+import org.jlab.clara.base.core.ClaraConstants;
 import org.jlab.clara.std.orchestrators.OrchestratorConfigException;
 import org.jlab.clara.std.orchestrators.OrchestratorConfigParser;
 import org.jlab.clara.util.EnvUtils;
@@ -170,7 +171,7 @@ class RunCommand extends BaseCommand {
         private void useMonitorHost() {
             if (config.hasValue(Config.MONITOR_HOST)) {
                 String monitorHost = config.getValue(Config.MONITOR_HOST).toString() + "%9000_java";
-                EnvUtils.setEnv("CLARA_MONITOR_FRONT_END", monitorHost);
+                EnvUtils.setEnv(ClaraConstants.ENV_MONITOR_FE, monitorHost);
             }
         }
 
