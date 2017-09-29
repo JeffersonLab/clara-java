@@ -59,7 +59,8 @@ cd xmsg-java || exit
 echo "Downloading and building jinflux package ..."
 git clone --depth 1 https://github.com/JeffersonLab/JinFlux.git
 cd JinFlux || exit
-./gradle deploy
+gradle install
+gradle deploy
 )
 
 (
