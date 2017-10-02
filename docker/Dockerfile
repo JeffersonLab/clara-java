@@ -3,8 +3,8 @@ FROM openjdk:8-jdk-slim AS build
 ENV CLARA_HOME="/usr/local/clara"
 ENV PATH="${CLARA_HOME}/bin:${PATH}"
 
-RUN mkdir -p /root/clara-java
-WORKDIR /root/clara-java
+RUN mkdir -p /usr/local/src/clara-java
+WORKDIR /usr/local/src/clara-java
 
 COPY gradlew .
 COPY gradle gradle
@@ -16,7 +16,7 @@ RUN ./gradlew build check
 COPY . .
 RUN ./gradlew build -x check && ./gradlew deploy && rm -rf build
 
-WORKDIR /root
+WORKDIR /usr/local/src
 VOLUME ["${CLARA_HOME}/data/input", "${CLARA_HOME}/data/output", "${CLARA_HOME}/log"]
 
 EXPOSE 7771 7772 7773 7775
