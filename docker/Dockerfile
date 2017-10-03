@@ -30,7 +30,7 @@ RUN ./gradlew build -x check && ./gradlew deploy && rm -rf build
 WORKDIR /usr/local/src
 VOLUME ["${CLARA_HOME}/data/input", "${CLARA_HOME}/data/output", "${CLARA_HOME}/log"]
 
-EXPOSE 7771 7772 7773 7775
+EXPOSE 7771-7775
 
 
 FROM openjdk:8-jre-slim
@@ -48,4 +48,4 @@ COPY --from=build ${CLARA_HOME} ${CLARA_HOME}
 WORKDIR /root
 VOLUME ["${CLARA_HOME}/data/input", "${CLARA_HOME}/data/output", "${CLARA_HOME}/log"]
 
-EXPOSE 7771 7772 7773 7775
+EXPOSE 7771-7775
