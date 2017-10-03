@@ -33,7 +33,7 @@ import static java.util.Arrays.asList;
 /**
  * Parses the DPE settings from the command line.
  */
-class IDROptionParser {
+public class IDROptionParser {
 
     private static final String DEFAULT_DB_HOST = "claraweb.jlab.org";
     private static final String DEFAULT_FE_HOST = "129.57.70.24";
@@ -46,7 +46,7 @@ class IDROptionParser {
     private OptionParser parser;
     private OptionSet options;
 
-    IDROptionParser() {
+    public IDROptionParser() {
         parser = new OptionParser();
 
         proxyHost = parser.acceptsAll(asList("fe-host", "m-host"))

@@ -735,6 +735,8 @@ public final class Dpe extends AbstractActor {
 
             String monName = System.getenv("CLARA_MONITOR_FRONT_END");
 
+            // we overwrite if there is a monitor DPE defined. Monitor DPE plays
+            // the role of front-end DPE in this case.
             if (monName != null) {
                 try {
                     DpeName monDpe = new DpeName(monName);
