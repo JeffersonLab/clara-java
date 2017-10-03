@@ -1,5 +1,6 @@
 package org.jlab.clara.monitor.dc.timeline;
 
+import org.jlab.clara.base.core.ClaraConstants;
 import org.jlab.coda.xmsg.core.*;
 import org.jlab.coda.xmsg.data.xMsgM;
 import org.jlab.coda.xmsg.data.xMsgMimeType;
@@ -23,6 +24,7 @@ public abstract class DcTListenerAndReporter extends xMsg {
     private String domain = "reconstruction";
     private String subject = "dc";
     private String type = "timeline";
+
 
     DcTListenerAndReporter(String name, xMsgProxyAddress proxy) {
         super(name, proxy, new xMsgRegAddress(), 1);
@@ -50,7 +52,6 @@ public abstract class DcTListenerAndReporter extends xMsg {
 
         @Override
         public void callback(xMsgMessage msg) {
-            System.out.println("DDDDDDDDDDDDDDD got DC report");
             xMsgM.xMsgMeta.Builder metadata = msg.getMetaData();
             if (metadata.getDataType().equals(xMsgMimeType.STRING)) {
                 String jsonString = new String(msg.getData());

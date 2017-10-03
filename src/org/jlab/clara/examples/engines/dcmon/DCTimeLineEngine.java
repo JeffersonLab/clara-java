@@ -31,7 +31,7 @@ public class DCTimeLineEngine extends ReconstructionEngine {
     private TimerFlag timerFlag;
     private final int reportingPeriod = 5;
 
-    private final String monClass    = "reconstruction";
+    private final String monClass = "reconstruction";
     private final String monDetector = "dc";
     private final String type = "timeline";
 
@@ -42,6 +42,7 @@ public class DCTimeLineEngine extends ReconstructionEngine {
     }
 
     TrackingMon mon;
+
     @Override
     public boolean processDataEvent(DataEvent de) {
         mon.fetch_Trks(de);
@@ -49,15 +50,28 @@ public class DCTimeLineEngine extends ReconstructionEngine {
         +mon.getNbHBHits()+" "+mon.getNbHBHitsOnTrack()+" "+mon.getNbHBTracks()+" "
         +mon.getNbTBHits()+" "+mon.getNbTBHitsOnTrack()+" "+mon.getNbTBTracks()+" "
         +mon.getTimeResidual()[0]+" "+mon.getTimeResidual()[1]+" "+mon.getTimeResidual()[2]); */
-        try {
-            if(timerFlag.isUp()) {
+
+        if (timerFlag.isUp()) {
+            ZMQ.Socket con = null;
+            try {
+                con = connect();
+                xMsgUtil.sleep(100);
+            } catch (xMsgException e) {
+                System.err.println("DCTimeLineService-Error: Could not start reporting thread:");
+                e.printStackTrace();
+            } catch (Exception e) {
+                System.err.println("DCTimeLineService-Error: Error running reporting thread:");
+                e.printStackTrace();
+            }
+            try {
                 send(con, dcJsonMessage(mon));
                 timerFlag.reset();
+
+            } catch (xMsgException e) {
+                System.err.println("DCTimeLineService-Error: Could not publish report:" + e.getMessage());
+            } finally {
+                socketFactory.closeQuietly(con);
             }
-        } catch (xMsgException e) {
-            System.err.println("DCTimeLineService-Error: Could not publish report:" + e.getMessage());
-        } finally {
-            socketFactory.closeQuietly(con);
         }
         return true;
     }
@@ -65,17 +79,6 @@ public class DCTimeLineEngine extends ReconstructionEngine {
     @Override
     public boolean init() {
         mon = new TrackingMon();
-        try {
-            con = connect();
-            xMsgUtil.sleep(100);
-
-        } catch (xMsgException e) {
-            System.err.println("DCTimeLineService-Error: Could not start reporting thread:");
-            e.printStackTrace();
-        } catch (Exception e) {
-            System.err.println("DCTimeLineService-Error: Error running reporting thread:");
-            e.printStackTrace();
-        }
 
         timerFlag = new TimerFlag(reportingPeriod);
 
@@ -84,9 +87,11 @@ public class DCTimeLineEngine extends ReconstructionEngine {
 
     /**
      * Connects to Clara monitor front-end
+     *
      * @return
      * @throws xMsgException
      */
+
     private ZMQ.Socket connect() throws xMsgException {
         ZMQ.Socket socket = socketFactory.createSocket(ZMQ.PUB);
         String monName = System.getenv("CLARA_MONITOR_FRONT_END");
@@ -99,7 +104,7 @@ public class DCTimeLineEngine extends ReconstructionEngine {
                 socketFactory.connectSocket(socket, monAddr.host(), monAddr.pubPort());
                 System.out.println("Using monitoring front-end " + monName);
             } catch (IllegalArgumentException e) {
-                System.err.println("Could not use monitor node: "+e.getMessage());
+                System.err.println("Could not use monitor node: " + e.getMessage());
             }
         }
         return socket;
@@ -141,7 +146,7 @@ public class DCTimeLineEngine extends ReconstructionEngine {
         zmsg.add(msg.getMetaData().build().toByteArray());
         zmsg.add(msg.getData());
         zmsg.send(con);
-        System.out.println("|==================================> DCTimeLineService: sending to topic = "+msg.getTopic());
+        System.out.println("|==================================> DCTimeLineService: sending to topic = " + msg.getTopic());
 
     }
 

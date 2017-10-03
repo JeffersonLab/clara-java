@@ -79,9 +79,9 @@ public class DcInfluxDbReport extends DcTListenerAndReporter {
             int hb_hits_track = base.getInt("NbHBHitsOnTrack");
             int tb_hits_track = base.getInt("NbTBHitsOnTrack");
             int ct_hits_track = base.getInt("NbCTHitsOnTrack");
-            long time_res_1 = base.getLong("TimeResidual-1");
-            long time_res_2 = base.getLong("TimeResidual-2");
-            long time_res_3 = base.getLong("TimeResidual-3");
+            double time_res_1 = ((Number)base.get("TimeResidual-1")).doubleValue();
+            double time_res_2 = ((Number)base.get("TimeResidual-2")).doubleValue();
+            double time_res_3 = ((Number)base.get("TimeResidual-3")).doubleValue();
 
             String sessionId = "mon-dc-timeline";
             System.out.println(dateFormat.format(new Date()) + ": reporting for " + sessionId);
