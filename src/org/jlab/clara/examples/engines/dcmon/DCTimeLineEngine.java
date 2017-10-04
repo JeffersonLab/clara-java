@@ -102,7 +102,7 @@ public class DCTimeLineEngine extends ReconstructionEngine {
                 DpeName monDpe = new DpeName(monName);
                 ClaraAddress monAddr = monDpe.address();
                 socketFactory.connectSocket(socket, monAddr.host(), monAddr.pubPort());
-                System.out.println("Using monitoring front-end " + monName);
+//                System.out.println("Using monitoring front-end " + monName);
             } catch (IllegalArgumentException e) {
                 System.err.println("Could not use monitor node: " + e.getMessage());
             }
@@ -146,8 +146,6 @@ public class DCTimeLineEngine extends ReconstructionEngine {
         zmsg.add(msg.getMetaData().build().toByteArray());
         zmsg.add(msg.getData());
         zmsg.send(con);
-        System.out.println("|==================================> DCTimeLineService: sending to topic = " + msg.getTopic());
-
     }
 
 
