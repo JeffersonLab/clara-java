@@ -50,16 +50,6 @@ public class DcInfluxDbReport extends DcTListenerAndReporter {
     @Override
     public void report(String jsonString) {
 
-        try {
-            jinFlux = new JinFlux(dbNode);
-            if (!jinFlux.existsDB(dbName)) {
-                jinFlux.createDB(dbName, 1, JinTime.HOURE);
-            }
-
-        } catch (JinFluxException e) {
-            jinFxConnected = false;
-            e.printStackTrace();
-        }
 
         if (jinFxConnected) {
 

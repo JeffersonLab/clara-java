@@ -52,16 +52,6 @@ public class InfluxDbReport extends DpeListenerAndReporter {
     public void report(String jsonString) {
         long totalExecTime = 0;
 
-        try {
-            jinFlux = new JinFlux(dbNode);
-            if (!jinFlux.existsDB(dbName)) {
-                jinFlux.createDB(dbName, 1, JinTime.HOURE);
-            }
-
-        } catch (JinFluxException e) {
-            jinFxConnected = false;
-            e.printStackTrace();
-        }
 
         if (jinFxConnected) {
 
