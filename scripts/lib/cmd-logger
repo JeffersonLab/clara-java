@@ -1,13 +1,24 @@
 #!/usr/bin/env bash
 
-set -m
+try_perl() {
+    pelrl -MPOSIX -e ';' 1>/dev/null 2>&1
+}
+
+if ! try_perl; then
+    set -m
+fi
 
 trap '' INT
 trap 'kill -TERM $proc_pid' TERM
 
-"${@:2}" 2>&1 | tee "$1" &
+if try_perl; then
+    perl -MPOSIX -e 'setpgid 0,0; exec @ARGV' "${@:2}" 2>&1 | tee "$1" &
+    pipe_pid=$!
+else
+    "${@:2}" 2>&1 | tee "$1" &
+    pipe_pid=$!
+fi
 
-pipe_pid=$!
 proc_pid=$(jobs -p)
 
 wait $pipe_pid
