@@ -30,6 +30,7 @@ import java.io.StringWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
+import org.jlab.clara.base.ClaraUtil;
 import org.jline.builtins.Less;
 import org.jline.builtins.Source;
 
@@ -117,5 +118,12 @@ class HelpCommand extends BaseCommand {
         // TODO it could be faster
         String[] lines = str.split("\r\n|\r|\n");
         return lines.length;
+    }
+
+    @Override
+    public void printHelp(PrintWriter printer) {
+        String help = "Show help for the command.";
+        printer.printf("%n  %s <command>%n", name);
+        printer.printf("%s%n", ClaraUtil.splitIntoLines(help, "    ", 72));
     }
 }
