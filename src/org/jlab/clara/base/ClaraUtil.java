@@ -326,13 +326,18 @@ public final class ClaraUtil {
         StringBuilder output = new StringBuilder();
         int lineLen = 0;
         while (tok.hasMoreTokens()) {
-            String word = tok.nextToken() + " ";
+            String word = tok.nextToken();
+            if (lineLen > 0) {
+                lineLen++; // count the space before the word
+            }
             if (lineLen + word.length() > maxLineLength) {
-                output.append("\n");
+                output.append('\n');
                 lineLen = 0;
             }
             if (lineLen == 0) {
                 output.append(linePrefix);
+            } else {
+                output.append(' ');
             }
             output.append(word);
             lineLen += word.length();

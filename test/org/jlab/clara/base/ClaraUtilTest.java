@@ -263,4 +263,39 @@ public class ClaraUtilTest {
         assertThat(new ServiceName("10.2.58.17", ClaraLang.JAVA, "cont", "Engine").canonicalName(),
                    is("10.2.58.17_java:cont:Engine"));
     }
+
+
+    @Test
+    public void splitIntoLinesSingleLine() throws Exception {
+        String text = "Call me Ishmael.";
+        int length = text.length();
+
+        assertThat(ClaraUtil.splitIntoLines("Call me Ishmael.", "", length + 10),
+                   is("Call me Ishmael."));
+
+        assertThat(ClaraUtil.splitIntoLines("Call me Ishmael.", "", length),
+                   is("Call me Ishmael."));
+
+        assertThat(ClaraUtil.splitIntoLines("Call me Ishmael.", "    ", length + 10),
+                   is("    Call me Ishmael."));
+
+        assertThat(ClaraUtil.splitIntoLines("Call me Ishmael.", "    ", length),
+                   is("    Call me Ishmael."));
+    }
+
+
+    @Test
+    public void splitIntoLinesMultipleLines() throws Exception {
+        String text = "Moby Dick seeks thee not. It is thou, thou, that madly seekest him!";
+
+        assertThat(ClaraUtil.splitIntoLines(text, "", 25),
+                   is("Moby Dick seeks thee not.\n"
+                    + "It is thou, thou, that\n"
+                    + "madly seekest him!"));
+
+        assertThat(ClaraUtil.splitIntoLines(text, ">>>", 25),
+                   is(">>>Moby Dick seeks thee not.\n"
+                    + ">>>It is thou, thou, that\n"
+                    + ">>>madly seekest him!"));
+    }
 }
