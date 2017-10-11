@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 
+BASEDIR=$(cd "$(dirname "${BASH_SOURCE[0]}")"/.. && pwd)
+
 if [ -z "${CLARA_HOME}" ]; then
-    echo "Error: \$CLARA_HOME is not defined."
-    exit 1
+    CLARA_HOME=${BASEDIR}
+    export CLARA_HOME
 fi
 
 if [ -z "${CLASSPATH}" ]; then
