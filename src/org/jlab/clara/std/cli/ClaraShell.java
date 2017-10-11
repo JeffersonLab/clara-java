@@ -46,6 +46,8 @@ import org.jline.reader.impl.completer.AggregateCompleter;
 import org.jline.reader.impl.history.DefaultHistory;
 import org.jline.terminal.Terminal;
 import org.jline.terminal.TerminalBuilder;
+import org.jline.utils.AttributedStringBuilder;
+import org.jline.utils.AttributedStyle;
 
 /**
  * An interactive shell to run CLARA DPEs and orchestrators.
@@ -53,6 +55,7 @@ import org.jline.terminal.TerminalBuilder;
 public final class ClaraShell implements AutoCloseable {
 
     private static final String HISTORY_NAME = ".clara_history";
+    private static final String DEFAULT_PROMPT = defaultPrompt();
 
     private final Terminal terminal;
     private final Config config;
@@ -372,7 +375,7 @@ public final class ClaraShell implements AutoCloseable {
         while (running) {
             try {
                 Thread.interrupted();
-                String line = readLine("");
+                String line = readLine();
                 if (line == null) {
                     continue;
                 }
@@ -400,7 +403,17 @@ public final class ClaraShell implements AutoCloseable {
         writer.println(" Run 'help' to show available commands.");
     }
 
-    private String readLine(String promtMessage) {
-        return reader.readLine(promtMessage + "\nclara> ");
+    private String readLine() {
+        return reader.readLine(DEFAULT_PROMPT);
+    }
+
+    private static String defaultPrompt() {
+        return new AttributedStringBuilder()
+                .append('\n')
+                .style(AttributedStyle.BOLD.foreground(AttributedStyle.GREEN))
+                .append("clara>")
+                .style(AttributedStyle.DEFAULT)
+                .append(' ')
+                .toAnsi();
     }
 }
