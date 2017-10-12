@@ -47,7 +47,7 @@ sourceSets {
 
 repositories {
     maven {
-        url 'http://clasweb.jlab.org/clas12maven/'
+        url 'https://clasweb.jlab.org/clas12maven/'
     }
     mavenCentral()
 }
