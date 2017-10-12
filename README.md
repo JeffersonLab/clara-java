@@ -47,7 +47,7 @@ You can also set the default Java version with `update-alternatives`:
 
 #### macOS
 
-Install Oracle Java using [Homebrew](http://brew.sh/):
+Install Oracle Java using [Homebrew](https://brew.sh/):
 
     $ brew cask install java
 
