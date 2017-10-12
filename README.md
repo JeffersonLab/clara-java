@@ -9,7 +9,7 @@ Big Data processing.
 
 ## Documentation
 
-The reference documentation is available at <http://claraweb.jlab.org>.
+The reference documentation is available at <https://claraweb.jlab.org>.
 
 
 ## Build notes
