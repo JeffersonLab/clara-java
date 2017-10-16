@@ -52,16 +52,6 @@ public class InfluxDbReport extends DpeListenerAndReporter {
     public void report(String jsonString) {
         long totalExecTime = 0;
 
-        try {
-            jinFlux = new JinFlux(dbNode);
-            if (!jinFlux.existsDB(dbName)) {
-                jinFlux.createDB(dbName, 1, JinTime.HOURE);
-            }
-
-        } catch (JinFluxException e) {
-            jinFxConnected = false;
-            e.printStackTrace();
-        }
 
         if (jinFxConnected) {
 
@@ -73,7 +63,7 @@ public class InfluxDbReport extends DpeListenerAndReporter {
             // registration information
             JSONObject registration = base.getJSONObject("DPERegistration");
             JSONArray regContainers = registration.getJSONArray("containers");
-            if(regContainers.length()<=0) return;
+            if(regContainers.length()<=0)return;
             JSONObject regContainer = regContainers.getJSONObject(0);
             JSONArray contServices = regContainer.getJSONArray("services");
             for (int i = 0; i < contServices.length(); i++) {

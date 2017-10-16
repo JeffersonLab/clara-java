@@ -1,0 +1,13 @@
+#!/bin/sh
+
+# DC timeline InfluxDB report service
+
+# set default classpath
+if [ -z "${CLASSPATH}" ]; then
+    CLASSPATH="${CLARA_HOME}/lib/*"
+    export CLASSPATH
+fi
+
+java_wrapper=${CLARA_HOME}/lib/clara/run-java
+
+exec "${java_wrapper}" org.jlab.clara.monitor.dc.timeline.DcInfluxDbReport "$@"
