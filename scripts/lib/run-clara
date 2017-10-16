@@ -75,7 +75,7 @@ function define_dpe_port() {
 function define_host_ip() {
     fe_host=127.0.0.1
     if command -v ip >/dev/null 2>&1; then
-        fe_host=$(ip route get 1 | head -1 | cut -d' ' -f8)
+        fe_host=$(ip route get 1 | awk '{print $NF; exit}')
         return 0
     fi
     local ip line
