@@ -90,7 +90,7 @@ public class Config {
     public static final String MONITOR_HOST = "monHost";
 
     /**
-     * The variable for the number of reconstruction threads.
+     * The variable for the number of data processing threads.
      */
     public static final String MAX_THREADS = "threads";
 

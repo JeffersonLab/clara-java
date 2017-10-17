@@ -135,7 +135,7 @@ public class OrchestratorConfigParser {
      */
     public Set<ClaraLang> parseLanguages() {
         Stream<ServiceInfo> io = parseInputOutputServices().values().stream();
-        Stream<ServiceInfo> rec = parseReconstructionChain().stream();
+        Stream<ServiceInfo> rec = parseDataProcessingServices().stream();
 
         return Stream.concat(io, rec).map(s -> s.lang).collect(Collectors.toSet());
     }
@@ -196,7 +196,7 @@ public class OrchestratorConfigParser {
     }
 
 
-    List<ServiceInfo> parseReconstructionChain() {
+    List<ServiceInfo> parseDataProcessingServices() {
         List<ServiceInfo> services = new ArrayList<>();
         JSONArray sl = config.optJSONArray("services");
         if (sl == null) {
@@ -214,7 +214,7 @@ public class OrchestratorConfigParser {
     }
 
 
-    JSONObject parseReconstructionConfig() {
+    JSONObject parseConfiguration() {
         if (config.has("configuration")) {
             return config.getJSONObject("configuration");
         }

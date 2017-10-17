@@ -69,7 +69,7 @@ public class OrchestratorConfigParserTest {
     public void parseGoodServicesFileYaml() {
         OrchestratorConfigParser parser = parseFile("/resources/services-ok.yml");
 
-        assertThat(parser.parseReconstructionChain(), is(servicesList));
+        assertThat(parser.parseDataProcessingServices(), is(servicesList));
     }
 
 
@@ -80,7 +80,7 @@ public class OrchestratorConfigParserTest {
 
         OrchestratorConfigParser parser = parseFile("/resources/services-bad.yml");
 
-        parser.parseReconstructionChain();
+        parser.parseDataProcessingServices();
     }
 
 
@@ -115,7 +115,7 @@ public class OrchestratorConfigParserTest {
                                 CONT, "FTOFReconstruction", ClaraLang.JAVA)
         );
 
-        assertThat(parser.parseReconstructionChain(), is(expected));
+        assertThat(parser.parseDataProcessingServices(), is(expected));
     }
 
 
@@ -156,7 +156,7 @@ public class OrchestratorConfigParserTest {
     public void parseEmptyConfig() {
         OrchestratorConfigParser parser = parseFile("/resources/services-ok.yml");
 
-        JSONObject config = parser.parseReconstructionConfig();
+        JSONObject config = parser.parseConfiguration();
 
         assertThat(config.toString(), is("{}"));
     }
@@ -166,7 +166,7 @@ public class OrchestratorConfigParserTest {
     public void parseCustomConfig() {
         OrchestratorConfigParser parser = parseFile("/resources/services-custom.yml");
 
-        JSONObject config = parser.parseReconstructionConfig();
+        JSONObject config = parser.parseConfiguration();
 
         assertThat(config.keySet(), containsInAnyOrder("global", "io-services", "services"));
 

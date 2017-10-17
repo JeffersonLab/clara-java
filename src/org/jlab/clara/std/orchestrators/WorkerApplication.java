@@ -74,8 +74,8 @@ class WorkerApplication {
     }
 
 
-    public List<ServiceName> recServices() {
-        return application.getRecServices().stream()
+    public List<ServiceName> processingServices() {
+        return application.getDataProcessingServices().stream()
                 .map(this::toName)
                 .collect(Collectors.toList());
     }
@@ -83,7 +83,7 @@ class WorkerApplication {
 
     public Composition composition() {
         String composition = readerService().canonicalName();
-        for (ServiceName service : recServices()) {
+        for (ServiceName service : processingServices()) {
             composition += "+" + service.canonicalName();
         }
         composition += "+" + writerService().canonicalName();
@@ -103,17 +103,17 @@ class WorkerApplication {
     }
 
 
-    Stream<DeployInfo> getIODeployInfo() {
-        return application.getIOServices().stream()
+    Stream<DeployInfo> getInputOutputServicesDeployInfo() {
+        return application.getInputOutputServices().stream()
                           .map(s -> new DeployInfo(toName(s), s.classpath, 1));
     }
 
 
-    Stream<DeployInfo> getRecDeployInfo() {
-        int recCores = maxCores();
-        return application.getRecServices().stream()
+    Stream<DeployInfo> getProcessingServicesDeployInfo() {
+        int maxCores = maxCores();
+        return application.getDataProcessingServices().stream()
                           .distinct()
-                          .map(s -> new DeployInfo(toName(s), s.classpath, recCores));
+                          .map(s -> new DeployInfo(toName(s), s.classpath, maxCores));
     }
 
 

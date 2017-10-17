@@ -72,7 +72,7 @@ public class WorkerApplicationTest {
                                             "10.1.1.10_java:master:J2",
                                             "10.1.1.10_java:master:J3");
 
-        assertThat(app.recServices(), containsInAnyOrder(expected));
+        assertThat(app.processingServices(), containsInAnyOrder(expected));
     }
 
 
@@ -88,7 +88,7 @@ public class WorkerApplicationTest {
                                             "10.1.1.10_cpp:master:C2",
                                             "10.1.1.10_python:slave:P1");
 
-        assertThat(app.recServices(), containsInAnyOrder(expected));
+        assertThat(app.processingServices(), containsInAnyOrder(expected));
     }
 
 

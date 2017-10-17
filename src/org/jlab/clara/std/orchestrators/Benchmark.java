@@ -45,7 +45,7 @@ class Benchmark {
     private List<ServiceInfo> allServices(ApplicationInfo application) {
         List<ServiceInfo> services = new ArrayList<>();
         services.add(application.getReaderService());
-        services.addAll(application.getRecServices());
+        services.addAll(application.getDataProcessingServices());
         services.add(application.getWriterService());
         return services;
     }

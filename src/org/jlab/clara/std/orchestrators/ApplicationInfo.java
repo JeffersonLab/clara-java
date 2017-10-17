@@ -41,13 +41,13 @@ class ApplicationInfo {
     static final String WRITER = "writer";
 
     private final Map<String, ServiceInfo> ioServices;
-    private final List<ServiceInfo> recServices;
+    private final List<ServiceInfo> dataServices;
     private final Set<ClaraLang> languages;
 
-    ApplicationInfo(Map<String, ServiceInfo> ioServices, List<ServiceInfo> recServices) {
+    ApplicationInfo(Map<String, ServiceInfo> ioServices, List<ServiceInfo> dataServices) {
         this.ioServices = copyServices(ioServices);
-        this.recServices = copyServices(recServices);
-        this.languages = parseLanguages(ioServices.values(), recServices);
+        this.dataServices = copyServices(dataServices);
+        this.languages = parseLanguages(ioServices.values(), dataServices);
     }
 
     private static Map<String, ServiceInfo> copyServices(Map<String, ServiceInfo> ioServices) {
@@ -63,19 +63,19 @@ class ApplicationInfo {
         return new HashMap<>(ioServices);
     }
 
-    private static List<ServiceInfo> copyServices(List<ServiceInfo> recChain) {
-        if (recChain == null) {
-            throw new IllegalArgumentException("null reconstruction chain");
+    private static List<ServiceInfo> copyServices(List<ServiceInfo> chain) {
+        if (chain == null) {
+            throw new IllegalArgumentException("null chain of services");
         }
-        if (recChain.isEmpty()) {
-            throw new IllegalArgumentException("empty reconstruction chain");
+        if (chain.isEmpty()) {
+            throw new IllegalArgumentException("empty chain of services");
         }
-        return new ArrayList<>(recChain);
+        return new ArrayList<>(chain);
     }
 
     private Set<ClaraLang> parseLanguages(Collection<ServiceInfo> ioServices,
-                                          Collection<ServiceInfo> recServices) {
-        return Stream.concat(ioServices.stream(), recServices.stream())
+                                          Collection<ServiceInfo> dataServices) {
+        return Stream.concat(ioServices.stream(), dataServices.stream())
                      .map(s -> s.lang)
                      .collect(Collectors.toSet());
     }
@@ -92,16 +92,16 @@ class ApplicationInfo {
         return ioServices.get(WRITER);
     }
 
-    List<ServiceInfo> getIOServices() {
+    List<ServiceInfo> getInputOutputServices() {
         return Arrays.asList(getStageService(), getReaderService(), getWriterService());
     }
 
-    List<ServiceInfo> getRecServices() {
-        return recServices;
+    List<ServiceInfo> getDataProcessingServices() {
+        return dataServices;
     }
 
     Set<ServiceInfo> getAllServices() {
-        return Stream.concat(ioServices.values().stream(), recServices.stream())
+        return Stream.concat(ioServices.values().stream(), dataServices.stream())
                      .collect(Collectors.toSet());
     }
 

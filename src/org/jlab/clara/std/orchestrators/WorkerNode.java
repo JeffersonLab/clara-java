@@ -142,8 +142,8 @@ class WorkerNode {
 
 
     void deployServices() {
-        application.getIODeployInfo().forEach(orchestrator::deployService);
-        application.getRecDeployInfo().forEach(orchestrator::deployService);
+        application.getInputOutputServicesDeployInfo().forEach(orchestrator::deployService);
+        application.getProcessingServicesDeployInfo().forEach(orchestrator::deployService);
 
         application.allServices().forEach(orchestrator::checkServices);
     }
@@ -394,7 +394,7 @@ class WorkerNode {
 
 
     void configureServices() {
-        for (ServiceName service : application.recServices()) {
+        for (ServiceName service : application.processingServices()) {
             try {
                 orchestrator.syncConfig(service, configuration.get(service), 2, TimeUnit.MINUTES);
             } catch (ClaraException | TimeoutException e) {
@@ -410,7 +410,7 @@ class WorkerNode {
         int requestCores = numCores(maxCores);
         int requestId = 1;
 
-        Logging.info("Using %d cores on %s to reconstruct %d events of %s [%d/%d]",
+        Logging.info("Using %d cores on %s to process %d events of %s [%d/%d]",
                       requestCores, name(), totalEvents.get(), currentInputFileName,
                       currentFileCounter.get(), totalFilesCounter.get());
 
@@ -427,7 +427,7 @@ class WorkerNode {
             data.setCommunicationId(requestId);
             orchestrator.send(application.composition(), data);
         } catch (ClaraException e) {
-            throw new OrchestratorException("Could not request reconstruction on = " + name(), e);
+            throw new OrchestratorException("Could not send an event request to = " + name(), e);
         }
     }
 
