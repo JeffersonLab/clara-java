@@ -49,7 +49,7 @@ You can also set the default Java version with `update-alternatives`:
 
 Install Oracle Java using [Homebrew](https://brew.sh/):
 
-    $ brew cask install java
+    $ brew cask install caskroom/versions/java8
 
 Check the version:
 
