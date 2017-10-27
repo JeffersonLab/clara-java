@@ -35,6 +35,7 @@ public final class ClaraConstants {
     public static final int JAVA_PORT = 7771;
     public static final int CPP_PORT = 7781;
     public static final int PYTHON_PORT = 7791;
+    public static final int CDR_PORT = 9000;
     public static final int REG_PORT_SHIFT = 4;
 
     public static final String DPE = "dpe";
@@ -101,4 +102,5 @@ public final class ClaraConstants {
     public static final String CPP_LANG = "cpp";
 
     public static final String UNDEFINED = "undefined";
+
 }

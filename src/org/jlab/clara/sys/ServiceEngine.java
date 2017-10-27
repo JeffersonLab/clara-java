@@ -22,14 +22,13 @@
 
 package org.jlab.clara.sys;
 
+import org.jlab.clara.base.ClaraLang;
+import org.jlab.clara.base.DpeName;
 import org.jlab.clara.base.core.ClaraConstants;
 import org.jlab.clara.base.core.ClaraComponent;
 import org.jlab.clara.base.core.DataUtil;
 import org.jlab.clara.base.error.ClaraException;
-import org.jlab.clara.engine.Engine;
-import org.jlab.clara.engine.EngineData;
-import org.jlab.clara.engine.EngineDataType;
-import org.jlab.clara.engine.EngineStatus;
+import org.jlab.clara.engine.*;
 import org.jlab.clara.sys.ccc.CompositionCompiler;
 import org.jlab.clara.sys.ccc.ServiceState;
 import org.jlab.clara.util.report.ServiceReport;
@@ -44,7 +43,6 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * A Service engine.
- * Every engine process a request in its own thread.
  *
  * @author gurjyan
  * @version 4.x
@@ -67,6 +65,8 @@ class ServiceEngine {
     // The last execution time
     private long executionTime;
 
+    // data ring component details
+    private ClaraComponent cdr_comp;
 
     ServiceEngine(Engine userEngine,
                   ServiceActor base,
@@ -77,6 +77,13 @@ class ServiceEngine {
         this.sysConfig = config;
         this.sysReport = report;
         this.compiler = new CompositionCompiler(base.getName());
+
+        // Define clara data ring component
+        String dataRingHost = System.getenv("CLARA_MONITOR_FRONT_END");
+        if (dataRingHost != null) {
+            DpeName cdr_name = new DpeName(dataRingHost, ClaraConstants.CDR_PORT, ClaraLang.JAVA);
+                cdr_comp = ClaraComponent.dpe(cdr_name.canonicalName());
+        }
     }
 
     void start() throws ClaraException {
@@ -174,7 +181,19 @@ class ServiceEngine {
         }
 
         reportResult(outData);
-        sendResult(outData, getLinks(inData, outData));
+
+        // Check engine execution state. In case the output of the engine
+        // is a data that needs to be monitored, send it to the data ring
+        // pointed by the $CLARA_MONITOR_FRONT_END env variable, and the
+        // same time send input through the link to keep composition integrity.
+        String executionState = outData.getExecutionState();
+        if (executionState.equals(SysEngineState.HISTOGRAM.name()) ||
+            executionState.equals(SysEngineState.DST.name())) {
+            sendMonitorData(executionState,outData);
+            sendResult(inData, getLinks(inData, outData));
+        } else {
+            sendResult(outData, getLinks(inData, outData));
+        }
     }
 
     private void parseComposition(EngineData inData) throws ClaraException {
@@ -291,6 +310,20 @@ class ServiceEngine {
         base.send(base.getFrontEnd(), transit);
     }
 
+    /**
+     * Publish data to Clara data ring
+     * @param topicBase generic topic of the publication
+     * @param data data to be published
+     * @throws ClaraException exception
+     */
+    private void sendMonitorData(String topicBase, EngineData data) throws ClaraException {
+        if(cdr_comp!=null) {
+            xMsgTopic topic = xMsgTopic.wrap(topicBase + xMsgConstants.TOPIC_SEP + base.getName());
+            xMsgMessage transit = DataUtil.serialize(topic, data, engine.getOutputDataTypes());
+            base.send(cdr_comp.getProxyAddress(), transit);
+        }
+    }
+
 
     private EngineData getEngineData(xMsgMessage message) throws ClaraException {
         xMsgMeta.Builder metadata = message.getMetaData();
@@ -352,11 +385,12 @@ class ServiceEngine {
     }
 
 
-    public boolean tryAcquire() {
+    boolean tryAcquire() {
         return semaphore.tryAcquire();
     }
 
-    public void release() {
+    void release() {
         semaphore.release();
     }
+
 }

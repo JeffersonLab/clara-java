@@ -25,7 +25,6 @@ import java.io.FileNotFoundException;
  */
 public class DCTimeLineEngine extends ReconstructionEngine {
 
-    private ZMQ.Socket con;
     private final xMsgSocketFactory socketFactory;
 
     private TimerFlag timerFlag;

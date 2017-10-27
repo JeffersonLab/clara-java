@@ -535,7 +535,10 @@ public final class Dpe extends AbstractActor {
     private void startContainer(RequestParser parser)
             throws RequestException, DpeException {
 
-        String containerName = parser.nextString();
+//        String containerName = parser.nextString();
+        // using session as a container name 10.26.17 vg
+        String containerName = session;
+
         int poolSize = parser.nextInteger();
         String description = parser.nextString();
         if (poolSize <= 0) {
