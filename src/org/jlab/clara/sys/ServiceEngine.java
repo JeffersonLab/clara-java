@@ -187,10 +187,9 @@ class ServiceEngine {
         // pointed by the $CLARA_MONITOR_FRONT_END env variable, and the
         // same time send input through the link to keep composition integrity.
         String executionState = outData.getExecutionState();
-        if (executionState.equals(SysEngineState.USER_HISTOGRAM.name()) ||
-            executionState.equals(SysEngineState.USER_DATA.name())) {
+        if(!executionState.equals("")){
             sendMonitorData(executionState,outData);
-            sendResult(inData, getLinks(inData, outData));
+            sendResult(inData, getLinks(inData, inData));
         } else {
             sendResult(outData, getLinks(inData, outData));
         }
