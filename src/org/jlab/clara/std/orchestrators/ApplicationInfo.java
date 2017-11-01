@@ -47,7 +47,7 @@ class ApplicationInfo {
     ApplicationInfo(Map<String, ServiceInfo> ioServices, List<ServiceInfo> dataServices) {
         this.ioServices = copyServices(ioServices);
         this.dataServices = copyServices(dataServices);
-        this.languages = parseLanguages(ioServices.values(), dataServices);
+        this.languages = parseLanguages();
     }
 
     private static Map<String, ServiceInfo> copyServices(Map<String, ServiceInfo> ioServices) {
@@ -73,11 +73,17 @@ class ApplicationInfo {
         return new ArrayList<>(chain);
     }
 
-    private Set<ClaraLang> parseLanguages(Collection<ServiceInfo> ioServices,
-                                          Collection<ServiceInfo> dataServices) {
-        return Stream.concat(ioServices.stream(), dataServices.stream())
-                     .map(s -> s.lang)
-                     .collect(Collectors.toSet());
+    private Set<ClaraLang> parseLanguages() {
+        return allServices().map(s -> s.lang).collect(Collectors.toSet());
+    }
+
+    private Stream<ServiceInfo> allServices() {
+        return stream(ioServices.values(), dataServices);
+    }
+
+    @SafeVarargs
+    private final Stream<ServiceInfo> stream(Collection<ServiceInfo>... values) {
+        return Stream.of(values).flatMap(Collection::stream);
     }
 
     ServiceInfo getStageService() {
@@ -101,8 +107,7 @@ class ApplicationInfo {
     }
 
     Set<ServiceInfo> getAllServices() {
-        return Stream.concat(ioServices.values().stream(), dataServices.stream())
-                     .collect(Collectors.toSet());
+        return allServices().collect(Collectors.toSet());
     }
 
     Set<ClaraLang> getLanguages() {
