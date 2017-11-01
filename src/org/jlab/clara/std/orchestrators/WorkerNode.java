@@ -144,6 +144,7 @@ class WorkerNode {
     void deployServices() {
         application.getInputOutputServicesDeployInfo().forEach(orchestrator::deployService);
         application.getProcessingServicesDeployInfo().forEach(orchestrator::deployService);
+        application.getMonitoringServicesDeployInfo().forEach(orchestrator::deployService);
 
         application.allServices().forEach(orchestrator::checkServices);
     }
@@ -394,9 +395,17 @@ class WorkerNode {
 
 
     void configureServices() {
-        for (ServiceName service : application.processingServices()) {
+        for (ServiceName service : application.services()) {
             try {
                 orchestrator.syncConfig(service, configuration.get(service), 2, TimeUnit.MINUTES);
+            } catch (ClaraException | TimeoutException e) {
+                throw new OrchestratorException("Could not configure " + service, e);
+            }
+        }
+
+        for (ServiceName service : application.monitoringServices()) {
+            try {
+                orchestrator.syncEnableRing(service, 1, TimeUnit.MINUTES);
             } catch (ClaraException | TimeoutException e) {
                 throw new OrchestratorException("Could not configure " + service, e);
             }

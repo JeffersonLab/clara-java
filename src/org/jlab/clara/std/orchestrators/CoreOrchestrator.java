@@ -22,6 +22,8 @@
 
 package org.jlab.clara.std.orchestrators;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -35,6 +37,8 @@ import java.util.concurrent.TimeoutException;
 import org.jlab.clara.base.BaseOrchestrator;
 import org.jlab.clara.base.ClaraFilters;
 import org.jlab.clara.base.ClaraName;
+import org.jlab.clara.base.ClaraRequests.ServiceConfigRequestBuilder;
+import org.jlab.clara.base.ClaraRequests.ServiceReportRequest;
 import org.jlab.clara.base.Composition;
 import org.jlab.clara.base.ContainerName;
 import org.jlab.clara.base.DpeName;
@@ -225,6 +229,21 @@ class CoreOrchestrator {
     void syncConfig(ServiceName service, EngineData data, int wait, TimeUnit unit)
             throws ClaraException, TimeoutException {
         base.configure(service).withData(data).syncRun(wait, unit);
+    }
+
+
+    void syncEnableRing(ServiceName service, int wait, TimeUnit unit)
+            throws ClaraException, TimeoutException {
+        ServiceConfigRequestBuilder builder = base.configure(service);
+        try {
+            Method m = builder.getClass().getDeclaredMethod("startDataRingReporting");
+            m.setAccessible(true);
+            ServiceReportRequest r = (ServiceReportRequest) m.invoke(builder);
+            r.syncRun(wait, unit);
+        } catch (NoSuchMethodException | SecurityException
+                | IllegalAccessException | InvocationTargetException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 

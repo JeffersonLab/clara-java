@@ -96,13 +96,27 @@ class WorkerApplication {
 
 
     public Composition composition() {
+        List<ServiceName> dataServices = processingServices();
+
+        // main chain
         String composition = readerService().canonicalName();
-        for (ServiceName service : processingServices()) {
+        for (ServiceName service : dataServices) {
             composition += "+" + service.canonicalName();
         }
         composition += "+" + writerService().canonicalName();
         composition += "+" + readerService().canonicalName();
         composition += ";";
+
+        List<ServiceName> monServices = monitoringServices();
+        if (!monServices.isEmpty()) {
+            // monitoring chain
+            composition += dataServices.get(dataServices.size() - 1).canonicalName();
+            for (ServiceName service : monServices) {
+                composition += "+" + service.canonicalName();
+            }
+            composition += ";";
+        }
+
         return new Composition(composition);
     }
 
@@ -128,6 +142,13 @@ class WorkerApplication {
         return application.getDataProcessingServices().stream()
                           .distinct()
                           .map(s -> new DeployInfo(toName(s), s.classpath, maxCores));
+    }
+
+
+    Stream<DeployInfo> getMonitoringServicesDeployInfo() {
+        return application.getMonitoringServices().stream()
+                          .distinct()
+                          .map(s -> new DeployInfo(toName(s), s.classpath, 1));
     }
 
 
