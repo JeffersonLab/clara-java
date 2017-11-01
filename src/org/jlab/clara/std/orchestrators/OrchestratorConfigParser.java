@@ -206,6 +206,14 @@ public class OrchestratorConfigParser {
     }
 
 
+    List<ServiceInfo> parseMonitoringServices() {
+        if (config.optJSONArray(SERVICES_KEY) != null) {
+            return new ArrayList<>();
+        }
+        return parseServices("monitoring", false);
+    }
+
+
     private List<ServiceInfo> parseServices(String key, boolean required) {
         JSONObject ss = config.optJSONObject(SERVICES_KEY);
         if (ss == null) {

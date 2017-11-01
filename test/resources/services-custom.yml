@@ -20,6 +20,12 @@ services:
         lang: cpp
       - class: org.jlab.clas12.services.FTOFReconstruction
         name: FTOFReconstruction
+  monitoring:
+    chain:
+      - class: org.jlab.clas12.services.ECMonitoring
+        name: ECMonitor
+      - class: org.jlab.clas12.services.DCMonitoring
+        name: DCMonitor
 
 mime-types:
   - binary/data-evio

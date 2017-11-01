@@ -120,6 +120,19 @@ public class OrchestratorConfigParserTest {
 
 
     @Test
+    public void parseMonitoringServices() throws Exception {
+        OrchestratorConfigParser parser = parseFile("/resources/services-custom.yml");
+
+        List<ServiceInfo> expected = Arrays.asList(
+                service("org.jlab.clas12.services.ECMonitoring", "ECMonitor"),
+                service("org.jlab.clas12.services.DCMonitoring", "DCMonitor")
+        );
+
+        assertThat(parser.parseMonitoringServices(), is(expected));
+    }
+
+
+    @Test
     public void parseLanguagesSingleLang() throws Exception {
         OrchestratorConfigParser parser = parseFile("/resources/services-ok.yml");
 
