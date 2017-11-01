@@ -99,6 +99,8 @@ public class OrchestratorConfigParser {
 
     private static final String DEFAULT_CONTAINER = System.getProperty("user.name");
 
+    private static final String SERVICES_KEY = "services";
+
     private final JSONObject config;
 
     /**
@@ -196,13 +198,41 @@ public class OrchestratorConfigParser {
 
 
     List<ServiceInfo> parseDataProcessingServices() {
-        List<ServiceInfo> services = new ArrayList<>();
-        JSONArray sl = config.optJSONArray("services");
-        if (sl == null) {
+        JSONArray sl = config.optJSONArray(SERVICES_KEY);
+        if (sl != null) {
+            return parseServices(sl);
+        }
+        return parseServices("data-processing", true);
+    }
+
+
+    private List<ServiceInfo> parseServices(String key, boolean required) {
+        JSONObject ss = config.optJSONObject(SERVICES_KEY);
+        if (ss == null) {
             throw error("missing list of services");
         }
-        for (int i = 0; i < sl.length(); i++) {
-            ServiceInfo service = parseService(sl.getJSONObject(i));
+        if (!ss.has(key)) {
+            if (required) {
+                throw error("missing list of " + key + " services");
+            }
+            return new ArrayList<>();
+        }
+        JSONObject so = ss.optJSONObject(key);
+        if (so == null) {
+            throw error("invalid list of " + key + " services");
+        }
+        JSONArray sl = so.optJSONArray("chain");
+        if (sl == null) {
+            throw error("invalid list of " + key + " services");
+        }
+        return parseServices(sl);
+    }
+
+
+    private List<ServiceInfo> parseServices(JSONArray array) {
+        List<ServiceInfo> services = new ArrayList<>();
+        for (int i = 0; i < array.length(); i++) {
+            ServiceInfo service = parseService(array.getJSONObject(i));
             if (services.contains(service)) {
                 throw error(String.format("duplicated service  name = '%s' container = '%s'",
                                           service.name, service.cont));
