@@ -22,10 +22,12 @@
 
 package org.jlab.clara.util.report;
 
+import org.jlab.clara.base.core.ClaraConstants;
+
 public enum ReportType {
-    INFO("serviceReportInfo"),
-    DONE("serviceReportDone"),
-    DATA("serviceReportData");
+    INFO(ClaraConstants.SERVICE_REPORT_INFO),
+    DONE(ClaraConstants.SERVICE_REPORT_DONE),
+    DATA(ClaraConstants.SERVICE_REPORT_DATA);
 
     private final String stringValue;
 
