@@ -65,8 +65,11 @@ public final class ClaraConstants {
     public static final String STOP_REMOTE_SERVICE = "stopRemoteService";
     public static final String DEPLOY_SERVICE = "deployService";
     public static final String REMOVE_SERVICE = "removeService";
+
+    public static final String SERVICE_REPORT_INFO = "serviceReportInfo";
     public static final String SERVICE_REPORT_DONE = "serviceReportDone";
     public static final String SERVICE_REPORT_DATA = "serviceReportData";
+    public static final String SERVICE_REPORT_RING = "serviceReportRing";
 
     public static final String SET_FRONT_END = "setFrontEnd";
     public static final String SET_FRONT_END_REMOTE = "setFrontEndRemote";

@@ -74,21 +74,42 @@ class WorkerApplication {
     }
 
 
-    public List<ServiceName> recServices() {
-        return application.getRecServices().stream()
+    public List<ServiceName> processingServices() {
+        return application.getDataProcessingServices().stream()
+                .map(this::toName)
+                .collect(Collectors.toList());
+    }
+
+
+    public List<ServiceName> monitoringServices() {
+        return application.getMonitoringServices().stream()
                 .map(this::toName)
                 .collect(Collectors.toList());
     }
 
 
     public Composition composition() {
+        List<ServiceName> dataServices = processingServices();
+
+        // main chain
         String composition = readerService().canonicalName();
-        for (ServiceName service : recServices()) {
+        for (ServiceName service : dataServices) {
             composition += "+" + service.canonicalName();
         }
         composition += "+" + writerService().canonicalName();
         composition += "+" + readerService().canonicalName();
         composition += ";";
+
+        List<ServiceName> monServices = monitoringServices();
+        if (!monServices.isEmpty()) {
+            // monitoring chain
+            composition += dataServices.get(dataServices.size() - 1).canonicalName();
+            for (ServiceName service : monServices) {
+                composition += "+" + service.canonicalName();
+            }
+            composition += ";";
+        }
+
         return new Composition(composition);
     }
 
@@ -103,17 +124,24 @@ class WorkerApplication {
     }
 
 
-    Stream<DeployInfo> getIODeployInfo() {
-        return application.getIOServices().stream()
+    Stream<DeployInfo> getInputOutputServicesDeployInfo() {
+        return application.getInputOutputServices().stream()
                           .map(s -> new DeployInfo(toName(s), s.classpath, 1));
     }
 
 
-    Stream<DeployInfo> getRecDeployInfo() {
-        int recCores = maxCores();
-        return application.getRecServices().stream()
+    Stream<DeployInfo> getProcessingServicesDeployInfo() {
+        int maxCores = maxCores();
+        return application.getDataProcessingServices().stream()
                           .distinct()
-                          .map(s -> new DeployInfo(toName(s), s.classpath, recCores));
+                          .map(s -> new DeployInfo(toName(s), s.classpath, maxCores));
+    }
+
+
+    Stream<DeployInfo> getMonitoringServicesDeployInfo() {
+        return application.getMonitoringServices().stream()
+                          .distinct()
+                          .map(s -> new DeployInfo(toName(s), s.classpath, 1));
     }
 
 

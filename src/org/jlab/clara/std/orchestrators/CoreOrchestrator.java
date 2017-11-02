@@ -228,6 +228,12 @@ class CoreOrchestrator {
     }
 
 
+    void syncEnableRing(ServiceName service, int wait, TimeUnit unit)
+            throws ClaraException, TimeoutException {
+        base.configure(service).startDataRingReporting().syncRun(wait, unit);
+    }
+
+
     void send(Composition composition, EngineData data) throws ClaraException {
         base.execute(composition).withData(data).run();
     }

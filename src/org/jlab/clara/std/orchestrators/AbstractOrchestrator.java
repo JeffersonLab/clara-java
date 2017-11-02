@@ -62,7 +62,7 @@ abstract class AbstractOrchestrator {
 
     private final Semaphore recSem;
     private volatile boolean recStatus;
-    private volatile String recMsg = "Could not run reconstruction!";
+    private volatile String recMsg = "Could not run data processing!";
 
     static class ReconstructionStats {
 
@@ -164,10 +164,10 @@ abstract class AbstractOrchestrator {
 
 
     /**
-     * Runs the reconstruction.
+     * Runs the data processing.
      *
-     * @return status of the reconstruction.
-     * @throws OrchestratorException in case of any error that aborted the reconstruction
+     * @return status of the processing.
+     * @throws OrchestratorException in case of any error that aborted the processing.
      */
     public boolean run() {
         try {
@@ -238,7 +238,7 @@ abstract class AbstractOrchestrator {
             try {
                 setupNode(node);
             } catch (OrchestratorException e) {
-                Logging.error("Could not use %s for reconstruction:%n%s",
+                Logging.error("Could not use %s for processing:%n%s",
                               node.name(), e.getMessage());
             }
         });
@@ -371,7 +371,7 @@ abstract class AbstractOrchestrator {
             openFiles(node, recFile);
             startFile(node);
         } catch (OrchestratorException e) {
-            Logging.error("Could not use %s for reconstruction:%n%s",
+            Logging.error("Could not use %s for processing:%n%s",
                     node.name(), e.getMessage());
         }
     }

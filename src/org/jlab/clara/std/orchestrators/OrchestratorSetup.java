@@ -55,8 +55,8 @@ class OrchestratorSetup {
         private JSONObject config = new JSONObject();
         private Set<String> dataTypes = new HashSet<>();
 
-        Builder(Map<String, ServiceInfo> ioServices, List<ServiceInfo> recChain) {
-            this.application = new ApplicationInfo(ioServices, recChain);
+        Builder(Map<String, ServiceInfo> ioServices, List<ServiceInfo> dataServices) {
+            this.application = new ApplicationInfo(ioServices, dataServices);
         }
 
         Builder withFrontEnd(DpeName frontEnd) {

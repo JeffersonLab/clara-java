@@ -41,13 +41,24 @@ class ApplicationInfo {
     static final String WRITER = "writer";
 
     private final Map<String, ServiceInfo> ioServices;
-    private final List<ServiceInfo> recServices;
+    private final List<ServiceInfo> dataServices;
+    private final List<ServiceInfo> monServices;
     private final Set<ClaraLang> languages;
 
-    ApplicationInfo(Map<String, ServiceInfo> ioServices, List<ServiceInfo> recServices) {
+    ApplicationInfo(Map<String, ServiceInfo> ioServices, List<ServiceInfo> dataServices) {
         this.ioServices = copyServices(ioServices);
-        this.recServices = copyServices(recServices);
-        this.languages = parseLanguages(ioServices.values(), recServices);
+        this.dataServices = copyServices(dataServices);
+        this.monServices = new ArrayList<>();
+        this.languages = parseLanguages();
+    }
+
+    ApplicationInfo(Map<String, ServiceInfo> ioServices,
+                    List<ServiceInfo> dataServices,
+                    List<ServiceInfo> monServices) {
+        this.ioServices = copyServices(ioServices);
+        this.dataServices = copyServices(dataServices);
+        this.monServices = copyServices(monServices);
+        this.languages = parseLanguages();
     }
 
     private static Map<String, ServiceInfo> copyServices(Map<String, ServiceInfo> ioServices) {
@@ -63,21 +74,23 @@ class ApplicationInfo {
         return new HashMap<>(ioServices);
     }
 
-    private static List<ServiceInfo> copyServices(List<ServiceInfo> recChain) {
-        if (recChain == null) {
-            throw new IllegalArgumentException("null reconstruction chain");
+    private static List<ServiceInfo> copyServices(List<ServiceInfo> chain) {
+        if (chain == null) {
+            throw new IllegalArgumentException("null chain of services");
         }
-        if (recChain.isEmpty()) {
-            throw new IllegalArgumentException("empty reconstruction chain");
+        if (chain.isEmpty()) {
+            throw new IllegalArgumentException("empty chain of services");
         }
-        return new ArrayList<>(recChain);
+        return new ArrayList<>(chain);
     }
 
-    private Set<ClaraLang> parseLanguages(Collection<ServiceInfo> ioServices,
-                                          Collection<ServiceInfo> recServices) {
-        return Stream.concat(ioServices.stream(), recServices.stream())
-                     .map(s -> s.lang)
-                     .collect(Collectors.toSet());
+    private Set<ClaraLang> parseLanguages() {
+        return allServices().map(s -> s.lang).collect(Collectors.toSet());
+    }
+
+    private Stream<ServiceInfo> allServices() {
+        return Stream.of(ioServices.values(), dataServices, monServices)
+                     .flatMap(Collection::stream);
     }
 
     ServiceInfo getStageService() {
@@ -92,17 +105,20 @@ class ApplicationInfo {
         return ioServices.get(WRITER);
     }
 
-    List<ServiceInfo> getIOServices() {
+    List<ServiceInfo> getInputOutputServices() {
         return Arrays.asList(getStageService(), getReaderService(), getWriterService());
     }
 
-    List<ServiceInfo> getRecServices() {
-        return recServices;
+    List<ServiceInfo> getDataProcessingServices() {
+        return dataServices;
+    }
+
+    List<ServiceInfo> getMonitoringServices() {
+        return monServices;
     }
 
     Set<ServiceInfo> getAllServices() {
-        return Stream.concat(ioServices.values().stream(), recServices.stream())
-                     .collect(Collectors.toSet());
+        return allServices().collect(Collectors.toSet());
     }
 
     Set<ClaraLang> getLanguages() {

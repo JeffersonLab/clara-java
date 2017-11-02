@@ -38,7 +38,6 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.jlab.clara.base.ClaraLang;
 import org.jlab.clara.base.DpeName;
@@ -100,6 +99,8 @@ public class OrchestratorConfigParser {
 
     private static final String DEFAULT_CONTAINER = System.getProperty("user.name");
 
+    private static final String SERVICES_KEY = "services";
+
     private final JSONObject config;
 
     /**
@@ -134,10 +135,10 @@ public class OrchestratorConfigParser {
      * @return a set with the languages of the services
      */
     public Set<ClaraLang> parseLanguages() {
-        Stream<ServiceInfo> io = parseInputOutputServices().values().stream();
-        Stream<ServiceInfo> rec = parseReconstructionChain().stream();
-
-        return Stream.concat(io, rec).map(s -> s.lang).collect(Collectors.toSet());
+        ApplicationInfo app = new ApplicationInfo(
+                parseInputOutputServices(),
+                parseDataProcessingServices());
+        return app.getLanguages();
     }
 
 
@@ -196,14 +197,50 @@ public class OrchestratorConfigParser {
     }
 
 
-    List<ServiceInfo> parseReconstructionChain() {
-        List<ServiceInfo> services = new ArrayList<>();
-        JSONArray sl = config.optJSONArray("services");
-        if (sl == null) {
+    List<ServiceInfo> parseDataProcessingServices() {
+        JSONArray sl = config.optJSONArray(SERVICES_KEY);
+        if (sl != null) {
+            return parseServices(sl);
+        }
+        return parseServices("data-processing", true);
+    }
+
+
+    List<ServiceInfo> parseMonitoringServices() {
+        if (config.optJSONArray(SERVICES_KEY) != null) {
+            return new ArrayList<>();
+        }
+        return parseServices("monitoring", false);
+    }
+
+
+    private List<ServiceInfo> parseServices(String key, boolean required) {
+        JSONObject ss = config.optJSONObject(SERVICES_KEY);
+        if (ss == null) {
             throw error("missing list of services");
         }
-        for (int i = 0; i < sl.length(); i++) {
-            ServiceInfo service = parseService(sl.getJSONObject(i));
+        if (!ss.has(key)) {
+            if (required) {
+                throw error("missing list of " + key + " services");
+            }
+            return new ArrayList<>();
+        }
+        JSONObject so = ss.optJSONObject(key);
+        if (so == null) {
+            throw error("invalid list of " + key + " services");
+        }
+        JSONArray sl = so.optJSONArray("chain");
+        if (sl == null) {
+            throw error("invalid list of " + key + " services");
+        }
+        return parseServices(sl);
+    }
+
+
+    private List<ServiceInfo> parseServices(JSONArray array) {
+        List<ServiceInfo> services = new ArrayList<>();
+        for (int i = 0; i < array.length(); i++) {
+            ServiceInfo service = parseService(array.getJSONObject(i));
             if (services.contains(service)) {
                 throw error(String.format("duplicated service  name = '%s' container = '%s'",
                                           service.name, service.cont));
@@ -214,7 +251,7 @@ public class OrchestratorConfigParser {
     }
 
 
-    JSONObject parseReconstructionConfig() {
+    JSONObject parseConfiguration() {
         if (config.has("configuration")) {
             return config.getJSONObject("configuration");
         }

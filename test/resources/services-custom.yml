@@ -9,15 +9,23 @@ io-services:
     lang: cpp
 
 services:
-  - class: org.jlab.clas12.services.ECReconstruction
-    name: ECReconstruction
-  - class: org.jlab.clas12.services.SeedFinder
-    name: SeedFinder
-  - class: org.jlab.clas12.services.HeaderFilter
-    name: HeaderFilter
-    lang: cpp
-  - class: org.jlab.clas12.services.FTOFReconstruction
-    name: FTOFReconstruction
+  data-processing:
+    chain:
+      - class: org.jlab.clas12.services.ECReconstruction
+        name: ECReconstruction
+      - class: org.jlab.clas12.services.SeedFinder
+        name: SeedFinder
+      - class: org.jlab.clas12.services.HeaderFilter
+        name: HeaderFilter
+        lang: cpp
+      - class: org.jlab.clas12.services.FTOFReconstruction
+        name: FTOFReconstruction
+  monitoring:
+    chain:
+      - class: org.jlab.clas12.services.ECMonitoring
+        name: ECMonitor
+      - class: org.jlab.clas12.services.DCMonitoring
+        name: DCMonitor
 
 mime-types:
   - binary/data-evio

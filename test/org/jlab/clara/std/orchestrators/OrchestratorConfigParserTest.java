@@ -43,12 +43,17 @@ public class OrchestratorConfigParserTest {
     public ExpectedException expectedEx = ExpectedException.none();
 
 
+    private OrchestratorConfigParser parseFile(String resource) {
+        URL path = getClass().getResource(resource);
+        return new OrchestratorConfigParser(path.getPath());
+    }
+
+
     @Test
     public void parseGoodServicesFileYaml() {
-        URL path = getClass().getResource("/resources/services-ok.yaml");
-        OrchestratorConfigParser parser = new OrchestratorConfigParser(path.getPath());
+        OrchestratorConfigParser parser = parseFile("/resources/services-ok.yml");
 
-        assertThat(parser.parseReconstructionChain(), is(servicesList));
+        assertThat(parser.parseDataProcessingServices(), is(servicesList));
     }
 
 
@@ -57,16 +62,16 @@ public class OrchestratorConfigParserTest {
         expectedEx.expect(OrchestratorConfigException.class);
         expectedEx.expectMessage("missing name or class of service");
 
-        URL path = getClass().getResource("/resources/services-bad.yaml");
-        OrchestratorConfigParser parser = new OrchestratorConfigParser(path.getPath());
-        parser.parseReconstructionChain();
+        OrchestratorConfigParser parser = parseFile("/resources/services-bad.yml");
+
+        parser.parseDataProcessingServices();
     }
 
 
     @Test
     public void parseIOServices() throws Exception {
-        URL path = getClass().getResource("/resources/services-custom.yaml");
-        OrchestratorConfigParser parser = new OrchestratorConfigParser(path.getPath());
+        OrchestratorConfigParser parser = parseFile("/resources/services-custom.yml");
+
         Map<String, ServiceInfo> services = parser.parseInputOutputServices();
 
         ServiceInfo reader = new ServiceInfo("org.jlab.clas12.convertors.CustomReader",
@@ -81,8 +86,7 @@ public class OrchestratorConfigParserTest {
 
     @Test
     public void parseMultiLangServices() throws Exception {
-        URL path = getClass().getResource("/resources/services-custom.yaml");
-        OrchestratorConfigParser parser = new OrchestratorConfigParser(path.getPath());
+        OrchestratorConfigParser parser = parseFile("/resources/services-custom.yml");
 
         List<ServiceInfo> expected = Arrays.asList(
                 new ServiceInfo("org.jlab.clas12.convertors.ECReconstruction",
@@ -95,14 +99,26 @@ public class OrchestratorConfigParserTest {
                                 CONT, "FTOFReconstruction", ClaraLang.JAVA)
         );
 
-        assertThat(parser.parseReconstructionChain(), is(expected));
+        assertThat(parser.parseDataProcessingServices(), is(expected));
+    }
+
+
+    @Test
+    public void parseMonitoringServices() throws Exception {
+        OrchestratorConfigParser parser = parseFile("/resources/services-custom.yml");
+
+        List<ServiceInfo> expected = Arrays.asList(
+                service("org.jlab.clas12.services.ECMonitoring", "ECMonitor"),
+                service("org.jlab.clas12.services.DCMonitoring", "DCMonitor")
+        );
+
+        assertThat(parser.parseMonitoringServices(), is(expected));
     }
 
 
     @Test
     public void parseLanguagesSingleLang() throws Exception {
-        URL path = getClass().getResource("/resources/services-ok.yaml");
-        OrchestratorConfigParser parser = new OrchestratorConfigParser(path.getPath());
+        OrchestratorConfigParser parser = parseFile("/resources/services-ok.yml");
 
         assertThat(parser.parseLanguages(), containsInAnyOrder(ClaraLang.JAVA));
     }
@@ -110,8 +126,7 @@ public class OrchestratorConfigParserTest {
 
     @Test
     public void parseLanguagesMultiLang() throws Exception {
-        URL path = getClass().getResource("/resources/services-custom.yaml");
-        OrchestratorConfigParser parser = new OrchestratorConfigParser(path.getPath());
+        OrchestratorConfigParser parser = parseFile("/resources/services-custom.yml");
 
         assertThat(parser.parseLanguages(), containsInAnyOrder(ClaraLang.JAVA, ClaraLang.CPP));
     }
@@ -119,8 +134,7 @@ public class OrchestratorConfigParserTest {
 
     @Test
     public void parseEmptyMimeTypes() {
-        URL path = getClass().getResource("/resources/services-ok.yaml");
-        OrchestratorConfigParser parser = new OrchestratorConfigParser(path.getPath());
+        OrchestratorConfigParser parser = parseFile("/resources/services-ok.yml");
 
         assertThat(parser.parseDataTypes(), is(empty()));
     }
@@ -128,8 +142,7 @@ public class OrchestratorConfigParserTest {
 
     @Test
     public void parseUserDefinedMimeTypes() {
-        URL path = getClass().getResource("/resources/services-custom.yaml");
-        OrchestratorConfigParser parser = new OrchestratorConfigParser(path.getPath());
+        OrchestratorConfigParser parser = parseFile("/resources/services-custom.yml");
 
         String[] expected = new String[] {"binary/data-evio", "binary/data-hipo"};
         assertThat(parser.parseDataTypes(), containsInAnyOrder(expected));
@@ -138,10 +151,9 @@ public class OrchestratorConfigParserTest {
 
     @Test
     public void parseEmptyConfig() {
-        URL path = getClass().getResource("/resources/services-ok.yaml");
-        OrchestratorConfigParser parser = new OrchestratorConfigParser(path.getPath());
+        OrchestratorConfigParser parser = parseFile("/resources/services-ok.yml");
 
-        JSONObject config = parser.parseReconstructionConfig();
+        JSONObject config = parser.parseConfiguration();
 
         assertThat(config.toString(), is("{}"));
     }
@@ -149,10 +161,9 @@ public class OrchestratorConfigParserTest {
 
     @Test
     public void parseCustomConfig() {
-        URL path = getClass().getResource("/resources/services-custom.yaml");
-        OrchestratorConfigParser parser = new OrchestratorConfigParser(path.getPath());
+        OrchestratorConfigParser parser = parseFile("/resources/services-custom.yml");
 
-        JSONObject config = parser.parseReconstructionConfig();
+        JSONObject config = parser.parseConfiguration();
 
         assertThat(config.keySet(), containsInAnyOrder("global", "io-services", "services"));
 

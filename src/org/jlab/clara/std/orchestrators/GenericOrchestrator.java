@@ -105,11 +105,11 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
         private final OrchestratorOptions.Builder options;
 
         /**
-         * Sets the required arguments to start a reconstruction.
+         * Sets the required arguments for the generic data processing orchestrator.
          *
-         * @param servicesFile the YAML file describing the reconstruction chain
+         * @param servicesFile the YAML file describing the data processing application
          * @param inputFiles the list of files to be processed (only names).
-         * @throws OrchestratorConfigException if the reconstruction chain could not be parsed
+         * @throws OrchestratorConfigException in case of any error in the application description
          */
         public Builder(String servicesFile, List<String> inputFiles) {
             Objects.requireNonNull(servicesFile, "servicesFile parameter is null");
@@ -136,8 +136,9 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
         private OrchestratorSetup.Builder initialSetup(String servicesFile) {
             OrchestratorConfigParser parser = new OrchestratorConfigParser(servicesFile);
             return new OrchestratorSetup
-                    .Builder(parser.parseInputOutputServices(), parser.parseReconstructionChain())
-                    .withConfig(parser.parseReconstructionConfig())
+                    .Builder(parser.parseInputOutputServices(),
+                             parser.parseDataProcessingServices())
+                    .withConfig(parser.parseConfiguration())
                     .withDataTypes(parser.parseDataTypes());
         }
 
@@ -180,7 +181,7 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
         }
 
         /**
-         * Uses the front-end for reconstruction. By default, the front-end is
+         * Uses the front-end for data processing. By default, the front-end is
          * only used for registration and discovery.
          *
          * @return this object, so methods can be chained
@@ -197,7 +198,7 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
          * When staging is used, the files will be copied on demand from the
          * input directory into the staging directory before using it.
          * The output file will also be saved in the stating directory. When the
-         * reconstruction is finished, it will be moved back to the output
+         * data processing is finished, it will be moved back to the output
          * directory.
          *
          * @return this object, so methods can be chained
@@ -221,7 +222,7 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
         }
 
         /**
-         * Sets the maximum number of threads to be used for reconstruction on
+         * Sets the maximum number of threads to be used for data processing on
          * every node.
          *
          * @param maxThreads how many parallel threads should be used on the DPEs
@@ -233,7 +234,7 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
         }
 
         /**
-         * Sets the maximum number of nodes to be used for reconstruction.
+         * Sets the maximum number of nodes to be used for data processing.
          *
          * @param maxNodes how many worker nodes should be used to process input files
          * @return this object, so methods can be chained
@@ -294,7 +295,7 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
 
         /**
          * Changes the path of the shared output directory.
-         * This directory will contain all reconstructed output files.
+         * This directory will contain all output files.
          *
          * @param outputDir the output directory
          * @return this object, so methods can be chained
@@ -476,7 +477,7 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
     private void waitFirstNode() {
         try {
             if (!dpeCallback.waitFirstNode()) {
-                throw new OrchestratorException("could not find a reconstruction node");
+                throw new OrchestratorException("could not find a data processing node");
             }
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();

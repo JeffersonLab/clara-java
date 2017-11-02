@@ -186,10 +186,12 @@ class ServiceEngine {
         // is a data that needs to be monitored, send it to the data ring
         // pointed by the $CLARA_MONITOR_FRONT_END env variable, and the
         // same time send input through the link to keep composition integrity.
-        String executionState = outData.getExecutionState();
-        if(!executionState.equals("")){
-            sendMonitorData(executionState,outData);
+        if (sysConfig.isRingRequest()) {
             sendResult(inData, getLinks(inData, inData));
+            String executionState = outData.getExecutionState();
+            if (!executionState.isEmpty()) {
+                sendMonitorData(executionState, outData);
+            }
         } else {
             sendResult(outData, getLinks(inData, outData));
         }

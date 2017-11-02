@@ -508,6 +508,17 @@ public final class ClaraRequests {
         public ServiceReportRequest stopDataReporting() {
             return new ServiceReportRequest(base, frontEnd, service, ReportType.DATA, 0);
         }
+
+        /**
+         * Creates a request to start reporting result of executions of the
+         * specified service to the CLARA Data Ring.
+         * If the service does not exist, the message is lost.
+         *
+         * @return a service configuration request to be run
+         */
+        public ServiceReportRequest startDataRingReporting() {
+            return new ServiceReportRequest(base, frontEnd, service, ReportType.RING, 1);
+        }
     }
 
     /**
