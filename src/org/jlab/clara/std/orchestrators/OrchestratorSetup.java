@@ -59,6 +59,12 @@ class OrchestratorSetup {
             this.application = new ApplicationInfo(ioServices, dataServices);
         }
 
+        Builder(Map<String, ServiceInfo> ioServices,
+                List<ServiceInfo> dataServices,
+                List<ServiceInfo> monServices) {
+            this.application = new ApplicationInfo(ioServices, dataServices, monServices);
+        }
+
         Builder withFrontEnd(DpeName frontEnd) {
             Objects.requireNonNull(frontEnd, "frontEnd parameter is null");
             this.frontEnd = frontEnd;
