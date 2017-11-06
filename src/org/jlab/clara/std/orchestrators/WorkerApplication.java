@@ -81,6 +81,20 @@ class WorkerApplication {
     }
 
 
+    public List<ServiceName> monitoringServices() {
+        return application.getMonitoringServices().stream()
+                .map(this::toName)
+                .collect(Collectors.toList());
+    }
+
+
+    public List<ServiceName> services() {
+        return application.getServices().stream()
+                .map(this::toName)
+                .collect(Collectors.toList());
+    }
+
+
     public Composition composition() {
         String composition = readerService().canonicalName();
         for (ServiceName service : processingServices()) {

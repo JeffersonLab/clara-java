@@ -42,11 +42,15 @@ class ApplicationInfo {
 
     private final Map<String, ServiceInfo> ioServices;
     private final List<ServiceInfo> dataServices;
+    private final List<ServiceInfo> monServices;
     private final Set<ClaraLang> languages;
 
-    ApplicationInfo(Map<String, ServiceInfo> ioServices, List<ServiceInfo> dataServices) {
+    ApplicationInfo(Map<String, ServiceInfo> ioServices,
+                    List<ServiceInfo> dataServices,
+                    List<ServiceInfo> monServices) {
         this.ioServices = copyServices(ioServices);
-        this.dataServices = copyServices(dataServices);
+        this.dataServices = copyServices(dataServices, true);
+        this.monServices = copyServices(monServices, false);
         this.languages = parseLanguages();
     }
 
@@ -63,11 +67,11 @@ class ApplicationInfo {
         return new HashMap<>(ioServices);
     }
 
-    private static List<ServiceInfo> copyServices(List<ServiceInfo> chain) {
+    private static List<ServiceInfo> copyServices(List<ServiceInfo> chain, boolean checkEmpty) {
         if (chain == null) {
             throw new IllegalArgumentException("null chain of services");
         }
-        if (chain.isEmpty()) {
+        if (checkEmpty && chain.isEmpty()) {
             throw new IllegalArgumentException("empty chain of services");
         }
         return new ArrayList<>(chain);
@@ -78,7 +82,7 @@ class ApplicationInfo {
     }
 
     private Stream<ServiceInfo> allServices() {
-        return stream(ioServices.values(), dataServices);
+        return stream(ioServices.values(), dataServices, monServices);
     }
 
     @SafeVarargs
@@ -104,6 +108,14 @@ class ApplicationInfo {
 
     List<ServiceInfo> getDataProcessingServices() {
         return dataServices;
+    }
+
+    List<ServiceInfo> getMonitoringServices() {
+        return monServices;
+    }
+
+    Set<ServiceInfo> getServices() {
+        return stream(dataServices, monServices).collect(Collectors.toSet());
     }
 
     Set<ServiceInfo> getAllServices() {

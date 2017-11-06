@@ -72,7 +72,7 @@ final class AppData {
         }
 
         AppBuilder withServices(ServiceInfo... services) {
-            this.app = new ApplicationInfo(ioServices(), dataServices(services));
+            this.app = new ApplicationInfo(ioServices(), dataServices(services), monServices());
             return this;
         }
 
@@ -100,7 +100,7 @@ final class AppData {
 
 
     static ApplicationInfo newAppInfo(ServiceInfo... services) {
-        return new ApplicationInfo(ioServices(), dataServices(services));
+        return new ApplicationInfo(ioServices(), dataServices(services), monServices());
     }
 
 
@@ -114,6 +114,11 @@ final class AppData {
 
 
     static List<ServiceInfo> dataServices(ServiceInfo... elem) {
+        return Arrays.asList(elem);
+    }
+
+
+    static List<ServiceInfo> monServices(ServiceInfo... elem) {
         return Arrays.asList(elem);
     }
 

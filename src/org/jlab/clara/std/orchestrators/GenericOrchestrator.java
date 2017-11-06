@@ -137,7 +137,8 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
             OrchestratorConfigParser parser = new OrchestratorConfigParser(servicesFile);
             return new OrchestratorSetup
                     .Builder(parser.parseInputOutputServices(),
-                             parser.parseDataProcessingServices())
+                             parser.parseDataProcessingServices(),
+                             parser.parseMonitoringServices())
                     .withConfig(parser.parseConfiguration())
                     .withDataTypes(parser.parseDataTypes());
         }

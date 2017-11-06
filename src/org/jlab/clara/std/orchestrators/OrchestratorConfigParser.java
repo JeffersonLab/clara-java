@@ -137,7 +137,8 @@ public class OrchestratorConfigParser {
     public Set<ClaraLang> parseLanguages() {
         ApplicationInfo app = new ApplicationInfo(
                 parseInputOutputServices(),
-                parseDataProcessingServices());
+                parseDataProcessingServices(),
+                parseMonitoringServices());
         return app.getLanguages();
     }
 
