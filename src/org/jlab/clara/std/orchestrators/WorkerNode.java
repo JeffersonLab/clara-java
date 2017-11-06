@@ -23,8 +23,10 @@
 package org.jlab.clara.std.orchestrators;
 
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -395,7 +397,11 @@ class WorkerNode {
 
 
     void configureServices() {
-        for (ServiceName service : application.processingServices()) {
+        List<ServiceName> allServices = new ArrayList<>();
+        allServices.addAll(application.processingServices());
+        allServices.addAll(application.monitoringServices());
+
+        for (ServiceName service : allServices) {
             try {
                 orchestrator.syncConfig(service, configuration.get(service), 2, TimeUnit.MINUTES);
             } catch (ClaraException | TimeoutException e) {
