@@ -733,18 +733,13 @@ public final class Dpe extends AbstractActor {
             Socket socket = socketFactory.createSocket(ZMQ.PUB);
             socketFactory.connectSocket(socket, feAddr.host(), feAddr.pubPort());
 
-            String monName = System.getenv(ClaraConstants.ENV_MONITOR_FE);
-
-            if (monName != null) {
-                try {
-                    DpeName monDpe = new DpeName(monName);
-                    ClaraAddress monAddr = monDpe.address();
-                    socketFactory.connectSocket(socket, monAddr.host(), monAddr.pubPort());
-                    Logging.info("Using monitoring front-end %s", monName);
-                } catch (IllegalArgumentException e) {
-                    Logging.error("Could not use monitor node: %s", e.getMessage());
-                }
+            DpeName monitorFE = FrontEnd.getMonitorFrontEnd();
+            if (monitorFE != null) {
+                ClaraAddress monAddr = monitorFE.address();
+                socketFactory.connectSocket(socket, monAddr.host(), monAddr.pubPort());
+                Logging.info("Using monitoring front-end %s", monitorFE);
             }
+
             return socket;
         }
 
