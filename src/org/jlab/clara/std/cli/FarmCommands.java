@@ -155,11 +155,27 @@ final class FarmCommands {
     }
 
     private static String defaultConfigFile() {
-        return PLUGIN.resolve("config/services.yaml").toString();
+        Path ymlPath = PLUGIN.resolve("config/services.yml");
+        if (Files.exists(ymlPath)) {
+            return ymlPath.toString();
+        }
+        Path compatibilityPath = PLUGIN.resolve("config/services.yaml");
+        if (Files.exists(compatibilityPath)) {
+            return compatibilityPath.toString();
+        }
+        return ymlPath.toString();
     }
 
     private static String defaultFileList() {
-        return PLUGIN.resolve("config/files.list").toString();
+        Path filesPath = PLUGIN.resolve("config/files.txt");
+        if (Files.exists(filesPath)) {
+            return filesPath.toString();
+        }
+        Path compatibilityPath = PLUGIN.resolve("config/files.list");
+        if (Files.exists(compatibilityPath)) {
+            return compatibilityPath.toString();
+        }
+        return filesPath.toString();
     }
 
     static boolean hasPlugin() {
