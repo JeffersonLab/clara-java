@@ -137,8 +137,8 @@ class SetCommand extends BaseCommand {
         Path dir = FarmCommands.hasPlugin()
                 ? FarmCommands.PLUGIN.resolve("config")
                 : Paths.get("");
-        String keyword = config.getValue(Config.DESCRIPTION).toString();
-        String name = String.format("files_%s_%s.txt", Config.user(), keyword);
+        RunUtils runUtils = new RunUtils(config);
+        String name = String.format("files_%s.txt", runUtils.getSession());
         return dir.resolve(name).toFile();
     }
 

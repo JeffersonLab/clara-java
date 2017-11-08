@@ -85,7 +85,7 @@ class RunCommand extends BaseCommand {
 
         private int runOrchestrator(DpeName feName) {
             String[] cmd = orchestratorCmd(feName);
-            String logFile = runUtils.getLogFile(getHost(feName), getKeyword(), "orch").toString();
+            String logFile = runUtils.getLogFile(getHost(feName), "orch").toString();
             return CommandUtils.runProcess(buildProcess(cmd, logFile));
         }
 
@@ -200,7 +200,7 @@ class RunCommand extends BaseCommand {
         private void addBackgroundDpeProcess(DpeName name, String... command)
                 throws IOException {
             if (!backgroundDpes.containsKey(name.language())) {
-                String logFile = runUtils.getLogFile(name, getKeyword()).toString();
+                String logFile = runUtils.getLogFile(name).toString();
                 ProcessBuilder builder = buildProcess(command, logFile);
                 if (name.language() == ClaraLang.JAVA) {
                     String javaOptions = getJVMOptions();
@@ -241,10 +241,6 @@ class RunCommand extends BaseCommand {
                 return (Integer) config.getValue(Config.MAX_THREADS);
             }
             return Runtime.getRuntime().availableProcessors();
-        }
-
-        private String getKeyword() {
-            return config.getValue(Config.DESCRIPTION).toString();
         }
 
         private String getJVMOptions() {

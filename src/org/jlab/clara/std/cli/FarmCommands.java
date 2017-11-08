@@ -199,8 +199,7 @@ final class FarmCommands {
         }
 
         protected Path getJobScript(String ext) {
-            String keyword = config.getValue(Config.DESCRIPTION).toString();
-            String name = String.format("farm_%s_%s", Config.user(), keyword);
+            String name = String.format("farm_%s", runUtils.getSession());
             return PLUGIN.resolve("config/" + name + ext);
         }
     }
@@ -317,9 +316,6 @@ final class FarmCommands {
                 cmd.addOption("-e", config.getValue(Config.MAX_EVENTS));
             }
             cmd.addOption("-s", runUtils.getSession());
-            if (config.hasValue(Config.DESCRIPTION)) {
-                cmd.addOption("-d", config.getValue(Config.DESCRIPTION));
-            }
             if (config.hasValue(Config.FRONTEND_HOST)) {
                 cmd.addOption("-H", config.getValue(Config.FRONTEND_HOST));
             }

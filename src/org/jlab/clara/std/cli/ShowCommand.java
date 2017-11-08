@@ -124,17 +124,16 @@ class ShowCommand extends BaseCommand {
     }
 
     private int printLog(String component, String description) {
-        String keyword = config.getValue(Config.DESCRIPTION).toString();
+        RunUtils runUtils = new RunUtils(config);
         List<Path> logs;
         try {
-            RunUtils runUtils = new RunUtils(config);
-            logs = runUtils.getLogFiles(keyword, component);
+            logs = runUtils.getLogFiles(component);
         } catch (IOException e) {
             writer.printf("Error: could not open log directory%n");
             return EXIT_ERROR;
         }
         if (logs.isEmpty()) {
-            writer.printf("Error: no logs for %s%n", Config.user());
+            writer.printf("Error: no logs for %s%n", runUtils.getSession());
             return EXIT_ERROR;
         }
         Path log = logs.get(0);

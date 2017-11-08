@@ -65,14 +65,14 @@ class RunUtils {
         return Paths.get(config.getValue(Config.LOG_DIR).toString());
     }
 
-    Path getLogFile(DpeName name, String keyword) {
+    Path getLogFile(DpeName name) {
         ClaraLang lang = name.language();
         String component = lang == ClaraLang.JAVA ? "fe_dpe" : lang + "_dpe";
-        return getLogFile(name.address().host(), keyword, component);
+        return getLogFile(name.address().host(), component);
     }
 
-    Path getLogFile(String host, String keyword, String component) {
-        String logName = String.format("%s_%s_%s_%s.log", host, Config.user(), keyword, component);
+    Path getLogFile(String host, String component) {
+        String logName = String.format("%s_%s_%s.log", host, getSession(), component);
         return getLogDir().resolve(logName);
     }
 
@@ -82,8 +82,8 @@ class RunUtils {
         return logDir.resolve(name.replaceAll("fe_dpe", dpeLang + "_dpe"));
     }
 
-    List<Path> getLogFiles(String keyword, String component) throws IOException {
-        String glob = String.format("glob:*_%s_%s_%s.log", Config.user(), keyword, component);
+    List<Path> getLogFiles(String component) throws IOException {
+        String glob = String.format("glob:*_%s_%s.log", getSession(), component);
         PathMatcher matcher = FileSystems.getDefault().getPathMatcher(glob);
 
         Function<Path, Long> modDate = path -> path.toFile().lastModified();
