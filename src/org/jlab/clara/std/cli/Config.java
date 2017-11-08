@@ -269,12 +269,12 @@ public class Config {
         addBuilder.apply(SESSION,
                 "The data processing session.")
                 .withInitialValue("")
-                .withParser(ConfigParsers::toAlphaNumWordOrEmpty);
+                .withParser(ConfigParsers::toAlphaNumOrEmpty);
 
         addBuilder.apply(DESCRIPTION,
                 "A single word (no spaces) describing the data processing.")
                 .withInitialValue("clara")
-                .withParser(ConfigParsers::toAlphaNumWord);
+                .withParser(ConfigParsers::toAlphaNum);
 
         addBuilder.apply(JAVA_MEMORY, "DPE JVM memory size (in GB)")
             .withParser(ConfigParsers::toPositiveInteger);

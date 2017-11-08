@@ -66,9 +66,9 @@ public final class ConfigParsers {
      * @param args the command arguments
      * @return the first argument
      */
-    public static String toAlphaNumWord(String... args) {
+    public static String toAlphaNum(String... args) {
         String word = requireArg(args);
-        if (!word.matches("[0-9A-Za-z_]+")) {
+        if (!word.matches("[0-9A-Za-z]+")) {
             throw new IllegalArgumentException("argument is not an alphanumeric word");
         }
         return word;
@@ -80,7 +80,7 @@ public final class ConfigParsers {
      * @param args the command arguments
      * @return the first argument
      */
-    public static String toAlphaNumWordOrEmpty(String... args) {
+    public static String toAlphaNumOrEmpty(String... args) {
         if (args.length == 0) {
             return "";
         }
@@ -88,7 +88,7 @@ public final class ConfigParsers {
         if (word.isEmpty()) {
             return "";
         }
-        if (!word.matches("[0-9A-Za-z_]+")) {
+        if (!word.matches("[0-9A-Za-z]+")) {
             throw new IllegalArgumentException("argument is not an alphanumeric word");
         }
         return word;

@@ -56,38 +56,38 @@ public class ConfigParsersTest {
 
 
     @Test
-    public void parseAlphaNumWordSucceedsWithArg() throws Exception {
-        assertThat(ConfigParsers.toAlphaNumWord("test_string"), is("test_string"));
+    public void parseAlphaNumSucceedsWithArg() throws Exception {
+        assertThat(ConfigParsers.toAlphaNum("string01"), is("string01"));
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void parseAlphaNumWordFailsIfArgContainsSpaces() throws Exception {
-        ConfigParsers.toAlphaNumWord("test string");
+    public void parseAlphaNumFailsIfArgContainsSpaces() throws Exception {
+        ConfigParsers.toAlphaNum("test string");
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void parseAlphaNumWordFailsIfEmptyArg() throws Exception {
-        ConfigParsers.toAlphaNumWord("");
+    public void parseAlphaNumFailsIfEmptyArg() throws Exception {
+        ConfigParsers.toAlphaNum("");
     }
 
     @Test
-    public void parseAlphaNumWordOrEmptySucceedsWithArg() throws Exception {
-        assertThat(ConfigParsers.toAlphaNumWordOrEmpty("test_string"), is("test_string"));
+    public void parseAlphaNumOrEmptySucceedsWithArg() throws Exception {
+        assertThat(ConfigParsers.toAlphaNumOrEmpty("string01"), is("string01"));
     }
 
     @Test(expected = IllegalArgumentException.class)
-    public void parseAlphaNumWordOrEmptyFailsIfArgContainsSpaces() throws Exception {
-        ConfigParsers.toAlphaNumWordOrEmpty("test string");
+    public void parseAlphaNumOrEmptyFailsIfArgContainsSpaces() throws Exception {
+        ConfigParsers.toAlphaNumOrEmpty("test string");
     }
 
     @Test
-    public void parseAlphaNumWordOrEmptySucceedsIfNoArgs() throws Exception {
-        assertThat(ConfigParsers.toAlphaNumWordOrEmpty(), is(""));
+    public void parseAlphaNumOrEmptySucceedsIfNoArgs() throws Exception {
+        assertThat(ConfigParsers.toAlphaNumOrEmpty(), is(""));
     }
 
     @Test
-    public void parseAlphaNumWordOrEmptySucceedsIfEmptyArg() throws Exception {
-        assertThat(ConfigParsers.toAlphaNumWordOrEmpty(""), is(""));
+    public void parseAlphaNumOrEmptySucceedsIfEmptyArg() throws Exception {
+        assertThat(ConfigParsers.toAlphaNumOrEmpty(""), is(""));
     }
 
 
