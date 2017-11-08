@@ -90,7 +90,7 @@ public final class Dpe extends AbstractActor {
     private volatile xMsgConnectionPool servicesConnectionPool;
 
     // session ID
-    private volatile String session = "undefined";
+    private volatile String session = "";
 
     // The containers running on this DPE
     private final ConcurrentMap<String, Container> myContainers = new ConcurrentHashMap<>();
@@ -678,7 +678,6 @@ public final class Dpe extends AbstractActor {
         private final ScheduledExecutorService scheduledPingService;
         private final AtomicBoolean isReporting = new AtomicBoolean();
         private final long reportPeriod;
-        private String session;
 
         ReportService(long periodMillis, String session) {
 
@@ -687,7 +686,6 @@ public final class Dpe extends AbstractActor {
             myReport.setPoolSize(base.getPoolSize());
             scheduledPingService = Executors.newSingleThreadScheduledExecutor();
             reportPeriod = periodMillis;
-            this.session = session;
         }
 
         public void start() {
