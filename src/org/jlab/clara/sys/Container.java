@@ -27,7 +27,6 @@ import org.jlab.clara.base.core.ClaraComponent;
 import org.jlab.clara.base.core.MessageUtil;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.util.report.ContainerReport;
-import org.jlab.coda.xmsg.core.xMsgConnectionPool;
 import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.excp.xMsgException;
 
@@ -75,12 +74,12 @@ class Container extends AbstractActor {
 
     public void addService(ClaraComponent comp,
                            ClaraComponent frontEnd,
-                           xMsgConnectionPool connectionPool,
+                           ConnectionPools connectionPools,
                            String session) throws ClaraException {
         String serviceName = comp.getCanonicalName();
         Service service = myServices.get(serviceName);
         if (service == null) {
-            service = new Service(comp, frontEnd, connectionPool, session);
+            service = new Service(comp, frontEnd, connectionPools, session);
             Service result = myServices.putIfAbsent(serviceName, service);
             if (result == null) {
                 try {

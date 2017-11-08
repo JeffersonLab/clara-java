@@ -34,7 +34,6 @@ import org.jlab.clara.sys.RequestParser.RequestException;
 import org.jlab.clara.util.report.DpeReport;
 import org.jlab.clara.util.report.JsonReportBuilder;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
-import org.jlab.coda.xmsg.core.xMsgConnectionPool;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgSubscription;
 import org.jlab.coda.xmsg.core.xMsgTopic;
@@ -86,8 +85,8 @@ public final class Dpe extends AbstractActor {
     private FrontEnd frontEnd = null;
     private xMsgSubscription subscriptionHandler;
 
-    // a shared connection pool between all services
-    private volatile xMsgConnectionPool servicesConnectionPool;
+    // shared connection pools between all services
+    private volatile ConnectionPools connectionPools;
 
     // session ID
     private volatile String session = "";
@@ -417,14 +416,7 @@ public final class Dpe extends AbstractActor {
     }
 
     private void startConnectionPool() throws ClaraException {
-        servicesConnectionPool = xMsgConnectionPool.newBuilder()
-                .withProxy(base.getDefaultProxyAddress())
-                .withPreConnectionSetup(s -> {
-                    s.setRcvHWM(0);
-                    s.setSndHWM(0);
-                })
-                .withPostConnectionSetup(() -> xMsgUtil.sleep(100))
-                .build();
+        connectionPools = new ConnectionPools(base.getDefaultProxyAddress());
     }
 
     private void cacheConnections() throws ClaraException {
@@ -443,7 +435,7 @@ public final class Dpe extends AbstractActor {
 
     private int cacheLocalConnection() {
         try {
-            servicesConnectionPool.cacheConnection();
+            connectionPools.mainPool.cacheConnection();
             return 1;
         } catch (xMsgException e) {
             return 0;
@@ -485,8 +477,8 @@ public final class Dpe extends AbstractActor {
     }
 
     private void stopConnectionPool() {
-        if (servicesConnectionPool != null) {
-            servicesConnectionPool.close();
+        if (connectionPools != null) {
+            connectionPools.close();
         }
     }
 
@@ -599,7 +591,7 @@ public final class Dpe extends AbstractActor {
             throw new RequestException(String.format(error, serComp));
         }
         try {
-            container.addService(serComp, base.getFrontEnd(), servicesConnectionPool, session);
+            container.addService(serComp, base.getFrontEnd(), connectionPools, session);
         } catch (ClaraException e) {
             throw new DpeException("could not start service " + serComp, e);
         }

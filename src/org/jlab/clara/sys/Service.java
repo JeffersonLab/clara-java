@@ -29,7 +29,6 @@ import org.jlab.clara.engine.Engine;
 import org.jlab.clara.sys.RequestParser.RequestException;
 import org.jlab.clara.util.report.ServiceReport;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
-import org.jlab.coda.xmsg.core.xMsgConnectionPool;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgSubscription;
 import org.jlab.coda.xmsg.core.xMsgTopic;
@@ -75,7 +74,7 @@ class Service extends AbstractActor {
      */
     Service(ClaraComponent comp,
             ClaraComponent frontEnd,
-            xMsgConnectionPool connectionPool,
+            ConnectionPools connectionPools,
             String session) throws ClaraException {
         super(comp, frontEnd);
 
@@ -96,7 +95,7 @@ class Service extends AbstractActor {
         enginePool = new ServiceEngine[comp.getSubscriptionPoolSize()];
 
         // Fill the object pool
-        ServiceActor engineActor = new ServiceActor(comp, frontEnd, connectionPool);
+        ServiceActor engineActor = new ServiceActor(comp, frontEnd, connectionPools);
         for (int i = 0; i < comp.getSubscriptionPoolSize(); i++) {
             enginePool[i] = new ServiceEngine(userEngine, engineActor, sysConfig, sysReport);
         }

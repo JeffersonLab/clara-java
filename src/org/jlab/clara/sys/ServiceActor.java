@@ -34,11 +34,11 @@ import org.jlab.coda.xmsg.net.xMsgProxyAddress;
 class ServiceActor {
 
     private final ClaraBase base;
-    private final xMsgConnectionPool connectionPool;
+    private final ConnectionPools connectionPools;
 
-    ServiceActor(ClaraComponent me, ClaraComponent frontEnd, xMsgConnectionPool connectionPool) {
+    ServiceActor(ClaraComponent me, ClaraComponent frontEnd, ConnectionPools connectionPools) {
         this.base = new ClaraBase(me, frontEnd);
-        this.connectionPool = connectionPool;
+        this.connectionPools = connectionPools;
     }
 
     public void close() {
@@ -50,11 +50,16 @@ class ServiceActor {
     }
 
     public void send(xMsgMessage msg) throws ClaraException {
-        send(getLocal(), msg);
+        sendMsg(connectionPools.mainPool, getLocal(), msg);
     }
 
     public void send(xMsgProxyAddress address, xMsgMessage msg) throws ClaraException {
-        try (xMsgConnection con = connectionPool.getConnection(address)) {
+        sendMsg(connectionPools.mainPool, address, msg);
+    }
+
+    private void sendMsg(xMsgConnectionPool pool, xMsgProxyAddress address, xMsgMessage msg)
+            throws ClaraException {
+        try (xMsgConnection con = pool.getConnection(address)) {
             base.send(con, msg);
         } catch (xMsgException e) {
             throw new ClaraException("Could not send message", e);
