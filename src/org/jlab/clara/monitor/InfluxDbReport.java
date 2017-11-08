@@ -73,7 +73,9 @@ public class InfluxDbReport extends DpeListenerAndReporter {
             // registration information
             JSONObject registration = base.getJSONObject("DPERegistration");
             JSONArray regContainers = registration.getJSONArray("containers");
-            if(regContainers.length()<=0) return;
+            if (regContainers.length() <= 0) {
+                return;
+            }
             JSONObject regContainer = regContainers.getJSONObject(0);
             JSONArray contServices = regContainer.getJSONArray("services");
             for (int i = 0; i < contServices.length(); i++) {
