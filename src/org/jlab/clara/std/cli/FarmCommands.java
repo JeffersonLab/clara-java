@@ -102,7 +102,6 @@ final class FarmCommands {
     private static void clasVariables(Config.Builder builder) {
         builder.withConfigVariable(Config.SERVICES_FILE, defaultConfigFile());
         builder.withConfigVariable(Config.FILES_LIST, defaultFileList());
-        builder.withConfigVariable(Config.SESSION, Config.user());
 
         builder.withEnvironmentVariable("CLAS12DIR", PLUGIN.toString());
     }

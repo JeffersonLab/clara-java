@@ -267,9 +267,9 @@ public class Config {
                 .withParser(ConfigParsers::toPositiveInteger);
 
         addBuilder.apply(SESSION,
-                "The data processing session.")
-                .withInitialValue("")
-                .withParser(ConfigParsers::toAlphaNumOrEmpty);
+                "A single word (no spaces) identifying the data processing.")
+                .withInitialValue(Config.user())
+                .withParser(ConfigParsers::toAlphaNum);
 
         addBuilder.apply(DESCRIPTION,
                 "A single word (no spaces) describing the data processing.")

@@ -50,7 +50,7 @@ public class SetCommandTest {
 
     @Test
     public void testDefaultSession() throws Exception {
-        assertThat(config.getValue(Config.SESSION), is(""));
+        assertThat(config.getValue(Config.SESSION), is(Config.user()));
     }
 
     @Test
