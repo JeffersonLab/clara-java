@@ -4,7 +4,6 @@ import org.jlab.clara.base.ClaraAddress;
 import org.jlab.clara.base.ClaraUtil;
 import org.jlab.clara.base.DpeName;
 import org.jlab.clara.base.core.MessageUtil;
-import org.jlab.clara.util.TimerFlag;
 import org.jlab.clas.reco.ReconstructionEngine;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgTopic;
@@ -27,7 +26,6 @@ public class DCTimeLineEngine extends ReconstructionEngine {
 
     private final xMsgSocketFactory socketFactory;
 
-    private TimerFlag timerFlag;
     private final int reportingPeriod = 5;
 
     private final String monClass = "reconstruction";
@@ -50,7 +48,6 @@ public class DCTimeLineEngine extends ReconstructionEngine {
         +mon.getNbTBHits()+" "+mon.getNbTBHitsOnTrack()+" "+mon.getNbTBTracks()+" "
         +mon.getTimeResidual()[0]+" "+mon.getTimeResidual()[1]+" "+mon.getTimeResidual()[2]); */
 
-        if (timerFlag.isUp()) {
             ZMQ.Socket con = null;
             try {
                 con = connect();
@@ -64,23 +61,18 @@ public class DCTimeLineEngine extends ReconstructionEngine {
             }
             try {
                 send(con, dcJsonMessage(mon));
-                timerFlag.reset();
 
             } catch (xMsgException e) {
                 System.err.println("DCTimeLineService-Error: Could not publish report:" + e.getMessage());
             } finally {
                 socketFactory.closeQuietly(con);
             }
-        }
         return true;
     }
 
     @Override
     public boolean init() {
         mon = new TrackingMon();
-
-        timerFlag = new TimerFlag(reportingPeriod);
-
         return true;
     }
 

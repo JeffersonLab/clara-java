@@ -22,13 +22,15 @@
 
 package org.jlab.clara.sys;
 
-import org.jlab.clara.base.ClaraLang;
 import org.jlab.clara.base.DpeName;
 import org.jlab.clara.base.core.ClaraConstants;
 import org.jlab.clara.base.core.ClaraComponent;
 import org.jlab.clara.base.core.DataUtil;
 import org.jlab.clara.base.error.ClaraException;
-import org.jlab.clara.engine.*;
+import org.jlab.clara.engine.Engine;
+import org.jlab.clara.engine.EngineData;
+import org.jlab.clara.engine.EngineDataType;
+import org.jlab.clara.engine.EngineStatus;
 import org.jlab.clara.sys.ccc.CompositionCompiler;
 import org.jlab.clara.sys.ccc.ServiceState;
 import org.jlab.clara.util.report.ServiceReport;
@@ -66,7 +68,7 @@ class ServiceEngine {
     private long executionTime;
 
     // data ring component details
-    private ClaraComponent cdr_comp;
+    private ClaraComponent claraDataRing;
 
     ServiceEngine(Engine userEngine,
                   ServiceActor base,
@@ -81,8 +83,8 @@ class ServiceEngine {
         // Define clara data ring component
         String dataRingHost = System.getenv("CLARA_MONITOR_FRONT_END");
         if (dataRingHost != null) {
-            DpeName cdr_name = new DpeName(dataRingHost, ClaraConstants.CDR_PORT, ClaraLang.JAVA);
-                cdr_comp = ClaraComponent.dpe(cdr_name.canonicalName());
+            DpeName cdrName = new DpeName(dataRingHost);
+            claraDataRing = ClaraComponent.dpe(cdrName.canonicalName());
         }
     }
 
@@ -133,7 +135,7 @@ class ServiceEngine {
         if (outData == null) {
             outData = new EngineData();
         }
-        if (outData.getData() ==  null) {
+        if (outData.getData() == null) {
             outData.setData(EngineDataType.STRING.mimeType(), "done");
         }
 
@@ -208,16 +210,14 @@ class ServiceEngine {
 
     private Set<String> getLinks(EngineData inData, EngineData outData) {
         // service-states for conditional routing
-        ServiceState ownerSS = new ServiceState(outData.getEngineName(),
-                                                outData.getExecutionState());
-        ServiceState inputSS = new ServiceState(inData.getEngineName(),
-                                                inData.getExecutionState());
+        ServiceState ownerSS, inputSS;
+        ownerSS = new ServiceState(outData.getEngineName(), outData.getExecutionState());
+        inputSS = new ServiceState(inData.getEngineName(), inData.getExecutionState());
 
         return compiler.getLinks(ownerSS, inputSS);
     }
 
-    private EngineData executeEngine(EngineData inData)
-            throws ClaraException {
+    private EngineData executeEngine(EngineData inData) throws ClaraException {
         long startTime = startClock();
 
         EngineData outData = engine.execute(inData);
@@ -229,8 +229,7 @@ class ServiceEngine {
         }
         if (outData.getData() == null) {
             if (outData.getStatus() == EngineStatus.ERROR) {
-                outData.setData(EngineDataType.STRING.mimeType(),
-                                ClaraConstants.UNDEFINED);
+                outData.setData(EngineDataType.STRING.mimeType(), ClaraConstants.UNDEFINED);
             } else {
                 throw new ClaraException("empty engine result");
             }
@@ -312,16 +311,17 @@ class ServiceEngine {
     }
 
     /**
-     * Publish data to Clara data ring
+     * Publish data to Clara data ring.
+     *
      * @param topicBase generic topic of the publication
-     * @param data data to be published
+     * @param data      data to be published
      * @throws ClaraException exception
      */
     private void sendMonitorData(String topicBase, EngineData data) throws ClaraException {
-        if(cdr_comp!=null) {
+        if (claraDataRing != null) {
             xMsgTopic topic = xMsgTopic.wrap(topicBase + xMsgConstants.TOPIC_SEP + base.getName());
             xMsgMessage transit = DataUtil.serialize(topic, data, engine.getOutputDataTypes());
-            base.send(cdr_comp.getProxyAddress(), transit);
+            base.send(claraDataRing.getProxyAddress(), transit);
         }
     }
 
@@ -340,8 +340,7 @@ class ServiceEngine {
         }
     }
 
-    private xMsgMessage putEngineData(EngineData data, String receiver)
-            throws ClaraException {
+    private xMsgMessage putEngineData(EngineData data, String receiver) throws ClaraException {
         xMsgTopic topic = xMsgTopic.wrap(receiver);
         if (SharedMemory.containsReceiver(receiver)) {
             int id = data.getCommunicationId();

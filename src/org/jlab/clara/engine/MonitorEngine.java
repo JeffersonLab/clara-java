@@ -2,7 +2,6 @@ package org.jlab.clara.engine;
 
 import org.jlab.clara.base.ClaraAddress;
 import org.jlab.clara.base.DpeName;
-import org.jlab.clara.util.TimerFlag;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.excp.xMsgException;
 import org.jlab.coda.xmsg.net.xMsgContext;
@@ -18,7 +17,6 @@ public abstract class MonitorEngine {
     private ZMQ.Socket con;
     private final xMsgSocketFactory socketFactory;
 
-    private TimerFlag timerFlag;
     private int reportingPeriod = 5;
 
     private String monClass;
