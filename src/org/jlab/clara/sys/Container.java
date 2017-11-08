@@ -75,11 +75,12 @@ class Container extends AbstractActor {
 
     public void addService(ClaraComponent comp,
                            ClaraComponent frontEnd,
-                           xMsgConnectionPool connectionPool) throws ClaraException {
+                           xMsgConnectionPool connectionPool,
+                           String session) throws ClaraException {
         String serviceName = comp.getCanonicalName();
         Service service = myServices.get(serviceName);
         if (service == null) {
-            service = new Service(comp, frontEnd, connectionPool);
+            service = new Service(comp, frontEnd, connectionPool, session);
             Service result = myServices.putIfAbsent(serviceName, service);
             if (result == null) {
                 try {

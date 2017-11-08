@@ -37,6 +37,7 @@ public class ServiceReport extends BaseReport {
     private final String engineName;
     private final String className;
     private final String version;
+    private final String session;
     private final int poolSize;
 
     private final AtomicInteger failureCount = new AtomicInteger();
@@ -46,11 +47,12 @@ public class ServiceReport extends BaseReport {
     private final AtomicLong bytesSent = new AtomicLong();
     private final AtomicLong executionTime = new AtomicLong();
 
-    public ServiceReport(ClaraComponent comp, Engine engine) {
+    public ServiceReport(ClaraComponent comp, Engine engine, String session) {
         super(comp.getCanonicalName(), engine.getAuthor(), engine.getDescription());
         this.engineName = comp.getEngineName();
         this.className = comp.getEngineClass();
         this.version = engine.getVersion();
+        this.session = session;
         this.poolSize = comp.getSubscriptionPoolSize();
     }
 
@@ -112,6 +114,10 @@ public class ServiceReport extends BaseReport {
 
     public String getVersion() {
         return version;
+    }
+
+    public String getSession() {
+        return session;
     }
 
     public int getPoolSize() {

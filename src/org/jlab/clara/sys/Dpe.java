@@ -599,7 +599,7 @@ public final class Dpe extends AbstractActor {
             throw new RequestException(String.format(error, serComp));
         }
         try {
-            container.addService(serComp, base.getFrontEnd(), servicesConnectionPool);
+            container.addService(serComp, base.getFrontEnd(), servicesConnectionPool, session);
         } catch (ClaraException e) {
             throw new DpeException("could not start service " + serComp, e);
         }

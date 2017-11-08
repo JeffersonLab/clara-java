@@ -73,9 +73,10 @@ class Service extends AbstractActor {
      *
      * @throws ClaraException
      */
-    Service(ClaraComponent comp, ClaraComponent frontEnd, xMsgConnectionPool connectionPool)
-            throws ClaraException {
-
+    Service(ClaraComponent comp,
+            ClaraComponent frontEnd,
+            xMsgConnectionPool connectionPool,
+            String session) throws ClaraException {
         super(comp, frontEnd);
 
         name = comp.getCanonicalName();
@@ -86,7 +87,7 @@ class Service extends AbstractActor {
         EngineLoader cl = new EngineLoader(ClassLoader.getSystemClassLoader());
         userEngine = cl.load(comp.getEngineClass());
 
-        sysReport = new ServiceReport(comp, userEngine);
+        sysReport = new ServiceReport(comp, userEngine, session);
 
         // Creating thread pool
         executionPool = xMsgUtil.newThreadPool(comp.getSubscriptionPoolSize(), name);
