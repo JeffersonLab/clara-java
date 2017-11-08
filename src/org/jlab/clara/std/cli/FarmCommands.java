@@ -261,7 +261,6 @@ final class FarmCommands {
         }
 
         private int splitIntoMultipleJobs(int filesPerJob) throws IOException, TemplateException {
-            String session = config.getValue(Config.SESSION).toString();
             String description = config.getValue(Config.DESCRIPTION).toString();
             String fileList = config.getValue(Config.FILES_LIST).toString();
             try {
@@ -278,7 +277,6 @@ final class FarmCommands {
                             writer.newLine();
                         }
                     }
-                    config.setValue(Config.SESSION, appendIndex(session, i));
                     config.setValue(Config.DESCRIPTION, appendIndex(description, i));
                     config.setValue(Config.FILES_LIST, subFileList);
 
@@ -290,7 +288,6 @@ final class FarmCommands {
                 }
                 return EXIT_SUCCESS;
             } finally {
-                config.setValue(Config.SESSION, session);
                 config.setValue(Config.DESCRIPTION, description);
                 config.setValue(Config.FILES_LIST, fileList);
             }
@@ -319,7 +316,7 @@ final class FarmCommands {
             if (config.hasValue(Config.MAX_EVENTS)) {
                 cmd.addOption("-e", config.getValue(Config.MAX_EVENTS));
             }
-            cmd.addOption("-s", config.getValue(Config.SESSION));
+            cmd.addOption("-s", runUtils.getSession());
             if (config.hasValue(Config.DESCRIPTION)) {
                 cmd.addOption("-d", config.getValue(Config.DESCRIPTION));
             }

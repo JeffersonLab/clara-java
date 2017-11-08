@@ -92,11 +92,9 @@ public class InfluxDbReport extends DpeListenerAndReporter {
             Integer cpuUse = runtime.getInt("cpu_usage");
 
             String session = registration.getString("session");
-            String description = registration.getString("description");
-            String sessionId = session + "_" + description;
-            System.out.println(dateFormat.format(new Date()) + ": reporting for " + sessionId);
+            System.out.println(dateFormat.format(new Date()) + ": reporting for " + session);
 
-            tags.put(ClaraConstants.SESSION, session + "-" + description);
+            tags.put(ClaraConstants.SESSION, session);
 
             JSONArray rtContainers = runtime.getJSONArray("containers");
             JSONObject rtContainer = rtContainers.getJSONObject(0);

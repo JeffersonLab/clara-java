@@ -55,6 +55,12 @@ class RunUtils {
         return System.getenv(ClaraConstants.ENV_MONITOR_FE);
     }
 
+    String getSession() {
+        String sessionId = config.getValue(Config.SESSION).toString();
+        String sessionDesc = config.getValue(Config.DESCRIPTION).toString();
+        return sessionId + "_" + sessionDesc;
+    }
+
     Path getLogDir() {
         return Paths.get(config.getValue(Config.LOG_DIR).toString());
     }

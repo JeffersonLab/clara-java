@@ -116,7 +116,7 @@ stage_dir=
 
 report=5
 thread_num=$(get_num_cores)
-session=$user
+session=${user}_clara
 description=clara
 
 wait_dpe=2
