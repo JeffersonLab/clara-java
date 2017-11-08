@@ -200,7 +200,7 @@ final class FarmCommands {
 
         protected Path getJobScript(String ext) {
             String keyword = config.getValue(Config.DESCRIPTION).toString();
-            String name = String.format("farm-%s-%s", Config.user(), keyword);
+            String name = String.format("farm_%s_%s", Config.user(), keyword);
             return PLUGIN.resolve("config/" + name + ext);
         }
     }

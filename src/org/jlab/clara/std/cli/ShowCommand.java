@@ -107,7 +107,7 @@ class ShowCommand extends BaseCommand {
     }
 
     private int showDpeLog() {
-        return printLog("fe-dpe", "DPE");
+        return printLog("fe_dpe", "DPE");
     }
 
     private int showOrchestratorLog() {
@@ -138,7 +138,7 @@ class ShowCommand extends BaseCommand {
             return EXIT_ERROR;
         }
         Path log = logs.get(0);
-        if (component.equals("fe-dpe")) {
+        if (component.equals("fe_dpe")) {
             return RunUtils.paginateFile(terminal, description, getDpeLogs(log));
         }
         return RunUtils.paginateFile(terminal, description, log);

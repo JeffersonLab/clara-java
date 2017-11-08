@@ -170,8 +170,8 @@ fi
 # Run CLARA
 ##############################################################################
 
-fe_log_file=$CLARA_HOME/log/$host-$user-$description-fe-dpe.log
-or_log_file=$CLARA_HOME/log/$host-$user-$description-orch.log
+fe_log_file=$CLARA_HOME/log/${host}_${user}_${description}_fe_dpe.log
+or_log_file=$CLARA_HOME/log/${host}_${user}_${description}_orch.log
 
 echo "========== Running Conditions ==========="
 echo " Start time         = $(date)"

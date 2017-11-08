@@ -67,23 +67,23 @@ class RunUtils {
 
     Path getLogFile(DpeName name, String keyword) {
         ClaraLang lang = name.language();
-        String component = lang == ClaraLang.JAVA ? "fe-dpe" : lang + "-dpe";
+        String component = lang == ClaraLang.JAVA ? "fe_dpe" : lang + "_dpe";
         return getLogFile(name.address().host(), keyword, component);
     }
 
     Path getLogFile(String host, String keyword, String component) {
-        String logName = String.format("%s-%s-%s-%s.log", host, Config.user(), keyword, component);
+        String logName = String.format("%s_%s_%s_%s.log", host, Config.user(), keyword, component);
         return getLogDir().resolve(logName);
     }
 
     Path getLogFile(Path feLog, ClaraLang dpeLang) {
         Path logDir = getLogDir();
         String name = FileUtils.getFileName(feLog).toString();
-        return logDir.resolve(name.replaceAll("fe-dpe", dpeLang + "-dpe"));
+        return logDir.resolve(name.replaceAll("fe_dpe", dpeLang + "_dpe"));
     }
 
     List<Path> getLogFiles(String keyword, String component) throws IOException {
-        String glob = String.format("glob:*-%s-%s-%s.log", Config.user(), keyword, component);
+        String glob = String.format("glob:*_%s_%s_%s.log", Config.user(), keyword, component);
         PathMatcher matcher = FileSystems.getDefault().getPathMatcher(glob);
 
         Function<Path, Long> modDate = path -> path.toFile().lastModified();
