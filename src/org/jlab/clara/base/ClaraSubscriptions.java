@@ -179,7 +179,7 @@ public class ClaraSubscriptions {
             return msg -> {
                 try {
                     String mimeType = msg.getMimeType();
-                    if (mimeType.equals("text/string")) {
+                    if (mimeType.equals(EngineDataType.JSON.mimeType())) {
                         userCallback.callback(new String(msg.getData()));
                     } else {
                         throw new ClaraException("Unexpected mime-type: " + mimeType);

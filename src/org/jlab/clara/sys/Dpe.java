@@ -29,6 +29,7 @@ import org.jlab.clara.base.core.ClaraConstants;
 import org.jlab.clara.base.core.ClaraComponent;
 import org.jlab.clara.base.core.MessageUtil;
 import org.jlab.clara.base.error.ClaraException;
+import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.sys.DpeOptionsParser.DpeOptionsException;
 import org.jlab.clara.sys.RequestParser.RequestException;
 import org.jlab.clara.util.report.DpeReport;
@@ -753,13 +754,16 @@ public final class Dpe extends AbstractActor {
         }
 
         private xMsgMessage aliveMessage() {
-            xMsgTopic topic = xMsgTopic.build(ClaraConstants.DPE_ALIVE, session, base.getName());
-            return MessageUtil.buildRequest(topic, aliveReport());
+            return serializeJson(ClaraConstants.DPE_ALIVE, aliveReport());
         }
 
         private xMsgMessage jsonMessage() {
-            xMsgTopic topic = xMsgTopic.build(ClaraConstants.DPE_REPORT, session, base.getName());
-            return MessageUtil.buildRequest(topic, jsonReport());
+            return serializeJson(ClaraConstants.DPE_REPORT, jsonReport());
+        }
+
+        private xMsgMessage serializeJson(String topicPrefix, String json) {
+            xMsgTopic topic = xMsgTopic.build(topicPrefix, session, base.getName());
+            return new xMsgMessage(topic, EngineDataType.JSON.mimeType(), json.getBytes());
         }
 
         private void run() {
