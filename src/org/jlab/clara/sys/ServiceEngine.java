@@ -135,8 +135,6 @@ class ServiceEngine {
 
 
     public void execute(xMsgMessage message) throws ClaraException {
-
-        // Increment request count in the sysConfig object
         sysConfig.addRequest();
         sysReport.incrementRequestCount();
 
@@ -180,14 +178,12 @@ class ServiceEngine {
     private void parseComposition(EngineData inData) throws ClaraException {
         String currentComposition = inData.getComposition();
         if (!currentComposition.equals(prevComposition)) {
-            // analyze composition
             compiler.compile(currentComposition);
             prevComposition = currentComposition;
         }
     }
 
     private Set<String> getLinks(EngineData inData, EngineData outData) {
-        // service-states for conditional routing
         ServiceState ownerSS = new ServiceState(outData.getEngineName(),
                                                 outData.getExecutionState());
         ServiceState inputSS = new ServiceState(inData.getEngineName(),
@@ -236,13 +232,10 @@ class ServiceEngine {
     }
 
     private void reportResult(EngineData outData) throws ClaraException {
-        // External send data
         if (sysConfig.isDataRequest()) {
             reportData(outData);
             sysConfig.resetDataRequestCount();
         }
-
-        // External done broadcasting
         if (sysConfig.isDoneRequest()) {
             reportDone(outData);
             sysConfig.resetDoneRequestCount();
