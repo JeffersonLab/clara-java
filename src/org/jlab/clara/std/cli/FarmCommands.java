@@ -192,8 +192,11 @@ final class FarmCommands {
 
     private abstract static class FarmCommand extends AbstractCommand {
 
+        protected final RunUtils runUtils;
+
         protected FarmCommand(Context context, String name, String description) {
             super(context, name, description);
+            runUtils = new RunUtils(config);
         }
 
         protected Path getJobScript(String ext) {
@@ -206,11 +209,8 @@ final class FarmCommands {
 
     static class RunFarm extends FarmCommand {
 
-        protected final RunUtils runUtils;
-
         RunFarm(Context context) {
             super(context, "farm", "Run CLARA data processing on the farm.");
-            runUtils = new RunUtils(config);
         }
 
         @Override
