@@ -57,6 +57,14 @@ class ServiceActor {
         sendMsg(connectionPools.mainPool, address, msg);
     }
 
+    public void sendUncheck(xMsgMessage msg) throws ClaraException {
+        sendMsg(connectionPools.uncheckedPool, getLocal(), msg);
+    }
+
+    public void sendUncheck(xMsgProxyAddress address, xMsgMessage msg) throws ClaraException {
+        sendMsg(connectionPools.uncheckedPool, address, msg);
+    }
+
     private void sendMsg(xMsgConnectionPool pool, xMsgProxyAddress address, xMsgMessage msg)
             throws ClaraException {
         try (xMsgConnection con = pool.getConnection(address)) {

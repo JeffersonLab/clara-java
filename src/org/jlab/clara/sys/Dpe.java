@@ -431,6 +431,8 @@ public final class Dpe extends AbstractActor {
         if (createdConnections < maxCores * 0.75) {
             Logging.error("could not cache enough connections to local proxy");
         }
+
+        IntStream.range(0, maxCores).parallel().forEach(i -> cacheUncheckedConnection());
     }
 
     private int cacheLocalConnection() {
@@ -439,6 +441,14 @@ public final class Dpe extends AbstractActor {
             return 1;
         } catch (xMsgException e) {
             return 0;
+        }
+    }
+
+    private void cacheUncheckedConnection() {
+        try {
+            connectionPools.uncheckedPool.cacheConnection();
+        } catch (xMsgException e) {
+            // ignore
         }
     }
 

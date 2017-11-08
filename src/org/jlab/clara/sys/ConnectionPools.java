@@ -29,6 +29,7 @@ import org.jlab.coda.xmsg.net.xMsgProxyAddress;
 class ConnectionPools implements AutoCloseable {
 
     final xMsgConnectionPool mainPool;
+    final xMsgConnectionPool uncheckedPool;
 
     ConnectionPools(xMsgProxyAddress defaultProxy) {
         mainPool = xMsgConnectionPool.newBuilder()
@@ -39,10 +40,22 @@ class ConnectionPools implements AutoCloseable {
                 })
                 .withPostConnectionSetup(() -> xMsgUtil.sleep(100))
                 .build();
+
+        uncheckedPool = xMsgConnectionPool.newBuilder()
+                .withProxy(defaultProxy)
+                .withPreConnectionSetup(s -> {
+                    s.setRcvHWM(0);
+                    s.setSndHWM(0);
+                })
+                .withPostConnectionSetup(() -> xMsgUtil.sleep(100))
+                .checkConnection(false)
+                .checkSubscription(false)
+                .build();
     }
 
     @Override
     public void close() {
         mainPool.close();
+        uncheckedPool.close();
     }
 }
