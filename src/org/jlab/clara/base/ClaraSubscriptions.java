@@ -30,9 +30,11 @@ import org.jlab.clara.base.core.MessageUtil;
 import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.engine.EngineStatus;
+import org.jlab.clara.util.ArgUtils;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgSubscription;
 import org.jlab.coda.xmsg.core.xMsgTopic;
+import org.json.JSONObject;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -56,7 +58,7 @@ public class ClaraSubscriptions {
         final ClaraComponent frontEnd;
         final xMsgTopic topic;
 
-        private Map<String, xMsgSubscription> subscriptions;
+        final Map<String, xMsgSubscription> subscriptions;
 
         BaseSubscription(ClaraBase base,
                          Map<String, xMsgSubscription> subscriptions,
@@ -194,6 +196,66 @@ public class ClaraSubscriptions {
 
 
     /**
+     * A subscription to listen for JSON reports from the DPEs.
+     */
+    public static class BaseDpeReportSubscription extends JsonReportSubscription {
+
+        BaseDpeReportSubscription(ClaraBase base,
+                                  Map<String, xMsgSubscription> subscriptions,
+                                  ClaraComponent frontEnd, xMsgTopic topic) {
+            super(base, subscriptions, frontEnd, topic);
+        }
+
+        /**
+         * Parse the JSON report as {@link DpeRegistrationData} and
+         * {@link DpeRuntimeData} objects.
+         *
+         * @return A subscription to listen for reports from the DPEs.
+         */
+        public DpeReportSubscription parseJson() {
+            return new DpeReportSubscription(base, subscriptions, frontEnd, topic);
+        }
+    }
+
+
+    /**
+     * A subscription to listen for JSON reports from the DPEs.
+     */
+    public static class DpeReportSubscription
+            extends BaseSubscription<DpeReportSubscription, DpeReportCallback> {
+
+        DpeReportSubscription(ClaraBase base,
+                               Map<String, xMsgSubscription> subscriptions,
+                               ClaraComponent frontEnd,
+                               xMsgTopic topic) {
+            super(base, subscriptions, frontEnd, topic);
+        }
+
+        @Override
+        xMsgCallBack wrap(final DpeReportCallback userCallback) {
+            return msg -> {
+                try {
+                    String mimeType = msg.getMimeType();
+                    if (mimeType.equals(EngineDataType.JSON.mimeType())) {
+                        String source = new String(msg.getData());
+                        JSONObject data = new JSONObject(source);
+                        JSONObject regObj = data.getJSONObject(ClaraConstants.REGISTRATION_KEY);
+                        JSONObject runObj = data.getJSONObject(ClaraConstants.RUNTIME_KEY);
+                        userCallback.callback(new DpeRegistrationData(regObj),
+                                              new DpeRuntimeData(runObj));
+                    } else {
+                        throw new ClaraException("Unexpected mime-type: " + mimeType);
+                    }
+                } catch (ClaraException e) {
+                    System.out.println("Error receiving data to " + msg.getTopic());
+                    e.printStackTrace();
+                }
+            };
+        }
+    }
+
+
+    /**
      * Builds a subscription to listen the different CLARA service reports.
      */
     public static class ServiceSubscriptionBuilder {
@@ -305,6 +367,32 @@ public class ClaraSubscriptions {
             }
             xMsgTopic topic = buildMatchingTopic(ClaraConstants.DPE_ALIVE, session);
             return new JsonReportSubscription(base, subscriptions, frontEnd, topic);
+        }
+
+        /**
+         * A subscription to the periodic runtime and registration reports of
+         * all running DPEs.
+         *
+         * @return a subscription to listen DPE reports
+         */
+        public BaseDpeReportSubscription dpeReport() {
+            xMsgTopic topic = MessageUtil.buildTopic(ClaraConstants.DPE_REPORT, "");
+            return new BaseDpeReportSubscription(base, subscriptions, frontEnd, topic);
+        }
+
+        /**
+         * A subscription to the periodic runtime and registration reports of
+         * the running DPEs with the given session.
+         * <p>
+         * If the session is empty, only DPEs with no session will be listened.
+         *
+         * @param session the session to select with DPEs to monitor
+         * @return a subscription to listen DPE reports
+         */
+        public BaseDpeReportSubscription dpeReport(String session) {
+            ArgUtils.requireNonNull(session, "session");
+            xMsgTopic topic = buildMatchingTopic(ClaraConstants.DPE_REPORT, session);
+            return new BaseDpeReportSubscription(base, subscriptions, frontEnd, topic);
         }
     }
 

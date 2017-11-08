@@ -262,6 +262,31 @@ public class BaseOrchestratorTest {
 
 
 
+    @Test
+    public void listenDpesReport() throws Exception {
+        subscription = orchestrator.listen().dpeReport();
+
+        assertSubscription("dpeReport:");
+    }
+
+
+    @Test
+    public void listenDpesReportWithSession() throws Exception {
+        subscription = orchestrator.listen().dpeReport("");
+        assertSubscription("dpeReport::");
+
+        subscription = orchestrator.listen().dpeReport("*");
+        assertSubscription("dpeReport:");
+
+        subscription = orchestrator.listen().dpeReport("foobar");
+        assertSubscription("dpeReport:foobar:");
+
+        subscription = orchestrator.listen().dpeReport("foobar*");
+        assertSubscription("dpeReport:foobar");
+    }
+
+
+
     private void assertRequest(String host, String topic, String data) throws Exception {
         assertThat(request.frontEnd.getDpeHost(), is(host));
         assertMessage(request.msg(), topic, data);
