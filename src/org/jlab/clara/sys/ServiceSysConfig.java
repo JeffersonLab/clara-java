@@ -33,6 +33,8 @@ class ServiceSysConfig {
 
     private boolean isDataRequest;
     private boolean isDoneRequest;
+    private boolean isRingRequest;
+
     private int doneReportThreshold;
     private int dataReportThreshold;
 
@@ -70,6 +72,14 @@ class ServiceSysConfig {
 
     public void setDoneRequest(boolean isDoneRequest) {
         this.isDoneRequest = isDoneRequest;
+    }
+
+    public boolean isRingRequest() {
+        return isRingRequest;
+    }
+
+    public void setRingRequest(boolean isRingRequest) {
+        this.isRingRequest = isRingRequest;
     }
 
     public int getDoneReportThreshold() {

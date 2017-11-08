@@ -27,7 +27,8 @@ import org.jlab.clara.base.core.ClaraConstants;
 public enum ReportType {
     INFO(ClaraConstants.SERVICE_REPORT_INFO),
     DONE(ClaraConstants.SERVICE_REPORT_DONE),
-    DATA(ClaraConstants.SERVICE_REPORT_DATA);
+    DATA(ClaraConstants.SERVICE_REPORT_DATA),
+    RING(ClaraConstants.SERVICE_REPORT_RING);
 
     private final String stringValue;
 

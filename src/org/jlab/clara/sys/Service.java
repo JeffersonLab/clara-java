@@ -205,6 +205,9 @@ class Service extends AbstractActor {
                 sysConfig.setDataReportThreshold(value);
                 sysConfig.resetDataRequestCount();
                 break;
+            case ClaraConstants.SERVICE_REPORT_RING:
+                sysConfig.setRingRequest(publishReport);
+                break;
             default:
                 throw new RequestException("Invalid report request: " + report);
         }

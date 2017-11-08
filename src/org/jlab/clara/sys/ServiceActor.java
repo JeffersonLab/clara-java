@@ -78,6 +78,10 @@ class ServiceActor {
         return base.getName();
     }
 
+    public String getEngine() {
+        return base.getMe().getEngineName();
+    }
+
     public xMsgProxyAddress getLocal() {
         return base.getDefaultProxyAddress();
     }

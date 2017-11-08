@@ -22,6 +22,7 @@
 
 package org.jlab.clara.sys;
 
+import org.jlab.clara.base.DpeName;
 import org.jlab.clara.base.core.ClaraConstants;
 import org.jlab.clara.base.core.ClaraComponent;
 import org.jlab.clara.base.core.DataUtil;
@@ -61,6 +62,8 @@ class ServiceEngine {
 
     private final CompositionCompiler compiler;
 
+    private final ClaraComponent monitorFe;
+
     // Already recorded (previous) composition
     private String prevComposition = ClaraConstants.UNDEFINED;
 
@@ -77,6 +80,9 @@ class ServiceEngine {
         this.sysConfig = config;
         this.sysReport = report;
         this.compiler = new CompositionCompiler(base.getName());
+
+        DpeName monFeDpe = FrontEnd.getMonitorFrontEnd();
+        this.monitorFe = monFeDpe != null ? ClaraComponent.dpe(monFeDpe.canonicalName()) : null;
     }
 
     void start() throws ClaraException {
@@ -172,7 +178,16 @@ class ServiceEngine {
         }
 
         reportResult(outData);
-        sendResult(outData, getLinks(inData, outData));
+
+        if (sysConfig.isRingRequest()) {
+            sendResult(inData, getLinks(inData, outData));
+            String executionState = outData.getExecutionState();
+            if (!executionState.isEmpty()) {
+                sendMonitorData(executionState, outData);
+            }
+        } else {
+            sendResult(outData, getLinks(inData, outData));
+        }
     }
 
     private void parseComposition(EngineData inData) throws ClaraException {
@@ -282,6 +297,16 @@ class ServiceEngine {
         xMsgTopic topic = xMsgTopic.wrap(topicPrefix + xMsgConstants.TOPIC_SEP + base.getName());
         xMsgMessage transit = DataUtil.serialize(topic, data, engine.getOutputDataTypes());
         base.send(base.getFrontEnd(), transit);
+    }
+
+    private void sendMonitorData(String topicPrefix, EngineData data) throws ClaraException {
+        if (monitorFe != null) {
+            xMsgTopic topic = xMsgTopic.wrap(topicPrefix
+                    + xMsgConstants.TOPIC_SEP + sysReport.getSession()
+                    + xMsgConstants.TOPIC_SEP + base.getEngine());
+            xMsgMessage transit = DataUtil.serialize(topic, data, engine.getOutputDataTypes());
+            base.sendUncheck(monitorFe.getProxyAddress(), transit);
+        }
     }
 
 
