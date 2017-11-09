@@ -50,7 +50,10 @@ class RunUtils {
 
     String getMonitorFrontEnd() {
         if (config.hasValue(Config.MONITOR_HOST)) {
-            return config.getValue(Config.MONITOR_HOST).toString() + "%9000_java";
+            DpeName monDpe = new DpeName(config.getValue(Config.MONITOR_HOST).toString(),
+                                         ClaraConstants.MONITOR_PORT,
+                                         ClaraLang.JAVA);
+            return monDpe.canonicalName();
         }
         return System.getenv(ClaraConstants.ENV_MONITOR_FE);
     }
