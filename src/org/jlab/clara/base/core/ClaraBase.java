@@ -73,7 +73,7 @@ public class ClaraBase extends xMsg {
     }
 
     private static xMsgSetup setup(ClaraComponent me, ClaraComponent frontEnd) {
-        return xMsgSetup.newBuilder()
+        xMsgSetup.Builder builder = xMsgSetup.newBuilder()
                         .withProxy(me.getProxyAddress())
                         .withRegistrar(getRegAddress(frontEnd))
                         .withPoolSize(me.getSubscriptionPoolSize())
@@ -81,8 +81,11 @@ public class ClaraBase extends xMsg {
                             s.setRcvHWM(0);
                             s.setSndHWM(0);
                         })
-                        .withPostConnectionSetup(() -> xMsgUtil.sleep(100))
-                        .build();
+                        .withPostConnectionSetup(() -> xMsgUtil.sleep(100));
+        if (me.isOrchestrator()) {
+            builder.checkSubscription(false);
+        }
+        return builder.build();
     }
 
     /**
