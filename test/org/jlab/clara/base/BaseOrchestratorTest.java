@@ -247,9 +247,17 @@ public class BaseOrchestratorTest {
 
     @Test
     public void listenDpesAliveWithSession() throws Exception {
-        subscription = orchestrator.listen().aliveDpes("foobar");
+        subscription = orchestrator.listen().aliveDpes("");
+        assertSubscription("dpeAlive::");
 
+        subscription = orchestrator.listen().aliveDpes("*");
+        assertSubscription("dpeAlive:");
+
+        subscription = orchestrator.listen().aliveDpes("foobar");
         assertSubscription("dpeAlive:foobar:");
+
+        subscription = orchestrator.listen().aliveDpes("foobar*");
+        assertSubscription("dpeAlive:foobar");
     }
 
 

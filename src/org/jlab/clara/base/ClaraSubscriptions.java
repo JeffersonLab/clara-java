@@ -303,8 +303,17 @@ public class ClaraSubscriptions {
             if (session == null) {
                 throw new IllegalArgumentException("null session argument");
             }
-            xMsgTopic topic = MessageUtil.buildTopic(ClaraConstants.DPE_ALIVE, session, "");
+            xMsgTopic topic = buildMatchingTopic(ClaraConstants.DPE_ALIVE, session);
             return new JsonReportSubscription(base, subscriptions, frontEnd, topic);
         }
+    }
+
+
+    private static xMsgTopic buildMatchingTopic(String prefix, String keyword) {
+        if (keyword.endsWith("*")) {
+            keyword = keyword.substring(0, keyword.length() - 1);
+            return MessageUtil.buildTopic(prefix, keyword);
+        }
+        return MessageUtil.buildTopic(prefix, keyword, "");
     }
 }
