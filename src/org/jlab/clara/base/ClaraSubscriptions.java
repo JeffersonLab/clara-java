@@ -331,13 +331,16 @@ public class ClaraSubscriptions {
     public static class GlobalSubscriptionBuilder {
         private final ClaraBase base;
         private final Map<String, xMsgSubscription> subscriptions;
+        private final Set<EngineDataType> dataTypes;
         private final ClaraComponent frontEnd;
 
         GlobalSubscriptionBuilder(ClaraBase base,
                                Map<String, xMsgSubscription> subscriptions,
+                               Set<EngineDataType> dataTypes,
                                ClaraComponent frontEnd) {
             this.base = base;
             this.subscriptions = subscriptions;
+            this.dataTypes = dataTypes;
             this.frontEnd = frontEnd;
         }
 
@@ -393,6 +396,29 @@ public class ClaraSubscriptions {
             ArgUtils.requireNonNull(session, "session");
             xMsgTopic topic = buildMatchingTopic(ClaraConstants.DPE_REPORT, session);
             return new BaseDpeReportSubscription(base, subscriptions, frontEnd, topic);
+        }
+
+        /**
+         * A subscription for all events published to the CLARA data-ring.
+         *
+         * @return a subscription to listen all events in the data-ring
+         */
+        public ServiceSubscription dataRing() {
+            xMsgTopic topic = MessageUtil.buildTopic(ClaraConstants.MONITOR_REPORT, "");
+            return new ServiceSubscription(base, subscriptions, dataTypes, frontEnd, topic);
+        }
+
+        /**
+         * A subscription for events published with the given topic to the CLARA
+         * data-ring.
+         *
+         * @param ringTopic the data-ring topic to filter events
+         * @return a subscription to listen events in the data-ring
+         */
+        public ServiceSubscription dataRing(DataRingTopic ringTopic) {
+            ArgUtils.requireNonNull(ringTopic, "topic");
+            xMsgTopic topic = buildMatchingTopic(ClaraConstants.MONITOR_REPORT, ringTopic.topic());
+            return new ServiceSubscription(base, subscriptions, dataTypes, frontEnd, topic);
         }
     }
 

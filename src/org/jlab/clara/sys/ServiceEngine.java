@@ -299,9 +299,10 @@ class ServiceEngine {
         base.send(base.getFrontEnd(), transit);
     }
 
-    private void sendMonitorData(String topicPrefix, EngineData data) throws ClaraException {
+    private void sendMonitorData(String state, EngineData data) throws ClaraException {
         if (monitorFe != null) {
-            xMsgTopic topic = xMsgTopic.wrap(topicPrefix
+            xMsgTopic topic = xMsgTopic.wrap(ClaraConstants.MONITOR_REPORT
+                    + xMsgConstants.TOPIC_SEP + state
                     + xMsgConstants.TOPIC_SEP + sysReport.getSession()
                     + xMsgConstants.TOPIC_SEP + base.getEngine());
             xMsgMessage transit = DataUtil.serialize(topic, data, engine.getOutputDataTypes());

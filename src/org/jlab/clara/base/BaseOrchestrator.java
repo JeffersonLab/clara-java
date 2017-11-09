@@ -293,7 +293,7 @@ public class BaseOrchestrator implements AutoCloseable {
      * @return a builder to select a global subscription
      */
     public GlobalSubscriptionBuilder listen() {
-        return new GlobalSubscriptionBuilder(base, subscriptions, base.getFrontEnd());
+        return new GlobalSubscriptionBuilder(base, subscriptions, dataTypes, base.getFrontEnd());
     }
 
 

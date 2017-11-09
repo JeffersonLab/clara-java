@@ -287,6 +287,48 @@ public class BaseOrchestratorTest {
 
 
 
+    @Test
+    public void listenDataRing() throws Exception {
+        subscription = orchestrator.listen().dataRing();
+
+        assertSubscription("ring:");
+    }
+
+
+    @Test
+    public void listenDataRingWithTopic() throws Exception {
+        subscription = orchestrator.listen().dataRing(new DataRingTopic("foo"));
+        assertSubscription("ring:foo:");
+
+        subscription = orchestrator.listen().dataRing(new DataRingTopic("foo*"));
+        assertSubscription("ring:foo");
+
+
+        subscription = orchestrator.listen().dataRing(new DataRingTopic("foo", ""));
+        assertSubscription("ring:foo::");
+
+        subscription = orchestrator.listen().dataRing(new DataRingTopic("foo", "bar"));
+        assertSubscription("ring:foo:bar:");
+
+        subscription = orchestrator.listen().dataRing(new DataRingTopic("foo", "bar*"));
+        assertSubscription("ring:foo:bar");
+
+
+        subscription = orchestrator.listen().dataRing(new DataRingTopic("foo", "", "liz"));
+        assertSubscription("ring:foo::liz");
+
+        subscription = orchestrator.listen().dataRing(new DataRingTopic("foo", "", "liz*"));
+        assertSubscription("ring:foo::liz");
+
+        subscription = orchestrator.listen().dataRing(new DataRingTopic("foo", "bar", "liz"));
+        assertSubscription("ring:foo:bar:liz");
+
+        subscription = orchestrator.listen().dataRing(new DataRingTopic("foo", "bar", "liz*"));
+        assertSubscription("ring:foo:bar:liz");
+    }
+
+
+
     private void assertRequest(String host, String topic, String data) throws Exception {
         assertThat(request.frontEnd.getDpeHost(), is(host));
         assertMessage(request.msg(), topic, data);
