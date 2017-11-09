@@ -211,7 +211,7 @@ __Notes__: `<session>` is optional.
             {
               "ServiceRegistration": {
                 "class_name": "org.jlab.coda.clara.examples.Engine1",
-                "engine_name": "Engine1",
+                "name": "10.1.1.10_java:trevor:Engine1",
                 "language": "java",
                 "pool_size": 4,
                 "start_time": "2015-06-20 12:30:50",
@@ -223,7 +223,7 @@ __Notes__: `<session>` is optional.
             {
               "ServiceRegistration": {
                 "class_name": "org.jlab.coda.clara.examples.Engine2",
-                "engine_name": "Engine2",
+                "name": "10.1.1.10_java:trevor:Engine2",
                 "language": "java",
                 "pool_size": 4,
                 "start_time": "2015-06-20 12:40:00",

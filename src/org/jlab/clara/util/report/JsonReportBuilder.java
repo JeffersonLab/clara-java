@@ -38,7 +38,6 @@ public class JsonReportBuilder implements ExternalReport {
         String snapshotTime = ClaraUtil.getCurrentTime();
 
         JSONObject dpeRuntime = new JSONObject();
-        dpeRuntime.put("hostname", dpeData.getHost()); // keep it to not break existing clients
         dpeRuntime.put("name", dpeData.getHost());
         dpeRuntime.put("snapshot_time", snapshotTime);
         dpeRuntime.put("cpu_usage", dpeData.getCpuUsage());
@@ -81,7 +80,6 @@ public class JsonReportBuilder implements ExternalReport {
         dpeRuntime.put("containers", containersRuntimeArray);
 
         JSONObject dpeRegistration = new JSONObject();
-        dpeRegistration.put("hostname", dpeData.getHost()); // keep it to not break existing clients
         dpeRegistration.put("name", dpeData.getHost());
         dpeRegistration.put("session", dpeData.getSession());
         dpeRegistration.put("description", dpeData.getDescription());
@@ -102,8 +100,8 @@ public class JsonReportBuilder implements ExternalReport {
             JSONArray servicesRegistrationArray = new JSONArray();
             for (ServiceReport sr : cr.getServices()) {
                 JSONObject serviceRegistration = new JSONObject();
+                serviceRegistration.put("name", sr.getName());
                 serviceRegistration.put("class_name", sr.getClassName());
-                serviceRegistration.put("engine_name", sr.getEngineName());
                 serviceRegistration.put("author", sr.getAuthor());
                 serviceRegistration.put("version", sr.getVersion());
                 serviceRegistration.put("description", sr.getDescription());
