@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+
+# Copyright (c) 2017.  Jefferson Lab (JLab). All rights reserved. Permission
+# to use, copy, modify, and distribute  this software and its documentation for
+# educational, research, and not-for-profit purposes, without fee and without a
+# signed licensing agreement.
+#
+# IN NO EVENT SHALL JLAB BE LIABLE TO ANY PARTY FOR DIRECT, INDIRECT, SPECIAL
+# INCIDENTAL, OR CONSEQUENTIAL DAMAGES, INCLUDING LOST PROFITS, ARISING
+# OUT OF THE USE OF THIS SOFTWARE AND ITS DOCUMENTATION, EVEN IF JLAB HAS
+# BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+#
+# JLAB SPECIFICALLY DISCLAIMS ANY WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+# THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+# PURPOSE. THE CLARA SOFTWARE AND ACCOMPANYING DOCUMENTATION, IF ANY,
+# PROVIDED HEREUNDER IS PROVIDED "AS IS". JLAB HAS NO OBLIGATION TO PROVIDE
+# MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR MODIFICATIONS.
+#
+# This software was developed under the United States Government license.
+# For more information contact author at gurjyan@jlab.org
+# Department of Experimental Nuclear Physics, Jefferson Lab.
+
+BASEDIR=$(cd "$(dirname "${BASH_SOURCE[0]}")"/.. && pwd)
+
+if [ -z "${CLARA_HOME}" ]; then
+    CLARA_HOME=${BASEDIR}
+    export CLARA_HOME
+fi
+
+# find plugins directory
+if [ -n "${CLARA_PLUGINS}" ]; then
+    if [ ! -d "${CLARA_PLUGINS}" ]; then
+        echo "Error: \$CLARA_PLUGINS is not a directory."
+        exit 1
+    fi
+    plugins_dir="${CLARA_PLUGINS}"
+else
+    plugins_dir="${CLARA_HOME}/plugins"
+fi
+
+# set default classpath
+if [ -z "${CLASSPATH}" ]; then
+    CLASSPATH="${CLARA_HOME}/lib/*"
+
+    # Add every plugin
+    for plugin in "${plugins_dir}"/*/; do
+        plugin=${plugin%*/}
+        if [ "${plugin##*/}" = "clas12" ]; then # COAT has special needs
+            CLASSPATH+=":${plugin}/lib/clas/*:${plugin}/lib/services/*"
+        else
+            CLASSPATH+=":${plugin}/services/*:${plugin}/lib/*"
+        fi
+    done
+
+    CLASSPATH+=":${CLARA_HOME}/services/*"
+    export CLASSPATH
+fi
+
+# set java.library.path
+java_lib_path=
+for plugin in "${plugins_dir}"/*/; do
+    plugin=${plugin%*/}
+    if [ "${plugin##*/}" = "clas12" ]; then # COAT has special needs
+        java_lib_path+=":${plugin}/lib/clas"
+    else
+        java_lib_path+=":${plugin}/lib"
+    fi
+done
+
+if [ -n "${JAVA_OPTS}" ]; then
+    jvm_options=(${JAVA_OPTS})
+else
+    jvm_options=(-Xms256m)
+fi
+
+java_wrapper=${CLARA_HOME}/lib/clara/run-java
+
+exec "${java_wrapper}" "${jvm_options[@]}" org.jlab.clara.std.orchestrators.MonitorOrchestrator "$@"
