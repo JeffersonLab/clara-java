@@ -22,7 +22,12 @@
 
 package org.jlab.clara.std.orchestrators;
 
+import org.jlab.clara.base.DataRingTopic;
+import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.util.ArgUtils;
+
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 
 final class CallbackInfo {
 
@@ -35,6 +40,17 @@ final class CallbackInfo {
 
         BaseCallbackInfo(String classpath) {
             this.classPath = ArgUtils.requireNonEmpty(classpath, "classpath");
+        }
+
+        void tryClose(Object object) {
+            if (object instanceof AutoCloseable) {
+                try {
+                    ((AutoCloseable) object).close();
+                } catch (Exception e) {
+                    String msg = e.getMessage();
+                    Logging.error("could not close instance of: " + classPath + ": " + msg);
+                }
+            }
         }
 
         @Override
@@ -130,6 +146,17 @@ final class CallbackInfo {
         }
     }
 
+
+    interface RingListener {
+
+        void listen(@CheckForNull String session,
+                    @Nonnull DpeReportHandler handler) throws ClaraException;
+
+        void listen(@CheckForNull DataRingTopic topic,
+                    @Nonnull EngineReportHandler handler) throws ClaraException;
+    }
+
+
     static class RingCallbackInfo extends BaseCallbackInfo {
 
         final RingTopic topic;
@@ -142,6 +169,49 @@ final class CallbackInfo {
         RingCallbackInfo(String classpath, RingTopic topic) {
             super(classpath);
             this.topic = ArgUtils.requireNonNull(topic, "topic");
+        }
+
+        AutoCloseable loadCallback(RingListener listener) throws ClaraException {
+            try {
+                ClassLoader classLoader = getClass().getClassLoader();
+                Class<?> klass = classLoader.loadClass(classPath);
+                Object object = klass.newInstance();
+                try {
+                    if (object instanceof EngineReportHandler) {
+                        listener.listen(getEngineReportTopic(), (EngineReportHandler) object);
+                        return (AutoCloseable) object;
+                    } else if (object instanceof DpeReportHandler) {
+                        listener.listen(getDpeReportTopic(), (DpeReportHandler) object);
+                        return (AutoCloseable) object;
+                    } else {
+                        throw new ClaraException("invalid monitoring class: " + classPath);
+                    }
+                } catch (Exception e) {
+                    tryClose(object);
+                    throw e;
+                }
+            } catch (ClassNotFoundException e) {
+                throw new ClaraException("class not found: " + classPath);
+            } catch (IllegalAccessException | InstantiationException e) {
+                throw new ClaraException("could not create instance: " + classPath, e);
+            }
+        }
+
+        DataRingTopic getEngineReportTopic() {
+            if (topic.state == null) {
+                return null;
+            }
+            if (topic.session == null) {
+                return new DataRingTopic(topic.state);
+            }
+            if (topic.engine == null) {
+                return new DataRingTopic(topic.state, topic.session);
+            }
+            return new DataRingTopic(topic.state, topic.session, topic.engine);
+        }
+
+        String getDpeReportTopic() {
+            return topic.session;
         }
 
         @Override
