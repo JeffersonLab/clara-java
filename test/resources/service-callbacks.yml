@@ -1,0 +1,28 @@
+---
+callbacks:
+  service-reports:
+    -
+      class: org.jlab.clas12.callbacks.ECHistogramReport
+    -
+      class: org.jlab.clas12.callbacks.ECHistogramReport
+      topic:
+        state: histogram
+    -
+      class: org.jlab.clas12.callbacks.ECHistogramReport
+      topic:
+        state: histogram
+        session: clas12_group1
+    -
+      class: org.jlab.clas12.callbacks.ECDataReport
+      topic:
+        state: data_filter
+        session: clas12_group1
+        engine: ECMonitor
+
+  dpe-reports:
+    -
+      class: org.jlab.clas12.callbacks.DpeRegReport
+    -
+      class: org.jlab.clas12.callbacks.DpeRunReport
+      topic:
+        session: clas12_group1

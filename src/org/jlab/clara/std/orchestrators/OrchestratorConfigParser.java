@@ -36,11 +36,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.jlab.clara.base.ClaraLang;
 import org.jlab.clara.base.DpeName;
+import org.jlab.clara.std.orchestrators.CallbackInfo.RingCallbackInfo;
+import org.jlab.clara.std.orchestrators.CallbackInfo.RingTopic;
 import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -252,6 +255,100 @@ public class OrchestratorConfigParser {
     }
 
 
+    List<RingCallbackInfo> parseDataRingCallbacks() {
+        List<RingCallbackInfo> callbacks = new ArrayList<>();
+        JSONObject co = config.optJSONObject("callbacks");
+        if (co == null) {
+            throw error("missing callbacks");
+        }
+
+        callbacks.addAll(parseDataRingCallbacks(co, "service-reports", this::engineRingTopic));
+        callbacks.addAll(parseDataRingCallbacks(co, "dpe-reports", this::dpeRingTopic));
+
+        return callbacks;
+    }
+
+
+    private List<RingCallbackInfo> parseDataRingCallbacks(
+            JSONObject parent,
+            String callbacksKey,
+            Function<JSONObject, RingTopic> topicParser) {
+        List<RingCallbackInfo> callbacks = new ArrayList<>();
+        JSONArray ca = parent.optJSONArray(callbacksKey);
+        if (ca != null) {
+            for (int i = 0; i < ca.length(); i++) {
+                JSONObject data = ca.getJSONObject(i);
+                String classPath = data.optString("class");
+                if (classPath.isEmpty()) {
+                    throw error("missing class of callback");
+                }
+                RingTopic topic = parseRingTopic(data, topicParser);
+                callbacks.add(new RingCallbackInfo(classPath, topic));
+            }
+        }
+        return callbacks;
+    }
+
+
+    private RingTopic parseRingTopic(JSONObject data,
+                                     Function<JSONObject, RingTopic> parser) {
+        if (!data.has("topic")) {
+            return new RingTopic(null, null, null);
+        }
+        JSONObject topic = data.optJSONObject("topic");
+        String cb = data.optString("class");
+        if (topic == null) {
+            throw error("invalid topic for callback: " + cb);
+        }
+        try {
+            return parser.apply(topic);
+        } catch (OrchestratorConfigException e) {
+            throw error("invalid topic for callback " + cb + ": " + e.getMessage());
+        }
+    }
+
+
+    private RingTopic engineRingTopic(JSONObject topic) {
+        String state = parseRingTopicPart(topic, "state");
+        String session = parseRingTopicPart(topic, "session");
+        String engine = parseRingTopicPart(topic, "engine");
+        if (state == null || state.isEmpty()) {
+            throw error("missing state");
+        }
+        if (session == null && engine != null) {
+            throw error("missing session");
+        }
+        if (engine != null && engine.isEmpty()) {
+            throw error("missing engine");
+        }
+        return new RingTopic(state, session, engine);
+    }
+
+
+    private RingTopic dpeRingTopic(JSONObject topic) {
+        if (topic.has("state")) {
+            throw error("state is not supported");
+        }
+        if (topic.has("engine")) {
+            throw error("engine is not supported");
+        }
+        String session = parseRingTopicPart(topic, "session");
+        return new RingTopic(null, session, null);
+    }
+
+
+    private String parseRingTopicPart(JSONObject topic, String key) {
+        String part = null;
+        if (topic.has(key)) {
+            part = parseString(topic, key);
+            if (part == null) {
+                throw error("invalid " + key);
+            }
+        }
+        return part;
+    }
+
+
     JSONObject parseConfiguration() {
         if (config.has("configuration")) {
             return config.getJSONObject("configuration");
@@ -318,6 +415,15 @@ public class OrchestratorConfigParser {
             throw error("could not open file", e);
         } catch (UncheckedIOException e) {
             throw error("could not read list of input files from " + inputFilesList);
+        }
+    }
+
+
+    private static String parseString(JSONObject json, String key) {
+        try {
+            return json.getString(key);
+        } catch (JSONException e) {
+            return null;
         }
     }
 

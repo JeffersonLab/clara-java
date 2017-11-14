@@ -30,6 +30,8 @@ import java.util.Map;
 
 import org.jlab.clara.IntegrationTest;
 import org.jlab.clara.base.ClaraLang;
+import org.jlab.clara.std.orchestrators.CallbackInfo.RingCallbackInfo;
+import org.jlab.clara.std.orchestrators.CallbackInfo.RingTopic;
 import org.json.JSONObject;
 import org.junit.Rule;
 import org.junit.Test;
@@ -129,6 +131,29 @@ public class OrchestratorConfigParserTest {
         );
 
         assertThat(parser.parseMonitoringServices(), is(expected));
+    }
+
+
+    @Test
+    public void parseDataRingCallbacks() throws Exception {
+        OrchestratorConfigParser parser = parseFile("/resources/service-callbacks.yml");
+
+        List<RingCallbackInfo> expected = Arrays.asList(
+                new RingCallbackInfo("org.jlab.clas12.callbacks.ECHistogramReport",
+                                     new RingTopic(null, null, null)),
+                new RingCallbackInfo("org.jlab.clas12.callbacks.ECHistogramReport",
+                                     new RingTopic("histogram", null, null)),
+                new RingCallbackInfo("org.jlab.clas12.callbacks.ECHistogramReport",
+                                     new RingTopic("histogram", "clas12_group1", null)),
+                new RingCallbackInfo("org.jlab.clas12.callbacks.ECDataReport",
+                                     new RingTopic("data_filter", "clas12_group1", "ECMonitor")),
+                new RingCallbackInfo("org.jlab.clas12.callbacks.DpeRegReport",
+                                     new RingTopic(null, null, null)),
+                new RingCallbackInfo("org.jlab.clas12.callbacks.DpeRunReport",
+                                     new RingTopic(null, "clas12_group1", null))
+        );
+
+        assertThat(parser.parseDataRingCallbacks(), is(expected));
     }
 
 
