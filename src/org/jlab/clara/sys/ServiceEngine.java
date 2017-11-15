@@ -202,15 +202,15 @@ class ServiceEngine {
 
     private Set<String> getLinks(EngineData inData, EngineData outData) {
         ServiceState ownerSS = new ServiceState(outData.getEngineName(),
-            outData.getExecutionState());
+                                                outData.getExecutionState());
         ServiceState inputSS = new ServiceState(inData.getEngineName(),
-            inData.getExecutionState());
+                                                inData.getExecutionState());
 
         return compiler.getLinks(ownerSS, inputSS);
     }
 
     private EngineData executeEngine(EngineData inData)
-        throws ClaraException {
+            throws ClaraException {
         long startTime = startClock();
 
         EngineData outData = engine.execute(inData);
@@ -223,7 +223,7 @@ class ServiceEngine {
         if (outData.getData() == null) {
             if (outData.getStatus() == EngineStatus.ERROR) {
                 outData.setData(EngineDataType.STRING.mimeType(),
-                    ClaraConstants.UNDEFINED);
+                                ClaraConstants.UNDEFINED);
             } else {
                 throw new ClaraException("empty engine result");
             }
@@ -304,9 +304,9 @@ class ServiceEngine {
     private void sendMonitorData(String state, EngineData data) throws ClaraException {
         if (monitorFe != null) {
             xMsgTopic topic = xMsgTopic.wrap(ClaraConstants.MONITOR_REPORT
-                + xMsgConstants.TOPIC_SEP + state
-                + xMsgConstants.TOPIC_SEP + sysReport.getSession()
-                + xMsgConstants.TOPIC_SEP + base.getEngine());
+                    + xMsgConstants.TOPIC_SEP + state
+                    + xMsgConstants.TOPIC_SEP + sysReport.getSession()
+                    + xMsgConstants.TOPIC_SEP + base.getEngine());
             xMsgMessage transit = DataUtil.serialize(topic, data, engine.getOutputDataTypes());
             base.sendUncheck(monitorFe.getProxyAddress(), transit);
         }
@@ -328,7 +328,7 @@ class ServiceEngine {
     }
 
     private xMsgMessage putEngineData(EngineData data, String receiver)
-        throws ClaraException {
+            throws ClaraException {
         xMsgTopic topic = xMsgTopic.wrap(receiver);
         if (SharedMemory.containsReceiver(receiver)) {
             int id = data.getCommunicationId();
