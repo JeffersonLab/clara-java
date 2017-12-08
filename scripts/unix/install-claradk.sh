@@ -2,13 +2,10 @@
 # author Vardan Gyurjyan
 # date 1.13.17
 
-export CLARA_HOME=/Users/gurjyan/Testbed/clara/clara-cre
-
 if ! [ -n "$CLARA_HOME" ]; then
     echo "CLARA_HOME environmental variable is not defined. Exiting..."
     exit
 fi
-
 
 command_exists () {
     type "$1" &> /dev/null ;
@@ -48,8 +45,8 @@ cd clara-java || exit
 
 
 echo "Downloading jre packages ..."
-rm -rf "$CLARA_HOME"/clara-cre/jre
-mkdir "$CLARA_HOME"/clara-cre/jre
+rm -rf "$CLARA_HOME"/jre
+mkdir "$CLARA_HOME"/jre
 
 OS=$(uname)
 case $OS in
@@ -57,10 +54,10 @@ case $OS in
         MACHINE_TYPE=$(uname -m)
         if [ "$MACHINE_TYPE" == "x86_64" ]; then
             wget https://userweb.jlab.org/~gurjyan/clara-cre/linux-64.tar.gz
-            mv linux-64.tar.gz "$CLARA_HOME"/clara-cre/jre
+            mv linux-64.tar.gz "$CLARA_HOME"/jre
         else
             wget https://userweb.jlab.org/~gurjyan/clara-cre/linux-i586.tar.gz
-            mv linux-i586.tar.gz "$CLARA_HOME"/clara-cre/jre
+            mv linux-i586.tar.gz "$CLARA_HOME"/jre
         fi
         ;;
 
@@ -76,10 +73,10 @@ case $OS in
     *) ;;
 esac
 
-mkdir "$CLARA_HOME"/clara-cre/plugins
+mkdir "$CLARA_HOME"/plugins
 
 echo "Installing jre ..."
-cd "$CLARA_HOME"/clara-cre/jre || exit
+cd "$CLARA_HOME"/jre || exit
 tar xvzf ./*.tar.*
 rm -f ./*.tar.*
 

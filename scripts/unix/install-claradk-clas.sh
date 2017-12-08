@@ -2,8 +2,6 @@
 # author Vardan Gyurjyan
 # date 1.13.17
 
-export CLARA_HOME=/Users/gurjyan/Testbed/clara/clara-cre
-
 if ! [ -n "$CLARA_HOME" ]; then
     echo "CLARA_HOME environmental variable is not defined. Exiting..."
     exit
@@ -16,7 +14,7 @@ mkdir "$CLARA_HOME"/plugins
 mkdir "$CLARA_HOME"/plugins/clas12
 mkdir "$CLARA_HOME"/plugins/clas12/config
 
-PLUGIN=4a.4.0
+PLUGIN=4a.8.4
 
 while :
 do

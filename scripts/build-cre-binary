@@ -2,7 +2,6 @@
 # author Vardan Gyurjyan
 # date 1.13.17
 
-export CLARA_HOME=/Users/gurjyan/Testbed//clara/clara-cre
 
 rm -rf $CLARA_HOME/plugins/clas12/bin
 rm -rf $CLARA_HOME/plugins/clas12/etc
@@ -24,6 +23,8 @@ rm $CLARA_HOME/data/output/*
 
 rm -rf $CLARA_HOME/jre
 cd $CLARA_HOME/..
+
+mv $1 clara-cre
 
 tar cvf clara-cre.tar clara-cre
 gzip clara-cre.tar
