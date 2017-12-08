@@ -126,7 +126,6 @@ rm -rf coatjava
 rm coatjava-$PLUGIN.tar.gz
 
 chmod a+x "$CLARA_HOME"/bin/*
-#chmod a+x "$CLARA_HOME"/bin/etc/*
 
 
 echo "Done!"
