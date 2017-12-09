@@ -125,6 +125,14 @@ rm -rf "$CLARA_HOME"/plugins/clas12/etc/services
 rm -rf coatjava
 rm coatjava-$PLUGIN.tar.gz
 
+echo "Downloading and building clasrec-io package ..."
+git clone --depth 1 https://github.com/JeffersonLab/clasrec-io.git
+(
+cd clasrec-io || exit
+./gradlew deploy
+)
+rm -rf clasrec-io
+
 chmod a+x "$CLARA_HOME"/bin/*
 
 
