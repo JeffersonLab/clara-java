@@ -21,7 +21,7 @@
 # Department of Experimental Nuclear Physics, Jefferson Lab.
 
 try_perl() {
-    pelrl -MPOSIX -e ';' 1>/dev/null 2>&1
+    perl -MPOSIX -e ';' 1>/dev/null 2>&1
 }
 
 if ! try_perl; then
