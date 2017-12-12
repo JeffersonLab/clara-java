@@ -132,7 +132,7 @@ class ServiceEngine {
         if (outData == null) {
             outData = new EngineData();
         }
-        if (outData.getData() ==  null) {
+        if (outData.getData() == null) {
             outData.setData(EngineDataType.STRING.mimeType(), "done");
         }
 

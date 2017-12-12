@@ -128,7 +128,7 @@ uploadArchives {
     repositories {
         mavenDeployer {
             configuration = configurations.deployerJars
-            repository(url: 'scpexe://ifarm65.jlab.org/group/clas/www/clasweb/html/clas12maven') {
+            repository(url: 'scpexe://ifarm1401.jlab.org/group/clas/www/clasweb/html/clas12maven') {
                 authentication(userName: 'clas12')
             }
         }
