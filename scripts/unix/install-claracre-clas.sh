@@ -11,7 +11,7 @@ fi
 
 rm -rf "$CLARA_HOME"
 
-PLUGIN=4a.8.4
+PLUGIN=5a.2.0
 
 case "$1" in
     -v | --version)
@@ -40,7 +40,7 @@ case $OS in
         wget https://userweb.jlab.org/~gurjyan/clara-cre/clara-cre.tar.gz
 
         if [ "$is_local" == "false" ]; then
-            wget http://clasweb.jlab.org/clas12offline/distribution/coatjava/coatjava-$PLUGIN.tar.gz
+            wget https://clasweb.jlab.org/clas12offline/distribution/coatjava/coatjava-$PLUGIN.tar.gz
         else
             cp $PLUGIN .
         fi
@@ -67,7 +67,7 @@ case $OS in
         curl "https://userweb.jlab.org/~gurjyan/clara-cre/clara-cre.tar.gz" -o clara-cre.tar.gz
 
        if [ "$is_local" == "false" ]; then
-            curl "http://clasweb.jlab.org/clas12offline/distribution/coatjava/coatjava-$PLUGIN.tar.gz" -o coatjava-$PLUGIN.tar.gz
+            curl "https://clasweb.jlab.org/clas12offline/distribution/coatjava/coatjava-$PLUGIN.tar.gz" -o coatjava-$PLUGIN.tar.gz
        else
             cp $PLUGIN .
        fi
@@ -101,18 +101,9 @@ tar xvzf coatjava-$PLUGIN.tar.gz
 cd coatjava || exit
 cp -r etc "$CLARA_HOME"/plugins/clas12/.
 cp -r bin "$CLARA_HOME"/plugins/clas12/.
-cp -r lib/utils "$CLARA_HOME"/plugins/clas12/lib/
-cp -r lib/clas "$CLARA_HOME"/plugins/clas12/lib/.
-cp -r lib/services "$CLARA_HOME"/plugins/clas12/lib/.
+cp lib/clas/* "$CLARA_HOME"/plugins/clas12/lib/clas/.
+cp lib/services/* "$CLARA_HOME"/plugins/clas12/lib/services/.
 )
-
-rm -f "$CLARA_HOME"/plugins/clas12/lib/services/.*.jar
-rm -f "$CLARA_HOME"/plugins/clas12/lib/clas/.*.jar
-
-rm -f "$CLARA_HOME"/plugins/clas12/lib/clas/commons-exec*.jar
-rm -f "$CLARA_HOME"/plugins/clas12/lib/clas/jsap*.jar
-rm -f "$CLARA_HOME"/plugins/clas12/lib/clas/json*.jar
-rm -f "$CLARA_HOME"/plugins/clas12/lib/clas/snakeyaml*.jar
 
 
 rm -f "$CLARA_HOME"/plugins/clas12/bin/clara-rec
@@ -122,22 +113,6 @@ rm -rf "$CLARA_HOME"/plugins/clas12/etc/services
 
 rm -rf coatjava
 rm coatjava-$PLUGIN.tar.gz
-
-echo "Downloading and building clasrec-io package ..."
-git clone --depth 1 https://github.com/JeffersonLab/clasrec-io.git
-(
-cd clasrec-io || exit
-./gradlew deploy
-)
-rm -rf clasrec-io
-
-echo "Downloading and building clasrec-orchestrators package ..."
-git clone --depth 1 https://github.com/JeffersonLab/clasrec-orchestrators.git
-(
-cd clasrec-orchestrators || exit
-./gradlew deploy
-)
-rm -rf clasrec-orchestrators
 
 chmod a+x "$CLARA_HOME"/bin/*
 

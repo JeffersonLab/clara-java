@@ -55,4 +55,18 @@ cd clara-java || exit
 ./gradlew deploy
 )
 
+echo "Downloading and building clasrec-io package ..."
+git clone --depth 1 https://github.com/JeffersonLab/clasrec-io.git
+(
+cd clasrec-io || exit
+./gradlew deploy
+)
+
+echo "Downloading and building clasrec-orchestrators package ..."
+git clone --depth 1 https://github.com/JeffersonLab/clasrec-orchestrators.git
+(
+cd clasrec-orchestrators || exit
+./gradlew deploy
+)
+
 echo "Done!"

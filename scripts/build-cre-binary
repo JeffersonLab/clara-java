@@ -2,10 +2,7 @@
 # author Vardan Gyurjyan
 # date 1.13.17
 
-cd $CLARA_HOME/..
-
-mv $1 clara-cre
-
+mv $CLARA_HOME $CLARA_HOME/../clara-cre
 tar cvf clara-cre.tar clara-cre
 gzip clara-cre.tar
 
