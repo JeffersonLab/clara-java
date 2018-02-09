@@ -68,7 +68,7 @@ public final class ClaraUtil {
      * </pre>
      */
     public static final Pattern CANONICAL_NAME_PATTERN =
-            Pattern.compile("^(([^:%_ ]+)(%\\d+)?_(java|python|cpp))(:([a-zA-Z_0-9-.]+)(:([a-zA-Z_0-9-.]+))?)?$");
+            Pattern.compile("^(([^:%_ ]+)(%\\d+)?_(java|python|cpp))(:([a-zA-Z_0-9-]+)(:([a-zA-Z_0-9-]+))?)?$");
 //            Pattern.compile("^(([^:%_ ]+)(%\\d+)?_(java|python|cpp))(:(\\w+)(:(\\w+))?)?$");
 
     private static final int CONTAINER_GROUP = 6;
