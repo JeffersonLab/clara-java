@@ -69,4 +69,6 @@ cd clasrec-orchestrators || exit
 ./gradlew deploy
 )
 
+#rm -f $CLARA_HOME/plugins/clas12/lib/clas/jevio-4.4.6.jar
+
 echo "Done!"

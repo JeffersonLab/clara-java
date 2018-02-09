@@ -63,7 +63,8 @@ public class CompositionCompiler {
     /**
      * String that starts with a character and can have preceding number.
      */
-    public static final String WORD = "([A-Z|a-z]+[0-9]*)";
+    public static final String WORD = "([a-zA-Z_0-9-.])";
+//    public static final String WORD = "([A-Z|a-z]+[0-9]*)";
     public static final String PORT = "(%+[0-9]*)*";
 
     /**
