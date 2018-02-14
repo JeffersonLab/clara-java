@@ -319,6 +319,8 @@ class WorkerNode {
                 inputConfig.put("max", maxEv);
             }
             orchestrator.syncConfig(readerName, inputConfig, 5, TimeUnit.MINUTES);
+        } catch (OrchestratorConfigException e) {
+            throw new OrchestratorException("Could not configure reader", e);
         } catch (ClaraException | TimeoutException e) {
             throw new OrchestratorException("Could not open input file", e);
         }
@@ -341,6 +343,8 @@ class WorkerNode {
             outputConfig.put("order", fileOrder);
             outputConfig.put("overwrite", true);
             orchestrator.syncConfig(writerName, outputConfig, 5, TimeUnit.MINUTES);
+        } catch (OrchestratorConfigException e) {
+            throw new OrchestratorException("Could not configure writer", e);
         } catch (ClaraException | TimeoutException e) {
             throw new OrchestratorException("Could not open output file", e);
         }
@@ -407,6 +411,8 @@ class WorkerNode {
         for (ServiceName service : application.services()) {
             try {
                 orchestrator.syncConfig(service, configuration.get(service), 2, TimeUnit.MINUTES);
+            } catch (OrchestratorConfigException e) {
+                throw new OrchestratorException("Could not configure " + service, e);
             } catch (ClaraException | TimeoutException e) {
                 throw new OrchestratorException("Could not configure " + service, e);
             }

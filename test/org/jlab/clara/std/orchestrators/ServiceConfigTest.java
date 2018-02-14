@@ -31,6 +31,8 @@ import org.json.JSONObject;
 import org.junit.Test;
 
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ServiceConfigTest {
 
@@ -171,5 +173,29 @@ public class ServiceConfigTest {
         ServiceConfig conf = new ServiceConfig(data);
 
         assertThat(conf.get(N1).getBoolean("log"), is(true));
+    }
+
+    @Test
+    public void withTemplateAsValue() throws Exception {
+        JSONObject test = new JSONObject();
+        test.put("variation", "custom");
+        test.put("run", 10);
+        test.put("config_file", "${input_file?replace(\".dat\", \".conf\")}");
+        test.put("user", "${\"john doe\"?capitalize}");
+
+        JSONObject services = new JSONObject();
+        services.put("Test", test);
+
+        JSONObject data = new JSONObject();
+        data.put("services", services);
+
+        Map<String, Object> model = new HashMap<>();
+        model.put("input_file", "run10_20180101.dat");
+
+        ServiceConfig conf = new ServiceConfig(data, model);
+        JSONObject serviceData = conf.get(new ServiceName("10.1.1.1_java:master:Test"));
+
+        assertThat(serviceData.getString("config_file"), is("run10_20180101.conf"));
+        assertThat(serviceData.getString("user"), is("John Doe"));
     }
 }
