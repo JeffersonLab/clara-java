@@ -25,6 +25,7 @@ package org.jlab.clara.std.orchestrators;
 import org.jlab.clara.util.FileUtils;
 
 import java.io.File;
+import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -67,6 +68,7 @@ class OrchestratorPaths {
 
         Builder(List<String> inputFiles) {
             this.allFiles = inputFiles.stream()
+                    .peek(f -> checkValidFileName(f))
                     .map(f -> new WorkerFile(f, "out_" + f))
                     .collect(Collectors.toList());
         }
@@ -88,6 +90,16 @@ class OrchestratorPaths {
 
         OrchestratorPaths build() {
             return new OrchestratorPaths(this);
+        }
+
+        private static void checkValidFileName(String file) {
+            try {
+                if (Paths.get(file).getParent() != null) {
+                    throw new OrchestratorConfigException("Input file cannot be a path: " + file);
+                }
+            } catch (InvalidPathException e) {
+                throw new OrchestratorConfigException(e);
+            }
         }
     }
 

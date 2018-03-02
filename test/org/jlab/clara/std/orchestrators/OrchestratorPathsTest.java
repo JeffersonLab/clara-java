@@ -70,6 +70,24 @@ public class OrchestratorPathsTest {
     }
 
     @Test
+    public void fileListShallNotContainFullPaths() throws Exception {
+        List<String> files = Arrays.asList("/a/b/c1.evio", "/a/b/c2.evio");
+
+        thrown.expect(OrchestratorConfigException.class);
+        thrown.expectMessage("Input file cannot be a path: /a/b/c1.evio");
+        new OrchestratorPaths.Builder(files);
+    }
+
+    @Test
+    public void fileListShallNotContainRelavitePaths() throws Exception {
+        List<String> files = Arrays.asList("c1.evio", "b/c2.evio");
+
+        thrown.expect(OrchestratorConfigException.class);
+        thrown.expectMessage("Input file cannot be a path: b/c2.evio");
+        new OrchestratorPaths.Builder(files);
+    }
+
+    @Test
     public void defaultInputDirIsInClaraHome() throws Exception {
         OrchestratorPaths paths = new OrchestratorPaths.Builder(SIMPLE_LIST).build();
 
