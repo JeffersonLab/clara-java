@@ -49,9 +49,9 @@ class OrchestratorPaths {
 
         private final List<WorkerFile> allFiles;
 
-        private Path inputDir;
-        private Path outputDir;
-        private Path stageDir;
+        private Path inputDir = Paths.get(INPUT_DIR);
+        private Path outputDir = Paths.get(OUTPUT_DIR);
+        private Path stageDir = Paths.get(STAGE_DIR);
 
         Builder(String inputFile, String outputFile) {
             Path inputPath = Paths.get(inputFile);
