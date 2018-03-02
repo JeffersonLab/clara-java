@@ -212,7 +212,7 @@ class WorkerNode {
                 return false;
             }
         } catch (ClaraException | TimeoutException e) {
-            throw new OrchestratorException("Could not configure directories", e);
+            throw new OrchestratorException("Could not stage input file", e);
         }
     }
 
