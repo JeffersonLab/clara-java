@@ -22,7 +22,6 @@
 
 package org.jlab.clara.std.cli;
 
-import org.jlab.clara.base.core.ClaraConstants;
 import org.jlab.clara.util.FileUtils;
 
 import java.io.BufferedWriter;
@@ -380,7 +379,6 @@ final class FarmCommands {
             model.put("clas12", "dir", PLUGIN);
 
             // set monitor FE
-            model.put("env", "monitorFE", ClaraConstants.ENV_MONITOR_FE);
             String monitor = runUtils.getMonitorFrontEnd();
             if (monitor != null) {
                 model.put("clara", "monitorFE", monitor);
