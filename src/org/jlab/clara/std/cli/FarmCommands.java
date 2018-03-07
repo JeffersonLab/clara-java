@@ -80,7 +80,7 @@ final class FarmCommands {
 
     private static final Configuration FTL_CONFIG = new Configuration(Configuration.VERSION_2_3_25);
 
-    static final Path PLUGIN = Paths.get(Config.claraHome(), "plugins", "clas12");
+    static final Path PLUGIN = FileUtils.claraPath("plugins", "clas12");
 
 
     private FarmCommands() { }
@@ -292,7 +292,7 @@ final class FarmCommands {
         }
 
         private String getClaraCommand() {
-            Path wrapper = Paths.get(Config.claraHome(), "lib", "clara", "run-clara");
+            Path wrapper = FileUtils.claraPath("lib", "clara", "run-clara");
             CommandBuilder cmd = new CommandBuilder(wrapper, true);
 
             cmd.addOption("-i", config.getString(Config.INPUT_DIR));
@@ -505,7 +505,7 @@ final class FarmCommands {
         if (devDir != null) {
             return Paths.get(devDir);
         }
-        return Paths.get(Config.claraHome(), "lib", "clara", "templates");
+        return FileUtils.claraPath("lib", "clara", "templates");
     }
 
 

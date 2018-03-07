@@ -36,6 +36,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.jlab.clara.util.ArgUtils;
+import org.jlab.clara.util.FileUtils;
 import org.jline.reader.Completer;
 import org.jline.reader.EndOfFileException;
 import org.jline.reader.History;
@@ -315,7 +316,7 @@ public final class ClaraShell implements AutoCloseable {
     }
 
     private void loadHistory() {
-        Path histFile = Paths.get(Config.claraHome(), HISTORY_NAME);
+        Path histFile = FileUtils.claraPath(HISTORY_NAME);
         reader.setVariable(LineReader.HISTORY_FILE, histFile);
         history.load();
     }

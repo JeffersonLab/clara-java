@@ -22,7 +22,6 @@
 
 package org.jlab.clara.std.cli;
 
-import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -31,6 +30,7 @@ import java.util.Map;
 import java.util.function.BiFunction;
 
 import org.jlab.clara.util.ArgUtils;
+import org.jlab.clara.util.FileUtils;
 import org.jline.reader.Completer;
 import org.jline.reader.impl.completer.FileNameCompleter;
 
@@ -212,7 +212,6 @@ public class Config {
             defaultVariables.put(n, b);
             return b;
         };
-        String claraHome = claraHome();
 
         addBuilder.apply(SERVICES_FILE,
                 "Path to the file describing application service composition.")
@@ -226,13 +225,13 @@ public class Config {
 
         addBuilder.apply(INPUT_DIR,
                 "The input directory where the files to be processed are located.")
-                .withInitialValue(Paths.get(claraHome, "data", "input").toString())
+                .withInitialValue(FileUtils.claraPath("data", "input").toString())
                 .withParser(ConfigParsers::toExistingDirectory)
                 .withCompleter(fileCompleter());
 
         addBuilder.apply(OUTPUT_DIR,
                 "The output directory where processed files will be saved.")
-                .withInitialValue(Paths.get(claraHome, "data", "output").toString())
+                .withInitialValue(FileUtils.claraPath("data", "output").toString())
                 .withParser(ConfigParsers::toDirectory)
                 .withCompleter(fileCompleter());
 
@@ -254,7 +253,7 @@ public class Config {
 
         addBuilder.apply(LOG_DIR,
                 "The directory where log files will be saved.")
-                .withInitialValue(Paths.get(claraHome, "log").toString())
+                .withInitialValue(FileUtils.claraPath("log").toString())
                 .withParser(ConfigParsers::toDirectory)
                 .withCompleter(fileCompleter());
 

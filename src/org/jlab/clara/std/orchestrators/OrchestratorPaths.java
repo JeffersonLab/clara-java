@@ -34,9 +34,8 @@ import java.util.stream.Collectors;
 
 class OrchestratorPaths {
 
-    static final String DATA_DIR = System.getenv("CLARA_HOME") + File.separator + "data";
-    static final String INPUT_DIR = DATA_DIR + File.separator + "input";
-    static final String OUTPUT_DIR = DATA_DIR + File.separator + "output";
+    static final String INPUT_DIR = FileUtils.claraPath("data", "input").toString();
+    static final String OUTPUT_DIR = FileUtils.claraPath("data", "output").toString();
     static final String STAGE_DIR = File.separator + "scratch";
 
     final List<WorkerFile> allFiles;

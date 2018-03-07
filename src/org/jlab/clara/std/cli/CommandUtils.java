@@ -22,6 +22,8 @@
 
 package org.jlab.clara.std.cli;
 
+import org.jlab.clara.util.FileUtils;
+
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -170,11 +172,11 @@ public final class CommandUtils {
 
     private static String commandWrapper() {
         return Optional.ofNullable(System.getenv("CLARA_COMMAND_WRAPPER"))
-                .orElse(Paths.get(Config.claraHome(), "lib", "clara", "cmd-wrapper").toString());
+                .orElse(FileUtils.claraPath("lib", "clara", "cmd-wrapper").toString());
     }
 
     private static String commandLogger() {
         return Optional.ofNullable(System.getenv("CLARA_COMMAND_LOGGER"))
-                .orElse(Paths.get(Config.claraHome(), "lib", "clara", "cmd-logger").toString());
+                .orElse(FileUtils.claraPath("lib", "clara", "cmd-logger").toString());
     }
 }

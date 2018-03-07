@@ -23,6 +23,7 @@
 package org.jlab.clara.std.cli;
 
 import org.jlab.clara.base.ClaraLang;
+import org.jlab.clara.util.FileUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -92,7 +93,7 @@ class ShowCommand extends BaseCommand {
     }
 
     private int showLogDir() {
-        Path logDir = Paths.get(Config.claraHome(), "log");
+        Path logDir = FileUtils.claraPath("log");
         return RunUtils.listFiles(logDir, "lhtr");
     }
 

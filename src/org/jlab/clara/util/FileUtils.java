@@ -49,6 +49,10 @@ public final class FileUtils {
         return Paths.get(path);
     }
 
+    public static Path claraPath(String... args) {
+        return Paths.get(System.getenv("CLARA_HOME"), args);
+    }
+
     public static Path getFileName(Path path) {
         Path fileName = path.getFileName();
         if (fileName == null) {

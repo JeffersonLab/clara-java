@@ -25,7 +25,6 @@ package org.jlab.clara.std.cli;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -41,6 +40,7 @@ import org.jlab.clara.base.DpeName;
 import org.jlab.clara.base.core.ClaraConstants;
 import org.jlab.clara.std.orchestrators.OrchestratorConfigException;
 import org.jlab.clara.std.orchestrators.OrchestratorConfigParser;
+import org.jlab.clara.util.FileUtils;
 
 class RunCommand extends BaseCommand {
 
@@ -90,7 +90,7 @@ class RunCommand extends BaseCommand {
         }
 
         private String[] orchestratorCmd(DpeName feName) {
-            Path orchestrator = Paths.get(Config.claraHome(), "bin", "clara-orchestrator");
+            Path orchestrator = FileUtils.claraPath("bin", "clara-orchestrator");
             CommandBuilder cmd = new CommandBuilder(orchestrator, false);
 
             cmd.addOption("-F");
@@ -126,7 +126,7 @@ class RunCommand extends BaseCommand {
             destroyDpes();
 
             DpeName feName = new DpeName(findHost(), findPort(), ClaraLang.JAVA);
-            String javaDpe = Paths.get(Config.claraHome(), "bin", "j_dpe").toString();
+            String javaDpe = FileUtils.claraPath("bin", "j_dpe").toString();
             addBackgroundDpeProcess(feName, javaDpe,
                     "--host", getHost(feName),
                     "--port", getPort(feName),
@@ -135,7 +135,7 @@ class RunCommand extends BaseCommand {
             if (languages.contains(ClaraLang.CPP)) {
                 int cppPort = feName.address().pubPort() + 10;
                 DpeName cppName = new DpeName(feName.address().host(), cppPort, ClaraLang.CPP);
-                String cppDpe = Paths.get(Config.claraHome(), "bin", "c_dpe").toString();
+                String cppDpe = FileUtils.claraPath("bin", "c_dpe").toString();
                 addBackgroundDpeProcess(cppName, cppDpe,
                         "--host", getHost(cppName),
                         "--port", getPort(cppName),
@@ -146,7 +146,7 @@ class RunCommand extends BaseCommand {
             if (languages.contains(ClaraLang.PYTHON)) {
                 int pyPort = feName.address().pubPort() + 5;
                 DpeName pyName = new DpeName(feName.address().host(), pyPort, ClaraLang.PYTHON);
-                String pyDpe = Paths.get(Config.claraHome(), "bin", "p_dpe").toString();
+                String pyDpe = FileUtils.claraPath("bin", "p_dpe").toString();
                 addBackgroundDpeProcess(pyName, pyDpe,
                         "--host", getHost(pyName),
                         "--port", getPort(pyName),

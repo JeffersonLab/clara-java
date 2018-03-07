@@ -3,6 +3,7 @@ package org.jlab.clara.std.orchestrators;
 import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 
+import org.jlab.clara.util.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -91,14 +92,14 @@ public class OrchestratorPathsTest {
     public void defaultInputDirIsInClaraHome() throws Exception {
         OrchestratorPaths paths = new OrchestratorPaths.Builder(SIMPLE_LIST).build();
 
-        assertThat(paths.inputDir, is(Paths.get(System.getenv("CLARA_HOME"), "data", "input")));
+        assertThat(paths.inputDir, is(FileUtils.claraPath("data", "input")));
     }
 
     @Test
     public void defaultOutputDirIsInClaraHome() throws Exception {
         OrchestratorPaths paths = new OrchestratorPaths.Builder(SIMPLE_LIST).build();
 
-        assertThat(paths.outputDir, is(Paths.get(System.getenv("CLARA_HOME"), "data", "output")));
+        assertThat(paths.outputDir, is(FileUtils.claraPath("data", "output")));
     }
 
     @Test
