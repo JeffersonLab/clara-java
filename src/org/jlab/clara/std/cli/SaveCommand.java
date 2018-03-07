@@ -26,7 +26,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Scanner;
 
 import org.jlab.clara.base.ClaraUtil;
@@ -49,7 +48,7 @@ class SaveCommand extends AbstractCommand {
             writer.println("Error: missing filename argument");
             return EXIT_ERROR;
         }
-        Path path = Paths.get(FileUtils.expandHome(args[0]));
+        Path path = FileUtils.expandHome(args[0]);
         if (Files.exists(path)) {
             boolean overwrite = scanAnswer();
             if (!overwrite) {

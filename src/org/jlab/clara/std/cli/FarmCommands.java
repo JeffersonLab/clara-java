@@ -260,7 +260,7 @@ final class FarmCommands {
 
         private int splitIntoMultipleJobs(int filesPerJob) throws IOException, TemplateException {
             String description = config.getString(Config.DESCRIPTION);
-            String fileList = config.getString(Config.FILES_LIST);
+            Path fileList = Paths.get(config.getString(Config.FILES_LIST));
             try {
                 Path dotDir = Paths.get(PLUGIN.toString(), "config", "." + description);
                 FileUtils.deleteFileTree(dotDir);
@@ -518,9 +518,9 @@ final class FarmCommands {
     }
 
 
-    private static List<List<String>> partitionFiles(String fileList, int filesPerJob)
+    private static List<List<String>> partitionFiles(Path fileList, int filesPerJob)
             throws IOException {
-        List<String> files = Files.lines(Paths.get(fileList))
+        List<String> files = Files.lines(fileList)
                                   .collect(Collectors.toList());
         List<List<String>> groupedFiles = new ArrayList<>();
         for (int i = 0; i < files.size(); i += filesPerJob) {

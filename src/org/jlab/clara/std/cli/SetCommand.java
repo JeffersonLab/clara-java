@@ -93,7 +93,7 @@ class SetCommand extends BaseCommand {
             throw new IllegalArgumentException("missing argument");
         }
         try {
-            Path path = Paths.get(FileUtils.expandHome(args[0]));
+            Path path = FileUtils.expandHome(args[0]);
             File output = getOutputFile();
             try (PrintWriter printer = FileUtils.openOutputTextFile(output.toPath(), false)) {
                 if (Files.isDirectory(path)) {

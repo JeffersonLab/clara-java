@@ -167,7 +167,7 @@ public final class ClaraShell implements AutoCloseable {
          */
         public Builder withEditSubCommand(String name,
                                           String description,
-                                          Function<Config, String> fileArg) {
+                                          Function<Config, Path> fileArg) {
             ArgUtils.requireNonEmpty(name, "name");
             ArgUtils.requireNonEmpty(description, "description");
             ArgUtils.requireNonNull(fileArg, "edit subcommand argument");

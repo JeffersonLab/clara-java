@@ -25,6 +25,7 @@ package org.jlab.clara.std.cli;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,11 +56,11 @@ public final class CommandUtils {
     /**
      * Opens the given file in the default text editor of the user.
      *
-     * @param filePath the file to be edited
+     * @param file the file to be edited
      * @return the exit status of the editor program
      */
-    public static int editFile(String filePath) {
-        return runProcess(getEditor(), filePath);
+    public static int editFile(Path file) {
+        return runProcess(getEditor(), file.toString());
     }
 
     /**
@@ -160,12 +161,11 @@ public final class CommandUtils {
      * @param logFile the path to the log file
      * @return the wrapper program that runs the given command
      */
-    public static String[] uninterruptibleCommand(String[] command, String logFile) {
-        List<String> logCmd = new ArrayList<>();
-        logCmd.add(commandLogger());
-        logCmd.add(logFile);
-        logCmd.addAll(Arrays.asList(command));
-        return logCmd.toArray(new String[logCmd.size()]);
+    public static String[] uninterruptibleCommand(String[] command, Path logFile) {
+        CommandBuilder b = new CommandBuilder(commandLogger(), false);
+        b.addArgument(logFile);
+        Arrays.asList(command).forEach(b::addArgument);
+        return b.toArray();
     }
 
     private static String commandWrapper() {

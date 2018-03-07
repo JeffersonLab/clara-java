@@ -84,25 +84,15 @@ class ShowCommand extends BaseCommand {
     }
 
     private int showInputDir() {
-        String variable = Config.INPUT_DIR;
-        if (!config.hasValue(variable)) {
-            writer.printf("Error: variable %s is not set%n", variable);
-            return EXIT_ERROR;
-        }
-        return RunUtils.listFiles(config.getString(variable), "lh");
+        return listFiles(Config.INPUT_DIR, "lh");
     }
 
     private int showOutputDir() {
-        String variable = Config.OUTPUT_DIR;
-        if (!config.hasValue(variable)) {
-            writer.printf("Error: variable %s is not set%n", variable);
-            return EXIT_ERROR;
-        }
-        return RunUtils.listFiles(config.getString(variable), "lh");
+        return listFiles(Config.OUTPUT_DIR, "lh");
     }
 
     private int showLogDir() {
-        String logDir = Paths.get(Config.claraHome(), "log").toString();
+        Path logDir = Paths.get(Config.claraHome(), "log");
         return RunUtils.listFiles(logDir, "lhtr");
     }
 
@@ -121,6 +111,15 @@ class ShowCommand extends BaseCommand {
         }
         Path path = Paths.get(config.getString(variable));
         return RunUtils.printFile(terminal, path);
+    }
+
+    private int listFiles(String variable, String options) {
+        if (!config.hasValue(variable)) {
+            writer.printf("Error: variable %s is not set%n", variable);
+            return EXIT_ERROR;
+        }
+        Path dir = Paths.get(config.getString(variable));
+        return RunUtils.listFiles(dir, options);
     }
 
     private int printLog(String component, String description) {

@@ -28,7 +28,6 @@ import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -70,7 +69,7 @@ class SourceCommand extends AbstractCommand {
             return EXIT_ERROR;
         }
 
-        Path path = Paths.get(FileUtils.expandHome(sourceFile));
+        Path path = FileUtils.expandHome(sourceFile);
         try {
             for (String line : readLines(path)) {
                 if (verbose) {

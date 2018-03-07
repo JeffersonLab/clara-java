@@ -22,7 +22,8 @@
 
 package org.jlab.clara.std.cli;
 
-
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.function.Function;
 
 class EditCommand extends BaseCommand {
@@ -31,18 +32,18 @@ class EditCommand extends BaseCommand {
         super(context, "edit", "Edit data processing conditions");
 
         addArgument("services", "Edit services composition.",
-                c -> c.getString(Config.SERVICES_FILE));
+                c -> Paths.get(c.getString(Config.SERVICES_FILE)));
         addArgument("files", "Edit input file list.",
-                c -> c.getString(Config.FILES_LIST));
+                c -> Paths.get(c.getString(Config.FILES_LIST)));
     }
 
-    void addArgument(String name, String description, Function<Config, String> fileArg) {
+    void addArgument(String name, String description, Function<Config, Path> fileArg) {
         addSubCommand(newArgument(name, description, fileArg));
     }
 
     static CommandFactory newArgument(String name,
                                       String description,
-                                      Function<Config, String> fileArg) {
+                                      Function<Config, Path> fileArg) {
         return session -> new AbstractCommand(session, name, description) {
             @Override
             public int execute(String[] args) {

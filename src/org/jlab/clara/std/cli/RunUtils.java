@@ -134,7 +134,7 @@ class RunUtils {
         }
     }
 
-    static int listFiles(String dir, String opts) {
-        return CommandUtils.runProcess("ls", "-" + opts, dir);
+    static int listFiles(Path dir, String opts) {
+        return CommandUtils.runProcess("ls", "-" + opts, dir.toString());
     }
 }

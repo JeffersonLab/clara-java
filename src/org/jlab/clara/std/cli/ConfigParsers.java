@@ -28,7 +28,6 @@ import org.jlab.coda.xmsg.core.xMsgUtil;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Parsers to set the value of configuration variables.
@@ -182,7 +181,7 @@ public final class ConfigParsers {
      * @return the path string represented by the first argument
      */
     public static String toFile(String... args) {
-        Path path = Paths.get(FileUtils.expandHome(requireArg(args)));
+        Path path = FileUtils.expandHome(requireArg(args));
         if (Files.exists(path)) {
             if (!Files.isRegularFile(path)) {
                 throw new IllegalArgumentException("argument is not a regular file");
@@ -199,7 +198,7 @@ public final class ConfigParsers {
      * @return the path string represented by the first argument
      */
     public static String toDirectory(String... args) {
-        Path path = Paths.get(FileUtils.expandHome(requireArg(args)));
+        Path path = FileUtils.expandHome(requireArg(args));
         if (Files.exists(path)) {
             if (!Files.isDirectory(path)) {
                 throw new IllegalArgumentException("argument is not a directory");
@@ -216,7 +215,7 @@ public final class ConfigParsers {
      * @return the path string represented by the first argument
      */
     public static String toExistingFile(String... args) {
-        Path path = Paths.get(FileUtils.expandHome(requireArg(args)));
+        Path path = FileUtils.expandHome(requireArg(args));
         if (!Files.exists(path)) {
             throw new IllegalArgumentException("file does not exist");
         }
@@ -234,7 +233,7 @@ public final class ConfigParsers {
      * @return the path string represented by the first argument
      */
     public static String toExistingDirectory(String... args) {
-        Path path = Paths.get(FileUtils.expandHome(requireArg(args)));
+        Path path = FileUtils.expandHome(requireArg(args));
         if (!Files.exists(path)) {
             throw new IllegalArgumentException("directory does not exist");
         }

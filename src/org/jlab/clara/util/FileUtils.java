@@ -39,14 +39,14 @@ public final class FileUtils {
 
     private FileUtils() { }
 
-    public static String expandHome(String path) {
+    public static Path expandHome(String path) {
         String home = System.getProperty("user.home");
         if (path.startsWith("~")) {
-            return path.replace("~", home);
+            path = path.replace("~", home);
         } else if (path.startsWith("$HOME")) {
-            return path.replace("$HOME", home);
+            path = path.replace("$HOME", home);
         }
-        return path;
+        return Paths.get(path);
     }
 
     public static Path getFileName(Path path) {
