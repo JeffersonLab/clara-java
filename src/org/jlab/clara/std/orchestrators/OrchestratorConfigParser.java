@@ -44,6 +44,7 @@ import org.jlab.clara.base.ClaraLang;
 import org.jlab.clara.base.DpeName;
 import org.jlab.clara.std.orchestrators.CallbackInfo.RingCallbackInfo;
 import org.jlab.clara.std.orchestrators.CallbackInfo.RingTopic;
+import org.jlab.clara.util.EnvUtils;
 import org.jlab.coda.xmsg.core.xMsgUtil;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -100,7 +101,7 @@ import org.yaml.snakeyaml.error.YAMLException;
  */
 public class OrchestratorConfigParser {
 
-    private static final String DEFAULT_CONTAINER = System.getProperty("user.name");
+    private static final String DEFAULT_CONTAINER = EnvUtils.userName();
 
     private static final String SERVICES_KEY = "services";
 
@@ -382,7 +383,7 @@ public class OrchestratorConfigParser {
     static DpeInfo getDefaultDpeInfo(String hostName) {
         String dpeIp = hostAddress(hostName);
         DpeName dpeName = new DpeName(dpeIp, ClaraLang.JAVA);
-        return new DpeInfo(dpeName, 0, DpeInfo.DEFAULT_CLARA_HOME);
+        return new DpeInfo(dpeName, 0, EnvUtils.claraHome());
     }
 
 

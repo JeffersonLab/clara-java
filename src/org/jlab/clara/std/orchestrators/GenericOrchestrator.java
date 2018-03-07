@@ -46,6 +46,7 @@ import org.jlab.clara.base.DpeName;
 import org.jlab.clara.base.EngineCallback;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.std.orchestrators.CoreOrchestrator.DpeCallBack;
+import org.jlab.clara.util.EnvUtils;
 import org.jlab.clara.util.OptUtils;
 
 /**
@@ -458,7 +459,7 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
             if (dpeLangs.containsAll(appLangs)) {
                 for (ClaraLang lang : appLangs) {
                     DpeName dpe = localDpes.get(lang);
-                    dpeCallback.callback(new DpeInfo(dpe, cores, DpeInfo.DEFAULT_CLARA_HOME));
+                    dpeCallback.callback(new DpeInfo(dpe, cores, EnvUtils.claraHome()));
                 }
             }
         }

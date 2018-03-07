@@ -22,6 +22,7 @@
 
 package org.jlab.clara.std.cli;
 
+import org.jlab.clara.util.EnvUtils;
 import org.jlab.clara.util.FileUtils;
 
 import java.io.BufferedWriter;
@@ -372,8 +373,8 @@ final class FarmCommands {
             Model model = new Model();
 
             // set core variables
-            model.put("user", Config.user());
-            model.put("clara", "dir", Config.claraHome());
+            model.put("user", EnvUtils.userName());
+            model.put("clara", "dir", EnvUtils.claraHome());
             model.put("clas12", "dir", PLUGIN);
 
             // set monitor FE
@@ -432,14 +433,14 @@ final class FarmCommands {
             String system = config.getString(FARM_SYSTEM);
             if (system.equals(JLAB_SYSTEM)) {
                 if (CommandUtils.checkProgram(JLAB_STAT_CMD)) {
-                    return CommandUtils.runProcess(JLAB_STAT_CMD, "-u", Config.user());
+                    return CommandUtils.runProcess(JLAB_STAT_CMD, "-u", EnvUtils.userName());
                 }
                 writer.println("Error: can not run farm operations from this node = " + getHost());
                 return EXIT_ERROR;
             }
             if (system.equals(PBS_SYSTEM)) {
                 if (CommandUtils.checkProgram(PBS_STAT_CMD)) {
-                    return CommandUtils.runProcess(PBS_STAT_CMD, "-u", Config.user());
+                    return CommandUtils.runProcess(PBS_STAT_CMD, "-u", EnvUtils.userName());
                 }
                 writer.println("Error: can not run farm operations from this node = " + getHost());
                 return EXIT_ERROR;

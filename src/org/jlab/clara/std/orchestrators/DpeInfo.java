@@ -40,8 +40,6 @@ class DpeInfo {
     final int cores;
     final String claraHome;
 
-    static final String DEFAULT_CLARA_HOME = System.getenv("CLARA_HOME");
-
     DpeInfo(DpeName name, int cores, String claraHome) {
         if (name == null) {
             throw new IllegalArgumentException("Null DPE name");

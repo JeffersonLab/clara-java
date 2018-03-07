@@ -37,6 +37,7 @@ import org.jlab.clara.base.ClaraUtil;
 import org.jlab.clara.engine.Engine;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.EngineDataType;
+import org.jlab.clara.util.EnvUtils;
 import org.jlab.clara.util.FileUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -79,7 +80,7 @@ public class DataManager implements Engine {
      * Creates a new data manager service.
      */
     public DataManager() {
-        this(System.getenv("CLARA_HOME"));
+        this(EnvUtils.claraHome());
     }
 
     /**

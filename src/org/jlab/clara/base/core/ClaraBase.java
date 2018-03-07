@@ -23,6 +23,7 @@
 package org.jlab.clara.base.core;
 
 import org.jlab.clara.base.error.ClaraException;
+import org.jlab.clara.util.EnvUtils;
 import org.jlab.clara.util.report.ReportType;
 import org.jlab.coda.xmsg.core.xMsg;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
@@ -39,7 +40,6 @@ import org.jlab.coda.xmsg.excp.xMsgException;
 import org.jlab.coda.xmsg.net.xMsgRegAddress;
 
 import java.io.IOException;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeoutException;
 
@@ -69,7 +69,7 @@ public class ClaraBase extends xMsg {
         super(me.getCanonicalName(), setup(me, frontEnd));
         this.me = me;
         this.frontEnd = frontEnd;
-        this.claraHome = Optional.ofNullable(System.getenv("CLARA_HOME")).orElse("");
+        this.claraHome = EnvUtils.claraHome();
     }
 
     private static xMsgSetup setup(ClaraComponent me, ClaraComponent frontEnd) {

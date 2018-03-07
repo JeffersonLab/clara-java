@@ -26,6 +26,7 @@ import org.jlab.clara.base.core.ClaraConstants;
 import org.jlab.clara.base.core.ClaraComponent;
 import org.jlab.clara.base.core.MessageUtil;
 import org.jlab.clara.base.error.ClaraException;
+import org.jlab.clara.util.EnvUtils;
 import org.jlab.clara.util.report.ContainerReport;
 import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.excp.xMsgException;
@@ -48,7 +49,7 @@ class Container extends AbstractActor {
     Container(ClaraComponent comp, ClaraComponent frontEnd) {
         super(comp, frontEnd);
 
-        myReport = new ContainerReport(base, System.getenv("USER"));
+        myReport = new ContainerReport(base, EnvUtils.userName());
     }
 
     @Override

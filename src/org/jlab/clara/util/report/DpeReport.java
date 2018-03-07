@@ -23,6 +23,7 @@
 package org.jlab.clara.util.report;
 
 import org.jlab.clara.base.core.ClaraBase;
+import org.jlab.clara.util.EnvUtils;
 import org.json.JSONObject;
 
 import java.util.Collection;
@@ -48,7 +49,7 @@ public class DpeReport extends BaseReport {
     private final Map<String, ContainerReport> containers = new ConcurrentHashMap<>();
 
     public DpeReport(ClaraBase base, String session) {
-        super(base.getName(), System.getenv("USER"), base.getDescription());
+        super(base.getName(), EnvUtils.userName(), base.getDescription());
 
         this.host = name;
         this.claraHome = base.getClaraHome();

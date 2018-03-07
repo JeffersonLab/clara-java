@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.function.BiFunction;
 
 import org.jlab.clara.util.ArgUtils;
+import org.jlab.clara.util.EnvUtils;
 import org.jlab.clara.util.FileUtils;
 import org.jline.reader.Completer;
 import org.jline.reader.impl.completer.FileNameCompleter;
@@ -267,7 +268,7 @@ public class Config {
 
         addBuilder.apply(SESSION,
                 "A single word (no spaces) identifying the data processing.")
-                .withInitialValue(Config.user())
+                .withInitialValue(EnvUtils.userName())
                 .withParser(ConfigParsers::toAlphaNum);
 
         addBuilder.apply(DESCRIPTION,
@@ -286,28 +287,6 @@ public class Config {
             .withParser(ConfigParsers::toHostAddress);
 
         return defaultVariables;
-    }
-
-    /**
-     * Gets the value of the CLARA_HOME environment variable.
-     *
-     * @return the value of the environment variable, if set
-     */
-    public static String claraHome() {
-        String claraHome = System.getenv("CLARA_HOME");
-        if (claraHome == null) {
-            throw new RuntimeException("Missing CLARA_HOME variable");
-        }
-        return claraHome;
-    }
-
-    /**
-     * Gets the user name.
-     *
-     * @return the name of the user running the shell.
-     */
-    public static String user() {
-        return System.getProperty("user.name");
     }
 
     /**

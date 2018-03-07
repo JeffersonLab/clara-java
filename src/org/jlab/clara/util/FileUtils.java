@@ -40,7 +40,7 @@ public final class FileUtils {
     private FileUtils() { }
 
     public static Path expandHome(String path) {
-        String home = System.getProperty("user.home");
+        String home = EnvUtils.userHome();
         if (path.startsWith("~")) {
             path = path.replace("~", home);
         } else if (path.startsWith("$HOME")) {
@@ -50,7 +50,7 @@ public final class FileUtils {
     }
 
     public static Path claraPath(String... args) {
-        return Paths.get(System.getenv("CLARA_HOME"), args);
+        return Paths.get(EnvUtils.claraHome(), args);
     }
 
     public static Path getFileName(Path path) {

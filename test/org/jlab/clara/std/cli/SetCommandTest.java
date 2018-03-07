@@ -26,6 +26,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.mockito.Mockito.mock;
 
+import org.jlab.clara.util.EnvUtils;
 import org.jline.terminal.Terminal;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,7 +51,7 @@ public class SetCommandTest {
 
     @Test
     public void testDefaultSession() throws Exception {
-        assertThat(config.getString(Config.SESSION), is(Config.user()));
+        assertThat(config.getString(Config.SESSION), is(EnvUtils.userName()));
     }
 
     @Test
