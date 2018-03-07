@@ -61,7 +61,7 @@ class SetCommand extends BaseCommand {
     }
 
     private CommandFactory subCmd(ConfigVariable v) {
-        return subCmd(v.getName(), v::setValue, v.getCompleter(), v.getDescription());
+        return subCmd(v.getName(), v::parseValue, v.getCompleter(), v.getDescription());
     }
 
     private CommandFactory subCmd(String name,

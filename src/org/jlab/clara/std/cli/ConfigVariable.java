@@ -22,10 +22,10 @@
 
 package org.jlab.clara.std.cli;
 
-import java.util.Arrays;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 import org.jline.reader.Completer;
 import org.jline.reader.impl.completer.NullCompleter;
@@ -74,7 +74,7 @@ public final class ConfigVariable {
             this.name = name;
             this.description = description;
             this.parser = ConfigParsers::toString;
-            this.completer = new NullCompleter();
+            this.completer = NullCompleter.INSTANCE;
         }
 
         /**
@@ -83,7 +83,7 @@ public final class ConfigVariable {
          * <p>
          * Given a variable {@code v}, the following expression must be true:
          * <pre>
-         *  parser.apply(v.getValue().toString()).equals(v.getValue())
+         * parser.apply(new String[]{v.getValue().toString()}).equals(v.getValue())
          * </pre>
          *
          * @param parser a function to parse the value from shell arguments
@@ -117,7 +117,7 @@ public final class ConfigVariable {
          * @return this builder
          */
         public Builder withExpectedValues(Object... values) {
-            String[] strings = Arrays.copyOf(values, values.length, String[].class);
+            String[] strings = Stream.of(values).map(Object::toString).toArray(String[]::new);
             this.completer = new StringsCompleter(strings);
             return this;
         }
@@ -200,7 +200,7 @@ public final class ConfigVariable {
         currentValue = Optional.of(value);
     }
 
-    void setValue(String... args) {
+    void parseValue(String... args) {
         setValue(parser.apply(args));
     }
 
