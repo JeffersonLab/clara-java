@@ -348,6 +348,100 @@ public class Config {
         getVariable(variable).setValue(value);
     }
 
+    /**
+     * Get the string value of a variable.
+     *
+     * @param variable the name of the variable
+     * @return the current string value of the variable, if set
+     */
+    public String getString(String variable) {
+        Object object = getValue(variable);
+        if (object instanceof String) {
+            return (String) object;
+        }
+        throw new IllegalArgumentException("variable \"" + variable + "\" is not a string");
+    }
+
+    /**
+     * Get the integer value of a variable.
+     *
+     * @param variable the name of the variable
+     * @return the current integer value of the variable, if set
+     */
+    public int getInt(String variable) {
+        Object object = getValue(variable);
+        if (object instanceof Number) {
+            return ((Number) object).intValue();
+        }
+        if (object instanceof String) {
+            try {
+                return Integer.parseInt((String) object);
+            } catch (NumberFormatException e) {
+                // ignore
+            }
+        }
+        throw new IllegalArgumentException("variable \"" + variable + "\" is not an int");
+    }
+
+    /**
+     * Get the long value of a variable.
+     *
+     * @param variable the name of the variable
+     * @return the current long value of the variable, if set
+     */
+    public long getLong(String variable) {
+        Object object = getValue(variable);
+        if (object instanceof Number) {
+            return ((Number) object).longValue();
+        }
+        if (object instanceof String) {
+            try {
+                return Long.parseLong((String) object);
+            } catch (NumberFormatException e) {
+                // ignore
+            }
+        }
+        throw new IllegalArgumentException("variable \"" + variable + "\" is not a long");
+    }
+
+    /**
+     * Get the double value of a variable.
+     *
+     * @param variable the name of the variable
+     * @return the current long value of the variable, if set
+     */
+    public double getDouble(String variable) {
+        Object object = getValue(variable);
+        if (object instanceof Number) {
+            return ((Number) object).doubleValue();
+        }
+        if (object instanceof String) {
+            try {
+                return Double.parseDouble((String) object);
+            } catch (NumberFormatException e) {
+                // ignore
+            }
+        }
+        throw new IllegalArgumentException("variable \"" + variable + "\" is not a double");
+    }
+
+    /**
+     * Get the boolean value of a variable.
+     *
+     * @param variable the name of the variable
+     * @return the current boolean value of the variable, if set
+     */
+    public boolean getBoolean(String variable) {
+        Object object = getValue(variable);
+        if (object instanceof Boolean) {
+            return  ((Boolean) object).booleanValue();
+        }
+        if (object instanceof String) {
+            return ((String) object).equalsIgnoreCase("true");
+        }
+        throw new IllegalArgumentException("variable \"" + variable + "\" is not a boolean");
+    }
+
     void addVariable(ConfigVariable variable) {
         ConfigVariable prev = variables.putIfAbsent(variable.getName(), variable);
         if (prev != null) {

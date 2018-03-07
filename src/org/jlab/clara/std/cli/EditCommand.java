@@ -31,9 +31,9 @@ class EditCommand extends BaseCommand {
         super(context, "edit", "Edit data processing conditions");
 
         addArgument("services", "Edit services composition.",
-                c -> c.getValue(Config.SERVICES_FILE).toString());
+                c -> c.getString(Config.SERVICES_FILE));
         addArgument("files", "Edit input file list.",
-                c -> c.getValue(Config.FILES_LIST).toString());
+                c -> c.getString(Config.FILES_LIST));
     }
 
     void addArgument(String name, String description, Function<Config, String> fileArg) {

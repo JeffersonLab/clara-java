@@ -98,25 +98,25 @@ class RunCommand extends BaseCommand {
 
             cmd.addOption("-t", getThreads());
             if (config.hasValue(Config.REPORT_EVENTS)) {
-                cmd.addOption("-r", config.getValue(Config.REPORT_EVENTS));
+                cmd.addOption("-r", config.getInt(Config.REPORT_EVENTS));
             }
             if (config.hasValue(Config.SKIP_EVENTS)) {
-                cmd.addOption("-k", config.getValue(Config.SKIP_EVENTS));
+                cmd.addOption("-k", config.getInt(Config.SKIP_EVENTS));
             }
             if (config.hasValue(Config.MAX_EVENTS)) {
-                cmd.addOption("-e", config.getValue(Config.MAX_EVENTS));
+                cmd.addOption("-e", config.getInt(Config.MAX_EVENTS));
             }
-            cmd.addOption("-i", config.getValue(Config.INPUT_DIR));
-            cmd.addOption("-o", config.getValue(Config.OUTPUT_DIR));
+            cmd.addOption("-i", config.getString(Config.INPUT_DIR));
+            cmd.addOption("-o", config.getString(Config.OUTPUT_DIR));
 
-            cmd.addArgument(config.getValue(Config.SERVICES_FILE));
-            cmd.addArgument(config.getValue(Config.FILES_LIST));
+            cmd.addArgument(config.getString(Config.SERVICES_FILE));
+            cmd.addArgument(config.getString(Config.FILES_LIST));
 
             return cmd.toArray();
         }
 
         private DpeName startLocalDpes() throws IOException {
-            String configFile = config.getValue(Config.SERVICES_FILE).toString();
+            String configFile = config.getString(Config.SERVICES_FILE);
             OrchestratorConfigParser parser = new OrchestratorConfigParser(configFile);
             Set<ClaraLang> languages = parser.parseLanguages();
 
@@ -159,14 +159,14 @@ class RunCommand extends BaseCommand {
 
         private String findHost() {
             if (config.hasValue(Config.FRONTEND_HOST)) {
-                return config.getValue(Config.FRONTEND_HOST).toString();
+                return config.getString(Config.FRONTEND_HOST);
             }
             return ClaraUtil.localhost();
         }
 
         private int findPort() {
             if (config.hasValue(Config.FRONTEND_PORT)) {
-                return (Integer) config.getValue(Config.FRONTEND_PORT);
+                return config.getInt(Config.FRONTEND_PORT);
             }
 
             List<Integer> ports = IntStream.iterate(LOWER_PORT, n -> n + STEP_PORTS)
@@ -238,17 +238,17 @@ class RunCommand extends BaseCommand {
 
         private Integer getThreads() {
             if (config.hasValue(Config.MAX_THREADS)) {
-                return (Integer) config.getValue(Config.MAX_THREADS);
+                return config.getInt(Config.MAX_THREADS);
             }
             return Runtime.getRuntime().availableProcessors();
         }
 
         private String getJVMOptions() {
             if (config.hasValue(Config.JAVA_OPTIONS)) {
-                return config.getValue(Config.JAVA_OPTIONS).toString();
+                return config.getString(Config.JAVA_OPTIONS);
             }
             if (config.hasValue(Config.JAVA_MEMORY)) {
-                int memSize = (Integer) config.getValue(Config.JAVA_MEMORY);
+                int memSize = config.getInt(Config.JAVA_MEMORY);
                 return String.format("-Xms%dg -Xmx%dg -XX:+UseNUMA -XX:+UseBiasedLocking",
                                      memSize, memSize);
             }

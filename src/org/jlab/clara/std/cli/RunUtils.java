@@ -50,7 +50,7 @@ class RunUtils {
 
     String getMonitorFrontEnd() {
         if (config.hasValue(Config.MONITOR_HOST)) {
-            DpeName monDpe = new DpeName(config.getValue(Config.MONITOR_HOST).toString(),
+            DpeName monDpe = new DpeName(config.getString(Config.MONITOR_HOST),
                                          ClaraConstants.MONITOR_PORT,
                                          ClaraLang.JAVA);
             return monDpe.canonicalName();
@@ -59,13 +59,13 @@ class RunUtils {
     }
 
     String getSession() {
-        String sessionId = config.getValue(Config.SESSION).toString();
-        String sessionDesc = config.getValue(Config.DESCRIPTION).toString();
+        String sessionId = config.getString(Config.SESSION);
+        String sessionDesc = config.getString(Config.DESCRIPTION);
         return sessionId + "_" + sessionDesc;
     }
 
     Path getLogDir() {
-        return Paths.get(config.getValue(Config.LOG_DIR).toString());
+        return Paths.get(config.getString(Config.LOG_DIR));
     }
 
     Path getLogFile(DpeName name) {

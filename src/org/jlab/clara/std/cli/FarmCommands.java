@@ -212,11 +212,11 @@ final class FarmCommands {
 
         @Override
         public int execute(String[] args) {
-            String system = config.getValue(FARM_SYSTEM).toString();
+            String system = config.getString(FARM_SYSTEM);
             if (system.equals(JLAB_SYSTEM)) {
                 if (CommandUtils.checkProgram(JLAB_SUB_CMD)) {
                     try {
-                        int horizScale = (Integer) config.getValue(FARM_H_SCALE);
+                        int horizScale = config.getInt(FARM_H_SCALE);
                         if (horizScale > 0) {
                             return splitIntoMultipleJobs(horizScale);
                         } else {
@@ -259,8 +259,8 @@ final class FarmCommands {
         }
 
         private int splitIntoMultipleJobs(int filesPerJob) throws IOException, TemplateException {
-            String description = config.getValue(Config.DESCRIPTION).toString();
-            String fileList = config.getValue(Config.FILES_LIST).toString();
+            String description = config.getString(Config.DESCRIPTION);
+            String fileList = config.getString(Config.FILES_LIST);
             try {
                 Path dotDir = Paths.get(PLUGIN.toString(), "config", "." + description);
                 FileUtils.deleteFileTree(dotDir);
@@ -276,7 +276,7 @@ final class FarmCommands {
                         }
                     }
                     config.setValue(Config.DESCRIPTION, appendIndex(description, i));
-                    config.setValue(Config.FILES_LIST, subFileList);
+                    config.setValue(Config.FILES_LIST, subFileList.toString());
 
                     Path jobFile = createJLabScript();
                     int stat = CommandUtils.runProcess(JLAB_SUB_CMD, jobFile.toString());
@@ -295,34 +295,34 @@ final class FarmCommands {
             Path wrapper = Paths.get(Config.claraHome(), "lib", "clara", "run-clara");
             CommandBuilder cmd = new CommandBuilder(wrapper, true);
 
-            cmd.addOption("-i", config.getValue(Config.INPUT_DIR));
-            cmd.addOption("-o", config.getValue(Config.OUTPUT_DIR));
+            cmd.addOption("-i", config.getString(Config.INPUT_DIR));
+            cmd.addOption("-o", config.getString(Config.OUTPUT_DIR));
             if (config.hasValue(FARM_STAGE)) {
-                cmd.addOption("-l ", config.getValue(FARM_STAGE));
+                cmd.addOption("-l ", config.getString(FARM_STAGE));
             }
             if (config.hasValue(Config.MAX_THREADS)) {
-                cmd.addOption("-t", config.getValue(Config.MAX_THREADS));
+                cmd.addOption("-t", config.getInt(Config.MAX_THREADS));
             } else {
-                cmd.addOption("-t", config.getValue(FARM_CPU));
+                cmd.addOption("-t", config.getInt(FARM_CPU));
             }
             if (config.hasValue(Config.REPORT_EVENTS)) {
-                cmd.addOption("-r", config.getValue(Config.REPORT_EVENTS));
+                cmd.addOption("-r", config.getInt(Config.REPORT_EVENTS));
             }
             if (config.hasValue(Config.SKIP_EVENTS)) {
-                cmd.addOption("-k", config.getValue(Config.SKIP_EVENTS));
+                cmd.addOption("-k", config.getInt(Config.SKIP_EVENTS));
             }
             if (config.hasValue(Config.MAX_EVENTS)) {
-                cmd.addOption("-e", config.getValue(Config.MAX_EVENTS));
+                cmd.addOption("-e", config.getInt(Config.MAX_EVENTS));
             }
             cmd.addOption("-s", runUtils.getSession());
             if (config.hasValue(Config.FRONTEND_HOST)) {
-                cmd.addOption("-H", config.getValue(Config.FRONTEND_HOST));
+                cmd.addOption("-H", config.getString(Config.FRONTEND_HOST));
             }
             if (config.hasValue(Config.FRONTEND_PORT)) {
-                cmd.addOption("-P", config.getValue(Config.FRONTEND_PORT));
+                cmd.addOption("-P", config.getInt(Config.FRONTEND_PORT));
             }
-            cmd.addArgument(config.getValue(Config.SERVICES_FILE));
-            cmd.addArgument(config.getValue(Config.FILES_LIST));
+            cmd.addArgument(config.getString(Config.SERVICES_FILE));
+            cmd.addArgument(config.getString(Config.FILES_LIST));
 
             return cmd.toString();
         }
@@ -353,8 +353,8 @@ final class FarmCommands {
             Model model = createDataModel();
             createClaraScript(model);
 
-            int diskKb = (int) config.getValue(FARM_DISK) * 1024 * 1024;
-            int time = (int) config.getValue(FARM_TIME);
+            int diskKb = config.getInt(FARM_DISK) * 1024 * 1024;
+            int time = config.getInt(FARM_TIME);
             String walltime = String.format("%d:%02d:00", time / 60, time % 60);
 
             model.put("farm", "disk", diskKb);
@@ -409,11 +409,11 @@ final class FarmCommands {
 
         private String getJVMOptions() {
             if (config.hasValue(Config.JAVA_OPTIONS)) {
-                return config.getValue(Config.JAVA_OPTIONS).toString();
+                return config.getString(Config.JAVA_OPTIONS);
             }
             String jvmOpts = "-XX:+UseNUMA -XX:+UseBiasedLocking";
             if (config.hasValue(Config.JAVA_MEMORY)) {
-                int memSize = (Integer) config.getValue(Config.JAVA_MEMORY);
+                int memSize = config.getInt(Config.JAVA_MEMORY);
                 return String.format("-Xms%dg -Xmx%dg %s", memSize, memSize, jvmOpts);
             }
             return jvmOpts;
@@ -429,7 +429,7 @@ final class FarmCommands {
 
         @Override
         public int execute(String[] args) {
-            String system = config.getValue(FARM_SYSTEM).toString();
+            String system = config.getString(FARM_SYSTEM);
             if (system.equals(JLAB_SYSTEM)) {
                 if (CommandUtils.checkProgram(JLAB_STAT_CMD)) {
                     return CommandUtils.runProcess(JLAB_STAT_CMD, "-u", Config.user());
@@ -458,7 +458,7 @@ final class FarmCommands {
 
         @Override
         public int execute(String[] args) {
-            String system = config.getValue(FARM_SYSTEM).toString();
+            String system = config.getString(FARM_SYSTEM);
             if (system.equals(JLAB_SYSTEM)) {
                 return showFile(getJobScript(JLAB_SUB_EXT));
             }
