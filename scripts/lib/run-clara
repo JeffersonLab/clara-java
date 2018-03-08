@@ -114,22 +114,22 @@ input_dir=$CLARA_HOME/data/input
 output_dir=$CLARA_HOME/data/output
 stage_dir=
 
-report=5
 thread_num=$(get_num_cores)
 session=${user}_clara
 
+dpe_report=5
 wait_dpe=2
 
-while getopts "i:o:l:t:r:s:H:P:W:" OPTION; do
+while getopts "i:o:l:t:s:H:P:R:W:" OPTION; do
     case $OPTION in
         i)  input_dir=$OPTARG ;;
         o)  output_dir=$OPTARG ;;
         l)  stage_dir=$OPTARG ;;
         t)  thread_num=$OPTARG ;;
-        r)  report=$OPTARG ;;
         s)  session=$OPTARG ;;
         H)  fe_host=$OPTARG ;;
         P)  fe_port=$OPTARG ;;
+        R)  dpe_report=$OPTARG ;;
         W)  wait_dpe=$OPTARG ;;
         ?)  exit 1 ;;
     esac
@@ -189,7 +189,7 @@ fe_args+=(--port "$fe_port")
 fe_args+=(--session "$session")
 fe_args+=(--max-cores "$thread_num")
 fe_args+=(--max-sockets 5120)
-fe_args+=(--report "$report")
+fe_args+=(--report "$dpe_report")
 
 "$CLARA_HOME"/bin/j_dpe "${fe_args[@]}" 2>&1 | tee "$fe_log_file" &
 unset JAVA_OPTS
