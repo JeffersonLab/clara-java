@@ -177,7 +177,7 @@ fe_log_file=$CLARA_HOME/log/${host}_${session}_fe_dpe.log
 or_log_file=$CLARA_HOME/log/${host}_${session}_orch.log
 
 echo "========== Running Conditions ==========="
-echo " Start time         = $(date)"
+echo " Start time         = $(date +"%Y-%m-%d %H:%M:%S")"
 echo " CLARA distribution = $CLARA_HOME"
 echo " Threads request    = $thread_num"
 echo " Log file           = $fe_log_file"
