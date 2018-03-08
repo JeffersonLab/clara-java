@@ -114,19 +114,26 @@ input_dir=$CLARA_HOME/data/input
 output_dir=$CLARA_HOME/data/output
 stage_dir=
 
+report_ev=
+skip_ev=
+max_ev=
+
 thread_num=$(get_num_cores)
 session=${user}_clara
 
 dpe_report=5
 wait_dpe=2
 
-while getopts "i:o:l:t:s:H:P:R:W:" OPTION; do
+while getopts "i:o:l:t:s:r:k:e:H:P:R:W:" OPTION; do
     case $OPTION in
         i)  input_dir=$OPTARG ;;
         o)  output_dir=$OPTARG ;;
         l)  stage_dir=$OPTARG ;;
         t)  thread_num=$OPTARG ;;
         s)  session=$OPTARG ;;
+        r)  report_ev=$OPTARG ;;
+        k)  skip_ev=$OPTARG ;;
+        e)  max_ev=$OPTARG ;;
         H)  fe_host=$OPTARG ;;
         P)  fe_port=$OPTARG ;;
         R)  dpe_report=$OPTARG ;;
@@ -205,6 +212,15 @@ or_args+=(-i "$input_dir")
 or_args+=(-o "$output_dir")
 or_args+=(-p "$thread_num")
 or_args+=(-t "$thread_num")
+if [[ -n "$report_ev" ]]; then
+    or_args+=(-r "$report_ev")
+fi
+if [[ -n "$skip_ev" ]]; then
+    or_args+=(-k "$skip_ev")
+fi
+if [[ -n "$max_ev" ]]; then
+    or_args+=(-e "$max_ev")
+fi
 if [[ -n "$stage_dir" ]]; then
     or_args+=(-L)
     or_args+=(-l "$stage_dir")
