@@ -119,9 +119,8 @@ thread_num=$(get_num_cores)
 session=${user}_clara
 
 wait_dpe=2
-jvm_opts=
 
-while getopts "i:o:l:t:r:s:H:P:W:J:" OPTION; do
+while getopts "i:o:l:t:r:s:H:P:W:" OPTION; do
     case $OPTION in
         i)  input_dir=$OPTARG ;;
         o)  output_dir=$OPTARG ;;
@@ -132,7 +131,6 @@ while getopts "i:o:l:t:r:s:H:P:W:J:" OPTION; do
         H)  fe_host=$OPTARG ;;
         P)  fe_port=$OPTARG ;;
         W)  wait_dpe=$OPTARG ;;
-        J)  jvm_opts=$OPTARG ;;
         ?)  exit 1 ;;
     esac
 done
@@ -176,6 +174,9 @@ echo " Start time         = $(date)"
 echo " CLARA distribution = $CLARA_HOME"
 echo " Threads request    = $thread_num"
 echo " Log file           = $fe_log_file"
+if [[ -n "${JAVA_OPTS-}" ]]; then
+    echo " JVM options        = $JAVA_OPTS"
+fi
 echo "========================================="
 echo
 
@@ -190,9 +191,6 @@ fe_args+=(--max-cores "$thread_num")
 fe_args+=(--max-sockets 5120)
 fe_args+=(--report "$report")
 
-if [[ -n "$jvm_opts" ]]; then
-    export JAVA_OPTS="$jvm_opts"
-fi
 "$CLARA_HOME"/bin/j_dpe "${fe_args[@]}" 2>&1 | tee "$fe_log_file" &
 unset JAVA_OPTS
 

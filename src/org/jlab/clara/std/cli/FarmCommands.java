@@ -321,8 +321,6 @@ final class FarmCommands {
             if (config.hasValue(Config.FRONTEND_PORT)) {
                 cmd.addOption("-P", config.getValue(Config.FRONTEND_PORT));
             }
-            cmd.addOption("-J", getJVMOptions());
-
             cmd.addArgument(config.getValue(Config.SERVICES_FILE));
             cmd.addArgument(config.getValue(Config.FILES_LIST));
 
@@ -397,6 +395,7 @@ final class FarmCommands {
                 .forEach(v -> model.put("farm", v.getName().replace("farm.", ""), v.getValue()));
 
             // set farm command
+            model.put("farm", "javaOpts", getJVMOptions());
             model.put("farm", "command", getClaraCommand());
 
             return model;
