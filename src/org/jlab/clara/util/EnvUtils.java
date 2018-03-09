@@ -22,6 +22,9 @@
 
 package org.jlab.clara.util;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
 public final class EnvUtils {
 
     private EnvUtils() { }
@@ -46,7 +49,10 @@ public final class EnvUtils {
      */
     public static String userName() {
         String userName = System.getProperty("user.name");
-        if (userName == null) {
+        if (userName == null || userName.equals("?")) {
+            if (inDockerContainer()) {
+                return "docker";
+            }
             throw new RuntimeException("Missing 'user.name' system property");
         }
         return userName;
@@ -59,9 +65,16 @@ public final class EnvUtils {
      */
     public static String userHome() {
         String userHome = System.getProperty("user.home");
-        if (userHome == null) {
+        if (userHome == null || userHome.equals("?")) {
+            if (inDockerContainer()) {
+                return "/";
+            }
             throw new RuntimeException("Missing 'user.home' system property");
         }
         return userHome;
+    }
+
+    public static boolean inDockerContainer() {
+        return Files.exists(Paths.get("/.dockerenv"));
     }
 }
