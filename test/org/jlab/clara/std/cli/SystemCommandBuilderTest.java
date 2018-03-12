@@ -51,4 +51,16 @@ public class SystemCommandBuilderTest {
                 + " \"custom services.yml\""
                 + " \"data/files.txt\""));
     }
+
+    @Test
+    public void outputStringMayBeMultiline() throws Exception {
+        b.multiLine(true);
+
+        assertThat(b.toString(), is(
+                "\"${CLARA_HOME}/bin/clara-orchestrator\" \\"
+                + "\n        -t 10 \\"
+                + "\n        -i \"$CLAS12DIR/exp/input\" \\"
+                + "\n        \"custom services.yml\" \\"
+                + "\n        data/files.txt"));
+    }
 }
