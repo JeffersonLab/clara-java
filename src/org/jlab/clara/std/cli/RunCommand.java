@@ -91,7 +91,7 @@ class RunCommand extends BaseCommand {
 
         private String[] orchestratorCmd(DpeName feName) {
             Path orchestrator = FileUtils.claraPath("bin", "clara-orchestrator");
-            CommandBuilder cmd = new CommandBuilder(orchestrator, false);
+            SystemCommandBuilder cmd = new SystemCommandBuilder(orchestrator);
 
             cmd.addOption("-F");
             cmd.addOption("-f", feName);

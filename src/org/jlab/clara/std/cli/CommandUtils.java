@@ -164,7 +164,7 @@ public final class CommandUtils {
      * @return the wrapper program that runs the given command
      */
     public static String[] uninterruptibleCommand(String[] command, Path logFile) {
-        CommandBuilder b = new CommandBuilder(commandLogger(), false);
+        SystemCommandBuilder b = new SystemCommandBuilder(commandLogger());
         b.addArgument(logFile);
         Arrays.asList(command).forEach(b::addArgument);
         return b.toArray();

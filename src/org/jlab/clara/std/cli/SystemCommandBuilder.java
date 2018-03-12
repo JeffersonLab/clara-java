@@ -25,19 +25,24 @@ package org.jlab.clara.std.cli;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
-class CommandBuilder {
+class SystemCommandBuilder {
 
-    private final boolean quote;
+    private static final Pattern NEED_QUOTES = Pattern.compile("[^A-Za-z0-9/._-]");
+
     private final List<String> cmd = new ArrayList<>();
 
-    CommandBuilder(Path program, boolean useQuotes) {
-        this(program.toString(), useQuotes);
+    private boolean quoteAll;
+
+    SystemCommandBuilder(Path program) {
+        this(program.toString());
     }
 
-    CommandBuilder(String program, boolean useQuotes) {
-        quote = useQuotes;
-        cmd.add(mayQuote(program));
+    SystemCommandBuilder(String program) {
+        cmd.add(program);
     }
 
     public void addOption(String option) {
@@ -46,26 +51,33 @@ class CommandBuilder {
 
     public void addOption(String option, Object value) {
         cmd.add(option);
-        cmd.add(mayQuote(value));
+        cmd.add(value.toString());
     }
 
     public void addArgument(Object argument) {
-        cmd.add(mayQuote(argument));
+        cmd.add(argument.toString());
     }
 
-    private String mayQuote(Object value) {
-        if (quote) {
+    public void quoteAll(boolean quote) {
+        quoteAll = quote;
+    }
+
+    private String mayQuote(String value) {
+        Matcher m = NEED_QUOTES.matcher(value);
+        if (m.find() || quoteAll) {
             return "\"" + value + "\"";
         }
-        return value.toString();
+        return value;
     }
 
     public String[] toArray() {
-        return cmd.toArray(new String[0]);
+        return cmd.stream().toArray(String[]::new);
     }
 
     @Override
     public String toString() {
-        return String.join(" ", cmd);
+        return cmd.stream()
+                .map(this::mayQuote)
+                .collect(Collectors.joining(" "));
     }
 }

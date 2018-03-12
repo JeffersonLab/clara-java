@@ -294,7 +294,7 @@ final class FarmCommands {
 
         private String getClaraCommand() {
             Path wrapper = FileUtils.claraPath("lib", "clara", "run-clara");
-            CommandBuilder cmd = new CommandBuilder(wrapper, true);
+            SystemCommandBuilder cmd = new SystemCommandBuilder(wrapper);
 
             cmd.addOption("-i", config.getString(Config.INPUT_DIR));
             cmd.addOption("-o", config.getString(Config.OUTPUT_DIR));
