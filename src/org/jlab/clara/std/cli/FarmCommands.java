@@ -325,6 +325,8 @@ final class FarmCommands {
             cmd.addArgument(config.getString(Config.SERVICES_FILE));
             cmd.addArgument(config.getString(Config.FILES_LIST));
 
+            cmd.multiLine(true);
+
             return cmd.toString();
         }
 
