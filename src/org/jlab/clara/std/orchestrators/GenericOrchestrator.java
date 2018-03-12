@@ -410,20 +410,20 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
      * Prints a startup message when the orchestrator starts to run.
      */
     protected void printStartup() {
-        System.out.println("****************************************");
-        System.out.println("*          CLARA Orchestrator          *");
-        System.out.println("****************************************");
-        System.out.println("- Front-end    = " + setup.frontEnd);
-        System.out.println("- Start time   = " + ClaraUtil.getCurrentTime());
-        System.out.println("- Threads      = " + options.maxThreads);
+        System.out.println("==========================================");
+        System.out.println("            CLARA Orchestrator            ");
+        System.out.println("==========================================");
+        System.out.println(" Front-end        = " + setup.frontEnd);
+        System.out.println(" Start time       = " + ClaraUtil.getCurrentTime());
+        System.out.println(" Threads          = " + options.maxThreads);
         System.out.println();
-        System.out.println("- Input directory  = " + paths.inputDir);
-        System.out.println("- Output directory = " + paths.outputDir);
+        System.out.println(" Input directory  = " + paths.inputDir);
+        System.out.println(" Output directory = " + paths.outputDir);
         if (options.stageFiles) {
-            System.out.println("- Stage directory  = " + paths.stageDir);
+            System.out.println(" Stage directory  = " + paths.stageDir);
         }
-        System.out.println("- Number of files  = " + paths.numFiles());
-        System.out.println("****************************************");
+        System.out.println(" Number of files  = " + paths.numFiles());
+        System.out.println("==========================================");
     }
 
 

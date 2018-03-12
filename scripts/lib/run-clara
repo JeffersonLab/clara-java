@@ -176,16 +176,17 @@ fi
 fe_log_file=$CLARA_HOME/log/${host}_${session}_fe_dpe.log
 or_log_file=$CLARA_HOME/log/${host}_${session}_orch.log
 
-echo "========== Running Conditions ==========="
-echo " Start time         = $(date +"%Y-%m-%d %H:%M:%S")"
-echo " CLARA distribution = $CLARA_HOME"
-echo " Threads request    = $thread_num"
-echo " Log file           = $fe_log_file"
+echo "=========================================="
+echo "            Running Conditions            "
+echo "=========================================="
+echo " CLARA_HOME       = $CLARA_HOME"
+echo " Start time       = $(date +"%Y-%m-%d %H:%M:%S")"
+echo " Threads          = $thread_num"
+echo " Log file         = $fe_log_file"
 if [[ -n "${JAVA_OPTS-}" ]]; then
-    echo " JVM options        = $JAVA_OPTS"
+    echo " JVM options      = $JAVA_OPTS"
 fi
-echo "========================================="
-echo
+echo "=========================================="
 
 # Run front-end
 fe_name="${fe_host}%${fe_port}_java"

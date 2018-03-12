@@ -504,18 +504,18 @@ public final class Dpe extends AbstractActor {
     }
 
     private void printLogo() {
-        System.out.println("=========================================");
+        System.out.println("==========================================");
         if (isFrontEnd.get()) {
-            System.out.println("              CLARA FE/DPE               ");
+            System.out.println("               CLARA FE/DPE               ");
         } else {
-            System.out.println("                CLARA DPE                ");
+            System.out.println("                CLARA DPE                 ");
         }
-        System.out.println("=========================================");
+        System.out.println("==========================================");
         System.out.println(" Name             = " + base.getName());
         if (!session.isEmpty()) {
             System.out.println(" Session          = " + session);
         }
-        System.out.println(" Date             = " + ClaraUtil.getCurrentTime());
+        System.out.println(" Start time       = " + ClaraUtil.getCurrentTime());
         System.out.println(" Version          = 4.3");
         System.out.println(" Lang             = Java");
         System.out.println(" Pool size        = " + base.getPoolSize());
@@ -531,7 +531,7 @@ public final class Dpe extends AbstractActor {
             System.out.println(" FrontEnd Port    = " + base.getFrontEnd().getDpePort());
             System.out.println(" FrontEnd Lang    = " + base.getFrontEnd().getDpeLang());
         }
-        System.out.println("=========================================");
+        System.out.println("==========================================");
     }
 
 
