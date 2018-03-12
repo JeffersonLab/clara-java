@@ -25,7 +25,7 @@
 
 package org.jlab.clara.util.logging;
 
-// CHECKSTYLE:OFF
+// checkstyle.off
 /**
  * Holds the results of formatting done by {@link MessageFormatter}.
  *

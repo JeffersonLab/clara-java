@@ -68,7 +68,7 @@ import java.util.Properties;
  */
 public class SimpleLogger implements Logger {
 
-    // CHECKSTYLE.OFF: StaticVariable
+    // checkstyle.off: StaticVariable
     private static final String CONFIGURATION_FILE = "simplelogger.properties";
 
     private static long START_TIME = System.currentTimeMillis();
@@ -163,7 +163,7 @@ public class SimpleLogger implements Logger {
             try {
                 DATE_FORMATTER = new SimpleDateFormat(DATE_TIME_FORMAT_STR);
             } catch (IllegalArgumentException e) {
-                // SUPPRESS CHECKSTYLE LineLength
+                // nocheck: LineLength
                 Util.report("Bad date format in " + CONFIGURATION_FILE + "; will output relative time", e);
             }
         }

@@ -37,8 +37,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 abstract class AbstractActor {
 
-    static final AtomicBoolean isShutDown = new AtomicBoolean(); // SUPPRESS CHECKSTYLE ConstantName
-    static final AtomicBoolean isFrontEnd = new AtomicBoolean(); // SUPPRESS CHECKSTYLE ConstantName
+    static final AtomicBoolean isShutDown = new AtomicBoolean(); // nocheck: ConstantName
+    static final AtomicBoolean isFrontEnd = new AtomicBoolean(); // nocheck: ConstantName
 
     final ClaraBase base;
 

@@ -75,7 +75,7 @@ public class DataRingTopic {
         }
     }
 
-    // CHECKSTYLE.OFF: Javadoc
+    // checkstyle.off: Javadoc
     public String state() {
         return state;
     }

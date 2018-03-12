@@ -25,7 +25,7 @@
 
 package org.jlab.clara.util.logging;
 
-// CHECKSTYLE:OFF
+// checkstyle.off
 /**
  * An internal utility class.
  *

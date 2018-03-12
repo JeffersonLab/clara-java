@@ -2,7 +2,7 @@ package org.jlab.clara.util.logging;
 
 import java.io.PrintStream;
 
-// CHECKSTYLE:OFF
+// checkstyle:off
 /**
  * This class encapsulates the user's choice of output target.
  *

@@ -26,7 +26,7 @@ import org.jlab.clara.base.core.ClaraConstants;
 import org.jlab.clara.util.report.JsonUtils;
 import org.json.JSONObject;
 
-// CHECKSTYLE.OFF: Javadoc
+// checkstyle.off: Javadoc
 public final class RuntimeDataFactory {
 
     private RuntimeDataFactory() { }

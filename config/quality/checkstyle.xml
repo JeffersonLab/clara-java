@@ -180,14 +180,17 @@
 
     </module>
 
-    <module name="SuppressionCommentFilter"/>
     <module name="SuppressionCommentFilter">
-      <property name="offCommentFormat" value="CHECKSTYLE.OFF\: ([\w\|]+)"/>
-      <property name="onCommentFormat" value="CHECKSTYLE.ON\: ([\w\|]+)"/>
+      <property name="offCommentFormat" value="checkstyle\.off:?$"/>
+      <property name="onCommentFormat" value="checkstyle\.on:?$"/>
+    </module>
+    <module name="SuppressionCommentFilter">
+      <property name="offCommentFormat" value="checkstyle\.off: ([\w\|]+)"/>
+      <property name="onCommentFormat" value="checkstyle\.on: ([\w\|]+)"/>
       <property name="checkFormat" value="$1"/>
     </module>
     <module name="SuppressWithNearbyCommentFilter">
-      <property name="commentFormat" value="SUPPRESS CHECKSTYLE (\w+)"/>
+      <property name="commentFormat" value="nocheck: (\w+)"/>
       <property name="checkFormat" value="$1"/>
       <property name="influenceFormat" value="1"/>
     </module>

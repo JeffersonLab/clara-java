@@ -36,7 +36,7 @@ final class SharedMemory {
           value = EngineData object
     */
     private static final Map<String, Map<String, EngineData>>
-            sharedData = new ConcurrentHashMap<>(); // SUPPRESS CHECKSTYLE ConstantName
+            sharedData = new ConcurrentHashMap<>(); // nocheck: ConstantName
 
     private SharedMemory() {
     }

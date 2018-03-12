@@ -44,7 +44,7 @@ public class EngineSpecification {
      */
     public static class ParseException extends RuntimeException {
 
-        // CHECKSTYLE.OFF: Javadoc
+        // checkstyle.off: Javadoc
         public ParseException() {
         }
 
@@ -59,7 +59,7 @@ public class EngineSpecification {
         public ParseException(String message, Throwable cause) {
             super(message, cause);
         }
-        // CHECKSTYLE.ON: Javadoc
+        // checkstyle.on: Javadoc
     }
 
     private String name;
