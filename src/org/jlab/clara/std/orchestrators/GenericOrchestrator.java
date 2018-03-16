@@ -580,12 +580,17 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
         public void callback(EngineData data) {
             int totalEvents = localNode.eventNumber.addAndGet(options.reportFreq);
             long endTime = System.currentTimeMillis();
+
             double totalTime = (endTime - localNode.startTime.get());
-            double timePerEvent = totalTime /  totalEvents;
-            Logging.info("Processed  %5d events    "
-                         + "total time = %7.2f s    "
-                         + "average event time = %6.2f ms",
-                         totalEvents, totalTime / 1000L, timePerEvent);
+            double sliceTime = (endTime - localNode.lastReportTime.getAndSet(endTime));
+            double timePerEvent = sliceTime /  options.reportFreq;
+
+            Logging.info("Processed %4d events in %6.2f s"
+                         + "   average event time = "
+                         + (options.maxThreads > 2 ? "%6.2f ms" : "%8.2f ms")
+                         + "   [ total %5d events %8.2f s ]",
+                         options.reportFreq, sliceTime / 1000L, timePerEvent,
+                         totalEvents, totalTime / 1000L);
         }
     }
 

@@ -75,7 +75,9 @@ class WorkerNode {
     AtomicInteger totalEvents = new AtomicInteger();
     AtomicInteger eventNumber = new AtomicInteger();
     AtomicInteger eofCounter = new AtomicInteger();
+
     AtomicLong startTime = new AtomicLong();
+    AtomicLong lastReportTime = new AtomicLong();
 
 
     static class Builder {
@@ -292,6 +294,7 @@ class WorkerNode {
 
     void openFiles() {
         startTime.set(0);
+        lastReportTime.set(0);
         eofCounter.set(0);
         eventNumber.set(0);
         totalEvents.set(0);
@@ -414,7 +417,9 @@ class WorkerNode {
 
 
     void sendEvents(int maxCores) {
-        startTime.compareAndSet(0, System.currentTimeMillis());
+        long currentTime = System.currentTimeMillis();
+        startTime.compareAndSet(0, currentTime);
+        lastReportTime.compareAndSet(0, currentTime);
 
         int requestCores = numCores(maxCores);
         int requestId = 1;
