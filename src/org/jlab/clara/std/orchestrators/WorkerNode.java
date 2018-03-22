@@ -452,6 +452,11 @@ class WorkerNode {
     }
 
 
+    int maxCores() {
+        return application.maxCores();
+    }
+
+
     Set<ServiceRuntimeData> getRuntimeData() {
         return application.dpes().stream()
                .map(orchestrator::getReport)

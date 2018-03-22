@@ -261,6 +261,7 @@ abstract class AbstractOrchestrator {
             Logging.info("Configuring services on %s...", node.name());
             if (options.stageFiles) {
                 node.setPaths(paths.inputDir, paths.outputDir, paths.stageDir);
+                clearLocalStage(node);
             }
             node.setConfiguration(setup.configuration);
             node.configureServices();
@@ -334,6 +335,14 @@ abstract class AbstractOrchestrator {
                     orchestrator.sleep(100);
                 }
             }
+        }
+    }
+
+
+    private void clearLocalStage(WorkerNode node) {
+        // XXX: only remove files in case the node is used exclusively
+        if (options.maxThreads >= node.maxCores()) {
+            node.removeStageDir();
         }
     }
 
