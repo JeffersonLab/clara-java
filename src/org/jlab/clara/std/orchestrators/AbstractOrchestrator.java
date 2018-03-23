@@ -26,6 +26,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
@@ -35,6 +37,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -239,7 +242,7 @@ abstract class AbstractOrchestrator {
                 setupNode(node);
             } catch (OrchestratorException e) {
                 Logging.error("Could not use %s for processing:%n%s",
-                              node.name(), e.getMessage());
+                        node.name(), e.getMessage());
             }
         });
     }
@@ -413,7 +416,7 @@ abstract class AbstractOrchestrator {
         double timePerEvent = recTime / (double) node.totalEvents.get();
         stats.update(node, node.totalEvents.get(), recTime);
         Logging.info("Finished file %s on %s. Average event time = %.2f ms",
-                     node.recFile.inputName, node.name(), timePerEvent);
+                node.recFile.inputName, node.name(), timePerEvent);
     }
 
 
@@ -457,13 +460,54 @@ abstract class AbstractOrchestrator {
         }
     }
 
+    private class EndOfFileTimerTask extends TimerTask {
+
+        private AtomicBoolean done = new AtomicBoolean();
+        private int timeInterval;
+        private int t;
+
+        EndOfFileTimerTask(int timeInterval) {
+            this.timeInterval = timeInterval;
+            reset();
+        }
+
+        public boolean isDone() {
+            return done.get();
+        }
+
+
+        void reset() {
+            done.set(false);
+            t = timeInterval;
+        }
+
+        @Override
+        public void run() {
+            t--;
+            Logging.info("Waiting output events for %d seconds", timeInterval - t);
+            if (t < 0) {
+                done.set(true);
+            }
+        }
+    }
 
     private class ErrorHandlerCB implements EngineCallback {
 
         private final WorkerNode node;
+        private EndOfFileTimerTask endOfFileTimerTask;
+        private Timer timer;
+        private final int t = 120000; // 2 minutes
+        private boolean timerIsUp = false;
 
         ErrorHandlerCB(WorkerNode node) {
             this.node = node;
+        }
+
+        private void startTimer() {
+            endOfFileTimerTask = new EndOfFileTimerTask(t);
+            timer = new Timer();
+            timer.scheduleAtFixedRate(endOfFileTimerTask, 0, 1000);
+            timerIsUp = true;
         }
 
         @Override
@@ -473,14 +517,20 @@ abstract class AbstractOrchestrator {
             int severity = data.getStatusSeverity();
             String description = data.getDescription();
             if (description.equalsIgnoreCase("End of File")) {
+                if (!timerIsUp) {
+                    startTimer();
+                }
                 int eof = node.eofCounter.incrementAndGet();
                 if (eof == 1) {
                     Logging.info("All events read from %s on %s. Waiting for output events...",
-                                 node.recFile.inputName, node.name());
+                            node.recFile.inputName, node.name());
                 }
-                if (severity == 2) {
+                if (severity == 2 || endOfFileTimerTask.isDone()) {
                     printAverage(node);
                     processFinishedFile(node);
+                    timer.cancel();
+                    timer.purge();
+                    timerIsUp = false;
                 }
             } else if (description.startsWith("Error opening the file")) {
                 Logging.error(description);
