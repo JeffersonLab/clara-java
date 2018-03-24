@@ -299,7 +299,7 @@ final class FarmCommands {
             cmd.addOption("-i", config.getString(Config.INPUT_DIR));
             cmd.addOption("-o", config.getString(Config.OUTPUT_DIR));
             if (config.hasValue(FARM_STAGE)) {
-                cmd.addOption("-l ", config.getString(FARM_STAGE));
+                cmd.addOption("-l", config.getString(FARM_STAGE));
             }
             if (config.hasValue(Config.MAX_THREADS)) {
                 cmd.addOption("-t", config.getInt(Config.MAX_THREADS));
