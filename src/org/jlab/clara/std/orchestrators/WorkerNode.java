@@ -273,7 +273,6 @@ class WorkerNode {
             JSONObject request = new JSONObject();
             request.put("type", "exec");
             request.put("action", "clear_stage");
-            request.put("file", currentInputFileName);
             EngineData rr = orchestrator.syncSend(stageName, request, 5, TimeUnit.MINUTES);
             if (rr.getStatus().equals(EngineStatus.ERROR)) {
                 Logging.error("Failed to remove stage directory on %s: %s",

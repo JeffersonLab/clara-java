@@ -191,6 +191,8 @@ public class DataManager implements Engine {
                     default:
                         ServiceUtils.setError(output, "invalid %s value: %s", REQUEST_TYPE, type);
                 }
+            } catch (IllegalArgumentException e) {
+                ServiceUtils.setError(output, e.getMessage());
             } catch (JSONException e) {
                 ServiceUtils.setError(output, "invalid request: " + source);
             }
@@ -202,30 +204,18 @@ public class DataManager implements Engine {
 
     private void runAction(JSONObject request, EngineData output) {
         String action = request.getString(REQUEST_ACTION);
-        String inputFileName = request.getString(REQUEST_FILENAME);
-        if (inputFileName.isEmpty()) {
-            ServiceUtils.setError(output, "empty input file name");
-            return;
-        }
-        FilePaths files = new FilePaths(directoryPaths, outputPrefix, inputFileName);
-        Path resolvedFileName = files.inputFile.getFileName();
-        if (resolvedFileName == null || !inputFileName.equals(resolvedFileName.toString())) {
-            ServiceUtils.setError(output, "invalid input file name: " + inputFileName);
-            return;
-        }
-
         switch (action) {
             case REQUEST_EXEC_STAGE:
-                stageInputFile(files, output);
+                stageInputFile(getFiles(request), output);
                 break;
             case REQUEST_EXEC_REMOVE:
-                removeStagedInputFile(files, output);
+                removeStagedInputFile(getFiles(request), output);
                 break;
             case REQUEST_EXEC_SAVE:
-                saveOutputFile(files, output);
+                saveOutputFile(getFiles(request), output);
                 break;
             case REQUEST_EXEC_CLEAR:
-                clearStageDir(files, output);
+                clearStageDir(output);
                 break;
             default:
                 ServiceUtils.setError(output, "invalid %s value: %s", REQUEST_ACTION, action);
@@ -317,17 +307,22 @@ public class DataManager implements Engine {
         }
     }
 
-    private void clearStageDir(FilePaths files, EngineData output) {
-        Path stagePath = files.stagedInputFile.getParent();
+    private void clearStageDir(EngineData output) {
+        Path stagePath = directoryPaths.stagePath;
         try {
             FileUtils.deleteFileTree(stagePath);
             System.out.printf("%s service: removed stage directory '%s'%n", NAME, stagePath);
-            returnFilePaths(output, files);
+            returnData(output, getConfiguration());
         } catch (IOException e) {
             ServiceUtils.setError(output, e.getMessage());
         } catch (Exception e) {
             ServiceUtils.setError(output, ClaraUtil.reportException(e));
         }
+    }
+
+    private FilePaths getFiles(JSONObject request) {
+        String inputFileName = request.getString(REQUEST_FILENAME);
+        return new FilePaths(directoryPaths, outputPrefix, inputFileName);
     }
 
     private void returnFilePaths(EngineData output, FilePaths files) {
@@ -380,11 +375,20 @@ public class DataManager implements Engine {
         private final Path inputFile;
 
         FilePaths(DirectoryPaths dirPaths, String outputPrefix, String inputFileName) {
-            inputFile = dirPaths.inputPath.resolve(inputFileName);
-            stagedInputFile = dirPaths.stagePath.resolve(inputFileName);
-
+            if (inputFileName.isEmpty()) {
+                throw new IllegalArgumentException("empty input file name");
+            }
             String outputFileName = outputPrefix + inputFileName;
+
+            inputFile = dirPaths.inputPath.resolve(inputFileName);
             outputFile = dirPaths.outputPath.resolve(outputFileName);
+
+            Path resolvedFileName = inputFile.getFileName();
+            if (resolvedFileName == null || !inputFileName.equals(resolvedFileName.toString())) {
+                throw new IllegalArgumentException("invalid input file name: " + inputFileName);
+            }
+
+            stagedInputFile = dirPaths.stagePath.resolve(inputFileName);
             stagedOutputFile = dirPaths.stagePath.resolve(outputFileName);
         }
     }
@@ -434,7 +438,7 @@ public class DataManager implements Engine {
 
     @Override
     public String getVersion() {
-        return "0.9";
+        return "0.10";
     }
 
     @Override

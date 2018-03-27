@@ -368,7 +368,6 @@ public class DataManagerTest {
         EngineData request = createJsonRequest(data -> {
             data.put("type", "exec");
             data.put("action", "clear_stage");
-            data.put("file", paths.inputFile.getFileName().toString());
         });
 
         EngineData result = dm.execute(request);
@@ -388,7 +387,6 @@ public class DataManagerTest {
         EngineData request = createJsonRequest(data -> {
             data.put("type", "exec");
             data.put("action", "clear_stage");
-            data.put("file", paths.inputFile.getFileName().toString());
         });
 
         EngineData result = dm.execute(request);
