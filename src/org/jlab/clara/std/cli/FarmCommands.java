@@ -134,7 +134,8 @@ final class FarmCommands {
         addBuilder.apply(FARM_OS, "Farm resource OS.")
             .withInitialValue(DEFAULT_FARM_OS);
 
-        addBuilder.apply(FARM_STAGE, "Local directory to stage reconstruction files.");
+        addBuilder.apply(FARM_STAGE, "Local directory to stage reconstruction files.")
+            .withParser(ConfigParsers::toDirectory);
 
         addBuilder.apply(FARM_TRACK, "Farm job track.")
             .withInitialValue(DEFAULT_FARM_TRACK);
