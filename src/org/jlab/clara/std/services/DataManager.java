@@ -116,17 +116,16 @@ public class DataManager implements Engine {
                 updateConfiguration(data);
                 returnData(output, getConfiguration());
             } catch (IllegalArgumentException e) {
-                String msg = String.format("%s config: %s%n", NAME, e.getMessage());
-                System.err.print(msg);
-                ServiceUtils.setError(output, msg);
+                System.err.printf("%s config: %s%n", NAME, e.getMessage());
+                ServiceUtils.setError(output, e.getMessage());
             } catch (JSONException e) {
-                String msg = String.format("%s config: invalid data: %s%n", NAME, source);
-                System.err.print(msg);
+                String msg = "invalid request: " + source;
+                System.err.printf("%s config: %s%n", NAME, msg);
                 ServiceUtils.setError(output, msg);
             }
         } else {
-            String msg = String.format("%s config: wrong mimetype: %s%n", NAME, mt);
-            System.err.print(msg);
+            String msg = "wrong mimetype: " + mt;
+            System.err.printf("%s config: %s%n", NAME, msg);
             ServiceUtils.setError(output, msg);
         }
         return output;
@@ -190,13 +189,13 @@ public class DataManager implements Engine {
                         runQuery(request, output);
                         break;
                     default:
-                        ServiceUtils.setError(output, "Invalid %s value: %s", REQUEST_TYPE, type);
+                        ServiceUtils.setError(output, "invalid %s value: %s", REQUEST_TYPE, type);
                 }
             } catch (JSONException e) {
-                ServiceUtils.setError(output, "Invalid request: " + source);
+                ServiceUtils.setError(output, "invalid request: " + source);
             }
         } else {
-            ServiceUtils.setError(output, "Wrong mimetype: " + mt);
+            ServiceUtils.setError(output, "wrong mimetype: " + mt);
         }
         return output;
     }
@@ -205,13 +204,13 @@ public class DataManager implements Engine {
         String action = request.getString(REQUEST_ACTION);
         String inputFileName = request.getString(REQUEST_FILENAME);
         if (inputFileName.isEmpty()) {
-            ServiceUtils.setError(output, "Empty input file name");
+            ServiceUtils.setError(output, "empty input file name");
             return;
         }
         FilePaths files = new FilePaths(directoryPaths, outputPrefix, inputFileName);
         Path resolvedFileName = files.inputFile.getFileName();
         if (resolvedFileName == null || !inputFileName.equals(resolvedFileName.toString())) {
-            ServiceUtils.setError(output, "Invalid input file name: " + inputFileName);
+            ServiceUtils.setError(output, "invalid input file name: " + inputFileName);
             return;
         }
 
@@ -229,7 +228,7 @@ public class DataManager implements Engine {
                 clearStageDir(files, output);
                 break;
             default:
-                ServiceUtils.setError(output, "Invalid %s value: %s", REQUEST_ACTION, action);
+                ServiceUtils.setError(output, "invalid %s value: %s", REQUEST_ACTION, action);
         }
     }
 
@@ -240,7 +239,7 @@ public class DataManager implements Engine {
                 returnData(output, getConfiguration());
                 break;
             default:
-                ServiceUtils.setError(output, "Invalid %s value: %s", REQUEST_ACTION, action);
+                ServiceUtils.setError(output, "invalid %s value: %s", REQUEST_ACTION, action);
         }
     }
 
@@ -264,11 +263,9 @@ public class DataManager implements Engine {
             returnFilePaths(output, files);
 
         } catch (ExecuteException e) {
-            String msg = "Could not stage input file%n%n%s";
-            ServiceUtils.setError(output, msg, outputStream.toString().trim());
+            ServiceUtils.setError(output, outputStream.toString().trim());
         } catch (Exception e) {
-            String msg = "Could not stage input file%n%n%s";
-            ServiceUtils.setError(output, msg, ClaraUtil.reportException(e));
+            ServiceUtils.setError(output, ClaraUtil.reportException(e));
         }
     }
 
@@ -288,11 +285,9 @@ public class DataManager implements Engine {
             returnFilePaths(output, files);
 
         } catch (ExecuteException e) {
-            String msg = "Could not remove staged input file%n%n%s";
-            ServiceUtils.setError(output, msg, outputStream.toString().trim());
+            ServiceUtils.setError(output, outputStream.toString().trim());
         } catch (Exception e) {
-            String msg = "Could not remove staged input file%n%n%s";
-            ServiceUtils.setError(output, msg, ClaraUtil.reportException(e));
+            ServiceUtils.setError(output, ClaraUtil.reportException(e));
         }
     }
 
@@ -316,27 +311,22 @@ public class DataManager implements Engine {
             returnFilePaths(output, files);
 
         } catch (ExecuteException e) {
-            String msg = "Could not save output file%n%n%s";
-            ServiceUtils.setError(output, msg, outputStream.toString().trim());
+            ServiceUtils.setError(output, outputStream.toString().trim());
         } catch (Exception e) {
-            String msg = "Could not save output file%n%n%s";
-            ServiceUtils.setError(output, msg, ClaraUtil.reportException(e));
+            ServiceUtils.setError(output, ClaraUtil.reportException(e));
         }
     }
 
     private void clearStageDir(FilePaths files, EngineData output) {
         Path stagePath = files.stagedInputFile.getParent();
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         try {
             FileUtils.deleteFileTree(stagePath);
             System.out.printf("%s service: removed stage directory '%s'%n", NAME, stagePath);
             returnFilePaths(output, files);
         } catch (IOException e) {
-            String msg = "Could not remove stage directory%n%n%s";
-            ServiceUtils.setError(output, msg, outputStream.toString().trim());
+            ServiceUtils.setError(output, e.getMessage());
         } catch (Exception e) {
-            String msg = "Could not remove stage directory%n%n%s";
-            ServiceUtils.setError(output, msg, ClaraUtil.reportException(e));
+            ServiceUtils.setError(output, ClaraUtil.reportException(e));
         }
     }
 

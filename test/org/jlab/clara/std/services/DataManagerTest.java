@@ -188,7 +188,7 @@ public class DataManagerTest {
             data.put("input_path", "/mnt/exp/in");
         });
 
-        assertErrorOnConfig(config, "invalid data");
+        assertErrorOnConfig(config, "invalid request");
     }
 
 
@@ -473,7 +473,7 @@ public class DataManagerTest {
             data.put("file", "file.ev");
         });
 
-        assertErrorOnExecute(request, "Could not stage input");
+        assertErrorOnExecute(request, "/scratch");
     }
 
 
@@ -486,7 +486,7 @@ public class DataManagerTest {
             data.put("file", "file.ev");
         });
 
-        assertErrorOnExecute(request, "Could not remove staged input");
+        assertErrorOnExecute(request, "/scratch/file.ev");
     }
 
 
@@ -499,7 +499,7 @@ public class DataManagerTest {
             data.put("file", "file.ev");
         });
 
-        assertErrorOnExecute(request, "Could not save output file");
+        assertErrorOnExecute(request, "/scratch/out_file.ev");
     }
 
 
@@ -510,7 +510,7 @@ public class DataManagerTest {
             data.put("file", "/mnt/exp/in/file.ev");
         });
 
-        assertErrorOnExecute(request, "Invalid request");
+        assertErrorOnExecute(request, "invalid request");
     }
 
 
@@ -522,7 +522,7 @@ public class DataManagerTest {
             data.put("file", "file.ev");
         });
 
-        assertErrorOnExecute(request, "Invalid action value: bad_action");
+        assertErrorOnExecute(request, "invalid action value: bad_action");
     }
 
 
@@ -531,7 +531,7 @@ public class DataManagerTest {
         EngineData request = new EngineData();
         request.setData("text/number", 42);
 
-        assertErrorOnExecute(request, "Wrong mimetype: text/number");
+        assertErrorOnExecute(request, "wrong mimetype: text/number");
     }
 
 
@@ -543,7 +543,7 @@ public class DataManagerTest {
             data.put("file", "/mnt/exp/in/file.ev");
         });
 
-        assertErrorOnExecute(request, "Invalid input file name");
+        assertErrorOnExecute(request, "invalid input file name");
     }
 
 
