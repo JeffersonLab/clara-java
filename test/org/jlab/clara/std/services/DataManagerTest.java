@@ -471,7 +471,7 @@ public class DataManagerTest {
             data.put("file", "file.ev");
         });
 
-        assertErrorOnExecute(request, "/scratch");
+        assertErrorOnExecute(request, "could not complete request");
     }
 
 
@@ -484,7 +484,7 @@ public class DataManagerTest {
             data.put("file", "file.ev");
         });
 
-        assertErrorOnExecute(request, "/scratch/file.ev");
+        assertErrorOnExecute(request, "could not complete request");
     }
 
 
@@ -497,7 +497,7 @@ public class DataManagerTest {
             data.put("file", "file.ev");
         });
 
-        assertErrorOnExecute(request, "/scratch/out_file.ev");
+        assertErrorOnExecute(request, "could not complete request");
     }
 
 

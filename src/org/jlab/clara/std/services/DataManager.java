@@ -195,6 +195,9 @@ public class DataManager implements Engine {
                 ServiceUtils.setError(output, e.getMessage());
             } catch (JSONException e) {
                 ServiceUtils.setError(output, "invalid request: " + source);
+            } catch (Exception e) {
+                ServiceUtils.setError(output, "unexpected problem:%n%s",
+                        ClaraUtil.reportException(e));
             }
         } else {
             ServiceUtils.setError(output, "wrong mimetype: " + mt);
@@ -253,9 +256,10 @@ public class DataManager implements Engine {
             returnFilePaths(output, files);
 
         } catch (ExecuteException e) {
-            ServiceUtils.setError(output, outputStream.toString().trim());
-        } catch (Exception e) {
-            ServiceUtils.setError(output, ClaraUtil.reportException(e));
+            ServiceUtils.setError(output,
+                    "could not complete request: " + outputStream.toString().trim());
+        } catch (IOException e) {
+            ServiceUtils.setError(output, "could not complete request: " + e.getMessage());
         }
     }
 
@@ -275,9 +279,10 @@ public class DataManager implements Engine {
             returnFilePaths(output, files);
 
         } catch (ExecuteException e) {
-            ServiceUtils.setError(output, outputStream.toString().trim());
-        } catch (Exception e) {
-            ServiceUtils.setError(output, ClaraUtil.reportException(e));
+            ServiceUtils.setError(output,
+                    "could not complete request: " + outputStream.toString().trim());
+        } catch (IOException e) {
+            ServiceUtils.setError(output, "could not complete request: " + e.getMessage());
         }
     }
 
@@ -301,9 +306,10 @@ public class DataManager implements Engine {
             returnFilePaths(output, files);
 
         } catch (ExecuteException e) {
-            ServiceUtils.setError(output, outputStream.toString().trim());
-        } catch (Exception e) {
-            ServiceUtils.setError(output, ClaraUtil.reportException(e));
+            ServiceUtils.setError(output,
+                    "could not complete request: " + outputStream.toString().trim());
+        } catch (IOException e) {
+            ServiceUtils.setError(output, "could not complete request: " + e.getMessage());
         }
     }
 
@@ -314,9 +320,7 @@ public class DataManager implements Engine {
             System.out.printf("%s service: removed stage directory '%s'%n", NAME, stagePath);
             returnData(output, getConfiguration());
         } catch (IOException e) {
-            ServiceUtils.setError(output, e.getMessage());
-        } catch (Exception e) {
-            ServiceUtils.setError(output, ClaraUtil.reportException(e));
+            ServiceUtils.setError(output, "could not complete request: " + e.getMessage());
         }
     }
 
