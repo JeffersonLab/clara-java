@@ -276,12 +276,14 @@ class WorkerNode {
             request.put("file", currentInputFileName);
             EngineData rr = orchestrator.syncSend(stageName, request, 5, TimeUnit.MINUTES);
             if (rr.getStatus().equals(EngineStatus.ERROR)) {
-                System.err.println(rr.getDescription());
+                Logging.error("Failed to remove stage directory on %s: %s",
+                        name(), rr.getDescription());
                 return false;
             }
             return true;
         } catch (ClaraException | TimeoutException e) {
-            throw new OrchestratorException("Could not remove stage directory", e);
+            Logging.error("Failed to remove stage directory on %s: %s", name(), e.getMessage());
+            return false;
         }
     }
 

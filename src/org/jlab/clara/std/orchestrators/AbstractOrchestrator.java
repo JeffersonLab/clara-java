@@ -450,12 +450,7 @@ abstract class AbstractOrchestrator {
     void removeStageDirectories() {
         if (options.stageFiles) {
             freeNodes.stream().parallel().forEach(n -> {
-                try {
-                    n.removeStageDir();
-                } catch (OrchestratorException e) {
-                    Logging.error("Could not remove stage directory from %s: %s",
-                            n.name(), e.getMessage());
-                }
+                n.removeStageDir();
             });
         }
     }
