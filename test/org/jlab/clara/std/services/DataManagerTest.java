@@ -60,7 +60,7 @@ public class DataManagerTest {
     public void setDefaultPaths() throws Exception {
         dm = new DataManager("/clara/");
 
-        assertPaths("/clara/data/in", "/clara/data/out", "/scratch");
+        assertPaths("/clara/data/input", "/clara/data/output", "/scratch");
     }
 
 

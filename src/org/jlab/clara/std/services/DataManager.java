@@ -348,8 +348,8 @@ public class DataManager implements Engine {
         private final Path stagePath;
 
         DirectoryPaths(String baseDir) {
-            inputPath = Paths.get(baseDir, "data", "in");
-            outputPath = Paths.get(baseDir, "data", "out");
+            inputPath = Paths.get(baseDir, "data", "input");
+            outputPath = Paths.get(baseDir, "data", "output");
             stagePath = Paths.get("/scratch");
         }
 
