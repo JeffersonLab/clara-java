@@ -30,6 +30,10 @@ class ServiceConfig {
     static final String READER = "reader";
     static final String WRITER = "writer";
 
+    private static final String IO_CONFIG = "io-services";
+    private static final String GLOBAL_CONFIG = "global";
+    private static final String SERVICE_CONFIG = "services";
+
     private final JSONObject configData;
 
     ServiceConfig() {
@@ -49,8 +53,8 @@ class ServiceConfig {
     }
 
     private JSONObject getIO(String key) {
-        if (configData.has("io-services")) {
-            JSONObject ioConf = configData.getJSONObject("io-services");
+        if (configData.has(IO_CONFIG)) {
+            JSONObject ioConf = configData.getJSONObject(IO_CONFIG);
             if (ioConf.has(key)) {
                 return ioConf.getJSONObject(key);
             }
@@ -60,14 +64,14 @@ class ServiceConfig {
 
     JSONObject get(ServiceName service) {
         JSONObject conf = new JSONObject();
-        if (configData.has("global")) {
-            JSONObject globalConf = configData.getJSONObject("global");
+        if (configData.has(GLOBAL_CONFIG)) {
+            JSONObject globalConf = configData.getJSONObject(GLOBAL_CONFIG);
             for (String key : globalConf.keySet()) {
                 conf.put(key, globalConf.get(key));
             }
         }
-        if (configData.has("services")) {
-            JSONObject services = configData.getJSONObject("services");
+        if (configData.has(SERVICE_CONFIG)) {
+            JSONObject services = configData.getJSONObject(SERVICE_CONFIG);
             if (services.has(service.name())) {
                 JSONObject serviceConf = services.getJSONObject(service.name());
                 for (String key : serviceConf.keySet()) {
