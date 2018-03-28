@@ -416,21 +416,21 @@ abstract class AbstractOrchestrator {
         double timePerEvent = recTime / (double) node.totalEvents.get();
         stats.update(node, node.totalEvents.get(), recTime);
         Logging.info("Finished file %s on %s. Average event time = %.2f ms",
-                node.recFile.inputName, node.name(), timePerEvent);
+                node.currentFile(), node.name(), timePerEvent);
     }
 
 
     void processFinishedFile(WorkerNode node) {
         try {
-            String currentFile = node.recFile.inputName;
             node.closeFiles();
             if (options.stageFiles) {
                 node.saveOutputFile();
-                Logging.info("Saved file %s on %s", currentFile, node.name());
+                Logging.info("Saved file %s on %s", node.currentFile(), node.name());
             }
         } catch (OrchestratorException e) {
             Logging.error("Could not close files on %s:%n%s", node.name(), e.getMessage());
         } finally {
+            node.clearFiles();
             incrementFinishedFile();
             freeNodes.add(node);
         }
@@ -518,7 +518,7 @@ abstract class AbstractOrchestrator {
                 int eof = node.eofCounter.incrementAndGet();
                 if (eof == 1) {
                     Logging.info("All events read from %s on %s. Waiting for output events...",
-                            node.recFile.inputName, node.name());
+                            node.currentFile(), node.name());
                 }
                 if (severity == 2 || endOfFileTimerTask.isDone()) {
                     printAverage(node);

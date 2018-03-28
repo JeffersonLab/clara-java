@@ -49,16 +49,12 @@ import org.json.JSONObject;
 
 class WorkerNode {
 
-    private static final String NO_NAME = "undefined";
-
     private final CoreOrchestrator orchestrator;
     private final WorkerApplication application;
 
     private final ServiceName stageName;
     private final ServiceName readerName;
     private final ServiceName writerName;
-
-    volatile WorkerFile recFile;
 
     private volatile ServiceConfig configuration = new ServiceConfig();
 
@@ -189,17 +185,12 @@ class WorkerNode {
 
     void setFiles(WorkerFile currentFile) {
         try {
-            recFile = currentFile;
-            currentInputFileName = currentFile.inputName;
-            currentInputFile = NO_NAME;
-            currentOutputFile = NO_NAME;
-
             JSONObject data = new JSONObject();
             data.put("type", "exec");
             data.put("action", "stage_input");
-            data.put("file", currentInputFileName);
+            data.put("file", currentFile.inputName);
 
-            Logging.info("Staging file %s on %s", currentInputFileName, name());
+            Logging.info("Staging file %s on %s", currentFile.inputName, name());
             EngineData result = orchestrator.syncSend(stageName, data, 5, TimeUnit.MINUTES);
 
             if (!result.getStatus().equals(EngineStatus.ERROR)) {
@@ -207,8 +198,8 @@ class WorkerNode {
                 JSONObject rd = new JSONObject(rs);
                 currentInputFile = rd.getString("input_file");
                 currentOutputFile = rd.getString("output_file");
+                currentInputFileName = currentFile.inputName;
             } else {
-                currentInputFileName = NO_NAME;
                 String msg = "Could not stage input file: " + result.getDescription();
                 throw new OrchestratorException(msg);
             }
@@ -219,7 +210,6 @@ class WorkerNode {
 
 
     void setFiles(OrchestratorPaths paths, WorkerFile currentFile) {
-        recFile = currentFile;
         currentInputFile = paths.inputFilePath(currentFile).toString();
         currentOutputFile = paths.outputFilePath(currentFile).toString();
         currentInputFileName = currentFile.inputName;
@@ -229,6 +219,18 @@ class WorkerNode {
     void setFileCounter(int currentFile, int totalFiles) {
         currentFileCounter.set(currentFile);
         totalFilesCounter.set(totalFiles);
+    }
+
+
+    void clearFiles() {
+        currentInputFile = null;
+        currentOutputFile = null;
+        currentInputFileName = null;
+    }
+
+
+    String currentFile() {
+        return currentInputFileName;
     }
 
 
@@ -245,10 +247,6 @@ class WorkerNode {
             saveRequest.put("action", "save_output");
             saveRequest.put("file", currentInputFileName);
             EngineData rs = orchestrator.syncSend(stageName, saveRequest, 5, TimeUnit.MINUTES);
-
-            currentInputFileName = NO_NAME;
-            currentInputFile = NO_NAME;
-            currentOutputFile = NO_NAME;
 
             boolean status = true;
             if (rr.getStatus().equals(EngineStatus.ERROR)) {
