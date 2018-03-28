@@ -56,7 +56,7 @@ class WorkerNode {
     private final ServiceName readerName;
     private final ServiceName writerName;
 
-    private volatile ServiceConfig configuration = new ServiceConfig();
+    private volatile JSONObject userConfig = new JSONObject();
 
     private volatile String currentInputFileName;
     private volatile String currentInputFile;
@@ -167,7 +167,11 @@ class WorkerNode {
     }
 
     void setConfiguration(JSONObject configData) {
-        this.configuration = new ServiceConfig(configData);
+        this.userConfig = configData;
+    }
+
+    private ServiceConfig createServiceConfig() {
+        return new ServiceConfig(userConfig);
     }
 
     void setPaths(Path inputPath, Path outputPath, Path stagePath) {
@@ -297,6 +301,8 @@ class WorkerNode {
         eventNumber.set(0);
         totalEvents.set(0);
 
+        ServiceConfig configuration = createServiceConfig();
+
         int skipEv = skipEvents.get();
         int maxEv = maxEvents.get();
 
@@ -396,6 +402,8 @@ class WorkerNode {
 
 
     void configureServices() {
+        ServiceConfig configuration = createServiceConfig();
+
         for (ServiceName service : application.services()) {
             try {
                 orchestrator.syncConfig(service, configuration.get(service), 2, TimeUnit.MINUTES);

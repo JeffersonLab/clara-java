@@ -36,10 +36,6 @@ class ServiceConfig {
 
     private final JSONObject configData;
 
-    ServiceConfig() {
-        this.configData = new JSONObject();
-    }
-
     ServiceConfig(JSONObject configData) {
         this.configData = configData;
     }

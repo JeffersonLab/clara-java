@@ -77,7 +77,7 @@ public class ServiceConfigTest {
 
     @Test
     public void withoutIOConfigurationReaderReturnsEmpty() throws Exception {
-        ServiceConfig conf = new ServiceConfig();
+        ServiceConfig conf = new ServiceConfig(new JSONObject());
 
         assertThat(conf.reader().keySet(), is(empty()));
     }
@@ -97,7 +97,7 @@ public class ServiceConfigTest {
 
     @Test
     public void withoutUserConfigurationReturnsEmpty() throws Exception {
-        ServiceConfig conf = new ServiceConfig();
+        ServiceConfig conf = new ServiceConfig(new JSONObject());
 
         assertThat(conf.get(N1).keySet(), is(empty()));
     }
