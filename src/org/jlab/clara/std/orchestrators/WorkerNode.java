@@ -170,8 +170,14 @@ class WorkerNode {
         this.userConfig = configData;
     }
 
-    private ServiceConfig createServiceConfig() {
-        return new ServiceConfig(userConfig);
+    private ServiceConfig createServiceConfig(boolean fillDataModel) {
+        Map<String, Object> model = new HashMap<>();
+        if (fillDataModel && currentInputFile != null) {
+            model.put("input_file", currentInputFile);
+            model.put("output_file", currentOutputFile);
+        }
+
+        return new ServiceConfig(userConfig, model);
     }
 
     void setPaths(Path inputPath, Path outputPath, Path stagePath) {
@@ -301,7 +307,7 @@ class WorkerNode {
         eventNumber.set(0);
         totalEvents.set(0);
 
-        ServiceConfig configuration = createServiceConfig();
+        ServiceConfig configuration = createServiceConfig(false);
 
         int skipEv = skipEvents.get();
         int maxEv = maxEvents.get();
@@ -406,7 +412,7 @@ class WorkerNode {
 
 
     void configureServices() {
-        ServiceConfig configuration = createServiceConfig();
+        ServiceConfig configuration = createServiceConfig(true);
 
         for (ServiceName service : application.services()) {
             try {
