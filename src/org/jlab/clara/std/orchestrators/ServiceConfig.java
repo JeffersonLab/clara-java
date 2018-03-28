@@ -53,32 +53,34 @@ class ServiceConfig {
     }
 
     private JSONObject getIO(String key) {
+        JSONObject conf = new JSONObject();
         if (configData.has(IO_CONFIG)) {
             JSONObject ioConf = configData.getJSONObject(IO_CONFIG);
             if (ioConf.has(key)) {
-                return ioConf.getJSONObject(key);
+                addServiceConfig(conf, ioConf, key);
             }
         }
-        return new JSONObject();
+        return conf;
     }
 
     JSONObject get(ServiceName service) {
         JSONObject conf = new JSONObject();
         if (configData.has(GLOBAL_CONFIG)) {
-            JSONObject globalConf = configData.getJSONObject(GLOBAL_CONFIG);
-            for (String key : globalConf.keySet()) {
-                conf.put(key, globalConf.get(key));
-            }
+            addServiceConfig(conf, configData, GLOBAL_CONFIG);
         }
         if (configData.has(SERVICE_CONFIG)) {
             JSONObject services = configData.getJSONObject(SERVICE_CONFIG);
             if (services.has(service.name())) {
-                JSONObject serviceConf = services.getJSONObject(service.name());
-                for (String key : serviceConf.keySet()) {
-                    conf.put(key, serviceConf.get(key));
-                }
+                addServiceConfig(conf, services, service.name());
             }
         }
         return conf;
+    }
+
+    private void addServiceConfig(JSONObject target, JSONObject parent, String serviceKey) {
+        JSONObject config = parent.getJSONObject(serviceKey);
+        for (String key : config.keySet()) {
+            target.put(key, config.get(key));
+        }
     }
 }
