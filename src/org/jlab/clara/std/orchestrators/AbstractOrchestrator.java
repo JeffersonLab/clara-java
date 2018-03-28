@@ -259,15 +259,17 @@ abstract class AbstractOrchestrator {
             }
             subscribe(node);
 
-            Logging.info("Configuring services on %s...", node.name());
             if (options.stageFiles) {
                 node.setPaths(paths.inputDir, paths.outputDir, paths.stageDir);
                 clearLocalStage(node);
             }
             node.setConfiguration(setup.configuration);
-            node.configureServices();
+            if (setup.configMode == OrchestratorConfigMode.DATASET) {
+                Logging.info("Configuring services on %s...", node.name());
+                node.configureServices();
+                Logging.info("All services configured on %s", node.name());
+            }
             node.setEventLimits(options.skipEvents, options.maxEvents);
-            Logging.info("All services configured on %s", node.name());
 
             freeNodes.add(node);
             stats.add(node);
@@ -398,6 +400,10 @@ abstract class AbstractOrchestrator {
 
 
     void startFile(WorkerNode node) {
+        if (setup.configMode == OrchestratorConfigMode.FILE) {
+            Logging.info("Configuring services on %s...", node.name());
+            node.configureServices();
+        }
         node.setReportFrequency(options.reportFreq);
 
         int fileCounter = startedFilesCounter.incrementAndGet();

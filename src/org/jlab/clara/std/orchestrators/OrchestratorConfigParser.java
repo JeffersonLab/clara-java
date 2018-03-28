@@ -358,6 +358,19 @@ public class OrchestratorConfigParser {
     }
 
 
+    OrchestratorConfigMode parseConfigurationMode() {
+        if (config.has("configuration_mode")) {
+            String mode = config.getString("configuration_mode");
+            try {
+                return OrchestratorConfigMode.fromString(mode);
+            } catch (IllegalArgumentException e) {
+                throw error("invalid value for \"configuration_mode\": " + mode);
+            }
+        }
+        return OrchestratorConfigMode.DATASET;
+    }
+
+
     private String parseDefaultContainer() {
         return config.optString("container", DEFAULT_CONTAINER);
     }

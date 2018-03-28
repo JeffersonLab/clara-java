@@ -141,6 +141,7 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
                              parser.parseDataProcessingServices(),
                              parser.parseMonitoringServices())
                     .withConfig(parser.parseConfiguration())
+                    .withConfigMode(parser.parseConfigurationMode())
                     .withDataTypes(parser.parseDataTypes());
         }
 

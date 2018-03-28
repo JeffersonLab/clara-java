@@ -42,6 +42,7 @@ class OrchestratorSetup {
     final DpeName frontEnd;
     final String session;
     final JSONObject configuration;
+    final OrchestratorConfigMode configMode;
     final Set<EngineDataType> dataTypes;
 
 
@@ -53,6 +54,7 @@ class OrchestratorSetup {
         private String session = "";
 
         private JSONObject config = new JSONObject();
+        private OrchestratorConfigMode configMode = OrchestratorConfigMode.DATASET;
         private Set<String> dataTypes = new HashSet<>();
 
         Builder(Map<String, ServiceInfo> ioServices,
@@ -78,6 +80,11 @@ class OrchestratorSetup {
             return this;
         }
 
+        Builder withConfigMode(OrchestratorConfigMode mode) {
+            this.configMode = mode;
+            return this;
+        }
+
         Builder withDataTypes(Set<String> dataTypes) {
             this.dataTypes = dataTypes;
             return this;
@@ -94,6 +101,7 @@ class OrchestratorSetup {
         this.session = builder.session;
         this.application = builder.application;
         this.configuration = builder.config;
+        this.configMode = builder.configMode;
         this.dataTypes = builder.dataTypes.stream()
                     .map(OrchestratorSetup::dummyDataType)
                     .collect(Collectors.toSet());
