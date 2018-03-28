@@ -187,7 +187,7 @@ class WorkerNode {
     }
 
 
-    boolean setFiles(WorkerFile currentFile) {
+    void setFiles(WorkerFile currentFile) {
         try {
             recFile = currentFile;
             currentInputFileName = currentFile.inputName;
@@ -207,11 +207,10 @@ class WorkerNode {
                 JSONObject rd = new JSONObject(rs);
                 currentInputFile = rd.getString("input_file");
                 currentOutputFile = rd.getString("output_file");
-                return true;
             } else {
-                System.err.println(result.getDescription());
                 currentInputFileName = NO_NAME;
-                return false;
+                String msg = "Could not stage input file: " + result.getDescription();
+                throw new OrchestratorException(msg);
             }
         } catch (ClaraException | TimeoutException e) {
             throw new OrchestratorException("Could not stage input file", e);
