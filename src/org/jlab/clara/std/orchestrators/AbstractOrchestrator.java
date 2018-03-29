@@ -41,7 +41,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 import org.jlab.clara.base.EngineCallback;
-import org.jlab.clara.base.ServiceName;
 import org.jlab.clara.engine.EngineData;
 
 
@@ -467,8 +466,6 @@ abstract class AbstractOrchestrator {
 
         @Override
         public void callback(EngineData data) {
-            ServiceName source = new ServiceName(data.getEngineName());
-            int requestId = data.getCommunicationId();
             int severity = data.getStatusSeverity();
             String description = data.getDescription();
             if (description.equalsIgnoreCase("End of File")) {
@@ -482,12 +479,7 @@ abstract class AbstractOrchestrator {
             } else if (description.startsWith("Error opening the file")) {
                 Logging.error(description);
             } else {
-                try {
-                    Logging.error("Error in %s (ID: %d):%n%s", source, requestId, description);
-                    node.requestEvent(requestId, "next-rec");
-                } catch (OrchestratorException e) {
-                    Logging.error(e.getMessage());
-                }
+                handleEngineError(data);
             }
         }
 
@@ -496,6 +488,19 @@ abstract class AbstractOrchestrator {
             if (node.currentFile() != null) {
                 printAverage(node);
                 processFinishedFile(node);
+            }
+        }
+
+        private synchronized void handleEngineError(EngineData data) {
+            if (node.currentFile() == null) {
+                return;
+            }
+            try {
+                Logging.error("Error in %s (ID: %d):%n%s",
+                        data.getEngineName(), data.getCommunicationId(), data.getDescription());
+                node.requestEvent(data.getCommunicationId(), "next-rec");
+            } catch (OrchestratorException e) {
+                Logging.error(e.getMessage());
             }
         }
 
