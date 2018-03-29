@@ -262,13 +262,14 @@ public abstract class AbstractEventReaderService<Reader> extends AbstractService
             Object event = readEvent(currentEvent);
             output.setData(getDataType().toString(), event);
             output.setDescription("data");
-            output.setCommunicationId(currentEvent);
             processingEvents.add(currentEvent);
-            currentEvent++;
         } catch (EventReaderException e) {
             String msg = String.format("Error requesting event %d from file %s%n%n%s",
                     currentEvent, fileName, ClaraUtil.reportException(e));
             ServiceUtils.setError(output, msg, 1);
+        } finally {
+            output.setCommunicationId(currentEvent);
+            currentEvent++;
         }
     }
 
