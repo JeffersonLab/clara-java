@@ -37,7 +37,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -455,54 +454,15 @@ abstract class AbstractOrchestrator {
         }
     }
 
-    private class EndOfFileTimerTask extends TimerTask {
-
-        private AtomicBoolean done = new AtomicBoolean();
-        private int timeInterval;
-        private int t;
-
-        EndOfFileTimerTask(int timeInterval) {
-            this.timeInterval = timeInterval;
-            reset();
-        }
-
-        public boolean isDone() {
-            return done.get();
-        }
-
-
-        void reset() {
-            done.set(false);
-            t = timeInterval;
-        }
-
-        @Override
-        public void run() {
-            t--;
-            Logging.info("Waiting output events for %d seconds", timeInterval - t);
-            if (t < 0) {
-                done.set(true);
-            }
-        }
-    }
 
     private class ErrorHandlerCB implements EngineCallback {
 
         private final WorkerNode node;
-        private EndOfFileTimerTask endOfFileTimerTask;
+
         private Timer timer;
-        private final int t = 120000; // 2 minutes
-        private boolean timerIsUp = false;
 
         ErrorHandlerCB(WorkerNode node) {
             this.node = node;
-        }
-
-        private void startTimer() {
-            endOfFileTimerTask = new EndOfFileTimerTask(t);
-            timer = new Timer();
-            timer.scheduleAtFixedRate(endOfFileTimerTask, 0, 1000);
-            timerIsUp = true;
         }
 
         @Override
@@ -512,20 +472,12 @@ abstract class AbstractOrchestrator {
             int severity = data.getStatusSeverity();
             String description = data.getDescription();
             if (description.equalsIgnoreCase("End of File")) {
-                if (!timerIsUp) {
-                    startTimer();
-                }
                 int eof = node.eofCounter.incrementAndGet();
                 if (eof == 1) {
-                    Logging.info("All events read from %s on %s. Waiting for output events...",
-                            node.currentFile(), node.name());
+                    startTimer();
                 }
-                if (severity == 2 || endOfFileTimerTask.isDone()) {
-                    printAverage(node);
-                    processFinishedFile(node);
-                    timer.cancel();
-                    timer.purge();
-                    timerIsUp = false;
+                if (severity == 2) {
+                    finishCurrentFile();
                 }
             } else if (description.startsWith("Error opening the file")) {
                 Logging.error(description);
@@ -536,6 +488,59 @@ abstract class AbstractOrchestrator {
                 } catch (OrchestratorException e) {
                     Logging.error(e.getMessage());
                 }
+            }
+        }
+
+        private synchronized void finishCurrentFile() {
+            stopTimer();
+            printAverage(node);
+            processFinishedFile(node);
+        }
+
+        private synchronized void startTimer() {
+            TimerTask task = new EndOfFileTimerTask(30, 300, () -> {
+                finishCurrentFile();
+            });
+
+            timer = new Timer();
+            timer.scheduleAtFixedRate(task, 30_000, 30_000);
+        }
+
+        private synchronized void stopTimer() {
+            if (timer != null) {
+                timer.cancel();
+            }
+        }
+    }
+
+
+    private class EndOfFileTimerTask extends TimerTask {
+
+        private final int delta;
+        private final int timeout;
+        private final Runnable timeoutAction;
+
+        private AtomicInteger timeLeft;
+
+        EndOfFileTimerTask(int delta, int timeout, Runnable timeoutAction) {
+            this.delta = delta;
+            this.timeout = timeout;
+            this.timeoutAction = timeoutAction;
+            this.timeLeft = new AtomicInteger(timeout);
+        }
+
+        @Override
+        public void run() {
+            int timeLeft = this.timeLeft.addAndGet(-delta);
+            if (options.orchMode == OrchestratorMode.LOCAL) {
+                Logging.info("All events read. Waiting output events for %3d seconds...",
+                         timeout - timeLeft);
+            }
+            if (timeLeft <= 0) {
+                if (options.orchMode == OrchestratorMode.LOCAL) {
+                    Logging.info("Last output events are taking too long. Closing files...");
+                }
+                timeoutAction.run();
             }
         }
     }
