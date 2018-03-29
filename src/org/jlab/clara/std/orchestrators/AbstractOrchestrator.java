@@ -493,8 +493,10 @@ abstract class AbstractOrchestrator {
 
         private synchronized void finishCurrentFile() {
             stopTimer();
-            printAverage(node);
-            processFinishedFile(node);
+            if (node.currentFile() != null) {
+                printAverage(node);
+                processFinishedFile(node);
+            }
         }
 
         private synchronized void startTimer() {
