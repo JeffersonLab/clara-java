@@ -201,7 +201,7 @@ class WorkerNode {
             data.put("file", currentFile.inputName);
 
             Logging.info("Staging file %s on %s", currentFile.inputName, name());
-            EngineData result = orchestrator.syncSend(stageName, data, 5, TimeUnit.MINUTES);
+            EngineData result = orchestrator.syncSend(stageName, data, 15, TimeUnit.MINUTES);
 
             if (!result.getStatus().equals(EngineStatus.ERROR)) {
                 String rs = (String) result.getData();
