@@ -37,6 +37,7 @@ import java.util.stream.Collectors;
 
 import org.jlab.clara.util.ArgUtils;
 import org.jlab.clara.util.FileUtils;
+import org.jlab.clara.util.VersionUtils;
 import org.jline.reader.Completer;
 import org.jline.reader.EndOfFileException;
 import org.jline.reader.History;
@@ -77,11 +78,20 @@ public final class ClaraShell implements AutoCloseable {
     public static void main(String[] args) {
         ClaraShell.Builder builder = ClaraShell.newBuilder();
         if (args.length == 1) {
+            if (args[0].equals("--version")) {
+                System.out.println(VersionUtils.getClaraVersionFull());
+                System.exit(0);
+            }
+            if (args[0].equals("--help")) {
+                System.err.println("usage: clara-shell [ <script> ]");
+                System.exit(0);
+            }
             builder.withScript(Paths.get(args[0]));
         } else if (args.length > 1) {
             System.err.println("usage: clara-shell [ <script> ]");
             System.exit(1);
         }
+
         if (FarmCommands.hasPlugin()) {
             FarmCommands.register(builder);
         }
@@ -392,9 +402,11 @@ public final class ClaraShell implements AutoCloseable {
     }
 
     private void printWelcomeMessage(PrintWriter writer) {
+        String version = VersionUtils.getClaraVersion();
+
         writer.println();
         writer.println("   ██████╗██╗      █████╗ ██████╗  █████╗ ");
-        writer.println("  ██╔════╝██║     ██╔══██╗██╔══██╗██╔══██╗ 4.3.0");
+        writer.println("  ██╔════╝██║     ██╔══██╗██╔══██╗██╔══██╗  " + version);
         writer.println("  ██║     ██║     ███████║██████╔╝███████║");
         writer.println("  ██║     ██║     ██╔══██║██╔══██╗██╔══██║");
         writer.println("  ╚██████╗███████╗██║  ██║██║  ██║██║  ██║");

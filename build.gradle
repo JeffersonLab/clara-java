@@ -118,6 +118,46 @@ task sourcesJar(type: Jar, dependsOn: classes) {
 }
 
 
+def runCommand(cmd) {
+    try {
+        return cmd.execute().text.trim()
+    } catch (e) {
+        return ''
+    }
+}
+
+
+task generateVersionProperties {
+    doLast {
+        def propertiesFile = file("${buildDir}/resources/main/META-INF/version.properties")
+        propertiesFile.parentFile.mkdirs()
+
+        propertiesFile.write "version=${project.version}\n"
+        propertiesFile.append "groupId=${project.group}\n"
+        propertiesFile.append "artifactId=${project.archivesBaseName}\n"
+        propertiesFile.append "builtBy=" + System.getProperty('user.name') + '\n'
+        propertiesFile.append "builtJDK=" + System.getProperty('java.version') + '\n'
+
+        def gitBranch = runCommand("git rev-parse --abbrev-ref HEAD")
+        if (!gitBranch.isEmpty()) {
+            propertiesFile.append "git.branch=${gitBranch}\n"
+        }
+
+        def gitRev = runCommand("git rev-parse --short=10 HEAD")
+        if (!gitRev.isEmpty()) {
+            propertiesFile.append "git.revision=${gitRev}\n"
+        }
+
+        def gitDescribe = runCommand("git describe --match=v[0-9]* --abbrev=10 HEAD")
+        if (!gitDescribe.isEmpty()) {
+            propertiesFile.append "git.describe=${gitDescribe}\n"
+        }
+    }
+}
+
+jar.dependsOn generateVersionProperties
+
+
 artifacts {
     archives javadocJar
     archives sourcesJar

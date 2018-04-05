@@ -87,6 +87,7 @@ class DpeOptionsParser {
 
         description = parser.accepts("description").withRequiredArg();
 
+        parser.acceptsAll(asList("version"));
         parser.acceptsAll(asList("h", "help")).forHelp();
     }
 
@@ -173,6 +174,10 @@ class DpeOptionsParser {
 
     public boolean isFrontEnd() {
         return fe;
+    }
+
+    public boolean hasVersion() {
+        return options.has("version");
     }
 
     public boolean hasHelp() {

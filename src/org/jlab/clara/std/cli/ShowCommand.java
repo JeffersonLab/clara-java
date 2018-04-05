@@ -24,6 +24,7 @@ package org.jlab.clara.std.cli;
 
 import org.jlab.clara.base.ClaraLang;
 import org.jlab.clara.util.FileUtils;
+import org.jlab.clara.util.VersionUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -53,6 +54,7 @@ class ShowCommand extends BaseCommand {
             addSubCommand(FarmCommands.ShowFarmStatus::new);
             addSubCommand(FarmCommands.ShowFarmSub::new);
         }
+        addSubCommand("version", args -> showVersion(), "Show CLARA version.");
     }
 
     private int showConfig() {
@@ -103,6 +105,11 @@ class ShowCommand extends BaseCommand {
 
     private int showOrchestratorLog() {
         return printLog("orch", "orchestrator");
+    }
+
+    private int showVersion() {
+        writer.println(VersionUtils.getClaraVersionFull());
+        return 0;
     }
 
     private int printFile(String variable) {

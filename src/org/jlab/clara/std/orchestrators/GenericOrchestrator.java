@@ -48,6 +48,7 @@ import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.std.orchestrators.CoreOrchestrator.DpeCallBack;
 import org.jlab.clara.util.EnvUtils;
 import org.jlab.clara.util.OptUtils;
+import org.jlab.clara.util.VersionUtils;
 
 /**
  * A generic orchestrator that runs a simple application loop over a set of
@@ -66,6 +67,10 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
         CommandLineBuilder cl = new CommandLineBuilder();
         try {
             cl.parse(args);
+            if (cl.hasVersion()) {
+                System.out.println(VersionUtils.getClaraVersionFull());
+                System.exit(0);
+            }
             if (cl.hasHelp()) {
                 System.out.println(cl.usage());
                 System.exit(0);
@@ -694,13 +699,14 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
 
             arguments = parser.nonOptions();
 
+            parser.acceptsAll(Arrays.asList("version"));
             parser.acceptsAll(Arrays.asList("h", "help")).forHelp();
         }
 
         public void parse(String[] args) {
             try {
                 options = parser.parse(args);
-                if (hasHelp()) {
+                if (hasVersion() || hasHelp()) {
                     return;
                 }
                 int numArgs = options.nonOptionArguments().size();
@@ -713,6 +719,10 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
             } catch (OptionException e) {
                 throw new CommandLineException(e);
             }
+        }
+
+        public boolean hasVersion() {
+            return options.has("version");
         }
 
         public boolean hasHelp() {

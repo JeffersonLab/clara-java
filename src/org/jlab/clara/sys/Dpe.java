@@ -32,6 +32,7 @@ import org.jlab.clara.base.error.ClaraException;
 import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.sys.DpeOptionsParser.DpeOptionsException;
 import org.jlab.clara.sys.RequestParser.RequestException;
+import org.jlab.clara.util.VersionUtils;
 import org.jlab.clara.util.report.DpeReport;
 import org.jlab.clara.util.report.JsonReportBuilder;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
@@ -103,6 +104,10 @@ public final class Dpe extends AbstractActor {
         DpeOptionsParser options = new DpeOptionsParser();
         try {
             options.parse(args);
+            if (options.hasVersion()) {
+                System.out.println(VersionUtils.getClaraVersionFull());
+                System.exit(0);
+            }
             if (options.hasHelp()) {
                 System.out.println(options.usage());
                 System.exit(0);
@@ -516,7 +521,7 @@ public final class Dpe extends AbstractActor {
             System.out.println(" Session          = " + session);
         }
         System.out.println(" Start time       = " + ClaraUtil.getCurrentTime());
-        System.out.println(" Version          = 4.3");
+        System.out.println(" Version          = " + VersionUtils.getClaraVersion());
         System.out.println(" Lang             = Java");
         System.out.println(" Pool size        = " + base.getPoolSize());
         if (!base.getDescription().isEmpty()) {
