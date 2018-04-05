@@ -44,7 +44,7 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 
 public class DataManagerTest {
-    /*
+
     private final String testFileName = "collider.txt";
     private final String testFilePath = getClass().getResource("/resources/collider.txt").getPath();
 
@@ -568,5 +568,4 @@ public class DataManagerTest {
         assertThat("Result is an error", result.getStatus(), is(EngineStatus.ERROR));
         assertThat("Description matches", result.getDescription(), containsString(msg));
     }
-    */
 }
