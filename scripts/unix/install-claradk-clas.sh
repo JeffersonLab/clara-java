@@ -62,13 +62,4 @@ cd clasrec-io || exit
 ./gradlew deploy
 )
 
-echo "Downloading and building clasrec-orchestrators package ..."
-git clone --depth 1 https://github.com/JeffersonLab/clasrec-orchestrators.git
-(
-cd clasrec-orchestrators || exit
-./gradlew deploy
-)
-
-#rm -f $CLARA_HOME/plugins/clas12/lib/clas/jevio-4.4.6.jar
-
 echo "Done!"
