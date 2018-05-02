@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # author Vardan Gyurjyan
-# date 1.13.17
+# date 3.13.17
 
 if ! [ -n "$CLARA_HOME" ]; then
     echo "CLARA_HOME environmental variable is not defined. Exiting..."
@@ -68,7 +68,5 @@ git clone --depth 1 https://github.com/JeffersonLab/clasrec-orchestrators.git
 cd clasrec-orchestrators || exit
 ./gradlew deploy
 )
-
-#rm -f $CLARA_HOME/plugins/clas12/lib/clas/jevio-4.4.6.jar
 
 echo "Done!"
