@@ -24,14 +24,14 @@ java_dist=
 case "$(uname)" in
     "Linux")
         if [ "$(uname -m)" = "x86_64" ]; then
-            java_dist=$CLARA_HOME/jre/linux-64/jre1.8.0_112
+            java_dist=$CLARA_HOME/jre/linux-64/jre1.8.0_172
         else
-            java_dist=$CLARA_HOME/jre/linux-i586/jre1.8.0_112
+            java_dist=$CLARA_HOME/jre/linux-i586/jre1.8.0_172
         fi
         ;;
 
     "Darwin")
-        java_dist=$CLARA_HOME/jre/macosx-64/jre1.8.0_112.jre/Contents/Home
+        java_dist=$CLARA_HOME/jre/macosx-64/jre1.8.0_172.jre/Contents/Home
         ;;
 
     *)  ;;
