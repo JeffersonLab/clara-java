@@ -23,9 +23,9 @@
 package org.jlab.clara.std.cli;
 
 import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
+import org.jlab.clara.util.EnvUtils;
 import org.jline.reader.EndOfFileException;
 import org.jline.reader.Parser;
 import org.jline.reader.impl.DefaultParser;
@@ -46,11 +46,14 @@ class CommandRunner {
     }
 
     public int execute(String line) {
-        if (line.isEmpty()) {
+        String[] shellArgs = parseLine(line);
+        if (shellArgs == null) {
+            return Command.EXIT_ERROR;
+        }
+        if (shellArgs.length == 0) {
             return Command.EXIT_SUCCESS;
         }
-        String[] splited = parseLine(line);
-        String commandName = splited[0];
+        String commandName = shellArgs[0];
         Command command = commands.get(commandName);
         if (command == null) {
             if ("exit".equals(commandName)) {
@@ -64,7 +67,7 @@ class CommandRunner {
             execThread.interrupt();
         });
         try {
-            String[] cmdArgs = Arrays.copyOfRange(splited, 1, splited.length);
+            String[] cmdArgs = Arrays.copyOfRange(shellArgs, 1, shellArgs.length);
             return command.execute(cmdArgs);
         } finally {
             terminal.handle(Signal.INT, prevIntHandler);
@@ -73,9 +76,16 @@ class CommandRunner {
     }
 
     private String[] parseLine(String line) {
-        String cmd = line.trim();
-        List<String> parsedCmd = parser.parse(cmd, cmd.length() + 1).words();
-        return parsedCmd.toArray(new String[parsedCmd.size()]);
+        try {
+            String cmd = EnvUtils.expandEnvironment(line, System.getenv()).trim();
+            return parser.parse(cmd, cmd.length() + 1)
+                         .words()
+                         .stream()
+                         .toArray(String[]::new);
+        } catch (IllegalArgumentException e) {
+            terminal.writer().println(e.getMessage());
+            return null;
+        }
     }
 
     Parser getParser() {

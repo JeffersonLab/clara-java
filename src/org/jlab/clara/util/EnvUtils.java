@@ -24,8 +24,17 @@ package org.jlab.clara.util;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public final class EnvUtils {
+
+    private static final String ID_GROUP = "([A-Za-z_][A-Za-z0-9_]*)";
+    private static final String ENV_VAR_PATTERN = "((?:\\\\|\\$)\\$)"
+            + "|\\$(?:" + ID_GROUP + "|\\{" + ID_GROUP + "(?::-([^\\}]*))?\\})"
+            + "|\\$()";
+    private static final Pattern ENV_VAR_EXPR = Pattern.compile(ENV_VAR_PATTERN);
 
     private EnvUtils() { }
 
@@ -72,6 +81,43 @@ public final class EnvUtils {
             throw new RuntimeException("Missing 'user.home' system property");
         }
         return userHome;
+    }
+
+    /**
+     * Expands any environment variable present in the input string.
+     *
+     * @param input the string to be expanded
+     * @param environment the map containing the environment variables
+     *
+     * @return the input string with all environment variables replaced by their values
+     */
+    public static String expandEnvironment(String input, Map<String, String> environment) {
+        StringBuffer sb = new StringBuffer();
+        Matcher matcher = ENV_VAR_EXPR.matcher(input);
+        while (matcher.find()) {
+            String variable = matcher.group(2);
+            if (variable == null) {
+                variable = matcher.group(3);
+            }
+            if (variable != null) {
+                String value = environment.get(variable);
+                if (value == null) {
+                    String defaultValue = matcher.group(4);
+                    if (defaultValue != null) {
+                        value = defaultValue;
+                    } else {
+                        value = "";
+                    }
+                }
+                matcher.appendReplacement(sb, value);
+            } else if (matcher.group(1) != null) {
+                matcher.appendReplacement(sb, "\\$");
+            } else {
+                throw new IllegalArgumentException("Invalid environment variable format");
+            }
+        }
+        matcher.appendTail(sb);
+        return sb.toString();
     }
 
     public static boolean inDockerContainer() {
