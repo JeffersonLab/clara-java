@@ -41,6 +41,7 @@ case $OS in
 
         if [ "$is_local" == "false" ]; then
             wget https://clasweb.jlab.org/clas12offline/distribution/coatjava/coatjava-$PLUGIN.tar.gz
+            wget https://clasweb.jlab.org/clas12offline/distribution/grapes/grapes-1.0.tar.gz
         else
             cp $PLUGIN .
         fi
@@ -68,6 +69,7 @@ case $OS in
 
        if [ "$is_local" == "false" ]; then
             curl "https://clasweb.jlab.org/clas12offline/distribution/coatjava/coatjava-$PLUGIN.tar.gz" -o coatjava-$PLUGIN.tar.gz
+            curl "https://clasweb.jlab.org/clas12offline/distribution/grapes/grapes-1.0.tar.gz" -o grapes-1.0.tar.gz
        else
             cp $PLUGIN .
        fi
@@ -104,6 +106,13 @@ cp -r bin "$CLARA_HOME"/plugins/clas12/.
 cp lib/clas/* "$CLARA_HOME"/plugins/clas12/lib/clas/.
 cp lib/services/* "$CLARA_HOME"/plugins/clas12/lib/services/.
 )
+
+tar xvzf grapes-1.0.tar.gz
+(
+mv grapes-1.0 "$CLARA_HOME"/plugins/grapes || exit
+)
+
+cp "$CLARA_HOME"/plugins/grapes/bin/clara-grapes "$CLARA_HOME"/bin/.
 
 
 rm -f "$CLARA_HOME"/plugins/clas12/bin/clara-rec
