@@ -12,6 +12,7 @@ rm -rf "$CLARA_HOME"
 mkdir "$CLARA_HOME"
 mkdir "$CLARA_HOME"/plugins
 mkdir "$CLARA_HOME"/plugins/clas12
+mkdir "$CLARA_HOME"/plugins/grapes
 mkdir "$CLARA_HOME"/plugins/clas12/config
 mkdir "$CLARA_HOME"/data
 mkdir "$CLARA_HOME"/data/input

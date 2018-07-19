@@ -108,9 +108,7 @@ cp lib/services/* "$CLARA_HOME"/plugins/clas12/lib/services/.
 )
 
 tar xvzf grapes-1.0.tar.gz
-(
-mv grapes-1.0 "$CLARA_HOME"/plugins/grapes || exit
-)
+mv grapes-1.0 "$CLARA_HOME"/plugins/grapes
 
 cp "$CLARA_HOME"/plugins/grapes/bin/clara-grapes "$CLARA_HOME"/bin/.
 
