@@ -40,7 +40,9 @@ case $OS in
         wget https://userweb.jlab.org/~gurjyan/clara-cre/clara-cre.tar.gz
 
         if [ "$is_local" == "false" ]; then
+            echo "getting coatjava"
             wget https://clasweb.jlab.org/clas12offline/distribution/coatjava/coatjava-$PLUGIN.tar.gz
+            echo "getting grapes"
             wget https://clasweb.jlab.org/clas12offline/distribution/grapes/grapes-1.0.tar.gz
         else
             cp $PLUGIN .
@@ -68,7 +70,9 @@ case $OS in
         curl "https://userweb.jlab.org/~gurjyan/clara-cre/clara-cre.tar.gz" -o clara-cre.tar.gz
 
        if [ "$is_local" == "false" ]; then
+            echo "getting coatjava"
             curl "https://clasweb.jlab.org/clas12offline/distribution/coatjava/coatjava-$PLUGIN.tar.gz" -o coatjava-$PLUGIN.tar.gz
+            echo "getting grapes"
             curl "https://clasweb.jlab.org/clas12offline/distribution/grapes/grapes-1.0.tar.gz" -o grapes-1.0.tar.gz
        else
             cp $PLUGIN .
@@ -89,7 +93,7 @@ cd clara-cre/jre || exit
 
 mv ../../*.tar.* .
 mv coatjava-$PLUGIN.tar.gz ../../.
-
+mv grapes-1.0.tar.gz ../../.
 echo "Installing jre ..."
 tar xvzf ./*.tar.*
 rm -f ./*.tar.*
@@ -97,6 +101,7 @@ rm -f ./*.tar.*
 
 mv clara-cre "$CLARA_HOME"
 
+echo "Installing coatjava ..."
 tar xvzf coatjava-$PLUGIN.tar.gz
 
 (
@@ -107,6 +112,7 @@ cp lib/clas/* "$CLARA_HOME"/plugins/clas12/lib/clas/.
 cp lib/services/* "$CLARA_HOME"/plugins/clas12/lib/services/.
 )
 
+echo "Installing grapes ..."
 tar xvzf grapes-1.0.tar.gz
 mv grapes-1.0 "$CLARA_HOME"/plugins/grapes
 
@@ -120,6 +126,7 @@ rm -rf "$CLARA_HOME"/plugins/clas12/etc/services
 
 rm -rf coatjava
 rm coatjava-$PLUGIN.tar.gz
+rm grapes-1.0.tar.gz
 
 chmod a+x "$CLARA_HOME"/bin/*
 
