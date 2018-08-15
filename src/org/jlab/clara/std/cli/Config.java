@@ -61,6 +61,11 @@ public class Config {
     public static final String OUTPUT_DIR = "outputDir";
 
     /**
+     * The variable for the output file prefix.
+     */
+    public static final String OUT_FILE_PREFIX = "outFilePrefix";
+
+    /**
      * The variable for the session of the CLARA DPE.
      */
     public static final String SESSION = "session";
@@ -235,6 +240,10 @@ public class Config {
                 .withInitialValue(FileUtils.claraPath("data", "output").toString())
                 .withParser(ConfigParsers::toDirectory)
                 .withCompleter(fileCompleter());
+
+        addBuilder.apply(OUT_FILE_PREFIX,
+            "A single word (no spaces, preferably ending with _) as an output/processed file name prefix.")
+            .withInitialValue("out_");
 
         addBuilder.apply(MAX_THREADS,
                 "The maximum number of processing threads to be used per node.")

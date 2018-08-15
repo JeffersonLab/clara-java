@@ -53,6 +53,7 @@ final class FarmCommands {
     private static final String FARM_MEMORY = "farm.memory";
     private static final String FARM_TRACK = "farm.track";
     private static final String FARM_OS = "farm.os";
+    private static final String FARM_NODE = "farm.node";
     private static final String FARM_CPU = "farm.cpu";
     private static final String FARM_DISK = "farm.disk";
     private static final String FARM_TIME = "farm.time";
@@ -65,6 +66,7 @@ final class FarmCommands {
     private static final int DEFAULT_FARM_DISK_SPACE = 5;
     private static final int DEFAULT_FARM_TIME = 24 * 60;
     private static final String DEFAULT_FARM_OS = "centos7";
+    private static final String DEFAULT_FARM_NODE = "";
     private static final String DEFAULT_FARM_TRACK = "debug";
 
     private static final String JLAB_SYSTEM = "jlab";
@@ -133,6 +135,9 @@ final class FarmCommands {
 
         addBuilder.apply(FARM_OS, "Farm resource OS.")
             .withInitialValue(DEFAULT_FARM_OS);
+
+        addBuilder.apply(FARM_NODE, "Preferred farm node name (JLAB specific, e.g. farm16, farm18, etc.)")
+            .withInitialValue(DEFAULT_FARM_NODE);
 
         addBuilder.apply(FARM_STAGE, "Local directory to stage reconstruction files.")
             .withParser(ConfigParsers::toDirectory);
@@ -299,6 +304,7 @@ final class FarmCommands {
 
             cmd.addOption("-i", config.getString(Config.INPUT_DIR));
             cmd.addOption("-o", config.getString(Config.OUTPUT_DIR));
+            cmd.addOption("-z", config.getString(Config.OUT_FILE_PREFIX));
             if (config.hasValue(FARM_STAGE)) {
                 cmd.addOption("-l", config.getString(FARM_STAGE));
             }
@@ -323,6 +329,7 @@ final class FarmCommands {
             if (config.hasValue(Config.FRONTEND_PORT)) {
                 cmd.addOption("-P", config.getInt(Config.FRONTEND_PORT));
             }
+
             cmd.addArgument(config.getString(Config.SERVICES_FILE));
             cmd.addArgument(config.getString(Config.FILES_LIST));
 

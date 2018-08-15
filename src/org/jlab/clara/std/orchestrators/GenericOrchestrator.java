@@ -318,6 +318,18 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
         }
 
         /**
+         * Changes output file prefix.
+         *
+         * @param outputFilePrefix the output file prefix
+         * @return this object, so methods can be chained
+         */
+        public Builder withOutputFilePrefix(String outputFilePrefix) {
+            Objects.requireNonNull(outputFilePrefix, "outputFilePrefix parameter is null");
+            paths.withOutputFilePrefix(outputFilePrefix);
+            return this;
+        }
+
+        /**
          * Changes the path of the local staging directory.
          * Files will be staged in this directory of every worker node
          * for fast access.
@@ -419,12 +431,13 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
         System.out.println("==========================================");
         System.out.println("            CLARA Orchestrator            ");
         System.out.println("==========================================");
-        System.out.println(" Front-end        = " + setup.frontEnd);
-        System.out.println(" Start time       = " + ClaraUtil.getCurrentTime());
-        System.out.println(" Threads          = " + options.maxThreads);
+        System.out.println(" Front-end          = " + setup.frontEnd);
+        System.out.println(" Start time         = " + ClaraUtil.getCurrentTime());
+        System.out.println(" Threads            = " + options.maxThreads);
         System.out.println();
-        System.out.println(" Input directory  = " + paths.inputDir);
-        System.out.println(" Output directory = " + paths.outputDir);
+        System.out.println(" Input directory    = " + paths.inputDir);
+        System.out.println(" Output directory   = " + paths.outputDir);
+        System.out.println(" Output file prefix = " + paths.prefix);
         if (options.stageFiles) {
             System.out.println(" Stage directory  = " + paths.stageDir);
         }
@@ -629,6 +642,7 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
         private final OptionSpec<String> inputDir;
         private final OptionSpec<String> outputDir;
         private final OptionSpec<String> stageDir;
+        private final OptionSpec<String> prefix;
         private final OptionSpec<Integer> poolSize;
         private final OptionSpec<Integer> maxNodes;
         private final OptionSpec<Integer> maxThreads;
@@ -697,6 +711,11 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
                     .ofType(Integer.class)
                     .defaultsTo(0);
 
+            prefix = parser.accepts("z")
+                .withRequiredArg()
+                .defaultsTo(OrchestratorPaths.OUTPUT_FILE_PREFIX);
+
+
             arguments = parser.nonOptions();
 
             parser.acceptsAll(Arrays.asList("version"));
@@ -748,6 +767,8 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
                 builder.withPoolSize(options.valueOf(poolSize));
                 builder.withMaxThreads(options.valueOf(maxThreads));
                 builder.withMaxNodes(options.valueOf(maxNodes));
+
+                builder.withOutputFilePrefix(options.valueOf(prefix));
 
                 builder.withFrontEnd(parseFrontEnd());
                 builder.withSession(parseSession());

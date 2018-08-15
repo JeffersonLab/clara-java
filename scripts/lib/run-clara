@@ -124,10 +124,11 @@ session=${user}_clara
 dpe_report=5
 wait_dpe=2
 
-while getopts "i:o:l:t:s:r:k:e:H:P:R:W:" OPTION; do
+while getopts "i:o:z:l:t:s:r:k:e:H:P:R:W:" OPTION; do
     case $OPTION in
         i)  input_dir=$OPTARG ;;
         o)  output_dir=$OPTARG ;;
+        z)  output_prefix=$OPTARG ;;
         l)  stage_dir=$OPTARG ;;
         t)  thread_num=$OPTARG ;;
         s)  session=$OPTARG ;;
@@ -211,6 +212,7 @@ or_args+=(-f "$fe_name")
 or_args+=(-s "$session")
 or_args+=(-i "$input_dir")
 or_args+=(-o "$output_dir")
+or_args+=(-z "$output_prefix")
 or_args+=(-p "$thread_num")
 or_args+=(-t "$thread_num")
 if [[ -n "$report_ev" ]]; then

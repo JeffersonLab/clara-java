@@ -108,6 +108,7 @@ class RunCommand extends BaseCommand {
             }
             cmd.addOption("-i", config.getString(Config.INPUT_DIR));
             cmd.addOption("-o", config.getString(Config.OUTPUT_DIR));
+            cmd.addOption("-z", config.getString(Config.OUT_FILE_PREFIX));
 
             cmd.addArgument(config.getString(Config.SERVICES_FILE));
             cmd.addArgument(config.getString(Config.FILES_LIST));

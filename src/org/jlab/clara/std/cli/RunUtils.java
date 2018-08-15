@@ -64,6 +64,10 @@ class RunUtils {
         return sessionId + "_" + sessionDesc;
     }
 
+    String getOutputFilePrefix(){
+        return config.getString(Config.OUT_FILE_PREFIX);
+    }
+
     Path getLogDir() {
         return Paths.get(config.getString(Config.LOG_DIR));
     }
