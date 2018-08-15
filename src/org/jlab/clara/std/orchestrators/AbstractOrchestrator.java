@@ -260,7 +260,7 @@ abstract class AbstractOrchestrator {
             subscribe(node);
 
             if (options.stageFiles) {
-                node.setPaths(paths.inputDir, paths.outputDir, paths.stageDir);
+                node.setPaths(paths.inputDir, paths.outputDir, paths.stageDir, paths.prefix);
                 clearLocalStage(node);
             }
             node.setConfiguration(setup.configuration);

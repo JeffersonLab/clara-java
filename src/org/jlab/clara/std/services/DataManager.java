@@ -39,6 +39,7 @@ import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.util.EnvUtils;
 import org.jlab.clara.util.FileUtils;
+import org.jlab.clara.util.OptUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -53,6 +54,7 @@ public class DataManager implements Engine {
     private static final String CONF_INPUT_PATH = "input_path";
     private static final String CONF_OUTPUT_PATH = "output_path";
     private static final String CONF_STAGE_PATH = "stage_path";
+    private static final String CONF_OUT_PREFIX = "out_prefix";
 
     private static final String REQUEST_TYPE = "type";
     private static final String REQUEST_EXEC = "exec";
@@ -74,7 +76,7 @@ public class DataManager implements Engine {
     private final String baseDir;
 
     private volatile DirectoryPaths directoryPaths;
-    private volatile String outputPrefix;
+    private volatile String outputPrefix = "out_";
 
     /**
      * Creates a new data manager service.
@@ -139,6 +141,7 @@ public class DataManager implements Engine {
             System.out.printf("%s service: stage path set to %s%n", NAME, paths.stagePath);
         }
         directoryPaths = paths;
+        outputPrefix = data.getString(CONF_OUT_PREFIX);
     }
 
     JSONObject getConfiguration() {
@@ -453,7 +456,7 @@ public class DataManager implements Engine {
     @Override
     public void reset() {
         directoryPaths = new DirectoryPaths(baseDir);
-        outputPrefix = "out_";
+//        outputPrefix = "out_";
     }
 
     @Override

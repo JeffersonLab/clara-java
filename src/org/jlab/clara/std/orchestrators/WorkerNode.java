@@ -180,12 +180,13 @@ class WorkerNode {
         return new ServiceConfig(userConfig, model);
     }
 
-    void setPaths(Path inputPath, Path outputPath, Path stagePath) {
+    void setPaths(Path inputPath, Path outputPath, Path stagePath, String outFilePrefix) {
         try {
             JSONObject data = new JSONObject();
             data.put("input_path", inputPath);
             data.put("output_path", outputPath);
             data.put("stage_path", stagePath);
+            data.put("out_prefix", outFilePrefix);
             orchestrator.syncConfig(stageName, data, 2, TimeUnit.MINUTES);
         } catch (ClaraException | TimeoutException e) {
             throw new OrchestratorException("Could not configure directories", e);
