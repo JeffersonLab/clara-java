@@ -63,7 +63,7 @@ public class Config {
     /**
      * The variable for the output file prefix.
      */
-    public static final String OUT_FILE_PREFIX = "outFilePrefix";
+    public static final String OUT_FILE_PREFIX = "outputFilePrefix";
 
     /**
      * The variable for the session of the CLARA DPE.
