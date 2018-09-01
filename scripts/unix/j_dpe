@@ -70,7 +70,8 @@ done
 if [ -n "${JAVA_OPTS}" ]; then
     jvm_options=(${JAVA_OPTS})
 else
-    jvm_options=(-Xms1024m -XX:+UseNUMA -XX:+TieredCompilation -XX:+UseBiasedLocking -XX:+AggressiveOpts -XX:MinHeapFreeRatio=40)
+    jvm_options=(-Xms1024m -XX:+UseNUMA -XX:+UseBiasedLocking)
+#jvm_options=(-Xms1024m -XX:+UseNUMA -XX:+TieredCompilation -XX:+UseBiasedLocking -XX:+AggressiveOpts -XX:MinHeapFreeRatio=40)
 fi
 
 java_wrapper=${CLARA_HOME}/lib/clara/run-java
