@@ -12,15 +12,34 @@ fi
 rm -rf "$CLARA_HOME"
 
 PLUGIN=5a.2.0
+FV=4.3.1
 
 case "$1" in
+    -f | --framework)
+        if ! [ -z "${2+x}" ]; then FV=$2; fi
+        echo "CLARA version = $FV"
+        ;;
     -v | --version)
         if ! [ -z "${2+x}" ]; then PLUGIN=$2; fi
-        echo "$PLUGIN"
+        echo "CLAS12 plugin version = $PLUGIN"
         ;;
     -l | --local)
         if ! [ -z "${2+x}" ]; then PLUGIN=$2; is_local="true"; fi
-        echo "$PLUGIN"
+        echo "CLAS12 plugin = $PLUGIN"
+        ;;
+esac
+case "$3" in
+    -f | --framework)
+        if ! [ -z "${4+x}" ]; then FV=$4; fi
+        echo "CLARA version = $FV"
+        ;;
+    -v | --version)
+        if ! [ -z "${4+x}" ]; then PLUGIN=$4; fi
+        echo "CLAS12 plugin version = $PLUGIN"
+        ;;
+    -l | --local)
+        if ! [ -z "${4+x}" ]; then PLUGIN=$4; is_local="true"; fi
+        echo "CLAS12 plugin = $PLUGIN"
         ;;
 esac
 
@@ -37,14 +56,16 @@ case $OS in
             exit
         fi
 
-        wget https://userweb.jlab.org/~gurjyan/clara-cre/clara-cre.tar.gz
+        wget https://userweb.jlab.org/~gurjyan/clara-cre/clara-cre-$FV.tar.gz
 
         if [ "$is_local" == "false" ]; then
-            echo "getting coatjava"
+            echo "getting coatjava-$PLUGIN"
             wget https://clasweb.jlab.org/clas12offline/distribution/coatjava/coatjava-$PLUGIN.tar.gz
-            echo "getting grapes"
+            echo "getting grapes-1.0"
             wget https://clasweb.jlab.org/clas12offline/distribution/grapes/grapes-1.0.tar.gz
         else
+            echo "getting grapes-1.0"
+            wget https://clasweb.jlab.org/clas12offline/distribution/grapes/grapes-1.0.tar.gz
             cp $PLUGIN .
         fi
 
@@ -67,14 +88,16 @@ case $OS in
             exit
         fi
 
-        curl "https://userweb.jlab.org/~gurjyan/clara-cre/clara-cre.tar.gz" -o clara-cre.tar.gz
+        curl "https://userweb.jlab.org/~gurjyan/clara-cre/clara-cre-$FV.tar.gz" -o clara-cre-$FV.tar.gz
 
        if [ "$is_local" == "false" ]; then
-            echo "getting coatjava"
+            echo "getting coatjava-$PLUGIN"
             curl "https://clasweb.jlab.org/clas12offline/distribution/coatjava/coatjava-$PLUGIN.tar.gz" -o coatjava-$PLUGIN.tar.gz
-            echo "getting grapes"
+            echo "getting grapes-1.0"
             curl "https://clasweb.jlab.org/clas12offline/distribution/grapes/grapes-1.0.tar.gz" -o grapes-1.0.tar.gz
        else
+            echo "getting grapes-1.0"
+            curl "https://clasweb.jlab.org/clas12offline/distribution/grapes/grapes-1.0.tar.gz" -o grapes-1.0.tar.gz
             cp $PLUGIN .
        fi
 
@@ -84,8 +107,8 @@ case $OS in
     *) ;;
 esac
 
-tar xvzf clara-cre.tar.gz
-rm -f clara-cre.tar.gz
+tar xvzf clara-cre-$FV.tar.gz
+rm -f clara-cre-$FV.tar.gz
 
 (
 mkdir clara-cre/jre
@@ -130,4 +153,6 @@ rm grapes-1.0.tar.gz
 
 chmod a+x "$CLARA_HOME"/bin/*
 
+echo "Distribution  :    clara-cre-$FV" > "$CLARA_HOME"/.version
+echo "CLAS12 plugin :    coatjava-$PLUGIN" >> "$CLARA_HOME"/.version
 echo "Done!"
