@@ -25,7 +25,7 @@ BASEDIR=$(cd "$(dirname "${BASH_SOURCE[0]}")"/.. && pwd)
 if [ -z "${CLARA_HOME}" ]; then
     CLARA_HOME=${BASEDIR}
     export CLARA_HOME
-fi
+ficd
 
 # find plugins directory
 if [ -n "${CLARA_PLUGINS}" ]; then
@@ -47,6 +47,8 @@ if [ -z "${CLASSPATH}" ]; then
         plugin=${plugin%*/}
         if [ "${plugin##*/}" = "clas12" ]; then # COAT has special needs
             CLASSPATH+=":${plugin}/lib/clas/*:${plugin}/lib/services/*"
+        elif [ "${plugin##*/}" = "grapes" ]; then # Grapes also has special needs
+            CLASSPATH+=":${plugin}/lib/core/*:${plugin}/lib/services/*"
         else
             CLASSPATH+=":${plugin}/services/*:${plugin}/lib/*"
         fi
@@ -62,6 +64,8 @@ for plugin in "${plugins_dir}"/*/; do
     plugin=${plugin%*/}
     if [ "${plugin##*/}" = "clas12" ]; then # COAT has special needs
         java_lib_path+=":${plugin}/lib/clas"
+    elif [ "${plugin##*/}" = "grapes" ]; then # Grapes also has special needs
+        java_lib_path+=":${plugin}/lib/core"
     else
         java_lib_path+=":${plugin}/lib"
     fi
