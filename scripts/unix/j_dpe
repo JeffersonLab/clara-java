@@ -25,7 +25,7 @@ BASEDIR=$(cd "$(dirname "${BASH_SOURCE[0]}")"/.. && pwd)
 if [ -z "${CLARA_HOME}" ]; then
     CLARA_HOME=${BASEDIR}
     export CLARA_HOME
-ficd
+fi
 
 # find plugins directory
 if [ -n "${CLARA_PLUGINS}" ]; then
