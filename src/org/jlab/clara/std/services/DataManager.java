@@ -39,7 +39,6 @@ import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.util.EnvUtils;
 import org.jlab.clara.util.FileUtils;
-import org.jlab.clara.util.OptUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -81,7 +80,7 @@ public class DataManager implements Engine {
     /**
      * Creates a new data manager service.
      */
-    public DataManager() {
+    DataManager() {
         this(EnvUtils.claraHome());
     }
 
@@ -90,7 +89,7 @@ public class DataManager implements Engine {
      *
      * @param baseDir the parent for the data directories.
      */
-    public DataManager(String baseDir) {
+    DataManager(String baseDir) {
         this.baseDir = baseDir;
         reset();
     }
@@ -296,8 +295,12 @@ public class DataManager implements Engine {
             FileUtils.createDirectories(outputPath);
 
             CommandLine cmdLine = new CommandLine("mv");
-            cmdLine.addArgument(files.stagedOutputFile.toString());
-            cmdLine.addArgument(files.outputFile.toString());
+
+            // modified 09.12.18. Stage back multiple output files. vg
+//            cmdLine.addArgument(files.stagedOutputFile.toString());
+//            cmdLine.addArgument(files.outputFile.toString());
+            cmdLine.addArgument(files.stagedOutputFile.toString()+"*");
+            cmdLine.addArgument(outputPath.toString());
 
             DefaultExecutor executor = new DefaultExecutor();
             PumpStreamHandler streamHandler = new PumpStreamHandler(outputStream);
