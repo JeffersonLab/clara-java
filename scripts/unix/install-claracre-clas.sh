@@ -144,7 +144,8 @@ cp "$CLARA_HOME"/plugins/grapes/bin/clara-grapes "$CLARA_HOME"/bin/.
 
 rm -f "$CLARA_HOME"/plugins/clas12/bin/clara-rec
 rm -f "$CLARA_HOME"/plugins/clas12/README
-cp "$CLARA_HOME"/plugins/clas12/etc/services/reconstruction.yaml "$CLARA_HOME"/plugins/clas12/config/services.yaml
+cp "$CLARA_HOME"/plugins/clas12/etc/services/*.yaml "$CLARA_HOME"/plugins/clas12/config/.
+mv "$CLARA_HOME"/plugins/clas12/config/reconstruction.yaml "$CLARA_HOME"/plugins/clas12/config/services.yaml
 rm -rf "$CLARA_HOME"/plugins/clas12/etc/services
 
 rm -rf coatjava
