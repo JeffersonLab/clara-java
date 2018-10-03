@@ -307,7 +307,7 @@ final class FarmCommands {
             String description = config.getString(Config.DESCRIPTION);
             Path fileList = Paths.get(config.getString(Config.FILES_LIST));
             try {
-                Path dotDir = Paths.get(PLUGIN.toString(), "config", "." + description);
+                Path dotDir = Paths.get(PLUGIN.toString(), "config", "." + runUtils.getSession());
                 FileUtils.deleteFileTree(dotDir);
                 FileUtils.createDirectories(dotDir);
 
@@ -426,7 +426,7 @@ final class FarmCommands {
             StringBuilder sb = new StringBuilder();
             String description = config.getString(Config.DESCRIPTION);
             Path fileList = Paths.get(config.getString(Config.FILES_LIST));
-            Path dotDir = Paths.get(PLUGIN.toString(), "config", ".aff." + description);
+            Path dotDir = Paths.get(PLUGIN.toString(), "config", ".aff." + runUtils.getSession());
             try {
                 FileUtils.deleteFileTree(dotDir);
                 FileUtils.createDirectories(dotDir);
