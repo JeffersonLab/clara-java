@@ -64,7 +64,7 @@ class RunUtils {
         return sessionId + "_" + sessionDesc;
     }
 
-    String getOutputFilePrefix(){
+    String getOutputFilePrefix() {
         return config.getString(Config.OUT_FILE_PREFIX);
     }
 

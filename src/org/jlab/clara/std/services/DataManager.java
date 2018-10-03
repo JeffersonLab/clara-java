@@ -80,7 +80,7 @@ public class DataManager implements Engine {
     /**
      * Creates a new data manager service.
      */
-    DataManager() {
+    public DataManager() {
         this(EnvUtils.claraHome());
     }
 
@@ -89,7 +89,7 @@ public class DataManager implements Engine {
      *
      * @param baseDir the parent for the data directories.
      */
-    DataManager(String baseDir) {
+    public DataManager(String baseDir) {
         this.baseDir = baseDir;
         reset();
     }
@@ -296,11 +296,11 @@ public class DataManager implements Engine {
 
             CommandLine cmdLine = new CommandLine("mv");
 
-            // modified 09.12.18. Stage back multiple output files. vg
-//            cmdLine.addArgument(files.stagedOutputFile.toString());
-//            cmdLine.addArgument(files.outputFile.toString());
-            cmdLine.addArgument(files.stagedOutputFile.toString()+"*");
-            cmdLine.addArgument(outputPath.toString());
+//             modified 09.12.18. Stage back multiple output files. vg
+            cmdLine.addArgument(files.stagedOutputFile.toString());
+            cmdLine.addArgument(files.outputFile.toString());
+//            cmdLine.addArgument(files.stagedOutputFile.toString() + "*");
+//            cmdLine.addArgument(outputPath.toString());
 
             DefaultExecutor executor = new DefaultExecutor();
             PumpStreamHandler streamHandler = new PumpStreamHandler(outputStream);

@@ -12,7 +12,7 @@ fi
 rm -rf "$CLARA_HOME"
 
 PLUGIN=5a.2.0
-FV=4.3.2
+FV=4.3.3
 
 case "$1" in
     -f | --framework)

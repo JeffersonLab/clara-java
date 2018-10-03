@@ -38,6 +38,8 @@ class SystemCommandBuilder {
     private boolean quoteAll = false;
     private boolean multiLine = false;
 
+    SystemCommandBuilder() { }
+
     SystemCommandBuilder(Path program) {
         this(program.toString());
     }
@@ -52,6 +54,11 @@ class SystemCommandBuilder {
 
     public void addOption(String option, Object value) {
         cmd.add(new Token(option, true));
+        cmd.add(new Token(value.toString(), false));
+    }
+
+    public void addOptionNoSplit(String option, Object value) {
+        cmd.add(new Token(option, false));
         cmd.add(new Token(value.toString(), false));
     }
 

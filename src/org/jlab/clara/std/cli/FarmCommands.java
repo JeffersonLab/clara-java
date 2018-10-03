@@ -22,13 +22,11 @@
 
 package org.jlab.clara.std.cli;
 
+import org.jlab.clara.base.core.ClaraConstants;
 import org.jlab.clara.util.EnvUtils;
 import org.jlab.clara.util.FileUtils;
 
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.UncheckedIOException;
+import java.io.*;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
@@ -54,6 +52,7 @@ final class FarmCommands {
     private static final String FARM_TRACK = "farm.track";
     private static final String FARM_OS = "farm.os";
     private static final String FARM_NODE = "farm.node";
+    private static final String FARM_EXCLUSIVE = "farm.exclusive";
     private static final String FARM_CPU = "farm.cpu";
     private static final String FARM_DISK = "farm.disk";
     private static final String FARM_TIME = "farm.time";
@@ -67,6 +66,7 @@ final class FarmCommands {
     private static final int DEFAULT_FARM_TIME = 24 * 60;
     private static final String DEFAULT_FARM_OS = "centos7";
     private static final String DEFAULT_FARM_NODE = "";
+    private static final String DEFAULT_FARM_EXCLUSIVE = "";
     private static final String DEFAULT_FARM_TRACK = "debug";
 
     private static final String JLAB_SYSTEM = "jlab";
@@ -86,9 +86,10 @@ final class FarmCommands {
     static final Path PLUGIN = FileUtils.claraPath("plugins", "clas12");
 
 
-    private FarmCommands() { }
+    private FarmCommands() {
+    }
 
-    private  static void configTemplates() {
+    private static void configTemplates() {
         Path tplDir = getTemplatesDir();
         try {
             FTL_CONFIG.setDirectoryForTemplateLoading(tplDir.toFile());
@@ -136,8 +137,13 @@ final class FarmCommands {
         addBuilder.apply(FARM_OS, "Farm resource OS.")
             .withInitialValue(DEFAULT_FARM_OS);
 
-        addBuilder.apply(FARM_NODE, "Preferred farm node name (JLAB specific, e.g. farm16, farm18, etc.)")
+        addBuilder.apply(FARM_NODE,
+            "Preferred farm node flavor (JLAB specific, e.g. farm16, farm18, etc.)")
             .withInitialValue(DEFAULT_FARM_NODE);
+
+        addBuilder.apply(FARM_EXCLUSIVE,
+            "Exclusive farm node request (JLAB specific, e.g. farm16, farm18, etc.)")
+            .withInitialValue(DEFAULT_FARM_EXCLUSIVE);
 
         addBuilder.apply(FARM_STAGE, "Local directory to stage reconstruction files.")
             .withParser(ConfigParsers::toDirectory);
@@ -146,8 +152,8 @@ final class FarmCommands {
             .withInitialValue(DEFAULT_FARM_TRACK);
 
         addBuilder.apply(FARM_H_SCALE, "Farm horizontal scaling factor."
-                + " Split the list of input files into chunks of the given size"
-                + " to be processed in parallel within separate farm jobs.")
+            + " Split the list of input files into chunks of the given size"
+            + " to be processed in parallel within separate farm jobs.")
             .withParser(ConfigParsers::toNonNegativeInteger)
             .withInitialValue(DEFAULT_FARM_H_SCALE);
 
@@ -223,6 +229,38 @@ final class FarmCommands {
             if (system.equals(JLAB_SYSTEM)) {
                 if (CommandUtils.checkProgram(JLAB_SUB_CMD)) {
                     try {
+                        // check to see if we have exclusive node request
+                        switch (config.getString(FARM_EXCLUSIVE)) {
+                            case "farm18":
+                                config.setValue(FARM_NODE, "farm18");
+                                config.setValue(FARM_CPU, 80);
+                                config.setValue(Config.MAX_THREADS, 20);
+                                break;
+                            case "farm16":
+                                config.setValue(FARM_NODE, "farm16");
+                                config.setValue(FARM_CPU, 72);
+                                config.setValue(Config.MAX_THREADS, 32);
+                                config.setValue(FARM_MEMORY, 120);
+                                break;
+                            case "farm14":
+                                config.setValue(FARM_NODE, "farm14");
+                                config.setValue(FARM_CPU, 48);
+                                config.setValue(Config.MAX_THREADS, 24);
+                                break;
+                            case "farm13":
+                                config.setValue(FARM_NODE, "farm13");
+                                config.setValue(FARM_CPU, 32);
+                                config.setValue(Config.MAX_THREADS, 16);
+                                break;
+                            case "qcd12s":
+                                config.setValue(FARM_NODE, "qcd12s");
+                                config.setValue(FARM_CPU, 32);
+                                config.setValue(Config.MAX_THREADS, 16);
+                                break;
+                            default:
+                                break;
+                        }
+
                         int horizScale = config.getInt(FARM_H_SCALE);
                         if (horizScale > 0) {
                             return splitIntoMultipleJobs(horizScale);
@@ -338,6 +376,94 @@ final class FarmCommands {
             return cmd.toString();
         }
 
+        private String getClaraCommandAffinity(String affinity,
+                                               String session,
+                                               String filesList) {
+            String exec = FileUtils.claraPathAffinity(
+                    affinity,
+                    File.separator + "lib",
+                    File.separator + "clara",
+                    File.separator + "/run-clara ");
+            SystemCommandBuilder cmd = new SystemCommandBuilder();
+
+            cmd.addOptionNoSplit("-i", config.getString(Config.INPUT_DIR));
+            cmd.addOption("-o", config.getString(Config.OUTPUT_DIR));
+            cmd.addOption("-z", config.getString(Config.OUT_FILE_PREFIX));
+            if (config.hasValue(FARM_STAGE)) {
+                cmd.addOption("-l", config.getString(FARM_STAGE));
+            }
+            if (config.hasValue(Config.MAX_THREADS)) {
+                cmd.addOption("-t", config.getInt(Config.MAX_THREADS));
+            } else {
+                cmd.addOption("-t", config.getInt(FARM_CPU));
+            }
+            if (config.hasValue(Config.REPORT_EVENTS)) {
+                cmd.addOption("-r", config.getInt(Config.REPORT_EVENTS));
+            }
+            if (config.hasValue(Config.SKIP_EVENTS)) {
+                cmd.addOption("-k", config.getInt(Config.SKIP_EVENTS));
+            }
+            if (config.hasValue(Config.MAX_EVENTS)) {
+                cmd.addOption("-e", config.getInt(Config.MAX_EVENTS));
+            }
+            cmd.addOption("-s", session);
+            if (config.hasValue(Config.FRONTEND_HOST)) {
+                cmd.addOption("-H", config.getString(Config.FRONTEND_HOST));
+            }
+            if (config.hasValue(Config.FRONTEND_PORT)) {
+                cmd.addOption("-P", config.getInt(Config.FRONTEND_PORT));
+            }
+
+            cmd.addArgument(config.getString(Config.SERVICES_FILE));
+            cmd.addArgument(filesList);
+
+            cmd.multiLine(true);
+
+            return exec + " " + cmd.toString();
+        }
+
+        private String getClaraCommandAffinityList(List<String> affinities) {
+            StringBuilder sb = new StringBuilder();
+            String description = config.getString(Config.DESCRIPTION);
+            Path fileList = Paths.get(config.getString(Config.FILES_LIST));
+            Path dotDir = Paths.get(PLUGIN.toString(), "config", ".aff." + description);
+            try {
+                FileUtils.deleteFileTree(dotDir);
+                FileUtils.createDirectories(dotDir);
+
+                List<String> files = Files.lines(fileList)
+                        .collect(Collectors.toList());
+
+                int splitFactor = files.size() / affinities.size();
+
+                if(splitFactor > 0) {
+                    List<List<String>> filePartitions = partitionFiles(fileList, splitFactor);
+                    for (int i = 0; i < filePartitions.size(); i++) {
+                        Path subFileList = dotDir.resolve(appendIndex(description, i));
+                        try (BufferedWriter writer = Files.newBufferedWriter(subFileList)) {
+                            for (String inputFile : filePartitions.get(i)) {
+                                writer.write(inputFile);
+                                writer.newLine();
+                            }
+                        }
+                        sb.append(getClaraCommandAffinity(affinities.get(i),
+                            runUtils.getSession() + "_" + i,
+                            subFileList.toString())).append("> /dev/null 2>&1 &\n");
+                        sb.append("a" + i + "=$!\n");
+                    }
+                    for (int i = 0; i < filePartitions.size(); i++) {
+                        sb.append("echo waiting pid = $a" + i + " \n");
+                        sb.append("wait $a" + i + "\n");
+                    }
+                } else {
+                    System.err.println("Error: Data set is too small for farm.exclusive and/or farm.scaling settings.");
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            return sb.toString();
+        }
+
         private Path createClaraScript(Model model) throws IOException, TemplateException {
             Path wrapper = getJobScript(".sh");
             try (PrintWriter printer = FileUtils.openOutputTextFile(wrapper, false)) {
@@ -407,13 +533,41 @@ final class FarmCommands {
 
             // set farm command
             model.put("farm", "javaOpts", getJVMOptions());
-            model.put("farm", "command", getClaraCommand());
 
+            String farmExclusive = config.getString(FARM_EXCLUSIVE);
+            if (farmExclusive.equals("")) {
+                model.put("farm", "command", getClaraCommand());
+            } else {
+                switch (farmExclusive) {
+                    case "farm18":
+                        model.put("farm", "command",
+                                getClaraCommandAffinityList(ClaraConstants.FARM18_NUMAS));
+                        break;
+                    case "farm16":
+                        model.put("farm", "command",
+                                getClaraCommandAffinityList(ClaraConstants.FARM16_NUMAS));
+                        break;
+                    case "farm14":
+                        model.put("farm", "command",
+                                getClaraCommandAffinityList(ClaraConstants.FARM14_NUMAS));
+                        break;
+                    case "farm13":
+                        model.put("farm", "command",
+                                getClaraCommandAffinityList(ClaraConstants.FARM13_NUMAS));
+                        break;
+                    case "qcd12s":
+                        model.put("farm", "command",
+                                getClaraCommandAffinityList(ClaraConstants.QCD12S_NUMAS));
+                        break;
+                    default:
+                        break;
+                }
+            }
             return model;
         }
 
         private void processTemplate(String name, Model model, PrintWriter printer)
-                throws IOException, TemplateException  {
+                throws IOException, TemplateException {
             Template template = FTL_CONFIG.getTemplate(name);
             template.process(model.getRoot(), printer);
         }
@@ -430,7 +584,6 @@ final class FarmCommands {
             return jvmOpts;
         }
     }
-
 
     static class ShowFarmStatus extends FarmCommand {
 
@@ -459,7 +612,6 @@ final class FarmCommands {
             return EXIT_ERROR;
         }
     }
-
 
     static class ShowFarmSub extends FarmCommand {
 
@@ -532,7 +684,7 @@ final class FarmCommands {
     private static List<List<String>> partitionFiles(Path fileList, int filesPerJob)
             throws IOException {
         List<String> files = Files.lines(fileList)
-                                  .collect(Collectors.toList());
+                .collect(Collectors.toList());
         List<List<String>> groupedFiles = new ArrayList<>();
         for (int i = 0; i < files.size(); i += filesPerJob) {
             int end = Math.min(files.size(), i + filesPerJob);
