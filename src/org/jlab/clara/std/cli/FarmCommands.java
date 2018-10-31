@@ -380,10 +380,10 @@ final class FarmCommands {
                                                String session,
                                                String filesList) {
             String exec = FileUtils.claraPathAffinity(
-                    affinity,
-                    File.separator + "lib",
-                    File.separator + "clara",
-                    File.separator + "/run-clara ");
+                affinity,
+                File.separator + "lib",
+                File.separator + "clara",
+                File.separator + "/run-clara ");
             SystemCommandBuilder cmd = new SystemCommandBuilder();
 
             cmd.addOptionNoSplit("-i", config.getString(Config.INPUT_DIR));
@@ -432,20 +432,22 @@ final class FarmCommands {
                 FileUtils.createDirectories(dotDir);
 
                 List<String> files = Files.lines(fileList)
-                        .collect(Collectors.toList());
+                    .collect(Collectors.toList());
 
                 int splitFactor = files.size() / affinities.size();
 
-                if(splitFactor > 0) {
-                    List<List<String>> filePartitions = partitionFiles(fileList, splitFactor);
+                if (splitFactor > 0) {
+                    List<List<String>> filePartitions = partitionFilesForAffinity(fileList, splitFactor);
+
                     for (int i = 0; i < filePartitions.size(); i++) {
                         Path subFileList = dotDir.resolve(appendIndex(description, i));
-                        try (BufferedWriter writer = Files.newBufferedWriter(subFileList)) {
-                            for (String inputFile : filePartitions.get(i)) {
-                                writer.write(inputFile);
-                                writer.newLine();
-                            }
+                        BufferedWriter writer = Files.newBufferedWriter(subFileList);
+                        for (String inputFile : filePartitions.get(i)) {
+                            writer.write(inputFile);
+                            writer.newLine();
                         }
+                        writer.close();
+
                         sb.append(getClaraCommandAffinity(affinities.get(i),
                             runUtils.getSession() + "_" + i,
                             subFileList.toString())).append("> /dev/null 2>&1 &\n");
@@ -541,23 +543,23 @@ final class FarmCommands {
                 switch (farmExclusive) {
                     case "farm18":
                         model.put("farm", "command",
-                                getClaraCommandAffinityList(ClaraConstants.FARM18_NUMAS));
+                            getClaraCommandAffinityList(ClaraConstants.FARM18_NUMAS));
                         break;
                     case "farm16":
                         model.put("farm", "command",
-                                getClaraCommandAffinityList(ClaraConstants.FARM16_NUMAS));
+                            getClaraCommandAffinityList(ClaraConstants.FARM16_NUMAS));
                         break;
                     case "farm14":
                         model.put("farm", "command",
-                                getClaraCommandAffinityList(ClaraConstants.FARM14_NUMAS));
+                            getClaraCommandAffinityList(ClaraConstants.FARM14_NUMAS));
                         break;
                     case "farm13":
                         model.put("farm", "command",
-                                getClaraCommandAffinityList(ClaraConstants.FARM13_NUMAS));
+                            getClaraCommandAffinityList(ClaraConstants.FARM13_NUMAS));
                         break;
                     case "qcd12s":
                         model.put("farm", "command",
-                                getClaraCommandAffinityList(ClaraConstants.QCD12S_NUMAS));
+                            getClaraCommandAffinityList(ClaraConstants.QCD12S_NUMAS));
                         break;
                     default:
                         break;
@@ -567,7 +569,7 @@ final class FarmCommands {
         }
 
         private void processTemplate(String name, Model model, PrintWriter printer)
-                throws IOException, TemplateException {
+            throws IOException, TemplateException {
             Template template = FTL_CONFIG.getTemplate(name);
             template.process(model.getRoot(), printer);
         }
@@ -682,14 +684,36 @@ final class FarmCommands {
 
 
     private static List<List<String>> partitionFiles(Path fileList, int filesPerJob)
-            throws IOException {
+        throws IOException {
         List<String> files = Files.lines(fileList)
-                .collect(Collectors.toList());
+            .collect(Collectors.toList());
         List<List<String>> groupedFiles = new ArrayList<>();
         for (int i = 0; i < files.size(); i += filesPerJob) {
             int end = Math.min(files.size(), i + filesPerJob);
             groupedFiles.add(files.subList(i, end));
         }
+        return groupedFiles;
+    }
+
+    private static List<List<String>> partitionFilesForAffinity(Path fileList, int filesPerJob)
+        throws IOException {
+        List<String> files = Files.lines(fileList)
+            .collect(Collectors.toList());
+        List<List<String>> groupedFiles = new ArrayList<>();
+        for (int i = 0; i < files.size(); i += filesPerJob) {
+            int end = Math.min(files.size(), i + filesPerJob);
+            groupedFiles.add(files.subList(i, end));
+        }
+        List<String> last = groupedFiles.get(groupedFiles.size() - 1);
+        groupedFiles.remove(groupedFiles.size() - 1);
+        List<String> trueLast = groupedFiles.get(groupedFiles.size() - 1);
+        groupedFiles.remove(groupedFiles.size() - 1);
+
+        List<String> fLast = new ArrayList<>();
+        fLast.addAll(last);
+        fLast.addAll(trueLast);
+        groupedFiles.add(fLast);
+
         return groupedFiles;
     }
 
