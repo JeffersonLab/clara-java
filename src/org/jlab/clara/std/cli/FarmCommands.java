@@ -708,15 +708,17 @@ final class FarmCommands {
             int end = Math.min(files.size(), i + filesPerJob);
             groupedFiles.add(files.subList(i, end));
         }
-        List<String> last = groupedFiles.get(groupedFiles.size() - 1);
-        groupedFiles.remove(groupedFiles.size() - 1);
-        List<String> trueLast = groupedFiles.get(groupedFiles.size() - 1);
-        groupedFiles.remove(groupedFiles.size() - 1);
+        if((groupedFiles.size() % 2) != 0) {
+            List<String> last = groupedFiles.get(groupedFiles.size() - 1);
+            groupedFiles.remove(groupedFiles.size() - 1);
+            List<String> trueLast = groupedFiles.get(groupedFiles.size() - 1);
+            groupedFiles.remove(groupedFiles.size() - 1);
 
-        List<String> fLast = new ArrayList<>();
-        fLast.addAll(last);
-        fLast.addAll(trueLast);
-        groupedFiles.add(fLast);
+            List<String> fLast = new ArrayList<>();
+            fLast.addAll(last);
+            fLast.addAll(trueLast);
+            groupedFiles.add(fLast);
+        }
 
         return groupedFiles;
     }
