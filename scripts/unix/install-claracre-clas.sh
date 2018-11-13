@@ -131,6 +131,7 @@ tar xvzf coatjava-$PLUGIN.tar.gz
 cd coatjava || exit
 cp -r etc "$CLARA_HOME"/plugins/clas12/.
 cp -r bin "$CLARA_HOME"/plugins/clas12/.
+cp -r lib/utils "$CLARA_HOME"/plugins/clas12/lib/.
 cp lib/clas/* "$CLARA_HOME"/plugins/clas12/lib/clas/.
 cp lib/services/* "$CLARA_HOME"/plugins/clas12/lib/services/.
 )
