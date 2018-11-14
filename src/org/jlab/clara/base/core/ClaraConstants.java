@@ -23,6 +23,7 @@
 package org.jlab.clara.base.core;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -114,25 +115,31 @@ public final class ClaraConstants {
 
     public static final String ENV_MONITOR_FE = "CLARA_MONITOR_FE";
 
-    public static final List<String> FARM18_NUMAS = Arrays.asList(
+    private static List<String> f18_numas = Arrays.asList(
             "0-2,5,6,10-12,15,16,40-42,45,46,50-52,55,56",
             "3,4,7-9,13,14,17-19,43,44,47-49,53,54,57-59",
             "20-22,25,26,30-32,35,36,60-62,65,66,70-72,75,76",
             "23,24,27-29,33,34,37-39,63,64,67-69,73,74,77-79");
+    public static final List<String> FARM18_NUMAS = Collections.unmodifiableList(f18_numas);
 
-    public static final List<String> FARM16_NUMAS = Arrays.asList(
+    private static List<String> f16_numas= Arrays.asList(
             "0-17,36-53",
             "18-35,54-71");
+    public static final List<String> FARM16_NUMAS = Collections.unmodifiableList(f16_numas);
 
-    public static final List<String> FARM14_NUMAS = Arrays.asList(
+    private static List<String> f14_numas = Arrays.asList(
             "0-11,24-35",
             "12-23,36-47");
+    public static final List<String> FARM14_NUMAS = Collections.unmodifiableList(f14_numas);
 
-    public static final List<String> FARM13_NUMAS = Arrays.asList(
+
+    private static List<String> f13_numas = Arrays.asList(
             "0-7,16-23",
             "8-15,24-31");
+    public static final List<String> FARM13_NUMAS = Collections.unmodifiableList(f13_numas);
 
-    public static final List<String> QCD12S_NUMAS = Arrays.asList(
+    private static List<String> q12_numas = Arrays.asList(
             "0-7,16-23",
             "8-15,24-31");
+    public static final List<String> QCD12S_NUMAS = Collections.unmodifiableList(q12_numas);
 }
