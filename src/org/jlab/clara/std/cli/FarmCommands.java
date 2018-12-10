@@ -233,33 +233,38 @@ final class FarmCommands {
                         switch (config.getString(FARM_EXCLUSIVE)) {
                             case "farm18":
                                 config.setValue(FARM_NODE, "farm18");
-                                config.setValue(FARM_CPU, 80);
+                                config.setValue(FARM_CPU, 80); // removed for SLURM
+                                config.setValue(FARM_CPU, 0);
                                 config.setValue(Config.MAX_THREADS, 20);
-                                config.setValue(FARM_MEMORY, 90);
+                                config.setValue(FARM_MEMORY, 180); // removed for SLURM
                                 break;
                             case "farm16":
                                 config.setValue(FARM_NODE, "farm16");
-                                config.setValue(FARM_CPU, 72);
+                                config.setValue(FARM_CPU, 72); // removed for SLURM
+                                config.setValue(FARM_CPU, 0);
                                 config.setValue(Config.MAX_THREADS, 32);
-                                config.setValue(FARM_MEMORY, 60);
+                                config.setValue(FARM_MEMORY, 180); // removed for SLURM
                                 break;
                             case "farm14":
                                 config.setValue(FARM_NODE, "farm14");
-                                config.setValue(FARM_CPU, 48);
+                                config.setValue(FARM_CPU, 48); // removed for SLURM
+                                config.setValue(FARM_CPU, 0);
                                 config.setValue(Config.MAX_THREADS, 24);
-                                config.setValue(FARM_MEMORY, 28);
+                                config.setValue(FARM_MEMORY, 100); // removed for SLURM
                                 break;
                             case "farm13":
                                 config.setValue(FARM_NODE, "farm13");
-                                config.setValue(FARM_CPU, 32);
+                                config.setValue(FARM_CPU, 32); // removed for SLURM
+                                config.setValue(FARM_CPU, 0);
                                 config.setValue(Config.MAX_THREADS, 16);
-                                config.setValue(FARM_MEMORY, 20);
+                                config.setValue(FARM_MEMORY, 100); // removed for SLURM
                                 break;
                             case "qcd12s":
                                 config.setValue(FARM_NODE, "qcd12s");
-                                config.setValue(FARM_CPU, 32);
+                                config.setValue(FARM_CPU, 32); // removed for SLURM
+                                config.setValue(FARM_CPU, 0);
                                 config.setValue(Config.MAX_THREADS, 16);
-                                config.setValue(FARM_MEMORY, 20);
+                                config.setValue(FARM_MEMORY, 100); // removed for SLURM
                                 break;
                             default:
                                 break;
@@ -394,7 +399,7 @@ final class FarmCommands {
             cmd.addOption("-o", config.getString(Config.OUTPUT_DIR));
             cmd.addOption("-z", config.getString(Config.OUT_FILE_PREFIX));
             if (config.hasValue(FARM_STAGE)) {
-                cmd.addOption("-l", config.getString(FARM_STAGE));
+                cmd.addOption("-l", config.getString(FARM_STAGE)+ File.separator+session);
             }
             if (config.hasValue(Config.MAX_THREADS)) {
                 cmd.addOption("-t", config.getInt(Config.MAX_THREADS));

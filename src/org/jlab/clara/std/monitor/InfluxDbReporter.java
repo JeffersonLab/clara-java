@@ -54,7 +54,7 @@ public class InfluxDbReporter implements DpeReportHandler {
         }
         try {
             DataRingAddress proxyAddress =
-                    new DataRingAddress(parser.proxyHost(), parser.oroxyPort());
+                    new DataRingAddress(parser.proxyHost(), parser.proxyPort());
             MonitorOrchestrator monitor = new MonitorOrchestrator(proxyAddress);
             InfluxDbReporter reporter = new InfluxDbReporter(parser.dataBaseHost());
 
@@ -229,7 +229,7 @@ public class InfluxDbReporter implements DpeReportHandler {
             return options.valueOf(proxyHost);
         }
 
-        public int oroxyPort() {
+        public int proxyPort() {
             return options.valueOf(proxyPort);
         }
 
