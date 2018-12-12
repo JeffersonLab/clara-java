@@ -60,8 +60,8 @@ final class FarmCommands {
     private static final String FARM_H_SCALE = "farm.scaling";
 
     private static final int DEFAULT_FARM_H_SCALE = 0;
-    private static final int DEFAULT_FARM_MEMORY = 40;
-    private static final int DEFAULT_FARM_CORES = 16;
+    private static final int DEFAULT_FARM_MEMORY = 0;
+    private static final int DEFAULT_FARM_CORES = 0;
     private static final int DEFAULT_FARM_DISK_SPACE = 5;
     private static final int DEFAULT_FARM_TIME = 24 * 60;
     private static final String DEFAULT_FARM_OS = "centos7";
@@ -234,28 +234,33 @@ final class FarmCommands {
                             case "farm18":
                                 config.setValue(FARM_NODE, "farm18");
                                 config.setValue(FARM_CPU, 80); // removed for SLURM
-//                                config.setValue(FARM_CPU, 0);
-                                config.setValue(Config.MAX_THREADS, 20);
                                 config.setValue(FARM_MEMORY, 90); // removed for SLURM
+//                                config.setValue(FARM_CPU, 0);
+//                                config.setValue(FARM_MEMORY, 0);
+                                config.setValue(Config.MAX_THREADS, 20);
                                 break;
                             case "farm16":
                                 config.setValue(FARM_NODE, "farm16"); //cores = 72
                                 config.setValue(FARM_CPU, 0);
+                                config.setValue(FARM_MEMORY, 0);
                                 config.setValue(Config.MAX_THREADS, 32);
                                 break;
                             case "farm14":
                                 config.setValue(FARM_NODE, "farm14"); //cores = 48
                                 config.setValue(FARM_CPU, 0);
+                                config.setValue(FARM_MEMORY, 0);
                                 config.setValue(Config.MAX_THREADS, 24);
                                 break;
                             case "farm13":
                                 config.setValue(FARM_NODE, "farm13"); //cores = 32
                                 config.setValue(FARM_CPU, 0);
+                                config.setValue(FARM_MEMORY, 0);
                                 config.setValue(Config.MAX_THREADS, 16);
                                 break;
                             case "qcd12s":
                                 config.setValue(FARM_NODE, "qcd12s"); //cores = 32
                                 config.setValue(FARM_CPU, 0);
+                                config.setValue(FARM_MEMORY, 0);
                                 config.setValue(Config.MAX_THREADS, 16);
                                 break;
                             default:

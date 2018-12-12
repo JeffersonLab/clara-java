@@ -72,6 +72,7 @@ class SourceCommand extends AbstractCommand {
         Path path = FileUtils.expandHome(sourceFile);
         try {
             for (String line : readLines(path)) {
+// System.out.println("DDD "+line);
                 if (verbose) {
                     writer.println(line);
                 }
