@@ -458,10 +458,11 @@ final class FarmCommands {
                             runUtils.getSession() + "_" + i,
                             subFileList.toString())).append("> /dev/null 2>&1 &\n");
                         sb.append("a" + i + "=$!\n");
+                        sb.append("sleep 10");
                     }
                     for (int i = 0; i < filePartitions.size(); i++) {
                         sb.append("echo waiting pid = $a" + i + " \n");
-                        sb.append("wait $a" + i + "\n");
+                        sb.append("wait ${a" + i + "}\n");
                     }
                 } else {
                     System.err.println("Error: Data set is too small for farm.exclusive and/or farm.scaling settings.");

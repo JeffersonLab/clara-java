@@ -9,10 +9,15 @@ if ! [ -n "$CLARA_HOME" ]; then
     exit
 fi
 
+echo "If you have an old installation at $CLARA_HOME it will be deleted."
+read -n 1 -p "Do you want to continue? Y/N" uinput
+if [ "$uinput" = "N" ]; then exit 0
+fi
+
 rm -rf "$CLARA_HOME"
 
 PLUGIN=5a.2.0
-FV=4.3.4
+FV=4.3.5
 
 case "$1" in
     -f | --framework)

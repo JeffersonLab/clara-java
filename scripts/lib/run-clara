@@ -122,7 +122,7 @@ thread_num=$(get_num_cores)
 session=${user}_clara
 
 dpe_report=5
-wait_dpe=2
+wait_dpe=3
 
 while getopts "i:o:z:l:t:s:r:k:e:H:P:R:W:" OPTION; do
     case $OPTION in
@@ -201,9 +201,14 @@ fe_args+=(--max-sockets 5120)
 fe_args+=(--report "$dpe_report")
 
 "$CLARA_HOME"/bin/j_dpe "${fe_args[@]}" 2>&1 | tee "$fe_log_file" &
+dpe_pid=$!
+
 unset JAVA_OPTS
 
 sleep "$wait_dpe"
+
+# Run orchestrator if DPE is active and running
+if kill -0 "$dpe_pid"; then
 
 # Run orchestrator
 or_args=()
@@ -238,5 +243,6 @@ main_pid=$!
 ##############################################################################
 # Exit
 ##############################################################################
-
 wait "${main_pid}"
+
+fi
