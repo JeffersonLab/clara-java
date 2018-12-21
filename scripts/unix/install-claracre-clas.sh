@@ -10,8 +10,8 @@ if ! [ -n "$CLARA_HOME" ]; then
 fi
 
 echo "If you have an old installation at $CLARA_HOME it will be deleted."
-read -n 1 -p "Do you want to continue? Y/N" uinput
-if [ "$uinput" = "N" ]; then exit 0
+read -n 1 -p "Do you want to continue? Y/N `echo $'\n> '`" uinput
+if [ "$uinput" != "Y" ]; then exit 0
 fi
 
 rm -rf "$CLARA_HOME"
