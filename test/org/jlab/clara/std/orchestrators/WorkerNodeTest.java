@@ -379,9 +379,9 @@ public class WorkerNodeTest {
 
         static DpeName[] expectedDpes() {
             return new DpeName[] {
-                    new DpeName("10.1.1.10_java"),
-                    new DpeName("10.1.1.10_cpp"),
-                    new DpeName("10.1.1.10_python")
+                new DpeName("10.1.1.10_java"),
+                new DpeName("10.1.1.10_cpp"),
+                new DpeName("10.1.1.10_python")
             };
         }
 

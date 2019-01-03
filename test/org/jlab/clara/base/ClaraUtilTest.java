@@ -34,49 +34,49 @@ import org.jlab.clara.base.core.ClaraConstants;
 public class ClaraUtilTest {
 
     private static String[] goodDpeNames = new String[] {
-            "192.168.1.102_java",
-            "192.168.1.102_cpp",
-            "192.168.1.102_python",
-            "192.168.1.102%20000_java",
-            "192.168.1.102%16000_cpp",
-            "192.168.1.102%9999_python",
+        "192.168.1.102_java",
+        "192.168.1.102_cpp",
+        "192.168.1.102_python",
+        "192.168.1.102%20000_java",
+        "192.168.1.102%16000_cpp",
+        "192.168.1.102%9999_python",
     };
     private static String[] goodContainerNames = new String[] {
-            "10.2.58.17_java:master",
-            "10.2.58.17_cpp:container1",
-            "10.2.58.17_python:User",
-            "10.2.58.17%20000_python:User",
-            "10.2.58.17_java:best_container",
+        "10.2.58.17_java:master",
+        "10.2.58.17_cpp:container1",
+        "10.2.58.17_python:User",
+        "10.2.58.17%20000_python:User",
+        "10.2.58.17_java:best_container",
     };
     private static String[] goodServiceNames = new String[] {
-            "129.57.28.27_java:master:SimpleEngine",
-            "129.57.28.27_cpp:container1:IntegrationEngine",
-            "129.57.28.27_python:User:StatEngine",
-            "129.57.28.27%20000_python:User:StatEngine",
+        "129.57.28.27_java:master:SimpleEngine",
+        "129.57.28.27_cpp:container1:IntegrationEngine",
+        "129.57.28.27_python:User:StatEngine",
+        "129.57.28.27%20000_python:User:StatEngine",
     };
 
     private static String[] badDpeNames = new String[] {
-            "192.168.1.102",
-            "192.168.1.102%",
-            "192_168_1_102_java",
-            "192.168.1.102_erlang",
-            "192.168.1.103:python",
-            "192.168.1.103%aaa_python",
-            "192 168 1 102 java",
-            " 192.168.1.102_java",
+        "192.168.1.102",
+        "192.168.1.102%",
+        "192_168_1_102_java",
+        "192.168.1.102_erlang",
+        "192.168.1.103:python",
+        "192.168.1.103%aaa_python",
+        "192 168 1 102 java",
+        " 192.168.1.102_java",
     };
     private static String[] badContainerNames = new String[] {
-            "10.2.9.9_java:",
-            "10.2.9.9_cpp:container:",
-            "10.2.9.9_python:long,user",
-            "10.2.58.17_python: User",
+        "10.2.9.9_java:",
+        "10.2.9.9_cpp:container:",
+        "10.2.9.9_python:long,user",
+        "10.2.58.17_python: User",
     };
     private static String[] badServiceNames = new String[] {
-            "129.57.28.27_java:master:Simple:Engine",
-            "129.57.28.27_cpp:container1:Integration...",
-            "129.57.28.27_python:User:Stat,Engine",
-            " 129.57.28.27_java:master:SimpleEngine",
-            "129.57.28.27_java:master: SimpleEngine",
+        "129.57.28.27_java:master:Simple:Engine",
+        "129.57.28.27_cpp:container1:Integration...",
+        "129.57.28.27_python:User:Stat,Engine",
+        " 129.57.28.27_java:master:SimpleEngine",
+        "129.57.28.27_java:master: SimpleEngine",
     };
 
 
