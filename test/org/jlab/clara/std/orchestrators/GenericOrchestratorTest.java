@@ -290,9 +290,9 @@ public class GenericOrchestratorTest {
         cb.callback("10.1.1.1_python");
 
         DpeName[] expectedDpes = new DpeName[] {
-                new DpeName("10.1.1.1_java"),
-                new DpeName("10.1.1.1_cpp"),
-                new DpeName("10.1.1.1_python")
+            new DpeName("10.1.1.1_java"),
+            new DpeName("10.1.1.1_cpp"),
+            new DpeName("10.1.1.1_python")
         };
 
         assertThat(cb.nodes().get(0).dpes(), contains(expectedDpes));

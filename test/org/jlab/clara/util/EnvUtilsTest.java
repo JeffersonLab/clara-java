@@ -90,12 +90,13 @@ public class EnvUtilsTest {
     @Test
     public void testName() throws Exception {
         String[] invalidVariables = {
-                "${",
-                "$}",
-                "${}",
-                "${ }",
-                "${ foo}",
-                "${foo }"};
+            "${",
+            "$}",
+            "${}",
+            "${ }",
+            "${ foo}",
+            "${foo }"
+        };
 
         for (String invalid : invalidVariables) {
             try {

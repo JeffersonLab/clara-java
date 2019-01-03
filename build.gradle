@@ -25,7 +25,7 @@ plugins {
     id 'maven'
 
     id 'checkstyle'
-    id 'findbugs'
+    id 'com.github.spotbugs' version '1.6.8'
 
     id 'eclipse'
     id 'idea'
@@ -89,7 +89,7 @@ dependencies {
     deployerJars 'org.apache.maven.wagon:wagon-ssh-external:2.12'
     testCompile 'junit:junit:4.12'
     testCompile 'org.hamcrest:hamcrest-library:1.3'
-    testCompile 'org.mockito:mockito-core:1.10.19'
+    testCompile 'org.mockito:mockito-core:2.23.4'
 }
 
 
@@ -262,7 +262,7 @@ task distBinaries(type: Tar, dependsOn: build) {
 }
 
 
-task deploy(type: Copy, overwrite: true, dependsOn: jar) {
+task deploy(type: Copy, dependsOn: jar) {
     def dest = "$System.env.CLARA_HOME"
 
     into dest
@@ -314,20 +314,20 @@ def ciMode() {
 
 
 checkstyle {
-    toolVersion = '8.8'
+    toolVersion = '8.16'
     configFile = file('config/quality/checkstyle.xml')
     configProperties['samedir'] = file('config/quality')
 }
 
-findbugs {
-    toolVersion = '3.0.1'
+spotbugs {
+    toolVersion = '3.1.10'
     ignoreFailures = true
     effort = 'max'
     reportLevel = 'medium'
     excludeFilter = file('config/quality/findbugs-exclude.xml')
 }
 
-tasks.withType(FindBugs) {
+tasks.withType(com.github.spotbugs.SpotBugsTask) {
     def useXml = ciMode()
     reports {
         xml.enabled = useXml
@@ -335,49 +335,49 @@ tasks.withType(FindBugs) {
     }
 }
 
-// Marker task to enable findbugs.
-task findbugs(
+// Marker task to enable SpotBugs.
+task spotbugs(
     group: 'Verification',
-    description: 'Marker task to enabled findbugs.'
+    description: 'Marker task to enable SpotBugs.'
 )
 
-task checkFindBugsResults {
+task checkSpotBugsResults {
     doLast {
         def bugsFound = 0
-        [findbugsMain, findbugsTest].forEach {
-            bugsFound += printFindBugs it.reports.xml.destination
+        [spotbugsMain, spotbugsTest].forEach {
+            bugsFound += printSpotBugs it.reports.xml.destination
         }
         if (bugsFound > 0) {
-            throw new GradleException("$bugsFound FindBugs rule violations were found.")
+            throw new GradleException("$bugsFound SpotBugs rule violations were found.")
         }
     }
 }
 
-def printFindBugs(File xml) {
+def printSpotBugs(File xml) {
     def slurped = new XmlSlurper().parse(xml)
     def bugs = slurped.BugInstance
 
     bugs.each { bug ->
         def line = bug.SourceLine
-        logger.error "[FindBugs] ${line.@sourcepath}:${line.@start}:${line.@end} [${bug.@type}]"
+        logger.error "[SpotBugs] ${line.@sourcepath}:${line.@start}:${line.@end} [${bug.@type}]"
     }
     bugs.size()
 }
 
 if (ciMode()) {
-    checkFindBugsResults.mustRunAfter findbugsMain, findbugsTest
-    check.dependsOn checkFindBugsResults
+    checkSpotBugsResults.mustRunAfter spotbugsMain, spotbugsTest
+    check.dependsOn checkSpotBugsResults
 }
 
 gradle.taskGraph.whenReady { taskGraph ->
-    tasks.findbugsMain.onlyIf {
-        taskGraph.hasTask((tasks.findbugs))
+    tasks.spotbugsMain.onlyIf {
+        taskGraph.hasTask((tasks.spotbugs))
     }
-    tasks.findbugsTest.onlyIf {
-        taskGraph.hasTask((tasks.findbugs))
+    tasks.spotbugsTest.onlyIf {
+        taskGraph.hasTask((tasks.spotbugs))
     }
-    tasks.checkFindBugsResults.onlyIf {
-        taskGraph.hasTask((tasks.findbugs))
+    tasks.checkSpotBugsResults.onlyIf {
+        taskGraph.hasTask((tasks.spotbugs))
     }
 }
 

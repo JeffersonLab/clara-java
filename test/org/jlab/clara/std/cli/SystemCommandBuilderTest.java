@@ -21,6 +21,7 @@ public class SystemCommandBuilderTest {
 
     @Test
     public void outputArrayDoesNotNeedQuotes() throws Exception {
+        // checkstyle.off: Indentation
         assertThat(b.toArray(), is(new String[]{
                 "${CLARA_HOME}/bin/clara-orchestrator",
                 "-t", "10",
@@ -28,6 +29,7 @@ public class SystemCommandBuilderTest {
                 "custom services.yml",
                 "data/files.txt"
                 }));
+        // checkstyle.on: Indentation
     }
 
     @Test

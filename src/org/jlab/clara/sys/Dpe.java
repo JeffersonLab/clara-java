@@ -512,11 +512,11 @@ public final class Dpe extends AbstractActor {
     }
 
     private void printPlugin() {
-        String clara_home = System.getenv("CLARA_HOME");
-        if (clara_home != null) {
+        String claraHome = System.getenv("CLARA_HOME");
+        if (claraHome != null) {
             Scanner input;
             try {
-                input = new Scanner(new File(clara_home + File.separator + ".version"));
+                input = new Scanner(new File(claraHome + File.separator + ".version"));
                 while (input.hasNextLine()) {
                     System.out.println(input.nextLine());
                 }

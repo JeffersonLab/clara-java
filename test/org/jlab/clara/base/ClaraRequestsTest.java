@@ -39,9 +39,9 @@ import java.util.concurrent.TimeoutException;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.eq;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
@@ -110,7 +110,7 @@ public class ClaraRequestsTest {
         request.syncRun(10, TimeUnit.SECONDS);
 
         ArgumentCaptor<ClaraComponent> compArg = ArgumentCaptor.forClass(ClaraComponent.class);
-        verify(baseMock).syncSend(compArg.capture(), any(xMsgMessage.class), anyInt());
+        verify(baseMock).syncSend(compArg.capture(), any(xMsgMessage.class), anyLong());
 
         assertThat(compArg.getValue().getDpeCanonicalName(), is(FRONT_END.getDpeCanonicalName()));
     }
@@ -141,7 +141,7 @@ public class ClaraRequestsTest {
     @Test
     public void syncRequestParsesResponse() throws Exception {
         xMsgMessage response = mock(xMsgMessage.class);
-        when(baseMock.syncSend(any(ClaraComponent.class), any(xMsgMessage.class), anyInt()))
+        when(baseMock.syncSend(any(ClaraComponent.class), any(xMsgMessage.class), anyLong()))
               .thenReturn(response);
 
         request.syncRun(10, TimeUnit.SECONDS);
@@ -161,7 +161,7 @@ public class ClaraRequestsTest {
     @Test
     public void syncRequestThrowsOnSendFailure() throws Exception {
         doThrow(xMsgException.class).when(baseMock)
-                .syncSend(any(ClaraComponent.class), any(xMsgMessage.class), anyInt());
+                .syncSend(any(ClaraComponent.class), any(xMsgMessage.class), anyLong());
         expectedEx.expect(ClaraException.class);
 
         request.syncRun(10, TimeUnit.SECONDS);
@@ -189,7 +189,7 @@ public class ClaraRequestsTest {
     @Test
     public void syncRequestThrowsOnTimeout() throws Exception {
         doThrow(TimeoutException.class).when(baseMock)
-                .syncSend(any(ClaraComponent.class), any(xMsgMessage.class), anyInt());
+                .syncSend(any(ClaraComponent.class), any(xMsgMessage.class), anyLong());
         expectedEx.expect(TimeoutException.class);
 
         request.syncRun(10, TimeUnit.SECONDS);

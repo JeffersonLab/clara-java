@@ -26,7 +26,11 @@ import org.jlab.clara.base.core.ClaraConstants;
 import org.jlab.clara.util.EnvUtils;
 import org.jlab.clara.util.FileUtils;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.io.UncheckedIOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.nio.file.Files;
@@ -576,7 +580,7 @@ final class FarmCommands {
         }
 
         private void processTemplate(String name, Model model, PrintWriter printer)
-            throws IOException, TemplateException {
+                throws IOException, TemplateException {
             Template template = FTL_CONFIG.getTemplate(name);
             template.process(model.getRoot(), printer);
         }
@@ -691,7 +695,7 @@ final class FarmCommands {
 
 
     private static List<List<String>> partitionFiles(Path fileList, int filesPerJob)
-        throws IOException {
+            throws IOException {
         List<String> files = Files.lines(fileList)
             .collect(Collectors.toList());
         List<List<String>> groupedFiles = new ArrayList<>();
