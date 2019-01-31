@@ -53,6 +53,15 @@ public final class FileUtils {
         return Paths.get(EnvUtils.claraHome(), args);
     }
 
+    public static Path userPath(){
+        String cu = System.getenv("CLARA_USER");
+        if(cu == null){
+            System.out.println("Error: CLARA_USER environmental variable is not assigned. exiting...");
+            System.exit(1);
+        }
+        return Paths.get(cu);
+    }
+
     public static String claraPathAffinity(String affinity, String... args) {
         StringBuilder sb = new StringBuilder();
         sb.append("/bin/taskset -c ");

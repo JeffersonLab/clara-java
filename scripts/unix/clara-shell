@@ -26,6 +26,26 @@ if [ -z "${CLARA_HOME}" ]; then
     CLARA_HOME=${BASEDIR}
     export CLARA_HOME
 fi
+if [ -z "${CLARA_USER}" ]; then
+    echo "Error: CLARA_USER environmental variable is not assigned. Exiting..."
+     exit 1
+else
+   if [ ! -d "${CLARA_USER}/config" ]; then
+     mkdir "${CLARA_USER}/config"
+   fi
+   if [ ! -d "${CLARA_USER}/log" ]; then
+     mkdir "${CLARA_USER}/log"
+   fi
+   if [ ! -d "${CLARA_USER}/data" ]; then
+     mkdir "${CLARA_USER}/data"
+   fi
+   if [ ! -d "${CLARA_USER}/data/input" ]; then
+        mkdir "${CLARA_USER}/data/input"
+   fi
+   if [ ! -d "${CLARA_USER}/data/output" ]; then
+        mkdir "${CLARA_USER}/data/output"
+   fi
+fi
 
 # find plugins directory
 if [ -n "${CLARA_PLUGINS}" ]; then

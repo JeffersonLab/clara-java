@@ -22,6 +22,7 @@
 
 package org.jlab.clara.std.cli;
 
+import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -231,13 +232,15 @@ public class Config {
 
         addBuilder.apply(INPUT_DIR,
                 "The input directory where the files to be processed are located.")
-                .withInitialValue(FileUtils.claraPath("data", "input").toString())
+//                .withInitialValue(FileUtils.claraPath("data", "input").toString())
+                .withInitialValue(FileUtils.userPath().toString() + File.separator + "data" + File.separator + "input")
                 .withParser(ConfigParsers::toExistingDirectory)
                 .withCompleter(fileCompleter());
 
         addBuilder.apply(OUTPUT_DIR,
                 "The output directory where processed files will be saved.")
-                .withInitialValue(FileUtils.claraPath("data", "output").toString())
+//                .withInitialValue(FileUtils.claraPath("data", "output").toString())
+            .withInitialValue(FileUtils.userPath().toString() + File.separator + "data" + File.separator + "output")
                 .withParser(ConfigParsers::toDirectory)
                 .withCompleter(fileCompleter());
 
@@ -263,7 +266,8 @@ public class Config {
 
         addBuilder.apply(LOG_DIR,
                 "The directory where log files will be saved.")
-                .withInitialValue(FileUtils.claraPath("log").toString())
+//                .withInitialValue(FileUtils.claraPath("log").toString())
+                .withInitialValue(FileUtils.userPath().toString() + File.separator + "log")
                 .withParser(ConfigParsers::toDirectory)
                 .withCompleter(fileCompleter());
 
