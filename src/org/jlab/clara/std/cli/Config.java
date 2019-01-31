@@ -233,19 +233,24 @@ public class Config {
         addBuilder.apply(INPUT_DIR,
                 "The input directory where the files to be processed are located.")
 //                .withInitialValue(FileUtils.claraPath("data", "input").toString())
-                .withInitialValue(FileUtils.userPath().toString() + File.separator + "data" + File.separator + "input")
+                .withInitialValue(FileUtils.userPath().toString()
+                    + File.separator + "data"
+                    + File.separator + "input")
                 .withParser(ConfigParsers::toExistingDirectory)
                 .withCompleter(fileCompleter());
 
         addBuilder.apply(OUTPUT_DIR,
                 "The output directory where processed files will be saved.")
 //                .withInitialValue(FileUtils.claraPath("data", "output").toString())
-            .withInitialValue(FileUtils.userPath().toString() + File.separator + "data" + File.separator + "output")
+            .withInitialValue(FileUtils.userPath().toString()
+                + File.separator + "data"
+                + File.separator + "output")
                 .withParser(ConfigParsers::toDirectory)
                 .withCompleter(fileCompleter());
 
         addBuilder.apply(OUT_FILE_PREFIX,
-            "A single word (no spaces, preferably ending with _) as an output/processed file name prefix.")
+            "A single word (no spaces, preferably ending with _) as "
+                + "an output/processed file name prefix.")
             .withInitialValue("out_");
 
         addBuilder.apply(MAX_THREADS,

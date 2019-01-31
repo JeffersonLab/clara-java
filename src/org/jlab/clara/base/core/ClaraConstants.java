@@ -122,7 +122,7 @@ public final class ClaraConstants {
             "23,24,27-29,33,34,37-39,63,64,67-69,73,74,77-79");
     public static final List<String> FARM18_NUMAS = Collections.unmodifiableList(f18_numas);
 
-    private static List<String> f16_numas= Arrays.asList(
+    private static List<String> f16_numas = Arrays.asList(
             "0-17,36-53",
             "18-35,54-71");
     public static final List<String> FARM16_NUMAS = Collections.unmodifiableList(f16_numas);

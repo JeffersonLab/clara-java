@@ -319,7 +319,8 @@ final class FarmCommands {
             String description = config.getString(Config.DESCRIPTION);
             Path fileList = Paths.get(config.getString(Config.FILES_LIST));
             try {
-                Path dotDir = Paths.get(CLARA_USER.toString(), "config", "." + runUtils.getSession());
+                Path dotDir = Paths.get(CLARA_USER.toString(), "config",
+                    "." + runUtils.getSession());
                 FileUtils.deleteFileTree(dotDir);
                 FileUtils.createDirectories(dotDir);
 
@@ -402,7 +403,8 @@ final class FarmCommands {
             cmd.addOption("-o", config.getString(Config.OUTPUT_DIR));
             cmd.addOption("-z", config.getString(Config.OUT_FILE_PREFIX));
             if (config.hasValue(FARM_STAGE)) {
-                cmd.addOption("-l", config.getString(FARM_STAGE)+ File.separator+session);
+                cmd.addOption("-l", config.getString(FARM_STAGE)
+                    + File.separator + session);
             }
             if (config.hasValue(Config.MAX_THREADS)) {
                 cmd.addOption("-t", config.getInt(Config.MAX_THREADS));
@@ -438,7 +440,8 @@ final class FarmCommands {
             StringBuilder sb = new StringBuilder();
             String description = config.getString(Config.DESCRIPTION);
             Path fileList = Paths.get(config.getString(Config.FILES_LIST));
-            Path dotDir = Paths.get(CLARA_USER.toString(), "config", ".aff." + runUtils.getSession());
+            Path dotDir = Paths.get(CLARA_USER.toString(), "config",
+                ".aff." + runUtils.getSession());
             try {
                 FileUtils.deleteFileTree(dotDir);
                 FileUtils.createDirectories(dotDir);
@@ -449,7 +452,8 @@ final class FarmCommands {
                 int splitFactor = files.size() / affinities.size();
 
                 if (splitFactor > 0) {
-                    List<List<String>> filePartitions = partitionFilesForAffinity(fileList, splitFactor);
+                    List<List<String>>
+                        filePartitions = partitionFilesForAffinity(fileList, splitFactor);
 
                     for (int i = 0; i < filePartitions.size(); i++) {
                         Path subFileList = dotDir.resolve(appendIndex(description, i));
@@ -471,7 +475,8 @@ final class FarmCommands {
                         sb.append("wait ${a" + i + "}\n");
                     }
                 } else {
-                    System.err.println("Error: Data set is too small for farm.exclusive and/or farm.scaling settings.");
+                    System.err.println("Error: Data set is too small for "
+                        + "farm.exclusive and/or farm.scaling settings.");
                 }
             } catch (IOException e) {
                 e.printStackTrace();
@@ -709,7 +714,7 @@ final class FarmCommands {
     }
 
     private static List<List<String>> partitionFilesForAffinity(Path fileList, int filesPerJob)
-        throws IOException {
+            throws IOException {
         List<String> files = Files.lines(fileList)
             .collect(Collectors.toList());
         List<List<String>> groupedFiles = new ArrayList<>();
@@ -717,7 +722,7 @@ final class FarmCommands {
             int end = Math.min(files.size(), i + filesPerJob);
             groupedFiles.add(files.subList(i, end));
         }
-        if((groupedFiles.size() % 2) != 0) {
+        if ((groupedFiles.size() % 2) != 0) {
             List<String> last = groupedFiles.get(groupedFiles.size() - 1);
             groupedFiles.remove(groupedFiles.size() - 1);
             List<String> trueLast = groupedFiles.get(groupedFiles.size() - 1);
