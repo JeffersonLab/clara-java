@@ -53,14 +53,13 @@ public final class FileUtils {
         return Paths.get(EnvUtils.claraHome(), args);
     }
 
-    public static Path userPath() {
-        String cu = System.getenv("CLARA_USER");
-        if (cu == null) {
-            System.out.println("Error: CLARA_USER environmental variable "
-                + "is not assigned. exiting...");
-            System.exit(1);
+    public static Path userDataPath() {
+        String cu = System.getenv("CLARA_USER_DATA");
+        if (cu != null) {
+            return Paths.get(cu);
+        } else {
+            return Paths.get(EnvUtils.claraHome());
         }
-        return Paths.get(cu);
     }
 
     public static String claraPathAffinity(String affinity, String... args) {

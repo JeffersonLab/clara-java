@@ -46,7 +46,7 @@ public final class EnvUtils {
     public static String claraHome() {
         String claraHome = System.getenv("CLARA_HOME");
         if (claraHome == null) {
-            throw new RuntimeException("Missing CLARA_HOME enviroment variable");
+            throw new RuntimeException("Missing CLARA_HOME environment variable");
         }
         return claraHome;
     }

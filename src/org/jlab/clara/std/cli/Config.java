@@ -233,7 +233,7 @@ public class Config {
         addBuilder.apply(INPUT_DIR,
                 "The input directory where the files to be processed are located.")
 //                .withInitialValue(FileUtils.claraPath("data", "input").toString())
-                .withInitialValue(FileUtils.userPath().toString()
+                .withInitialValue(FileUtils.userDataPath().toString()
                     + File.separator + "data"
                     + File.separator + "input")
                 .withParser(ConfigParsers::toExistingDirectory)
@@ -242,7 +242,7 @@ public class Config {
         addBuilder.apply(OUTPUT_DIR,
                 "The output directory where processed files will be saved.")
 //                .withInitialValue(FileUtils.claraPath("data", "output").toString())
-            .withInitialValue(FileUtils.userPath().toString()
+            .withInitialValue(FileUtils.userDataPath().toString()
                 + File.separator + "data"
                 + File.separator + "output")
                 .withParser(ConfigParsers::toDirectory)
@@ -272,7 +272,7 @@ public class Config {
         addBuilder.apply(LOG_DIR,
                 "The directory where log files will be saved.")
 //                .withInitialValue(FileUtils.claraPath("log").toString())
-                .withInitialValue(FileUtils.userPath().toString() + File.separator + "log")
+                .withInitialValue(FileUtils.userDataPath().toString() + File.separator + "log")
                 .withParser(ConfigParsers::toDirectory)
                 .withCompleter(fileCompleter());
 

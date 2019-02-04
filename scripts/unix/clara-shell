@@ -26,24 +26,26 @@ if [ -z "${CLARA_HOME}" ]; then
     CLARA_HOME=${BASEDIR}
     export CLARA_HOME
 fi
-if [ -z "${CLARA_USER}" ]; then
-    echo "Error: CLARA_USER environmental variable is not assigned. Exiting..."
-     exit 1
+if [ -z "${CLARA_USER_DATA}" ]; then
+    echo "Warning: CLARA_USER_DATA environmental variable is not assigned.
+         It will be set to point to the CLARA_HOME.
+         Note that you might face permission exceptions. "
+     export CLARA_USER_DATA="${CLARA_HOME}"
 else
-   if [ ! -d "${CLARA_USER}/config" ]; then
-     mkdir "${CLARA_USER}/config"
+   if [ ! -d "${CLARA_USER_DATA}/config" ]; then
+     mkdir "${CLARA_USER_DATA}/config"
    fi
-   if [ ! -d "${CLARA_USER}/log" ]; then
-     mkdir "${CLARA_USER}/log"
+   if [ ! -d "${CLARA_USER_DATA}/log" ]; then
+     mkdir "${CLARA_USER_DATA}/log"
    fi
-   if [ ! -d "${CLARA_USER}/data" ]; then
-     mkdir "${CLARA_USER}/data"
+   if [ ! -d "${CLARA_USER_DATA}/data" ]; then
+     mkdir "${CLARA_USER_DATA}/data"
    fi
-   if [ ! -d "${CLARA_USER}/data/input" ]; then
-        mkdir "${CLARA_USER}/data/input"
+   if [ ! -d "${CLARA_USER_DATA}/data/input" ]; then
+        mkdir "${CLARA_USER_DATA}/data/input"
    fi
-   if [ ! -d "${CLARA_USER}/data/output" ]; then
-        mkdir "${CLARA_USER}/data/output"
+   if [ ! -d "${CLARA_USER_DATA}/data/output" ]; then
+        mkdir "${CLARA_USER_DATA}/data/output"
    fi
 fi
 

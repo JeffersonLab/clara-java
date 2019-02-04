@@ -89,7 +89,7 @@ final class FarmCommands {
 
     static final Path PLUGIN = FileUtils.claraPath("plugins", "clas12");
 
-    static final Path CLARA_USER = FileUtils.userPath();
+    static final Path CLARA_USER_DATA = FileUtils.userDataPath();
 
 
     private FarmCommands() {
@@ -184,11 +184,11 @@ final class FarmCommands {
     }
 
     private static String defaultFileList() {
-        Path filesPath = CLARA_USER.resolve("config/files.txt");
+        Path filesPath = CLARA_USER_DATA.resolve("config/files.txt");
         if (Files.exists(filesPath)) {
             return filesPath.toString();
         }
-        Path compatibilityPath = CLARA_USER.resolve("config/files.list");
+        Path compatibilityPath = CLARA_USER_DATA.resolve("config/files.list");
         if (Files.exists(compatibilityPath)) {
             return compatibilityPath.toString();
         }
@@ -218,7 +218,7 @@ final class FarmCommands {
 
         protected Path getJobScript(String ext) {
             String name = String.format("farm_%s", runUtils.getSession());
-            return CLARA_USER.resolve("config/" + name + ext);
+            return CLARA_USER_DATA.resolve("config/" + name + ext);
         }
     }
 
@@ -319,7 +319,7 @@ final class FarmCommands {
             String description = config.getString(Config.DESCRIPTION);
             Path fileList = Paths.get(config.getString(Config.FILES_LIST));
             try {
-                Path dotDir = Paths.get(CLARA_USER.toString(), "config",
+                Path dotDir = Paths.get(CLARA_USER_DATA.toString(), "config",
                     "." + runUtils.getSession());
                 FileUtils.deleteFileTree(dotDir);
                 FileUtils.createDirectories(dotDir);
@@ -440,7 +440,7 @@ final class FarmCommands {
             StringBuilder sb = new StringBuilder();
             String description = config.getString(Config.DESCRIPTION);
             Path fileList = Paths.get(config.getString(Config.FILES_LIST));
-            Path dotDir = Paths.get(CLARA_USER.toString(), "config",
+            Path dotDir = Paths.get(CLARA_USER_DATA.toString(), "config",
                 ".aff." + runUtils.getSession());
             try {
                 FileUtils.deleteFileTree(dotDir);
@@ -531,7 +531,7 @@ final class FarmCommands {
             // set core variables
             model.put("user", EnvUtils.userName());
             model.put("clara", "dir", EnvUtils.claraHome());
-            model.put("clas12", "dir", CLARA_USER);
+            model.put("clas12", "dir", CLARA_USER_DATA);
 
             // set monitor FE
             String monitor = runUtils.getMonitorFrontEnd();
