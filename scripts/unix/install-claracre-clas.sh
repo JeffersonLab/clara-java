@@ -1,20 +1,29 @@
 #!/usr/bin/env bash
 # author Vardan Gyurjyan
-# date 1.13.17
+# date 1.13.19
 
 is_local="false"
 
 if ! [ -n "$CLARA_HOME" ]; then
     echo "CLARA_HOME environmental variable is not defined. Exiting..."
-    exit
+    exit 0
 fi
 
-echo "If you have an old installation at $CLARA_HOME it will be deleted."
-read -n 1 -p "Do you want to continue? Y/N `echo $'\n> '`" uinput
-if [ "$uinput" != "Y" ]; then exit 0
+if  [ -d "${CLARA_HOME}" ]; then
+  echo "The old installation at $CLARA_HOME it will be deleted."
+  read -n 1 -p "Do you want to continue? Y/N `echo $'\n> '`" uinput
+   if [ "$uinput" != "Y" ]; then
+     exit 0
+   else
+# check to see if CLARA_HOME points to a valid clara distribution dir
+       if [ -d "${CLARA_HOME}/plugins" ]; then
+         rm -rf "$CLARA_HOME"
+       else
+         echo "CLARA_HOME is not a valid Clara distribution. Exiting..."
+         exit 0
+       fi
+   fi
 fi
-
-rm -rf "$CLARA_HOME"
 
 PLUGIN=5a.2.0
 FV=4.3.5
