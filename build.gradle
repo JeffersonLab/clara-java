@@ -385,6 +385,13 @@ gradle.taskGraph.whenReady { taskGraph ->
 
 eclipse {
     classpath {
-        defaultOutputDir = file("${buildDir}/eclipse-classes")
+        defaultOutputDir = file("${buildDir}/eclipse")
+        file.whenMerged { classpath ->
+            classpath.entries.each { source ->
+                if (source.kind == 'src' && source.hasProperty('output')) {
+                    source.output = "${buildDir.getName()}/eclipse"
+                }
+            }
+        }
     }
 }
