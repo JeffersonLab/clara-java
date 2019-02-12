@@ -148,7 +148,7 @@ final class FarmCommands {
             .withInitialValue(DEFAULT_FARM_NODE);
 
         addBuilder.apply(FARM_EXCLUSIVE,
-            "Exclusive farm node request (JLAB specific, e.g. farm16, farm18, etc.)")
+            "Exclusive farm node request (JLAB specific, e.g. farm16, farm18, etc. or any)")
             .withInitialValue(DEFAULT_FARM_EXCLUSIVE);
 
         addBuilder.apply(FARM_STAGE, "Local directory to stage reconstruction files.")
@@ -239,10 +239,8 @@ final class FarmCommands {
                         switch (config.getString(FARM_EXCLUSIVE)) {
                             case "farm18":
                                 config.setValue(FARM_NODE, "farm18");
-                                config.setValue(FARM_CPU, 80); // removed for SLURM
-                                config.setValue(FARM_MEMORY, 90); // removed for SLURM
-//                                config.setValue(FARM_CPU, 0);
-//                                config.setValue(FARM_MEMORY, 0);
+                                config.setValue(FARM_CPU, 0);
+                                config.setValue(FARM_MEMORY, 0);
                                 config.setValue(Config.MAX_THREADS, 20);
                                 break;
                             case "farm16":
@@ -268,6 +266,10 @@ final class FarmCommands {
                                 config.setValue(FARM_CPU, 0);
                                 config.setValue(FARM_MEMORY, 0);
                                 config.setValue(Config.MAX_THREADS, 16);
+                            case "any":
+                                config.setValue(FARM_CPU, 0);
+                                config.setValue(FARM_MEMORY, 0);
+//                                config.setValue(Config.MAX_THREADS, 64);
                                 break;
                             default:
                                 break;
@@ -578,6 +580,9 @@ final class FarmCommands {
                     case "qcd12s":
                         model.put("farm", "command",
                             getClaraCommandAffinityList(ClaraConstants.QCD12S_NUMAS));
+                        break;
+                    case "any":
+                        model.put("farm", "command", getClaraCommand());
                         break;
                     default:
                         break;
