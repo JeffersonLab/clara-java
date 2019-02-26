@@ -22,11 +22,8 @@
 
 package org.jlab.clara.util;
 
-import java.io.BufferedWriter;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
@@ -58,7 +55,9 @@ public final class FileUtils {
         if (cu != null) {
             return Paths.get(cu);
         } else {
-            return Paths.get(EnvUtils.claraHome());
+            return Paths.get(EnvUtils.claraHome()
+            + File.separator + "plugins"
+            + File.separator + "clas12");
         }
     }
 
@@ -125,6 +124,6 @@ public final class FileUtils {
 
     public static PrintWriter openOutputTextFile(Path path, boolean append) throws IOException {
         return new PrintWriter(new BufferedWriter(new OutputStreamWriter(
-              new FileOutputStream(path.toFile(), append), "utf-8")));
+              new FileOutputStream(path.toFile(), append), StandardCharsets.UTF_8)));
     }
 }

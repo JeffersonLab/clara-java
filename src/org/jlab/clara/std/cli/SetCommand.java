@@ -97,7 +97,7 @@ class SetCommand extends BaseCommand {
             File output = getOutputFile();
             try (PrintWriter printer = FileUtils.openOutputTextFile(output.toPath(), false)) {
                 if (Files.isDirectory(path)) {
-                    listCommand(printer, args[0]);
+//                    listCommand(printer, args[0]);
                     int numFiles = listDir(printer, path, f -> true);
                     if (numFiles > 0) {
                         config.setValue(Config.INPUT_DIR, path.toString());
@@ -106,13 +106,13 @@ class SetCommand extends BaseCommand {
                         throw new IllegalArgumentException("empty input directory");
                     }
                 } else if (Files.isRegularFile(path)) {
-                    listCommand(printer, args[0]);
+//                    listCommand(printer, args[0]);
                     printer.println(path.getFileName());
                     config.setValue(Config.INPUT_DIR, FileUtils.getParent(path).toString());
                     config.setValue(Config.FILES_LIST, output.getAbsolutePath());
                 } else if (path.getFileName().toString().contains("*")
                         && Files.isDirectory(FileUtils.getParent(path))) {
-                    listCommand(printer, args[0]);
+//                    listCommand(printer, args[0]);
                     String pattern = path.getFileName().toString();
                     String glob = "glob:" + pattern;
                     PathMatcher matcher = FileSystems.getDefault().getPathMatcher(glob);

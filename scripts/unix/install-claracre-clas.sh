@@ -124,23 +124,36 @@ esac
 tar xvzf clara-cre-$FV.tar.gz
 rm -f clara-cre-$FV.tar.gz
 
-(
 mkdir clara-cre/jre
+(
 cd clara-cre/jre || exit
-
-mv ../../*.tar.* .
-mv coatjava-$PLUGIN.tar.gz ../../.
-mv grapes-1.0.tar.gz ../../.
 echo "Installing jre ..."
-tar xvzf ./*.tar.*
-rm -f ./*.tar.*
+case $OS in
+    'Linux')
+    if [ "$MACHINE_TYPE" == "x86_64" ]; then
+         mv ../../linux-64.tar.gz .
+         tar xvzf ./linux-64.tar.gz
+         rm linux-64.tar.gz
+    else
+        mv ../../linux-i586.tar.gz .
+        tar xvzf ./linux-i586.tar.gz
+        rm linux-i586.tar.gz
+    fi
+    ;;
+
+    'Darwin')
+    mv ../../macosx-64.tar.gz .
+    tar xvzf ./macosx-64.tar.gz
+    rm macosx-64.tar.gz
+    ;;
+    *) ;;
+esac
 )
 
 mv clara-cre "$CLARA_HOME"
 
 echo "Installing coatjava ..."
 tar xvzf coatjava-$PLUGIN.tar.gz
-
 (
 cd coatjava || exit
 cp -r etc "$CLARA_HOME"/plugins/clas12/.
@@ -149,22 +162,18 @@ cp -r lib/utils "$CLARA_HOME"/plugins/clas12/lib/.
 cp lib/clas/* "$CLARA_HOME"/plugins/clas12/lib/clas/.
 cp lib/services/* "$CLARA_HOME"/plugins/clas12/lib/services/.
 )
+rm -rf coatjava
+rm coatjava-$PLUGIN.tar.gz
 
 echo "Installing grapes ..."
 tar xvzf grapes-1.0.tar.gz
 mv grapes-1.0 "$CLARA_HOME"/plugins/grapes
-
 cp "$CLARA_HOME"/plugins/grapes/bin/clara-grapes "$CLARA_HOME"/bin/.
-
-
 rm -f "$CLARA_HOME"/plugins/clas12/bin/clara-rec
 rm -f "$CLARA_HOME"/plugins/clas12/README
 cp "$CLARA_HOME"/plugins/clas12/etc/services/*.yaml "$CLARA_HOME"/plugins/clas12/config/.
 mv "$CLARA_HOME"/plugins/clas12/config/reconstruction.yaml "$CLARA_HOME"/plugins/clas12/config/services.yaml
 rm -rf "$CLARA_HOME"/plugins/clas12/etc/services
-
-rm -rf coatjava
-rm coatjava-$PLUGIN.tar.gz
 rm grapes-1.0.tar.gz
 
 chmod a+x "$CLARA_HOME"/bin/*

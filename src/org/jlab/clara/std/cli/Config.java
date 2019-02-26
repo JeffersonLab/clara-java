@@ -201,6 +201,7 @@ public class Config {
 
 
     Config() {
+
         variables = initVariables();
         environment = new HashMap<>();
     }
@@ -272,7 +273,8 @@ public class Config {
         addBuilder.apply(LOG_DIR,
                 "The directory where log files will be saved.")
 //                .withInitialValue(FileUtils.claraPath("log").toString())
-                .withInitialValue(FileUtils.userDataPath().toString() + File.separator + "log")
+                .withInitialValue(FileUtils.userDataPath().toString()
+                    + File.separator + "log")
                 .withParser(ConfigParsers::toDirectory)
                 .withCompleter(fileCompleter());
 
@@ -353,6 +355,14 @@ public class Config {
     public String getString(String variable) {
         Object object = getValue(variable);
         if (object instanceof String) {
+            if (variable.equals("farm.stage")) {
+                String v = (String) object;
+                if (!v.contains(File.separator)) {
+                    return File.separator + "scratch"
+                        + File.separator + "clara"
+                        + File.separator + EnvUtils.userName();
+                }
+            }
             return (String) object;
         }
         throw new IllegalArgumentException("variable \"" + variable + "\" is not a string");

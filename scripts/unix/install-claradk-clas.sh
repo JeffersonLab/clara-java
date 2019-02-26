@@ -14,9 +14,10 @@ mkdir "$CLARA_HOME"/plugins
 mkdir "$CLARA_HOME"/plugins/clas12
 mkdir "$CLARA_HOME"/plugins/grapes
 mkdir "$CLARA_HOME"/plugins/clas12/config
-mkdir "$CLARA_HOME"/data
-mkdir "$CLARA_HOME"/data/input
-mkdir "$CLARA_HOME"/data/output
+mkdir "$CLARA_HOME"/plugins/clas12/log
+mkdir "$CLARA_HOME"/plugins/clas12/data
+mkdir "$CLARA_HOME"/plugins/clas12/data/input
+mkdir "$CLARA_HOME"/plugins/clas12/data/output
 
 command_exists () {
     type "$1" &> /dev/null ;

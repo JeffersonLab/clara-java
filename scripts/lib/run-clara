@@ -110,8 +110,8 @@ user=$(id -un)
 fe_host=
 fe_port=
 
-input_dir=$CLARA_HOME/data/input
-output_dir=$CLARA_HOME/data/output
+input_dir=$CLARA_HOME/plugin/clas12/data/input
+output_dir=$CLARA_HOME/plugin/clas12/data/output
 stage_dir=
 
 report_ev=
@@ -173,9 +173,11 @@ fi
 ##############################################################################
 # Run CLARA
 ##############################################################################
-
-fe_log_file=$CLARA_HOME/log/${host}_${session}_fe_dpe.log
-or_log_file=$CLARA_HOME/log/${host}_${session}_orch.log
+if [ -z "${CLARA_USER_DATA}" ]; then
+     export CLARA_USER_DATA="${CLARA_HOME}/plugins/clas12"
+fi
+fe_log_file=$CLARA_USER_DATA/log/${host}_${session}_fe_dpe.log
+or_log_file=$CLARA_USER_DATA/log/${host}_${session}_orch.log
 
 echo "=========================================="
 echo "            Running Conditions            "

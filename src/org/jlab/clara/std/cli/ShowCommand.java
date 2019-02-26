@@ -95,8 +95,9 @@ class ShowCommand extends BaseCommand {
     }
 
     private int showLogDir() {
-        Path logDir = FileUtils.claraPath("log");
-        return RunUtils.listFiles(logDir, "lhtr");
+//        Path logDir = FileUtils.claraPath("log");
+//        return RunUtils.listFiles(logDir, "lhtr");
+        return listFiles(Config.LOG_DIR, "lhtr");
     }
 
     private int showDpeLog() {

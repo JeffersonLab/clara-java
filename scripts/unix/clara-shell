@@ -28,9 +28,9 @@ if [ -z "${CLARA_HOME}" ]; then
 fi
 if [ -z "${CLARA_USER_DATA}" ]; then
     echo "Warning: CLARA_USER_DATA environmental variable is not assigned.
-         It will be set to point to the CLARA_HOME.
+         It will be set to point to the CLARA_HOME/plugins/clas12.
          Note that you might face permission exceptions. "
-     export CLARA_USER_DATA="${CLARA_HOME}"
+     export CLARA_USER_DATA="${CLARA_HOME}/plugins/clas12"
 else
    if [ ! -d "${CLARA_USER_DATA}/config" ]; then
      mkdir "${CLARA_USER_DATA}/config"

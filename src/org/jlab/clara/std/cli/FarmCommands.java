@@ -33,6 +33,7 @@ import java.io.PrintWriter;
 import java.io.UncheckedIOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -172,27 +173,31 @@ final class FarmCommands {
     }
 
     private static String defaultConfigFile() {
-        Path ymlPath = PLUGIN.resolve("config/services.yml");
+        String out = "undefined";
+        Path ymlPath = CLARA_USER_DATA.resolve("config/services.yaml");
         if (Files.exists(ymlPath)) {
-            return ymlPath.toString();
+            out = ymlPath.toString();
+        } else {
+            Path compatibilityPath = PLUGIN.resolve("config/services.yaml");
+            if (Files.exists(compatibilityPath)) {
+                out = compatibilityPath.toString();
+            }
         }
-        Path compatibilityPath = PLUGIN.resolve("config/services.yaml");
-        if (Files.exists(compatibilityPath)) {
-            return compatibilityPath.toString();
-        }
-        return ymlPath.toString();
+        return out;
     }
 
     private static String defaultFileList() {
+        String out = "undefined";
         Path filesPath = CLARA_USER_DATA.resolve("config/files.txt");
         if (Files.exists(filesPath)) {
-            return filesPath.toString();
+            out = filesPath.toString();
+        } else {
+            Path compatibilityPath = PLUGIN.resolve("config/files.txt");
+            if (Files.exists(compatibilityPath)) {
+                return compatibilityPath.toString();
+            }
         }
-        Path compatibilityPath = CLARA_USER_DATA.resolve("config/files.list");
-        if (Files.exists(compatibilityPath)) {
-            return compatibilityPath.toString();
-        }
-        return filesPath.toString();
+        return out;
     }
 
     static boolean hasPlugin() {
@@ -455,7 +460,9 @@ final class FarmCommands {
 
                 if (splitFactor > 0) {
                     List<List<String>>
-                        filePartitions = partitionFilesForAffinity(fileList, splitFactor);
+                        filePartitions = partitionFilesForAffinity(fileList,
+                        splitFactor,
+                        affinities.size());
 
                     for (int i = 0; i < filePartitions.size(); i++) {
                         Path subFileList = dotDir.resolve(appendIndex(description, i));
@@ -718,16 +725,19 @@ final class FarmCommands {
         return groupedFiles;
     }
 
-    private static List<List<String>> partitionFilesForAffinity(Path fileList, int filesPerJob)
+    private static List<List<String>> partitionFilesForAffinity(
+        Path fileList, int filesPerJob, int numaSize)
+
             throws IOException {
-        List<String> files = Files.lines(fileList)
+        List<String> files = Files.lines(fileList, Charset.defaultCharset())
             .collect(Collectors.toList());
+
         List<List<String>> groupedFiles = new ArrayList<>();
         for (int i = 0; i < files.size(); i += filesPerJob) {
             int end = Math.min(files.size(), i + filesPerJob);
             groupedFiles.add(files.subList(i, end));
         }
-        if ((groupedFiles.size() % 2) != 0) {
+        if (groupedFiles.size() > numaSize) {
             List<String> last = groupedFiles.get(groupedFiles.size() - 1);
             groupedFiles.remove(groupedFiles.size() - 1);
             List<String> trueLast = groupedFiles.get(groupedFiles.size() - 1);
