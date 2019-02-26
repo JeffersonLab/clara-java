@@ -26,7 +26,7 @@ if  [ -d "${CLARA_HOME}" ]; then
 fi
 
 PLUGIN=5a.2.0
-FV=4.3.5
+FV=4.3.8
 
 case "$1" in
     -f | --framework)
