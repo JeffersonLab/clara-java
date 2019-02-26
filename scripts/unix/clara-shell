@@ -20,6 +20,7 @@
 # For more information contact author at gurjyan@jlab.org
 # Department of Experimental Nuclear Physics, Jefferson Lab.
 
+
 BASEDIR=$(cd "$(dirname "${BASH_SOURCE[0]}")"/.. && pwd)
 
 if [ -z "${CLARA_HOME}" ]; then
