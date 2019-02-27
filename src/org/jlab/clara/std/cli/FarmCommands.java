@@ -540,7 +540,8 @@ final class FarmCommands {
             // set core variables
             model.put("user", EnvUtils.userName());
             model.put("clara", "dir", EnvUtils.claraHome());
-            model.put("clas12", "dir", CLARA_USER_DATA);
+            model.put("clas12", "dir", PLUGIN);
+            model.put("user_data", "dir", EnvUtils.claraUserData());
 
             // set monitor FE
             String monitor = runUtils.getMonitorFrontEnd();

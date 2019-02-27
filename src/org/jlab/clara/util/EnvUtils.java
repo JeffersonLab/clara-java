@@ -22,6 +22,7 @@
 
 package org.jlab.clara.util;
 
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Map;
@@ -49,6 +50,21 @@ public final class EnvUtils {
             throw new RuntimeException("Missing CLARA_HOME environment variable");
         }
         return claraHome;
+    }
+
+    /**
+     * Gets the value of the CLARA_USER_DATA environment variable.
+     *
+     * @return the CLARA home directory
+     */
+    public static String claraUserData() {
+        String claraUserData = System.getenv("CLARA_USER_DATA");
+        if (claraUserData == null) {
+            claraUserData = EnvUtils.claraHome()
+                + File.separator + "plugins"
+                + File.separator + "clas12";
+        }
+        return claraUserData;
     }
 
     /**

@@ -13,6 +13,7 @@ export JAVA_OPTS="${farm.javaOpts}"
 export CLARA_HOME="${clara.dir}"
 export CLARA_MONITOR_FE="${clara.monitorFE!"clara1601%9000_java"}"
 export CLAS12DIR="${clas12.dir}"
+export CLARA_USER_DATA="${user_data.dir}"
 
 "$CLARA_HOME/bin/kill-dpes"
 

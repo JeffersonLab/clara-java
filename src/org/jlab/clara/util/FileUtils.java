@@ -51,14 +51,7 @@ public final class FileUtils {
     }
 
     public static Path userDataPath() {
-        String cu = System.getenv("CLARA_USER_DATA");
-        if (cu != null) {
-            return Paths.get(cu);
-        } else {
-            return Paths.get(EnvUtils.claraHome()
-            + File.separator + "plugins"
-            + File.separator + "clas12");
-        }
+            return Paths.get(EnvUtils.claraUserData());
     }
 
     public static String claraPathAffinity(String affinity, String... args) {
