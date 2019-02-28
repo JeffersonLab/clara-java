@@ -23,7 +23,6 @@
 package org.jlab.clara.std.cli;
 
 import org.jlab.clara.base.ClaraLang;
-import org.jlab.clara.util.FileUtils;
 import org.jlab.clara.util.VersionUtils;
 
 import java.io.IOException;

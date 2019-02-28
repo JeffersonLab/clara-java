@@ -51,7 +51,7 @@ public final class FileUtils {
     }
 
     public static Path userDataPath() {
-            return Paths.get(EnvUtils.claraUserData());
+        return Paths.get(EnvUtils.claraUserData());
     }
 
     public static String claraPathAffinity(String affinity, String... args) {

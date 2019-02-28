@@ -134,9 +134,12 @@ class SetCommand extends BaseCommand {
     }
 
     private File getOutputFile() {
-        Path dir = FarmCommands.hasPlugin()
-                ? FarmCommands.PLUGIN.resolve("config")
-                : Paths.get("");
+        Path dir = Paths.get("");
+        if (FarmCommands.hasUserDataDir()) {
+            dir = FarmCommands.CLARA_USER_DATA.resolve("config");
+        } else if (FarmCommands.hasPlugin()) {
+            dir = FarmCommands.PLUGIN.resolve("config");
+        }
         RunUtils runUtils = new RunUtils(config);
         String name = String.format("files_%s.txt", runUtils.getSession());
         return dir.resolve(name).toFile();

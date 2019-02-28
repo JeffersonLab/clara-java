@@ -204,6 +204,10 @@ final class FarmCommands {
         return Files.isDirectory(PLUGIN);
     }
 
+    static boolean hasUserDataDir() {
+        return Files.isDirectory(CLARA_USER_DATA);
+    }
+
     static void register(ClaraShell.Builder builder) {
         configTemplates();
         builder.withConfiguration(FarmCommands::clasVariables);
