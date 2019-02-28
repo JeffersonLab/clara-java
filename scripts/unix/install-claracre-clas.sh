@@ -168,7 +168,7 @@ rm coatjava-$PLUGIN.tar.gz
 echo "Installing grapes ..."
 tar xvzf grapes-1.0.tar.gz
 mv grapes-1.0 "$CLARA_HOME"/plugins/grapes
-cp "$CLARA_HOME"/plugins/grapes/bin/clara-grapes "$CLARA_HOME"/bin/.
+cp "$CLARA_HOME"/plugins/grapes/grapes-1.0/bin/clara-grapes "$CLARA_HOME"/bin/.
 rm -f "$CLARA_HOME"/plugins/clas12/bin/clara-rec
 rm -f "$CLARA_HOME"/plugins/clas12/README
 cp "$CLARA_HOME"/plugins/clas12/etc/services/*.yaml "$CLARA_HOME"/plugins/clas12/config/.
