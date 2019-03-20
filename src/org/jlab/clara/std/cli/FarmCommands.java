@@ -481,7 +481,7 @@ final class FarmCommands {
                             runUtils.getSession() + "_" + i,
                             subFileList.toString())).append("> /dev/null 2>&1 &\n");
                         sb.append("a" + i + "=$!\n");
-                        sb.append("sleep 20 \n");
+                        sb.append("sleep 10 \n");
                     }
                     for (int i = 0; i < filePartitions.size(); i++) {
                         sb.append("echo waiting pid = $a" + i + " \n");

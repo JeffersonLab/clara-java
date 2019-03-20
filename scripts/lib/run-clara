@@ -122,7 +122,7 @@ thread_num=$(get_num_cores)
 session=${user}_clara
 
 dpe_report=5
-wait_dpe=3
+wait_dpe=13
 
 while getopts "i:o:z:l:t:s:r:k:e:H:P:R:W:" OPTION; do
     case $OPTION in
