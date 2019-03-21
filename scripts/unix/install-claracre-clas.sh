@@ -4,6 +4,18 @@
 
 is_local="false"
 
+case "$1" in
+    -h | --help)
+        echo "usage: install-claracre-clas.sh [ OPTION ]... [ Value ]..."
+        echo ""
+        echo " -h, --help         print this help."
+        echo " -f, --framework    Clara framework version (default = 4.3.8)."
+        echo " -v, --version      Clas12 plugin version   (default = 5a.2.0)."
+        echo " -g, --grapes       Grapes plugin version   (default = 1.0)."
+        exit 1
+        ;;
+esac
+
 if ! [ -n "$CLARA_HOME" ]; then
     echo "CLARA_HOME environmental variable is not defined. Exiting..."
     exit 0
@@ -26,6 +38,7 @@ if  [ -d "${CLARA_HOME}" ]; then
 fi
 
 PLUGIN=5a.2.0
+GRAPES=1.0
 FV=4.3.8
 
 case "$1" in
@@ -34,8 +47,12 @@ case "$1" in
         echo "CLARA version = $FV"
         ;;
     -v | --version)
-        if ! [ -z "${2+x}" ]; then PLUGIN=$2; fi
+        if ! [ -z "${2+x}" ]; then PLUGIN2=$2; fi
         echo "CLAS12 plugin version = $PLUGIN"
+        ;;
+    -g | --grapes)
+        if ! [ -z "${2+x}" ]; then GRAPES=$2; fi
+        echo "Grapes plugin version = GRAPES"
         ;;
     -l | --local)
         if ! [ -z "${2+x}" ]; then PLUGIN=$2; is_local="true"; fi
@@ -51,8 +68,30 @@ case "$3" in
         if ! [ -z "${4+x}" ]; then PLUGIN=$4; fi
         echo "CLAS12 plugin version = $PLUGIN"
         ;;
+    -g | --grapes)
+        if ! [ -z "${4+x}" ]; then GRAPES=$4; fi
+        echo "Grapes plugin version = GRAPES"
+        ;;
     -l | --local)
         if ! [ -z "${4+x}" ]; then PLUGIN=$4; is_local="true"; fi
+        echo "CLAS12 plugin = $PLUGIN"
+        ;;
+esac
+case "$5" in
+    -f | --framework)
+        if ! [ -z "${6+x}" ]; then FV=$6; fi
+        echo "CLARA version = $FV"
+        ;;
+    -v | --version)
+        if ! [ -z "${6+x}" ]; then PLUGIN=$6; fi
+        echo "CLAS12 plugin version = $PLUGIN"
+        ;;
+    -g | --grapes)
+        if ! [ -z "${6+x}" ]; then GRAPES=$6; fi
+        echo "Grapes plugin version = GRAPES"
+        ;;
+    -l | --local)
+        if ! [ -z "${6+x}" ]; then PLUGIN=$6; is_local="true"; fi
         echo "CLAS12 plugin = $PLUGIN"
         ;;
 esac
@@ -75,11 +114,11 @@ case $OS in
         if [ "$is_local" == "false" ]; then
             echo "getting coatjava-$PLUGIN"
             wget https://clasweb.jlab.org/clas12offline/distribution/coatjava/coatjava-$PLUGIN.tar.gz
-            echo "getting grapes-1.0"
-            wget https://clasweb.jlab.org/clas12offline/distribution/grapes/grapes-1.0.tar.gz
+            echo "getting grapes-$GRAPES"
+            wget https://clasweb.jlab.org/clas12offline/distribution/grapes/grapes-$GRAPES.tar.gz
         else
-            echo "getting grapes-1.0"
-            wget https://clasweb.jlab.org/clas12offline/distribution/grapes/grapes-1.0.tar.gz
+            echo "getting grapes-$GRAPES"
+            wget https://clasweb.jlab.org/clas12offline/distribution/grapes/grapes-$GRAPES.tar.gz
             cp $PLUGIN .
         fi
 
@@ -107,11 +146,11 @@ case $OS in
        if [ "$is_local" == "false" ]; then
             echo "getting coatjava-$PLUGIN"
             curl "https://clasweb.jlab.org/clas12offline/distribution/coatjava/coatjava-$PLUGIN.tar.gz" -o coatjava-$PLUGIN.tar.gz
-            echo "getting grapes-1.0"
-            curl "https://clasweb.jlab.org/clas12offline/distribution/grapes/grapes-1.0.tar.gz" -o grapes-1.0.tar.gz
+            echo "getting grapes-$GRAPES"
+            curl "https://clasweb.jlab.org/clas12offline/distribution/grapes/grapes-$GRAPES.tar.gz" -o grapes-$GRAPES.tar.gz
        else
-            echo "getting grapes-1.0"
-            curl "https://clasweb.jlab.org/clas12offline/distribution/grapes/grapes-1.0.tar.gz" -o grapes-1.0.tar.gz
+            echo "getting grapes-$GRAPES"
+            curl "https://clasweb.jlab.org/clas12offline/distribution/grapes/grapes-$GRAPES.tar.gz" -o grapes-$GRAPES.tar.gz
             cp $PLUGIN .
        fi
 
@@ -166,18 +205,19 @@ rm -rf coatjava
 rm coatjava-$PLUGIN.tar.gz
 
 echo "Installing grapes ..."
-tar xvzf grapes-1.0.tar.gz
-mv grapes-1.0 "$CLARA_HOME"/plugins/grapes
-cp "$CLARA_HOME"/plugins/grapes/grapes-1.0/bin/clara-grapes "$CLARA_HOME"/bin/.
+tar xvzf grapes-$GRAPES.tar.gz
+mv grapes-$GRAPES "$CLARA_HOME"/plugins/grapes
+cp "$CLARA_HOME"/plugins/grapes/grapes-$GRAPES/bin/clara-grapes "$CLARA_HOME"/bin/.
 rm -f "$CLARA_HOME"/plugins/clas12/bin/clara-rec
 rm -f "$CLARA_HOME"/plugins/clas12/README
 cp "$CLARA_HOME"/plugins/clas12/etc/services/*.yaml "$CLARA_HOME"/plugins/clas12/config/.
 mv "$CLARA_HOME"/plugins/clas12/config/reconstruction.yaml "$CLARA_HOME"/plugins/clas12/config/services.yaml
 rm -rf "$CLARA_HOME"/plugins/clas12/etc/services
-rm grapes-1.0.tar.gz
+rm grapes-$GRAPES.tar.gz
 
 chmod a+x "$CLARA_HOME"/bin/*
 
-echo "Distribution  :    clara-cre-$FV" > "$CLARA_HOME"/.version
-echo "CLAS12 plugin :    coatjava-$PLUGIN" >> "$CLARA_HOME"/.version
+echo "Clara Framework  :    clara-cre-$FV" > "$CLARA_HOME"/.version
+echo "CLAS12 plugin    :    coatjava-$PLUGIN" >> "$CLARA_HOME"/.version
+echo "Grapes plugin    :    grapes-$GRAPES" >> "$CLARA_HOME"/.version
 echo "Done!"
