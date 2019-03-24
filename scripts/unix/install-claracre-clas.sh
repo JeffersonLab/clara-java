@@ -47,7 +47,7 @@ case "$1" in
         echo "CLARA version = $FV"
         ;;
     -v | --version)
-        if ! [ -z "${2+x}" ]; then PLUGIN2=$2; fi
+        if ! [ -z "${2+x}" ]; then PLUGIN=$2; fi
         echo "CLAS12 plugin version = $PLUGIN"
         ;;
     -g | --grapes)
