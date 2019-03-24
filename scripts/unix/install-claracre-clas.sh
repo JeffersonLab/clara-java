@@ -52,7 +52,7 @@ case "$1" in
         ;;
     -g | --grapes)
         if ! [ -z "${2+x}" ]; then GRAPES=$2; fi
-        echo "Grapes plugin version = GRAPES"
+        echo "Grapes plugin version = $GRAPES"
         ;;
     -l | --local)
         if ! [ -z "${2+x}" ]; then PLUGIN=$2; is_local="true"; fi
@@ -70,7 +70,7 @@ case "$3" in
         ;;
     -g | --grapes)
         if ! [ -z "${4+x}" ]; then GRAPES=$4; fi
-        echo "Grapes plugin version = GRAPES"
+        echo "Grapes plugin version = $GRAPES"
         ;;
     -l | --local)
         if ! [ -z "${4+x}" ]; then PLUGIN=$4; is_local="true"; fi
@@ -88,7 +88,7 @@ case "$5" in
         ;;
     -g | --grapes)
         if ! [ -z "${6+x}" ]; then GRAPES=$6; fi
-        echo "Grapes plugin version = GRAPES"
+        echo "Grapes plugin version = $GRAPES"
         ;;
     -l | --local)
         if ! [ -z "${6+x}" ]; then PLUGIN=$6; is_local="true"; fi
