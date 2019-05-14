@@ -11,7 +11,7 @@ case "$1" in
         echo " -h, --help         print this help."
         echo " -f, --framework    Clara framework version (default = 4.4)."
         echo " -v, --version      Clas12 plugin version   (default = 6b.1.1)."
-        echo " -g, --grapes       Grapes plugin version   (default = 2.0)."
+        echo " -g, --grapes       Grapes plugin version   (default = 2.1)."
         exit 1
         ;;
 esac
@@ -38,7 +38,7 @@ if  [ -d "${CLARA_HOME}" ]; then
 fi
 
 PLUGIN=6b.1.1
-GRAPES=2.0
+GRAPES=2.1
 FV=4.4
 
 case "$1" in
