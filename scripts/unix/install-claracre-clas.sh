@@ -37,7 +37,7 @@ if  [ -d "${CLARA_HOME}" ]; then
    fi
 fi
 
-PLUGIN=5.9.0
+PLUGIN=6b.1.1
 GRAPES=2.0
 FV=4.4
 
