@@ -9,9 +9,9 @@ case "$1" in
         echo "usage: install-claracre-clas.sh [ OPTION ]... [ Value ]..."
         echo ""
         echo " -h, --help         print this help."
-        echo " -f, --framework    Clara framework version (default = 4.3.8)."
-        echo " -v, --version      Clas12 plugin version   (default = 5a.2.0)."
-        echo " -g, --grapes       Grapes plugin version   (default = 1.0)."
+        echo " -f, --framework    Clara framework version (default = 4.4)."
+        echo " -v, --version      Clas12 plugin version   (default = 6b.1.1)."
+        echo " -g, --grapes       Grapes plugin version   (default = 2.0)."
         exit 1
         ;;
 esac
