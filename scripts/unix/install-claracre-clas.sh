@@ -37,9 +37,9 @@ if  [ -d "${CLARA_HOME}" ]; then
    fi
 fi
 
-PLUGIN=5a.2.0
-GRAPES=1.0
-FV=4.3.8
+PLUGIN=5.9.0
+GRAPES=2.0
+FV=4.4
 
 case "$1" in
     -f | --framework)
