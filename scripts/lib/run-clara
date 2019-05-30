@@ -176,8 +176,8 @@ fi
 if [ -z "${CLARA_USER_DATA}" ]; then
      export CLARA_USER_DATA="${CLARA_HOME}/plugins/clas12"
 fi
-fe_log_file=$CLARA_USER_DATA/log/${host}_${session}_fe_dpe.log
-or_log_file=$CLARA_USER_DATA/log/${host}_${session}_orch.log
+fe_log_file=${CLARA_USER_DATA}/log/${host}_${session}_fe_dpe.log
+or_log_file=${CLARA_USER_DATA}/log/${host}_${session}_orch.log
 
 echo "=========================================="
 echo "            Running Conditions            "
@@ -211,6 +211,8 @@ sleep "$wait_dpe"
 
 # Run orchestrator if DPE is active and running
 if kill -0 "$dpe_pid"; then
+
+echo ${dpe_pid} > ${CLARA_USER_DATA}/log/.${host}_${session}_dpe.pid
 
 # Run orchestrator
 or_args=()

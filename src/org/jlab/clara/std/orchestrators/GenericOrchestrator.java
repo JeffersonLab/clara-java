@@ -759,6 +759,7 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
                     builder = new Builder(services, parseInputFiles(files.get(0)));
                     builder.withInputDirectory(options.valueOf(inputDir));
                     builder.withOutputDirectory(options.valueOf(outputDir));
+                    builder.withOutputFilePrefix(options.valueOf(prefix));
                 } else {
                     builder = new Builder(services, files.get(0), files.get(1));
                 }
@@ -767,8 +768,6 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
                 builder.withPoolSize(options.valueOf(poolSize));
                 builder.withMaxThreads(options.valueOf(maxThreads));
                 builder.withMaxNodes(options.valueOf(maxNodes));
-
-                builder.withOutputFilePrefix(options.valueOf(prefix));
 
                 builder.withFrontEnd(parseFrontEnd());
                 builder.withSession(parseSession());
