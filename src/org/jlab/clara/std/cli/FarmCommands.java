@@ -83,7 +83,7 @@ final class FarmCommands {
     private static final String JLAB_SUB_CMD = "jsub";
     private static final String PBS_SUB_CMD = "qsub";
 
-    private static final String JLAB_STAT_CMD = "jobstat";
+    private static final String JLAB_STAT_CMD = "slurmJobs";
     private static final String PBS_STAT_CMD = "qstat";
 
     private static final Configuration FTL_CONFIG = new Configuration(Configuration.VERSION_2_3_25);
