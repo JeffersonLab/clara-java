@@ -1,6 +1,6 @@
 # CLARA
 
-A service-oriented framework to provide a computing environment for efficient
+A micro-services framework to provide a heterogeneous computing environment for efficient
 Big Data processing.
 
 [![Build Status](https://travis-ci.org/JeffersonLab/clara-java.svg?branch=master)](https://travis-ci.org/JeffersonLab/clara-java)
@@ -74,6 +74,14 @@ To deploy the binary distribution to `$CLARA_HOME`:
 
     $ ./gradlew deploy
 
+```
+   Note. If you do not have access permission to the local directory
+   to save artifacts, your build will faile with the
+   "java.io.IOException: Operation not supported" exception.
+   Use
+      --project-cache-dir /tmp
+   to save artifacts in /tmp
+```
 
 ### Importing the project into your IDE
 

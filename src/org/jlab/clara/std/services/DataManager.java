@@ -303,6 +303,9 @@ public class DataManager implements Engine {
             cmdLine.addArgument(files.stagedOutputFile.toString() + "*");
             cmdLine.addArgument(outputPath.toString());
 
+            System.out.printf("DDD %s service: Command =  %s %n",
+                NAME, cmdLine.toString());
+
             DefaultExecutor executor = new DefaultExecutor();
             PumpStreamHandler streamHandler = new PumpStreamHandler(outputStream);
             executor.setStreamHandler(streamHandler);
