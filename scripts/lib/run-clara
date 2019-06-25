@@ -212,7 +212,7 @@ sleep "$wait_dpe"
 # Run orchestrator if DPE is active and running
 if kill -0 "$dpe_pid"; then
 
-$echo ${dpe_pid} > ${CLARA_USER_DATA}/log/.${host}_${session}_dpe.pid
+echo ${dpe_pid} > ${CLARA_USER_DATA}/log/.${host}_${session}_dpe.pid
 
 # Run orchestrator
 or_args=()

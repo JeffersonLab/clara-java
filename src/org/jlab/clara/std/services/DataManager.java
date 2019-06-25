@@ -300,7 +300,7 @@ public class DataManager implements Engine {
 //            cmdLine.addArgument(files.outputFile.toString());
 
 //             modified 09.12.18. Stage back multiple output files. vg
-            cmdLine.addArgument(files.stagedOutputFile.toString() + "*");
+            cmdLine.addArgument(files.stagedOutputFile.toString() + "_*.*");
             cmdLine.addArgument(outputPath.toString());
 
             System.out.printf("DDD %s service: Command =  %s %n",
