@@ -300,8 +300,17 @@ public class DataManager implements Engine {
             cmdLine.addArgument(files.outputFile.toString());
 
 //             modified 09.12.18. Stage back multiple output files. vg
-//            cmdLine.addArgument(files.stagedOutputFile.toString() + "*");
+
+//            cmdLine.addArgument(files.stagedOutputFile.toString()+".00001.hipo");
+//            cmdLine.addArgument(files.stagedOutputFile.toString()+".00002.hipo");
 //            cmdLine.addArgument(outputPath.toString());
+//            System.out.printf("DDD =======");
+//            Files.newDirectoryStream(Paths.get("."),
+//                path -> path.toString().startsWith("out"))
+//                .forEach(System.out::println);
+//            System.out.printf("DDD =======");
+
+//  vg
 
             DefaultExecutor executor = new DefaultExecutor();
             PumpStreamHandler streamHandler = new PumpStreamHandler(outputStream);
