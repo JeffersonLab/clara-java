@@ -94,6 +94,20 @@ public final class ConfigParsers {
     }
 
     /**
+     * Parses the set command arguments into a single string without whitespace.
+     *
+     * @param args the command arguments
+     * @return the first argument
+     */
+    public static String toNonWhitespace(String... args) {
+        String word = requireArg(args);
+        if (!word.matches("\\S+")) {
+            throw new IllegalArgumentException("argument contains whitespace characters");
+        }
+        return word;
+    }
+
+    /**
      * Parses the set command arguments into an integer.
      *
      * @param args the command arguments

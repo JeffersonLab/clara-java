@@ -91,6 +91,22 @@ public class ConfigParsersTest {
     }
 
 
+    @Test
+    public void parseNonBlankSucceedsWithArg() throws Exception {
+        assertThat(ConfigParsers.toNonWhitespace("string-0.1"), is("string-0.1"));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void parseNonBlankFailsIfArgContainsSpaces() throws Exception {
+        ConfigParsers.toNonWhitespace("test string");
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void parseNonBlankFailsIfEmptyArg() throws Exception {
+        ConfigParsers.toNonWhitespace("");
+    }
+
+
     @Test(expected = IllegalArgumentException.class)
     public void parseFileFailsIfEmptyArg() throws Exception {
         ConfigParsers.toFile("");

@@ -250,9 +250,10 @@ public class Config {
                 .withCompleter(fileCompleter());
 
         addBuilder.apply(OUT_FILE_PREFIX,
-            "A single word (no spaces, preferably ending with _) as "
-                + "an output/processed file name prefix.")
-            .withInitialValue("out_");
+                "The prefix for the output filenames (a single word with no spaces, "
+                + "preferably ending with a separator like '_' o '-').")
+                .withParser(ConfigParsers::toNonWhitespace)
+                .withInitialValue("out_");
 
         addBuilder.apply(MAX_THREADS,
                 "The maximum number of processing threads to be used per node.")
