@@ -22,6 +22,7 @@
 
 package org.jlab.clara.base;
 
+import org.jlab.clara.base.core.ClaraComponent;
 import org.jlab.clara.base.core.ClaraConstants;
 import org.jlab.clara.engine.EngineDataType;
 import org.jlab.coda.xmsg.core.xMsgConstants;
@@ -65,14 +66,15 @@ public final class ClaraUtil {
      * {@literal <host>%<port>_<language>}
      * {@literal <host>%<port>_<language>:<container>}
      * {@literal <host>%<port>_<language>:<container>:<engine>}
+     *
+     * With {@literal %<port>} part being optional.
      * </pre>
      */
     public static final Pattern CANONICAL_NAME_PATTERN =
-            Pattern.compile("^(([^:%_ ]+)(%\\d+)?_(java|python|cpp))(:([a-zA-Z_0-9-]+)(:([a-zA-Z_0-9-]+))?)?$");
-//            Pattern.compile("^(([^:%_ ]+)(%\\d+)?_(java|python|cpp))(:(\\w+)(:(\\w+))?)?$");
+            Pattern.compile("^" + ClaraComponent.CANONICAL_NAME_REGEX + "$");
 
-    private static final int CONTAINER_GROUP = 6;
-    private static final int SERVICE_GROUP = 8;
+    private static final int CONTAINER_GROUP = 2;
+    private static final int SERVICE_GROUP = 3;
 
 
     private ClaraUtil() {

@@ -47,12 +47,14 @@ public class ClaraUtilTest {
         "10.2.58.17_python:User",
         "10.2.58.17%20000_python:User",
         "10.2.58.17_java:best_container",
+        "10.2.58.17_cpp:with-hyphen",
     };
     private static String[] goodServiceNames = new String[] {
         "129.57.28.27_java:master:SimpleEngine",
         "129.57.28.27_cpp:container1:IntegrationEngine",
         "129.57.28.27_python:User:StatEngine",
         "129.57.28.27%20000_python:User:StatEngine",
+        "129.57.28.27%9000_cpp:user-session:LogEngine",
     };
 
     private static String[] badDpeNames = new String[] {
@@ -67,6 +69,7 @@ public class ClaraUtilTest {
     };
     private static String[] badContainerNames = new String[] {
         "10.2.9.9_java:",
+        "10.2.9.9_java:name.part",
         "10.2.9.9_cpp:container:",
         "10.2.9.9_python:long,user",
         "10.2.58.17_python: User",

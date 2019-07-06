@@ -28,6 +28,8 @@ import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.net.xMsgProxyAddress;
 
+import java.text.MessageFormat;
+
 /**
  *  CLARA component. This is used to define
  *  service, container, DPE and orchestrator components.
@@ -36,6 +38,38 @@ import org.jlab.coda.xmsg.net.xMsgProxyAddress;
  * @since 4.x
  */
 public final class ClaraComponent {
+
+    public static final String DPE_NAME_REGEX;
+    public static final String CONTAINER_NAME_REGEX;
+    public static final String ENGINE_NAME_REGEX;
+
+    public static final String SERVICE_NAME_REGEX;
+    public static final String CANONICAL_NAME_REGEX;
+
+    private static final String NAME_SEP = xMsgTopic.SEPARATOR;
+
+    static {
+        final String ip = "(?:[0-9]{1,3}\\.){3}[0-9]{1,3}";
+
+        final String port = "[0-9]+";
+        final String lang = "(?:"
+                + ClaraConstants.JAVA_LANG + "|"
+                + ClaraConstants.CPP_LANG + "|"
+                + ClaraConstants.PYTHON_LANG + ")";
+
+        final String portPart = ClaraConstants.PORT_SEP + port;
+        final String langPart = ClaraConstants.LANG_SEP + lang;
+
+        DPE_NAME_REGEX = ip + "(?:" + portPart + ")?" + langPart;
+        CONTAINER_NAME_REGEX = "[\\w-]+";
+        ENGINE_NAME_REGEX = "\\w+";
+
+        SERVICE_NAME_REGEX = MessageFormat.format("{1}{0}{2}{0}{3}",
+                NAME_SEP, DPE_NAME_REGEX, CONTAINER_NAME_REGEX, ENGINE_NAME_REGEX);
+
+        CANONICAL_NAME_REGEX = MessageFormat.format("({1})(?:{0}({2})(?:{0}({3}))?)?",
+                NAME_SEP, DPE_NAME_REGEX, CONTAINER_NAME_REGEX, ENGINE_NAME_REGEX);
+    }
 
     private xMsgTopic topic;
 

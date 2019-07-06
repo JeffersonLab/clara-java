@@ -22,6 +22,7 @@
 
 package org.jlab.clara.sys.ccc;
 
+import org.jlab.clara.base.core.ClaraComponent;
 import org.jlab.clara.base.error.ClaraException;
 
 import java.util.HashSet;
@@ -56,22 +57,15 @@ import java.util.regex.PatternSyntaxException;
 public class CompositionCompiler {
 
     /**
-     * IP address regex.
-     */
-    public static final String IP = "([0-9]{1,3})\\.([0-9]{1,3})\\.([0-9]{1,3})\\.([0-9]{1,3})";
-
-    /**
      * String that starts with a character and can have preceding number.
      */
     public static final String WORD = "([a-zA-Z_0-9-]*)";
-//    public static final String WORD = "([A-Z|a-z]+[0-9]*)";
-    public static final String PORT = "(%+[0-9]*)*";
 
     /**
      * Service canonical name.
      * Format: {@code dpe_name:container_name:engine_name}
      */
-    public static final String SERV_NAME = IP + PORT + "_(java|python|cpp):" + WORD + ":" + WORD;
+    public static final String SERV_NAME = ClaraComponent.SERVICE_NAME_REGEX;
 
     /**
      * Routing statement. Example:
