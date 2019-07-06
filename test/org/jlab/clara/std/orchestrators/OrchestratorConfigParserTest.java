@@ -69,7 +69,7 @@ public class OrchestratorConfigParserTest {
 
     @Test
     public void parseGoodServicesFileYaml() {
-        OrchestratorConfigParser parser = parseFile("/resources/services-ok.yml");
+        OrchestratorConfigParser parser = parseFile("/services-ok.yml");
 
         assertThat(parser.parseDataProcessingServices(), is(servicesList));
     }
@@ -80,7 +80,7 @@ public class OrchestratorConfigParserTest {
         expectedEx.expect(OrchestratorConfigException.class);
         expectedEx.expectMessage("missing name or class of service");
 
-        OrchestratorConfigParser parser = parseFile("/resources/services-bad.yml");
+        OrchestratorConfigParser parser = parseFile("/services-bad.yml");
 
         parser.parseDataProcessingServices();
     }
@@ -88,7 +88,7 @@ public class OrchestratorConfigParserTest {
 
     @Test
     public void parseIOServices() throws Exception {
-        OrchestratorConfigParser parser = parseFile("/resources/services-custom.yml");
+        OrchestratorConfigParser parser = parseFile("/services-custom.yml");
 
         Map<String, ServiceInfo> services = parser.parseInputOutputServices();
 
@@ -104,7 +104,7 @@ public class OrchestratorConfigParserTest {
 
     @Test
     public void parseMultiLangServices() throws Exception {
-        OrchestratorConfigParser parser = parseFile("/resources/services-custom.yml");
+        OrchestratorConfigParser parser = parseFile("/services-custom.yml");
 
         List<ServiceInfo> expected = Arrays.asList(
                 new ServiceInfo("org.jlab.clas12.convertors.ECReconstruction",
@@ -123,7 +123,7 @@ public class OrchestratorConfigParserTest {
 
     @Test
     public void parseMonitoringServices() throws Exception {
-        OrchestratorConfigParser parser = parseFile("/resources/services-custom.yml");
+        OrchestratorConfigParser parser = parseFile("/services-custom.yml");
 
         List<ServiceInfo> expected = Arrays.asList(
                 service("org.jlab.clas12.services.ECMonitoring", "ECMonitor"),
@@ -136,7 +136,7 @@ public class OrchestratorConfigParserTest {
 
     @Test
     public void parseDataRingCallbacks() throws Exception {
-        OrchestratorConfigParser parser = parseFile("/resources/service-callbacks.yml");
+        OrchestratorConfigParser parser = parseFile("/service-callbacks.yml");
 
         List<RingCallbackInfo> expected = Arrays.asList(
                 new RingCallbackInfo("org.jlab.clas12.callbacks.ECHistogramReport",
@@ -159,7 +159,7 @@ public class OrchestratorConfigParserTest {
 
     @Test
     public void parseLanguagesSingleLang() throws Exception {
-        OrchestratorConfigParser parser = parseFile("/resources/services-ok.yml");
+        OrchestratorConfigParser parser = parseFile("/services-ok.yml");
 
         assertThat(parser.parseLanguages(), containsInAnyOrder(ClaraLang.JAVA));
     }
@@ -167,7 +167,7 @@ public class OrchestratorConfigParserTest {
 
     @Test
     public void parseLanguagesMultiLang() throws Exception {
-        OrchestratorConfigParser parser = parseFile("/resources/services-custom.yml");
+        OrchestratorConfigParser parser = parseFile("/services-custom.yml");
 
         assertThat(parser.parseLanguages(), containsInAnyOrder(ClaraLang.JAVA, ClaraLang.CPP));
     }
@@ -175,7 +175,7 @@ public class OrchestratorConfigParserTest {
 
     @Test
     public void parseEmptyMimeTypes() {
-        OrchestratorConfigParser parser = parseFile("/resources/services-ok.yml");
+        OrchestratorConfigParser parser = parseFile("/services-ok.yml");
 
         assertThat(parser.parseDataTypes(), is(empty()));
     }
@@ -183,7 +183,7 @@ public class OrchestratorConfigParserTest {
 
     @Test
     public void parseUserDefinedMimeTypes() {
-        OrchestratorConfigParser parser = parseFile("/resources/services-custom.yml");
+        OrchestratorConfigParser parser = parseFile("/services-custom.yml");
 
         String[] expected = new String[] {"binary/data-evio", "binary/data-hipo"};
         assertThat(parser.parseDataTypes(), containsInAnyOrder(expected));
@@ -192,7 +192,7 @@ public class OrchestratorConfigParserTest {
 
     @Test
     public void parseEmptyConfig() {
-        OrchestratorConfigParser parser = parseFile("/resources/services-ok.yml");
+        OrchestratorConfigParser parser = parseFile("/services-ok.yml");
 
         JSONObject config = parser.parseConfiguration();
 
@@ -202,7 +202,7 @@ public class OrchestratorConfigParserTest {
 
     @Test
     public void parseCustomConfig() {
-        OrchestratorConfigParser parser = parseFile("/resources/services-custom.yml");
+        OrchestratorConfigParser parser = parseFile("/services-custom.yml");
 
         JSONObject config = parser.parseConfiguration();
 
@@ -219,7 +219,7 @@ public class OrchestratorConfigParserTest {
 
     @Test
     public void parseInputFilesList() {
-        URL files = getClass().getResource("/resources/files.list");
+        URL files = getClass().getResource("/files.list");
 
         List<String> expected = Arrays.asList("file1.ev", "file2.ev", "file3.ev",
                                               "file4.ev", "file5.ev");

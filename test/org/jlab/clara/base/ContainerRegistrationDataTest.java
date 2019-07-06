@@ -46,7 +46,7 @@ public class ContainerRegistrationDataTest {
     private final ContainerRegistrationData data;
 
     public ContainerRegistrationDataTest() {
-        json = JsonUtils.readJson("/resources/registration-data.json")
+        json = JsonUtils.readJson("/registration-data.json")
                         .getJSONObject(ClaraConstants.REGISTRATION_KEY);
         data = new ContainerRegistrationData(JsonUtils.getContainer(json, 1));
     }

@@ -49,7 +49,7 @@ public class BenchmarkTest {
     @Test
     public void getCPUAverageReturnsSameValueForOneRuntimeDataValue() throws Exception {
         Benchmark b = new Benchmark();
-        b.addSnapshot(RuntimeDataFactory.parseRuntime("/resources/runtime-snapshots-1.json"));
+        b.addSnapshot(RuntimeDataFactory.parseRuntime("/runtime-snapshots-1.json"));
 
         assertThat(b.getCPUAverage(), is(closeTo(45.2, 0.01)));
     }
@@ -57,9 +57,9 @@ public class BenchmarkTest {
     @Test
     public void getCPUAverageReturnsForManyRuntimeDataValues() throws Exception {
         Benchmark b = new Benchmark();
-        b.addSnapshot(RuntimeDataFactory.parseRuntime("/resources/runtime-snapshots-1.json"));
-        b.addSnapshot(RuntimeDataFactory.parseRuntime("/resources/runtime-snapshots-2.json"));
-        b.addSnapshot(RuntimeDataFactory.parseRuntime("/resources/runtime-snapshots-3.json"));
+        b.addSnapshot(RuntimeDataFactory.parseRuntime("/runtime-snapshots-1.json"));
+        b.addSnapshot(RuntimeDataFactory.parseRuntime("/runtime-snapshots-2.json"));
+        b.addSnapshot(RuntimeDataFactory.parseRuntime("/runtime-snapshots-3.json"));
 
         double expected = (45.2 + 47.2 + 43.8) / 3;
 
@@ -76,7 +76,7 @@ public class BenchmarkTest {
     @Test
     public void getMemoryAverageReturnsSameValueForOneRuntimeDataValue() throws Exception {
         Benchmark b = new Benchmark();
-        b.addSnapshot(RuntimeDataFactory.parseRuntime("/resources/runtime-snapshots-1.json"));
+        b.addSnapshot(RuntimeDataFactory.parseRuntime("/runtime-snapshots-1.json"));
 
         assertThat(b.getMemoryAverage(), is(631222786L));
     }
@@ -84,9 +84,9 @@ public class BenchmarkTest {
     @Test
     public void getMemoryAverageReturnsForManyRuntimeDataValues() throws Exception {
         Benchmark b = new Benchmark();
-        b.addSnapshot(RuntimeDataFactory.parseRuntime("/resources/runtime-snapshots-1.json"));
-        b.addSnapshot(RuntimeDataFactory.parseRuntime("/resources/runtime-snapshots-2.json"));
-        b.addSnapshot(RuntimeDataFactory.parseRuntime("/resources/runtime-snapshots-3.json"));
+        b.addSnapshot(RuntimeDataFactory.parseRuntime("/runtime-snapshots-1.json"));
+        b.addSnapshot(RuntimeDataFactory.parseRuntime("/runtime-snapshots-2.json"));
+        b.addSnapshot(RuntimeDataFactory.parseRuntime("/runtime-snapshots-3.json"));
 
         long expected = (631222786 + 631222132 + 631226872) / 3;
 
@@ -104,7 +104,7 @@ public class BenchmarkTest {
     @Test(expected = IllegalStateException.class)
     public void getServiceReturnsSameValueForOneRuntimeDataValue() throws Exception {
         Benchmark b = new Benchmark();
-        b.addSnapshot(RuntimeDataFactory.parseRuntime("/resources/runtime-snapshots-1.json"));
+        b.addSnapshot(RuntimeDataFactory.parseRuntime("/runtime-snapshots-1.json"));
 
         b.getServiceBenchmark();
     }
@@ -112,9 +112,9 @@ public class BenchmarkTest {
     @Test
     public void getServiceReturnsSameValueForManyRuntimeDataValues() throws Exception {
         Benchmark b = new Benchmark();
-        b.addSnapshot(RuntimeDataFactory.parseRuntime("/resources/runtime-snapshots-1.json"));
-        b.addSnapshot(RuntimeDataFactory.parseRuntime("/resources/runtime-snapshots-2.json"));
-        b.addSnapshot(RuntimeDataFactory.parseRuntime("/resources/runtime-snapshots-3.json"));
+        b.addSnapshot(RuntimeDataFactory.parseRuntime("/runtime-snapshots-1.json"));
+        b.addSnapshot(RuntimeDataFactory.parseRuntime("/runtime-snapshots-2.json"));
+        b.addSnapshot(RuntimeDataFactory.parseRuntime("/runtime-snapshots-3.json"));
 
         Map<ServiceName, ServiceBenchmark> stats = b.getServiceBenchmark();
 

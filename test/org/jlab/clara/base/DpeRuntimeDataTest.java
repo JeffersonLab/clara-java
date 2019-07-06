@@ -48,7 +48,7 @@ public class DpeRuntimeDataTest {
     private final DpeRuntimeData data;
 
     public DpeRuntimeDataTest() {
-        json = JsonUtils.readJson("/resources/runtime-data.json")
+        json = JsonUtils.readJson("/runtime-data.json")
                         .getJSONObject(ClaraConstants.RUNTIME_KEY);
         data = new DpeRuntimeData(json);
     }

@@ -41,7 +41,7 @@ public class ServiceRuntimeDataTest {
     private final ServiceRuntimeData data;
 
     public ServiceRuntimeDataTest() {
-        json = JsonUtils.readJson("/resources/runtime-data.json")
+        json = JsonUtils.readJson("/runtime-data.json")
                         .getJSONObject(ClaraConstants.RUNTIME_KEY);
         data = new ServiceRuntimeData(JsonUtils.getService(json, 1, 0));
     }

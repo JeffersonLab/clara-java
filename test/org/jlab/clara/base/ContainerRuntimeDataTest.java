@@ -46,7 +46,7 @@ public class ContainerRuntimeDataTest {
     private final ContainerRuntimeData data;
 
     public ContainerRuntimeDataTest() {
-        json = JsonUtils.readJson("/resources/runtime-data.json")
+        json = JsonUtils.readJson("/runtime-data.json")
                         .getJSONObject(ClaraConstants.RUNTIME_KEY);
         data = new ContainerRuntimeData(JsonUtils.getContainer(json, 1));
     }

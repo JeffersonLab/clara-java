@@ -42,7 +42,7 @@ public class ServiceRegistrationDataTest {
     private final ServiceRegistrationData data;
 
     public ServiceRegistrationDataTest() {
-        json = JsonUtils.readJson("/resources/registration-data.json")
+        json = JsonUtils.readJson("/registration-data.json")
                         .getJSONObject(ClaraConstants.REGISTRATION_KEY);
         data = new ServiceRegistrationData(JsonUtils.getService(json, 1, 0));
     }

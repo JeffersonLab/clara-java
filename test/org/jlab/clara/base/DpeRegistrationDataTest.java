@@ -48,7 +48,7 @@ public class DpeRegistrationDataTest {
     private final DpeRegistrationData data;
 
     public DpeRegistrationDataTest() {
-        json = JsonUtils.readJson("/resources/registration-data.json")
+        json = JsonUtils.readJson("/registration-data.json")
                         .getJSONObject(ClaraConstants.REGISTRATION_KEY);
         data = new DpeRegistrationData(json);
     }

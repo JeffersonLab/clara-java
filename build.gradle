@@ -59,10 +59,10 @@ sourceSets {
     test {
         java {
             srcDir 'test'
+            exclude "resources/**"
         }
         resources {
-            srcDir 'test'
-            include "resources/**"
+            srcDir 'test/resources'
         }
     }
 }
