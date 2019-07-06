@@ -22,7 +22,6 @@
 
 package org.jlab.clara.std.cli;
 
-import org.jlab.clara.base.core.ClaraConstants;
 import org.jlab.clara.util.EnvUtils;
 import org.jlab.clara.util.FileUtils;
 
@@ -73,6 +72,29 @@ final class FarmCommands {
     private static final String DEFAULT_FARM_NODE = "";
     private static final String DEFAULT_FARM_EXCLUSIVE = "";
     private static final String DEFAULT_FARM_TRACK = "debug";
+
+    private static final String[] FARM18_NUMAS = new String[] {
+        "0-2,5,6,10-12,15,16,40-42,45,46,50-52,55,56",
+        "3,4,7-9,13,14,17-19,43,44,47-49,53,54,57-59",
+        "20-22,25,26,30-32,35,36,60-62,65,66,70-72,75,76",
+        "23,24,27-29,33,34,37-39,63,64,67-69,73,74,77-79"
+    };
+    private static final String[] FARM16_NUMAS = new String[] {
+        "0-17,36-53",
+        "18-35,54-71",
+    };
+    private static final String[] FARM14_NUMAS = new String[] {
+        "0-11,24-35",
+        "12-23,36-47",
+    };
+    private static final String[] FARM13_NUMAS = new String[] {
+        "0-7,16-23",
+        "8-15,24-31",
+    };
+    private static final String[] QCD12S_NUMAS = new String[] {
+        "0-7,16-23",
+        "8-15,24-31",
+    };
 
     private static final String JLAB_SYSTEM = "jlab";
     private static final String PBS_SYSTEM = "pbs";
@@ -447,7 +469,7 @@ final class FarmCommands {
             return exec + " " + cmd.toString();
         }
 
-        private String getClaraCommandAffinityList(List<String> affinities) {
+        private String getClaraCommandAffinityList(String[] affinities) {
             StringBuilder sb = new StringBuilder();
             String description = config.getString(Config.DESCRIPTION);
             Path fileList = Paths.get(config.getString(Config.FILES_LIST));
@@ -460,13 +482,13 @@ final class FarmCommands {
                 List<String> files = Files.lines(fileList)
                     .collect(Collectors.toList());
 
-                int splitFactor = files.size() / affinities.size();
+                int splitFactor = files.size() / affinities.length;
 
                 if (splitFactor > 0) {
                     List<List<String>>
                         filePartitions = partitionFilesForAffinity(fileList,
                         splitFactor,
-                        affinities.size());
+                        affinities.length);
 
                     for (int i = 0; i < filePartitions.size(); i++) {
                         Path subFileList = dotDir.resolve(appendIndex(description, i));
@@ -477,7 +499,7 @@ final class FarmCommands {
                         }
                         writer.close();
 
-                        sb.append(getClaraCommandAffinity(affinities.get(i),
+                        sb.append(getClaraCommandAffinity(affinities[i],
                             runUtils.getSession() + "_" + i,
                             subFileList.toString())).append("> /dev/null 2>&1 &\n");
                         sb.append("a" + i + "=$!\n");
@@ -575,23 +597,23 @@ final class FarmCommands {
                 switch (farmExclusive) {
                     case "farm18":
                         model.put("farm", "command",
-                            getClaraCommandAffinityList(ClaraConstants.FARM18_NUMAS));
+                            getClaraCommandAffinityList(FARM18_NUMAS));
                         break;
                     case "farm16":
                         model.put("farm", "command",
-                            getClaraCommandAffinityList(ClaraConstants.FARM16_NUMAS));
+                            getClaraCommandAffinityList(FARM16_NUMAS));
                         break;
                     case "farm14":
                         model.put("farm", "command",
-                            getClaraCommandAffinityList(ClaraConstants.FARM14_NUMAS));
+                            getClaraCommandAffinityList(FARM14_NUMAS));
                         break;
                     case "farm13":
                         model.put("farm", "command",
-                            getClaraCommandAffinityList(ClaraConstants.FARM13_NUMAS));
+                            getClaraCommandAffinityList(FARM13_NUMAS));
                         break;
                     case "qcd12s":
                         model.put("farm", "command",
-                            getClaraCommandAffinityList(ClaraConstants.QCD12S_NUMAS));
+                            getClaraCommandAffinityList(QCD12S_NUMAS));
                         break;
                     case "any":
                         model.put("farm", "command", getClaraCommand());
