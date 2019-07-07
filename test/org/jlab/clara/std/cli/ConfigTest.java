@@ -40,14 +40,14 @@ public class ConfigTest {
         assertThat(c.getBoolean("vbool2"), is(true));
         assertThat(c.getBoolean("vbool3"), is(false));
 
-        assertInvalidType("vint1", v -> c.getString(v));
-        assertInvalidType("vstring", v -> c.getInt(v));
-        assertInvalidType("vstring", v -> c.getLong(v));
-        assertInvalidType("vstring", v -> c.getDouble(v));
-        assertInvalidType("vobj", v -> c.getInt(v));
-        assertInvalidType("vobj", v -> c.getLong(v));
-        assertInvalidType("vobj", v -> c.getDouble(v));
-        assertInvalidType("vint1", v -> c.getBoolean(v));
+        assertInvalidType("vint1", c::getString);
+        assertInvalidType("vstring", c::getInt);
+        assertInvalidType("vstring", c::getLong);
+        assertInvalidType("vstring", c::getDouble);
+        assertInvalidType("vobj", c::getInt);
+        assertInvalidType("vobj", c::getLong);
+        assertInvalidType("vobj", c::getDouble);
+        assertInvalidType("vint1", c::getBoolean);
     }
 
     private void addVariable(Config c, String name, Object value) {

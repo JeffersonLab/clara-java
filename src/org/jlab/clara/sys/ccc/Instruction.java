@@ -23,6 +23,7 @@
 package org.jlab.clara.sys.ccc;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -135,15 +136,13 @@ class Instruction {
         if (!serviceName.equals(other.serviceName)) {
             return false;
         }
-        if (ifCondition != null ? !ifCondition.equals(other.ifCondition)
-                                : other.ifCondition != null) {
+        if (!Objects.equals(ifCondition, other.ifCondition)) {
             return false;
         }
         if (!ifCondStatements.equals(other.ifCondStatements)) {
             return false;
         }
-        if (elseifCondition != null ? !elseifCondition.equals(other.elseifCondition)
-                                    : other.elseifCondition != null) {
+        if (!Objects.equals(elseifCondition, other.elseifCondition)) {
             return false;
         }
         if (!elseifCondStatements.equals(other.elseifCondStatements)) {

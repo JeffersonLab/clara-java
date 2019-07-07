@@ -63,7 +63,7 @@ class CoreOrchestrator {
     CoreOrchestrator(OrchestratorSetup setup, int poolSize) {
         base = new BaseOrchestrator(setup.frontEnd, poolSize);
 
-        userContainers = Collections.newSetFromMap(new ConcurrentHashMap<ContainerName, Boolean>());
+        userContainers = Collections.newSetFromMap(new ConcurrentHashMap<>());
         userServices = new ConcurrentHashMap<>();
 
         base.registerDataTypes(EngineDataType.JSON,

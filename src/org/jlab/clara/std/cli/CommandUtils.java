@@ -150,7 +150,7 @@ public final class CommandUtils {
         List<String> wrapperCmd = new ArrayList<>();
         wrapperCmd.add(commandWrapper());
         wrapperCmd.addAll(Arrays.asList(command));
-        return wrapperCmd.toArray(new String[wrapperCmd.size()]);
+        return wrapperCmd.toArray(new String[0]);
     }
 
     /**

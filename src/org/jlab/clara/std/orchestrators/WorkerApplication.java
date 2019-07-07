@@ -175,7 +175,10 @@ class WorkerApplication {
 
 
     public int maxCores() {
-        return dpes.values().stream().mapToInt(dpe -> dpe.cores).min().getAsInt();
+        return dpes.values().stream()
+                   .mapToInt(dpe -> dpe.cores)
+                   .min()
+                   .orElseThrow(() -> new IllegalStateException("Empty list of DPEs"));
     }
 
 

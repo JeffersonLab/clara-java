@@ -80,8 +80,7 @@ class CommandRunner {
             String cmd = EnvUtils.expandEnvironment(line, System.getenv()).trim();
             return parser.parse(cmd, cmd.length() + 1)
                          .words()
-                         .stream()
-                         .toArray(String[]::new);
+                         .toArray(new String[0]);
         } catch (IllegalArgumentException e) {
             terminal.writer().println(e.getMessage());
             return null;

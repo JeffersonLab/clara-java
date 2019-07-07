@@ -58,7 +58,7 @@ public class InfluxDbReporter implements DpeReportHandler {
             MonitorOrchestrator monitor = new MonitorOrchestrator(proxyAddress);
             InfluxDbReporter reporter = new InfluxDbReporter(parser.dataBaseHost());
 
-            Runtime.getRuntime().addShutdownHook(new Thread(() -> monitor.close()));
+            Runtime.getRuntime().addShutdownHook(new Thread(monitor::close));
 
             monitor.listenDpeReports(reporter);
         } catch (Exception e) {

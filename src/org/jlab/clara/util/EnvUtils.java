@@ -32,9 +32,9 @@ import java.util.regex.Pattern;
 public final class EnvUtils {
 
     private static final String ID_GROUP = "([A-Za-z_][A-Za-z0-9_]*)";
-    private static final String ENV_VAR_PATTERN = "((?:\\\\|\\$)\\$)"
+    private static final String ENV_VAR_PATTERN = "((?:[\\\\$])\\$)"
             + "|\\$(?:" + ID_GROUP + "|\\{" + ID_GROUP + "(?::-([^\\}]*))?\\})"
-            + "|\\$()";
+            + "|(\\$)";
     private static final Pattern ENV_VAR_EXPR = Pattern.compile(ENV_VAR_PATTERN);
 
     private EnvUtils() { }

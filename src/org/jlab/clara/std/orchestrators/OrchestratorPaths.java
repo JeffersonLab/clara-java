@@ -45,7 +45,7 @@ class OrchestratorPaths {
     final Path inputDir;
     final Path outputDir;
     final Path stageDir;
-    String prefix = OUTPUT_FILE_PREFIX;
+    final String prefix;
 
     static class Builder {
 

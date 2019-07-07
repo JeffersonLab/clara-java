@@ -34,7 +34,7 @@ final class CompositionParser {
         if (s == null || s.length() == 0) {
             return s;
         }
-        return s.substring(1, s.length());
+        return s.substring(1);
     }
 
     public static String removeFirst(String input, String firstCharacter) {

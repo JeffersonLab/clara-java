@@ -31,7 +31,7 @@ import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
 public class EngineData {
 
     private Object data;
-    private xMsgMeta.Builder metadata = xMsgMeta.newBuilder();
+    private xMsgMeta.Builder metadata;
 
     /**
      * Creates an empty engine data object.

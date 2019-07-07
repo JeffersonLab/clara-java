@@ -528,7 +528,7 @@ public final class Dpe extends AbstractActor {
 
     private void printLogo() {
         printPlugin();
-        System.out.printf("\n");
+        System.out.print("\n");
 
         System.out.println("==========================================");
         if (isFrontEnd.get()) {

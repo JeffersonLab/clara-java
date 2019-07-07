@@ -140,7 +140,7 @@ public class CompositionCompiler {
         Set<String> pp = preProcess(pCode);
 
         // start analysing and building compiled instructions
-        String[] ppi = pp.toArray(new String[pp.size()]);
+        String[] ppi = pp.toArray(new String[0]);
 
         int i = -1;
         while (++i < ppi.length) {

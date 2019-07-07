@@ -88,7 +88,7 @@ public class EnvUtilsTest {
     }
 
     @Test
-    public void testName() throws Exception {
+    public void malformedVariableThrows() throws Exception {
         String[] invalidVariables = {
             "${",
             "$}",

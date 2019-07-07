@@ -109,7 +109,7 @@ class ShowCommand extends BaseCommand {
 
     private int showVersion() {
         writer.println(VersionUtils.getClaraVersionFull());
-        return 0;
+        return EXIT_SUCCESS;
     }
 
     private int printFile(String variable) {
@@ -160,6 +160,6 @@ class ShowCommand extends BaseCommand {
                 logs.add(path);
             }
         }
-        return logs.toArray(new Path[logs.size()]);
+        return logs.toArray(new Path[0]);
     }
 }

@@ -440,7 +440,7 @@ public class Config {
     public boolean getBoolean(String variable) {
         Object object = getValue(variable);
         if (object instanceof Boolean) {
-            return  ((Boolean) object).booleanValue();
+            return (Boolean) object;
         }
         if (object instanceof String) {
             return ((String) object).equalsIgnoreCase("true");

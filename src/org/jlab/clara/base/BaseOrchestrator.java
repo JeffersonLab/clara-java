@@ -58,7 +58,7 @@ public class BaseOrchestrator implements AutoCloseable {
     private final Map<String, xMsgSubscription> subscriptions = new HashMap<>();
 
     // ClaraBase reference
-    private ClaraBase base = null;
+    private ClaraBase base;
 
 
     /**
