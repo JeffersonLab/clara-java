@@ -23,7 +23,6 @@
 package org.jlab.clara.std.cli;
 
 import java.util.Objects;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
@@ -42,7 +41,7 @@ public final class ConfigVariable {
     private final Function<String[], Object> parser;
     private final Completer completer;
 
-    private Optional<Object> currentValue;
+    private Object currentValue;
 
 
     /**
@@ -150,7 +149,7 @@ public final class ConfigVariable {
         this.description = builder.description;
         this.parser = builder.parser;
         this.completer = builder.completer;
-        this.currentValue = Optional.ofNullable(builder.initialValue);
+        this.currentValue = builder.initialValue;
     }
 
     /**
@@ -177,7 +176,7 @@ public final class ConfigVariable {
      * @return true if this variable has a value, false otherwise
      */
     public boolean hasValue() {
-        return currentValue.isPresent();
+        return currentValue != null;
     }
 
     /**
@@ -187,7 +186,10 @@ public final class ConfigVariable {
      * @throws IllegalStateException if the variable is not set
      */
     public Object getValue() {
-        return currentValue.orElseThrow(this::missingValueException);
+        if (currentValue == null) {
+            throw new IllegalStateException("config variable '" + name + "' not set");
+        }
+        return currentValue;
     }
 
     /**
@@ -197,7 +199,7 @@ public final class ConfigVariable {
      */
     public void setValue(Object value) {
         Objects.requireNonNull(value, "null value for config variable '" + name + "'");
-        currentValue = Optional.of(value);
+        currentValue = value;
     }
 
     void parseValue(String... args) {
@@ -206,9 +208,5 @@ public final class ConfigVariable {
 
     Completer getCompleter() {
         return completer;
-    }
-
-    private IllegalStateException missingValueException() {
-        return new IllegalStateException("config variable '" + name + "' not set");
     }
 }
