@@ -314,7 +314,7 @@ def ciMode() {
 
 
 checkstyle {
-    toolVersion = '8.16'
+    toolVersion = '8.22'
     configFile = file('config/quality/checkstyle.xml')
     configProperties['samedir'] = file('config/quality')
 }
