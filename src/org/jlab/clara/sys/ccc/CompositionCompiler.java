@@ -78,16 +78,16 @@ public class CompositionCompiler {
      * </ul>
      * Note that regular expression does not include end of statement operator.
      */
-    public static final String STATEMENT = SERV_NAME + "(," + SERV_NAME + ")*"
-                                         + "((\\+&?" + SERV_NAME + ")*|(\\+" + SERV_NAME
-                                         + "(," + SERV_NAME + ")*)*)";
+    public static final String STATEMENT = SERV_NAME + "(?:," + SERV_NAME + ")*"
+                                         + "(?:(?:\\+&?" + SERV_NAME + ")*|(?:\\+" + SERV_NAME
+                                         + "(?:," + SERV_NAME + ")*)*)";
 
     /**
      * CLARA simple Condition. Example:
      * <li>{@code Service == "state_name}"</li>
      * <li>{@code Service != "state_name"</li>
      */
-    public static final String SIMP_COND = SERV_NAME + "(==|!=)\"" + WORD + "\"";
+    public static final String SIMP_COND = SERV_NAME + "(?:==|!=)\"" + WORD + "\"";
 
     /**
      * CLARA complex Condition. Example:
@@ -96,13 +96,17 @@ public class CompositionCompiler {
      *             Service2 == "state_name2" !!
      *             Service2 != "state_name3")}</li>
      */
-    public static final String COMP_COND = SIMP_COND + "((&&|!!)" + SIMP_COND + ")*";
+    public static final String COMP_COND = SIMP_COND + "(?:(?:&&|!!)" + SIMP_COND + ")*";
 
     /**
      * CLARA conditional statement.
      */
-    public static final String COND = "((\\}?if|\\}elseif)\\(" + COMP_COND + "\\)\\{"
-                                    + STATEMENT + ")|(\\}else\\{" + STATEMENT + ")";
+    public static final String COND = "(?:(?:\\}?if|\\}elseif)\\(" + COMP_COND + "\\)\\{"
+                                    + STATEMENT + ")|(?:\\}else\\{" + STATEMENT + ")";
+
+    private static final Pattern STATEMENT_PATTERN = Pattern.compile(STATEMENT);
+
+    private static final Pattern COND_PATTERN = Pattern.compile(COND);
 
     public Set<Instruction> instructions = new LinkedHashSet<>();
 
@@ -229,8 +233,7 @@ public class CompositionCompiler {
 
         // unconditional routing statement
         try {
-            Pattern p = Pattern.compile(STATEMENT);
-            Matcher m = p.matcher(iStmt);
+            Matcher m = STATEMENT_PATTERN.matcher(iStmt);
 
             if (m.matches()) {
 
@@ -244,8 +247,6 @@ public class CompositionCompiler {
                 instructions.add(ti);
                 b = true;
             } else {
-                System.out.println("DDD ----- > statement = " + iStmt);
-
                 throw new ClaraException("Syntax error in the CLARA routing program. "
                         + "Malformed routing statement");
             }
@@ -259,8 +260,7 @@ public class CompositionCompiler {
         boolean b = false;
 
         // unconditional routing statement
-        Pattern p = Pattern.compile(STATEMENT);
-        Matcher m = p.matcher(iStmt);
+        Matcher m = STATEMENT_PATTERN.matcher(iStmt);
         if (m.matches()) {
 
             // ignore conditional statements not concerning me
@@ -280,8 +280,6 @@ public class CompositionCompiler {
             }
             b = true;
         } else {
-            System.out.println("DDD ----- > statement = " + iStmt);
-
             throw new ClaraException("Syntax error in the CLARA routing program. "
                     + "Malformed routing statement");
         }
@@ -292,8 +290,7 @@ public class CompositionCompiler {
     private Instruction parseCondition(String iCnd) throws ClaraException {
         Instruction ti;
 
-        Pattern p = Pattern.compile(COND);
-        Matcher m = p.matcher(iCnd);
+        Matcher m = COND_PATTERN.matcher(iCnd);
 
         if (m.matches()) {
             try {

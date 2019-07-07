@@ -65,7 +65,6 @@ public class CompositionCompilerTest {
         assertThat(cc.getUnconditionalLinks(), is(expected));
     }
 
-
     @Test
     public void testServiceAtTheMiddle() throws Exception {
         CompositionCompiler cc = new CompositionCompiler("10.10.10.1_java:C:S2");
@@ -81,6 +80,35 @@ public class CompositionCompilerTest {
         cc.compile(composition);
 
         Set<String> expected = new HashSet<>();
+        assertThat(cc.getUnconditionalLinks(), is(expected));
+    }
+
+    @Test
+    public void testLogicalOrBranching() throws Exception {
+        CompositionCompiler cc = new CompositionCompiler("10.10.10.1_java:C:S2");
+        String composition = "10.10.10.1_java:C:S1+"
+                           + "10.10.10.1_java:C:S2+"
+                           + "10.10.10.1_java:C:S3,"
+                           + "10.10.10.1_java:C:S4;";
+        cc.compile(composition);
+
+        Set<String> expected = new HashSet<>(Arrays.asList("10.10.10.1_java:C:S3",
+                                                           "10.10.10.1_java:C:S4"));
+        assertThat(cc.getUnconditionalLinks(), is(expected));
+    }
+
+    @Test
+    public void testMultiStatementBranching() throws Exception {
+        CompositionCompiler cc = new CompositionCompiler("10.10.10.1_java:C:S2");
+        String composition = "10.10.10.1_java:C:S1+"
+                           + "10.10.10.1_java:C:S2+"
+                           + "10.10.10.1_java:C:S3;"
+                           + "10.10.10.1_java:C:S2+"
+                           + "10.10.10.1_java:C:S4;";
+        cc.compile(composition);
+
+        Set<String> expected = new HashSet<>(Arrays.asList("10.10.10.1_java:C:S3",
+                                                           "10.10.10.1_java:C:S4"));
         assertThat(cc.getUnconditionalLinks(), is(expected));
     }
 
