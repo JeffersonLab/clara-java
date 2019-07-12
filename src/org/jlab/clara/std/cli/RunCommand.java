@@ -52,7 +52,7 @@ class RunCommand extends BaseCommand {
     private static class RunLocal extends AbstractCommand {
 
         private static final int LOWER_PORT = 7000;
-        private static final int UPPER_PORT = 8000;
+        private static final int UPPER_PORT = 9000;
         private static final int STEP_PORTS = 20;
 
         private final Map<ClaraLang, DpeProcess> backgroundDpes;
@@ -241,6 +241,9 @@ class RunCommand extends BaseCommand {
             if (config.hasValue(Config.MAX_THREADS)) {
                 return config.getInt(Config.MAX_THREADS);
             }
+            // For CLAS12 students who will use interactive nodes for processing
+            // we limit default threading level
+//            return 4;
             return Runtime.getRuntime().availableProcessors();
         }
 

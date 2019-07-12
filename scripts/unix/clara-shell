@@ -34,19 +34,19 @@ if [ -z "${CLARA_USER_DATA}" ]; then
      export CLARA_USER_DATA="${CLARA_HOME}/plugins/clas12"
 else
    if [ ! -d "${CLARA_USER_DATA}/config" ]; then
-     mkdir "${CLARA_USER_DATA}/config"
+     mkdir -p "${CLARA_USER_DATA}/config"
    fi
    if [ ! -d "${CLARA_USER_DATA}/log" ]; then
-     mkdir "${CLARA_USER_DATA}/log"
+     mkdir -p "${CLARA_USER_DATA}/log"
    fi
    if [ ! -d "${CLARA_USER_DATA}/data" ]; then
-     mkdir "${CLARA_USER_DATA}/data"
+     mkdir -p "${CLARA_USER_DATA}/data"
    fi
    if [ ! -d "${CLARA_USER_DATA}/data/input" ]; then
-        mkdir "${CLARA_USER_DATA}/data/input"
+        mkdir -p "${CLARA_USER_DATA}/data/input"
    fi
    if [ ! -d "${CLARA_USER_DATA}/data/output" ]; then
-        mkdir "${CLARA_USER_DATA}/data/output"
+        mkdir -p "${CLARA_USER_DATA}/data/output"
    fi
 fi
 

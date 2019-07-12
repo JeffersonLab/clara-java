@@ -22,8 +22,10 @@
 
 package org.jlab.clara.std.orchestrators;
 
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Timer;
@@ -240,7 +242,7 @@ abstract class AbstractOrchestrator {
                 setupNode(node);
             } catch (OrchestratorException e) {
                 Logging.error("Could not use %s for processing:%n%s",
-                        node.name(), e.getMessage());
+                    node.name(), e.getMessage());
             }
         });
     }
@@ -374,6 +376,38 @@ abstract class AbstractOrchestrator {
         }
     }
 
+    private void exitAll() {
+        // check to see if .pid file exists in the log directory
+        // NOTE: looks in $CLARA_USER_DATA/log dir only
+        String logDir = System.getenv("CLARA_USER_DATA");
+        if (logDir != null) {
+            String fileName = logDir
+                + File.separator
+                + "log"
+                + File.separator
+                + "."
+                + setup.session
+                + "_dpe.pid";
+
+            Path path = Paths.get(fileName);
+            if (Files.exists(path)) {
+                // open and read the pid
+                try {
+                    BufferedReader reader = new BufferedReader(new FileReader(fileName));
+                    String pid = reader.readLine();
+                    reader.close();
+                    System.err.println("Severe Error. Exiting DPE ( PID = "
+                        + pid
+                        + ") and Orchestrator. Data processing will be terminated.");
+                    // running external process to kill the DPE
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+
+        }
+
+    }
 
     void processFile(WorkerNode node, WorkerFile recFile) {
         try {
@@ -383,7 +417,7 @@ abstract class AbstractOrchestrator {
             startFile(node);
         } catch (OrchestratorException e) {
             Logging.error("Could not use %s for processing:%n%s",
-                    node.name(), e.getMessage());
+                node.name(), e.getMessage());
         }
     }
 
@@ -419,7 +453,7 @@ abstract class AbstractOrchestrator {
         double timePerEvent = recTime / (double) node.totalEvents.get();
         stats.update(node, node.totalEvents.get(), recTime);
         Logging.info("Finished file %s on %s. Average event time = %.2f ms",
-                node.currentFile(), node.name(), timePerEvent);
+            node.currentFile(), node.name(), timePerEvent);
     }
 
 
@@ -502,7 +536,7 @@ abstract class AbstractOrchestrator {
             }
             try {
                 Logging.error("Error in %s (ID: %d):%n%s",
-                        data.getEngineName(), data.getCommunicationId(), data.getDescription());
+                    data.getEngineName(), data.getCommunicationId(), data.getDescription());
                 node.requestEvent(data.getCommunicationId(), "next-rec");
             } catch (OrchestratorException e) {
                 Logging.error(e.getMessage());
@@ -546,7 +580,7 @@ abstract class AbstractOrchestrator {
             int timeLeft = this.timeLeft.addAndGet(-delta);
             if (options.orchMode == OrchestratorMode.LOCAL) {
                 Logging.info("All events read. Waiting output events for %3d seconds...",
-                         timeout - timeLeft);
+                    timeout - timeLeft);
             }
             if (timeLeft <= 0) {
                 if (options.orchMode == OrchestratorMode.LOCAL) {

@@ -101,8 +101,9 @@ public class DataManager implements Engine {
      * <li> {@code input_path}: path to the location of the input-data files.</li>
      * <li> {@code output_path}: destination path of the output-data file.</li>
      * <li> {@code staging_path} (optional): data-file staging location,
-     *      that is also used by the orchestrator to configure RW services.</li>
+     * that is also used by the orchestrator to configure RW services.</li>
      * </ol>
+     *
      * @param input JSON text containing the configuration parameters
      * @return paths or error
      */
@@ -150,7 +151,7 @@ public class DataManager implements Engine {
     /**
      * Executes the engine with the given input data.
      * Accepts a JSON text with an action and an input file name.
-     *
+     * <p>
      * Current version assumes that there is a CLAS12 convention
      * that reconstructed/output file name is constructed as:
      * {@code "out_" + input_file_name}
@@ -167,7 +168,7 @@ public class DataManager implements Engine {
      * If the <em>action</em> is {@code save_output} the output file will be
      * saved to the final location and removed from the staging directory.
      * </ul>
-     *
+     * <p>
      * The data can also be the string {@code get_config}, in which case a JSON text
      * with the configured paths will be returned.
      *
@@ -199,7 +200,7 @@ public class DataManager implements Engine {
                 ServiceUtils.setError(output, "invalid request: " + source);
             } catch (Exception e) {
                 ServiceUtils.setError(output, "unexpected problem:%n%s",
-                        ClaraUtil.reportException(e));
+                    ClaraUtil.reportException(e));
             }
         } else {
             ServiceUtils.setError(output, "wrong mimetype: " + mt);
@@ -254,12 +255,12 @@ public class DataManager implements Engine {
 
             executor.execute(cmdLine);
             System.out.printf("%s service: input file '%s' copied to '%s'%n",
-                              NAME, files.inputFile, stagePath);
+                NAME, files.inputFile, stagePath);
             returnFilePaths(output, files);
 
         } catch (ExecuteException e) {
             ServiceUtils.setError(output,
-                    "could not complete request: " + outputStream.toString().trim());
+                "could not complete request: " + outputStream.toString().trim());
         } catch (IOException e) {
             ServiceUtils.setError(output, "could not complete request: " + e.getMessage());
         }
@@ -277,12 +278,12 @@ public class DataManager implements Engine {
 
             executor.execute(cmdLine);
             System.out.printf("%s service: staged input file %s removed%n",
-                              NAME, files.stagedInputFile);
+                NAME, files.stagedInputFile);
             returnFilePaths(output, files);
 
         } catch (ExecuteException e) {
             ServiceUtils.setError(output,
-                    "could not complete request: " + outputStream.toString().trim());
+                "could not complete request: " + outputStream.toString().trim());
         } catch (IOException e) {
             ServiceUtils.setError(output, "could not complete request: " + e.getMessage());
         }
@@ -296,21 +297,17 @@ public class DataManager implements Engine {
 
             CommandLine cmdLine = new CommandLine("mv");
 
-            cmdLine.addArgument(files.stagedOutputFile.toString());
-            cmdLine.addArgument(files.outputFile.toString());
+//            cmdLine.addArgument(files.stagedOutputFile.toString());
+//            cmdLine.addArgument(files.outputFile.toString());
 
 //             modified 09.12.18. Stage back multiple output files. vg
-
-//            cmdLine.addArgument(files.stagedOutputFile.toString()+".00001.hipo");
-//            cmdLine.addArgument(files.stagedOutputFile.toString()+".00002.hipo");
-//            cmdLine.addArgument(outputPath.toString());
-//            System.out.printf("DDD =======");
-//            Files.newDirectoryStream(Paths.get("."),
-//                path -> path.toString().startsWith("out"))
-//                .forEach(System.out::println);
-//            System.out.printf("DDD =======");
-
-//  vg
+            Files.list(directoryPaths.stagePath).forEach(name -> {
+                    name.startsWith(files.stagedOutputFile.toString());
+                    cmdLine.addArgument(name.toString());
+                }
+            );
+            cmdLine.addArgument(outputPath.toString());
+//                                                                  vg
 
             DefaultExecutor executor = new DefaultExecutor();
             PumpStreamHandler streamHandler = new PumpStreamHandler(outputStream);
@@ -318,12 +315,12 @@ public class DataManager implements Engine {
 
             executor.execute(cmdLine);
             System.out.printf("%s service: output file '%s' saved to '%s'%n",
-                              NAME, files.stagedOutputFile, outputPath);
+                NAME, files.stagedOutputFile, outputPath);
             returnFilePaths(output, files);
 
         } catch (ExecuteException e) {
             ServiceUtils.setError(output,
-                    "could not complete request: " + outputStream.toString().trim());
+                "could not complete request: " + outputStream.toString().trim());
         } catch (IOException e) {
             ServiceUtils.setError(output, "could not complete request: " + e.getMessage());
         }
@@ -373,8 +370,8 @@ public class DataManager implements Engine {
             inputPath = getPath(data, CONF_INPUT_PATH, "input");
             outputPath = getPath(data, CONF_OUTPUT_PATH, "output");
             stagePath = data.has(CONF_STAGE_PATH)
-                    ? getPath(data, CONF_STAGE_PATH, "stage")
-                    : Paths.get("/scratch");
+                ? getPath(data, CONF_STAGE_PATH, "stage")
+                : Paths.get("/scratch");
         }
 
         JSONObject getConfiguration() {
