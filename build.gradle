@@ -25,7 +25,7 @@ plugins {
     id 'maven'
 
     id 'checkstyle'
-    id 'com.github.spotbugs' version '1.7.1'
+    id 'com.github.spotbugs' version '1.6.9'
 
     id 'eclipse'
     id 'idea'
