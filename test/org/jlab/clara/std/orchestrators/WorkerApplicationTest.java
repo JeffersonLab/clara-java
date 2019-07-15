@@ -26,7 +26,7 @@ import org.jlab.clara.base.ClaraLang;
 import org.jlab.clara.base.ContainerName;
 import org.jlab.clara.base.DpeName;
 import org.jlab.clara.base.ServiceName;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.List;
 import java.util.Map;
@@ -34,9 +34,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
 public class WorkerApplicationTest {
 

@@ -34,14 +34,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.function.Consumer;
 
-import org.jlab.clara.IntegrationTest;
 import org.jlab.clara.engine.EngineData;
 import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.engine.EngineStatus;
 import org.json.JSONObject;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 public class DataManagerTest {
 
@@ -50,7 +49,7 @@ public class DataManagerTest {
 
     private DataManager dm;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         dm = new DataManager();
     }
@@ -134,7 +133,7 @@ public class DataManagerTest {
     }
 
 
-    @Category(IntegrationTest.class)
+    @Tag("integration")
     @Test
     public void configReturnsErrorWhenIntputPathExistsAndNotDirectory() throws Exception {
         EngineData config = createJsonRequest(data -> {
@@ -146,7 +145,7 @@ public class DataManagerTest {
     }
 
 
-    @Category(IntegrationTest.class)
+    @Tag("integration")
     @Test
     public void configReturnsErrorWhenOutputPathExistsAndNotDirectory() throws Exception {
         EngineData config = createJsonRequest(data -> {
@@ -158,7 +157,7 @@ public class DataManagerTest {
     }
 
 
-    @Category(IntegrationTest.class)
+    @Tag("integration")
     @Test
     public void configReturnsErrorWhenStagePathExistsAndNotDirectory() throws Exception {
         EngineData config = createJsonRequest(data -> {
@@ -201,7 +200,7 @@ public class DataManagerTest {
     }
 
 
-    @Category(IntegrationTest.class)
+    @Tag("integration")
     @Test
     public void executeCreatesDirectoryBeforeStagingInputFile() throws Exception {
         TestPaths paths = setTestDirectories();
@@ -222,7 +221,7 @@ public class DataManagerTest {
     }
 
 
-    @Category(IntegrationTest.class)
+    @Tag("integration")
     @Test
     public void executeStagesInputFile() throws Exception {
         TestPaths paths = setTestDirectories();
@@ -240,7 +239,7 @@ public class DataManagerTest {
     }
 
 
-    @Category(IntegrationTest.class)
+    @Tag("integration")
     @Test
     public void executeStagesInputFileIntoExistingSymlinkDirectory() throws Exception {
         TestPaths paths = setTestDirectories(p -> {
@@ -264,7 +263,7 @@ public class DataManagerTest {
     }
 
 
-    @Category(IntegrationTest.class)
+    @Tag("integration")
     @Test
     public void executeRemovesStagedInputFile() throws Exception {
         TestPaths paths = setTestDirectories();
@@ -284,7 +283,7 @@ public class DataManagerTest {
     }
 
 
-    @Category(IntegrationTest.class)
+    @Tag("integration")
     @Test
     public void executeCreatesDirectoryBeforeSavingOutputFile() throws Exception {
         TestPaths paths = setTestDirectories();
@@ -307,7 +306,7 @@ public class DataManagerTest {
     }
 
 
-    @Category(IntegrationTest.class)
+    @Tag("integration")
     @Test
     public void executeSavesOutputFile() throws Exception {
         TestPaths paths = setTestDirectories();
@@ -330,7 +329,7 @@ public class DataManagerTest {
     }
 
 
-    @Category(IntegrationTest.class)
+    @Tag("integration")
     @Test
     public void executeSavesOutputFileIntoExistingSymlinkDirectory() throws Exception {
         TestPaths paths = setTestDirectories(p -> {
@@ -357,7 +356,7 @@ public class DataManagerTest {
     }
 
 
-    @Category(IntegrationTest.class)
+    @Tag("integration")
     @Test
     public void executeClearsStageDirectory() throws Exception {
         TestPaths paths = setTestDirectories();
@@ -377,7 +376,7 @@ public class DataManagerTest {
     }
 
 
-    @Category(IntegrationTest.class)
+    @Tag("integration")
     @Test
     public void executeClearsNonExistingStageDirectory() throws Exception {
         TestPaths paths = setTestDirectories();
@@ -475,7 +474,7 @@ public class DataManagerTest {
     }
 
 
-    @Category(IntegrationTest.class)
+    @Tag("integration")
     @Test
     public void executeRemoveStagedInputFailureReturnsError() throws Exception {
         EngineData request = createJsonRequest(data -> {
@@ -488,7 +487,7 @@ public class DataManagerTest {
     }
 
 
-    @Category(IntegrationTest.class)
+    @Tag("integration")
     @Test
     public void executeSavesOutputFailureReturnsError() throws Exception {
         EngineData request = createJsonRequest(data -> {

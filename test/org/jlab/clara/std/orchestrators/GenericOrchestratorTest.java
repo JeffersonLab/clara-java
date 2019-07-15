@@ -24,8 +24,8 @@ package org.jlab.clara.std.orchestrators;
 
 import org.jlab.clara.base.DpeName;
 import org.jlab.clara.std.orchestrators.GenericOrchestrator.DpeReportCB;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,6 +38,7 @@ import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 import java.util.stream.Stream;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
@@ -45,7 +46,6 @@ import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.iterableWithSize;
 import static org.hamcrest.Matchers.not;
-import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -57,7 +57,7 @@ public class GenericOrchestratorTest {
     private CoreOrchestrator orchestrator;
 
 
-    @Before
+    @BeforeEach
     public void setup() {
         orchestrator = mock(CoreOrchestrator.class);
         when(orchestrator.getFrontEnd()).thenReturn(FRONT_END.name);

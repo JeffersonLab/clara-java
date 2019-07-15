@@ -22,7 +22,9 @@
 
 package org.jlab.clara.sys.ccc;
 
-import org.junit.Test;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -38,19 +40,21 @@ public class SimpleCompilerTest {
                                      + "10.10.10.1_java:C:S3+"
                                      + "10.10.10.1_java:C:S4";
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test()
     public void testInvalidServiceName() throws Exception {
         String composition = "10.10.10.1_java:C:S1+"
                            + "10.10.10.1:C:S2+"
                            + "10.10.10.1:C:S4";
         SimpleCompiler cc = new SimpleCompiler("10.10.10.1_java:C:S1");
-        cc.compile(composition);
+
+        assertThrows(IllegalArgumentException.class, () -> cc.compile(composition));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void testMissingCurrentService() throws Exception {
         SimpleCompiler cc = new SimpleCompiler("10.10.10.1_java:C:S6");
-        cc.compile(composition);
+
+        assertThrows(IllegalArgumentException.class, () -> cc.compile(composition));
     }
 
     @Test

@@ -22,16 +22,17 @@
 
 package org.jlab.clara.std.cli;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.Map;
 
 import org.jlab.clara.base.RuntimeDataFactory;
 import org.jlab.clara.base.ServiceName;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class BenchmarkTest {
 
@@ -94,19 +95,19 @@ public class BenchmarkTest {
         assertThat(b.getMemoryAverage(), is(expected));
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void getServiceReturnsNothingWithoutData() throws Exception {
         Benchmark b = new Benchmark();
 
-        b.getServiceBenchmark();
+        assertThrows(IllegalStateException.class, () -> b.getServiceBenchmark());
     }
 
-    @Test(expected = IllegalStateException.class)
+    @Test
     public void getServiceReturnsSameValueForOneRuntimeDataValue() throws Exception {
         Benchmark b = new Benchmark();
         b.addSnapshot(RuntimeDataFactory.parseRuntime("/runtime-snapshots-1.json"));
 
-        b.getServiceBenchmark();
+        assertThrows(IllegalStateException.class, () -> b.getServiceBenchmark());
     }
 
     @Test

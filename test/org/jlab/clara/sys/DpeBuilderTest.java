@@ -24,23 +24,18 @@ package org.jlab.clara.sys;
 
 import org.jlab.clara.sys.Dpe.Builder;
 import org.jlab.coda.xmsg.net.xMsgProxyAddress;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.TimeUnit;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DpeBuilderTest {
 
     private static final String DEFAULT_HOST = Dpe.DEFAULT_PROXY_HOST;
-
-    @Rule
-    public ExpectedException expectedEx = ExpectedException.none();
 
     @Test
     public void dpeIsFrontEndByDefault() throws Exception {

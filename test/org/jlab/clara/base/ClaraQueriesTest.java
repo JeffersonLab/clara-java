@@ -22,7 +22,6 @@
 
 package org.jlab.clara.base;
 
-import org.jlab.clara.IntegrationTest;
 import org.jlab.clara.base.core.ClaraBase;
 import org.jlab.clara.base.core.ClaraComponent;
 import org.jlab.clara.base.core.ClaraConstants;
@@ -40,11 +39,11 @@ import org.jlab.coda.xmsg.sys.regdis.xMsgRegDriver;
 import org.jlab.coda.xmsg.sys.regdis.xMsgRegFactory;
 import org.json.JSONArray;
 import org.json.JSONObject;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -61,7 +60,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.is;
 
-@Category(IntegrationTest.class)
+@Tag("integration")
 public class ClaraQueriesTest {
 
     private static final xMsgRegistration.OwnerType TYPE = xMsgRegistration.OwnerType.SUBSCRIBER;
@@ -268,19 +267,19 @@ public class ClaraQueriesTest {
     }
 
 
-    @BeforeClass
+    @BeforeAll
     public static void prepare() throws xMsgException {
         data = new TestData();
     }
 
 
-    @AfterClass
+    @AfterAll
     public static void end() {
         data.close();
     }
 
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         queryBuilder = new ClaraQueries.ClaraQueryBuilder(base, ClaraComponent.dpe());
     }

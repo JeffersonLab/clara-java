@@ -28,25 +28,23 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.jlab.clara.IntegrationTest;
 import org.jlab.clara.base.ClaraLang;
 import org.jlab.clara.std.orchestrators.CallbackInfo.RingCallbackInfo;
 import org.jlab.clara.std.orchestrators.CallbackInfo.RingTopic;
 import org.json.JSONObject;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.empty;
 import static org.hamcrest.Matchers.equalTo;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.hamcrest.Matchers.hasEntry;
 
 
-@Category(IntegrationTest.class)
+@Tag("integration")
 public class OrchestratorConfigParserTest {
 
     private static final String CONT = OrchestratorConfigParser.getDefaultContainer();
@@ -63,10 +61,6 @@ public class OrchestratorConfigParserTest {
     }
 
 
-    @Rule
-    public ExpectedException expectedEx = ExpectedException.none();
-
-
     @Test
     public void parseGoodServicesFileYaml() {
         OrchestratorConfigParser parser = parseFile("/services-ok.yml");
@@ -77,12 +71,11 @@ public class OrchestratorConfigParserTest {
 
     @Test
     public void parseBadServicesFileYaml() {
-        expectedEx.expect(OrchestratorConfigException.class);
-        expectedEx.expectMessage("missing name or class of service");
-
         OrchestratorConfigParser parser = parseFile("/services-bad.yml");
 
-        parser.parseDataProcessingServices();
+        Exception ex = assertThrows(OrchestratorConfigException.class, () ->
+                parser.parseDataProcessingServices());
+        assertThat(ex.getMessage(), is("missing name or class of service"));
     }
 
 

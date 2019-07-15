@@ -24,15 +24,14 @@ package org.jlab.clara.sys;
 
 import org.jlab.clara.sys.DpeOptionsParser.DpeOptionsException;
 import org.jlab.coda.xmsg.net.xMsgProxyAddress;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class DpeOptionsParserTest {
 
@@ -55,11 +54,8 @@ public class DpeOptionsParserTest {
 
     private DpeOptionsParser parser;
 
-    @Rule
-    public ExpectedException expectedEx = ExpectedException.none();
 
-
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         parser = new DpeOptionsParser();
     }
@@ -124,10 +120,8 @@ public class DpeOptionsParserTest {
 
     @Test
     public void workerRequiresRemoteFrontEndHostWhenPortIsGiven() throws Exception {
-        expectedEx.expect(DpeOptionsException.class);
-        expectedEx.expectMessage("remote front-end host is required");
-
-        parse(FE_PORT_OPT, "9000");
+        Exception ex = assertThrows(DpeOptionsException.class, () -> parse(FE_PORT_OPT, "9000"));
+        assertThat(ex.getMessage(), is("The remote front-end host is required"));
     }
 
     @Test

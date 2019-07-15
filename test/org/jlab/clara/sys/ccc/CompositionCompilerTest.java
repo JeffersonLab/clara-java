@@ -24,7 +24,7 @@ package org.jlab.clara.sys.ccc;
 
 import org.jlab.clara.base.core.ClaraConstants;
 import org.jlab.clara.base.error.ClaraException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 import java.util.Arrays;
 import java.util.HashSet;
@@ -32,6 +32,7 @@ import java.util.Set;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class CompositionCompilerTest {
 
@@ -40,19 +41,21 @@ public class CompositionCompilerTest {
                                      + "10.10.10.1_java:C:S3+"
                                      + "10.10.10.1_java:C:S4;";
 
-    @Test(expected = ClaraException.class)
+    @Test
     public void testInvalidServiceName() throws Exception {
         String composition = "10.10.10.1_java:C:S1+"
                            + "10.10.10.1:C:S2+"
                            + "10.10.10.1:C:S4;";
         CompositionCompiler cc = new CompositionCompiler("10.10.10.1_java:C:S1");
-        cc.compile(composition);
+
+        assertThrows(ClaraException.class, () -> cc.compile(composition));
     }
 
-    @Test(expected = ClaraException.class)
+    @Test
     public void testMissingCurrentService() throws Exception {
         CompositionCompiler cc = new CompositionCompiler("10.10.10.1_java:C:S6");
-        cc.compile(composition);
+
+        assertThrows(ClaraException.class, () -> cc.compile(composition));
     }
 
     @Test

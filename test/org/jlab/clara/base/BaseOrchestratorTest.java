@@ -32,10 +32,8 @@ import org.jlab.clara.engine.EngineStatus;
 import org.jlab.coda.xmsg.core.xMsgMessage;
 import org.jlab.coda.xmsg.core.xMsgTopic;
 import org.jlab.coda.xmsg.data.xMsgM.xMsgMeta;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import javax.annotation.ParametersAreNonnullByDefault;
 
@@ -51,16 +49,13 @@ public class BaseOrchestratorTest {
     private static final Composition COMPOSITION =
             new Composition("10.2.9.96_java:master:E1+10.2.9.96_java:master:E2;");
 
-    @Rule
-    public ExpectedException expectedEx = ExpectedException.none();
-
     private ClaraBase baseMock;
     private BaseOrchestrator orchestrator;
 
     private BaseRequest<?, ?> request;
     private BaseSubscription<?, ?> subscription;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         baseMock = mock(ClaraBase.class);
         orchestrator = new OrchestratorMock();

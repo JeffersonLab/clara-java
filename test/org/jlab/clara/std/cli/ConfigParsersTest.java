@@ -22,10 +22,11 @@
 
 package org.jlab.clara.std.cli;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ConfigParsersTest {
 
@@ -34,9 +35,9 @@ public class ConfigParsersTest {
         assertThat(ConfigParsers.toStringOrEmpty("test_string"), is("test_string"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void parseStringFailsIfEmptyArg() throws Exception {
-        ConfigParsers.toString("");
+        assertThrows(IllegalArgumentException.class, () -> ConfigParsers.toString(""));
     }
 
     @Test
@@ -60,14 +61,16 @@ public class ConfigParsersTest {
         assertThat(ConfigParsers.toAlphaNum("string01"), is("string01"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void parseAlphaNumFailsIfArgContainsSpaces() throws Exception {
-        ConfigParsers.toAlphaNum("test string");
+        assertThrows(IllegalArgumentException.class, () ->
+                ConfigParsers.toAlphaNum("test string"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void parseAlphaNumFailsIfEmptyArg() throws Exception {
-        ConfigParsers.toAlphaNum("");
+        assertThrows(IllegalArgumentException.class, () ->
+                ConfigParsers.toAlphaNum(""));
     }
 
     @Test
@@ -75,9 +78,10 @@ public class ConfigParsersTest {
         assertThat(ConfigParsers.toAlphaNumOrEmpty("string01"), is("string01"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void parseAlphaNumOrEmptyFailsIfArgContainsSpaces() throws Exception {
-        ConfigParsers.toAlphaNumOrEmpty("test string");
+        assertThrows(IllegalArgumentException.class, () ->
+                ConfigParsers.toAlphaNumOrEmpty("test string"));
     }
 
     @Test
@@ -96,75 +100,80 @@ public class ConfigParsersTest {
         assertThat(ConfigParsers.toNonWhitespace("string-0.1"), is("string-0.1"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void parseNonBlankFailsIfArgContainsSpaces() throws Exception {
-        ConfigParsers.toNonWhitespace("test string");
+        assertThrows(IllegalArgumentException.class, () ->
+                ConfigParsers.toNonWhitespace("test string"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void parseNonBlankFailsIfEmptyArg() throws Exception {
-        ConfigParsers.toNonWhitespace("");
+        assertThrows(IllegalArgumentException.class, () -> ConfigParsers.toNonWhitespace(""));
     }
 
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void parseFileFailsIfEmptyArg() throws Exception {
-        ConfigParsers.toFile("");
+        assertThrows(IllegalArgumentException.class, () -> ConfigParsers.toFile(""));
     }
 
     public void parseFileSucceedsIfPathNotExist() throws Exception {
         assertThat(ConfigParsers.toFile("/tmp/notafile.txt"), is("/tmp/notafile.txt"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void parseFileFailsIfPathIsNotRegularFile() throws Exception {
-        ConfigParsers.toExistingFile("/tmp");
+        assertThrows(IllegalArgumentException.class, () -> ConfigParsers.toExistingFile("/tmp"));
     }
 
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void parseExistingFileFailsIfEmptyArg() throws Exception {
-        ConfigParsers.toExistingFile("");
+        assertThrows(IllegalArgumentException.class, () -> ConfigParsers.toExistingFile(""));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void parseExistingFileFailsIfPathNotExist() throws Exception {
-        ConfigParsers.toExistingFile("/tmp/notafile.txt");
+        assertThrows(IllegalArgumentException.class, () ->
+                ConfigParsers.toExistingFile("/tmp/notafile.txt"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void parseExistingFileFailsIfPathIsNotRegularFile() throws Exception {
-        ConfigParsers.toExistingFile("/tmp");
+        assertThrows(IllegalArgumentException.class, () -> ConfigParsers.toExistingFile("/tmp"));
     }
 
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void parseDirectoryFailsIfEmptyArg() throws Exception {
-        ConfigParsers.toDirectory("");
+        assertThrows(IllegalArgumentException.class, () -> ConfigParsers.toDirectory(""));
     }
 
     public void parseDirectorySucceedsIfPathNotExist() throws Exception {
         assertThat(ConfigParsers.toDirectory("/tmp/missingdir/"), is("/tmp/missingdir/"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void parseDirectoryFailsIfPathIsNotDirectory() throws Exception {
-        ConfigParsers.toExistingDirectory("/tmp/notadir");
+        assertThrows(IllegalArgumentException.class, () ->
+                ConfigParsers.toExistingDirectory("/tmp/notadir"));
     }
 
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void parseExistingDirectoryFailsIfEmptyArg() throws Exception {
-        ConfigParsers.toExistingDirectory("");
+        assertThrows(IllegalArgumentException.class, () -> ConfigParsers.toExistingDirectory(""));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void parseExistingDirectoryFailsIfPathNotExist() throws Exception {
-        ConfigParsers.toExistingDirectory("/tmp/notafile.txt");
+        assertThrows(IllegalArgumentException.class, () ->
+                ConfigParsers.toExistingDirectory("/tmp/notafile.txt"));
     }
 
-    @Test(expected = IllegalArgumentException.class)
+    @Test
     public void parseExistingDirectoryFailsIfPathIsNotDirectory() throws Exception {
-        ConfigParsers.toExistingDirectory("/tmp/notadir");
+        assertThrows(IllegalArgumentException.class, () ->
+                ConfigParsers.toExistingDirectory("/tmp/notadir"));
     }
 }

@@ -22,34 +22,32 @@
 
 package org.jlab.clara.engine;
 
-import static org.junit.Assert.assertEquals;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.is;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.jlab.clara.IntegrationTest;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
-import org.junit.rules.ExpectedException;
+import org.jlab.clara.engine.EngineSpecification.ParseException;
+import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 
-@Category(IntegrationTest.class)
+@Tag("integration")
 public class EngineSpecificationTest {
-
-    @Rule
-    public ExpectedException expectedEx = ExpectedException.none();
-
 
     @Test
     public void constructorThrowsIfSpecificationFileNotFound() {
-        expectedEx.expect(EngineSpecification.ParseException.class);
-        expectedEx.expectMessage("Service specification file not found");
-        new EngineSpecification("std.services.convertors.EvioToNothing");
+        Exception ex = assertThrows(ParseException.class, () ->
+                new EngineSpecification("std.services.convertors.EvioToNothing"));
+        assertThat(ex.getMessage(), containsString("Service specification file not found"));
     }
 
 
     @Test
     public void constructorThrowsIfYamlIsMalformed() {
-        expectedEx.expect(EngineSpecification.ParseException.class);
-        expectedEx.expectMessage("Unexpected YAML content");
-        new EngineSpecification("resources/service-spec-bad-1");
+        Exception ex = assertThrows(ParseException.class, () ->
+                new EngineSpecification("resources/service-spec-bad-1"));
+        assertThat(ex.getMessage(), is("Unexpected YAML content"));
     }
 
 
@@ -86,16 +84,16 @@ public class EngineSpecificationTest {
 
     @Test
     public void parseStringThrowsIfMissingKey() {
-        expectedEx.expect(EngineSpecification.ParseException.class);
-        expectedEx.expectMessage("Missing key:");
-        new EngineSpecification("resources/service-spec-bad-2");
+        Exception ex = assertThrows(ParseException.class, () ->
+                new EngineSpecification("resources/service-spec-bad-2"));
+        assertThat(ex.getMessage(), containsString("Missing key:"));
     }
 
 
     @Test
     public void parseStringThrowsIfBadKeyType() {
-        expectedEx.expect(EngineSpecification.ParseException.class);
-        expectedEx.expectMessage("Bad type for:");
-        new EngineSpecification("resources/service-spec-bad-3");
+        Exception ex = assertThrows(ParseException.class, () ->
+                new EngineSpecification("resources/service-spec-bad-3"));
+        assertThat(ex.getMessage(), containsString("Bad type for:"));
     }
 }

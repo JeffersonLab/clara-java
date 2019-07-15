@@ -1,13 +1,12 @@
 package org.jlab.clara.std.orchestrators;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.jlab.clara.util.FileUtils;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -18,12 +17,9 @@ public class OrchestratorPathsTest {
 
     private static final List<String> SIMPLE_LIST = Arrays.asList("in.ev");
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
     }
-
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
 
     @Test
     public void singleFileIsUsedAsInputFile() throws Exception {
@@ -74,18 +70,18 @@ public class OrchestratorPathsTest {
     public void fileListShallNotContainFullPaths() throws Exception {
         List<String> files = Arrays.asList("/a/b/c1.evio", "/a/b/c2.evio");
 
-        thrown.expect(OrchestratorConfigException.class);
-        thrown.expectMessage("Input file cannot be a path: /a/b/c1.evio");
-        new OrchestratorPaths.Builder(files);
+        Exception ex = assertThrows(OrchestratorConfigException.class, () ->
+                new OrchestratorPaths.Builder(files));
+        assertThat(ex.getMessage(), is("Input file cannot be a path: /a/b/c1.evio"));
     }
 
     @Test
     public void fileListShallNotContainRelavitePaths() throws Exception {
         List<String> files = Arrays.asList("c1.evio", "b/c2.evio");
 
-        thrown.expect(OrchestratorConfigException.class);
-        thrown.expectMessage("Input file cannot be a path: b/c2.evio");
-        new OrchestratorPaths.Builder(files);
+        Exception ex = assertThrows(OrchestratorConfigException.class, () ->
+                new OrchestratorPaths.Builder(files));
+        assertThat(ex.getMessage(), is("Input file cannot be a path: b/c2.evio"));
     }
 
     @Test

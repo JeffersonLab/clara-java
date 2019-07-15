@@ -28,8 +28,8 @@ import static org.mockito.Mockito.mock;
 
 import org.jlab.clara.util.EnvUtils;
 import org.jline.terminal.Terminal;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
@@ -43,7 +43,7 @@ public class SetCommandTest {
     private Config config;
     private SetCommand command;
 
-    @Before
+    @BeforeEach
     public void setup() throws Exception {
         config = new Config();
         command = new SetCommand(new Context(TERMINAL, config));

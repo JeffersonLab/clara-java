@@ -29,10 +29,8 @@ import org.jlab.clara.base.error.ClaraException;
 import org.jlab.coda.xmsg.core.xMsgCallBack;
 import org.jlab.coda.xmsg.core.xMsgSubscription;
 import org.jlab.coda.xmsg.core.xMsgTopic;
-import org.junit.Before;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 
 import java.util.HashMap;
@@ -43,6 +41,7 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.hasEntry;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.not;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
@@ -56,14 +55,11 @@ public class ClaraSubscriptionsTest {
 
     private static final ClaraComponent FRONT_END = ClaraComponent.dpe("10.2.9.1_java");
 
-    @Rule
-    public ExpectedException expectedEx = ExpectedException.none();
-
     private ClaraBase baseMock;
     private EngineCallback callback;
     private Map<String, xMsgSubscription> subscriptions;
 
-    @Before
+    @BeforeEach
     public void setUp() throws Exception {
         baseMock = mock(ClaraBase.class);
         callback = mock(EngineCallback.class);
@@ -106,10 +102,11 @@ public class ClaraSubscriptionsTest {
 
     @Test
     public void startSubscriptionThrowsOnFailure() throws Exception {
-        doThrow(ClaraException.class).when(baseMock).listen(any(), any(), any());
-        expectedEx.expect(ClaraException.class);
+        TestSubscription subscription = build("data:10.2.9.96_java:master:Simple");
 
-        build("data:10.2.9.96_java:master:Simple").start(callback);
+        doThrow(ClaraException.class).when(baseMock).listen(any(), any(), any());
+
+        assertThrows(ClaraException.class, () -> subscription.start(callback));
     }
 
 
@@ -127,10 +124,12 @@ public class ClaraSubscriptionsTest {
 
     @Test
     public void startSubscriptionThrowsOnDuplicatedSubscription() throws Exception {
-        build("data:10.2.9.96_java:master:Simple").start(callback);
+        TestSubscription sub1 = build("data:10.2.9.96_java:master:Simple");
+        TestSubscription sub2 = build("data:10.2.9.96_java:master:Simple");
 
-        expectedEx.expect(IllegalStateException.class);
-        build("data:10.2.9.96_java:master:Simple").start(callback);
+        sub1.start(callback);
+
+        assertThrows(IllegalStateException.class, () -> sub2.start(callback));
     }
 
 

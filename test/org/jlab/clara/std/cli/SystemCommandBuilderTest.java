@@ -1,16 +1,16 @@
 package org.jlab.clara.std.cli;
 
+import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.junit.Assert.assertThat;
 
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 public class SystemCommandBuilderTest {
 
     private SystemCommandBuilder b;
 
-    @Before
+    @BeforeEach
     public void setUp() {
         b = new SystemCommandBuilder("${CLARA_HOME}/bin/clara-orchestrator");
         b.addOption("-t", 10);
