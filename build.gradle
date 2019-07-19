@@ -35,6 +35,9 @@ group = 'org.jlab.coda'
 archivesBaseName = 'jclara'
 version = '4.3-SNAPSHOT'
 
+sourceCompatibility = '1.8'
+targetCompatibility = '1.8'
+
 defaultTasks 'build'
 
 
@@ -87,9 +90,10 @@ dependencies {
 }
 
 
-compileJava {
-    sourceCompatibility = 1.8
-    targetCompatibility = 1.8
+tasks.withType(JavaCompile) {
+    if (JavaVersion.current() > JavaVersion.VERSION_1_8) {
+        options.compilerArgs += ['--release', '8']
+    }
 }
 
 javadoc {
