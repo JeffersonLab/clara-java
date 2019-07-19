@@ -21,7 +21,7 @@
  */
 
 plugins {
-    id 'java'
+    id 'java-library'
     id 'maven'
 
     id 'checkstyle'
@@ -70,20 +70,20 @@ repositories {
 }
 
 dependencies {
-    compile 'org.jlab.coda:xmsg:2.3'
-    compile 'org.yaml:snakeyaml:1.18'
-    compile 'org.json:json:20160810'
-    compile 'org.jline:jline:3.1.3'
-    compile 'org.apache.commons:commons-exec:1.3'
-    compile 'org.freemarker:freemarker:2.3.26-incubating'
-    compile 'net.sf.jopt-simple:jopt-simple:4.9'
-    compile 'com.google.code.findbugs:jsr305:3.0.1'
-    compile 'org.jlab.coda:jinflux:1.0-SNAPSHOT'
+    implementation 'org.jlab.coda:xmsg:2.3'
+    implementation 'org.yaml:snakeyaml:1.18'
+    api 'org.json:json:20160810'
+    api 'org.jline:jline:3.1.3'
+    implementation 'org.apache.commons:commons-exec:1.3'
+    implementation 'org.freemarker:freemarker:2.3.26-incubating'
+    implementation 'net.sf.jopt-simple:jopt-simple:4.9'
+    implementation 'com.google.code.findbugs:jsr305:3.0.1'
+    implementation 'org.jlab.coda:jinflux:1.0-SNAPSHOT'
     deployerJars 'org.apache.maven.wagon:wagon-ssh-external:2.12'
-    testCompile 'org.junit.jupiter:junit-jupiter-api:5.4.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.4.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.4.2'
-    testCompile 'org.hamcrest:hamcrest-library:1.3'
-    testCompile 'org.mockito:mockito-junit-jupiter:2.28.2'
+    testImplementation 'org.hamcrest:hamcrest-library:1.3'
+    testImplementation 'org.mockito:mockito-junit-jupiter:2.28.2'
 }
 
 
