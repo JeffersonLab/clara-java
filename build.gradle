@@ -73,7 +73,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'org.jlab.coda:xmsg:2.3'
+    implementation 'org.jlab.coda:xmsg:2.4-SNAPSHOT'
     implementation 'org.yaml:snakeyaml:1.18'
     api 'org.json:json:20160810'
     api 'org.jline:jline:3.1.3'
@@ -167,7 +167,7 @@ uploadArchives {
     repositories {
         mavenDeployer {
             configuration = configurations.deployerJars
-            repository(url: 'scpexe://ifarm1401.jlab.org/group/clas/www/clasweb/html/clas12maven') {
+            repository(url: 'scpexe://clas12@jlabl1.jlab.org/group/clas/www/clasweb/html/clas12maven') {
                 authentication(userName: 'clas12')
             }
         }
