@@ -197,7 +197,7 @@ task integrationTest(type: Test) {
 
 def deploySpec = copySpec {
     into ('lib') {
-        from configurations.runtime
+        from configurations.runtimeClasspath
         from jar.archiveFile
     }
 
