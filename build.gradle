@@ -73,7 +73,7 @@ repositories {
 }
 
 dependencies {
-    api 'org.jlab.coda:xmsg:2.4-SNAPSHOT'
+    implementation 'org.jlab.coda:xmsg:2.3'
     implementation 'org.yaml:snakeyaml:1.18'
     api 'org.json:json:20160810'
     api 'org.jline:jline:3.1.3'
