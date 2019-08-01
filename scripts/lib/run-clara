@@ -103,6 +103,10 @@ function in_files_exists() {
 ##############################################################################
 # Get parameters
 ##############################################################################
+if [ -z "${CLARA_USER_DATA}" ]; then
+     export CLARA_USER_DATA="${CLARA_HOME}/plugins/clas12"
+fi
+
 
 host=$(hostname)
 user=$(id -un)
@@ -110,8 +114,8 @@ user=$(id -un)
 fe_host=
 fe_port=
 
-input_dir=$CLARA_HOME/plugin/clas12/data/input
-output_dir=$CLARA_HOME/plugin/clas12/data/output
+input_dir=$CLARA_USER_DATA/plugin/clas12/data/input
+output_dir=$CLARA_USER_DATA/plugin/clas12/data/output
 stage_dir=
 
 report_ev=
@@ -173,9 +177,6 @@ fi
 ##############################################################################
 # Run CLARA
 ##############################################################################
-if [ -z "${CLARA_USER_DATA}" ]; then
-     export CLARA_USER_DATA="${CLARA_HOME}/plugins/clas12"
-fi
 fe_log_file=${CLARA_USER_DATA}/log/${host}_${session}_fe_dpe.log
 or_log_file=${CLARA_USER_DATA}/log/${host}_${session}_orch.log
 
@@ -212,6 +213,7 @@ sleep "$wait_dpe"
 # Run orchestrator if DPE is active and running
 if kill -0 "$dpe_pid"; then
 
+# Store dpe pid
 echo ${dpe_pid} > ${CLARA_USER_DATA}/log/.${session}_dpe.pid
 
 # Run orchestrator
@@ -241,12 +243,19 @@ or_args+=("$service_yaml")
 or_args+=("$file_list")
 
 "$CLARA_HOME"/bin/clara-orchestrator "${or_args[@]}" 2>&1 | tee "$or_log_file" &
-main_pid=$!
+orc_pid=$!
 
+# Store orchestrator pid
+echo ${orc_pid} > ${CLARA_USER_DATA}/log/.${session}_orc.pid
+
+##############################################################################
+# Launching the CLAS12 watchdog
+##############################################################################
+"$CLARA_HOME"/bin/clas-watchdog "${dpe_pid} ${orc_pid} 180" &
 
 ##############################################################################
 # Exit
 ##############################################################################
-wait "${main_pid}"
+wait "${orc_pid}"
 
 fi
