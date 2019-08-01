@@ -251,7 +251,7 @@ echo ${orc_pid} > ${CLARA_USER_DATA}/log/.${session}_orc.pid
 ##############################################################################
 # Launching the CLAS12 watchdog
 ##############################################################################
-"$CLARA_HOME"/bin/clas-watchdog "${dpe_pid} ${orc_pid} 180" &
+"$CLARA_HOME"/bin/clas-watchdog.sh "${dpe_pid} ${orc_pid} 180" &
 
 ##############################################################################
 # Exit
