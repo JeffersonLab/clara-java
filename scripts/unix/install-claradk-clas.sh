@@ -38,7 +38,6 @@ echo "Downloading and building xMsg package ..."
 git clone --depth 1 https://github.com/JeffersonLab/xmsg-java.git
 cd xmsg-java || exit
 ./gradlew install
-.gradlew deploy
 )
 
 (
