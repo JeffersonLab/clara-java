@@ -204,7 +204,7 @@ fe_args+=(--max-sockets 5120)
 fe_args+=(--report "$dpe_report")
 
 "$CLARA_HOME"/bin/j_dpe "${fe_args[@]}" 2>&1 | tee "$fe_log_file" &
-dpe_pid=$!
+dpe_pid=`ps -aef | grep 'Dpe' | grep -v grep | awk '{print $2}'`
 
 unset JAVA_OPTS
 
@@ -243,7 +243,7 @@ or_args+=("$service_yaml")
 or_args+=("$file_list")
 
 "$CLARA_HOME"/bin/clara-orchestrator "${or_args[@]}" 2>&1 | tee "$or_log_file" &
-orc_pid=$!
+orc_pid=`ps -aef | grep 'GenericOrchestrator' | grep -v grep | awk '{print $2}'`
 
 # Store orchestrator pid
 echo ${orc_pid} > ${CLARA_USER_DATA}/log/.${session}_orc.pid
@@ -251,7 +251,7 @@ echo ${orc_pid} > ${CLARA_USER_DATA}/log/.${session}_orc.pid
 ##############################################################################
 # Launching the CLAS12 watchdog
 ##############################################################################
-"$CLARA_HOME"/bin/clas-watchdog.sh "${dpe_pid} ${orc_pid} 180" &
+"$CLARA_HOME"/bin/clas-watchdog.sh ${dpe_pid} ${orc_pid} 180 &
 
 ##############################################################################
 # Exit

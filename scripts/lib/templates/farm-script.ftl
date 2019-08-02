@@ -1,11 +1,12 @@
 #!/bin/bash
 
-export MALLOC_ARENA_MAX=2
-export MALLOC_MMAP_THRESHOLD_=131072
-export MALLOC_TRIM_THRESHOLD_=131072
-export MALLOC_TOP_PAD_=131072
-export MALLOC_MMAP_MAX_=65536
-export MALLOC_MMAP_MAX_=65536
+<#-- export MALLOC_ARENA_MAX=2 -->
+<#-- export MALLOC_MMAP_THRESHOLD_=131072 -->
+<#-- export MALLOC_TRIM_THRESHOLD_=131072 -->
+<#-- export MALLOC_TOP_PAD_=131072 -->
+<#-- export MALLOC_MMAP_MAX_=65536 -->
+<#-- export MALLOC_MMAP_MAX_=65536 -->
+
 <#if farm.javaOpts??>
 export JAVA_OPTS="${farm.javaOpts}"
 </#if>
