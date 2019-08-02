@@ -44,7 +44,7 @@ fi
 
 # check to see if we are not using CPU for timeout seconds.
 if (( $time > $timeout )); then
-echo `date`  "clara-wd:SevereError  Stopped the data-processing... "
+echo `date`  "clara-wd:SevereError  Stop the data-processing... "
 kill -9 ${dpe_pid}
 kill -9 ${orch_pid}
 exit 1
