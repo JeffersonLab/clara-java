@@ -73,25 +73,25 @@ final class FarmCommands {
     private static final String DEFAULT_FARM_EXCLUSIVE = "";
     private static final String DEFAULT_FARM_TRACK = "debug";
 
-    private static final String[] FARM18_NUMAS = new String[] {
+    private static final String[] FARM18_NUMAS = new String[]{
         "0-2,5,6,10-12,15,16,40-42,45,46,50-52,55,56",
         "3,4,7-9,13,14,17-19,43,44,47-49,53,54,57-59",
         "20-22,25,26,30-32,35,36,60-62,65,66,70-72,75,76",
         "23,24,27-29,33,34,37-39,63,64,67-69,73,74,77-79"
     };
-    private static final String[] FARM16_NUMAS = new String[] {
+    private static final String[] FARM16_NUMAS = new String[]{
         "0-17,36-53",
         "18-35,54-71",
     };
-    private static final String[] FARM14_NUMAS = new String[] {
+    private static final String[] FARM14_NUMAS = new String[]{
         "0-11,24-35",
         "12-23,36-47",
     };
-    private static final String[] FARM13_NUMAS = new String[] {
+    private static final String[] FARM13_NUMAS = new String[]{
         "0-7,16-23",
         "8-15,24-31",
     };
-    private static final String[] QCD12S_NUMAS = new String[] {
+    private static final String[] QCD12S_NUMAS = new String[]{
         "0-7,16-23",
         "8-15,24-31",
     };
@@ -174,7 +174,8 @@ final class FarmCommands {
             "Exclusive farm node request (JLAB specific, e.g. farm16, farm18, etc. or any)")
             .withInitialValue(DEFAULT_FARM_EXCLUSIVE);
 
-        addBuilder.apply(FARM_STAGE, "Local directory to stage reconstruction files.")
+        addBuilder.apply(FARM_STAGE, "Local directory to stage reconstruction files. "
+        + "value = \"default\" will stage files into the JLAB farm specific directory.")
             .withParser(ConfigParsers::toDirectory);
 
         addBuilder.apply(FARM_TRACK, "Farm job track.")
@@ -390,7 +391,12 @@ final class FarmCommands {
             cmd.addOption("-o", config.getString(Config.OUTPUT_DIR));
             cmd.addOption("-z", config.getString(Config.OUT_FILE_PREFIX));
             if (config.hasValue(FARM_STAGE)) {
-                cmd.addOption("-l", config.getString(FARM_STAGE));
+                if (config.getString(FARM_STAGE).equals("default")) {
+                    cmd.addOption("-l", "/scratch/slurm/$SLURM_JOB_ID");
+
+                } else {
+                    cmd.addOption("-l", config.getString(FARM_STAGE));
+                }
             }
             if (config.hasValue(Config.MAX_THREADS)) {
                 cmd.addOption("-t", config.getInt(Config.MAX_THREADS));
@@ -436,8 +442,12 @@ final class FarmCommands {
             cmd.addOption("-o", config.getString(Config.OUTPUT_DIR));
             cmd.addOption("-z", config.getString(Config.OUT_FILE_PREFIX));
             if (config.hasValue(FARM_STAGE)) {
-                cmd.addOption("-l", config.getString(FARM_STAGE)
-                    + File.separator + session);
+                if (config.getString(FARM_STAGE).equals("default")) {
+                    cmd.addOption("-l", "/scratch/slurm/$SLURM_JOB_ID");
+
+                } else {
+                    cmd.addOption("-l", config.getString(FARM_STAGE));
+                }
             }
             if (config.hasValue(Config.MAX_THREADS)) {
                 cmd.addOption("-t", config.getInt(Config.MAX_THREADS));
@@ -754,7 +764,6 @@ final class FarmCommands {
 
     private static List<List<String>> partitionFilesForAffinity(
         Path fileList, int filesPerJob, int numaSize)
-
             throws IOException {
         List<String> files = Files.lines(fileList, Charset.defaultCharset())
             .collect(Collectors.toList());

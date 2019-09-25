@@ -204,7 +204,8 @@ fe_args+=(--max-sockets 5120)
 fe_args+=(--report "$dpe_report")
 
 "$CLARA_HOME"/bin/j_dpe "${fe_args[@]}" 2>&1 | tee "$fe_log_file" &
-dpe_pid=`ps -aef | grep 'Dpe' | grep -v grep | awk '{print $2}'`
+
+dpe_pid=$(jobs -p %?j_dpe 2>/dev/null)
 
 unset JAVA_OPTS
 
@@ -243,7 +244,10 @@ or_args+=("$service_yaml")
 or_args+=("$file_list")
 
 "$CLARA_HOME"/bin/clara-orchestrator "${or_args[@]}" 2>&1 | tee "$or_log_file" &
-orc_pid=`ps -aef | grep 'GenericOrchestrator' | grep -v grep | awk '{print $2}'`
+
+sleep 3
+
+orc_pid=$(jobs -p %?orchestrator 2>/dev/null)
 
 # Store orchestrator pid
 echo ${orc_pid} > ${CLARA_USER_DATA}/log/.${session}_orc.pid

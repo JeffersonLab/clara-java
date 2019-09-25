@@ -16,8 +16,8 @@ export CLARA_MONITOR_FE="${clara.monitorFE!"129.57.70.24%9000_java"}"
 export CLAS12DIR="${clas12.dir}"
 export CLARA_USER_DATA="${user_data.dir}"
 
-"$CLARA_HOME/bin/kill-dpes"
+<#-- "$CLARA_HOME/bin/kill-dpes" -->
 
-sleep $[ ( $RANDOM % 20 )  + 1 ]s
+<#-- sleep $[ ( $RANDOM % 20 )  + 1 ]s -->
 
 ${farm.command}
