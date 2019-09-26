@@ -69,7 +69,7 @@ get_dpe_cpu_usage
 # check if dpe is done then exit.
 # This is the case when cpu_usage returns an empty string.
 if [[ -z ${cpu_usage} ]]; then
-exit 0
+exit 1
 fi
 
 float_compare $cpu_usage $cpu_idle

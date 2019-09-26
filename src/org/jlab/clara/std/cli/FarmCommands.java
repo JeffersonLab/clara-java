@@ -511,7 +511,8 @@ final class FarmCommands {
 
                         sb.append(getClaraCommandAffinity(affinities[i],
                             runUtils.getSession() + "_" + i,
-                            subFileList.toString())).append("> /dev/null 2>&1 &\n");
+                            subFileList.toString())).append(" &\n");
+//                            subFileList.toString())).append("> /dev/null 2>&1 &\n");
                         sb.append("a" + i + "=$!\n");
                         sb.append("sleep 10 \n");
                     }
