@@ -128,11 +128,12 @@ session=${user}_clara
 dpe_report=5
 wait_dpe=13
 
-while getopts "i:o:z:l:t:s:r:k:e:H:P:R:W:" OPTION; do
+while getopts "i:o:z:x:l:t:s:r:k:e:H:P:R:W:" OPTION; do
     case $OPTION in
         i)  input_dir=$OPTARG ;;
         o)  output_dir=$OPTARG ;;
         z)  output_prefix=$OPTARG ;;
+        x)  log_dir=$OPTARG ;;
         l)  stage_dir=$OPTARG ;;
         t)  thread_num=$OPTARG ;;
         s)  session=$OPTARG ;;
@@ -177,8 +178,10 @@ fi
 ##############################################################################
 # Run CLARA
 ##############################################################################
-fe_log_file=${CLARA_USER_DATA}/log/${host}_${session}_fe_dpe.log
-or_log_file=${CLARA_USER_DATA}/log/${host}_${session}_orch.log
+#fe_log_file=${CLARA_USER_DATA}/log/${host}_${session}_fe_dpe.log
+#or_log_file=${CLARA_USER_DATA}/log/${host}_${session}_orch.log
+fe_log_file=${log_dir}/${host}_${session}_fe_dpe.log
+or_log_file=${log_dir}/${host}_${session}_orch.log
 
 echo "=========================================="
 echo "            Running Conditions            "
