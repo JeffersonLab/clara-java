@@ -393,7 +393,7 @@ final class FarmCommands {
             cmd.addOption("-x", config.getString(Config.LOG_DIR));
             if (config.hasValue(FARM_STAGE)) {
                 if (config.getString(FARM_STAGE).equals("default")) {
-                    cmd.addOption("-l", "/scratch/slurm/$SLURM_JOB_ID/clara");
+                    cmd.addOption("-l", "/scratch/slurm/$SLURM_JOB_ID");
 
                 } else {
                     cmd.addOption("-l", config.getString(FARM_STAGE));
@@ -445,7 +445,7 @@ final class FarmCommands {
             cmd.addOption("-x", config.getString(Config.LOG_DIR));
             if (config.hasValue(FARM_STAGE)) {
                 if (config.getString(FARM_STAGE).equals("default")) {
-                    cmd.addOption("-l", "/scratch/slurm/$SLURM_JOB_ID/clara");
+                    cmd.addOption("-l", "/scratch/slurm/$SLURM_JOB_ID");
 
                 } else {
                     cmd.addOption("-l", config.getString(FARM_STAGE));

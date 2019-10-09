@@ -401,7 +401,7 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
 
     @Override
     protected void end() {
-        removeStageDirectories();
+//        removeStageDirectories();
         if (options.orchMode != OrchestratorMode.CLOUD) {
             try {
                 WorkerNode localNode = dpeCallback.getLocalNode();
