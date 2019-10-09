@@ -103,4 +103,5 @@ fi
 
 sleep 10
 done
+exit 0
 

@@ -279,6 +279,7 @@ abstract class AbstractOrchestrator {
             freeNodes.add(node);
             stats.add(node);
         } catch (OrchestratorException e) {
+            System.exit(1);
             // TODO cleanup
             throw e;
         }

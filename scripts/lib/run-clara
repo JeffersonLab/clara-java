@@ -27,6 +27,7 @@ fi
 
 set -u
 
+FAIL=0
 
 ##############################################################################
 # Functions
@@ -259,10 +260,17 @@ echo ${orc_pid} > ${CLARA_USER_DATA}/log/.${session}_orc.pid
 # Launching the CLAS12 watchdog
 ##############################################################################
 "$CLARA_HOME"/bin/clas-watchdog.sh ${dpe_pid} ${orc_pid} 60 &
+wdg_pid=$!
 
 ##############################################################################
 # Exit
 ##############################################################################
-wait "${orc_pid}"
+#wait "${dpe_pid}" || let "FAIL+=1"
+wait "${orc_pid}" || let "FAIL+=1"
+wait "${wdg_pid}" || let "FAIL+=1"
+
+exit ${FAIL}
 
 fi
+
+exit 1

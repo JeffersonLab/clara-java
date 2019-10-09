@@ -16,6 +16,7 @@ export CLARA_MONITOR_FE="${clara.monitorFE!"129.57.70.24%9000_java"}"
 export CLAS12DIR="${clas12.dir}"
 export CLARA_USER_DATA="${user_data.dir}"
 
+# Set the following env variables if we are at the JLAB
 if ping -w 1 -c 1 129.57.32.100 &> /dev/null
 then
 export CCDB_CONNECTION=mysql://clas12reader@clasdb-farm.jlab.org/clas12
