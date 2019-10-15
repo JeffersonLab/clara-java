@@ -29,6 +29,8 @@ float_compare () {
     number1="$1"
     number2="$2"
 
+echo $number1 $number2
+
     [ ${number1%.*} -eq ${number2%.*} ] && [ ${number1#*.} \> ${number2#*.} ] || [ ${number1%.*} -gt ${number2%.*} ];
     result=$?
     if [ "$result" -eq 0 ]; then result=1; else result=0; fi
@@ -69,7 +71,11 @@ get_dpe_cpu_usage
 # check if dpe is done then exit.
 # This is the case when cpu_usage returns an empty string.
 if [[ -z ${cpu_usage} ]]; then
-exit 1
+exit 0
+fi
+
+if ! ps -p ${orch_pid} > /dev/null; then
+exit 0
 fi
 
 float_compare $cpu_usage $cpu_idle

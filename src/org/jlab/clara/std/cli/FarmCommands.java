@@ -384,13 +384,25 @@ final class FarmCommands {
         }
 
         private String getClaraCommand() {
+            //vg
+            StringBuilder sb = new StringBuilder();
+            sb.append("mkdir ");
+            sb.append(config.getString(Config.LOG_DIR));
+            sb.append(File.separator);
+            sb.append("$SLURM_JOB_ID");
+            sb.append("; ");
+            //vg
+
             Path wrapper = FileUtils.claraPath("lib", "clara", "run-clara");
             SystemCommandBuilder cmd = new SystemCommandBuilder(wrapper);
 
             cmd.addOption("-i", config.getString(Config.INPUT_DIR));
             cmd.addOption("-o", config.getString(Config.OUTPUT_DIR));
             cmd.addOption("-z", config.getString(Config.OUT_FILE_PREFIX));
-            cmd.addOption("-x", config.getString(Config.LOG_DIR));
+//            cmd.addOption("-x", config.getString(Config.LOG_DIR));
+
+            cmd.addOption("-x", config.getString(Config.LOG_DIR) + File.separator + "$SLURM_JOB_ID"); //vg
+
             if (config.hasValue(FARM_STAGE)) {
                 if (config.getString(FARM_STAGE).equals("default")) {
                     cmd.addOption("-l", "/scratch/slurm/$SLURM_JOB_ID");
@@ -426,7 +438,10 @@ final class FarmCommands {
 
             cmd.multiLine(true);
 
-            return cmd.toString();
+            sb.append(cmd.toString()); //vg
+            return sb.toString(); //vg
+
+//            return cmd.toString();
         }
 
         private String getClaraCommandAffinity(String affinity,
@@ -442,7 +457,10 @@ final class FarmCommands {
             cmd.addOptionNoSplit("-i", config.getString(Config.INPUT_DIR));
             cmd.addOption("-o", config.getString(Config.OUTPUT_DIR));
             cmd.addOption("-z", config.getString(Config.OUT_FILE_PREFIX));
-            cmd.addOption("-x", config.getString(Config.LOG_DIR));
+
+            cmd.addOption("-x", config.getString(Config.LOG_DIR) + File.separator + "$SLURM_JOB_ID");
+
+//            cmd.addOption("-x", config.getString(Config.LOG_DIR));
             if (config.hasValue(FARM_STAGE)) {
                 if (config.getString(FARM_STAGE).equals("default")) {
                     cmd.addOption("-l", "/scratch/slurm/$SLURM_JOB_ID");
@@ -483,6 +501,15 @@ final class FarmCommands {
 
         private String getClaraCommandAffinityList(String[] affinities) {
             StringBuilder sb = new StringBuilder();
+
+            //vg
+            sb.append("mkdir ");
+            sb.append(config.getString(Config.LOG_DIR));
+            sb.append(File.separator);
+            sb.append("$SLURM_JOB_ID");
+            sb.append("; ");
+            //vg
+
             String description = config.getString(Config.DESCRIPTION);
             Path fileList = Paths.get(config.getString(Config.FILES_LIST));
             Path dotDir = Paths.get(CLARA_USER_DATA.toString(), "config",
