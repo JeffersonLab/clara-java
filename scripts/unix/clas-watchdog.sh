@@ -20,6 +20,15 @@ time=0
 cpu_idle=10.00
 valid=true
 
+echo `date`  "clara-wd:Info  Monitoring DPE_PID=$1  ORCH_PID=$2  TIMEOUT=$3"
+
+#################################
+# Function echo to stderr
+#################################
+echoerr() {
+cat <<< "$@" 1>&2;
+}
+
 #################################
 # Function that returns 1 if the
 # first float number is bigger
@@ -87,7 +96,7 @@ result="${__FUNCTION_RETURN}"
 if [[ ${result} -eq 0 ]] ; then
 
 # Log the error
-echo `date`  "clara-wd:Error     DPE %CPU = ${cpu_usage} DPE_PID = ${dpe_pid} ORCH_PID = ${orch_pid} timeout = ${timeout}"
+echoerr `date`  "clara-wd:Error     DPE %CPU = ${cpu_usage} DPE_PID = ${dpe_pid} ORCH_PID = ${orch_pid} timeout = ${timeout}"
 
 time=$((time + 1))
 
@@ -98,7 +107,7 @@ fi
 
 # Check to see if we are not using CPU for timeout seconds.
 if (( $time > $timeout )); then
-echo `date`  "clara-wd:SevereError  Stop the data-processing... "
+echoerr `date`  "clara-wd:SevereError  Stop the data-processing... "
 kill -9 ${dpe_pid}
 kill -9 ${orch_pid}
 exit 1
