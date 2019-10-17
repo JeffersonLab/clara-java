@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # author Vardan Gyurjyan
-# date 10.20.19
+# date 10.21.19
 
 #################################
 # Parameters
