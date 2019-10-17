@@ -77,32 +77,24 @@ do
 # Get cpu usage
 get_dpe_cpu_usage
 
-# check if dpe is done then exit.
-# This is the case when cpu_usage returns an empty string.
-if [[ -z ${cpu_usage} ]]; then
-exit 0
-fi
-
 if ! ps -p ${orch_pid} > /dev/null; then
 exit 0
 fi
+
+# if DPE cpu_usage is defined
+if ! [[ -z ${cpu_usage} ]]; then
 
 float_compare $cpu_usage $cpu_idle
 
 result="${__FUNCTION_RETURN}"
 
-
 # Check if cpu_usage is less than 1%
 if [[ ${result} -eq 0 ]] ; then
-
 # Log the error
 echoerr `date`  "clara-wd:Error     DPE %CPU = ${cpu_usage} DPE_PID = ${dpe_pid} ORCH_PID = ${orch_pid} timeout = ${timeout}"
-
 time=$((time + 1))
-
 else
 time=0
-
 fi
 
 # Check to see if we are not using CPU for timeout seconds.
@@ -116,7 +108,10 @@ exit 1
 time=0
 fi
 
+fi
+
 sleep 10
+
 done
 exit 0
 

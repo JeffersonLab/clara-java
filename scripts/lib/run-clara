@@ -267,7 +267,7 @@ wdg_pid=$!
 ##############################################################################
 #wait "${dpe_pid}" || let "FAIL+=1"
 wait "${orc_pid}" || let "FAIL+=1"
-wait "${wdg_pid}" || let "FAIL+=1"
+#wait "${wdg_pid}" || let "FAIL+=1"
 
 exit ${FAIL}
 
