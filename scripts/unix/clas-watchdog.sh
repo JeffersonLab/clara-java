@@ -14,6 +14,7 @@
 dpe_pid=$1
 orch_pid=$2
 timeout=$3
+mem_log_file=$4
 
 time=0
 # Below 10% cpu_usage DPE process will be considered idled
@@ -68,6 +69,8 @@ strCalc=`top -d $delay -b -n $nTimes -p $dpe_pid \
 cpu_usage=`echo "$strCalc" |bc -l`
 }
 
+top -b -o +%MEM | head -n 22 > ${mem_log_file}
+
 #################################
 # Main loop
 #################################
@@ -83,6 +86,8 @@ fi
 
 # if DPE cpu_usage is defined
 if ! [[ -z ${cpu_usage} ]]; then
+
+top -b -o +%MEM | head -n 22 >> ${mem_log_file}
 
 float_compare $cpu_usage $cpu_idle
 

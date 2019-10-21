@@ -183,6 +183,7 @@ fi
 #or_log_file=${CLARA_USER_DATA}/log/${host}_${session}_orch.log
 fe_log_file=${log_dir}/${host}_${session}_fe_dpe.log
 or_log_file=${log_dir}/${host}_${session}_orch.log
+mem_log_file=${log_dir}/${host}_${session}_mem.log
 
 echo "=========================================="
 echo "            Running Conditions            "
@@ -259,7 +260,7 @@ echo ${orc_pid} > ${CLARA_USER_DATA}/log/.${session}_orc.pid
 ##############################################################################
 # Launching the CLAS12 watchdog
 ##############################################################################
-"$CLARA_HOME"/bin/clas-watchdog.sh ${dpe_pid} ${orc_pid} 60 &
+"$CLARA_HOME"/bin/clas-watchdog.sh ${dpe_pid} ${orc_pid} 60 ${mem_log_file} &
 wdg_pid=$!
 
 ##############################################################################
