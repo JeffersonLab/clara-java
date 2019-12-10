@@ -69,7 +69,7 @@ strCalc=`top -d $delay -b -n $nTimes -p $dpe_pid \
 cpu_usage=`echo "$strCalc" |bc -l`
 }
 
-top -b -o +%MEM | head -n 22 > ${mem_log_file}
+#top -b -o +%MEM | head -n 22 > ${mem_log_file}
 
 #################################
 # Main loop
@@ -81,13 +81,15 @@ do
 get_dpe_cpu_usage
 
 if ! ps -p ${orch_pid} > /dev/null; then
+kill -9 ${dpe_pid} >& /dev/null
+echo `date`  "clara-wd:Info  Exiting the DPE... "
 exit 0
 fi
 
 # if DPE cpu_usage is defined
 if ! [[ -z ${cpu_usage} ]]; then
 
-top -b -o +%MEM | head -n 22 >> ${mem_log_file}
+#top -b -o +%MEM | head -n 22 >> ${mem_log_file}
 
 float_compare $cpu_usage $cpu_idle
 

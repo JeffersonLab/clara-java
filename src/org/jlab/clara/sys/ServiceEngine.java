@@ -149,6 +149,12 @@ class ServiceEngine {
 
         try {
             inData = getEngineData(message);
+
+            if (inData.getStatusSeverity() == 13) {
+                Logging.error("SevereError in the engine = %s: %s",
+                    inData.getEngineName(),  inData.getDescription());
+                System.exit(13);
+            }
             parseComposition(inData);
             outData = executeEngine(inData);
             sysReport.addExecutionTime(executionTime);
