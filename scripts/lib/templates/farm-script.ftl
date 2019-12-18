@@ -7,6 +7,8 @@
 <#-- export MALLOC_MMAP_MAX_=65536 -->
 <#-- export MALLOC_MMAP_MAX_=65536 -->
 
+ulimit -u 7000
+
 <#if farm.javaOpts??>
 export JAVA_OPTS="${farm.javaOpts}"
 </#if>
