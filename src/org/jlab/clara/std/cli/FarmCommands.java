@@ -68,7 +68,7 @@ final class FarmCommands {
     private static final int DEFAULT_FARM_CORES = 0;
     private static final int DEFAULT_FARM_DISK_SPACE = 5;
     private static final int DEFAULT_FARM_TIME = 24 * 60;
-    private static final String DEFAULT_FARM_OS = "centos7";
+    private static final String DEFAULT_FARM_OS = "general";
     private static final String DEFAULT_FARM_NODE = "";
     private static final String DEFAULT_FARM_EXCLUSIVE = "";
     private static final String DEFAULT_FARM_TRACK = "debug";
