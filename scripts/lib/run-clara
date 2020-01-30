@@ -248,19 +248,20 @@ fi
 or_args+=("$service_yaml")
 or_args+=("$file_list")
 
-"$CLARA_HOME"/bin/clara-orchestrator "${or_args[@]}" 2>&1 | tee "$or_log_file" &
+#"$CLARA_HOME"/bin/clara-orchestrator "${or_args[@]}" 2>&1 | tee "$or_log_file" &
+"$CLARA_HOME"/bin/clara-orchestrator "${or_args[@]}" 2>&1 > "$or_log_file" &
 
 sleep 3
 
 orc_pid=$(jobs -p %?orchestrator 2>/dev/null)
 
-# Store orchestrator pid
+## Store orchestrator pid
 echo ${orc_pid} > ${CLARA_USER_DATA}/log/.${session}_orc.pid
 
 ##############################################################################
 # Launching the CLAS12 watchdog
 ##############################################################################
-"$CLARA_HOME"/bin/clas-watchdog.sh ${dpe_pid} ${orc_pid} 60 ${mem_log_file} &
+"$CLARA_HOME"/bin/clas-watchdog.sh ${dpe_pid}  ${orc_pid} 60 ${mem_log_file} &
 wdg_pid=$!
 
 ##############################################################################
@@ -268,6 +269,8 @@ wdg_pid=$!
 ##############################################################################
 #wait "${dpe_pid}" || let "FAIL+=1"
 wait "${orc_pid}" || let "FAIL+=1"
+
+echo 'run_clara: exit code = ' ${FAIL}
 #wait "${wdg_pid}" || let "FAIL+=1"
 
 exit ${FAIL}

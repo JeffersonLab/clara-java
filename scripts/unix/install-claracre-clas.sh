@@ -9,9 +9,10 @@ case "$1" in
         echo "usage: install-claracre-clas.sh [ OPTION ]... [ Value ]..."
         echo ""
         echo " -h, --help         print this help."
-        echo " -f, --framework    Clara framework version (default = 4.4)."
-        echo " -v, --version      Clas12 plugin version   (default = 6b.1.1)."
+        echo " -f, --framework    Clara framework version (default = 4.3.12)."
+        echo " -v, --version      Clas12 plugin version   (default = 6b.4.1)."
         echo " -g, --grapes       Grapes plugin version   (default = 2.1)."
+        echo " -j, --jre          JAVA Runtime version    (default = 8)."
         exit 1
         ;;
 esac
@@ -37,9 +38,10 @@ if  [ -d "${CLARA_HOME}" ]; then
    fi
 fi
 
-PLUGIN=6.3.1
+PLUGIN=6b.4.1
 GRAPES=2.1
-FV=4.3.11
+FV=4.3.12
+JRE=8
 
 case "$1" in
     -f | --framework)
@@ -53,6 +55,10 @@ case "$1" in
     -g | --grapes)
         if ! [ -z "${2+x}" ]; then GRAPES=$2; fi
         echo "Grapes plugin version = $GRAPES"
+        ;;
+    -j | --jre)
+        if ! [ -z "${2+x}" ]; then JRE=$2; fi
+        echo "JRE version = $JRE"
         ;;
     -l | --local)
         if ! [ -z "${2+x}" ]; then PLUGIN=$2; is_local="true"; fi
@@ -72,6 +78,10 @@ case "$3" in
         if ! [ -z "${4+x}" ]; then GRAPES=$4; fi
         echo "Grapes plugin version = $GRAPES"
         ;;
+    -j | --jre)
+        if ! [ -z "${4+x}" ]; then JRE=$4; fi
+        echo "JRE version = $JRE"
+        ;;
     -l | --local)
         if ! [ -z "${4+x}" ]; then PLUGIN=$4; is_local="true"; fi
         echo "CLAS12 plugin = $PLUGIN"
@@ -90,8 +100,35 @@ case "$5" in
         if ! [ -z "${6+x}" ]; then GRAPES=$6; fi
         echo "Grapes plugin version = $GRAPES"
         ;;
+    -j | --jre)
+        if ! [ -z "${6+x}" ]; then JRE=$6; fi
+        echo "JRE version = $JRE"
+        ;;
     -l | --local)
         if ! [ -z "${6+x}" ]; then PLUGIN=$6; is_local="true"; fi
+        echo "CLAS12 plugin = $PLUGIN"
+        ;;
+esac
+
+case "$7" in
+    -f | --framework)
+        if ! [ -z "${8+x}" ]; then FV=$8; fi
+        echo "CLARA version = $FV"
+        ;;
+    -v | --version)
+        if ! [ -z "${8+x}" ]; then PLUGIN=$8; fi
+        echo "CLAS12 plugin version = $PLUGIN"
+        ;;
+    -g | --grapes)
+        if ! [ -z "${8+x}" ]; then GRAPES=$8; fi
+        echo "Grapes plugin version = $GRAPES"
+        ;;
+    -j | --jre)
+        if ! [ -z "${8+x}" ]; then JRE=$8; fi
+        echo "JRE version = $JRE"
+        ;;
+    -l | --local)
+        if ! [ -z "${8+x}" ]; then PLUGIN=$8; is_local="true"; fi
         echo "CLAS12 plugin = $PLUGIN"
         ;;
 esac
@@ -124,9 +161,9 @@ case $OS in
 
         MACHINE_TYPE=$(uname -m)
         if [ "$MACHINE_TYPE" == "x86_64" ]; then
-            wget https://userweb.jlab.org/~gurjyan/clara-cre/linux-64.tar.gz
+            wget https://userweb.jlab.org/~gurjyan/clara-cre/linux-64-$JRE.tar.gz
         else
-            wget https://userweb.jlab.org/~gurjyan/clara-cre/linux-i586.tar.gz
+            wget https://userweb.jlab.org/~gurjyan/clara-cre/linux-i586-$JRE.tar.gz
         fi
         ;;
 
@@ -154,7 +191,7 @@ case $OS in
             cp $PLUGIN .
        fi
 
-        curl "https://userweb.jlab.org/~gurjyan/clara-cre/macosx-64.tar.gz" -o macosx-64.tar.gz
+        curl "https://userweb.jlab.org/~gurjyan/clara-cre/macosx-64-$JRE.tar.gz" -o macosx-64-$JRE.tar.gz
         ;;
 
     *) ;;
@@ -170,20 +207,20 @@ echo "Installing jre ..."
 case $OS in
     'Linux')
     if [ "$MACHINE_TYPE" == "x86_64" ]; then
-         mv ../../linux-64.tar.gz .
-         tar xvzf ./linux-64.tar.gz
-         rm linux-64.tar.gz
+         mv ../../linux-64-$JRE.tar.gz .
+         tar xvzf ./linux-64-$JRE.tar.gz
+         rm linux-64-$JRE.tar.gz
     else
-        mv ../../linux-i586.tar.gz .
-        tar xvzf ./linux-i586.tar.gz
-        rm linux-i586.tar.gz
+        mv ../../linux-i586-$JRE.tar.gz .
+        tar xvzf ./linux-i586-$JRE.tar.gz
+        rm linux-i586.tar-$JRE.gz
     fi
     ;;
 
     'Darwin')
-    mv ../../macosx-64.tar.gz .
-    tar xvzf ./macosx-64.tar.gz
-    rm macosx-64.tar.gz
+    mv ../../macosx-64-$JRE.tar.gz .
+    tar xvzf ./macosx-64-$JRE.tar.gz
+    rm macosx-64-$JRE.tar.gz
     ;;
     *) ;;
 esac
@@ -220,4 +257,5 @@ chmod a+x "$CLARA_HOME"/bin/*
 echo "Clara Framework  :    clara-cre-$FV" > "$CLARA_HOME"/.version
 echo "CLAS12 plugin    :    coatjava-$PLUGIN" >> "$CLARA_HOME"/.version
 echo "Grapes plugin    :    grapes-$GRAPES" >> "$CLARA_HOME"/.version
+echo "JAVA Runtime     :    java-$JRE" >> "$CLARA_HOME"/.version
 echo "Done!"

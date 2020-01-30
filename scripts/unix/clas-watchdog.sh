@@ -11,6 +11,7 @@
 # 3 = timeout
 
 # Initialization
+
 dpe_pid=$1
 orch_pid=$2
 timeout=$3
@@ -18,8 +19,7 @@ timeout=$3
 time=0
 # Below 10% cpu_usage DPE process will be considered idled
 cpu_idle=10.00
-
-echo `date`  "clara-wd:Info  Monitoring DPE_PID=$1  ORCH_PID=$2  TIMEOUT=$3"
+echo `date`  "clara-wd:Info  Monitoring DPE_PID=${dpe_pid}  ORCH_PID=${orch_pid}  TIMEOUT=${timeout}"
 
 #################################
 # Function echo to stderr
@@ -73,9 +73,11 @@ do
 
     # Check if DPE is running
     if ! ps -p ${dpe_pid} > /dev/null; then
-        echoerr `date`   'clara-wd:SevereError   DPE is not running, exiting...'
+        echoerr `date`   'clara-wd:SevereError   DPE is not running, exiting Clara Supervisor...'
+
         kill -9 ${orch_pid} >& /dev/null
         kill -9 ${dpe_pid} >& /dev/null
+
         exit 13
     fi
 
@@ -83,7 +85,7 @@ do
     if ! ps -p ${orch_pid} > /dev/null; then
         sleep 10
         if ! ps -p ${orch_pid} > /dev/null; then
-            echo `date` 'clara-wd:Warning   ORCH is not running, exiting normally.'
+            echo `date` 'clara-wd:Warning   Clara Orchestrator is not running, exiting normally.'
             kill -9 ${dpe_pid} >& /dev/null
             kill -9 ${orch_pid} >& /dev/null
             exit 0
@@ -95,11 +97,11 @@ do
 
     # if DPE cpu_usage is defined
     if ! [[ -z ${cpu_usage} ]]; then
-    
+
         float_compare $cpu_usage $cpu_idle
-        
+
         result="${__FUNCTION_RETURN}"
-        
+
         # Check if cpu_usage is less than 1%
         if [[ ${result} -eq 0 ]] ; then
             # Log the error
@@ -108,7 +110,7 @@ do
         else
             time=0
         fi
-        
+
         # Check to see if we are not using CPU for timeout seconds.
         if (( $time > $timeout )); then
             echoerr `date`  "clara-wd:SevereError  Stop the data-processing... "
@@ -119,11 +121,11 @@ do
             # Not implemented
             time=0
         fi
-   
+
     else
         echoerr `date`  "clara-wd:Error  DPE CPU usage undefined. "
     fi
-    
+
     sleep 10
 
 done
