@@ -248,12 +248,18 @@ fi
 or_args+=("$service_yaml")
 or_args+=("$file_list")
 
-#"$CLARA_HOME"/bin/clara-orchestrator "${or_args[@]}" 2>&1 | tee "$or_log_file" &
-"$CLARA_HOME"/bin/clara-orchestrator "${or_args[@]}" 2>&1 > "$or_log_file" &
+echo "unpopulated" > ${or_log_file}
 
-sleep 3
+#"$CLARA_HOME"/bin/clara-orchestrator "${or_args[@]}" 2>&1 | tee "$or_log_file" &
+"$CLARA_HOME"/bin/clara-orchestrator "${or_args[@]}" 2>&1  &
 
 orc_pid=$(jobs -p %?orchestrator 2>/dev/null)
+
+#sleep 3
+#orc_pid=$!
+#orc_pid=`ps -ef | awk '/[G]enericOrchestrator/{print $2}'`
+#orc_pid=$(jobs -p %?orchestrator 2>/dev/null)
+
 
 ## Store orchestrator pid
 echo ${orc_pid} > ${CLARA_USER_DATA}/log/.${session}_orc.pid
@@ -268,6 +274,7 @@ wdg_pid=$!
 # Exit
 ##############################################################################
 #wait "${dpe_pid}" || let "FAIL+=1"
+
 wait "${orc_pid}" || let "FAIL+=1"
 
 echo 'run_clara: exit code = ' ${FAIL}
