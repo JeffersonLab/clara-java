@@ -248,10 +248,8 @@ fi
 or_args+=("$service_yaml")
 or_args+=("$file_list")
 
-echo "unpopulated" > ${or_log_file}
-
 #"$CLARA_HOME"/bin/clara-orchestrator "${or_args[@]}" 2>&1 | tee "$or_log_file" &
-"$CLARA_HOME"/bin/clara-orchestrator "${or_args[@]}" 2>&1  &
+"$CLARA_HOME"/bin/clara-orchestrator "${or_args[@]}" > ${or_log_file} &
 
 orc_pid=$(jobs -p %?orchestrator 2>/dev/null)
 
