@@ -43,7 +43,7 @@ fi
 if [ -n "$JAVA_HOME" ]; then
     java_bin="$JAVA_HOME/bin/java"
 else
-    java_bin=javaSSS
+    java_bin=java
 fi
 
 exec "$java_bin" "$@"
