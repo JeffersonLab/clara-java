@@ -253,6 +253,7 @@ rm -rf "$CLARA_HOME"/plugins/clas12/etc/services
 rm grapes-$GRAPES.tar.gz
 
 chmod a+x "$CLARA_HOME"/bin/*
+chmod -R a+rx $CLARA_HOME
 
 echo "Clara Framework  :    clara-cre-$FV" > "$CLARA_HOME"/.version
 echo "CLAS12 plugin    :    coatjava-$PLUGIN" >> "$CLARA_HOME"/.version
