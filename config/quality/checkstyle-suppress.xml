@@ -7,8 +7,10 @@
 <suppressions>
   <!-- ignore Javadoc -->
   <suppress checks="Javadoc.*" files="org[\\/]jlab[\\/]clara[\\/]base[\\/]core"/>
-  <suppress checks="Javadoc.*" files="org[\\/]jlab[\\/]clara[\\/]base[\\/]logging"/>
   <suppress checks="Javadoc.*" files="org[\\/]jlab[\\/]clara[\\/]sys[\\/]ccc"/>
   <suppress checks="Javadoc.*" files="org[\\/]jlab[\\/]clara[\\/]util"/>
   <suppress checks="Javadoc.*" files=".*Test\.java"/>
+
+  <!-- TODO remove once checkstyle#7064 is done -->
+  <suppress checks="LineLength" files="org[\\/]jlab[\\/]clara[\\/]util[\\/]logging"/>
 </suppressions>

@@ -43,15 +43,14 @@ public class EnvUtilsTest {
 
     @Test
     public void expandVariableWithValue() throws Exception {
-        // checkstyle.off: LineLength
         assertThat(EnvUtils.expandEnvironment("$VAR", env), is("value"));
         assertThat(EnvUtils.expandEnvironment("${VAR}", env), is("value"));
         assertThat(EnvUtils.expandEnvironment("${VAR:-default}", env), is("value"));
         assertThat(EnvUtils.expandEnvironment("${VAR} and ${VAR}", env), is("value and value"));
-        assertThat(EnvUtils.expandEnvironment("the ${VAR} is ${DIR}", env), is("the value is /mnt/files"));
+        assertThat(EnvUtils.expandEnvironment("the ${VAR} is ${DIR}", env),
+                                              is("the value is /mnt/files"));
         assertThat(EnvUtils.expandEnvironment("$DIR/exp1", env), is("/mnt/files/exp1"));
         assertThat(EnvUtils.expandEnvironment("test ${TEST}", env), is("test this test"));
-        // checkstyle.on: LineLength
     }
 
     @Test
