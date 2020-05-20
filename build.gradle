@@ -25,7 +25,7 @@ plugins {
     id 'maven'
 
     id 'checkstyle'
-    id 'com.github.spotbugs' version '1.6.9'
+    id 'com.github.spotbugs' version '4.2.0'
 
     id 'eclipse'
     id 'idea'
@@ -88,6 +88,11 @@ dependencies {
     testImplementation 'org.mockito:mockito-junit-jupiter:2.28.2'
 }
 
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
 tasks.withType(JavaCompile) {
     if (JavaVersion.current() > JavaVersion.VERSION_1_8) {
         options.compilerArgs += ['--release', '8']
@@ -105,21 +110,6 @@ javadoc {
     include "org/jlab/clara/sys/**"
     exclude "org/jlab/clara/base/core/**"
     exclude "org/jlab/clara/sys/ccc/**"
-}
-
-task javadocJar(type: Jar) {
-    archiveClassifier = 'javadoc'
-    from javadoc
-}
-
-task sourcesJar(type: Jar, dependsOn: classes) {
-    archiveClassifier = 'sources'
-    from sourceSets.main.allSource
-}
-
-artifacts {
-    archives javadocJar
-    archives sourcesJar
 }
 
 uploadArchives {
@@ -228,11 +218,11 @@ def deploySpec = copySpec {
 }
 
 task distSources(type: Tar, dependsOn: build) {
-    extension = 'tar.gz'
-    classifier = 'src'
+    archiveExtension = 'tar.gz'
+    archiveClassifier = 'src'
     compression = Compression.GZIP
 
-    into "${baseName}-${version}-${classifier}"
+    into "${archiveBaseName.get()}-${archiveVersion.get()}-${archiveClassifier.get()}"
 
     from 'README.md'
     from 'build.gradle'
@@ -254,10 +244,10 @@ task distSources(type: Tar, dependsOn: build) {
 }
 
 task distBinaries(type: Tar, dependsOn: build) {
-    extension = 'tar.gz'
+    archiveExtension = 'tar.gz'
     compression = Compression.GZIP
 
-    into "${baseName}-${version}"
+    into "${archiveBaseName.get()}-${archiveVersion.get()}"
     with deploySpec
 }
 
@@ -319,14 +309,14 @@ checkstyle {
 }
 
 spotbugs {
-    toolVersion = '3.1.12'
+    toolVersion = '4.0.3'
     ignoreFailures = true
     effort = 'max'
     reportLevel = 'medium'
     excludeFilter = file('config/quality/findbugs-exclude.xml')
 }
 
-tasks.withType(com.github.spotbugs.SpotBugsTask) {
+tasks.withType(com.github.spotbugs.snom.SpotBugsTask) {
     def useXml = ciMode.toBoolean()
     reports {
         xml.enabled = useXml
@@ -339,7 +329,7 @@ task checkSpotBugsResults {
         def bugsFound = 0
         [spotbugsMain, spotbugsTest].each {
             try {
-                bugsFound += printSpotBugs it.reports.xml.destination
+                bugsFound += printSpotBugs it.reports.getByName('XML').destination
             } catch (FileNotFoundException e) {
                 logger.info e.message
             }
