@@ -156,7 +156,7 @@ case $OS in
         else
             echo "getting grapes-$GRAPES"
             wget https://clasweb.jlab.org/clas12offline/distribution/grapes/grapes-$GRAPES.tar.gz
-            cp $PLUGIN .
+            cp -p $PLUGIN .
         fi
 
         MACHINE_TYPE=$(uname -m)
@@ -188,7 +188,7 @@ case $OS in
        else
             echo "getting grapes-$GRAPES"
             curl "https://clasweb.jlab.org/clas12offline/distribution/grapes/grapes-$GRAPES.tar.gz" -o grapes-$GRAPES.tar.gz
-            cp $PLUGIN .
+            cp -p $PLUGIN .
        fi
 
         curl "https://userweb.jlab.org/~gurjyan/clara-cre/macosx-64-$JRE.tar.gz" -o macosx-64-$JRE.tar.gz
@@ -232,11 +232,11 @@ echo "Installing coatjava ..."
 tar xvzf coatjava-$PLUGIN.tar.gz
 (
 cd coatjava || exit
-cp -r etc "$CLARA_HOME"/plugins/clas12/.
-cp -r bin "$CLARA_HOME"/plugins/clas12/.
-cp -r lib/utils "$CLARA_HOME"/plugins/clas12/lib/.
-cp lib/clas/* "$CLARA_HOME"/plugins/clas12/lib/clas/.
-cp lib/services/* "$CLARA_HOME"/plugins/clas12/lib/services/.
+cp -p etc "$CLARA_HOME"/plugins/clas12/.
+cp -p bin "$CLARA_HOME"/plugins/clas12/.
+cp -p lib/utils "$CLARA_HOME"/plugins/clas12/lib/.
+cp -p lib/clas/* "$CLARA_HOME"/plugins/clas12/lib/clas/.
+cp -p lib/services/* "$CLARA_HOME"/plugins/clas12/lib/services/.
 )
 rm -rf coatjava
 rm coatjava-$PLUGIN.tar.gz
@@ -244,10 +244,10 @@ rm coatjava-$PLUGIN.tar.gz
 echo "Installing grapes ..."
 tar xvzf grapes-$GRAPES.tar.gz
 mv grapes-$GRAPES "$CLARA_HOME"/plugins/grapes
-cp "$CLARA_HOME"/plugins/grapes/bin/clara-grapes "$CLARA_HOME"/bin/.
+cp -p "$CLARA_HOME"/plugins/grapes/bin/clara-grapes "$CLARA_HOME"/bin/.
 rm -f "$CLARA_HOME"/plugins/clas12/bin/clara-rec
 rm -f "$CLARA_HOME"/plugins/clas12/README
-cp "$CLARA_HOME"/plugins/clas12/etc/services/*.yaml "$CLARA_HOME"/plugins/clas12/config/.
+cp -p "$CLARA_HOME"/plugins/clas12/etc/services/*.yaml "$CLARA_HOME"/plugins/clas12/config/.
 mv "$CLARA_HOME"/plugins/clas12/config/reconstruction.yaml "$CLARA_HOME"/plugins/clas12/config/services.yaml
 rm -rf "$CLARA_HOME"/plugins/clas12/etc/services
 rm grapes-$GRAPES.tar.gz
