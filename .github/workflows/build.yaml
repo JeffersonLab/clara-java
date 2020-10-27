@@ -1,0 +1,40 @@
+name: Clara CI
+
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up JDK 8
+      uses: actions/setup-java@v1
+      with:
+        java-version: 8
+
+    - name: Cache Gradle wrapper and dependencies
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper/dists
+        key: ${{ runner.os }}-gradle-${{ hashFiles('*.gradle', 'gradle/**') }}
+        restore-keys: ${{ runner.os }}-gradle-
+
+    - name: Prepare environment
+      run: |
+        echo "CLARA_HOME=$HOME/clara-java" >> $GITHUB_ENV
+        echo "CLARA_USER_DATA=$HOME/clara-java" >> $GITHUB_ENV
+
+    - name: Build with Gradle
+      run: |
+        ./gradlew -PciMode=true build spotbugs
+        ./gradlew integration
