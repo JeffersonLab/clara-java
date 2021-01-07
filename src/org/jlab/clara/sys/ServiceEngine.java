@@ -149,10 +149,6 @@ class ServiceEngine {
 
         try {
             inData = getEngineData(message);
-            System.out.println("DDD ================================");
-            System.out.println(inData);
-            System.out.println(message);
-            System.out.println("DDD ================================");
             parseComposition(inData);
 
             outData = executeEngine(inData);
@@ -332,6 +328,9 @@ class ServiceEngine {
             sysReport.incrementShrmReads();
             String sender = metadata.getSender();
             int id = metadata.getCommunicationId();
+
+            System.out.println("DDD =========================== " + base.getName() +" " + sender+ " "+ id);
+
             return SharedMemory.getEngineData(base.getName(), sender, id);
         } else {
             sysReport.addBytesReceived(message.getDataSize());
