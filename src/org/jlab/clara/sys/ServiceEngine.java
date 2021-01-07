@@ -149,9 +149,9 @@ class ServiceEngine {
 
         try {
             inData = getEngineData(message);
-            System.out.println("DDD ================================");
-            System.out.println(inData);
-            System.out.println("DDD ================================");
+//            System.out.println("DDD ================================");
+//            System.out.println(inData);
+//            System.out.println("DDD ================================");
             parseComposition(inData);
 
             outData = executeEngine(inData);

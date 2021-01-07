@@ -320,8 +320,8 @@ public class EngineData {
 
     @Override
     public String toString() {
-//        return "EngineData: " + metadata.getDataType() + " " + data;
-        return "DDD EngineData: " + metadata.getComposition();
+        return "EngineData: " + metadata.getDataType() + " " + data;
+//        return "DDD EngineData: " + metadata.getComposition();
     }
 
 
