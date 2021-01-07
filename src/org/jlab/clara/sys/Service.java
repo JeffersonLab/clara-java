@@ -278,7 +278,6 @@ class Service extends AbstractActor {
         public void callback(xMsgMessage msg) {
             try {
                 xMsgMeta.Builder metadata = msg.getMetaData();
-                System.out.println("DDD ====================== "+metadata);
                 if (!metadata.hasAction()) {
                     setup(msg);
                 } else if (metadata.getAction().equals(xMsgMeta.ControlAction.CONFIGURE)) {
