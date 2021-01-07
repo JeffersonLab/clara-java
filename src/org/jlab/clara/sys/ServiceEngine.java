@@ -217,7 +217,7 @@ class ServiceEngine {
     }
 
     private EngineData executeEngine(EngineData inData)
-        throws ClaraException {
+            throws ClaraException {
         long startTime = startClock();
 
         EngineData outData = engine.execute(inData);
@@ -322,19 +322,11 @@ class ServiceEngine {
 
     private EngineData getEngineData(xMsgMessage message) throws ClaraException {
         xMsgMeta.Builder metadata = message.getMetaData();
-
-//        System.out.println(" DDD =========================");
-//        System.out.println(metadata.getComposition());
-//        System.out.println(" DDD =========================");
-
         String mimeType = metadata.getDataType();
         if (mimeType.equals(ClaraConstants.SHARED_MEMORY_KEY)) {
             sysReport.incrementShrmReads();
             String sender = metadata.getSender();
             int id = metadata.getCommunicationId();
-
-//            System.out.println("DDD =========================== " + base.getName() + " " + sender + " " + id);
-
             return SharedMemory.getEngineData(base.getName(), sender, id);
         } else {
             sysReport.addBytesReceived(message.getDataSize());
@@ -343,7 +335,7 @@ class ServiceEngine {
     }
 
     private xMsgMessage putEngineData(EngineData data, String receiver)
-        throws ClaraException {
+            throws ClaraException {
         xMsgTopic topic = xMsgTopic.wrap(receiver);
         if (SharedMemory.containsReceiver(receiver)) {
             int id = data.getCommunicationId();
