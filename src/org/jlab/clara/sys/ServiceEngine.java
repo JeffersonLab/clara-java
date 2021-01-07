@@ -148,17 +148,13 @@ class ServiceEngine {
         EngineData outData = null;
 
         try {
-            try {
-                inData = getEngineData(message);
-            } catch (NullPointerException e){}
-
+            inData = getEngineData(message);
             parseComposition(inData);
-
             outData = executeEngine(inData);
 
             if (outData.getStatusSeverity() == 13) {
                 Logging.error("SevereError in the engine = %s: %s",
-                    inData.getEngineName(),  inData.getDescription());
+                    inData.getEngineName(), inData.getDescription());
                 System.exit(13);
             }
 
@@ -213,15 +209,15 @@ class ServiceEngine {
 
     private Set<String> getLinks(EngineData inData, EngineData outData) {
         ServiceState ownerSS = new ServiceState(outData.getEngineName(),
-                                                outData.getExecutionState());
+            outData.getExecutionState());
         ServiceState inputSS = new ServiceState(inData.getEngineName(),
-                                                inData.getExecutionState());
+            inData.getExecutionState());
 
         return compiler.getLinks(ownerSS, inputSS);
     }
 
     private EngineData executeEngine(EngineData inData)
-            throws ClaraException {
+        throws ClaraException {
         long startTime = startClock();
 
         EngineData outData = engine.execute(inData);
@@ -234,7 +230,7 @@ class ServiceEngine {
         if (outData.getData() == null) {
             if (outData.getStatus() == EngineStatus.ERROR) {
                 outData.setData(EngineDataType.STRING.mimeType(),
-                                ClaraConstants.UNDEFINED);
+                    ClaraConstants.UNDEFINED);
             } else {
                 throw new ClaraException("empty engine result");
             }
@@ -315,9 +311,9 @@ class ServiceEngine {
     private void sendMonitorData(String state, EngineData data) throws ClaraException {
         if (monitorFe != null) {
             xMsgTopic topic = xMsgTopic.wrap(ClaraConstants.MONITOR_REPORT
-                    + xMsgConstants.TOPIC_SEP + state
-                    + xMsgConstants.TOPIC_SEP + sysReport.getSession()
-                    + xMsgConstants.TOPIC_SEP + base.getEngine());
+                + xMsgConstants.TOPIC_SEP + state
+                + xMsgConstants.TOPIC_SEP + sysReport.getSession()
+                + xMsgConstants.TOPIC_SEP + base.getEngine());
             xMsgMessage transit = DataUtil.serialize(topic, data, engine.getOutputDataTypes());
             base.sendUncheck(monitorFe.getProxyAddress(), transit);
         }
@@ -326,13 +322,18 @@ class ServiceEngine {
 
     private EngineData getEngineData(xMsgMessage message) throws ClaraException {
         xMsgMeta.Builder metadata = message.getMetaData();
+
+//        System.out.println(" DDD =========================");
+//        System.out.println(metadata.getComposition());
+//        System.out.println(" DDD =========================");
+
         String mimeType = metadata.getDataType();
         if (mimeType.equals(ClaraConstants.SHARED_MEMORY_KEY)) {
             sysReport.incrementShrmReads();
             String sender = metadata.getSender();
             int id = metadata.getCommunicationId();
 
-            System.out.println("DDD =========================== " + base.getName() +" " + sender+ " "+ id);
+//            System.out.println("DDD =========================== " + base.getName() + " " + sender + " " + id);
 
             return SharedMemory.getEngineData(base.getName(), sender, id);
         } else {
@@ -342,7 +343,7 @@ class ServiceEngine {
     }
 
     private xMsgMessage putEngineData(EngineData data, String receiver)
-            throws ClaraException {
+        throws ClaraException {
         xMsgTopic topic = xMsgTopic.wrap(receiver);
         if (SharedMemory.containsReceiver(receiver)) {
             int id = data.getCommunicationId();
