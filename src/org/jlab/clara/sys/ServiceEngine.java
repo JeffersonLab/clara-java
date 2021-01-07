@@ -148,7 +148,10 @@ class ServiceEngine {
         EngineData outData = null;
 
         try {
-            inData = getEngineData(message);
+            try {
+                inData = getEngineData(message);
+            } catch (NullPointerException e){}
+
             parseComposition(inData);
 
             outData = executeEngine(inData);
