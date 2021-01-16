@@ -201,6 +201,7 @@ class ServiceEngine {
 
     private void parseComposition(EngineData inData) throws ClaraException {
         String currentComposition = inData.getComposition();
+        System.out.println("DDD "+currentComposition);
         if (!currentComposition.equals(prevComposition)) {
             compiler.compile(currentComposition);
             prevComposition = currentComposition;
