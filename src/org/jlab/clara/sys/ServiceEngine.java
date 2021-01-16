@@ -33,6 +33,7 @@ import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.engine.EngineStatus;
 import org.jlab.clara.sys.ccc.CompositionCompiler;
 import org.jlab.clara.sys.ccc.ServiceState;
+import org.jlab.clara.util.report.JsonUtils;
 import org.jlab.clara.util.report.ServiceReport;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
@@ -200,8 +201,10 @@ class ServiceEngine {
     }
 
     private void parseComposition(EngineData inData) throws ClaraException {
+        if(inData == null) System.out.println("DDD ===========================================");
         String currentComposition = inData.getComposition();
-        System.out.println("DDD "+currentComposition);
+        if(currentComposition == null) return;
+
         if (!currentComposition.equals(prevComposition)) {
             compiler.compile(currentComposition);
             prevComposition = currentComposition;
