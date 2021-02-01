@@ -22,19 +22,19 @@
 
 package org.jlab.clara.std.orchestrators;
 
-class BenchmarkPrinter {
+public class BenchmarkPrinter {
 
     private final Benchmark benchmark;
 
     private long totalTime = 0;
     private long totalRequests = 0;
 
-    BenchmarkPrinter(Benchmark benchmark, long totalRequests) {
+    public BenchmarkPrinter(Benchmark benchmark, long totalRequests) {
         this.benchmark = benchmark;
         this.totalRequests = totalRequests;
     }
 
-    void printBenchmark(ApplicationInfo application) {
+    public void printBenchmark(ApplicationInfo application) {
         Logging.info("Benchmark results:");
         printService(application.getReaderService(), "READER");
         for (ServiceInfo service : application.getDataProcessingServices()) {

@@ -52,7 +52,7 @@ import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.engine.EngineStatus;
 import org.json.JSONObject;
 
-class CoreOrchestrator {
+public class CoreOrchestrator {
 
     private final BaseOrchestrator base;
 
@@ -60,7 +60,7 @@ class CoreOrchestrator {
     private final Map<ServiceName, DeployInfo> userServices;
 
 
-    CoreOrchestrator(OrchestratorSetup setup, int poolSize) {
+    public CoreOrchestrator(OrchestratorSetup setup, int poolSize) {
         base = new BaseOrchestrator(setup.frontEnd, poolSize);
 
         userContainers = Collections.newSetFromMap(new ConcurrentHashMap<>());
@@ -73,7 +73,7 @@ class CoreOrchestrator {
     }
 
 
-    void deployService(DeployInfo service) {
+    public void deployService(DeployInfo service) {
         try {
             ContainerName containerName = service.name.container();
             if (!userContainers.contains(containerName)) {
@@ -148,7 +148,7 @@ class CoreOrchestrator {
     }
 
 
-    void checkServices(DpeName dpe, Set<ServiceName> services) {
+    public void checkServices(DpeName dpe, Set<ServiceName> services) {
         final int sleepTime = 2000;
         final int totalConnectTime = 1000 * 10 * services.size();
         final int maxAttempts = totalConnectTime / sleepTime;
@@ -213,12 +213,12 @@ class CoreOrchestrator {
     }
 
 
-    boolean findServices(DpeName dpe, Set<ServiceName> services) {
+    public boolean findServices(DpeName dpe, Set<ServiceName> services) {
         return findMissingServices(services, getRegisteredServices(dpe)).isEmpty();
     }
 
 
-    void syncConfig(ServiceName service, JSONObject data, int wait, TimeUnit unit)
+    public void syncConfig(ServiceName service, JSONObject data, int wait, TimeUnit unit)
             throws ClaraException, TimeoutException {
         EngineData input = new EngineData();
         input.setData(EngineDataType.JSON.mimeType(), data.toString());
@@ -226,13 +226,13 @@ class CoreOrchestrator {
     }
 
 
-    void syncConfig(ServiceName service, EngineData data, int wait, TimeUnit unit)
+    public void syncConfig(ServiceName service, EngineData data, int wait, TimeUnit unit)
             throws ClaraException, TimeoutException {
         base.configure(service).withData(data).syncRun(wait, unit);
     }
 
 
-    void syncEnableRing(ServiceName service, int wait, TimeUnit unit)
+    public void syncEnableRing(ServiceName service, int wait, TimeUnit unit)
             throws ClaraException, TimeoutException {
         ServiceConfigRequestBuilder builder = base.configure(service);
         try {
@@ -247,12 +247,12 @@ class CoreOrchestrator {
     }
 
 
-    void send(Composition composition, EngineData data) throws ClaraException {
+    public void send(Composition composition, EngineData data) throws ClaraException {
         base.execute(composition).withData(data).run();
     }
 
 
-    EngineData syncSend(ServiceName service, String data, int wait, TimeUnit unit)
+    public EngineData syncSend(ServiceName service, String data, int wait, TimeUnit unit)
             throws ClaraException, TimeoutException {
         EngineData input = new EngineData();
         input.setData(EngineDataType.STRING.mimeType(), data);
@@ -260,7 +260,7 @@ class CoreOrchestrator {
     }
 
 
-    EngineData syncSend(ServiceName service, JSONObject data, int wait, TimeUnit unit)
+    public EngineData syncSend(ServiceName service, JSONObject data, int wait, TimeUnit unit)
             throws ClaraException, TimeoutException {
         EngineData input = new EngineData();
         input.setData(EngineDataType.JSON.mimeType(), data.toString());
@@ -268,7 +268,7 @@ class CoreOrchestrator {
     }
 
 
-    EngineData syncSend(ServiceName service, EngineData input, int wait, TimeUnit unit)
+    public EngineData syncSend(ServiceName service, EngineData input, int wait, TimeUnit unit)
             throws ClaraException, TimeoutException {
         EngineData output = base.execute(service).withData(input).syncRun(wait, unit);
         if (output.getStatus() == EngineStatus.ERROR) {
@@ -278,17 +278,17 @@ class CoreOrchestrator {
     }
 
 
-    void startDoneReporting(ServiceName service, int frequency) throws ClaraException {
+    public void startDoneReporting(ServiceName service, int frequency) throws ClaraException {
         base.configure(service).startDoneReporting(frequency).run();
     }
 
 
-    void stopDoneReporting(ServiceName service) throws ClaraException {
+    public void stopDoneReporting(ServiceName service) throws ClaraException {
         base.configure(service).stopDoneReporting().run();
     }
 
 
-    void subscribeDpes(DpeCallBack callback, String session) {
+    public void subscribeDpes(DpeCallBack callback, String session) {
         try {
             DpeCallbackWrapper dpeCallback = new DpeCallbackWrapper(callback);
             base.listen().aliveDpes(session).start(dpeCallback);
@@ -299,7 +299,7 @@ class CoreOrchestrator {
     }
 
 
-    void subscribeErrors(ClaraName name, EngineCallback callback) {
+    public void subscribeErrors(ClaraName name, EngineCallback callback) {
         try {
             base.listen(name).status(EngineStatus.ERROR).start(callback);
         } catch (ClaraException e) {
@@ -308,7 +308,7 @@ class CoreOrchestrator {
     }
 
 
-    void subscribeDone(ServiceName service, EngineCallback callback) {
+    public void subscribeDone(ServiceName service, EngineCallback callback) {
         try {
             base.listen(service).done().start(callback);
         } catch (ClaraException e) {
@@ -317,7 +317,7 @@ class CoreOrchestrator {
     }
 
 
-    Set<DpeName> getRegisteredDpes(int seconds) {
+    public Set<DpeName> getRegisteredDpes(int seconds) {
         try {
             return base.query()
                        .canonicalNames(ClaraFilters.allDpes())
@@ -329,7 +329,7 @@ class CoreOrchestrator {
     }
 
 
-    Set<ServiceRuntimeData> getReport(DpeName dpe) {
+    public Set<ServiceRuntimeData> getReport(DpeName dpe) {
         try {
             return base.query()
                        .runtimeData(ClaraFilters.servicesByDpe(dpe))
@@ -340,7 +340,7 @@ class CoreOrchestrator {
     }
 
 
-    DpeName getFrontEnd() {
+    public DpeName getFrontEnd() {
         return base.getFrontEnd();
     }
 
@@ -355,7 +355,7 @@ class CoreOrchestrator {
 
 
 
-    interface DpeCallBack {
+    public interface DpeCallBack {
         void callback(DpeInfo dpe);
     }
 

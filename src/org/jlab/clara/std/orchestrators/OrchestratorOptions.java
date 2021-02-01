@@ -22,32 +22,32 @@
 
 package org.jlab.clara.std.orchestrators;
 
-final class OrchestratorOptions {
+final public class OrchestratorOptions {
 
-    static final int DEFAULT_POOLSIZE = 32;
-    static final int DEFAULT_REPORT_FREQ = 500;
-    static final int MAX_NODES = 512;
-    static final int MAX_THREADS = 64;
+    static final public int DEFAULT_POOLSIZE = 32;
+    static final public int DEFAULT_REPORT_FREQ = 500;
+    static final public int MAX_NODES = 512;
+    static final public int MAX_THREADS = 64;
 
-    final OrchestratorMode orchMode;
-    final boolean useFrontEnd;
-    final boolean stageFiles;
+    final public OrchestratorMode orchMode;
+    final public boolean useFrontEnd;
+    final public boolean stageFiles;
 
-    final int poolSize;
-    final int maxNodes;
-    final int maxThreads;
+    final public int poolSize;
+    final public int maxNodes;
+    final public int maxThreads;
 
-    final int skipEvents;
-    final int maxEvents;
-    final int reportFreq;
+    final public int skipEvents;
+    final public int maxEvents;
+    final public int reportFreq;
 
 
-    static Builder builder() {
+    public static Builder builder() {
         return new Builder();
     }
 
 
-    static final class Builder {
+    static final public class Builder {
 
         private OrchestratorMode orchMode = OrchestratorMode.LOCAL;
         private boolean useFrontEnd = false;
@@ -61,28 +61,28 @@ final class OrchestratorOptions {
         private int maxEvents = 0;
         private int reportFreq = DEFAULT_REPORT_FREQ;
 
-        Builder() {
+        public Builder() {
             if (System.getenv("CLARA_USE_DOCKER") != null) {
                 orchMode = OrchestratorMode.DOCKER;
             }
         }
 
-        Builder cloudMode() {
+        public Builder cloudMode() {
             this.orchMode = OrchestratorMode.CLOUD;
             return this;
         }
 
-        Builder useFrontEnd() {
+        public Builder useFrontEnd() {
             this.useFrontEnd = true;
             return this;
         }
 
-        Builder stageFiles() {
+        public Builder stageFiles() {
             this.stageFiles = true;
             return this;
         }
 
-        Builder withPoolSize(int poolSize) {
+        public Builder withPoolSize(int poolSize) {
             if (poolSize <= 0) {
                 throw new IllegalArgumentException("Invalid pool size: " + poolSize);
             }
@@ -90,7 +90,7 @@ final class OrchestratorOptions {
             return this;
         }
 
-        Builder withMaxNodes(int maxNodes) {
+        public Builder withMaxNodes(int maxNodes) {
             if (maxNodes <= 0) {
                 throw new IllegalArgumentException("Invalid max number of nodes: " + maxNodes);
             }
@@ -98,7 +98,7 @@ final class OrchestratorOptions {
             return this;
         }
 
-        Builder withMaxThreads(int maxThreads) {
+        public Builder withMaxThreads(int maxThreads) {
             if (maxThreads <= 0) {
                 throw new IllegalArgumentException("Invalid max number of threads: " + maxThreads);
             }
@@ -106,7 +106,7 @@ final class OrchestratorOptions {
             return this;
         }
 
-        Builder withSkipEvents(int skipEvents) {
+        public Builder withSkipEvents(int skipEvents) {
             if (skipEvents < 0) {
                 throw new IllegalArgumentException("Invalid skip events value: " + skipEvents);
             }
@@ -114,7 +114,7 @@ final class OrchestratorOptions {
             return this;
         }
 
-        Builder withMaxEvents(int maxEvents) {
+        public Builder withMaxEvents(int maxEvents) {
             if (maxEvents < 0) {
                 throw new IllegalArgumentException("Invalid max events value: " + maxEvents);
             }
@@ -122,7 +122,7 @@ final class OrchestratorOptions {
             return this;
         }
 
-        Builder withReportFrequency(int reportFreq) {
+        public Builder withReportFrequency(int reportFreq) {
             if (reportFreq <= 0) {
                 throw new IllegalArgumentException("Invalid report frequency: " + reportFreq);
             }
@@ -130,7 +130,7 @@ final class OrchestratorOptions {
             return this;
         }
 
-        OrchestratorOptions build() {
+        public OrchestratorOptions build() {
             return new OrchestratorOptions(this);
         }
     }

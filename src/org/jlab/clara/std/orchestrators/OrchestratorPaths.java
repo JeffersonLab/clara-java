@@ -33,21 +33,21 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-class OrchestratorPaths {
+public class OrchestratorPaths {
 
-    static final String INPUT_DIR = FileUtils.claraPath("data", "input").toString();
-    static final String OUTPUT_DIR = FileUtils.claraPath("data", "output").toString();
-    static final String STAGE_DIR = File.separator + "scratch";
-    static final String OUTPUT_FILE_PREFIX = "out_";
+    static final public String INPUT_DIR = FileUtils.claraPath("data", "input").toString();
+    static final public String OUTPUT_DIR = FileUtils.claraPath("data", "output").toString();
+    static final public String STAGE_DIR = File.separator + "scratch";
+    static final public String OUTPUT_FILE_PREFIX = "out_";
 
-    final List<WorkerFile> allFiles;
+    final public List<WorkerFile> allFiles;
 
-    final Path inputDir;
-    final Path outputDir;
-    final Path stageDir;
-    final String prefix;
+    final public Path inputDir;
+    final public Path outputDir;
+    final public Path stageDir;
+    final public String prefix;
 
-    static class Builder {
+    public static class Builder {
 
         private List<WorkerFile> allFiles;
         private Stream<String> afStream = null;
@@ -59,7 +59,7 @@ class OrchestratorPaths {
         private String prefix = OUTPUT_FILE_PREFIX;
 
 
-        Builder(String inputFile, String outputFile) {
+        public Builder(String inputFile, String outputFile) {
             Path inputPath = Paths.get(inputFile);
             Path outputPath = Paths.get(outputFile);
 
@@ -71,7 +71,7 @@ class OrchestratorPaths {
             this.outputDir = FileUtils.getParent(outputPath).toAbsolutePath().normalize();
         }
 
-        Builder(List<String> inputFiles) {
+        public Builder(List<String> inputFiles) {
             afStream = inputFiles.stream();
             this.allFiles = inputFiles.stream()
                     .peek(f -> checkValidFileName(f))
@@ -79,17 +79,17 @@ class OrchestratorPaths {
                     .collect(Collectors.toList());
         }
 
-        Builder withInputDir(String inputDir) {
+        public Builder withInputDir(String inputDir) {
             this.inputDir = Paths.get(inputDir).toAbsolutePath().normalize();
             return this;
         }
 
-        Builder withOutputDir(String outputDir) {
+        public Builder withOutputDir(String outputDir) {
             this.outputDir = Paths.get(outputDir).toAbsolutePath().normalize();
             return this;
         }
 
-        Builder withOutputFilePrefix(String prefix) {
+        public Builder withOutputFilePrefix(String prefix) {
             this.prefix = prefix;
             this.allFiles = afStream
                     .peek(f -> checkValidFileName(f))
@@ -98,12 +98,12 @@ class OrchestratorPaths {
             return this;
         }
 
-        Builder withStageDir(String stageDir) {
+        public Builder withStageDir(String stageDir) {
             this.stageDir = Paths.get(stageDir).toAbsolutePath().normalize();
             return this;
         }
 
-        OrchestratorPaths build() {
+        public OrchestratorPaths build() {
             return new OrchestratorPaths(this);
         }
 

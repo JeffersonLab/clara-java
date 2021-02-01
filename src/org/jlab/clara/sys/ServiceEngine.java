@@ -330,9 +330,6 @@ class ServiceEngine {
             sysReport.incrementShrmReads();
             String sender = metadata.getSender();
             int id = metadata.getCommunicationId();
-            System.out.println("DDD ===========================");
-            System.out.println(base.getName() +" "+sender+" "+ id);
-            System.out.println("DDD ===========================");
             return SharedMemory.getEngineData(base.getName(), sender, id);
         } else {
             sysReport.addBytesReceived(message.getDataSize());

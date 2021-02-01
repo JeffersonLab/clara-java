@@ -31,11 +31,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-class Benchmark {
+public class Benchmark {
 
-    final Map<ServiceInfo, Runtime> runtimeStats = new HashMap<>();
+    final public Map<ServiceInfo, Runtime> runtimeStats = new HashMap<>();
 
-    Benchmark(ApplicationInfo application) {
+    public Benchmark(ApplicationInfo application) {
         List<ServiceInfo> services = allServices(application);
         services.forEach(s -> {
             runtimeStats.put(s, new Runtime());
@@ -50,7 +50,7 @@ class Benchmark {
         return services;
     }
 
-    void initialize(Set<ServiceRuntimeData> data) {
+    public void initialize(Set<ServiceRuntimeData> data) {
         data.forEach(s -> {
             Runtime r = runtimeStats.get(key(s.name()));
             if (r != null) {
@@ -59,7 +59,7 @@ class Benchmark {
         });
     }
 
-    void update(Set<ServiceRuntimeData> data) {
+    public void update(Set<ServiceRuntimeData> data) {
         data.forEach(s -> {
             Runtime r = runtimeStats.get(key(s.name()));
             if (r != null) {
@@ -68,7 +68,7 @@ class Benchmark {
         });
     }
 
-    long time(ServiceInfo service) {
+    public long time(ServiceInfo service) {
         Runtime r = runtimeStats.get(service);
         if (r != null) {
             return r.totalTime - r.initialTime;

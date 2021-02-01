@@ -35,20 +35,20 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-class WorkerApplication {
+public class WorkerApplication {
 
     private final ApplicationInfo application;
     private final Map<ClaraLang, DpeInfo> dpes;
 
 
-    WorkerApplication(ApplicationInfo application, DpeInfo dpe) {
+    public WorkerApplication(ApplicationInfo application, DpeInfo dpe) {
         this.application = application;
         this.dpes = new HashMap<>();
         this.dpes.put(dpe.name.language(), dpe);
     }
 
 
-    WorkerApplication(ApplicationInfo application, Map<ClaraLang, DpeInfo> dpes) {
+    public WorkerApplication(ApplicationInfo application, Map<ClaraLang, DpeInfo> dpes) {
         this.application = application;
         this.dpes = new HashMap<>(dpes);
     }
@@ -131,13 +131,13 @@ class WorkerApplication {
     }
 
 
-    Stream<DeployInfo> getInputOutputServicesDeployInfo() {
+    public Stream<DeployInfo> getInputOutputServicesDeployInfo() {
         return application.getInputOutputServices().stream()
                           .map(s -> new DeployInfo(toName(s), s.classpath, 1));
     }
 
 
-    Stream<DeployInfo> getProcessingServicesDeployInfo() {
+    public Stream<DeployInfo> getProcessingServicesDeployInfo() {
         int maxCores = maxCores();
         return application.getDataProcessingServices().stream()
                           .distinct()
@@ -145,21 +145,21 @@ class WorkerApplication {
     }
 
 
-    Stream<DeployInfo> getMonitoringServicesDeployInfo() {
+    public Stream<DeployInfo> getMonitoringServicesDeployInfo() {
         return application.getMonitoringServices().stream()
                           .distinct()
                           .map(s -> new DeployInfo(toName(s), s.classpath, 1));
     }
 
 
-    Map<DpeName, Set<ServiceName>> allServices() {
+    public Map<DpeName, Set<ServiceName>> allServices() {
         return application.getAllServices().stream()
                           .map(this::toName)
                           .collect(Collectors.groupingBy(ServiceName::dpe, Collectors.toSet()));
     }
 
 
-    Map<DpeName, Set<ContainerName>> allContainers() {
+    public Map<DpeName, Set<ContainerName>> allContainers() {
         return application.getAllServices().stream()
                           .map(this::toName)
                           .map(ServiceName::container)
@@ -167,7 +167,7 @@ class WorkerApplication {
     }
 
 
-    Set<DpeName> dpes() {
+    public Set<DpeName> dpes() {
         return dpes.values().stream()
                    .map(dpe -> dpe.name)
                    .collect(Collectors.toSet());

@@ -34,7 +34,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-class ApplicationInfo {
+public class ApplicationInfo {
 
     static final String STAGE = "stage";
     static final String READER = "reader";
@@ -45,7 +45,7 @@ class ApplicationInfo {
     private final List<ServiceInfo> monServices;
     private final Set<ClaraLang> languages;
 
-    ApplicationInfo(Map<String, ServiceInfo> ioServices,
+    public ApplicationInfo(Map<String, ServiceInfo> ioServices,
                     List<ServiceInfo> dataServices,
                     List<ServiceInfo> monServices) {
         this.ioServices = copyServices(ioServices);
@@ -90,39 +90,39 @@ class ApplicationInfo {
         return Stream.of(values).flatMap(Collection::stream);
     }
 
-    ServiceInfo getStageService() {
+    public ServiceInfo getStageService() {
         return ioServices.get(STAGE);
     }
 
-    ServiceInfo getReaderService() {
+    public ServiceInfo getReaderService() {
         return ioServices.get(READER);
     }
 
-    ServiceInfo getWriterService() {
+    public ServiceInfo getWriterService() {
         return ioServices.get(WRITER);
     }
 
-    List<ServiceInfo> getInputOutputServices() {
+    public List<ServiceInfo> getInputOutputServices() {
         return Arrays.asList(getStageService(), getReaderService(), getWriterService());
     }
 
-    List<ServiceInfo> getDataProcessingServices() {
+    public List<ServiceInfo> getDataProcessingServices() {
         return dataServices;
     }
 
-    List<ServiceInfo> getMonitoringServices() {
+    public List<ServiceInfo> getMonitoringServices() {
         return monServices;
     }
 
-    Set<ServiceInfo> getServices() {
+    public Set<ServiceInfo> getServices() {
         return stream(dataServices, monServices).collect(Collectors.toSet());
     }
 
-    Set<ServiceInfo> getAllServices() {
+    public Set<ServiceInfo> getAllServices() {
         return allServices().collect(Collectors.toSet());
     }
 
-    Set<ClaraLang> getLanguages() {
+    public Set<ClaraLang> getLanguages() {
         return languages;
     }
 }

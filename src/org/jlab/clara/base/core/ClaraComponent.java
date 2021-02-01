@@ -563,7 +563,6 @@ public final class ClaraComponent {
      * @return {@link org.jlab.coda.xmsg.core.xMsgTopic} object
      */
     public xMsgTopic getTopic() {
-        System.out.println("DDD ============================ > "+topic);
         return topic;
     }
 

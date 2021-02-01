@@ -22,7 +22,7 @@
 
 package org.jlab.clara.std.orchestrators;
 
-enum OrchestratorMode {
+public enum OrchestratorMode {
     LOCAL,
     CLOUD,
     DOCKER

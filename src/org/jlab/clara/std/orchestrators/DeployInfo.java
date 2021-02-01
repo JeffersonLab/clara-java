@@ -24,13 +24,13 @@ package org.jlab.clara.std.orchestrators;
 
 import org.jlab.clara.base.ServiceName;
 
-class DeployInfo {
+public class DeployInfo {
 
-    final ServiceName name;
-    final String classPath;
-    final int poolSize;
+    final public  ServiceName name;
+    final public String classPath;
+    final public int poolSize;
 
-    DeployInfo(ServiceName name, String classPath, int poolSize) {
+    public DeployInfo(ServiceName name, String classPath, int poolSize) {
         this.name = name;
         this.classPath = classPath;
         this.poolSize = poolSize;

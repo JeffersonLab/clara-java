@@ -63,7 +63,7 @@ import org.yaml.snakeyaml.error.YAMLException;
  * <li>The list of mime-types used by the services (required)
  * <li>The global configuration for all services
  * </ul>
- *
+ * <p>
  * The <i>services</i> description is provided in a YAML file,
  * which format is the following:
  * <pre>
@@ -128,7 +128,7 @@ public class OrchestratorConfigParser {
     }
 
 
-    static String getDefaultContainer() {
+    public static String getDefaultContainer() {
         return DEFAULT_CONTAINER;
     }
 
@@ -140,9 +140,9 @@ public class OrchestratorConfigParser {
      */
     public Set<ClaraLang> parseLanguages() {
         ApplicationInfo app = new ApplicationInfo(
-                parseInputOutputServices(),
-                parseDataProcessingServices(),
-                parseMonitoringServices());
+            parseInputOutputServices(),
+            parseDataProcessingServices(),
+            parseMonitoringServices());
         return app.getLanguages();
     }
 
@@ -173,7 +173,7 @@ public class OrchestratorConfigParser {
     }
 
 
-    Map<String, ServiceInfo> parseInputOutputServices() {
+    public Map<String, ServiceInfo> parseInputOutputServices() {
         Map<String, ServiceInfo> services = new HashMap<>();
         JSONObject io = config.optJSONObject("io-services");
         if (io == null) {
@@ -198,11 +198,11 @@ public class OrchestratorConfigParser {
 
     private ServiceInfo getStageService() {
         return new ServiceInfo("org.jlab.clara.std.services.DataManager",
-                               parseDefaultContainer(), "DataManager", ClaraLang.JAVA);
+            parseDefaultContainer(), "DataManager", ClaraLang.JAVA);
     }
 
 
-    List<ServiceInfo> parseDataProcessingServices() {
+    public List<ServiceInfo> parseDataProcessingServices() {
         JSONArray sl = config.optJSONArray(SERVICES_KEY);
         if (sl != null) {
             return parseServices(sl);
@@ -211,7 +211,7 @@ public class OrchestratorConfigParser {
     }
 
 
-    List<ServiceInfo> parseMonitoringServices() {
+    public List<ServiceInfo> parseMonitoringServices() {
         if (config.optJSONArray(SERVICES_KEY) != null) {
             return new ArrayList<>();
         }
@@ -248,15 +248,36 @@ public class OrchestratorConfigParser {
             ServiceInfo service = parseService(array.getJSONObject(i));
             if (services.contains(service)) {
                 throw error(String.format("duplicated service  name = '%s' container = '%s'",
-                                          service.name, service.cont));
+                    service.name, service.cont));
             }
-            services.add(service);
+//            services.add(service);
+            // ----------------- vg 01.19.2021
+            // Check to see if there is already registered service
+            // with the name starting with as the parsing service,
+            // and names have different length. Change the parsing
+            // service name by adding "x" in front of the parsing
+            // service name.
+            ServiceInfo updatedSi = null;
+            for (ServiceInfo _si : services) {
+                if ((_si.name.startsWith(service.name)) || (service.name.startsWith(_si.name))) {
+                    updatedSi = new ServiceInfo(service.classpath,
+                        service.cont,
+                        "x" + service.name,
+                        service.lang);
+                }
+            }
+            if (updatedSi != null) {
+                services.add(updatedSi);
+            } else {
+                services.add(service);
+            }
+            // ----------------- vg 01.19.2021
         }
         return services;
     }
 
 
-    List<RingCallbackInfo> parseDataRingCallbacks() {
+    public List<RingCallbackInfo> parseDataRingCallbacks() {
         List<RingCallbackInfo> callbacks = new ArrayList<>();
         JSONObject co = config.optJSONObject("callbacks");
         if (co == null) {
@@ -271,9 +292,9 @@ public class OrchestratorConfigParser {
 
 
     private List<RingCallbackInfo> parseDataRingCallbacks(
-            JSONObject parent,
-            String callbacksKey,
-            Function<JSONObject, RingTopic> topicParser) {
+        JSONObject parent,
+        String callbacksKey,
+        Function<JSONObject, RingTopic> topicParser) {
         List<RingCallbackInfo> callbacks = new ArrayList<>();
         JSONArray ca = parent.optJSONArray(callbacksKey);
         if (ca != null) {
@@ -350,7 +371,7 @@ public class OrchestratorConfigParser {
     }
 
 
-    JSONObject parseConfiguration() {
+    public JSONObject parseConfiguration() {
         if (config.has("configuration")) {
             return config.getJSONObject("configuration");
         }
@@ -358,7 +379,7 @@ public class OrchestratorConfigParser {
     }
 
 
-    OrchestratorConfigMode parseConfigurationMode() {
+    public OrchestratorConfigMode parseConfigurationMode() {
         if (config.has("configuration_mode")) {
             String mode = config.getString("configuration_mode");
             try {
@@ -393,19 +414,19 @@ public class OrchestratorConfigParser {
     }
 
 
-    static DpeInfo getDefaultDpeInfo(String hostName) {
+    public static DpeInfo getDefaultDpeInfo(String hostName) {
         String dpeIp = hostAddress(hostName);
         DpeName dpeName = new DpeName(dpeIp, ClaraLang.JAVA);
         return new DpeInfo(dpeName, 0, EnvUtils.claraHome());
     }
 
 
-    static DpeName localDpeName() {
+    public static DpeName localDpeName() {
         return new DpeName(hostAddress("localhost"), ClaraLang.JAVA);
     }
 
 
-    static String hostAddress(String host) {
+    public static String hostAddress(String host) {
         try {
             return xMsgUtil.toHostAddress(host);
         } catch (UncheckedIOException e) {
@@ -414,13 +435,13 @@ public class OrchestratorConfigParser {
     }
 
 
-    static List<String> readInputFiles(String inputFilesList) {
+    public static List<String> readInputFiles(String inputFilesList) {
         try {
             Pattern pattern = Pattern.compile("^\\s*#.*$");
             List<String> files = Files.lines(Paths.get(inputFilesList))
-                    .filter(line -> !line.isEmpty())
-                    .filter(line -> !pattern.matcher(line).matches())
-                    .collect(Collectors.toList());
+                .filter(line -> !line.isEmpty())
+                .filter(line -> !pattern.matcher(line).matches())
+                .collect(Collectors.toList());
             if (files.isEmpty()) {
                 throw error("empty list of input files from " + inputFilesList);
             }

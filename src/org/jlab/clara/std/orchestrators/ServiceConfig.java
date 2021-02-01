@@ -38,10 +38,10 @@ import freemarker.template.Template;
 import freemarker.template.TemplateException;
 import freemarker.template.TemplateExceptionHandler;
 
-class ServiceConfig {
+public class ServiceConfig {
 
-    static final String READER = "reader";
-    static final String WRITER = "writer";
+    static final public String READER = "reader";
+    static final public String WRITER = "writer";
 
     private static final String IO_CONFIG = "io-services";
     private static final String GLOBAL_CONFIG = "global";
@@ -59,11 +59,11 @@ class ServiceConfig {
         FTL_CONFIG.setLogTemplateExceptions(false);
     }
 
-    ServiceConfig(JSONObject configData) {
+    public ServiceConfig(JSONObject configData) {
         this(configData, new HashMap<>());
     }
 
-    ServiceConfig(JSONObject configData, Map<String, Object> model) {
+    public ServiceConfig(JSONObject configData, Map<String, Object> model) {
         this.configData = configData;
         this.model = model;
     }
@@ -87,7 +87,7 @@ class ServiceConfig {
         return conf;
     }
 
-    JSONObject get(ServiceName service) {
+    public JSONObject get(ServiceName service) {
         JSONObject conf = new JSONObject();
         if (configData.has(GLOBAL_CONFIG)) {
             addServiceConfig(conf, configData, GLOBAL_CONFIG);

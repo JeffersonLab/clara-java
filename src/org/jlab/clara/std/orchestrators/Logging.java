@@ -26,7 +26,7 @@ import java.text.Format;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-final class Logging {
+final public class Logging {
 
     private static final Object LOCK = new Object();
     private static boolean debug = false;
@@ -40,7 +40,7 @@ final class Logging {
     }
 
 
-    static void info(String msg) {
+    static public void info(String msg) {
         String currentTime = getCurrentTime();
         synchronized (LOCK) {
             if (debug) {
@@ -51,7 +51,7 @@ final class Logging {
     }
 
 
-    static void info(String format, Object... args) {
+    static public void info(String format, Object... args) {
         String currentTime = getCurrentTime();
         synchronized (LOCK) {
             if (debug) {
@@ -63,7 +63,7 @@ final class Logging {
     }
 
 
-    static void error(String msg) {
+    static public void error(String msg) {
         String currentTime = getCurrentTime();
         synchronized (LOCK) {
             if (debug) {
@@ -74,7 +74,7 @@ final class Logging {
     }
 
 
-    static void error(String format, Object... args) {
+    static public void error(String format, Object... args) {
         String currentTime = getCurrentTime();
         synchronized (LOCK) {
             if (debug) {
@@ -86,7 +86,7 @@ final class Logging {
     }
 
 
-    static void verbose(boolean enable) {
+    static public void verbose(boolean enable) {
         synchronized (LOCK) {
             debug = enable;
         }

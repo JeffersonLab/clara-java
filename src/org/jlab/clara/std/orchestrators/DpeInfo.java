@@ -34,13 +34,13 @@ import org.jlab.clara.base.DpeName;
  * <li>value of {@code $CLARA_HOME}
  * </ul>
  */
-class DpeInfo {
+public class DpeInfo {
 
-    final DpeName name;
-    final int cores;
-    final String claraHome;
+    final public DpeName name;
+    final public int cores;
+    final public String claraHome;
 
-    DpeInfo(DpeName name, int cores, String claraHome) {
+    public DpeInfo(DpeName name, int cores, String claraHome) {
         if (name == null) {
             throw new IllegalArgumentException("Null DPE name");
         }

@@ -36,17 +36,17 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-class OrchestratorSetup {
+public class OrchestratorSetup {
 
-    final ApplicationInfo application;
-    final DpeName frontEnd;
-    final String session;
-    final JSONObject configuration;
-    final OrchestratorConfigMode configMode;
-    final Set<EngineDataType> dataTypes;
+    final public ApplicationInfo application;
+    final public DpeName frontEnd;
+    final public String session;
+    final public JSONObject configuration;
+    final public OrchestratorConfigMode configMode;
+    final public Set<EngineDataType> dataTypes;
 
 
-    static class Builder {
+    public static class Builder {
 
         private final ApplicationInfo application;
 
@@ -57,40 +57,40 @@ class OrchestratorSetup {
         private OrchestratorConfigMode configMode = OrchestratorConfigMode.DATASET;
         private Set<String> dataTypes = new HashSet<>();
 
-        Builder(Map<String, ServiceInfo> ioServices,
+        public Builder(Map<String, ServiceInfo> ioServices,
                 List<ServiceInfo> dataServices,
                 List<ServiceInfo> monServices) {
             this.application = new ApplicationInfo(ioServices, dataServices, monServices);
         }
 
-        Builder withFrontEnd(DpeName frontEnd) {
+        public Builder withFrontEnd(DpeName frontEnd) {
             Objects.requireNonNull(frontEnd, "frontEnd parameter is null");
             this.frontEnd = frontEnd;
             return this;
         }
 
-        Builder withSession(String session) {
+        public Builder withSession(String session) {
             Objects.requireNonNull(session, "session parameter is null");
             this.session = session;
             return this;
         }
 
-        Builder withConfig(JSONObject config) {
+        public Builder withConfig(JSONObject config) {
             this.config = config;
             return this;
         }
 
-        Builder withConfigMode(OrchestratorConfigMode mode) {
+        public Builder withConfigMode(OrchestratorConfigMode mode) {
             this.configMode = mode;
             return this;
         }
 
-        Builder withDataTypes(Set<String> dataTypes) {
+        public Builder withDataTypes(Set<String> dataTypes) {
             this.dataTypes = dataTypes;
             return this;
         }
 
-        OrchestratorSetup build() {
+        public OrchestratorSetup build() {
             return new OrchestratorSetup(this);
         }
     }

@@ -22,7 +22,7 @@
 
 package org.jlab.clara.std.orchestrators;
 
-enum OrchestratorConfigMode {
+public enum OrchestratorConfigMode {
 
     FILE("file"),
     DATASET("dataset");
