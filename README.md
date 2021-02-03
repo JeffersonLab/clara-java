@@ -3,7 +3,6 @@
 A micro-services framework to provide a heterogeneous computing environment for efficient
 Big Data processing.
 
-[![Build Status](https://travis-ci.org/JeffersonLab/clara-java.svg?branch=master)](https://travis-ci.org/JeffersonLab/clara-java)
 [![Javadoc](https://img.shields.io/badge/javadoc-4.3--SNAPSHOT-blue.svg?style=flat)](https://claraweb.jlab.org/clara/api/java/v4.3)
 
 
