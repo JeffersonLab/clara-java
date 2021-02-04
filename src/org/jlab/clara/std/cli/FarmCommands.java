@@ -401,7 +401,8 @@ final class FarmCommands {
             cmd.addOption("-z", config.getString(Config.OUT_FILE_PREFIX));
 //            cmd.addOption("-x", config.getString(Config.LOG_DIR));
 
-            cmd.addOption("-x", config.getString(Config.LOG_DIR) + File.separator + "$SLURM_JOB_ID"); //vg
+            cmd.addOption("-x", config.getString(Config.LOG_DIR)
+                + File.separator + "$SLURM_JOB_ID"); //vg
 
             if (config.hasValue(FARM_STAGE)) {
                 if (config.getString(FARM_STAGE).equals("default")) {
@@ -458,7 +459,8 @@ final class FarmCommands {
             cmd.addOption("-o", config.getString(Config.OUTPUT_DIR));
             cmd.addOption("-z", config.getString(Config.OUT_FILE_PREFIX));
 
-            cmd.addOption("-x", config.getString(Config.LOG_DIR) + File.separator + "$SLURM_JOB_ID");
+            cmd.addOption("-x", config.getString(Config.LOG_DIR)
+                + File.separator + "$SLURM_JOB_ID");
 
 //            cmd.addOption("-x", config.getString(Config.LOG_DIR));
             if (config.hasValue(FARM_STAGE)) {

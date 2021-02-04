@@ -33,7 +33,6 @@ import org.jlab.clara.engine.EngineDataType;
 import org.jlab.clara.engine.EngineStatus;
 import org.jlab.clara.sys.ccc.CompositionCompiler;
 import org.jlab.clara.sys.ccc.ServiceState;
-import org.jlab.clara.util.report.JsonUtils;
 import org.jlab.clara.util.report.ServiceReport;
 import org.jlab.coda.xmsg.core.xMsgConstants;
 import org.jlab.coda.xmsg.core.xMsgMessage;
@@ -202,7 +201,9 @@ class ServiceEngine {
 
     private void parseComposition(EngineData inData) throws ClaraException {
         String currentComposition = inData.getComposition();
-        if(currentComposition == null) return;
+        if (currentComposition == null) {
+            return;
+        }
 
         if (!currentComposition.equals(prevComposition)) {
             compiler.compile(currentComposition);
@@ -330,9 +331,6 @@ class ServiceEngine {
             sysReport.incrementShrmReads();
             String sender = metadata.getSender();
             int id = metadata.getCommunicationId();
-            System.out.println("DDD ===========================");
-            System.out.println(base.getName() +" "+sender+" "+ id);
-            System.out.println("DDD ===========================");
             return SharedMemory.getEngineData(base.getName(), sender, id);
         } else {
             sysReport.addBytesReceived(message.getDataSize());
