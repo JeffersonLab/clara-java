@@ -70,6 +70,19 @@ for plugin in "${plugins_dir}"/*/; do
         java_lib_path+=":${plugin}/lib"
     fi
 done
+if [ -n "${java_lib_path}" ]; then
+    java_lib_path=${java_lib_path#:}
+    case "$(uname)" in
+        "Linux")
+            export LD_LIBRARY_PATH=${LD_LIBRARY_PATH:+$LD_LIBRARY_PATH:}${java_lib_path}
+            ;;
+        "Darwin")
+            export DYLD_LIBRARY_PATH=${DYLD_LIBRARY_PATH:+$DYLD_LIBRARY_PATH:}${java_lib_path}
+            ;;
+        "*")
+            ;;
+    esac
+fi
 
 if [ -n "${JAVA_OPTS}" ]; then
     jvm_options=(${JAVA_OPTS})
@@ -80,4 +93,4 @@ fi
 
 java_wrapper=${CLARA_HOME}/lib/clara/run-java
 
-exec "${java_wrapper}" "${jvm_options[@]}" -Djava.library.path="${java_lib_path}" org.jlab.clara.sys.Dpe "$@"
+exec "${java_wrapper}" "${jvm_options[@]}" org.jlab.clara.sys.Dpe "$@"
