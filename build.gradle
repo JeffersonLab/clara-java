@@ -35,8 +35,11 @@ group = 'org.jlab.coda'
 archivesBaseName = 'jclara'
 version = '4.3-SNAPSHOT'
 
-sourceCompatibility = '1.8'
-targetCompatibility = '1.8'
+//sourceCompatibility = '1.8'
+//targetCompatibility = '1.8'
+
+sourceCompatibility = JavaVersion.VERSION_11
+targetCompatibility = JavaVersion.VERSION_11
 
 defaultTasks 'build'
 
@@ -90,11 +93,11 @@ dependencies {
 }
 
 
-tasks.withType(JavaCompile) {
-    if (JavaVersion.current() > JavaVersion.VERSION_1_8) {
-        options.compilerArgs += ['--release', '8']
-    }
-}
+//tasks.withType(JavaCompile) {
+//    if (JavaVersion.current() > JavaVersion.VERSION_1_8) {
+//        options.compilerArgs += ['--release', '8']
+//    }
+//}
 
 javadoc {
     options.charSet = 'utf8'

@@ -156,7 +156,6 @@ case $OS in
         else
             echo "getting grapes-$GRAPES"
             wget https://clasweb.jlab.org/clas12offline/distribution/grapes/grapes-$GRAPES.tar.gz
-            cp -p $PLUGIN .
         fi
 
         MACHINE_TYPE=$(uname -m)
@@ -188,7 +187,6 @@ case $OS in
        else
             echo "getting grapes-$GRAPES"
             curl "https://clasweb.jlab.org/clas12offline/distribution/grapes/grapes-$GRAPES.tar.gz" -o grapes-$GRAPES.tar.gz
-            cp -p $PLUGIN .
        fi
 
         curl "https://userweb.jlab.org/~gurjyan/clara-cre/macosx-64-$JRE.tar.gz" -o macosx-64-$JRE.tar.gz
