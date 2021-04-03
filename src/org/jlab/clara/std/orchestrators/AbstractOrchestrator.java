@@ -514,7 +514,8 @@ abstract class AbstractOrchestrator {
             if (description.equalsIgnoreCase("End of File")) {
                 int eof = node.eofCounter.incrementAndGet();
                 if (eof == 1) {
-                    startTimer();
+//                    startTimer();
+                    finishCurrentFile(); // 04.03.2021 do not wait for synchronization. (by vg)
                 }
                 if (severity == 2) {
                     finishCurrentFile();
