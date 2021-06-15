@@ -262,7 +262,7 @@ abstract class AbstractOrchestrator {
             if (!checkChain(node)) {
                 deploy(node);
             }
-//            subscribe(node);    //vg 06.14.21
+            subscribe(node);    //vg 06.14.21 comment it for streaming
 
             if (options.stageFiles) {
                 node.setPaths(paths.inputDir, paths.outputDir, paths.stageDir, paths.prefix);
@@ -514,8 +514,8 @@ abstract class AbstractOrchestrator {
             if (description.equalsIgnoreCase("End of File")) {
                 int eof = node.eofCounter.incrementAndGet();
                 if (eof == 1) {
-//                    startTimer();
-                    finishCurrentFile(); // 04.03.2021 do not wait for synchronization. (by vg)
+                    startTimer();
+                    finishCurrentFile();
                 }
                 if (severity == 2) {
                     finishCurrentFile();

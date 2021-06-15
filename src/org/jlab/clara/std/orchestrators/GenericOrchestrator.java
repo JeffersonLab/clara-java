@@ -392,7 +392,7 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
 
     @Override
     void subscribe(WorkerNode node) {
-//        super.subscribe(node);    //vg 06.14.21
+        super.subscribe(node);    //vg 06.14.21 comment it for streaming
         if (options.orchMode != OrchestratorMode.CLOUD) {
             node.subscribeDone(n -> new DataHandlerCB(node, options));
         }
