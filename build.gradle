@@ -85,6 +85,7 @@ dependencies {
     implementation 'net.sf.jopt-simple:jopt-simple:4.9'
     implementation 'com.google.code.findbugs:jsr305:3.0.1'
     implementation 'org.jlab.coda:jinflux:1.0-SNAPSHOT'
+    implementation 'junit:junit:4.12'
     deployerJars 'org.apache.maven.wagon:wagon-ssh-external:2.12'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.4.2'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.4.2'

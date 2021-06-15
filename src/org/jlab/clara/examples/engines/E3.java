@@ -100,7 +100,7 @@ public class E3 implements Engine {
 
     @Override
     public String getAuthor() {
-        return "Vardan Gyurgyan";
+        return "Vardan Gyurjyan";
     }
 
     @Override

@@ -262,7 +262,7 @@ abstract class AbstractOrchestrator {
             if (!checkChain(node)) {
                 deploy(node);
             }
-            subscribe(node);
+//            subscribe(node);    //vg 06.14.21
 
             if (options.stageFiles) {
                 node.setPaths(paths.inputDir, paths.outputDir, paths.stageDir, paths.prefix);
