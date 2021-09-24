@@ -515,7 +515,7 @@ abstract class AbstractOrchestrator {
                 int eof = node.eofCounter.incrementAndGet();
                 if (eof == 1) {
                     startTimer();
-                    finishCurrentFile();
+//                    finishCurrentFile(); // vg commented  09.23.21
                 }
                 if (severity == 2) {
                     finishCurrentFile();
@@ -549,7 +549,8 @@ abstract class AbstractOrchestrator {
         }
 
         private synchronized void startTimer() {
-            TimerTask task = new EndOfFileTimerTask(30, 300, () -> {
+//            TimerTask task = new EndOfFileTimerTask(30, 300, () -> { // vg commented 09.23.21
+            TimerTask task = new EndOfFileTimerTask(30, 60, () -> {
                 finishCurrentFile();
             });
 
