@@ -26,9 +26,23 @@ class WorkerFile {
 
     final String inputName;
     final String outputName;
+    boolean isProcessed;
 
     WorkerFile(String inFile, String outFile) {
         inputName = inFile;
         outputName = outFile;
+    }
+
+    //vg 11.3.21
+    public String getInputName() {
+        return inputName;
+    }
+    //vg 11.3.21
+    public boolean isProcessed() {
+        return isProcessed;
+    }
+    //vg 11.3.21
+    public void setProcessed(boolean processed) {
+        isProcessed = processed;
     }
 }

@@ -499,7 +499,6 @@ class WorkerNode {
         return Collections.unmodifiableSet(application.dpes());
     }
 
-
     @Override
     public int hashCode() {
         final int prime = 31;

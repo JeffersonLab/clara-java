@@ -408,7 +408,6 @@ abstract class AbstractOrchestrator {
                     e.printStackTrace();
                 }
             }
-
         }
 
     }
@@ -550,7 +549,7 @@ abstract class AbstractOrchestrator {
 
         private synchronized void startTimer() {
 //            TimerTask task = new EndOfFileTimerTask(30, 300, () -> { // vg commented 09.23.21
-            TimerTask task = new EndOfFileTimerTask(30, 60, () -> {
+            TimerTask task = new EndOfFileTimerTask(30, 60, node.currentFile(), () -> { // vg 11.2.21
                 finishCurrentFile();
             });
 
@@ -570,13 +569,17 @@ abstract class AbstractOrchestrator {
 
         private final int delta;
         private final int timeout;
+        private final String fileName;
         private final Runnable timeoutAction;
 
         private AtomicInteger timeLeft;
 
-        EndOfFileTimerTask(int delta, int timeout, Runnable timeoutAction) {
+        // Constructor is modified, by adding a new parameter
+        // vg 11.3.21
+        EndOfFileTimerTask(int delta, int timeout, String fileName, Runnable timeoutAction) {
             this.delta = delta;
             this.timeout = timeout;
+            this.fileName = fileName;
             this.timeoutAction = timeoutAction;
             this.timeLeft = new AtomicInteger(timeout);
         }
@@ -591,8 +594,24 @@ abstract class AbstractOrchestrator {
             if (timeLeft <= 0) {
                 if (options.orchMode == OrchestratorMode.LOCAL) {
                     Logging.info("Last output events are taking too long. Closing files...");
+                    // vg 11.3.21
+                    // add this failed file back to the list of processing files
+                    for (WorkerFile file : paths.allFiles) {
+                        if (file.getInputName().equals(fileName)) {
+                            if (!file.isProcessed()) {
+                                file.setProcessed(true);
+                                processingQueue.add(file);
+                                processedFilesCounter.decrementAndGet();
+                                break;
+                            } else {
+                                //@todo
+                                // Tell DPE to exit
+                                // set exit code error
+                            }
+                        }
+                    }
+                    timeoutAction.run();
                 }
-                timeoutAction.run();
             }
         }
     }
