@@ -22,10 +22,10 @@
 
 plugins {
     id 'java-library'
-    id 'maven'
+    id 'maven-publish'
 
     id 'checkstyle'
-    id 'com.github.spotbugs' version '1.6.9'
+//    id "com.github.spotbugs-base" version "5.0.6"
 
     id 'eclipse'
     id 'idea'
@@ -38,15 +38,15 @@ version = '4.3-SNAPSHOT'
 //sourceCompatibility = '1.8'
 //targetCompatibility = '1.8'
 
-sourceCompatibility = JavaVersion.VERSION_11
-targetCompatibility = JavaVersion.VERSION_11
+sourceCompatibility = JavaVersion.VERSION_17
+targetCompatibility = JavaVersion.VERSION_17
 
 defaultTasks 'build'
 
 
 configurations {
     all {
-         resolutionStrategy.cacheChangingModulesFor 30, 'minutes'
+        resolutionStrategy.cacheChangingModulesFor 30, 'minutes'
     }
     deployerJars
 }
@@ -93,12 +93,6 @@ dependencies {
     testImplementation 'org.mockito:mockito-junit-jupiter:2.28.2'
 }
 
-
-//tasks.withType(JavaCompile) {
-//    if (JavaVersion.current() > JavaVersion.VERSION_1_8) {
-//        options.compilerArgs += ['--release', '8']
-//    }
-//}
 
 javadoc {
     options.charSet = 'utf8'
@@ -167,17 +161,25 @@ artifacts {
     archives sourcesJar
 }
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            configuration = configurations.deployerJars
-            repository(url: 'scpexe://clas12@jlabl1.jlab.org/group/clas/www/clasweb/html/clas12maven') {
-                authentication(userName: 'clas12')
-            }
+publishing {
+    publications {
+        maven(MavenPublication) {
+//            repositories {
+//                mavenDeployer {
+//                    configuration = configurations.deployerJars
+//                    repository(url: 'scpexe://clas12@jlabl1.jlab.org/group/clas/www/clasweb/html/clas12maven') {
+//                        authentication(userName: 'clas12')
+//                    }
+//                }
+//            }
+
+            groupId = 'org.jalb.coda.clara'
+            artifactId = 'library'
+            version = '1.1'
+            from components.java
         }
     }
 }
-
 
 test {
     testLogging {
@@ -200,18 +202,18 @@ task integrationTest(type: Test) {
 
 
 def deploySpec = copySpec {
-    into ('lib') {
+    into('lib') {
         from configurations.runtimeClasspath
         from jar.archiveFile
     }
 
-    from ('scripts/unix') {
+    from('scripts/unix') {
         into 'bin'
         exclude 'etc'
         fileMode 0755
     }
 
-    from ('scripts/lib') {
+    from('scripts/lib') {
         into 'lib/clara'
         fileMode 0755
     }
@@ -237,19 +239,19 @@ task distSources(type: Tar, dependsOn: build) {
     from 'gradlew'
     from 'gradlew.bat'
 
-    from ('config') {
+    from('config') {
         into 'config'
     }
-    from ('gradle') {
+    from('gradle') {
         into 'gradle'
     }
-    from ('scripts') {
+    from('scripts') {
         into 'scripts'
     }
-    from ('src') {
+    from('src') {
         into 'src'
     }
-    from ('test') {
+    from('test') {
         into 'test'
     }
 }
@@ -317,68 +319,67 @@ checkstyle {
     configProperties['samedir'] = file('config/quality')
 }
 
-spotbugs {
-    toolVersion = '3.1.12'
-    ignoreFailures = true
-    effort = 'max'
-    reportLevel = 'medium'
-    excludeFilter = file('config/quality/findbugs-exclude.xml')
-}
+//spotbugs {
+//    toolVersion = '5.0.6'
+//    ignoreFailures = true
+//    effort = 'max'
+//    reportLevel = 'medium'
+//    excludeFilter = file('config/quality/findbugs-exclude.xml')
+//}
 
-tasks.withType(com.github.spotbugs.SpotBugsTask) {
-    def useXml = ciMode()
-    reports {
-        xml.enabled = useXml
-        html.enabled = !xml.enabled
-    }
-}
+//tasks.withType(com.github.spotbugs-base.SpotBugsTask) {
+//    def useXml = ciMode()
+//    reports {
+//        xml.enabled = useXml
+//        html.enabled = !xml.enabled
+//    }
+//}
 
 // Marker task to enable SpotBugs.
-task spotbugs(
-    group: 'Verification',
-    description: 'Marker task to enable SpotBugs.'
-)
+//task spotbugs(
+//    group: 'Verification',
+//    description: 'Marker task to enable SpotBugs.'
+//)
 
-task checkSpotBugsResults {
-    doLast {
-        def bugsFound = 0
-        [spotbugsMain, spotbugsTest].forEach {
-            bugsFound += printSpotBugs it.reports.xml.destination
-        }
-        if (bugsFound > 0) {
-            throw new GradleException("$bugsFound SpotBugs rule violations were found.")
-        }
-    }
-}
+//task checkSpotBugsResults {
+//    doLast {
+//        def bugsFound = 0
+//        [spotbugsMain, spotbugsTest].forEach {
+//            bugsFound += printSpotBugs it.reports.xml.destination
+//        }
+//        if (bugsFound > 0) {
+//            throw new GradleException("$bugsFound SpotBugs rule violations were found.")
+//        }
+//    }
+//}
 
-def printSpotBugs(File xml) {
-    def slurped = new XmlSlurper().parse(xml)
-    def bugs = slurped.BugInstance
+//def printSpotBugs(File xml) {
+//    def slurped = new XmlSlurper().parse(xml)
+//    def bugs = slurped.BugInstance
+//
+//    bugs.each { bug ->
+//        def line = bug.SourceLine
+//        logger.error "[SpotBugs] ${line.@sourcepath}:${line.@start}:${line.@end} [${bug.@type}]"
+//    }
+//    bugs.size()
+//}
 
-    bugs.each { bug ->
-        def line = bug.SourceLine
-        logger.error "[SpotBugs] ${line.@sourcepath}:${line.@start}:${line.@end} [${bug.@type}]"
-    }
-    bugs.size()
-}
-
-if (ciMode()) {
-    checkSpotBugsResults.mustRunAfter spotbugsMain, spotbugsTest
-    check.dependsOn checkSpotBugsResults
-}
+//if (ciMode()) {
+//    checkSpotBugsResults.mustRunAfter spotbugsMain, spotbugsTest
+//    check.dependsOn checkSpotBugsResults
+//}
 
 gradle.taskGraph.whenReady { taskGraph ->
-    tasks.spotbugsMain.onlyIf {
-        taskGraph.hasTask((tasks.spotbugs))
-    }
-    tasks.spotbugsTest.onlyIf {
-        taskGraph.hasTask((tasks.spotbugs))
-    }
-    tasks.checkSpotBugsResults.onlyIf {
-        taskGraph.hasTask((tasks.spotbugs))
-    }
+//    tasks.spotbugsMain.onlyIf {
+//        taskGraph.hasTask((tasks.spotbugs))
+//    }
+//    tasks.spotbugsTest.onlyIf {
+//        taskGraph.hasTask((tasks.spotbugs))
+//    }
+//    tasks.checkSpotBugsResults.onlyIf {
+//        taskGraph.hasTask((tasks.spotbugs))
+//    }
 }
-
 
 
 eclipse {
