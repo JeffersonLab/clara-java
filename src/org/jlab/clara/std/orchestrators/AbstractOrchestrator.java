@@ -193,12 +193,12 @@ abstract class AbstractOrchestrator {
 
 
     /**
-     * Abstract start method
+     * Abstract start method.
      */
     protected abstract void start();
 
     /**
-     * Abstract stop method
+     * Abstract stop method.
      */
     protected abstract void end();
 
@@ -555,7 +555,8 @@ abstract class AbstractOrchestrator {
 
         private synchronized void startTimer() {
 //            TimerTask task = new EndOfFileTimerTask(30, 300, () -> { // vg commented 09.23.21
-            TimerTask task = new EndOfFileTimerTask(30, 60, node.currentFile(), () -> { // vg 11.2.21
+            // vg 11.2.21
+            TimerTask task = new EndOfFileTimerTask(30, 60, node.currentFile(), () -> {
                 finishCurrentFile();
             });
 

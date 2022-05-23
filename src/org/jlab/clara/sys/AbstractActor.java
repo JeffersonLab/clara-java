@@ -50,7 +50,7 @@ abstract class AbstractActor {
     }
 
     /**
-     * Start actor
+     * Start actor.
      * @throws ClaraException exception
      */
     public void start() throws ClaraException {
@@ -62,7 +62,7 @@ abstract class AbstractActor {
     }
 
     /**
-     * Stop actor
+     * Stop actor.
      */
     public void stop() {
         synchronized (lock) {

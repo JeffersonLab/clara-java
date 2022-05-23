@@ -44,7 +44,7 @@ public class InfluxDbReporter implements DpeReportHandler {
     private boolean jinFxConnected = true;
 
     /**
-     * main of the InfluxDB  reporter class
+     * Main of the InfluxDB  reporter class.
      * @param args param
      */
     public static void main(String[] args) {

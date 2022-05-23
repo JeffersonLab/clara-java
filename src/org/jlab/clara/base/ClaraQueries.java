@@ -72,15 +72,15 @@ public final class ClaraQueries {
     abstract static class BaseQuery<D extends BaseQuery<D, T>, T> {
 
         /**
-         * Reference to the Clara base class
+         * Reference to the Clara base class.
          */
         protected final ClaraBase base;
         /**
-         * Reference to the forn-end component
+         * Reference to the forn-end component.
          */
         protected final ClaraComponent frontEnd;
         /**
-         * Reference to the Clara filter
+         * Reference to the Clara filter.
          */
         protected final ClaraFilter filter;
 
@@ -123,7 +123,7 @@ public final class ClaraQueries {
         }
 
         /**
-         * Abstract collect method
+         * Abstract collect method.
          * @param regData record
          * @param timeout timeout
          * @return data
@@ -131,8 +131,8 @@ public final class ClaraQueries {
         protected abstract T collect(Stream<xMsgRegRecord> regData, long timeout);
 
         @SuppressWarnings("unchecked")
-        /*
-          Protected self method
+        /**
+         * Protected self method
          */
         protected D self() {
             return (D) this;
@@ -163,7 +163,7 @@ public final class ClaraQueries {
         }
 
         /**
-         * Abstract query method
+         * Abstract query method.
          * @param regData record
          * @param timeout timeout
          * @return data

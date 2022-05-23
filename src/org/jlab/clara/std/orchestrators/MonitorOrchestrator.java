@@ -52,7 +52,7 @@ public class MonitorOrchestrator implements AutoCloseable {
     private final BaseOrchestrator orchestrator;
 
     /**
-     * main of the monitor orchestrator
+     * main of the monitor orchestrator.
      * @param args param
      * @throws Exception exception
      */

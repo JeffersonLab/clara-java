@@ -64,7 +64,7 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
 
 
     /**
-     * main of the Generic orchestrator
+     * Main of the Generic orchestrator.
      * @param args param
      */
     public static void main(String[] args) {
