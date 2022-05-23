@@ -104,7 +104,7 @@ public final class Dpe extends AbstractActor {
 
 
     /**
-     * man of the DPE
+     * man of the DPE.
      * @param args param
      */
     public static void main(String[] args) {

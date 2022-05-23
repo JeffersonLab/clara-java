@@ -90,7 +90,7 @@ public class ClaraSubscriptions {
         }
 
         /**
-         * Stop subscription method
+         * Stop subscription method.
          */
         public void stop() {
             String key = frontEnd.getDpeHost() + ClaraConstants.MAPKEY_SEP + topic;

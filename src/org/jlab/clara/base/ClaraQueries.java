@@ -131,10 +131,7 @@ public final class ClaraQueries {
         protected abstract T collect(Stream<xMsgRegRecord> regData, long timeout);
 
         @SuppressWarnings("unchecked")
-        /**
-         * Protected self method
-         */
-        protected D self() {
+        public D self() {
             return (D) this;
         }
     }

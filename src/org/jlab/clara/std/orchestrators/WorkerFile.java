@@ -37,10 +37,12 @@ class WorkerFile {
     public String getInputName() {
         return inputName;
     }
+
     //vg 11.3.21
     public boolean isProcessed() {
         return isProcessed;
     }
+
     //vg 11.3.21
     public void setProcessed(boolean processed) {
         isProcessed = processed;

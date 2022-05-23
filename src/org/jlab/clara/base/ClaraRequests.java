@@ -167,11 +167,11 @@ public final class ClaraRequests {
             extends DataRequest<D> {
 
         /**
-         * Default pool size
+         * Default pool size.
          */
         protected int poolSize = 1;
         /**
-         * Default description
+         * Default description.
          */
         protected String description = ClaraConstants.UNDEFINED;
 
@@ -317,7 +317,7 @@ public final class ClaraRequests {
         private final Composition composition;
 
         /**
-         * Reference to the set of the dataTypes
+         * Reference to the set of the dataTypes.
          */
         protected Set<EngineDataType> dataTypes;
 
