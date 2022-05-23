@@ -79,7 +79,7 @@ public class DataRingTopic {
 
     /**
      * Returns state
-     * @return
+     * @return state
      */
     public String state() {
         return state;
@@ -87,7 +87,7 @@ public class DataRingTopic {
 
     /**
      * Returns session
-     * @return
+     * @return session
      */
     public String session() {
         return session;
@@ -95,7 +95,7 @@ public class DataRingTopic {
 
     /**
      * Returns reference to the engine
-     * @return
+     * @return engine
      */
     public String engine() {
         return engine;

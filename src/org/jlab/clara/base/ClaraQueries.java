@@ -124,15 +124,15 @@ public final class ClaraQueries {
 
         /**
          * Abstract collect method
-         * @param regData
-         * @param timeout
-         * @return
+         * @param regData record
+         * @param timeout timeout
+         * @return data
          */
         protected abstract T collect(Stream<xMsgRegRecord> regData, long timeout);
 
         @SuppressWarnings("unchecked")
-        /**
-         * Never used
+        /*
+          Protected self method
          */
         protected D self() {
             return (D) this;
@@ -164,9 +164,9 @@ public final class ClaraQueries {
 
         /**
          * Abstract query method
-         * @param regData
-         * @param timeout
-         * @return
+         * @param regData record
+         * @param timeout timeout
+         * @return data
          */
         protected Stream<T> query(Stream<xMsgRegRecord> regData, long timeout) {
             return dpeNames(regData)

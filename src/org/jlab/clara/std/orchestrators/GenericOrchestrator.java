@@ -65,7 +65,7 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
 
     /**
      * main of the Generic orchestrator
-     * @param args
+     * @param args param
      */
     public static void main(String[] args) {
         CommandLineBuilder cl = new CommandLineBuilder();

@@ -58,7 +58,7 @@ public class EngineSpecification {
 
         /**
          * parse exception
-         * @param cause
+         * @param cause super cause
          */
         public ParseException(Throwable cause) {
             super(cause);
@@ -66,8 +66,8 @@ public class EngineSpecification {
 
         /**
          * parse exception
-         * @param message
-         * @param cause
+         * @param message message
+         * @param cause cause
          */
         public ParseException(String message, Throwable cause) {
             super(message, cause);

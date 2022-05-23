@@ -316,6 +316,9 @@ public final class ClaraRequests {
         private final xMsgMeta.ControlAction action;
         private final Composition composition;
 
+        /**
+         * Reference to the set of the dataTypes
+         */
         protected Set<EngineDataType> dataTypes;
 
         ServiceRequest(ClaraBase base, ClaraComponent frontEnd, ServiceName service,

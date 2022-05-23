@@ -77,7 +77,7 @@ public final class ClaraShell implements AutoCloseable {
 
     /**
      * Main method of the shell
-     * @param args
+     * @param args params
      */
     public static void main(String[] args) {
         ClaraShell.Builder builder = ClaraShell.newBuilder();

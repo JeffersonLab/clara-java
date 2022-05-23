@@ -51,7 +51,7 @@ abstract class AbstractActor {
 
     /**
      * Start actor
-     * @throws ClaraException
+     * @throws ClaraException exception
      */
     public void start() throws ClaraException {
         synchronized (lock) {

@@ -45,7 +45,7 @@ public class InfluxDbReporter implements DpeReportHandler {
 
     /**
      * main of the InfluxDB  reporter class
-     * @param args
+     * @param args param
      */
     public static void main(String[] args) {
         IDROptionParser parser = new IDROptionParser();
