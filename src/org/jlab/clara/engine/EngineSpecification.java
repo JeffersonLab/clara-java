@@ -46,10 +46,8 @@ public class EngineSpecification {
 
         // checkstyle.off: Javadoc
 
-        /**
-         * parse exception
-         */
-        public ParseException() {
+
+        private ParseException() {
         }
 
         public ParseException(String message) {
