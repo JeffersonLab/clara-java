@@ -89,6 +89,9 @@ public class ClaraSubscriptions {
             subscriptions.put(key, handler);
         }
 
+        /**
+         * Stop subscription method
+         */
         public void stop() {
             String key = frontEnd.getDpeHost() + ClaraConstants.MAPKEY_SEP + topic;
             xMsgSubscription handler = subscriptions.remove(key);

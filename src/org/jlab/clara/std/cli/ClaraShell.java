@@ -75,6 +75,10 @@ public final class ClaraShell implements AutoCloseable {
     private volatile boolean running;
 
 
+    /**
+     * Main method of the shell
+     * @param args
+     */
     public static void main(String[] args) {
         ClaraShell.Builder builder = ClaraShell.newBuilder();
         if (args.length == 1) {

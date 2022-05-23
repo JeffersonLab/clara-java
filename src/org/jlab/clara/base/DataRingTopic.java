@@ -76,14 +76,27 @@ public class DataRingTopic {
     }
 
     // checkstyle.off: Javadoc
+
+    /**
+     * Returns state
+     * @return
+     */
     public String state() {
         return state;
     }
 
+    /**
+     * Returns session
+     * @return
+     */
     public String session() {
         return session;
     }
 
+    /**
+     * Returns reference to the engine
+     * @return
+     */
     public String engine() {
         return engine;
     }

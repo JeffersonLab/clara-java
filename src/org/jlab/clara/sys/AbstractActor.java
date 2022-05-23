@@ -49,6 +49,10 @@ abstract class AbstractActor {
         this.base = new ClaraBase(component, fe);
     }
 
+    /**
+     * Start actor
+     * @throws ClaraException
+     */
     public void start() throws ClaraException {
         synchronized (lock) {
             initialize();
@@ -57,6 +61,9 @@ abstract class AbstractActor {
         }
     }
 
+    /**
+     * Stop actor
+     */
     public void stop() {
         synchronized (lock) {
             end();

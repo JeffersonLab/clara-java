@@ -63,6 +63,10 @@ public final class GenericOrchestrator extends AbstractOrchestrator {
     private long orchTimeEnd;
 
 
+    /**
+     * main of the Generic orchestrator
+     * @param args
+     */
     public static void main(String[] args) {
         CommandLineBuilder cl = new CommandLineBuilder();
         try {

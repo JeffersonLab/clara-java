@@ -43,6 +43,10 @@ public class InfluxDbReporter implements DpeReportHandler {
     private JinFlux jinFlux;
     private boolean jinFxConnected = true;
 
+    /**
+     * main of the InfluxDB  reporter class
+     * @param args
+     */
     public static void main(String[] args) {
         IDROptionParser parser = new IDROptionParser();
         if (!parser.parse(args)) {

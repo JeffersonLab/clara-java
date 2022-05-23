@@ -122,9 +122,18 @@ public final class ClaraQueries {
                        .filter(filter.regFilter());
         }
 
+        /**
+         * Abstract collect method
+         * @param regData
+         * @param timeout
+         * @return
+         */
         protected abstract T collect(Stream<xMsgRegRecord> regData, long timeout);
 
         @SuppressWarnings("unchecked")
+        /**
+         * Never used
+         */
         protected D self() {
             return (D) this;
         }
@@ -153,6 +162,12 @@ public final class ClaraQueries {
             this.dataKey = dataKey;
         }
 
+        /**
+         * Abstract query method
+         * @param regData
+         * @param timeout
+         * @return
+         */
         protected Stream<T> query(Stream<xMsgRegRecord> regData, long timeout) {
             return dpeNames(regData)
                     .flatMap(d -> queryDpe(d, timeout))

@@ -45,6 +45,10 @@ public class EngineSpecification {
     public static class ParseException extends RuntimeException {
 
         // checkstyle.off: Javadoc
+
+        /**
+         * parse exception
+         */
         public ParseException() {
         }
 
@@ -52,10 +56,19 @@ public class EngineSpecification {
             super(message);
         }
 
+        /**
+         * parse exception
+         * @param cause
+         */
         public ParseException(Throwable cause) {
             super(cause);
         }
 
+        /**
+         * parse exception
+         * @param message
+         * @param cause
+         */
         public ParseException(String message, Throwable cause) {
             super(message, cause);
         }

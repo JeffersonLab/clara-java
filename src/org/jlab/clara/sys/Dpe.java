@@ -103,6 +103,10 @@ public final class Dpe extends AbstractActor {
     private final int maxCores;
 
 
+    /**
+     * man of the DPE
+     * @param args
+     */
     public static void main(String[] args) {
         DpeOptionsParser options = new DpeOptionsParser();
         try {

@@ -192,8 +192,14 @@ abstract class AbstractOrchestrator {
     }
 
 
+    /**
+     * Abstract start method
+     */
     protected abstract void start();
 
+    /**
+     * Abstract stop method
+     */
     protected abstract void end();
 
 

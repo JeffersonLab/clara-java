@@ -166,7 +166,13 @@ public final class ClaraRequests {
     abstract static class DeployRequest<D extends DeployRequest<D>>
             extends DataRequest<D> {
 
+        /**
+         * Default pool size
+         */
         protected int poolSize = 1;
+        /**
+         * Default description
+         */
         protected String description = ClaraConstants.UNDEFINED;
 
         DeployRequest(ClaraBase base, ClaraComponent frontEnd, String topic) {
@@ -300,7 +306,7 @@ public final class ClaraRequests {
 
     /**
      * Base class to send a control request to a service, and return a response.
-     *
+     * @param <D>
      * @param <T> The type of data returned to the client by the request.
      */
     abstract static class ServiceRequest<D extends ServiceRequest<D, T>, T>

@@ -51,6 +51,11 @@ public class MonitorOrchestrator implements AutoCloseable {
 
     private final BaseOrchestrator orchestrator;
 
+    /**
+     * main of the monitor orchestrator
+     * @param args
+     * @throws Exception
+     */
     public static void main(String[] args) throws Exception {
         CommandLineBuilder cl = new CommandLineBuilder();
         try {
