@@ -71,8 +71,17 @@ public final class ClaraQueries {
      */
     abstract static class BaseQuery<D extends BaseQuery<D, T>, T> {
 
+        /**
+         * Reference to the Clara base class
+         */
         protected final ClaraBase base;
+        /**
+         * Reference to the forn-end component
+         */
         protected final ClaraComponent frontEnd;
+        /**
+         * Reference to the Clara filter
+         */
         protected final ClaraFilter filter;
 
         protected BaseQuery(ClaraBase base, ClaraComponent frontEnd, ClaraFilter filter) {

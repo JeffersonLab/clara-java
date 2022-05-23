@@ -62,7 +62,7 @@ public final class Util {
     }
 
     /**
-     * In order to call {@link SecurityManager#getClassContext()}, which is a
+     * In order to call SecurityManager#getClassContext(), which is a
      * protected method, we add this wrapper which allows the method to be visible
      * inside this package.
      */
