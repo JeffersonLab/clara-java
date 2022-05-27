@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # author Vardan Gyurjyan
-# date 1.13.19
+# date 5.27.22
 
 is_local="false"
 
@@ -12,7 +12,7 @@ case "$1" in
         echo " -f, --framework    Clara framework version (default = 4.3.12)."
         echo " -v, --version      Clas12 plugin version   (default = 6b.4.1)."
         echo " -g, --grapes       Grapes plugin version   (default = 2.1)."
-        echo " -j, --jre          JAVA Runtime version    (default = 8)."
+        echo " -j, --jre          JAVA Runtime version    (default = 17)."
         exit 1
         ;;
 esac
@@ -40,8 +40,8 @@ fi
 
 PLUGIN=6b.4.1
 GRAPES=2.1
-FV=4.3.12
-JRE=8
+FV=5.0.2
+JRE=system
 
 case "$1" in
     -f | --framework)
@@ -157,13 +157,14 @@ case $OS in
             echo "getting grapes-$GRAPES"
             wget https://clasweb.jlab.org/clas12offline/distribution/grapes/grapes-$GRAPES.tar.gz
         fi
-
+      if [ $JRE == "system" ]; then
         MACHINE_TYPE=$(uname -m)
         if [ "$MACHINE_TYPE" == "x86_64" ]; then
             wget https://userweb.jlab.org/~gurjyan/clara-cre/linux-64-$JRE.tar.gz
         else
             wget https://userweb.jlab.org/~gurjyan/clara-cre/linux-i586-$JRE.tar.gz
         fi
+      fi
         ;;
 
     #  'WindowsNT')
@@ -179,6 +180,7 @@ case $OS in
 
         curl "https://userweb.jlab.org/~gurjyan/clara-cre/clara-cre-$FV.tar.gz" -o clara-cre-$FV.tar.gz
 
+
        if [ "$is_local" == "false" ]; then
             echo "getting coatjava-$PLUGIN"
             curl "https://clasweb.jlab.org/clas12offline/distribution/coatjava/coatjava-$PLUGIN.tar.gz" -o coatjava-$PLUGIN.tar.gz
@@ -189,7 +191,9 @@ case $OS in
             curl "https://clasweb.jlab.org/clas12offline/distribution/grapes/grapes-$GRAPES.tar.gz" -o grapes-$GRAPES.tar.gz
        fi
 
+      if [ $JRE == "system" ]; then
         curl "https://userweb.jlab.org/~gurjyan/clara-cre/macosx-64-$JRE.tar.gz" -o macosx-64-$JRE.tar.gz
+      fi
         ;;
 
     *) ;;
@@ -198,6 +202,7 @@ esac
 tar xvzf clara-cre-$FV.tar.gz
 rm -f clara-cre-$FV.tar.gz
 
+if [ $JRE == "system" ]; then
 mkdir clara-cre/jre
 (
 cd clara-cre/jre || exit
@@ -223,24 +228,35 @@ case $OS in
     *) ;;
 esac
 )
+fi
 
 mv clara-cre "$CLARA_HOME"
 
+mkdir -p $CLARA_HOME/plugins/clas12/lib/clas
+mkdir -p $CLARA_HOME/plugins/clas12/lib/services
+mkdir -p $CLARA_HOME/plugins/clas12/config
+
+
 echo "Installing coatjava ..."
 tar xvzf coatjava-$PLUGIN.tar.gz
-
-mv coatjava "$CLARA_HOME"/plugins/clas12
-mkdir "$CLARA_HOME"/plugins/clas12/config
+(
+cd coatjava || exit
+cp -rp etc "$CLARA_HOME"/plugins/clas12/.
+cp -rp bin "$CLARA_HOME"/plugins/clas12/.
+cp -rp lib/utils "$CLARA_HOME"/plugins/clas12/lib/.
+cp -rp lib/clas/* "$CLARA_HOME"/plugins/clas12/lib/clas/.
+cp -rp lib/services/* "$CLARA_HOME"/plugins/clas12/lib/services/.
+)
+rm -rf coatjava
 rm coatjava-$PLUGIN.tar.gz
 
 echo "Installing grapes ..."
 tar xvzf grapes-$GRAPES.tar.gz
 mv grapes-$GRAPES "$CLARA_HOME"/plugins/grapes
-cp -p "$CLARA_HOME"/plugins/grapes/bin/clara-grapes "$CLARA_HOME"/bin/.
+cp -rp "$CLARA_HOME"/plugins/grapes/bin/clara-grapes "$CLARA_HOME"/bin/.
 rm -f "$CLARA_HOME"/plugins/clas12/bin/clara-rec
 rm -f "$CLARA_HOME"/plugins/clas12/README
-cp -p "$CLARA_HOME"/plugins/clas12/etc/services/*.yaml "$CLARA_HOME"/plugins/clas12/config/.
-mv "$CLARA_HOME"/plugins/clas12/config/reconstruction.yaml "$CLARA_HOME"/plugins/clas12/config/services.yaml
+cp -rp "$CLARA_HOME"/plugins/clas12/etc/services/*.yaml "$CLARA_HOME"/plugins/clas12/config/.
 rm -rf "$CLARA_HOME"/plugins/clas12/etc/services
 rm grapes-$GRAPES.tar.gz
 
