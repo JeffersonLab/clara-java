@@ -116,7 +116,16 @@ class ServiceConfig {
         }
     }
 
-    private String processTemplate(String key, String value) {
+    private String processTemplate(String key, String v) {
+        String value;
+        if(v.contains("${")) {
+          value = v.replace("${", "env{");
+        } else {
+            value = v;
+        }
+        // 05.27.22
+        // ${} is a variable in the apache freemarker, so make sure
+        // user is not using it to define env variable.
         try {
             Template tpl = new Template(key, new StringReader(value), FTL_CONFIG);
             StringWriter writer = new StringWriter();
