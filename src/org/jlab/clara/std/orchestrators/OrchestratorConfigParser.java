@@ -246,9 +246,17 @@ public class OrchestratorConfigParser {
         List<ServiceInfo> services = new ArrayList<>();
         for (int i = 0; i < array.length(); i++) {
             ServiceInfo service = parseService(array.getJSONObject(i));
+
             if (services.contains(service)) {
                 throw error(String.format("duplicated service  name = '%s' container = '%s'",
                                           service.name, service.cont));
+            }
+            // Check for service name conflict. vg 06.27.23
+            for( ServiceInfo s: services ){
+                if(s.name.startsWith(service.name) || service.name.startsWith(s.name)) {
+                    throw error(String.format("conflicting service names: '%s' and  = '%s'",
+                        service.name, s.name));
+                }
             }
             services.add(service);
         }
