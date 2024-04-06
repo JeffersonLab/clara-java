@@ -25,7 +25,7 @@ plugins {
     id 'maven-publish'
 
     id 'checkstyle'
-//    id "com.github.spotbugs-base" version "5.0.6"
+    id 'com.github.spotbugs' version '5.2.5'
 
     id 'eclipse'
     id 'idea'
@@ -327,68 +327,68 @@ checkstyle {
     configProperties['samedir'] = file('config/quality')
 }
 
-//spotbugs {
-//    toolVersion = '5.0.6'
-//    ignoreFailures = true
-//    effort = 'max'
-//    reportLevel = 'medium'
-//    excludeFilter = file('config/quality/findbugs-exclude.xml')
-//}
+spotbugs {
+    toolVersion = '4.8.3'
+    ignoreFailures = true
+    effort = 'max'
+    reportLevel = 'medium'
+    excludeFilter = file('config/quality/findbugs-exclude.xml')
+}
 
-//tasks.withType(com.github.spotbugs-base.SpotBugsTask) {
-//    def useXml = ciMode.toBoolean()
-//    reports {
-//        xml.enabled = useXml
-//        html.enabled = !useXml
-//    }
-//}
+tasks.withType(com.github.spotbugs.snom.SpotBugsTask) {
+    def useXml = ciMode.toBoolean()
+    reports {
+        xml.enabled = useXml
+        html.enabled = !useXml
+    }
+}
 
-//task checkSpotBugsResults {
-//    doLast {
-//        def bugsFound = 0
-//        [spotbugsMain, spotbugsTest].each {
-//            try {
-//                bugsFound += printSpotBugs it.reports.xml.destination
-//            } catch (FileNotFoundException e) {
-//                logger.info e.message
-//            }
-//        }
-//        if (bugsFound > 0) {
-//            throw new GradleException("$bugsFound SpotBugs rule violations were found.")
-//        }
-//    }
-//}
+task checkSpotBugsResults {
+    doLast {
+        def bugsFound = 0
+        [spotbugsMain, spotbugsTest].each {
+            try {
+                bugsFound += printSpotBugs it.reports.getByName('xml').destination
+            } catch (FileNotFoundException e) {
+                logger.info e.message
+            }
+        }
+        if (bugsFound > 0) {
+            throw new GradleException("$bugsFound SpotBugs rule violations were found.")
+        }
+    }
+}
 
-//def printSpotBugs(File xml) {
-//    def slurped = new XmlSlurper().parse(xml)
-//    def bugs = slurped.BugInstance
-//    bugs.each { bug ->
-//        def line = bug.SourceLine
-//        logger.error "[SpotBugs] ${line.@sourcepath}:${line.@start}:${line.@end} [${bug.@type}]"
-//    }
-//    bugs.size()
-//}
+def printSpotBugs(File xml) {
+    def slurped = new XmlSlurper().parse(xml)
+    def bugs = slurped.BugInstance
+    bugs.each { bug ->
+        def line = bug.SourceLine
+        logger.error "[SpotBugs] ${line.@sourcepath}:${line.@start}:${line.@end} [${bug.@type}]"
+    }
+    bugs.size()
+}
 
-//task spotbugs {
-//    group = 'Verification'
-//    description = 'Marker task to enable SpotBugs.'
-//
-//    mustRunAfter spotbugsMain, spotbugsTest
-//    if (ciMode.toBoolean()) {
-//        finalizedBy checkSpotBugsResults
-//    }
-//}
+task spotbugs {
+    group = 'Verification'
+    description = 'Marker task to enable SpotBugs.'
+
+    mustRunAfter spotbugsMain, spotbugsTest
+    if (ciMode.toBoolean()) {
+        finalizedBy checkSpotBugsResults
+    }
+}
 
 gradle.taskGraph.whenReady { taskGraph ->
-//    tasks.spotbugsMain.onlyIf {
-//        taskGraph.hasTask((tasks.spotbugs))
-//    }
-//    tasks.spotbugsTest.onlyIf {
-//        taskGraph.hasTask((tasks.spotbugs))
-//    }
-//    tasks.checkSpotBugsResults.onlyIf {
-//        taskGraph.hasTask((tasks.spotbugs))
-//    }
+    tasks.spotbugsMain.onlyIf {
+        taskGraph.hasTask(tasks.spotbugs)
+    }
+    tasks.spotbugsTest.onlyIf {
+        taskGraph.hasTask(tasks.spotbugs)
+    }
+    tasks.checkSpotBugsResults.onlyIf {
+        taskGraph.hasTask(tasks.spotbugs)
+    }
 }
 
 //////////////////////////////////////////////////////////////////////////////

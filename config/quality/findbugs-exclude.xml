@@ -29,4 +29,14 @@
   <Match>
     <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>
   </Match>
+
+  <!-- Exclude detection of System.exit usage -->
+  <Match>
+    <Bug pattern="DM_EXIT" />
+  </Match>
+
+  <!-- Exclude new detector added by 4.8.0 -->
+  <Match>
+    <Bug pattern="CT_CONSTRUCTOR_THROW" />
+  </Match>
 </FindBugsFilter>
