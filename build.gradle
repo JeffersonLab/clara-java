@@ -89,6 +89,11 @@ dependencies {
     testImplementation 'org.mockito:mockito-junit-jupiter:2.28.2'
 }
 
+java {
+    withSourcesJar()
+    withJavadocJar()
+}
+
 javadoc {
     options.charSet = 'utf8'
     options.encoding = 'utf8'
@@ -101,21 +106,6 @@ javadoc {
     include "org/jlab/clara/sys/**"
     exclude "org/jlab/clara/base/core/**"
     exclude "org/jlab/clara/sys/ccc/**"
-}
-
-task javadocJar(type: Jar) {
-    archiveClassifier = 'javadoc'
-    from javadoc
-}
-
-task sourcesJar(type: Jar, dependsOn: classes) {
-    archiveClassifier = 'sources'
-    from sourceSets.main.allSource
-}
-
-artifacts {
-    archives javadocJar
-    archives sourcesJar
 }
 
 publishing {
@@ -147,7 +137,7 @@ test {
     }
 }
 
-task integrationTest(type: Test) {
+tasks.register('integrationTest', Test) {
     useJUnitPlatform {
         includeTags 'integration'
     }
@@ -175,7 +165,7 @@ ext {
     gitDescribe = properties['gitDescribe'] ?: runGit('git describe --match=v[0-9]* --abbrev=10 HEAD')
 }
 
-task generateVersionProperties {
+tasks.register('generateVersionProperties') {
     def propertiesFile = file("${buildDir}/resources/main/META-INF/version.properties")
 
     inputs.property 'version', project.version
@@ -205,7 +195,7 @@ task generateVersionProperties {
     }
 }
 
-jar.dependsOn generateVersionProperties
+classes.dependsOn generateVersionProperties
 
 //////////////////////////////////////////////////////////////////////////////
 // deployment
@@ -236,12 +226,12 @@ def deploySpec = copySpec {
     from tempDir
 }
 
-task distSources(type: Tar, dependsOn: build) {
-    extension = 'tar.gz'
-    classifier = 'src'
+tasks.register('distSources', Tar) {
+    archiveExtension = 'tar.gz'
+    archiveClassifier = 'src'
     compression = Compression.GZIP
 
-    into "${baseName}-${version}-${classifier}"
+    into "${archiveBaseName.get()}-${archiveVersion.get()}-${archiveClassifier.get()}"
 
     from 'README.md'
     from 'build.gradle'
@@ -260,17 +250,21 @@ task distSources(type: Tar, dependsOn: build) {
     sourceDirs.each { dir ->
         from ("${dir}") { into "${dir}" }
     }
+
+    dependsOn build
 }
 
-task distBinaries(type: Tar, dependsOn: build) {
-    extension = 'tar.gz'
+tasks.register('distBinaries', Tar) {
+    archiveExtension = 'tar.gz'
     compression = Compression.GZIP
 
-    into "${baseName}-${version}"
+    into "${archiveBaseName.get()}-${archiveVersion.get()}"
     with deploySpec
+
+    dependsOn build
 }
 
-task deploy(type: Copy, dependsOn: jar) {
+tasks.register('deploy', Copy) {
     def dest = "$System.env.CLARA_HOME"
 
     into dest
@@ -281,6 +275,8 @@ task deploy(type: Copy, dependsOn: jar) {
             throw new GradleException('CLARA_HOME not set')
         }
     }
+
+    dependsOn jar
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -293,7 +289,7 @@ ext {
     testClassPathCache = file("${buildDir}/tmp/test_classpath")
 }
 
-task cacheClasspath {
+tasks.register('cacheClasspath') {
     inputs.files sourceSets.main.runtimeClasspath
     inputs.files sourceSets.test.runtimeClasspath
     outputs.files classPathCache
@@ -304,7 +300,7 @@ task cacheClasspath {
     }
 }
 
-task printClasspath {
+tasks.register('printClasspath') {
     doLast {
         println classPathCache.text.replace(':', '\n')
     }
@@ -343,7 +339,7 @@ tasks.withType(com.github.spotbugs.snom.SpotBugsTask) {
     }
 }
 
-task checkSpotBugsResults {
+tasks.register('checkSpotBugsResults') {
     doLast {
         def bugsFound = 0
         [spotbugsMain, spotbugsTest].each {
@@ -369,7 +365,7 @@ def printSpotBugs(File xml) {
     bugs.size()
 }
 
-task spotbugs {
+tasks.register('spotbugs') {
     group = 'Verification'
     description = 'Marker task to enable SpotBugs.'
 
