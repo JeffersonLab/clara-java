@@ -322,7 +322,7 @@ ext {
 }
 
 checkstyle {
-    toolVersion = '8.22'
+    toolVersion = '10.15.0'
     configFile = file('config/quality/checkstyle.xml')
     configProperties['samedir'] = file('config/quality')
 }

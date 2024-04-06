@@ -115,7 +115,8 @@ class Condition {
     }
 
     private void parseCondition(String cs, String logicOperator) throws ClaraException {
-        StringTokenizer t0, t1;
+        StringTokenizer t0;
+        StringTokenizer t1;
         if (logicOperator == null) {
             Pattern p = Pattern.compile(CompositionCompiler.SIMP_COND);
             Matcher m = p.matcher(cs);
