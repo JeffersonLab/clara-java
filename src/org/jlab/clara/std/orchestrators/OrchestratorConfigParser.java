@@ -252,10 +252,10 @@ public class OrchestratorConfigParser {
                                           service.name, service.cont));
             }
             // Check for service name conflict. vg 06.27.23
-            for( ServiceInfo s: services ){
-                if(s.name.startsWith(service.name) || service.name.startsWith(s.name)) {
+            for (ServiceInfo s : services) {
+                if (s.name.startsWith(service.name) || service.name.startsWith(s.name)) {
                     throw error(String.format("conflicting service names: '%s' and  = '%s'",
-                        service.name, s.name));
+                                              service.name, s.name));
                 }
             }
             services.add(service);

@@ -25,28 +25,24 @@ plugins {
     id 'maven-publish'
 
     id 'checkstyle'
-//    id "com.github.spotbugs-base" version "5.0.6"
+    id 'com.github.spotbugs' version '5.2.5'
 
     id 'eclipse'
     id 'idea'
 }
 
 group = 'org.jlab.coda'
-archivesBaseName = 'jclara'
 version = '4.3-SNAPSHOT'
 
-//sourceCompatibility = '1.8'
-//targetCompatibility = '1.8'
-
-sourceCompatibility = JavaVersion.VERSION_17
-targetCompatibility = JavaVersion.VERSION_17
+base {
+    archivesName = 'jclara'
+}
 
 defaultTasks 'build'
 
-
 configurations {
     all {
-        resolutionStrategy.cacheChangingModulesFor 30, 'minutes'
+         resolutionStrategy.cacheChangingModulesFor 30, 'minutes'
     }
     deployerJars
 }
@@ -87,17 +83,29 @@ dependencies {
     implementation 'org.jlab.coda:jinflux:1.0-SNAPSHOT'
     implementation 'junit:junit:4.12'
     deployerJars 'org.apache.maven.wagon:wagon-ssh-external:2.12'
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.4.2'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.4.2'
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.4.2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.4.2'
     testImplementation 'org.hamcrest:hamcrest-library:1.3'
     testImplementation 'org.mockito:mockito-junit-jupiter:2.28.2'
 }
 
+java {
+    withSourcesJar()
+    withJavadocJar()
+
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
+
+compileJava {
+    options.release = 17
+}
 
 javadoc {
     options.charSet = 'utf8'
     options.encoding = 'utf8'
     options.docEncoding = 'utf8'
+    options.addStringOption('Xdoclint:none', '-quiet')
 
     include "org/jlab/clara/base/**"
     include "org/jlab/clara/engine/**"
@@ -105,60 +113,6 @@ javadoc {
     include "org/jlab/clara/sys/**"
     exclude "org/jlab/clara/base/core/**"
     exclude "org/jlab/clara/sys/ccc/**"
-}
-
-
-task javadocJar(type: Jar) {
-    archiveClassifier = 'javadoc'
-    from javadoc
-}
-
-task sourcesJar(type: Jar, dependsOn: classes) {
-    archiveClassifier = 'sources'
-    from sourceSets.main.allSource
-}
-
-def runCommand(cmd) {
-    try {
-        return cmd.execute().text.trim()
-    } catch (e) {
-        return ''
-    }
-}
-
-task generateVersionProperties {
-    doLast {
-        def propertiesFile = file("${buildDir}/resources/main/META-INF/version.properties")
-        propertiesFile.parentFile.mkdirs()
-
-        propertiesFile.write "version=${project.version}\n"
-        propertiesFile.append "groupId=${project.group}\n"
-        propertiesFile.append "artifactId=${project.archivesBaseName}\n"
-        propertiesFile.append "builtBy=" + System.getProperty('user.name') + '\n'
-        propertiesFile.append "builtJDK=" + System.getProperty('java.version') + '\n'
-
-        def gitBranch = runCommand("git rev-parse --abbrev-ref HEAD")
-        if (!gitBranch.isEmpty()) {
-            propertiesFile.append "git.branch=${gitBranch}\n"
-        }
-
-        def gitRev = runCommand("git rev-parse --short=10 HEAD")
-        if (!gitRev.isEmpty()) {
-            propertiesFile.append "git.revision=${gitRev}\n"
-        }
-
-        def gitDescribe = runCommand("git describe --match=v[0-9]* --abbrev=10 HEAD")
-        if (!gitDescribe.isEmpty()) {
-            propertiesFile.append "git.describe=${gitDescribe}\n"
-        }
-    }
-}
-
-jar.dependsOn generateVersionProperties
-
-artifacts {
-    archives javadocJar
-    archives sourcesJar
 }
 
 publishing {
@@ -182,43 +136,97 @@ publishing {
 }
 
 test {
-    testLogging {
-        exceptionFormat = 'full'
-    }
     useJUnitPlatform {
         excludeTags 'integration'
     }
+    testLogging {
+        exceptionFormat = 'full'
+    }
 }
 
-task integrationTest(type: Test) {
+tasks.register('integrationTest', Test) {
     useJUnitPlatform {
         includeTags 'integration'
     }
     testLogging {
         exceptionFormat = 'full'
     }
+    testClassesDirs = testing.suites.test.sources.output.classesDirs
+    classpath = testing.suites.test.sources.runtimeClasspath
     outputs.upToDateWhen { false }
 }
 
+tasks.withType(JavaCompile).configureEach {
+    options.compilerArgs << "-Xlint:deprecation"
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// version information
+//////////////////////////////////////////////////////////////////////////////
+
+def runGit(cmd) {
+    rootProject.file('.git').exists() ? cmd.execute().text.trim() : ''
+}
+
+ext {
+    gitBranch = properties['gitBranch'] ?: runGit('git rev-parse --abbrev-ref HEAD')
+    gitRev = properties['gitRev'] ?: runGit('git rev-parse --short=10 HEAD')
+    gitDescribe = properties['gitDescribe'] ?: runGit('git describe --match=v[0-9]* --abbrev=10 HEAD')
+}
+
+tasks.register('generateVersionProperties') {
+    def propertiesFile = file("${buildDir}/resources/main/META-INF/version.properties")
+
+    inputs.property 'version', project.version
+    inputs.property 'groupId', project.group
+    inputs.property 'artifactId', project.base.archivesName
+    inputs.property 'gitBranch', gitBranch
+    inputs.property 'gitRev', gitRev
+    inputs.property 'gitDescribe', gitDescribe
+    outputs.file propertiesFile
+
+    doLast {
+        propertiesFile.write "version=${project.version}\n"
+        propertiesFile.append "groupId=${project.group}\n"
+        propertiesFile.append "artifactId=${project.base.archivesName}\n"
+        propertiesFile.append "builtBy=${System.getProperty('user.name')}\n"
+        propertiesFile.append "builtJDK=${System.getProperty('java.version')}\n"
+
+        if (gitBranch) {
+            propertiesFile.append "git.branch=${gitBranch}\n"
+        }
+        if (gitRev) {
+            propertiesFile.append "git.revision=${gitRev}\n"
+        }
+        if (gitDescribe) {
+            propertiesFile.append "git.describe=${gitDescribe}\n"
+        }
+    }
+}
+
+classes.dependsOn generateVersionProperties
+
+//////////////////////////////////////////////////////////////////////////////
+// deployment
+//////////////////////////////////////////////////////////////////////////////
 
 def deploySpec = copySpec {
-    into('lib') {
+    into ('lib') {
         from configurations.runtimeClasspath
-        from jar.archiveFile
+        from jar
     }
 
-    from('scripts/unix') {
+    from ('scripts/unix') {
         into 'bin'
-        exclude 'etc'
         fileMode 0755
     }
 
-    from('scripts/lib') {
+    from ('scripts/lib') {
         into 'lib/clara'
         fileMode 0755
     }
 
-    // trick Gradle to "create" empy directories
+    // trick Gradle to "create" empty directories
     def tempDir = "${buildDir}/distributions/clara_home"
 
     file("${tempDir}/log").mkdirs()
@@ -227,44 +235,45 @@ def deploySpec = copySpec {
     from tempDir
 }
 
-task distSources(type: Tar, dependsOn: build) {
-    extension = 'tar.gz'
-    classifier = 'src'
+tasks.register('distSources', Tar) {
+    archiveExtension = 'tar.gz'
+    archiveClassifier = 'src'
     compression = Compression.GZIP
 
-    into "${baseName}-${version}-${classifier}"
+    into "${archiveBaseName.get()}-${archiveVersion.get()}-${archiveClassifier.get()}"
 
     from 'README.md'
     from 'build.gradle'
+    from 'settings.gradle'
     from 'gradlew'
     from 'gradlew.bat'
 
-    from('config') {
-        into 'config'
+    def sourceDirs = [
+        'config',
+        'gradle',
+        'scripts',
+        'src',
+        'test',
+    ]
+
+    sourceDirs.each { dir ->
+        from ("${dir}") { into "${dir}" }
     }
-    from('gradle') {
-        into 'gradle'
-    }
-    from('scripts') {
-        into 'scripts'
-    }
-    from('src') {
-        into 'src'
-    }
-    from('test') {
-        into 'test'
-    }
+
+    dependsOn build
 }
 
-task distBinaries(type: Tar, dependsOn: build) {
-    extension = 'tar.gz'
+tasks.register('distBinaries', Tar) {
+    archiveExtension = 'tar.gz'
     compression = Compression.GZIP
 
-    into "${baseName}-${version}"
+    into "${archiveBaseName.get()}-${archiveVersion.get()}"
     with deploySpec
+
+    dependsOn build
 }
 
-task deploy(type: Copy, dependsOn: jar) {
+tasks.register('deploy', Copy) {
     def dest = "$System.env.CLARA_HOME"
 
     into dest
@@ -275,112 +284,121 @@ task deploy(type: Copy, dependsOn: jar) {
             throw new GradleException('CLARA_HOME not set')
         }
     }
+
+    dependsOn jar
 }
 
+//////////////////////////////////////////////////////////////////////////////
+// development scripts
+//////////////////////////////////////////////////////////////////////////////
 
-ext.classPathCache = file("${buildDir}/tmp/classpath")
-ext.testClassPathCache = file("${buildDir}/tmp/test_classpath")
+ext {
+    // used by scripts in `scripts/dev/*` through `scripts/exec-class`
+    classPathCache = file("${buildDir}/tmp/classpath")
+    testClassPathCache = file("${buildDir}/tmp/test_classpath")
+}
 
-task cacheClasspath {
+tasks.register('cacheClasspath') {
+    inputs.files sourceSets.main.runtimeClasspath
+    inputs.files sourceSets.test.runtimeClasspath
+    outputs.files classPathCache
+    outputs.files testClassPathCache
     doLast {
-        if (!classPathCache.isFile()) {
-            classPathCache.parentFile.mkdirs()
-            classPathCache.createNewFile()
-        }
         classPathCache.write sourceSets.main.runtimeClasspath.asPath
         testClassPathCache.write sourceSets.test.runtimeClasspath.asPath
     }
 }
-cacheClasspath.inputs.files sourceSets.main.runtimeClasspath
-cacheClasspath.inputs.files sourceSets.test.runtimeClasspath
-cacheClasspath.outputs.files classPathCache
-cacheClasspath.outputs.files testClassPathCache
 
-task printClasspath {
+tasks.register('printClasspath') {
     doLast {
-        println classPathCache.text
+        println classPathCache.text.replace(':', '\n')
     }
+    dependsOn cacheClasspath
 }
 
-build.dependsOn cacheClasspath
-printClasspath.dependsOn cacheClasspath
+assemble.dependsOn cacheClasspath
 
+//////////////////////////////////////////////////////////////////////////////
+// quality check
+//////////////////////////////////////////////////////////////////////////////
 
-def ciMode() {
-    if (hasProperty("ciMode")) {
-        return ciMode.toBoolean()
-    }
-    return false
+ext {
+    ciMode = properties['ciMode'] ?: 'false'
 }
 
 checkstyle {
-    toolVersion = '8.22'
+    toolVersion = '10.15.0'
     configFile = file('config/quality/checkstyle.xml')
     configProperties['samedir'] = file('config/quality')
 }
 
-//spotbugs {
-//    toolVersion = '5.0.6'
-//    ignoreFailures = true
-//    effort = 'max'
-//    reportLevel = 'medium'
-//    excludeFilter = file('config/quality/findbugs-exclude.xml')
-//}
-
-//tasks.withType(com.github.spotbugs-base.SpotBugsTask) {
-//    def useXml = ciMode()
-//    reports {
-//        xml.enabled = useXml
-//        html.enabled = !xml.enabled
-//    }
-//}
-
-// Marker task to enable SpotBugs.
-//task spotbugs(
-//    group: 'Verification',
-//    description: 'Marker task to enable SpotBugs.'
-//)
-
-//task checkSpotBugsResults {
-//    doLast {
-//        def bugsFound = 0
-//        [spotbugsMain, spotbugsTest].forEach {
-//            bugsFound += printSpotBugs it.reports.xml.destination
-//        }
-//        if (bugsFound > 0) {
-//            throw new GradleException("$bugsFound SpotBugs rule violations were found.")
-//        }
-//    }
-//}
-
-//def printSpotBugs(File xml) {
-//    def slurped = new XmlSlurper().parse(xml)
-//    def bugs = slurped.BugInstance
-//
-//    bugs.each { bug ->
-//        def line = bug.SourceLine
-//        logger.error "[SpotBugs] ${line.@sourcepath}:${line.@start}:${line.@end} [${bug.@type}]"
-//    }
-//    bugs.size()
-//}
-
-//if (ciMode()) {
-//    checkSpotBugsResults.mustRunAfter spotbugsMain, spotbugsTest
-//    check.dependsOn checkSpotBugsResults
-//}
-
-gradle.taskGraph.whenReady { taskGraph ->
-//    tasks.spotbugsMain.onlyIf {
-//        taskGraph.hasTask((tasks.spotbugs))
-//    }
-//    tasks.spotbugsTest.onlyIf {
-//        taskGraph.hasTask((tasks.spotbugs))
-//    }
-//    tasks.checkSpotBugsResults.onlyIf {
-//        taskGraph.hasTask((tasks.spotbugs))
-//    }
+spotbugs {
+    toolVersion = '4.8.3'
+    ignoreFailures = true
+    effort = 'max'
+    reportLevel = 'medium'
+    excludeFilter = file('config/quality/findbugs-exclude.xml')
 }
 
+tasks.withType(com.github.spotbugs.snom.SpotBugsTask) {
+    def useXml = ciMode.toBoolean()
+    reports {
+        xml.enabled = useXml
+        html.enabled = !useXml
+    }
+}
+
+tasks.register('checkSpotBugsResults') {
+    doLast {
+        def bugsFound = 0
+        [spotbugsMain, spotbugsTest].each {
+            try {
+                bugsFound += printSpotBugs it.reports.getByName('xml').destination
+            } catch (FileNotFoundException e) {
+                logger.info e.message
+            }
+        }
+        if (bugsFound > 0) {
+            throw new GradleException("$bugsFound SpotBugs rule violations were found.")
+        }
+    }
+}
+
+def printSpotBugs(File xml) {
+    def slurped = new XmlSlurper().parse(xml)
+    def bugs = slurped.BugInstance
+    bugs.each { bug ->
+        def line = bug.SourceLine
+        logger.error "[SpotBugs] ${line.@sourcepath}:${line.@start}:${line.@end} [${bug.@type}]"
+    }
+    bugs.size()
+}
+
+tasks.register('spotbugs') {
+    group = 'Verification'
+    description = 'Marker task to enable SpotBugs.'
+
+    mustRunAfter spotbugsMain, spotbugsTest
+    if (ciMode.toBoolean()) {
+        finalizedBy checkSpotBugsResults
+    }
+}
+
+gradle.taskGraph.whenReady { taskGraph ->
+    tasks.spotbugsMain.onlyIf {
+        taskGraph.hasTask(tasks.spotbugs)
+    }
+    tasks.spotbugsTest.onlyIf {
+        taskGraph.hasTask(tasks.spotbugs)
+    }
+    tasks.checkSpotBugsResults.onlyIf {
+        taskGraph.hasTask(tasks.spotbugs)
+    }
+}
+
+//////////////////////////////////////////////////////////////////////////////
+// IDE configuration
+//////////////////////////////////////////////////////////////////////////////
 
 eclipse {
     classpath {
